@@ -32,6 +32,7 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Styled components
 
@@ -59,14 +60,14 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 2.5rem;
   margin-bottom: 1rem;
   font-weight: 700;
 `;
 
 const Subtitle = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 800px;
@@ -79,11 +80,11 @@ const Section = styled.section`
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h2`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: 600;
@@ -93,39 +94,39 @@ const SectionTitle = styled.h2`
 `;
 
 const InfoBox = styled.div`
-  background: #f0f9ff;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border: 1px solid #0ea5e9;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  color: #0c4a6e;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const WarningBox = styled.div`
-  background: #fffbeb;
-  border: 1px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const SuccessBox = styled.div`
   background: #f0fdf4;
-  border: 1px solid #16a34a;
+  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  color: #166534;
+  color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const ErrorBox = styled.div`
-  background: #fef2f2;
-  border: 1px solid #dc2626;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.PRIMARY.RED_DARK;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -139,9 +140,9 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 
   ${({ $variant = 'primary' }) => {
 		const colors = {
-			primary: { bg: '#3b82f6', hover: '#2563eb' },
-			secondary: { bg: '#6b7280', hover: '#4b5563' },
-			danger: { bg: '#ef4444', hover: '#dc2626' },
+			primary: { bg: 'V9_COLORS.PRIMARY.BLUE', hover: 'V9_COLORS.PRIMARY.BLUE_DARK' },
+			secondary: { bg: 'V9_COLORS.TEXT.GRAY_MEDIUM', hover: '#4b5563' },
+			danger: { bg: 'V9_COLORS.PRIMARY.RED', hover: 'V9_COLORS.PRIMARY.RED_DARK' },
 		};
 
 		return `
@@ -167,9 +168,9 @@ const StepIndicator = styled.div<{ $active?: boolean; $completed?: boolean }>`
   border-radius: 8px;
   margin-bottom: 1rem;
   background: ${({ $active, $completed }) =>
-		$active ? '#dbeafe' : $completed ? '#d1fae5' : '#f3f4f6'};
+		$active ? '#dbeafe' : $completed ? 'V9_COLORS.BG.SUCCESS' : '#f3f4f6'};
   border: 1px solid ${({ $active, $completed }) =>
-		$active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'};
+		$active ? 'V9_COLORS.PRIMARY.GREEN' : $completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
 `;
 
 const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
@@ -181,9 +182,9 @@ const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : '#6b7280')};
+  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   background: ${({ $active, $completed }) =>
-		$active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'};
+		$active ? 'V9_COLORS.PRIMARY.GREEN' : $completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
 `;
 
 const StepContent = styled.div`
@@ -191,22 +192,22 @@ const StepContent = styled.div`
 `;
 
 const StepTitle = styled.h3`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
   font-weight: 600;
 `;
 
 const StepDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
 `;
 
 const TokenDisplay = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0;
@@ -216,8 +217,8 @@ const TokenDisplay = styled.div`
 `;
 
 const ProofDisplay = styled.div`
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0;
@@ -686,7 +687,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 					<strong>Status: </strong>
 					<span
 						style={{
-							color: mockServer.getState().isRunning ? '#16a34a' : '#dc2626',
+							color: mockServer.getState().isRunning ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK',
 							marginLeft: '0.5rem',
 						}}
 					>
@@ -953,7 +954,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 				</SectionTitle>
 				<div
 					style={{
-						background: '#1f2937',
+						background: 'V9_COLORS.TEXT.GRAY_DARK',
 						color: '#f3f4f6',
 						borderRadius: '8px',
 						padding: '1rem',

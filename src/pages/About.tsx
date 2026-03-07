@@ -1,6 +1,7 @@
 // About component that displays comprehensive OAuth Playground documentation
 import { usePageScroll } from '../hooks/usePageScroll';
 import { APP_VERSION, MFA_V8_VERSION, UNIFIED_V8U_VERSION } from '../version';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 export default function About() {
 	// Ensure page starts at top

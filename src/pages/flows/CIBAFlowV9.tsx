@@ -44,6 +44,7 @@ import {
 	CibaServiceV8Enhanced,
 } from '@/v8/services/cibaServiceV8Enhanced';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';
@@ -77,18 +78,18 @@ const Header = styled.div`
 const Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.125rem;
 	margin-bottom: 1rem;
 `;
 
 const VersionBadge = styled.span`
-	background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
@@ -99,7 +100,7 @@ const VersionBadge = styled.span`
 
 const Card = styled.div`
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -109,7 +110,7 @@ const Card = styled.div`
 const CardTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
@@ -121,20 +122,20 @@ const Label = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -142,7 +143,7 @@ const Input = styled.input`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	background: white;
@@ -150,7 +151,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -158,7 +159,7 @@ const Select = styled.select`
 const TextArea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	font-family: monospace;
@@ -168,7 +169,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -183,15 +184,15 @@ const StatusCard = styled.div<{ status: string }>`
 	background: ${(props) => {
 		switch (props.status) {
 			case 'pending':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'approved':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'denied':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'expired':
 				return '#f3f4f6';
 			case 'error':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f9fafb';
 		}
@@ -199,17 +200,17 @@ const StatusCard = styled.div<{ status: string }>`
 	border: 1px solid ${(props) => {
 		switch (props.status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'approved':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#d1d5db';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 8px;
@@ -220,17 +221,17 @@ const StatusCard = styled.div<{ status: string }>`
 const StatusTitle = styled.h4`
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusText = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
 const TokenDisplay = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -239,12 +240,12 @@ const TokenDisplay = styled.div`
 const TokenTitle = styled.h5`
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TokenContent = styled.pre`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	border-radius: 4px;
 	overflow-x: auto;
@@ -252,7 +253,7 @@ const TokenContent = styled.pre`
 `;
 
 const CopyButton = styled.button`
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	padding: 0.5rem 1rem;
@@ -262,7 +263,7 @@ const CopyButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -767,7 +768,7 @@ const CIBAFlowV9: React.FC = () => {
 						{!credentials.clientId || !credentials.environmentId || !credentials.loginHint ? (
 							<small
 								style={{
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									fontSize: '0.875rem',
 									marginTop: '0.25rem',
 									display: 'block',
@@ -778,7 +779,7 @@ const CIBAFlowV9: React.FC = () => {
 						) : (
 							<small
 								style={{
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									fontSize: '0.875rem',
 									marginTop: '0.25rem',
 									display: 'block',
@@ -826,7 +827,7 @@ const CIBAFlowV9: React.FC = () => {
 						style={{
 							background: 'none',
 							border: 'none',
-							color: '#3b82f6',
+							color: 'V9_COLORS.PRIMARY.BLUE',
 							cursor: 'pointer',
 							fontWeight: '500',
 							marginBottom: '1rem',
@@ -906,7 +907,7 @@ const CIBAFlowV9: React.FC = () => {
 						spinnerSize={16}
 						spinnerPosition="left"
 						style={{
-							background: '#3b82f6',
+							background: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -922,7 +923,7 @@ const CIBAFlowV9: React.FC = () => {
 						type="button"
 						onClick={handleReset}
 						style={{
-							background: '#6b7280',
+							background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -992,7 +993,7 @@ const CIBAFlowV9: React.FC = () => {
 					{/* Authentication Request Details */}
 					<div
 						style={{
-							background: '#f8fafc',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
 							padding: '1rem',
 							borderRadius: '6px',
 							marginBottom: '1rem',
@@ -1032,7 +1033,7 @@ const CIBAFlowV9: React.FC = () => {
 							spinnerSize={16}
 							spinnerPosition="left"
 							style={{
-								background: '#10b981',
+								background: 'V9_COLORS.PRIMARY.GREEN',
 								color: 'white',
 								border: 'none',
 								padding: '0.75rem 1.5rem',
@@ -1095,7 +1096,7 @@ const CIBAFlowV9: React.FC = () => {
 					{/* Token Metadata */}
 					<div
 						style={{
-							background: '#f8fafc',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
 							padding: '1rem',
 							borderRadius: '6px',
 							marginTop: '1rem',
@@ -1155,7 +1156,7 @@ const CIBAFlowV9: React.FC = () => {
 						<li>Secure transaction approval on mobile devices</li>
 					</ul>
 
-					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 						How it works:
 					</h4>
 					<ol style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
@@ -1165,7 +1166,7 @@ const CIBAFlowV9: React.FC = () => {
 						<li>Client polls token endpoint to retrieve results</li>
 					</ol>
 
-					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 						Token Delivery Modes:
 					</h4>
 					<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>

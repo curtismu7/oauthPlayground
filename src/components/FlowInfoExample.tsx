@@ -14,13 +14,13 @@ const Container = styled.div`
 const Title = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
 	font-size: 1.125rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 2rem;
 `;
 
@@ -38,7 +38,7 @@ const FlowSection = styled.div`
 const SectionTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
@@ -52,25 +52,25 @@ const FlowItem = styled.div`
 	padding: 1rem;
 	background: #f9fafb;
 	border-radius: 8px;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
 		background: #f3f4f6;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const FlowName = styled.div`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const FlowDescription = styled.div`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowInfoExample: React.FC = () => {

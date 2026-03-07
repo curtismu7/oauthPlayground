@@ -20,9 +20,15 @@ import {
 } from '../services/comprehensiveDiscoveryService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import {
-	discoveryPersistenceService,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+discoveryPersistenceService,
 	PersistedDiscoveryData,
-} from '../services/discoveryPersistenceService';
+} from '../services/discoveryPersistenceService'
 
 interface ComprehensiveDiscoveryInputProps {
 	onDiscoveryComplete: (result: DiscoveryResult) => void;
@@ -36,8 +42,8 @@ const Container = styled.div`
 	flex-direction: column;
 	gap: 1rem;
 	padding: 1.5rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	position: relative;
 	z-index: 1;
@@ -56,19 +62,19 @@ const InputGroup = styled.div`
 const Input = styled.input`
 	flex: 1;
 	padding: 0.75rem 1rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
@@ -77,7 +83,7 @@ const SearchButton = styled.button<{ $loading?: boolean }>`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background-color: #3b82f6;
+	background-color: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -88,7 +94,7 @@ const SearchButton = styled.button<{ $loading?: boolean }>`
 	opacity: ${(props) => (props.$loading ? 0.7 : 1)};
 
 	&:hover:not(:disabled) {
-		background-color: #2563eb;
+		background-color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
@@ -106,19 +112,19 @@ const ProviderInfo = styled.div`
 const ProviderCard = styled.div`
 	padding: 0.75rem;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.75rem;
 `;
 
 const ProviderName = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const ProviderDescription = styled.div`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
@@ -149,8 +155,8 @@ const ModalContent = styled.div`
 const Spinner = styled.div`
 	width: 60px;
 	height: 60px;
-	border: 4px solid #e5e7eb;
-	border-top-color: #3b82f6;
+	border: 4px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top-color: V9_COLORS.PRIMARY.BLUE;
 	border-radius: 50%;
 	animation: spin 1s linear infinite;
 	margin: 0 auto 1.5rem;
@@ -163,12 +169,12 @@ const Spinner = styled.div`
 const ModalTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const ModalMessage = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	margin: 0;
 `;
@@ -195,20 +201,20 @@ const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return `
 					background-color: #f0fdf4;
-					color: #166534;
-					border: 1px solid #bbf7d0;
+					color: V9_COLORS.PRIMARY.GREEN;
+					border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 				`;
 			case 'error':
 				return `
-					background-color: #fef2f2;
-					color: #991b1b;
-					border: 1px solid #fecaca;
+					background-color: V9_COLORS.BG.ERROR;
+					color: V9_COLORS.PRIMARY.RED_DARK;
+					border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 				`;
 			case 'info':
 				return `
-					background-color: #eff6ff;
-					color: #1e40af;
-					border: 1px solid #bfdbfe;
+					background-color: V9_COLORS.BG.GRAY_LIGHT;
+					color: V9_COLORS.PRIMARY.BLUE_DARK;
+					border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 				`;
 		}
 	}}
@@ -224,7 +230,7 @@ const Examples = styled.div`
 const ExampleTitle = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ExampleList = styled.div`
@@ -235,7 +241,7 @@ const ExampleList = styled.div`
 
 const ExampleItem = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	padding: 0.25rem 0.5rem;
 	background: #f3f4f6;
@@ -244,7 +250,7 @@ const ExampleItem = styled.div`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: #e5e7eb;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
@@ -255,10 +261,10 @@ const LastEnvironmentIdCard = styled.div`
 	gap: 0.75rem;
 	padding: 0.75rem 1rem;
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const LastEnvironmentIdLabel = styled.span`
@@ -281,7 +287,7 @@ const ResultsToggleContainer = styled.div`
 	margin-top: 1rem;
 	padding: 0.75rem;
 	background: white;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
@@ -290,7 +296,7 @@ const ResultsToggleButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 0.75rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -300,11 +306,11 @@ const ResultsToggleButton = styled.button`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
-		background: #9ca3af;
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 	}
 `;
@@ -323,7 +329,7 @@ const ResultsContainer = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
 	background: white;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	min-width: 0;
 	width: 100%;
@@ -349,8 +355,8 @@ const EndpointItem = styled.div`
 	align-items: flex-start;
 	gap: 0.5rem;
 	padding: 0.75rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	flex-wrap: wrap;
@@ -358,13 +364,13 @@ const EndpointItem = styled.div`
 
 const EndpointLabel = styled.span`
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	min-width: 140px;
 	flex-shrink: 0;
 `;
 
 const EndpointUrl = styled.span`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 	word-break: break-all;
 	word-wrap: break-word;
@@ -376,11 +382,11 @@ const EndpointUrl = styled.span`
 const ProviderDetails = styled.div`
 	margin-top: 1rem;
 	padding: 0.75rem;
-	background: #f0f9ff;
-	border: 1px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = ({
@@ -399,17 +405,20 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [showResults, setShowResults] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const [patienceMessage, setPatienceMessage] = useState('');
-	const [patienceColor, setPatienceColor] = useState('#6b7280');
+	const [patienceColor, setPatienceColor] = useState('V9_COLORS.TEXT.GRAY_MEDIUM');
 	const [lastEnvironmentId, setLastEnvironmentId] = useState<string | null>(null);
 
 	// Patience messages with different colors
 	const patienceMessages = useMemo(
 		() => [
-			{ text: 'Please be patient, discovering OIDC configuration...', color: '#6b7280' },
-			{ text: 'Still working, fetching endpoints from server...', color: '#3b82f6' },
-			{ text: 'Almost there, validating configuration...', color: '#10b981' },
+			{
+				text: 'Please be patient, discovering OIDC configuration...',
+				color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+			},
+			{ text: 'Still working, fetching endpoints from server...', color: 'V9_COLORS.PRIMARY.BLUE' },
+			{ text: 'Almost there, validating configuration...', color: 'V9_COLORS.PRIMARY.GREEN' },
 			{ text: 'Finalizing discovery configuration...', color: '#8b5cf6' },
-			{ text: 'Processing OIDC metadata...', color: '#ef4444' },
+			{ text: 'Processing OIDC metadata...', color: 'V9_COLORS.PRIMARY.RED' },
 			{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
 			{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
 			{ text: 'Loading token configuration...', color: '#84cc16' },
@@ -659,7 +668,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 						{showResults ? <FiEyeOff size={16} /> : <FiEye size={16} />}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
-					<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 						Click to {showResults ? 'hide' : 'show'} discovered endpoints
 					</span>
 				</ResultsToggleContainer>

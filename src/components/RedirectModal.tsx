@@ -30,13 +30,13 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 20px;
 	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 	max-width: 500px;
 	width: 100%;
 	max-height: 75vh;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -48,7 +48,7 @@ const ModalContainer = styled.div`
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+		background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, #8b5cf6, #06b6d4);
 		border-radius: 20px 20px 0 0;
 	}
 `;
@@ -64,11 +64,11 @@ const ModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.5rem;
 	font-weight: 800;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, #8b5cf6);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -77,7 +77,7 @@ const ModalTitle = styled.h3`
 const CloseButton = styled.button`
 	background: none;
 	border: none;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.5rem;
 	border-radius: 0.5rem;
@@ -88,7 +88,7 @@ const CloseButton = styled.button`
 
 	&:hover {
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -102,7 +102,7 @@ const ModalContent = styled.div`
 const ModalDescription = styled.p`
 	margin: 0 0 1.25rem 0;
 	font-size: 1rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
@@ -114,14 +114,14 @@ const URLTitle = styled.h4`
 	margin: 0 0 1rem 0;
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const StatusSection = styled.div`
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+	background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
 	border: 1px solid #86efac;
 	border-radius: 12px;
 	padding: 1rem;
@@ -135,7 +135,7 @@ const StatusSection = styled.div`
 		left: 0;
 		right: 0;
 		height: 3px;
-		background: linear-gradient(90deg, #10b981, #059669);
+		background: linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
 		border-radius: 12px 12px 0 0;
 	}
 `;
@@ -144,7 +144,7 @@ const StatusTitle = styled.h5`
 	margin: 0 0 0.75rem 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -153,13 +153,13 @@ const StatusTitle = styled.h5`
 const StatusText = styled.p`
 	margin: 0;
 	font-size: 0.875rem;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	line-height: 1.5;
 `;
 
 const TimerSection = styled.div`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-	border: 1px solid #60a5fa;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
+	border: 1px solid V9_COLORS.PRIMARY.BLUE_LIGHT;
 	border-radius: 12px;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -170,7 +170,7 @@ const TimerTitle = styled.h5`
 	margin: 0 0 0.75rem 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -180,14 +180,14 @@ const TimerTitle = styled.h5`
 const TimerDisplay = styled.div`
 	font-size: 2rem;
 	font-weight: 800;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const TimerText = styled.p`
 	margin: 0;
 	font-size: 0.875rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const ModalActions = styled.div`
@@ -195,8 +195,8 @@ const ModalActions = styled.div`
 	gap: 1rem;
 	justify-content: center;
 	padding: 1rem 1.5rem 1.5rem 1.5rem;
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-	border-top: 1px solid #e5e7eb;
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0 0 20px 20px;
 	flex-shrink: 0;
 `;
@@ -219,7 +219,7 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	${({ $variant }) =>
 		$variant === 'primary'
 			? `
-				background: linear-gradient(135deg, #3b82f6, #2563eb);
+				background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
 				color: white;
 				box-shadow: 0 6px 12px -2px rgba(59, 130, 246, 0.4);
 
@@ -235,13 +235,13 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 				}
 			`
 			: `
-				background: #ffffff;
-				color: #374151;
-				border: 2px solid #d1d5db;
+				background: V9_COLORS.TEXT.WHITE;
+				color: V9_COLORS.TEXT.GRAY_DARK;
+				border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
 				&:hover {
 					background: #f9fafb;
-					border-color: #9ca3af;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 				}
 			`}
 `;

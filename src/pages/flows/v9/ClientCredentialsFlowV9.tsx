@@ -34,6 +34,7 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -54,13 +55,13 @@ const MainCard = styled.div`
 	background: white;
 	border-radius: 1rem;
 	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow: hidden;
 `;
 
 const StepHeader = styled.div`
-	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-	color: #ffffff;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%);
+	color: V9_COLORS.TEXT.WHITE;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
@@ -75,7 +76,7 @@ const StepHeaderLeft = styled.div`
 
 const VersionBadge = styled.div`
 	background: rgba(255, 255, 255, 0.2);
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -117,7 +118,7 @@ const StepContent = styled.div`
 
 const CollapsibleSection = styled.div`
 	margin-bottom: 1.5rem;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	overflow: hidden;
 `;
@@ -143,7 +144,7 @@ const CollapsibleTitle = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CollapsibleContent = styled.div`
@@ -167,17 +168,17 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; loading?: bool
 	${(props) =>
 		props.variant === 'primary'
 			? `
-		background: #3b82f6;
+		background: V9_COLORS.PRIMARY.BLUE;
 		color: white;
 		&:hover {
-			background: #2563eb;
+			background: V9_COLORS.PRIMARY.BLUE_DARK;
 		}
 	`
 			: `
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		&:hover {
-			background: #e5e7eb;
+			background: V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 	`}
 `;
@@ -193,13 +194,13 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'error'
 	${(props) => {
 		switch (props.$variant) {
 			case 'success':
-				return 'background: #dcfce7; border: 1px solid #10b981; color: #166534;';
+				return 'background: V9_COLORS.BG.SUCCESS; border: 1px solid V9_COLORS.PRIMARY.GREEN; color: V9_COLORS.PRIMARY.GREEN;';
 			case 'warning':
-				return 'background: #fef3c7; border: 1px solid #f59e0b; color: #d97706;';
+				return 'background: V9_COLORS.BG.WARNING; border: 1px solid V9_COLORS.PRIMARY.YELLOW; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			case 'error':
-				return 'background: #fef2f2; border: 1px solid #ef4444; color: #dc2626;';
+				return 'background: V9_COLORS.BG.ERROR; border: 1px solid V9_COLORS.PRIMARY.RED; color: V9_COLORS.PRIMARY.RED_DARK;';
 			default:
-				return 'background: #dbeafe; border: 1px solid #3b82f6; color: #1e40af;';
+				return 'background: #dbeafe; border: 1px solid V9_COLORS.PRIMARY.BLUE; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 		}
 	}}
 `;
@@ -217,7 +218,7 @@ const InfoText = styled.p`
 `;
 
 const CodeBlock = styled.pre`
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 0.5rem;
@@ -228,7 +229,7 @@ const CodeBlock = styled.pre`
 
 const GeneratedContentBox = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -236,7 +237,7 @@ const GeneratedContentBox = styled.div`
 
 const GeneratedLabel = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -546,7 +547,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 											</LearningTooltip>
 											.
 										</InfoText>
-										<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Current auth method: {controller.credentials.clientAuthMethod || 'none'}
 										</div>
 									</div>

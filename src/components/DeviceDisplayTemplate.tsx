@@ -8,18 +8,18 @@ import styled from 'styled-components';
 
 // Main Device Container
 const DeviceContainer = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   position: relative;
   color: #1e293b;
 `;
 
 // Device Display Screen
 const DisplayScreen = styled.div`
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.WHITE 100%);
   border-radius: 0.75rem;
   padding: 0;
   margin: 1rem 0;
@@ -46,27 +46,27 @@ const BrandLogo = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 const BrandText = styled.div`
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 const StatusBadge = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   color: white;
@@ -100,12 +100,12 @@ const InfoRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const InfoLabel = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
@@ -119,8 +119,8 @@ const InfoValue = styled.div`
 const AuthCodeSection = styled.div`
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   text-align: center;
 `;
@@ -128,7 +128,7 @@ const AuthCodeSection = styled.div`
 const AuthCodeLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 `;
@@ -148,8 +148,8 @@ const AuthCodeDisplay = styled.div`
 const QRSectionInline = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   text-align: center;
 `;
@@ -157,7 +157,7 @@ const QRSectionInline = styled.div`
 const QRLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 `;
@@ -186,17 +186,17 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   ${({ $variant }) =>
 		$variant === 'primary'
 			? `
-        background: #3b82f6;
+        background: V9_COLORS.PRIMARY.BLUE;
         color: white;
         &:hover {
-          background: #2563eb;
+          background: V9_COLORS.PRIMARY.BLUE_DARK;
         }
       `
 			: `
         background: #f3f4f6;
-        color: #374151;
+        color: V9_COLORS.TEXT.GRAY_DARK;
         &:hover {
-          background: #e5e7eb;
+          background: V9_COLORS.TEXT.GRAY_LIGHTER;
         }
       `}
 `;
@@ -206,11 +206,11 @@ const StatusMessage = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'pending':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'denied':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
 				return '#f3f4f6';
 		}
@@ -218,13 +218,13 @@ const StatusMessage = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border-radius: 0.75rem;
@@ -240,13 +240,13 @@ const StatusIcon = styled.div<{ $status: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -258,13 +258,13 @@ const StatusText = styled.div`
 const StatusTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatusDescription = styled.div`
   font-size: 0.875rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
@@ -363,8 +363,8 @@ export const DeviceDisplayTemplate: React.FC<DeviceDisplayTemplateProps> = ({
 							<QRCodeSVG
 								value={qrCodeValue}
 								size={100}
-								bgColor="#ffffff"
-								fgColor="#000000"
+								bgColor="V9_COLORS.TEXT.WHITE"
+								fgColor="V9_COLORS.TEXT.BLACK"
 								level="M"
 								includeMargin={true}
 							/>

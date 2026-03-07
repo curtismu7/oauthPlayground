@@ -23,12 +23,12 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 `;
 
 const LabelIcon = styled.div`
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 1rem;
 `;
 
@@ -45,15 +45,15 @@ const PromptOption = styled.button<{ $selected: boolean }>`
 	gap: 0.75rem;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? '#059669' : '#e5e7eb')};
-	background-color: ${(props) => (props.$selected ? '#f0fdf4' : '#ffffff')};
-	color: ${(props) => (props.$selected ? '#065f46' : '#374151')};
+	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background-color: ${(props) => (props.$selected ? '#f0fdf4' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	cursor: pointer;
 	transition: all 0.2s ease-in-out;
 	text-align: left;
 
 	&:hover {
-		border-color: #059669;
+		border-color: V9_COLORS.PRIMARY.GREEN_DARK;
 		background-color: ${(props) => (props.$selected ? '#f0fdf4' : '#f9fafb')};
 	}
 
@@ -66,7 +66,7 @@ const PromptOption = styled.button<{ $selected: boolean }>`
 const PromptIcon = styled.div<{ $selected: boolean }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${(props) => (props.$selected ? '#059669' : '#6b7280')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 `;
 
 const PromptContent = styled.div`
@@ -81,13 +81,13 @@ const PromptTitle = styled.div`
 
 const PromptDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
 const SelectedIndicator = styled.div<{ $selected: boolean }>`
 	opacity: ${(props) => (props.$selected ? 1 : 0)};
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 1rem;
 `;
 
@@ -96,23 +96,23 @@ const InfoBox = styled.div`
 	gap: 0.75rem;
 	padding: 1rem;
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const HelperText = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 0.75rem;
 	line-height: 1.5;
 `;

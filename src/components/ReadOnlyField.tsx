@@ -30,7 +30,7 @@ const FormField = styled.div`
 const FormLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0;
   display: flex;
   align-items: center;
@@ -40,47 +40,47 @@ const FormLabel = styled.label`
 const LockIcon = styled.span`
   display: inline-flex;
   align-items: center;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ReadOnlyInput = styled.input`
   width: 100%;
   padding: 0.75rem 0.875rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-family: inherit;
   background: #f9fafb !important;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   cursor: not-allowed;
   pointer-events: none;
   
   &:focus {
     outline: none;
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
 const ExplanationText = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
   padding: 0.5rem 0.75rem;
   background: #f3f4f6;
   border-radius: 0.375rem;
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const SpecLink = styled.a`
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   text-decoration: none;
   font-weight: 500;
   margin-left: 0.5rem;
   
   &:hover {
     text-decoration: underline;
-    color: #2563eb;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 

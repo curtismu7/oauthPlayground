@@ -1,5 +1,6 @@
 import { FiBook, FiMessageCircle, FiSearch, FiZap } from '@icons';
 import React from 'react';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	container: {

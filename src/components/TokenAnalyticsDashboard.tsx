@@ -19,12 +19,12 @@ const DashboardHeader = styled.div`
 
 const DashboardTitle = styled.h2`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.5rem;
 `;
 
 const RefreshButton = styled.button`
-  background-color: #3b82f6;
+  background-color: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -35,7 +35,7 @@ const RefreshButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: #2563eb;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -50,19 +50,19 @@ const StatCard = styled.div`
   background: #f9fafb;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
@@ -72,7 +72,7 @@ const Section = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
@@ -81,7 +81,7 @@ const ChartContainer = styled.div`
   background: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const BarChart = styled.div`
@@ -110,7 +110,7 @@ const Bar = styled.div<{ height: number; color: string }>`
 
 const BarLabel = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
   margin-top: 0.5rem;
 `;
@@ -125,7 +125,7 @@ const ActivityItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   
   &:last-child {
     border-bottom: none;
@@ -138,24 +138,24 @@ const ActivityInfo = styled.div`
 
 const ActivityAction = styled.div`
   font-weight: 500;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const ActivityDetails = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ActivityTime = styled.div`
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   white-space: nowrap;
   margin-left: 1rem;
 `;
 
 const CleanupButton = styled.button`
-  background-color: #ef4444;
+  background-color: V9_COLORS.PRIMARY.RED;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -166,12 +166,12 @@ const CleanupButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: #dc2626;
+    background-color: V9_COLORS.PRIMARY.RED_DARK;
   }
 `;
 
 const ExportButton = styled.button`
-  background-color: #10b981;
+  background-color: V9_COLORS.PRIMARY.GREEN;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -183,7 +183,7 @@ const ExportButton = styled.button`
   margin-right: 0.5rem;
   
   &:hover {
-    background-color: #059669;
+    background-color: V9_COLORS.PRIMARY.GREEN_DARK;
   }
 `;
 
@@ -246,7 +246,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 	if (error) {
 		return (
 			<DashboardContainer>
-				<div style={{ color: '#ef4444' }}>Error: {error}</div>
+				<div style={{ color: 'V9_COLORS.PRIMARY.RED' }}>Error: {error}</div>
 			</DashboardContainer>
 		);
 	}
@@ -260,7 +260,14 @@ const TokenAnalyticsDashboard: React.FC = () => {
 	}
 
 	const maxUsage = Math.max(...Object.values(analytics.tokenUsageByFlow));
-	const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#22c55e', '#06b6d4'];
+	const colors = [
+		'V9_COLORS.PRIMARY.BLUE',
+		'V9_COLORS.PRIMARY.GREEN',
+		'V9_COLORS.PRIMARY.YELLOW',
+		'V9_COLORS.PRIMARY.RED',
+		'V9_COLORS.PRIMARY.GREEN',
+		'#06b6d4',
+	];
 
 	return (
 		<DashboardContainer>
@@ -279,11 +286,15 @@ const TokenAnalyticsDashboard: React.FC = () => {
 					<StatLabel>Total Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
-					<StatValue style={{ color: '#10b981' }}>{analytics.activeTokens}</StatValue>
+					<StatValue style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
+						{analytics.activeTokens}
+					</StatValue>
 					<StatLabel>Active Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
-					<StatValue style={{ color: '#ef4444' }}>{analytics.expiredTokens}</StatValue>
+					<StatValue style={{ color: 'V9_COLORS.PRIMARY.RED' }}>
+						{analytics.expiredTokens}
+					</StatValue>
 					<StatLabel>Expired Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
@@ -310,7 +321,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 
 			<Section>
 				<SectionTitle>Most Used Flow</SectionTitle>
-				<div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
+				<div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 					{analytics.mostUsedFlow}
 				</div>
 			</Section>
@@ -319,7 +330,9 @@ const TokenAnalyticsDashboard: React.FC = () => {
 				<SectionTitle>Recent Activity</SectionTitle>
 				<ActivityList>
 					{analytics.recentActivity.length === 0 ? (
-						<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+						<div
+							style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}
+						>
 							No recent activity
 						</div>
 					) : (

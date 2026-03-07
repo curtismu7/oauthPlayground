@@ -1,6 +1,6 @@
 /**
  * Dashboard — home page: API status, endpoints, quick access flows, recent activity.
- * Follows migrate_cursor.md consistency (Ping headers, #111827/#1f2937 text, collapsible sections).
+ * Follows migrate_cursor.md consistency (Ping headers, V9_COLORS.TEXT.GRAY_DARK/V9_COLORS.TEXT.GRAY_DARK text, collapsible sections).
  * See docs/updates-to-apps/dashboard-updates.md.
  */
 import { useCallback, useEffect, useState } from 'react';

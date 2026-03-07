@@ -5,31 +5,27 @@
 import React, { useEffect, useState } from 'react';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiEye': 'mdi-eye',
-		'FiEyeOff': 'mdi-eye-off',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiSave': 'mdi-content-save',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiExternalLink: 'mdi-open-in-new',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
+		FiSave: 'mdi-content-save',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
@@ -73,13 +69,13 @@ const InfoContent = styled.div`
 
 const InfoTitle = styled.div`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const InfoText = styled.div`
   font-size: 0.8125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
 `;
 
@@ -91,8 +87,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
   border-radius: 0.375rem;
   border: none;
   background: ${({ $variant }) =>
-		$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#10b981' : '#2563eb'};
-  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
+		$variant === 'secondary'
+			? 'V9_COLORS.TEXT.GRAY_LIGHTER'
+			: $variant === 'success'
+				? 'V9_COLORS.PRIMARY.GREEN'
+				: 'V9_COLORS.PRIMARY.BLUE_DARK'};
+  color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
@@ -101,7 +101,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 
   &:hover {
     background: ${({ $variant }) =>
-			$variant === 'secondary' ? '#d1d5db' : $variant === 'success' ? '#059669' : '#1e40af'};
+			$variant === 'secondary'
+				? 'V9_COLORS.TEXT.GRAY_LIGHTER'
+				: $variant === 'success'
+					? 'V9_COLORS.PRIMARY.GREEN_DARK'
+					: 'V9_COLORS.PRIMARY.BLUE_DARK'};
   }
 
   &:disabled {
@@ -122,8 +126,8 @@ const StickyFooter = styled.div`
 	bottom: -1.5rem;
 	margin: 1rem -1.5rem 0;
 	padding: 1rem 1.5rem 1.5rem;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 40%, #ffffff 100%);
-	border-top: 1px solid #e2e8f0;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, V9_COLORS.TEXT.WHITE 40%, V9_COLORS.TEXT.WHITE 100%);
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
 	z-index: 5;
 `;
@@ -143,21 +147,21 @@ const FormField = styled.div`
 
 const FormLabel = styled.label`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.8125rem;
 `;
 
 const FormInput = styled.input`
   width: 100%;
   padding: 0.5rem 0.625rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -165,21 +169,21 @@ const FormInput = styled.input`
 const FormSelect = styled.select`
   width: 100%;
   padding: 0.5rem 0.625rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  background-color: #ffffff;
+  background-color: V9_COLORS.TEXT.WHITE;
   transition: border-color 0.2s ease;
   cursor: pointer;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
   
   option:disabled {
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -200,12 +204,12 @@ const PasswordToggle = styled.button`
   right: 0.75rem;
   background: none;
   border: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.25rem;
   
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -213,9 +217,9 @@ const LoadingSpinner = styled.div`
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
-  border-top-color: #3b82f6;
+  border-top-color: V9_COLORS.PRIMARY.BLUE;
   animation: spin 1s ease-in-out infinite;
 
   @keyframes spin {
@@ -1430,7 +1434,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 					{!skipCredentialsStep && (
 						<InfoBox $variant="warning">
-							<MDIIcon icon="FiAlertTriangle" size={16} style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }} />
+							<MDIIcon
+								icon="FiAlertTriangle"
+								size={16}
+								style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.YELLOW', marginTop: '0.125rem' }}
+							/>
 							<InfoContent>
 								<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 									Worker Token Required
@@ -1445,9 +1453,19 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					{showTokenGenerated ? (
 						<>
 							<InfoBox $variant="info">
-								<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }} />
+								<MDIIcon
+									icon="FiInfo"
+									size={16}
+									style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.GREEN', marginTop: '0.125rem' }}
+								/>
 								<InfoContent>
-									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}>
+									<InfoTitle
+										style={{
+											fontSize: '0.875rem',
+											marginBottom: '0.125rem',
+											color: 'V9_COLORS.PRIMARY.GREEN',
+										}}
+									>
 										✅ Worker Token Generated Successfully!
 									</InfoTitle>
 									<InfoText>
@@ -1478,7 +1496,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					) : !showForm ? (
 						<>
 							<InfoBox $variant="info">
-								<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
+								<MDIIcon
+									icon="FiInfo"
+									size={16}
+									style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '0.125rem' }}
+								/>
 								<InfoContent>
 									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 										Get Worker Token
@@ -1508,7 +1530,15 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						<>
 							{skipCredentialsStep && (
 								<InfoBox $variant="info">
-									<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
+									<MDIIcon
+										icon="FiInfo"
+										size={16}
+										style={{
+											flexShrink: 0,
+											color: 'V9_COLORS.PRIMARY.BLUE',
+											marginTop: '0.125rem',
+										}}
+									/>
 									<InfoContent>
 										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 											Enter Credentials
@@ -1519,7 +1549,15 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							)}
 							{!skipCredentialsStep && (
 								<InfoBox $variant="info">
-									<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
+									<MDIIcon
+										icon="FiInfo"
+										size={16}
+										style={{
+											flexShrink: 0,
+											color: 'V9_COLORS.PRIMARY.BLUE',
+											marginTop: '0.125rem',
+										}}
+									/>
 									<InfoContent>
 										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 											Enter Credentials
@@ -1532,7 +1570,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							<FormSection>
 								<FormField>
 									<FormLabel>
-										Environment ID <span style={{ color: '#ef4444' }}>*</span>
+										Environment ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="text"
@@ -1545,11 +1583,19 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}))
 										}
 										style={{
-											borderColor: !workerCredentials.environmentId ? '#ef4444' : undefined,
+											borderColor: !workerCredentials.environmentId
+												? 'V9_COLORS.PRIMARY.RED'
+												: undefined,
 										}}
 									/>
 									{!workerCredentials.environmentId && (
-										<div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>
+										<div
+											style={{
+												fontSize: '0.75rem',
+												color: 'V9_COLORS.PRIMARY.RED',
+												marginTop: '0.25rem',
+											}}
+										>
 											Environment ID is required
 										</div>
 									)}
@@ -1595,7 +1641,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}
 										/>
 										<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <MDIIcon icon="FiEyeOff" size={16} /> : <MDIIcon icon="FiEye" size={16} />}
+											{showPassword ? (
+												<MDIIcon icon="FiEyeOff" size={16} />
+											) : (
+												<MDIIcon icon="FiEye" size={16} />
+											)}
 										</PasswordToggle>
 									</PasswordInput>
 								</FormField>
@@ -1627,7 +1677,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											marginTop: '0.125rem',
 											lineHeight: '1.3',
 										}}
@@ -1650,7 +1700,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										<div
 											style={{
 												fontSize: '0.75rem',
-												color: '#6b7280',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 												marginTop: '0.125rem',
 												lineHeight: '1.3',
 											}}
@@ -1705,7 +1755,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									<div
 										style={{
 											marginTop: '1rem',
-											borderTop: '1px solid #e2e8f0',
+											borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											paddingTop: '1rem',
 										}}
 									>

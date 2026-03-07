@@ -13,7 +13,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 `;
@@ -36,7 +36,7 @@ const Header = styled.div`
 const Title = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	display: flex;
 	align-items: center;
@@ -46,7 +46,7 @@ const Title = styled.h2`
 const Subtitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.75rem 0;
 `;
 
@@ -60,33 +60,33 @@ const InfoBox = styled.div<{ $color?: string }>`
 	background: ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'purple':
 				return '#faf5ff';
 			case 'green':
 				return '#f0fdf4';
 			case 'orange':
-				return '#fff7ed';
+				return 'V9_COLORS.TEXT.WHITE7ed';
 			case 'red':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'purple':
 				return '#e9d5ff';
 			case 'green':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'orange':
 				return '#fed7aa';
 			case 'red':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -105,13 +105,13 @@ const Card = styled.div<{ $color?: string }>`
 	background: ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return 'linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.WHITE 100%)';
 			case 'green':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 			case 'orange':
-				return '#fff7ed';
+				return 'V9_COLORS.TEXT.WHITE7ed';
 			case 'red':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f9fafb';
 		}
@@ -119,15 +119,15 @@ const Card = styled.div<{ $color?: string }>`
 	border: 1px solid ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'green':
 				return '#86efac';
 			case 'orange':
 				return '#fed7aa';
 			case 'red':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -141,7 +141,7 @@ const Card = styled.div<{ $color?: string }>`
 
 const CardTitle = styled.h4`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -177,7 +177,7 @@ const StepNumber = styled.div`
 `;
 
 const StepText = styled.span`
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	padding-top: 0.25rem;
 `;
 
@@ -186,13 +186,13 @@ const RoleCard = styled.div`
 	padding-left: 1rem;
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
-	background: #fff7ed;
+	background: V9_COLORS.TEXT.WHITE7ed;
 	margin-bottom: 0.75rem;
 `;
 
 const RoleName = styled.h4`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.25rem 0;
 `;
 
@@ -206,8 +206,8 @@ const BestPracticeItem = styled.div`
 	display: flex;
 	align-items: start;
 	gap: 0.75rem;
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 `;
@@ -219,7 +219,7 @@ const BestPracticeText = styled.p`
 `;
 
 const CriticalNote = styled.div`
-	background: #fee2e2;
+	background: V9_COLORS.BG.ERROR;
 	border: 2px solid #fca5a5;
 	border-radius: 0.5rem;
 	padding: 1.25rem;
@@ -236,7 +236,7 @@ const CriticalTitle = styled.h3`
 `;
 
 const CriticalText = styled.p`
-	color: #991b1b;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	margin: 0;
 	line-height: 1.6;
 `;
@@ -281,11 +281,11 @@ const IconWrapper = styled.div<{ $color?: string }>`
 			case 'purple':
 				return '#8b5cf6';
 			case 'green':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'orange':
 				return '#fb923c';
 			case 'red':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
 				return '#4f46e5';
 		}
@@ -326,7 +326,7 @@ const PingOneWorkerInfo: React.FC = () => {
 				<Grid>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="#10b981" />
+							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
 							API Management
 						</CardTitle>
 						<CardText>
@@ -336,7 +336,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="#10b981" />
+							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
 							Automation
 						</CardTitle>
 						<CardText>
@@ -345,7 +345,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="#10b981" />
+							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
 							Integration
 						</CardTitle>
 						<CardText>
@@ -355,7 +355,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="#10b981" />
+							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
 							Administrative Tasks
 						</CardTitle>
 						<CardText>

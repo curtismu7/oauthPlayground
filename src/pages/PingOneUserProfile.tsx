@@ -19,6 +19,7 @@ import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheck
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface PingOneConsentRecord {
 	id?: string;
@@ -152,11 +153,11 @@ const styles: Record<string, CSSProperties> = {
 		maxWidth: '1200px',
 		margin: '0 auto',
 		padding: '2rem',
-		background: '#f8fafc',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
 		minHeight: '100vh',
 	},
 	header: {
-		background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
 		borderRadius: '1rem',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -176,7 +177,7 @@ const styles: Record<string, CSSProperties> = {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		color: '#dc2626',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 		fontSize: '1.5rem',
 		fontWeight: 600,
 		flexShrink: 0,
@@ -212,7 +213,7 @@ const styles: Record<string, CSSProperties> = {
 		marginTop: '0.5rem',
 		fontSize: '0.8125rem',
 		fontWeight: 500,
-		color: '#fef3c7',
+		color: 'V9_COLORS.BG.WARNING',
 	},
 	tokenStatusMissing: {
 		display: 'flex',
@@ -221,7 +222,7 @@ const styles: Record<string, CSSProperties> = {
 		marginTop: '0.5rem',
 		fontSize: '0.8125rem',
 		fontWeight: 500,
-		color: '#fecaca',
+		color: 'V9_COLORS.BG.ERROR_BORDER',
 	},
 	compareTable: {
 		width: '100%',
@@ -232,26 +233,26 @@ const styles: Record<string, CSSProperties> = {
 	compareHeaderCell: {
 		textAlign: 'left',
 		padding: '0.75rem',
-		background: '#f8fafc',
-		borderBottom: '1px solid #e2e8f0',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		fontSize: '0.875rem',
 		fontWeight: 700,
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	},
 	compareCell: {
 		padding: '0.75rem',
-		borderBottom: '1px solid #e2e8f0',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		verticalAlign: 'top',
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		fontWeight: 500,
 	},
 	compareCellEmphasize: {
 		padding: '0.75rem',
-		borderBottom: '1px solid #e2e8f0',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		verticalAlign: 'top',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		fontWeight: 600,
 	},
 	compareBadgeActive: {
@@ -262,8 +263,8 @@ const styles: Record<string, CSSProperties> = {
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
 		fontWeight: 600,
-		background: '#dcfce7',
-		color: '#166534',
+		background: 'V9_COLORS.BG.SUCCESS',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 	},
 	compareBadgeInactive: {
 		display: 'inline-flex',
@@ -273,14 +274,14 @@ const styles: Record<string, CSSProperties> = {
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
 		fontWeight: 600,
-		background: '#fee2e2',
-		color: '#991b1b',
+		background: 'V9_COLORS.BG.ERROR',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 	},
 	tabsContainer: {
 		display: 'flex',
 		gap: '0.5rem',
 		marginBottom: '1.5rem',
-		borderBottom: '2px solid #e5e7eb',
+		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	},
 	tabActive: {
 		padding: '0.75rem 1.5rem',
@@ -289,8 +290,8 @@ const styles: Record<string, CSSProperties> = {
 		cursor: 'pointer',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: '#3b82f6',
-		borderBottom: '2px solid #3b82f6',
+		color: 'V9_COLORS.PRIMARY.BLUE',
+		borderBottom: '2px solid V9_COLORS.PRIMARY.BLUE',
 		marginBottom: '-2px',
 		display: 'flex',
 		alignItems: 'center',
@@ -303,7 +304,7 @@ const styles: Record<string, CSSProperties> = {
 		cursor: 'pointer',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		borderBottom: '2px solid transparent',
 		marginBottom: '-2px',
 		display: 'flex',
@@ -312,14 +313,14 @@ const styles: Record<string, CSSProperties> = {
 	},
 	alertBanner: {
 		padding: '1rem 1.5rem',
-		background: '#fef3c7',
-		border: '1px solid #fbbf24',
+		background: 'V9_COLORS.BG.WARNING',
+		border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 		borderRadius: '0.5rem',
 		marginBottom: '1.5rem',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.75rem',
-		color: '#92400e',
+		color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 	},
 	section: {
 		background: 'white',
@@ -334,19 +335,19 @@ const styles: Record<string, CSSProperties> = {
 		justifyContent: 'space-between',
 		marginBottom: '1.5rem',
 		paddingBottom: '1rem',
-		borderBottom: '1px solid #e5e7eb',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	},
 	sectionHeaderH2: {
 		margin: 0,
 		fontSize: '1.125rem',
 		fontWeight: 600,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
 	},
 	sectionTimestamp: {
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		fontSize: '0.875rem',
 	},
 	fieldGrid: {
@@ -357,7 +358,7 @@ const styles: Record<string, CSSProperties> = {
 	fieldLabel: {
 		fontSize: '0.75rem',
 		fontWeight: 500,
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
 		marginBottom: '0.5rem',
@@ -367,7 +368,7 @@ const styles: Record<string, CSSProperties> = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		fontSize: '0.875rem',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		fontWeight: 500,
 	},
 	verificationBadgeVerified: {
@@ -378,8 +379,8 @@ const styles: Record<string, CSSProperties> = {
 		padding: '0.25rem 0.5rem',
 		borderRadius: '0.25rem',
 		marginLeft: '0.5rem',
-		background: '#dcfce7',
-		color: '#166534',
+		background: 'V9_COLORS.BG.SUCCESS',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 	},
 	verificationBadgeUnverified: {
 		display: 'inline-flex',
@@ -389,8 +390,8 @@ const styles: Record<string, CSSProperties> = {
 		padding: '0.25rem 0.5rem',
 		borderRadius: '0.25rem',
 		marginLeft: '0.5rem',
-		background: '#fee2e2',
-		color: '#991b1b',
+		background: 'V9_COLORS.BG.ERROR',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 	},
 	infoCards: {
 		display: 'grid',
@@ -399,25 +400,25 @@ const styles: Record<string, CSSProperties> = {
 	},
 	infoCard: {
 		padding: '1.5rem',
-		background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 		borderRadius: '0.5rem',
-		border: '1px solid #e5e7eb',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		textAlign: 'center',
 	},
 	infoCardIcon: {
 		fontSize: '2rem',
 		marginBottom: '0.75rem',
-		color: '#3b82f6',
+		color: 'V9_COLORS.PRIMARY.BLUE',
 	},
 	infoCardValue: {
 		fontSize: '1.5rem',
 		fontWeight: 700,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '0.25rem',
 	},
 	infoCardLabel: {
 		fontSize: '0.875rem',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
 	},
@@ -427,8 +428,8 @@ const styles: Record<string, CSSProperties> = {
 		gap: '0.5rem',
 	},
 	statusTag: {
-		background: '#f1f5f9',
-		color: '#0f172a',
+		background: 'V9_COLORS.BG.GRAY_MEDIUM',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		padding: '0.3rem 0.75rem',
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
@@ -441,19 +442,19 @@ const styles: Record<string, CSSProperties> = {
 		margin: '0 0 0.5rem',
 		fontSize: '0.9rem',
 		fontWeight: 600,
-		color: '#0f172a',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	},
 	loadingState: {
 		padding: '3rem',
 		textAlign: 'center',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	},
 	errorState: {
 		padding: '2rem',
-		background: '#fee2e2',
+		background: 'V9_COLORS.BG.ERROR',
 		border: '1px solid #fca5a5',
 		borderRadius: '0.5rem',
-		color: '#991b1b',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 		textAlign: 'center',
 	},
 	userSelectorCard: {
@@ -471,7 +472,7 @@ const styles: Record<string, CSSProperties> = {
 		maxWidth: '860px',
 		margin: '0 auto',
 		padding: '1.5rem 2rem',
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		borderRadius: '0.75rem',
 		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 	},
@@ -502,12 +503,12 @@ const styles: Record<string, CSSProperties> = {
 		maxWidth: '550px',
 		margin: '1rem',
 		boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-		border: '3px solid #dc2626',
+		border: '3px solid V9_COLORS.PRIMARY.RED_DARK',
 	},
 	serverErrorModalTitle: {
 		fontSize: '1.5rem',
 		fontWeight: 700,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		margin: '0 0 1rem 0',
 		display: 'flex',
 		alignItems: 'center',
@@ -515,19 +516,19 @@ const styles: Record<string, CSSProperties> = {
 	},
 	serverErrorModalMessage: {
 		fontSize: '1rem',
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		lineHeight: 1.6,
 		margin: '0 0 1.5rem 0',
 	},
 	serverErrorModalInstructions: {
 		fontSize: '0.9rem',
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		lineHeight: 1.6,
 		margin: '0 0 1.5rem 0',
 		padding: '1rem',
 		background: '#f3f4f6',
 		borderRadius: '0.5rem',
-		borderLeft: '4px solid #3b82f6',
+		borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE',
 	},
 	serverErrorModalActions: {
 		display: 'flex',
@@ -536,7 +537,7 @@ const styles: Record<string, CSSProperties> = {
 	},
 	serverErrorModalButton: {
 		padding: '0.75rem 1.5rem',
-		background: '#3b82f6',
+		background: 'V9_COLORS.PRIMARY.BLUE',
 		color: 'white',
 		border: 'none',
 		borderRadius: '0.5rem',
@@ -551,13 +552,13 @@ const styles: Record<string, CSSProperties> = {
 		display: 'block',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '0.5rem',
 	},
 	inputEl: {
 		width: '100%',
 		padding: '0.75rem',
-		border: '1px solid #d1d5db',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.375rem',
 		fontSize: '0.875rem',
 	},
@@ -588,27 +589,27 @@ const Container = styled.div`
 const Title = styled.h1`
 	font-size: 2rem;
 	margin-bottom: 1rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Subtitle = styled.p`
 	font-size: 1.125rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 2rem;
 `;
 
 const LoadingMessage = styled.div`
 	text-align: center;
 	padding: 2rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorMessage = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	margin-bottom: 1rem;
 `;
 
@@ -1408,7 +1409,7 @@ const PingOneUserProfile: React.FC = () => {
 						style={{
 							marginTop: '1rem',
 							padding: '0.5rem 1rem',
-							background: '#3b82f6',
+							background: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1441,8 +1442,8 @@ const PingOneUserProfile: React.FC = () => {
 						<div
 							style={{
 								...styles.alertBanner,
-								background: '#dcfce7',
-								border: '1px solid #34d399',
+								background: 'V9_COLORS.BG.SUCCESS',
+								border: '1px solid V9_COLORS.PRIMARY.GREEN_LIGHT',
 								color: '#047857',
 							}}
 						>
@@ -1518,11 +1519,11 @@ const PingOneUserProfile: React.FC = () => {
 							id="userIdentifier"
 							autoLoad={true}
 						/>
-						<div style={{ color: '#64748b', fontSize: '0.75rem' }}>
+						<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
 							Search and select a user from the dropdown list in the selected environment.
 						</div>
 						{identifierError && (
-							<div style={{ color: '#b91c1c', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+							<div style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', fontSize: '0.75rem', marginTop: '0.5rem' }}>
 								{identifierError}
 							</div>
 						)}
@@ -1544,8 +1545,8 @@ const PingOneUserProfile: React.FC = () => {
 								!userIdentifier.trim() ||
 								!environmentId.trim() ||
 								!accessToken.trim()
-									? '#9ca3af'
-									: '#3b82f6',
+									? 'V9_COLORS.TEXT.GRAY_LIGHT'
+									: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1582,7 +1583,7 @@ const PingOneUserProfile: React.FC = () => {
 						style={{
 							marginTop: '1rem',
 							padding: '0.5rem 1rem',
-							background: '#3b82f6',
+							background: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',

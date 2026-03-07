@@ -31,7 +31,6 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-const _MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
@@ -46,10 +45,6 @@ type OTPState = {
 	sendRetryCount: number;
 };
 
-type ValidationState = {
-	validationAttempts: number;
-	lastValidationError: string | null;
-};
 
 interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
 	controller: ReturnType<typeof MFAFlowControllerFactory.create>;
@@ -133,7 +128,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 				UnifiedFlowErrorHandler.handleError(
 					error,
 					{
-						flowType: 'mfa' as any,
+						flowType: 'mfa',
 						deviceType: 'EMAIL',
 						operation: 'loadExistingDevices',
 					},
@@ -233,7 +228,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 			UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa',
 					deviceType: 'EMAIL',
 					operation: 'initializeAuthentication',
 				},
@@ -351,7 +346,7 @@ const createRenderStep0 = (
 	prevTokenTypeRef: React.MutableRefObject<string | undefined>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
-		const { nav, credentials, setCredentials } = props;
+		const { credentials, setCredentials } = props;
 		const locationState = location.state as {
 			configured?: boolean;
 			deviceAuthenticationPolicyId?: string;
@@ -654,11 +649,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		deviceSelection,
 		setDeviceSelection,
 		otpState,
-		setOtpState,
 		updateOtpState,
 		validationState,
 		setValidationState,
-		updateValidationState,
 		showModal,
 		setShowModal,
 		showValidationModal,
@@ -671,14 +664,10 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		setDeviceRegisteredActive,
 		isApiDisplayVisible,
 		apiDisplayHeight,
-		isCheckingCredentials,
 		controller,
 		navigate,
 		location,
 		isConfigured,
-		getContactDisplay,
-		getContactLabel,
-		getDeviceTypeDisplay,
 		MODULE_TAG,
 	} = flow;
 
@@ -693,8 +682,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	// Ref to store pending tokenType changes (to avoid setState during render)
 	const pendingTokenTypeRef = React.useRef<string | undefined>(undefined);
 
-	// Ref to store step 4 props for potential use at component level
-	const _step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 
 	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
 	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
@@ -777,7 +764,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [registrationFlowType]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
@@ -811,7 +797,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [registrationFlowType, setRegistrationFlowType]);
 
 	// Update deviceLoadTrigger when on step 1 (triggered via step0PropsRef, avoids setState during render)
@@ -838,7 +823,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		}
 		// Note: We can't use step0PropsRef.current in dependencies, so we use a combination of other dependencies
 		// and check step0PropsRef.current inside the effect
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [deviceLoadTrigger]); // showModal changes when modal opens/closes, which helps trigger updates
 
 	// Load devices when entering step 1 - moved to parent component level
@@ -897,7 +881,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					UnifiedFlowErrorHandler.handleError(
 						error,
 						{
-							flowType: 'mfa' as any,
+							flowType: 'mfa',
 							deviceType: 'EMAIL',
 							operation: 'loadExistingDevices',
 						},
@@ -981,7 +965,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				UnifiedFlowErrorHandler.handleError(
 					error,
 					{
-						flowType: 'mfa' as any,
+						flowType: 'mfa',
 						deviceType: 'EMAIL',
 						operation: 'fetchUserEmail',
 					},
@@ -1115,7 +1099,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				isLoading,
 				setShowDeviceLimitModal,
 				tokenStatus,
-				setShowWorkerTokenModal,
 			} = props;
 
 			// Store props in ref for useEffect to access
@@ -1306,9 +1289,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
-					const hasDeviceActivateUri = !!deviceActivateUri;
-					const _deviceIsActive = deviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
-
 					if (deviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
 						// No need to manually call sendOTP - PingOne handles it automatically
@@ -1451,7 +1431,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						UnifiedFlowLoggerService.warn(
 							'Device registered with unknown status, defaulting to OTP flow',
 							{
-								flowType: 'mfa' as any,
+								flowType: 'mfa',
 								deviceType: 'EMAIL',
 								operation: 'registerDevice',
 								deviceStatus,
@@ -2216,11 +2196,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		validationAttempts: number,
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
-		setLastValidationError: (value: string | null) => void,
-		_otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
-		_setOtpState: (
-			state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
-		) => void
+		setLastValidationError: (value: string | null) => void
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
@@ -2679,7 +2655,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													const parsed = UnifiedFlowErrorHandler.handleError(
 														error,
 														{
-															flowType: 'mfa' as any,
+															flowType: 'mfa',
 															deviceType: 'EMAIL',
 															operation: 'activateDevice',
 														},
@@ -2935,16 +2911,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								typeof v === 'function' ? v(validationState.validationAttempts) : v,
 						}),
 					validationState.lastValidationError,
-					(v) => setValidationState({ ...validationState, lastValidationError: v }),
-					otpState,
-					(
-						update: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
-					) => {
-						setOtpState((prev) => {
-							const patch = typeof update === 'function' ? update(prev) : update;
-							return { ...prev, ...patch };
-						});
-					}
+					(v) => setValidationState({ ...validationState, lastValidationError: v })
 				)}
 				validateStep0={validateStep0}
 				stepLabels={

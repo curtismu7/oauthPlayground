@@ -50,25 +50,25 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 	const getErrorColor = (errorType: OAuthErrorDetails['errorType']) => {
 		switch (errorType) {
 			case 'invalid_credentials':
-				return '#dc2626'; // red-600
+				return 'V9_COLORS.PRIMARY.RED_DARK'; // red-600
 			case 'forbidden':
 				return '#ea580c'; // orange-600
 			case 'not_found':
 				return '#ca8a04'; // yellow-600
 			case 'network':
-				return '#2563eb'; // blue-600
+				return 'V9_COLORS.PRIMARY.BLUE_DARK'; // blue-600
 			case 'server_error':
 				return '#7c3aed'; // violet-600
 			case 'invalid_grant':
-				return '#dc2626'; // red-600
+				return 'V9_COLORS.PRIMARY.RED_DARK'; // red-600
 			case 'invalid_scope':
 				return '#ea580c'; // orange-600
 			case 'unauthorized_client':
-				return '#dc2626'; // red-600
+				return 'V9_COLORS.PRIMARY.RED_DARK'; // red-600
 			case 'unsupported_grant_type':
-				return '#dc2626'; // red-600
+				return 'V9_COLORS.PRIMARY.RED_DARK'; // red-600
 			default:
-				return '#6b7280'; // gray-500
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM'; // gray-500
 		}
 	};
 
@@ -81,8 +81,8 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			style={{
 				marginTop: '1rem',
 				padding: '1rem',
-				background: '#fef2f2',
-				border: '1px solid #fecaca',
+				background: 'V9_COLORS.BG.ERROR',
+				border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 				borderRadius: '0.75rem',
 				borderLeft: `4px solid ${errorColor}`,
 			}}
@@ -123,7 +123,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							style={{
 								margin: '0.25rem 0 0 0',
 								fontSize: '0.75rem',
-								color: '#9ca3af',
+								color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 								fontFamily: 'monospace',
 							}}
 						>
@@ -136,10 +136,10 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			{/* Troubleshooting Steps */}
 			<div
 				style={{
-					background: '#ffffff',
+					background: 'V9_COLORS.TEXT.WHITE',
 					padding: '1rem',
 					borderRadius: '0.5rem',
-					border: '1px solid #e5e7eb',
+					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					fontSize: '0.875rem',
 					lineHeight: 1.6,
 					marginBottom: '1rem',
@@ -148,7 +148,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 				<div
 					style={{
 						whiteSpace: 'pre-line',
-						color: '#374151',
+						color: 'V9_COLORS.TEXT.GRAY_DARK',
 					}}
 				>
 					{errorDetails.troubleshootingSteps}
@@ -159,10 +159,10 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			{errorDetails.recoveryActions.length > 0 && (
 				<div
 					style={{
-						background: '#f8fafc',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
 						padding: '0.75rem',
 						borderRadius: '0.5rem',
-						border: '1px solid #e2e8f0',
+						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						marginBottom: '1rem',
 					}}
 				>
@@ -171,7 +171,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							margin: '0 0 0.5rem 0',
 							fontSize: '0.875rem',
 							fontWeight: 600,
-							color: '#475569',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						}}
 					>
 						💡 Quick Actions:
@@ -181,7 +181,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							margin: 0,
 							paddingLeft: '1.25rem',
 							fontSize: '0.875rem',
-							color: '#64748b',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						}}
 					>
 						{errorDetails.recoveryActions.map((action, index) => (
@@ -228,7 +228,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 						onClick={onRetry}
 						style={{
 							padding: '0.5rem 1rem',
-							background: '#059669',
+							background: 'V9_COLORS.PRIMARY.GREEN_DARK',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -243,7 +243,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							e.currentTarget.style.background = '#047857';
 						}}
 						onMouseOut={(e) => {
-							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN_DARK';
 						}}
 					>
 						<FiRefreshCw size={16} />
@@ -256,7 +256,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 						onClick={onClearAndRetry}
 						style={{
 							padding: '0.5rem 1rem',
-							background: '#6b7280',
+							background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -271,7 +271,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							e.currentTarget.style.background = '#4b5563';
 						}}
 						onMouseOut={(e) => {
-							e.currentTarget.style.background = '#6b7280';
+							e.currentTarget.style.background = 'V9_COLORS.TEXT.GRAY_MEDIUM';
 						}}
 					>
 						<FiRefreshCw size={16} />
@@ -289,7 +289,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 					}
 					style={{
 						padding: '0.5rem 1rem',
-						background: '#3b82f6',
+						background: 'V9_COLORS.PRIMARY.BLUE',
 						color: 'white',
 						border: 'none',
 						borderRadius: '0.375rem',
@@ -301,10 +301,10 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 						transition: 'all 0.2s ease',
 					}}
 					onMouseOver={(e) => {
-						e.currentTarget.style.background = '#2563eb';
+						e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE_DARK';
 					}}
 					onMouseOut={(e) => {
-						e.currentTarget.style.background = '#3b82f6';
+						e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE';
 					}}
 				>
 					<FiExternalLink size={16} />

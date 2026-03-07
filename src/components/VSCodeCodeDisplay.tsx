@@ -20,18 +20,18 @@ import { logger } from '../utils/logger';
 
 // VS Code-inspired color scheme
 const vscodeColors = {
-	background: '#ffffff',
-	text: '#000000',
+	background: 'V9_COLORS.TEXT.WHITE',
+	text: 'V9_COLORS.TEXT.BLACK',
 	lineNumber: '#237893',
 	comment: '#6a9955',
-	keyword: '#0000ff',
+	keyword: 'V9_COLORS.TEXT.BLACK0ff',
 	string: '#a31515',
 	number: '#09885a',
 	function: '#795e26',
 	variable: '#001080',
 	type: '#267f99',
-	operator: '#000000',
-	bracket: '#000000',
+	operator: 'V9_COLORS.TEXT.BLACK',
+	bracket: 'V9_COLORS.TEXT.BLACK',
 };
 
 const Container = styled.div`
@@ -69,10 +69,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button<{ $active: boolean }>`
 	padding: 0.25rem 0.5rem;
-	border: 1px solid ${({ $active }) => ($active ? '#0366d6' : '#d1d5db')};
+	border: 1px solid ${({ $active }) => ($active ? '#0366d6' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 4px;
-	background: ${({ $active }) => ($active ? '#0366d6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#24292e')};
+	background: ${({ $active }) => ($active ? '#0366d6' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : '#24292e')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -119,7 +119,7 @@ const ActionButton = styled.button`
 	gap: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	background: rgba(255, 255, 255, 0.8);
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 4px;
 	color: #24292e;
 	font-size: 0.75rem;
@@ -195,7 +195,7 @@ const CodeContent = styled.code`
 	}
 	
 	.token.punctuation {
-		color: #000000;
+		color: V9_COLORS.TEXT.BLACK;
 	}
 	
 	.token.property,
@@ -203,7 +203,7 @@ const CodeContent = styled.code`
 	.token.constant,
 	.token.symbol,
 	.token.deleted {
-		color: #0000ff;
+		color: V9_COLORS.TEXT.BLACK0ff;
 	}
 	
 	.token.boolean,
@@ -224,7 +224,7 @@ const CodeContent = styled.code`
 	.token.entity,
 	.token.url,
 	.token.variable {
-		color: #000000;
+		color: V9_COLORS.TEXT.BLACK;
 	}
 	
 	.token.atrule,
@@ -235,7 +235,7 @@ const CodeContent = styled.code`
 	}
 	
 	.token.keyword {
-		color: #0000ff;
+		color: V9_COLORS.TEXT.BLACK0ff;
 	}
 	
 	.token.regex,

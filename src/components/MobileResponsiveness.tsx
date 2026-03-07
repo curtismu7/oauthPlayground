@@ -170,7 +170,7 @@ const MobileButton = styled.button<{
 			case 'danger':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   font-weight: 600;
@@ -185,7 +185,7 @@ const MobileButton = styled.button<{
 				case 'primary':
 					return theme.colors.primaryDark;
 				case 'danger':
-					return '#dc2626';
+					return 'V9_COLORS.PRIMARY.RED_DARK';
 				default:
 					return theme.colors.gray100;
 			}

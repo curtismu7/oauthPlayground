@@ -11,6 +11,7 @@
 
 import { logger } from '../../../utils/logger';
 import type { PortalError, ServiceResponse, UserContext } from '../types/protectPortal.types';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[🔐 PINGONE-LOGIN-SERVICE]';
 

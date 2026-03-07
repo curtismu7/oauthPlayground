@@ -41,7 +41,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
 	font-size: 20px;
 	font-weight: 600;
-	color: #1f2937; /* Dark text on light background */
+	color: V9_COLORS.TEXT.GRAY_DARK; /* Dark text on light background */
 	margin: 0;
 `;
 
@@ -49,7 +49,7 @@ const CloseButton = styled.button`
 	background: none;
 	border: none;
 	cursor: pointer;
-	color: #6b7280; /* Grey */
+	color: V9_COLORS.TEXT.GRAY_MEDIUM; /* Grey */
 	padding: 4px;
 	display: flex;
 	align-items: center;
@@ -59,7 +59,7 @@ const CloseButton = styled.button`
 
 	&:hover {
 		background: #f3f4f6; /* Light grey background */
-		color: #1f2937; /* Dark text */
+		color: V9_COLORS.TEXT.GRAY_DARK; /* Dark text */
 	}
 `;
 
@@ -71,28 +71,28 @@ const Label = styled.label`
 	display: block;
 	font-size: 14px;
 	font-weight: 500;
-	color: #374151; /* Dark text on light background */
+	color: V9_COLORS.TEXT.GRAY_DARK; /* Dark text on light background */
 	margin-bottom: 6px;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 10px 12px;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 14px;
-	color: #1f2937; /* Dark text on light background */
+	color: V9_COLORS.TEXT.GRAY_DARK; /* Dark text on light background */
 	background: white; /* Light background */
 	box-sizing: border-box;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6; /* Blue */
+		border-color: V9_COLORS.PRIMARY.BLUE; /* Blue */
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af; /* Grey */
+		color: V9_COLORS.TEXT.GRAY_LIGHT; /* Grey */
 	}
 `;
 
@@ -118,20 +118,20 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	${({ $variant }) =>
 		$variant === 'primary'
 			? `
-		background: #3b82f6; /* Blue */
+		background: V9_COLORS.PRIMARY.BLUE; /* Blue */
 		color: white; /* Light text on dark background */
 		
 		&:hover {
-			background: #2563eb; /* Dark blue */
+			background: V9_COLORS.PRIMARY.BLUE_DARK; /* Dark blue */
 		}
 	`
 			: `
 		background: #f3f4f6; /* Light grey */
-		color: #374151; /* Dark text on light background */
-		border: 1px solid #d1d5db;
+		color: V9_COLORS.TEXT.GRAY_DARK; /* Dark text on light background */
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 		
 		&:hover {
-			background: #e5e7eb; /* Grey */
+			background: V9_COLORS.TEXT.GRAY_LIGHTER; /* Grey */
 		}
 	`}
 
@@ -143,7 +143,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 
 const HelpText = styled.p`
 	font-size: 12px;
-	color: #6b7280; /* Grey text on light background */
+	color: V9_COLORS.TEXT.GRAY_MEDIUM; /* Grey text on light background */
 	margin: 8px 0 0 0;
 `;
 

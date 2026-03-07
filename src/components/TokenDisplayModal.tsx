@@ -30,8 +30,8 @@ const ModalContent = styled.div`
 `;
 
 const TokenSection = styled.div`
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	overflow: hidden;
 `;
@@ -41,8 +41,8 @@ const TokenHeader = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 0.75rem 1rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-	border-bottom: 1px solid #e2e8f0;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%);
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TokenLabel = styled.div`
@@ -50,7 +50,7 @@ const TokenLabel = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
@@ -64,13 +64,13 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 	${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return `background-color: #dbeafe; color: #1e40af;`;
+				return `background-color: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;`;
 			case 'id':
-				return `background-color: #dcfce7; color: #166534;`;
+				return `background-color: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;`;
 			case 'refresh':
-				return `background-color: #fef3c7; color: #92400e;`;
+				return `background-color: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;`;
 			default:
-				return `background-color: #e5e7eb; color: #4b5563;`;
+				return `background-color: V9_COLORS.TEXT.GRAY_LIGHTER; color: #4b5563;`;
 		}
 	}}
 `;
@@ -96,18 +96,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover {
-						background: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'secondary':
 				return `
 					background: #f3f4f6;
-					color: #374151;
+					color: V9_COLORS.TEXT.GRAY_DARK;
 					&:hover {
-						background: #e5e7eb;
+						background: V9_COLORS.TEXT.GRAY_LIGHTER;
 					}
 				`;
 		}
@@ -119,13 +119,13 @@ const TokenContent = styled.div`
 `;
 
 const TokenValue = styled.div<{ $masked?: boolean }>`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 	font-size: 0.75rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	word-break: break-all;
 	white-space: pre-wrap;
 	margin-bottom: 0.75rem;
@@ -144,24 +144,24 @@ const TokenValue = styled.div<{ $masked?: boolean }>`
 const DecodedSection = styled.div`
 	margin-top: 0.75rem;
 	padding-top: 0.75rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DecodedLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 0.5rem;
 `;
 
 const DecodedContent = styled.pre`
 	background: #f0fdf4;
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 	font-size: 0.7rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	overflow-x: auto;
 	max-height: 200px;
 	margin: 0;
@@ -173,7 +173,7 @@ const InfoGrid = styled.div`
 	gap: 0.75rem;
 	margin-top: 0.75rem;
 	padding-top: 0.75rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const InfoItem = styled.div`
@@ -184,13 +184,13 @@ const InfoItem = styled.div`
 
 const InfoLabel = styled.div`
 	font-size: 0.7rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 500;
 `;
 
 const InfoValue = styled.div`
 	font-size: 0.8rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-weight: 600;
 `;
 

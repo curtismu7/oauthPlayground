@@ -14,7 +14,7 @@ import { logger } from '../utils/logger';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0;
   padding: 0;
   margin: 1rem 0;
@@ -85,7 +85,7 @@ const QRCodeContainer = styled.div`
   justify-content: center;
   margin-bottom: 1rem;
   padding: 0.5rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.125rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 `;
@@ -102,7 +102,7 @@ const QRCodeLabel = styled.div`
 
 // Tesla Screen - Realistic Car Infotainment UI (Landscape) with Car Background
 const TeslaScreen = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.125rem;
   padding: 1rem;
@@ -114,7 +114,7 @@ const TeslaScreen = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   overflow: hidden;
   
   /* Tesla car background - using actual Tesla car image */
@@ -177,7 +177,7 @@ const CarStatusLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
   font-family: 'Arial', sans-serif;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 `;
 
@@ -237,7 +237,7 @@ const StatusIndicator = styled.div<{ $active: boolean }>`
 const DisplayTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   margin-bottom: 0.5rem;
   font-family: 'Arial', sans-serif;
   letter-spacing: 0.05em;
@@ -247,7 +247,7 @@ const DisplayTitle = styled.div`
 
 const DisplaySubtitle = styled.div`
   font-size: 0.75rem;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   margin-bottom: 0.75rem;
   font-family: 'Arial', sans-serif;
   font-weight: 600;
@@ -275,7 +275,7 @@ const UserCodeDisplay = styled.div`
 `;
 
 const UserCodeLabel = styled.div`
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   font-size: 0.625rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
@@ -330,7 +330,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 0.75rem;
   font-weight: 700;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   margin-bottom: 0.25rem;
   font-family: 'Arial', sans-serif;
   text-transform: uppercase;
@@ -340,7 +340,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.625rem;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   font-family: 'Arial', sans-serif;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
@@ -356,7 +356,7 @@ const ControlButtons = styled.div`
 
 const ControlButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? 'rgba(0, 102, 204, 0.2)' : 'rgba(0, 0, 0, 0.1)')};
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   border: 2px solid ${(props) => (props.$variant === 'primary' ? 'rgba(0, 102, 204, 0.5)' : 'rgba(0, 0, 0, 0.3)')};
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;

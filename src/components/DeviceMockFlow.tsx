@@ -12,7 +12,7 @@ import VizioTVDeviceFlow from './VizioTVDeviceFlow';
 
 const MockContainer = styled.div`
   padding: 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   min-height: 100vh;
 `;
 
@@ -30,7 +30,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   max-width: 600px;
   margin: 0 auto;
 `;
@@ -44,11 +44,11 @@ const DeviceGrid = styled.div`
 `;
 
 const DeviceCard = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DeviceTitle = styled.h3`
@@ -61,7 +61,7 @@ const DeviceTitle = styled.h3`
 
 const DeviceDescription = styled.p`
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
   margin-bottom: 1rem;
 `;

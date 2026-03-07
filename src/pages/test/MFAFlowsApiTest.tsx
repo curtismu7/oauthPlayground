@@ -9,6 +9,7 @@ import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Test Configuration for MFA flows
 interface MFATestConfig {
@@ -50,12 +51,12 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.1rem;
 `;
 
@@ -70,11 +71,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#6b7280')};
+  background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   color: white;
 
   &:hover {
-    background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#4b5563')};
+    background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#4b5563')};
     transform: translateY(-1px);
   }
 
@@ -97,11 +98,11 @@ const TestSection = styled.div`
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h2`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   font-size: 1.25rem;
 `;
@@ -126,33 +127,33 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const Input = styled.input`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   background: white;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -162,12 +163,12 @@ const ResultsContainer = styled.div`
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
-  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
+  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
+  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
 `;
 
 const ResultHeader = styled.div`
@@ -179,12 +180,12 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3<{ success: boolean }>`
   margin: 0;
-  color: ${(props) => (props.success ? '#065f46' : '#991b1b')};
+  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
 `;
 
 const ResultTime = styled.span`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowTypeBadge = styled.span<{ flowtype: string }>`
@@ -193,11 +194,11 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 			case 'otp':
 				return '#dbeafe';
 			case 'totp':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'fido':
 				return '#fce7f3';
 			case 'admin_auth':
-				return '#ecfdf5';
+				return 'V9_COLORS.BG.SUCCESS';
 			default:
 				return '#f3f4f6';
 		}
@@ -205,15 +206,15 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
   color: ${(props) => {
 		switch (props.flowtype) {
 			case 'otp':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'totp':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'fido':
 				return '#be185d';
 			case 'admin_auth':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   padding: 0.25rem 0.5rem;
@@ -224,7 +225,7 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.25rem;
@@ -953,7 +954,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				))}
 
 				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+					<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}>
 						No test results yet. Configure your settings and run the tests.
 					</div>
 				)}

@@ -16,7 +16,7 @@ const Container = styled.div`
 const Title = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 2rem;
 	text-align: center;
 `;
@@ -28,15 +28,15 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
 const ConfigForm = styled.div`
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 1.5rem;
 	border-radius: 8px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 2rem;
 `;
 
@@ -55,25 +55,25 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const Input = styled.input`
 	padding: 0.5rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.875rem;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Button = styled.button`
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	padding: 0.75rem 1.5rem;
@@ -83,7 +83,7 @@ const Button = styled.button`
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -96,16 +96,16 @@ const FlowSelector = styled.div`
 
 const FlowButton = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
-	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
+	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 6px;
-	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
 	}
 `;
 
@@ -118,16 +118,16 @@ const StepSelector = styled.div`
 
 const StepButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
+	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 4px;
-	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.875rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
 	}
 `;
 

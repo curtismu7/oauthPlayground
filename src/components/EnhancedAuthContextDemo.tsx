@@ -22,19 +22,19 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
 `;
 
 const Section = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -43,7 +43,7 @@ const Section = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -68,22 +68,22 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: #2563eb; }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: #059669; }
+          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
-          &:hover { background: #e5e7eb; }
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
         `;
 		}
 	}}
@@ -103,28 +103,28 @@ const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #166534;
+          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #991b1b;
+          background: V9_COLORS.BG.ERROR;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          color: #1e40af;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
         `;
 		}
 	}}
 `;
 
 const CodeBlock = styled.pre`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   padding: 1rem;
   font-size: 0.75rem;
@@ -139,10 +139,10 @@ const FlowStep = styled.div<{ active: boolean }>`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border: 1px solid ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
+  border: 1px solid ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 6px;
   margin-bottom: 0.5rem;
-  background: ${(props) => (props.active ? '#eff6ff' : 'white')};
+  background: ${(props) => (props.active ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
 `;
 
 const StepNumber = styled.div<{ active: boolean }>`
@@ -152,8 +152,8 @@ const StepNumber = styled.div<{ active: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
-  color: ${(props) => (props.active ? 'white' : '#6b7280')};
+  background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  color: ${(props) => (props.active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   font-weight: 600;
   font-size: 0.875rem;
 `;
@@ -164,13 +164,13 @@ const StepContent = styled.div`
 
 const StepTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StepDescription = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 export const EnhancedAuthContextDemo: React.FC = () => {
@@ -422,13 +422,13 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 						</p>
 					</div>
 				) : (
-					<p style={{ color: '#6b7280', fontStyle: 'italic' }}>No active flow</p>
+					<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>No active flow</p>
 				)}
 			</Section>
 
 			<Section>
 				<SectionTitle>Integration Example</SectionTitle>
-				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+				<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 					Here's how flows can use the enhanced AuthContext:
 				</p>
 				<CodeBlock>{`// In your OAuth flow component

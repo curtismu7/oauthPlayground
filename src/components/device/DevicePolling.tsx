@@ -44,25 +44,25 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
   background: ${(props) => {
 		switch (props.status) {
 			case 'success':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'expired':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
   color: ${(props) => {
 		switch (props.status) {
 			case 'success':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
 `;
@@ -74,12 +74,12 @@ const StatusContent = styled.div`
 const StatusTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const StatusDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.4;
@@ -94,14 +94,14 @@ const ProgressSection = styled.div`
 const ProgressBar = styled.div`
   width: 100%;
   height: 8px;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ progress: number }>`
   height: 100%;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   border-radius: 4px;
   transition: width 0.3s ease;
   width: ${(props) => props.progress}%;
@@ -112,7 +112,7 @@ const ProgressInfo = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const PollingDetails = styled.div`
@@ -122,7 +122,7 @@ const PollingDetails = styled.div`
   padding: 1rem;
   background: #f9fafb;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DetailRow = styled.div`
@@ -133,11 +133,11 @@ const DetailRow = styled.div`
 `;
 
 const DetailLabel = styled.span`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const DetailValue = styled.span`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 500;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
@@ -147,10 +147,10 @@ const ErrorMessage = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 8px;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
 `;
 
@@ -159,10 +159,10 @@ const SuccessMessage = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #dcfce7;
-  border: 1px solid #bbf7d0;
+  background: V9_COLORS.BG.SUCCESS;
+  border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
   border-radius: 8px;
-  color: #16a34a;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-size: 0.875rem;
 `;
 
@@ -171,10 +171,10 @@ const ExpiredMessage = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #fef3c7;
-  border: 1px solid #fde68a;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.BG.WARNING_BORDER;
   border-radius: 8px;
-  color: #d97706;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   font-size: 0.875rem;
 `;
 

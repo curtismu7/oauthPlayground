@@ -16,7 +16,7 @@ interface WorkerTokenDetectedBannerProps {
 const BannerContainer = styled.div`
 	padding: 1rem;
 	background: #f0fdf4;
-	border: 2px solid #10b981;
+	border: 2px solid V9_COLORS.PRIMARY.GREEN;
 	border-radius: 0.75rem;
 	margin-bottom: 1rem;
 	max-width: 100%;
@@ -30,7 +30,7 @@ const TitleRow = styled.div`
 `;
 
 const Title = styled.strong`
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.95rem;
 `;
 
@@ -39,11 +39,11 @@ const TokenBadge = styled.div`
 	align-items: center;
 	gap: 0.35rem;
 	padding: 0.35rem 0.75rem;
-	background: #d1fae5;
+	background: V9_COLORS.BG.SUCCESS;
 	border: 1px solid #6ee7b7;
 	border-radius: 0.5rem;
 	font-size: 0.8rem;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Courier New', monospace;
 `;
 
@@ -59,11 +59,23 @@ const ExpiryMessage = styled.div<{ $isExpired: boolean; $isExpiringSoon: boolean
 	padding: 0.5rem;
 	border-radius: 0.5rem;
 	background: ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired ? '#fee2e2' : $isExpiringSoon ? '#fef3c7' : '#d1fae5'};
+		$isExpired
+			? 'V9_COLORS.BG.ERROR'
+			: $isExpiringSoon
+				? 'V9_COLORS.BG.WARNING'
+				: 'V9_COLORS.BG.SUCCESS'};
 	border: 1px solid ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired ? '#f87171' : $isExpiringSoon ? '#fbbf24' : '#6ee7b7'};
+		$isExpired
+			? 'V9_COLORS.PRIMARY.RED_LIGHT'
+			: $isExpiringSoon
+				? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
+				: '#6ee7b7'};
 	color: ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired ? '#dc2626' : $isExpiringSoon ? '#d97706' : '#065f46'};
+		$isExpired
+			? 'V9_COLORS.PRIMARY.RED_DARK'
+			: $isExpiringSoon
+				? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+				: 'V9_COLORS.PRIMARY.GREEN_DARK'};
 	font-size: 0.8rem;
 	display: flex;
 	align-items: center;
@@ -157,34 +169,41 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			style={{
 				// Green background when valid, yellow when expiring soon, red when expired
 				background: expiryInfo?.isExpired
-					? '#fee2e2'
+					? 'V9_COLORS.BG.ERROR'
 					: expiryInfo?.isExpiringSoon
-						? '#fef3c7'
+						? 'V9_COLORS.BG.WARNING'
 						: isValid
 							? '#f0fdf4' // Green background for valid tokens
 							: '#f0fdf4', // Default green if no expiry info
 				borderColor: expiryInfo?.isExpired
-					? '#ef4444'
+					? 'V9_COLORS.PRIMARY.RED'
 					: expiryInfo?.isExpiringSoon
-						? '#fbbf24'
+						? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
 						: isValid
-							? '#10b981' // Green border for valid tokens
-							: '#10b981', // Default green if no expiry info
+							? 'V9_COLORS.PRIMARY.GREEN' // Green border for valid tokens
+							: 'V9_COLORS.PRIMARY.GREEN', // Default green if no expiry info
 			}}
 		>
 			<TitleRow>
 				{expiryInfo?.isExpired ? (
-					<FiAlertCircle size={18} color="#dc2626" />
+					<FiAlertCircle size={18} color="V9_COLORS.PRIMARY.RED_DARK" />
 				) : (
-					<FiCheckCircle size={18} color={expiryInfo?.isExpiringSoon ? '#d97706' : '#10b981'} />
+					<FiCheckCircle
+						size={18}
+						color={
+							expiryInfo?.isExpiringSoon
+								? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+								: 'V9_COLORS.PRIMARY.GREEN'
+						}
+					/>
 				)}
 				<Title
 					style={{
 						color: expiryInfo?.isExpired
-							? '#dc2626'
+							? 'V9_COLORS.PRIMARY.RED_DARK'
 							: expiryInfo?.isExpiringSoon
-								? '#d97706'
-								: '#065f46',
+								? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+								: 'V9_COLORS.PRIMARY.GREEN_DARK',
 					}}
 				>
 					{expiryInfo?.isExpired ? 'Worker Token EXPIRED' : 'Worker Token Detected'}
@@ -193,20 +212,20 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			<TokenBadge
 				style={{
 					background: expiryInfo?.isExpired
-						? '#fee2e2'
+						? 'V9_COLORS.BG.ERROR'
 						: expiryInfo?.isExpiringSoon
-							? '#fef3c7'
-							: '#d1fae5',
+							? 'V9_COLORS.BG.WARNING'
+							: 'V9_COLORS.BG.SUCCESS',
 					borderColor: expiryInfo?.isExpired
-						? '#f87171'
+						? 'V9_COLORS.PRIMARY.RED_LIGHT'
 						: expiryInfo?.isExpiringSoon
-							? '#fbbf24'
+							? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
 							: '#6ee7b7',
 					color: expiryInfo?.isExpired
-						? '#dc2626'
+						? 'V9_COLORS.PRIMARY.RED_DARK'
 						: expiryInfo?.isExpiringSoon
-							? '#d97706'
-							: '#065f46',
+							? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+							: 'V9_COLORS.PRIMARY.GREEN_DARK',
 				}}
 			>
 				<FiDatabase size={14} /> Token cached • {token.substring(0, 16)}…
@@ -226,9 +245,9 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			<Message
 				style={{
 					color: expiryInfo?.isExpired
-						? '#dc2626'
+						? 'V9_COLORS.PRIMARY.RED_DARK'
 						: expiryInfo?.isExpiringSoon
-							? '#d97706'
+							? 'V9_COLORS.PRIMARY.YELLOW_DARK'
 							: '#047857',
 					marginTop: expiryInfo ? '0.5rem' : '0.5rem',
 				}}

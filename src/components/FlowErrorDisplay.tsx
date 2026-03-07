@@ -13,27 +13,23 @@ import type { ErrorTemplate } from '../constants/errorMessages';
 import type { FlowType } from '../services/flowStepDefinitions';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiHome': 'mdi-home',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiSettings': 'mdi-cog',
-		'FiXCircle': 'mdi-close-circle',
+		FiHome: 'mdi-home',
+		FiRefreshCw: 'mdi-refresh',
+		FiSettings: 'mdi-cog',
+		FiXCircle: 'mdi-close-circle',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
 
@@ -76,7 +72,7 @@ const ErrorContainer = styled.div`
 
 const ErrorCard = styled.div`
 	background: white;
-	border: 2px solid #fee2e2;
+	border: 2px solid V9_COLORS.BG.ERROR;
 	border-radius: 1rem;
 	padding: 2.5rem;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -96,9 +92,9 @@ const ErrorIconWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: #fee2e2;
+	background: V9_COLORS.BG.ERROR;
 	border-radius: 50%;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 2rem;
 `;
 
@@ -109,20 +105,20 @@ const ErrorContent = styled.div`
 const ErrorTitle = styled.h1`
 	font-size: 1.75rem;
 	font-weight: 700;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	margin: 0 0 0.5rem 0;
 `;
 
 const ErrorMessage = styled.p`
 	font-size: 1.125rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.6;
 `;
 
 const ErrorMetadata = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1.5rem 0;
@@ -141,13 +137,13 @@ const MetadataRow = styled.div`
 `;
 
 const MetadataLabel = styled.span`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 600;
 	min-width: 140px;
 `;
 
 const MetadataValue = styled.span`
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	word-break: break-all;
 `;
 
@@ -174,13 +170,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
-					border-color: #3b82f6;
+					border-color: V9_COLORS.PRIMARY.BLUE;
 					
 					&:hover {
-						background: #2563eb;
-						border-color: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
+						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 						transform: translateY(-2px);
 						box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 					}
@@ -188,24 +184,24 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 			case 'secondary':
 				return `
 					background: white;
-					color: #3b82f6;
-					border-color: #3b82f6;
+					color: V9_COLORS.PRIMARY.BLUE;
+					border-color: V9_COLORS.PRIMARY.BLUE;
 					
 					&:hover {
-						background: #eff6ff;
+						background: V9_COLORS.BG.GRAY_LIGHT;
 						transform: translateY(-2px);
 					}
 				`;
 			default:
 				return `
 					background: transparent;
-					color: #6b7280;
-					border-color: #d1d5db;
+					color: V9_COLORS.TEXT.GRAY_MEDIUM;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 					
 					&:hover {
 						background: #f9fafb;
-						color: #374151;
-						border-color: #9ca3af;
+						color: V9_COLORS.TEXT.GRAY_DARK;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}

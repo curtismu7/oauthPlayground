@@ -22,6 +22,7 @@ import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -30,8 +31,8 @@ const PageContainer = styled.div`
 `;
 
 const WarningCard = styled.div`
-	background: #fef2f2;
-	border: 2px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 2px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -41,8 +42,8 @@ const WarningCard = styled.div`
 `;
 
 const InfoCard = styled.div`
-	background: #f0f9ff;
-	border: 2px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -71,8 +72,8 @@ const CardListItem = styled.li`
 `;
 
 const FormContainer = styled.div`
-	background: #ffffff;
-	border: 1px solid #e5e7eb;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -86,19 +87,19 @@ const FormLabel = styled.label`
 	display: block;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FormInput = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 1rem;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -106,7 +107,7 @@ const FormInput = styled.input`
 const _FormTextarea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 1rem;
 	min-height: 100px;
@@ -114,7 +115,7 @@ const _FormTextarea = styled.textarea`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -133,28 +134,28 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	${(props) =>
 		props.$variant === 'primary' &&
 		`
-		background: #3b82f6;
+		background: V9_COLORS.PRIMARY.BLUE;
 		color: white;
-		&:hover { background: #2563eb; }
-		&:disabled { background: #9ca3af; cursor: not-allowed; }
+		&:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
+		&:disabled { background: V9_COLORS.TEXT.GRAY_LIGHT; cursor: not-allowed; }
 	`}
 	
 	${(props) =>
 		props.$variant === 'secondary' &&
 		`
 		background: #f3f4f6;
-		color: #374151;
-		&:hover { background: #e5e7eb; }
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		&:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
 		&:disabled { background: #f9fafb; cursor: not-allowed; }
 	`}
 	
 	${(props) =>
 		props.$variant === 'danger' &&
 		`
-		background: #dc2626;
+		background: V9_COLORS.PRIMARY.RED_DARK;
 		color: white;
-		&:hover { background: #b91c1c; }
-		&:disabled { background: #9ca3af; cursor: not-allowed; }
+		&:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
+		&:disabled { background: V9_COLORS.TEXT.GRAY_LIGHT; cursor: not-allowed; }
 	`}
 `;
 
@@ -170,10 +171,10 @@ const PasswordToggle = styled.button`
 	background: none;
 	border: none;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -386,7 +387,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							Resource Owner Password Authentication
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							This step will exchange the username and password for an access token using the
 							Resource Owner Password Credentials grant.
 						</p>
@@ -417,7 +418,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle color="#059669" />
+									<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
 									Access Token Received
 								</h4>
 
@@ -478,7 +479,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							User Information
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Fetch user information using the access token from the previous step.
 						</p>
 
@@ -508,14 +509,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle color="#059669" />
+									<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
 									User Information
 								</h4>
 
 								<div
 									style={{
-										background: '#f8fafc',
-										border: '1px solid #e2e8f0',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										padding: '1rem',
 										fontFamily: 'Monaco, Menlo, monospace',
@@ -547,7 +548,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							Token Refresh
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Use the refresh token to obtain a new access token without re-authenticating.
 						</p>
 
@@ -568,7 +569,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</Button>
 
 						{!controller.tokens?.refresh_token && (
-							<p style={{ color: '#dc2626', marginTop: '1rem' }}>
+							<p style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '1rem' }}>
 								No refresh token available. Complete the authentication step first.
 							</p>
 						)}
@@ -585,7 +586,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 												gap: '0.5rem',
 											}}
 										>
-											<FiInfo color="#3b82f6" />
+											<FiInfo color="V9_COLORS.PRIMARY.BLUE" />
 											Before Refresh
 										</h4>
 										{UnifiedTokenDisplayService.showTokens(
@@ -608,7 +609,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 											gap: '0.5rem',
 										}}
 									>
-										<FiCheckCircle color="#059669" />
+										<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
 										After Refresh
 									</h4>
 									<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
@@ -651,14 +652,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="⚠️ Security Warning" defaultCollapsed={false}>
 				<WarningCard>
-					<FiAlertTriangle size={24} color="#dc2626" />
+					<FiAlertTriangle size={24} color="V9_COLORS.PRIMARY.RED_DARK" />
 					<CardContent>
-						<CardText style={{ color: '#991b1b' }}>
+						<CardText style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 							The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should
 							be avoided in most cases due to significant security risks. This flow requires the
 							application to collect and handle user credentials directly.
 						</CardText>
-						<CardList style={{ color: '#991b1b' }}>
+						<CardList style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 							<CardListItem>Applications must handle passwords securely</CardListItem>
 							<CardListItem>No delegation of authentication to authorization server</CardListItem>
 							<CardListItem>Phishing attacks become easier</CardListItem>
@@ -672,10 +673,10 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 				<InfoCard>
 					<FiInfo size={24} color="#0ea5e9" />
 					<CardContent>
-						<CardText style={{ color: '#0c4a6e' }}>
+						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							This flow should only be used in very specific, high-trust scenarios:
 						</CardText>
-						<CardList style={{ color: '#0c4a6e' }}>
+						<CardList style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							<CardListItem>Legacy system migration where other flows are impossible</CardListItem>
 							<CardListItem>Highly trusted first-party applications</CardListItem>
 							<CardListItem>Server-to-server communication with shared credentials</CardListItem>
@@ -730,10 +731,10 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 				<InfoCard>
 					<FiUser size={24} color="#0ea5e9" />
 					<CardContent>
-						<CardText style={{ color: '#0c4a6e' }}>
+						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							Instead of the Resource Owner Password flow, consider these more secure alternatives:
 						</CardText>
-						<CardList style={{ color: '#0c4a6e' }}>
+						<CardList style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							<CardListItem>
 								<strong>Authorization Code Flow:</strong> Most secure for web applications
 							</CardListItem>

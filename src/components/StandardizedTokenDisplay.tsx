@@ -37,7 +37,7 @@ interface StandardizedTokenDisplayProps {
 const StandardizedTokenDisplay: React.FC<StandardizedTokenDisplayProps> = ({
 	tokens,
 	backgroundColor = 'rgba(0, 0, 0, 0.4)',
-	borderColor = '#374151',
+	borderColor = 'V9_COLORS.TEXT.GRAY_DARK',
 	textColor,
 	headerTextColor,
 }) => {
@@ -48,12 +48,12 @@ const StandardizedTokenDisplay: React.FC<StandardizedTokenDisplayProps> = ({
 	// Determine header text color if not provided
 	const defaultHeaderColor =
 		headerTextColor ||
-		(backgroundColor.includes('rgba(0, 0, 0') || backgroundColor === '#000000'
-			? '#ffffff'
+		(backgroundColor.includes('rgba(0, 0, 0') || backgroundColor === 'V9_COLORS.TEXT.BLACK'
+			? 'V9_COLORS.TEXT.WHITE'
 			: '#1e293b');
 
 	// Use light grey border - consistent with app styling (lighter grey for subtle appearance)
-	const lightGreyBorder = '#e5e7eb';
+	const lightGreyBorder = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 
 	// Container with reasonable max-width, centered
 	const wrapperStyle: React.CSSProperties = {

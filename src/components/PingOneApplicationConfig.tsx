@@ -83,7 +83,7 @@ const SectionTitle = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Grid = styled.div`
@@ -106,30 +106,30 @@ const Field = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Select = styled.select`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Input = styled.input`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
-	background: #ffffff;
-	color: #111827;
+	background: V9_COLORS.TEXT.WHITE;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: text;
 	pointer-events: auto;
 	position: relative;
@@ -137,28 +137,28 @@ const Input = styled.input`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 	
 	&:disabled {
 		background: #f9fafb;
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 
 	&[readonly] {
 		background: #f9fafb;
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 
 	/* Ensure inputs are always interactive when not disabled/readonly */
 	&:not(:disabled):not([readonly]) {
-		background: #ffffff !important;
-		color: #111827 !important;
+		background: V9_COLORS.TEXT.WHITE !important;
+		color: V9_COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 		user-select: text !important;
@@ -167,7 +167,7 @@ const Input = styled.input`
 
 const Textarea = styled.textarea`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	font-family: monospace;
@@ -176,7 +176,7 @@ const Textarea = styled.textarea`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -185,7 +185,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 	position: relative;
 	width: 3rem;
 	height: 1.5rem;
-	background-color: ${({ $active }) => ($active ? '#22c55e' : '#d1d5db')};
+	background-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border: none;
 	border-radius: 9999px;
 	cursor: pointer;
@@ -217,13 +217,13 @@ const CheckboxLabel = styled.label`
 	display: flex;
 	align-items: center;
 	font-size: 0.875rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 `;
 
 const Helper = styled.p`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0.25rem 0 0 0;
 	line-height: 1.4;
 `;
@@ -240,7 +240,7 @@ const RadioLabel = styled.label`
 	align-items: center;
 	gap: 0.5rem;
 	font-size: 0.875rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 `;
 
@@ -260,7 +260,7 @@ const UrlExample = styled.div`
 const UrlLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -268,7 +268,7 @@ const SaveButtonContainer = styled.div`
 	justify-content: flex-end;
 	margin-top: 1.5rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>`
@@ -286,27 +286,27 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 	${({ $hasChanges, $isSaving }) => {
 		if ($isSaving) {
 			return `
-				background: #9ca3af;
+				background: V9_COLORS.TEXT.GRAY_LIGHT;
 				color: white;
 				cursor: wait;
 			`;
 		}
 		if ($hasChanges) {
 			return `
-				background: linear-gradient(135deg, #10b981, #059669);
+				background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
 				color: white;
 				box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
 				
 				&:hover {
-					background: linear-gradient(135deg, #059669, #047857);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK, #047857);
 					box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3);
 					transform: translateY(-1px);
 				}
 			`;
 		}
 		return `
-			background: #e5e7eb;
-			color: #6b7280;
+			background: V9_COLORS.TEXT.GRAY_LIGHTER;
+			color: V9_COLORS.TEXT.GRAY_MEDIUM;
 			cursor: not-allowed;
 		`;
 	}}
@@ -354,7 +354,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 	return (
 		<div>
-			<SectionTitle style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: '#1f2937' }}>
+			<SectionTitle
+				style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+			>
 				<FiSettings /> PingOne Advanced Configuration
 			</SectionTitle>
 			{/* Hide PAR for flows that don't use authorization endpoints */}
@@ -387,7 +389,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									style={{
 										marginTop: '1rem',
 										padding: '1rem',
-										background: '#f0f9ff',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										border: '1px solid #0ea5e9',
 										borderRadius: '6px',
 										fontSize: '0.85rem',
@@ -396,7 +398,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									<h4
 										style={{
 											margin: '0 0 0.5rem 0',
-											color: '#0c4a6e',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											fontSize: '0.9rem',
 											fontWeight: '600',
 										}}
@@ -407,7 +409,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										style={{
 											margin: 0,
 											paddingLeft: '1.5rem',
-											color: '#0c4a6e',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											lineHeight: '1.5',
 										}}
 									>
@@ -431,7 +433,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											<strong>Step 5:</strong> Normal OAuth flow continues with user authentication
 										</li>
 									</ol>
-									<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#0369a1' }}>
+									<div
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.8rem',
+											color: 'V9_COLORS.PRIMARY.BLUE',
+										}}
+									>
 										<strong>Benefits:</strong> Keeps sensitive parameters off the browser URL,
 										prevents tampering, and provides better security for SPAs.
 									</div>
@@ -443,7 +451,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										marginTop: '1rem',
 										padding: '1rem',
 										background: '#f0fdf4',
-										border: '1px solid #16a34a',
+										border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
 										borderRadius: '6px',
 										fontSize: '0.85rem',
 									}}
@@ -482,7 +490,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											<strong>Worker App:</strong> Only if configured for user-based grant types ✅
 										</li>
 									</ul>
-									<div style={{ fontSize: '0.8rem', color: '#16a34a' }}>
+									<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
 										<strong>PingOne Limits:</strong> Max 1MB request size, 60-second default
 										lifetime, HTTP POST only, request_uri can only be used once.
 									</div>
@@ -511,7 +519,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											<summary
 												style={{
 													fontSize: '0.8rem',
-													color: '#374151',
+													color: 'V9_COLORS.TEXT.GRAY_DARK',
 													cursor: 'pointer',
 													fontWeight: '600',
 												}}
@@ -522,8 +530,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												style={{
 													marginTop: '0.5rem',
 													padding: '0.75rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
+													background: 'V9_COLORS.BG.GRAY_LIGHT',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '4px',
 													fontSize: '0.75rem',
 													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
@@ -577,7 +585,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											showCopyButton={true}
 											showExplanationButton={true}
 										/>
-										<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+										<div
+											style={{
+												marginTop: '0.5rem',
+												fontSize: '0.8rem',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											}}
+										>
 											<strong>Response from Step 1:</strong>{' '}
 											request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
 										</div>
@@ -634,12 +648,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											style={{
 												marginTop: '1rem',
 												padding: '1rem',
-												background: '#f8fafc',
-												border: '1px solid #e2e8f0',
+												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
 										>
-											<div style={{ marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+											<div
+												style={{
+													marginBottom: '0.5rem',
+													fontWeight: '600',
+													color: 'V9_COLORS.TEXT.GRAY_DARK',
+												}}
+											>
 												DPoP Status
 											</div>
 											<div
@@ -652,11 +672,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 													<span style={{ fontWeight: '500' }}>Browser Support:</span>
-													<span style={{ color: '#10b981' }}>✓ Supported</span>
+													<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Supported</span>
 												</div>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 													<span style={{ fontWeight: '500' }}>Algorithm:</span>
-													<span style={{ color: '#6b7280' }}>{value.dpopAlgorithm}</span>
+													<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+														{value.dpopAlgorithm}
+													</span>
 												</div>
 											</div>
 										</div>
@@ -667,23 +689,33 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												display: 'flex',
 												gap: '0.75rem',
 												padding: '1rem',
-												background: '#eff6ff',
-												border: '1px solid #bfdbfe',
+												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
 										>
 											<FiInfo
-												color="#1e40af"
+												color="V9_COLORS.PRIMARY.BLUE_DARK"
 												size={20}
 												style={{ flexShrink: 0, marginTop: '0.125rem' }}
 											/>
 											<div>
 												<div
-													style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.25rem' }}
+													style={{
+														fontWeight: '600',
+														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														marginBottom: '0.25rem',
+													}}
 												>
 													How DPoP Works
 												</div>
-												<div style={{ color: '#1e40af', fontSize: '0.875rem', lineHeight: '1.4' }}>
+												<div
+													style={{
+														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														fontSize: '0.875rem',
+														lineHeight: '1.4',
+													}}
+												>
 													DPoP creates a cryptographic proof for each HTTP request using a private
 													key. The authorization server can verify this proof to ensure the request
 													comes from the legitimate client, preventing token theft and replay
@@ -729,13 +761,17 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							id="pkce-enforcement"
 							value={value.pkceEnforcement}
 							disabled
-							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
+							style={{
+								backgroundColor: '#f9fafb',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								cursor: 'not-allowed',
+							}}
 						>
 							<option value="OPTIONAL">Optional</option>
 							<option value="REQUIRED">Required</option>
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+						<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
 							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
 							to see this feature in the flow
 						</Helper>
@@ -796,7 +832,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						>
 							<span />
 						</Toggle>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+						<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
 							🔧 Enable JWKS to configure JWT signature validation features
 						</Helper>
 					</Field>
@@ -827,7 +863,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										JWKS
 									</RadioLabel>
 								</RadioGroup>
-								<Helper style={{ color: '#059669', fontWeight: '500' }}>
+								<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
 									🔧 Choose how to provide your JSON Web Key Set
 								</Helper>
 							</Field>
@@ -842,7 +878,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										onChange={(e) => onChange({ ...value, jwksUrl: e.target.value })}
 										placeholder="https://example.com/.well-known/jwks.json"
 									/>
-									<Helper style={{ color: '#059669', fontWeight: '500' }}>
+									<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
 										⚙️ Configured in PingOne → Set your JWKS URL in PingOne application settings
 									</Helper>
 								</Field>
@@ -857,7 +893,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										onChange={(e) => onChange({ ...value, jwks: e.target.value })}
 										placeholder='{"keys": [...]}'
 									/>
-									<Helper style={{ color: '#059669', fontWeight: '500' }}>
+									<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
 										🔧 Enter your JSON Web Key Set as JSON
 									</Helper>
 								</Field>

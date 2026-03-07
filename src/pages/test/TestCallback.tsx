@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -27,19 +28,19 @@ const Card = styled.div<{ status: 'success' | 'error' | 'info' }>`
 	border-radius: 0.5rem;
 	border-left: 4px solid
 		${(props) =>
-			props.status === 'success' ? '#10b981' : props.status === 'error' ? '#ef4444' : '#3b82f6'};
+			props.status === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : props.status === 'error' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE'};
 	background: ${(props) =>
-		props.status === 'success' ? '#f0fdf4' : props.status === 'error' ? '#fef2f2' : '#eff6ff'};
+		props.status === 'success' ? '#f0fdf4' : props.status === 'error' ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT'};
 `;
 
 const Title = styled.h1`
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 	font-size: 1.5rem;
 `;
 
 const Message = styled.p`
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	font-size: 1.1rem;
 `;
@@ -50,7 +51,7 @@ const TokenSection = styled.div`
 
 const TokenLabel = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -58,18 +59,18 @@ const TokenLabel = styled.div`
 const TokenValue = styled.div`
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 	font-size: 0.75rem;
-	color: #1f2937;
-	background: #ffffff;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: V9_COLORS.TEXT.WHITE;
 	padding: 0.75rem;
 	border-radius: 0.25rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	word-break: break-all;
 	margin-bottom: 1rem;
 `;
 
 const Button = styled.button`
 	padding: 0.75rem 1.5rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -78,7 +79,7 @@ const Button = styled.button`
 	transition: background 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 

@@ -19,7 +19,7 @@ const TemplatesHeader = styled.div`
 
 const TemplatesTitle = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
 `;
 
@@ -31,28 +31,28 @@ const TemplateGrid = styled.div`
 `;
 
 const TemplateCard = styled.div<{ $selected: boolean }>`
-  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
+  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  background: ${({ $selected }) => ($selected ? '#eff6ff' : 'white')};
+  background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const TemplateName = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
 `;
 
 const TemplateDescription = styled.p`
   margin: 0 0 1rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
@@ -65,12 +65,12 @@ const TemplateFeatures = styled.ul`
 
 const FeatureItem = styled.li`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.25rem;
   
   &::before {
     content: '';
-    color: #10b981;
+    color: V9_COLORS.PRIMARY.GREEN;
     font-weight: bold;
     margin-right: 0.5rem;
   }
@@ -91,21 +91,21 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 		}
 	}}
@@ -119,7 +119,7 @@ const ButtonGroup = styled.div`
 `;
 
 const ConfigPreview = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -141,20 +141,20 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' }>`
 			case 'info':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
           border: 1px solid #93c5fd;
         `;
 			case 'success':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
           border: 1px solid #86efac;
         `;
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fde68a;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 1px solid V9_COLORS.BG.WARNING_BORDER;
         `;
 		}
 	}}

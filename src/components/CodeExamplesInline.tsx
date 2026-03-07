@@ -21,8 +21,8 @@ interface CodeExamplesInlineProps {
 }
 
 const Container = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	overflow: hidden;
 `;
@@ -30,19 +30,19 @@ const Container = styled.div`
 const ToggleButton = styled.button<{ $isOpen: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	background: ${({ $isOpen }) => ($isOpen ? '#e2e8f0' : '#f8fafc')};
+	background: ${({ $isOpen }) => ($isOpen ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.GRAY_LIGHT')};
 	border: none;
-	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid #e2e8f0' : 'none')};
+	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 
 	&:hover {
-		background: #e2e8f0;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
@@ -54,7 +54,7 @@ const ToggleContent = styled.div<{ $isOpen: boolean }>`
 
 const QuickCodePreview = styled.div`
 	padding: 1rem;
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	border-radius: 6px;
 	margin: 1rem;
@@ -73,14 +73,14 @@ const QuickCodePreview = styled.div`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: #2d3748;
+		background: V9_COLORS.TEXT.GRAY_MEDIUM;
 		border-radius: 6px;
 	}
 
 	&::-webkit-scrollbar-thumb {
 		background: #4a5568;
 		border-radius: 6px;
-		border: 2px solid #2d3748;
+		border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
@@ -88,7 +88,7 @@ const QuickCodePreview = styled.div`
 	}
 
 	&::-webkit-scrollbar-corner {
-		background: #2d3748;
+		background: V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
@@ -117,14 +117,14 @@ const LanguageTabs = styled.div`
 	display: flex;
 	gap: 0.25rem;
 	padding: 0.75rem 1rem 0;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 `;
 
 const LanguageTab = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
-	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 6px 6px 0 0;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -135,7 +135,7 @@ const LanguageTab = styled.button<{ $active: boolean }>`
 
 	&:hover {
 		background: ${({ $active, disabled }) =>
-			disabled ? '#ffffff' : $active ? '#2563eb' : '#f3f4f6'};
+			disabled ? 'V9_COLORS.TEXT.WHITE' : $active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6'};
 	}
 `;
 

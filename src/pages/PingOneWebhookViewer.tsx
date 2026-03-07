@@ -32,6 +32,7 @@ import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	container: {
@@ -56,7 +57,7 @@ const styles = {
 		gap: '1rem',
 		padding: '1.75rem',
 		borderRadius: '1rem',
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		border: 'none',
 	} as React.CSSProperties,
 	titleRow: {
@@ -106,15 +107,15 @@ const styles = {
 			fontWeight: 600,
 			cursor: 'pointer',
 		};
-		if (variant === 'primary') return { ...base, background: '#3b82f6', color: 'white' };
-		if (variant === 'danger') return { ...base, background: '#ef4444', color: 'white' };
-		return { ...base, background: '#f1f5f9', color: '#475569' };
+		if (variant === 'primary') return { ...base, background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' };
+		if (variant === 'danger') return { ...base, background: 'V9_COLORS.PRIMARY.RED', color: 'white' };
+		return { ...base, background: 'V9_COLORS.BG.GRAY_MEDIUM', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' };
 	},
 	tabsContainer: {
 		display: 'flex',
 		gap: '0.5rem',
 		marginBottom: '2rem',
-		borderBottom: '2px solid #e2e8f0',
+		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	tab: (active: boolean): React.CSSProperties => ({
 		padding: '0.75rem 1.5rem',
@@ -122,14 +123,14 @@ const styles = {
 		background: 'none',
 		fontSize: '0.875rem',
 		fontWeight: 600,
-		color: active ? '#3b82f6' : '#64748b',
+		color: active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		cursor: 'pointer',
-		borderBottom: `2px solid ${active ? '#3b82f6' : 'transparent'}`,
+		borderBottom: `2px solid ${active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent'}`,
 		marginBottom: '-2px',
 	}),
 	sectionCard: {
 		background: 'white',
-		border: '1px solid #e2e8f0',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.75rem',
 		padding: '1.5rem',
 		marginBottom: '2rem',
@@ -159,7 +160,7 @@ const styles = {
 	labelText: {
 		fontSize: '0.875rem',
 		fontWeight: 600,
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	input: {
 		padding: '0.75rem',
@@ -179,8 +180,8 @@ const styles = {
 		gap: '1rem',
 	} as React.CSSProperties,
 	subscriptionCard: {
-		background: '#f8fafc',
-		border: '1px solid #e2e8f0',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 		padding: '1.25rem',
 		display: 'flex',
@@ -202,7 +203,7 @@ const styles = {
 		flexWrap: 'wrap' as const,
 		gap: '1rem',
 		fontSize: '0.875rem',
-		color: '#64748b',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	subscriptionActions: {
 		display: 'flex',
@@ -216,8 +217,8 @@ const styles = {
 		borderRadius: '0.375rem',
 		fontSize: '0.75rem',
 		fontWeight: 600,
-		background: enabled ? '#dcfce7' : '#fee2e2',
-		color: enabled ? '#166534' : '#991b1b',
+		background: enabled ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR',
+		color: enabled ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK',
 	}),
 	webhookContainer: {
 		display: 'flex',
@@ -227,7 +228,7 @@ const styles = {
 	} as React.CSSProperties,
 	webhookCard: {
 		background: 'white',
-		border: '1px solid #e2e8f0',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.75rem',
 		padding: '1.5rem',
 		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -251,11 +252,11 @@ const styles = {
 		alignItems: 'center',
 		gap: '1rem',
 		fontSize: '0.875rem',
-		color: '#64748b',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	webhookBody: {
-		background: '#f8fafc',
-		border: '1px solid #e2e8f0',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 		padding: '1rem',
 		fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
@@ -272,22 +273,22 @@ const styles = {
 			fontSize: '0.75rem',
 			fontWeight: 600,
 		};
-		if (status === 'success') return { ...base, background: '#dcfce7', color: '#166534' };
-		if (status === 'error') return { ...base, background: '#fee2e2', color: '#991b1b' };
-		if (status === 'pending') return { ...base, background: '#fef3c7', color: '#92400e' };
-		return { ...base, background: '#f1f5f9', color: '#475569' };
+		if (status === 'success') return { ...base, background: 'V9_COLORS.BG.SUCCESS', color: 'V9_COLORS.PRIMARY.GREEN' };
+		if (status === 'error') return { ...base, background: 'V9_COLORS.BG.ERROR', color: 'V9_COLORS.PRIMARY.RED_DARK' };
+		if (status === 'pending') return { ...base, background: 'V9_COLORS.BG.WARNING', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' };
+		return { ...base, background: 'V9_COLORS.BG.GRAY_MEDIUM', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' };
 	},
 	emptyState: {
 		textAlign: 'center' as const,
 		padding: '4rem 2rem',
-		color: '#64748b',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	filterBar: {
 		display: 'flex',
 		gap: '1rem',
 		alignItems: 'center',
 		padding: '1rem',
-		background: '#f8fafc',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
 		borderRadius: '0.5rem',
 		marginBottom: '1.5rem',
 		flexWrap: 'wrap' as const,
@@ -304,7 +305,7 @@ const styles = {
 	filterLabel: {
 		fontSize: '0.875rem',
 		fontWeight: 600,
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
@@ -318,7 +319,7 @@ const styles = {
 		borderRadius: '0.375rem',
 		background: 'white',
 		fontSize: '0.875rem',
-		color: '#64748b',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		cursor: 'pointer',
 	} as React.CSSProperties,
 };
@@ -1363,8 +1364,8 @@ const PingOneWebhookViewer: React.FC = () => {
 							width: '100%',
 							padding: '0.6rem 0.85rem',
 							borderRadius: '0.5rem',
-							border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
-							background: !environmentId.trim() ? '#fffbeb' : '#f8fafc',
+							border: `1px solid ${!environmentId.trim() ? 'V9_COLORS.PRIMARY.YELLOW' : '#cbd5e1'}`,
+							background: !environmentId.trim() ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT',
 							fontSize: '0.875rem',
 							fontFamily: "'Monaco', 'Menlo', monospace",
 						}}
@@ -1374,7 +1375,7 @@ const PingOneWebhookViewer: React.FC = () => {
 							style={{
 								margin: '0.4rem 0 0',
 								fontSize: '0.78rem',
-								color: '#d97706',
+								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 								fontWeight: 600,
 							}}
 						>
@@ -1492,13 +1493,13 @@ const PingOneWebhookViewer: React.FC = () => {
 								gap: '0.75rem',
 								marginBottom: '1rem',
 								padding: '0.75rem 1rem',
-								background: '#f8fafc',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<FiGlobe size={16} style={{ color: '#64748b' }} />
-							<span style={{ fontSize: '0.875rem', color: '#475569', fontWeight: 600 }}>
+							<FiGlobe size={16} style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }} />
+							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>
 								PingOne Region:
 							</span>
 							<select
@@ -1578,7 +1579,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										onChange={(e) => setFormData({ ...formData, httpEndpointUrl: e.target.value })}
 										placeholder={`${window.location.origin}/api/webhooks/pingone`}
 									/>
-									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+									<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.78rem' }}>
 										PingOne will POST events to this HTTPS URL.
 									</small>
 								</div>
@@ -1611,7 +1612,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										}
 										placeholder="AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED"
 									/>
-									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+									<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.78rem' }}>
 										See Audit Reporting Events docs for valid values.
 									</small>
 								</div>
@@ -1634,7 +1635,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										/>
 										Verify TLS Certificates
 									</label>
-									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+									<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.78rem' }}>
 										Set false for self-signed certs / local dev.
 									</small>
 								</div>
@@ -1686,7 +1687,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									<h2 style={styles.sectionTitle}>Webhook Subscriptions</h2>
 								</div>
 								{isLoadingSubscriptions ? (
-									<p style={{ color: '#64748b' }}>Loading subscriptions...</p>
+									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Loading subscriptions...</p>
 								) : subscriptions.length === 0 ? (
 									<div style={styles.emptyState}>
 										<FiServer size={48} />
@@ -1713,7 +1714,7 @@ const PingOneWebhookViewer: React.FC = () => {
 														{subscription.format && <span>Format: {subscription.format}</span>}
 														{((subscription.filterOptions?.includedActionTypes?.length ?? 0) > 0 ||
 															(subscription.topics?.length ?? 0) > 0) && (
-															<span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+															<span style={{ fontSize: '0.78rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 																Events:{' '}
 																{(
 																	subscription.filterOptions?.includedActionTypes ||
@@ -1753,8 +1754,8 @@ const PingOneWebhookViewer: React.FC = () => {
 					<>
 						<div
 							style={{
-								background: '#fef3c7',
-								border: '2px solid #f59e0b',
+								background: 'V9_COLORS.BG.WARNING',
+								border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.5rem',
 								padding: '1.5rem',
 								marginBottom: '2rem',
@@ -1768,8 +1769,8 @@ const PingOneWebhookViewer: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiAlertCircle color="#f59e0b" size={20} />
-								<strong style={{ color: '#92400e', fontSize: '1rem' }}>
+								<FiAlertCircle color="V9_COLORS.PRIMARY.YELLOW" size={20} />
+								<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1rem' }}>
 									Webhook Configuration URL
 								</strong>
 							</div>
@@ -1777,7 +1778,7 @@ const PingOneWebhookViewer: React.FC = () => {
 								<div
 									style={{
 										background: 'white',
-										border: '1px solid #f59e0b',
+										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 										borderRadius: '0.375rem',
 										padding: '0.75rem 1rem',
 										flex: 1,
@@ -1803,7 +1804,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										alignItems: 'center',
 										gap: '0.5rem',
 										padding: '0.75rem 1.5rem',
-										background: '#f59e0b',
+										background: 'V9_COLORS.PRIMARY.YELLOW',
 										color: 'white',
 										border: 'none',
 										borderRadius: '0.375rem',
@@ -1816,21 +1817,21 @@ const PingOneWebhookViewer: React.FC = () => {
 									Copy URL
 								</button>
 							</div>
-							<p style={{ color: '#92400e', fontSize: '0.875rem', margin: '1rem 0 0 0' }}>
+							<p style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '0.875rem', margin: '1rem 0 0 0' }}>
 								Copy this URL and paste it into the "Destination URL" field in your PingOne webhook
 								configuration.
 							</p>
 						</div>
 
 						<div style={{ marginBottom: '1rem' }}>
-							<p style={{ color: '#64748b', fontSize: '0.875rem' }}>
+							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 								Monitor PingOne webhook events in real-time. Configure the webhook URL above in
 								PingOne, then start monitoring to see events as they arrive.
 							</p>
 							{isActive && (
 								<p
 									style={{
-										color: '#10b981',
+										color: 'V9_COLORS.PRIMARY.GREEN',
 										fontSize: '0.875rem',
 										marginTop: '0.5rem',
 										fontWeight: 500,
@@ -1843,7 +1844,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 						{webhooks.length > 0 && (
 							<div style={styles.filterBar}>
-								<FiFilter size={20} color="#64748b" />
+								<FiFilter size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" />
 								<label style={styles.filterLabel}>
 									Status:
 									<select

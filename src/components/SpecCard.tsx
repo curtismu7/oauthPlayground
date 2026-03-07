@@ -57,16 +57,16 @@ const SpecCardContainer = styled.section`
   }
 
   a {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
     text-decoration: underline;
   }
 
   a:hover {
-    color: #1d4ed8;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   &:focus-within {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid V9_COLORS.PRIMARY.BLUE;
     outline-offset: 2px;
   }
 

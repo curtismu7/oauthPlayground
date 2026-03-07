@@ -21,6 +21,7 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -207,7 +208,7 @@ const TokenSection = styled.div`
 
 const TokenHeader = styled.div`
   background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
@@ -223,7 +224,7 @@ const TokenTitle = styled.h3`
 
 const TokenToggle = styled.button`
   background: none;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 0.5rem;
   color: var(--brand-text-secondary);
@@ -487,28 +488,28 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 					title: 'Low Risk',
 					description: 'Your login was completed successfully with standard security measures.',
 					icon: '✅',
-					color: '#10b981',
+					color: 'V9_COLORS.PRIMARY.GREEN',
 				};
 			case 'MEDIUM':
 				return {
 					title: 'Medium Risk (MFA Verified)',
 					description: 'Additional verification was completed successfully to secure your login.',
 					icon: '🔐',
-					color: '#f59e0b',
+					color: 'V9_COLORS.PRIMARY.YELLOW',
 				};
 			case 'HIGH':
 				return {
 					title: 'High Risk (Blocked)',
 					description: 'This login was blocked due to security concerns.',
 					icon: '🚫',
-					color: '#ef4444',
+					color: 'V9_COLORS.PRIMARY.RED',
 				};
 			default:
 				return {
 					title: 'Unknown Risk',
 					description: 'Risk level could not be determined.',
 					icon: '❓',
-					color: '#6b7280',
+					color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 				};
 		}
 	};
@@ -718,12 +719,12 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 						{/* Token Validation */}
 						{tokenValidation && (
 							<TokenInfo
-								style={{ marginTop: '1.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}
+								style={{ marginTop: '1.5rem', borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER', paddingTop: '1rem' }}
 							>
 								<TokenInfoItem>
 									<InfoLabelSmall>Validation Status</InfoLabelSmall>
 									<InfoValueSmall
-										style={{ color: tokenValidation.isValid ? '#059669' : '#dc2626' }}
+										style={{ color: tokenValidation.isValid ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK' }}
 									>
 										{tokenValidation.isValid ? 'Valid' : 'Invalid'}
 									</InfoValueSmall>
@@ -747,7 +748,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 								{tokenValidation.warnings.length > 0 && (
 									<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
 										<InfoLabelSmall>Warnings</InfoLabelSmall>
-										<InfoValueSmall style={{ fontSize: '0.75rem', color: '#d97706' }}>
+										<InfoValueSmall style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 											{tokenValidation.warnings.join(', ')}
 										</InfoValueSmall>
 									</TokenInfoItem>
@@ -755,7 +756,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 								{tokenValidation.errors.length > 0 && (
 									<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
 										<InfoLabelSmall>Errors</InfoLabelSmall>
-										<InfoValueSmall style={{ fontSize: '0.75rem', color: '#dc2626' }}>
+										<InfoValueSmall style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 											{tokenValidation.errors.join(', ')}
 										</InfoValueSmall>
 									</TokenInfoItem>
@@ -776,7 +777,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				{/* Educational Section */}
 				<EducationalSection>
 					<EducationalHeader>
-						<FiInfo style={{ color: '#3b82f6' }} />
+						<FiInfo style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 						<EducationalTitle>{educationalContent.title}</EducationalTitle>
 					</EducationalHeader>
 

@@ -31,7 +31,7 @@ export interface PAREducationalPanelProps {
 }
 
 const PanelContainer = styled.div`
-	background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	padding: 32px;
 	border-radius: 16px;
@@ -112,7 +112,7 @@ const CodeBlockHeader = styled.div`
 
 const CodeBlockTitle = styled.div`
 	font-weight: 600;
-	color: #fbbf24;
+	color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
 `;
 
 const ParameterList = styled.dl`
@@ -123,7 +123,7 @@ const ParameterList = styled.dl`
 	
 	dt {
 		font-weight: 600;
-		color: #fbbf24;
+		color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
 		margin-top: 12px;
 		font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 		font-size: 0.875rem;
@@ -214,7 +214,7 @@ const WarningBox = styled.div`
 	
 	svg {
 		flex-shrink: 0;
-		color: #fbbf24;
+		color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
 		margin-top: 2px;
 	}
 `;

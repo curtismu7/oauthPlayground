@@ -83,7 +83,7 @@ export const RESPONSE_MODE_EXAMPLES: ResponseModeExample[] = [
 // Styled Components
 const ExamplesContainer = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -93,7 +93,7 @@ const ExamplesTitle = styled.h4`
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -107,14 +107,14 @@ const ExamplesGrid = styled.div`
 
 const ExampleCard = styled.div`
   background: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   }
 `;
@@ -130,19 +130,19 @@ const ExampleTitle = styled.h5`
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.4;
 `;
 
 const ExampleIcon = styled.div`
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   margin-top: 0.125rem;
 `;
 
 const ExampleDescription = styled.p`
   margin: 0 0 0.75rem 0;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
 `;
 
@@ -159,12 +159,12 @@ const ExampleDetail = styled.div`
 `;
 
 const ExampleDetailLabel = styled.span`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
 const ExampleDetailValue = styled.code`
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   background: #f3f4f6;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;

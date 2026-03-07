@@ -12,6 +12,7 @@ import {
 	FiTarget,
 } from '../../services/commonImportsService';
 import PageLayoutService from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 
@@ -34,7 +35,7 @@ const HeroIcon = styled.span`
 	height: 48px;
 	border-radius: 16px;
 	background: rgba(59, 130, 246, 0.15);
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 24px;
 	margin-right: 1rem;
 `;
@@ -61,7 +62,7 @@ const Pill = styled.span<{ $variant?: 'default' | 'critical' }>`
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-	color: ${({ $variant }) => ($variant === 'critical' ? '#b91c1c' : '#1d4ed8')};
+	color: ${({ $variant }) => ($variant === 'critical' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	background: ${({ $variant }) =>
 		$variant === 'critical' ? 'rgba(248, 113, 113, 0.18)' : 'rgba(59, 130, 246, 0.15)'};
 `;
@@ -75,7 +76,7 @@ const ScopeTable = styled.table`
 	td {
 		padding: 0.9rem 1rem;
 		text-align: left;
-		border-bottom: 1px solid #e2e8f0;
+		border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 		vertical-align: top;
 	}
 
@@ -83,19 +84,19 @@ const ScopeTable = styled.table`
 		font-size: 0.85rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: #475569;
-		background: #f8fafc;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		background: V9_COLORS.BG.GRAY_LIGHT;
 	}
 
 	tr:hover td {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 	}
 
 	code {
 		padding: 0.2rem 0.4rem;
 		border-radius: 0.35rem;
-		background: #0f172a;
-		color: #e2e8f0;
+		background: V9_COLORS.TEXT.GRAY_DARK;
+		color: V9_COLORS.TEXT.GRAY_LIGHTER;
 		font-size: 0.75rem;
 	}
 `;
@@ -107,14 +108,14 @@ const Callout = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
 			case 'success':
-				return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)';
 			default:
-				return 'linear-gradient(135deg, #e0e7ff 0%, #bfdbfe 100%)';
+				return 'linear-gradient(135deg, #e0e7ff 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
 		}
 	}};
-	border-left: 4px solid ${({ $variant }) => ($variant === 'warning' ? '#f59e0b' : '#2563eb')};
+	border-left: 4px solid ${({ $variant }) => ($variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	color: #1e293b;
 	display: flex;
 	gap: 0.75rem;
@@ -144,8 +145,8 @@ const BestPracticeList = styled.ul`
 const ScopeCategoryCard = styled.div`
 	padding: 1.5rem;
 	border-radius: 1rem;
-	border: 1px solid #e2e8f0;
-	background: #ffffff;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: V9_COLORS.TEXT.WHITE;
 	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 
 	h3 {
@@ -154,11 +155,11 @@ const ScopeCategoryCard = styled.div`
 		align-items: center;
 		gap: 0.6rem;
 		font-size: 1.2rem;
-		color: #1d4ed8;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	p {
-		color: #475569;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		margin: 0;
 		line-height: 1.6;
 	}
@@ -180,7 +181,7 @@ const ScopeBadge = styled.span`
 	padding: 0.2rem 0.6rem;
 	border-radius: 9999px;
 	background: rgba(14, 165, 233, 0.12);
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -189,7 +190,7 @@ const ScopeBadge = styled.span`
 
 const FooterNote = styled.p`
 	margin: 0;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.85rem;
 	line-height: 1.6;
 `;
@@ -311,7 +312,7 @@ const PingOneScopesReference: React.FC = () => {
 									<td>Phone number and verification flag.</td>
 									<td>Pair with MFA enrollment experiences or SMS-based alerts.</td>
 								</tr>
-								<tr style={{ background: '#fef3c7' }}>
+								<tr style={{ background: 'V9_COLORS.BG.WARNING' }}>
 									<td>
 										<code>offline_access</code>
 										<br />
@@ -621,7 +622,7 @@ const PingOneScopesReference: React.FC = () => {
 										href={documentationUrl}
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										PingOne Authorization Scopes
 									</a>{' '}
@@ -632,7 +633,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/bundle/pingone/page/kqb1664025065516.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										PingOne Access Management – Scopes Overview
 									</a>{' '}
@@ -643,7 +644,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/pingfederate/12.2/developers_reference_guide/pf_dev_ref.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										PingFederate Developer’s Reference Guide
 									</a>{' '}
@@ -655,7 +656,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://www.pingidentity.com/content/dam/developer/downloads/Resources/OAuth2%20Developers%20Guide%20(1).pdf"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										Ping Identity OAuth 2.0 Developer’s Guide (PDF)
 									</a>{' '}
@@ -666,7 +667,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/index.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										Ping Identity OpenID Connect Developer Guide
 									</a>{' '}
@@ -677,7 +678,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://datatracker.ietf.org/doc/html/rfc6749#section-3.3"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										RFC 6749 Section 3.3
 									</a>{' '}
@@ -688,7 +689,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://tools.ietf.org/html/rfc6749"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										RFC 6749 (Full Specification)
 									</a>{' '}
@@ -700,7 +701,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://openid.net/developers/how-connect-works/"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: '#2563eb', fontWeight: 600 }}
+										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 									>
 										OpenID Connect – How Connect Works
 									</a>{' '}
@@ -716,7 +717,7 @@ const PingOneScopesReference: React.FC = () => {
 								Need deeper access modeling? Pair this guide with the{' '}
 								<a
 									href="/docs/oauth2-security-best-practices"
-									style={{ color: '#2563eb', fontWeight: 600 }}
+									style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 								>
 									OAuth 2.0 Security Best Practices
 								</a>{' '}

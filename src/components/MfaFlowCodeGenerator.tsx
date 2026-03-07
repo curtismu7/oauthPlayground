@@ -6,8 +6,8 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CodeCategory, CodeType, FlowStep, InteractiveCodeEditor } from './InteractiveCodeEditor';
 
 const CodeGeneratorContainer = styled.div`
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   padding: 24px;
   margin-top: 24px;
@@ -15,7 +15,7 @@ const CodeGeneratorContainer = styled.div`
 
 const Description = styled.p`
   margin: 0 0 16px 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 14px;
   line-height: 1.6;
 `;

@@ -10,9 +10,9 @@ import { logger } from '../utils/logger';
 import ConfirmationModal from './ConfirmationModal';
 
 const Container = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.5rem;
 	margin: 1rem 0;
 `;
@@ -28,7 +28,7 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -42,8 +42,8 @@ const StatsContainer = styled.div`
 `;
 
 const StatCard = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	text-align: center;
@@ -52,13 +52,13 @@ const StatCard = styled.div`
 const StatValue = styled.div`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ActionsContainer = styled.div`
@@ -84,32 +84,32 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
-					border-color: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
+					border-color: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover {
-						background: #2563eb;
-						border-color: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
+						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'danger':
 				return `
-					background: #ef4444;
-					border-color: #ef4444;
+					background: V9_COLORS.PRIMARY.RED;
+					border-color: V9_COLORS.PRIMARY.RED;
 					color: white;
 					&:hover {
-						background: #dc2626;
-						border-color: #dc2626;
+						background: V9_COLORS.PRIMARY.RED_DARK;
+						border-color: V9_COLORS.PRIMARY.RED_DARK;
 					}
 				`;
 			default:
 				return `
 					background: #f9fafb;
-					border-color: #d1d5db;
-					color: #374151;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+					color: V9_COLORS.TEXT.GRAY_DARK;
 					&:hover {
 						background: #f3f4f6;
-						border-color: #9ca3af;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}
@@ -117,8 +117,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 `;
 
 const FlowsList = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 `;
@@ -129,7 +129,7 @@ const FlowItem = styled.div`
 	justify-content: space-between;
 	padding: 0.75rem;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	margin-bottom: 0.5rem;
 
@@ -140,18 +140,18 @@ const FlowItem = styled.div`
 
 const FlowName = styled.div`
 	font-weight: 500;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FlowDetails = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.25rem;
 `;
 
 const InfoBox = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -159,7 +159,7 @@ const InfoBox = styled.div`
 
 const InfoTitle = styled.div`
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -168,7 +168,7 @@ const InfoTitle = styled.div`
 
 const InfoText = styled.div`
 	font-size: 0.875rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
@@ -278,7 +278,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 							margin: '0 0 1rem 0',
 							fontSize: '0.875rem',
 							fontWeight: '600',
-							color: '#374151',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 						}}
 					>
 						Backed Up Flows

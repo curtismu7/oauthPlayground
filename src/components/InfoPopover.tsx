@@ -21,7 +21,7 @@ const Trigger = styled.button`
   height: 1.6rem;
   border-radius: 9999px;
   background: rgba(59, 130, 246, 0.12);
-  color: #1d4ed8;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -50,8 +50,8 @@ const PopoverCard = styled.div`
   transform: translateX(-50%);
   min-width: 14rem;
   max-width: 18rem;
-  background: #0f172a;
-  color: #f8fafc;
+  background: V9_COLORS.TEXT.GRAY_DARK;
+  color: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 0.75rem;
   padding: 0.85rem 1rem;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);

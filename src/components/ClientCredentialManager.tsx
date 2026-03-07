@@ -8,7 +8,7 @@ import { useCredentialStoreV8 } from '../hooks/useCredentialStoreV8';
 
 const Container = styled.div`
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   background: #f9fafb;
   margin: 1rem 0;
@@ -23,7 +23,7 @@ const Header = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
 `;
 
@@ -44,35 +44,35 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border: 1px solid #3b82f6;
+          border: 1px solid V9_COLORS.PRIMARY.BLUE;
 
           &:hover:not(:disabled) {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          border: 1px solid #ef4444;
+          border: 1px solid V9_COLORS.PRIMARY.RED;
 
           &:hover:not(:disabled) {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: V9_COLORS.PRIMARY.RED_DARK;
+            border-color: V9_COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: #374151;
-          border: 1px solid #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
           &:hover:not(:disabled) {
             background: #f9fafb;
-            border-color: #9ca3af;
+            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -92,7 +92,7 @@ const AppList = styled.div`
 
 const AppItem = styled.div`
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   background: white;
 `;
@@ -106,13 +106,13 @@ const AppHeader = styled.div`
 
 const AppName = styled.h4`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const CredentialStatus = styled.div<{ $hasSecret: boolean }>`
   font-size: 0.75rem;
-  color: ${(props) => (props.$hasSecret ? '#059669' : '#d97706')};
+  color: ${(props) => (props.$hasSecret ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
   font-weight: 500;
 `;
 
@@ -126,19 +126,19 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.75rem;
 `;
 
 const Input = styled.input`
   padding: 0.375rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
   font-size: 0.75rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -276,13 +276,13 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 			{hasEnvCredentials && (
 				<div
 					style={{
-						background: '#ecfdf5',
-						border: '1px solid #d1fae5',
+						background: 'V9_COLORS.BG.SUCCESS',
+						border: '1px solid V9_COLORS.BG.SUCCESS',
 						borderRadius: '0.375rem',
 						padding: '0.75rem',
 						marginBottom: '1rem',
 						fontSize: '0.875rem',
-						color: '#065f46',
+						color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 					}}
 				>
 					<strong>Environment Variables Detected:</strong> Client credentials found in environment.
@@ -296,7 +296,7 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 						<AppHeader>
 							<div>
 								<AppName>{app.label}</AppName>
-								<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									Client ID: {app.clientId.substring(0, 12)}... • Env:{' '}
 									{app.environmentId.substring(0, 12)}...
 								</div>
@@ -354,7 +354,7 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 						style={{
 							textAlign: 'center',
 							padding: '2rem',
-							color: '#6b7280',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							fontSize: '0.875rem',
 						}}
 					>

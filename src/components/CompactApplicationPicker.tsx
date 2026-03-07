@@ -22,33 +22,33 @@ const SearchBox = styled.div`
 const SearchIcon = styled(FiSearch)`
 	position: absolute;
 	left: 0.75rem;
-	color: #9ca3af;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
 	pointer-events: none;
 `;
 
 const SearchInput = styled.input`
 	width: 100%;
 	padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: all 0.15s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const AppList = styled.div`
 	max-height: 300px;
 	overflow-y: auto;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: white;
 `;
@@ -60,14 +60,14 @@ const AppItem = styled.button<{ $selected?: boolean }>`
 	gap: 0.75rem;
 	padding: 0.75rem;
 	border: none;
-	background: ${({ $selected }) => ($selected ? '#eff6ff' : 'white')};
-	border-left: 3px solid ${({ $selected }) => ($selected ? '#3b82f6' : 'transparent')};
+	background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+	border-left: 3px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
 	cursor: pointer;
 	transition: all 0.15s;
 	text-align: left;
 
 	&:hover {
-		background: ${({ $selected }) => ($selected ? '#eff6ff' : '#f9fafb')};
+		background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
 	}
 
 	&:not(:last-child) {
@@ -97,7 +97,7 @@ const AppInfo = styled.div`
 const AppName = styled.div`
 	font-weight: 500;
 	font-size: 0.875rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -105,7 +105,7 @@ const AppName = styled.div`
 
 const AppId = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', monospace;
 	white-space: nowrap;
 	overflow: hidden;
@@ -117,7 +117,7 @@ const LoadingState = styled.div`
 	align-items: center;
 	justify-content: center;
 	padding: 2rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	gap: 0.5rem;
 `;
@@ -127,17 +127,17 @@ const ErrorState = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 1rem;
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.375rem;
-	color: #991b1b;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 `;
 
 const EmptyState = styled.div`
 	padding: 2rem;
 	text-align: center;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
@@ -146,10 +146,10 @@ const RefreshButton = styled.button`
 	align-items: center;
 	gap: 0.375rem;
 	padding: 0.375rem 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: white;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.8125rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -157,7 +157,7 @@ const RefreshButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: #9ca3af;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	svg {
@@ -184,7 +184,7 @@ const Header = styled.div`
 const Title = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 interface CompactApplicationPickerProps {

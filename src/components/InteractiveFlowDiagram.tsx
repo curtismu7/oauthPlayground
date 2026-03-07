@@ -53,16 +53,16 @@ const PageHeader = styled.div`
   h1 {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #1e40af;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
     margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #3b82f6, #22c55e);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-size: 1rem;
     max-width: 500px;
     margin: 0 auto;
@@ -84,11 +84,11 @@ const FlowButton = styled.button<{ $selected: boolean }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
+  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   background: ${({ $selected }) =>
-		$selected ? 'linear-gradient(135deg, #dbeafe, #bfdbfe)' : 'white'};
-  color: ${({ $selected }) => ($selected ? '#1e40af' : '#374151')};
+		$selected ? 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)' : 'white'};
+  color: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -97,8 +97,8 @@ const FlowButton = styled.button<{ $selected: boolean }>`
 		$selected ? '0 4px 6px rgba(59, 130, 246, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
   
   &:hover {
-    border-color: #3b82f6;
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
   }
@@ -111,9 +111,9 @@ const ControlsPanel = styled.div`
   margin-bottom: 1rem;
   justify-content: center;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.TEXT.GRAY_LIGHTER);
   border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   flex-shrink: 0;
 `;
 
@@ -146,7 +146,7 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 const DiagramArea = styled.div`
   position: relative;
   flex: 1;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   border-radius: 1rem;
   padding: 1rem;
   overflow: hidden;
@@ -173,11 +173,11 @@ const ActorCard = styled.div<{ $actor: string }>`
   background: ${({ $actor }) => {
 		switch ($actor) {
 			case 'user':
-				return 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
 			case 'client':
-				return 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS, #a7f3d0)';
 			case 'auth-server':
-				return 'linear-gradient(135deg, #fef3c7, #fde68a)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING, V9_COLORS.BG.WARNING_BORDER)';
 			case 'server':
 				return 'linear-gradient(135deg, #e9d5ff, #ddd6fe)';
 			default:
@@ -187,15 +187,15 @@ const ActorCard = styled.div<{ $actor: string }>`
   border: 2px solid ${({ $actor }) => {
 		switch ($actor) {
 			case 'user':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'client':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'auth-server':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'server':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -210,15 +210,15 @@ const ActorCard = styled.div<{ $actor: string }>`
     color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
-					return '#1e40af';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'client':
-					return '#065f46';
+					return 'V9_COLORS.PRIMARY.GREEN_DARK';
 				case 'auth-server':
-					return '#92400e';
+					return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 				case 'server':
 					return '#5b21b6';
 				default:
-					return '#6b7280';
+					return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			}
 		}};
   }
@@ -229,15 +229,15 @@ const ActorCard = styled.div<{ $actor: string }>`
     color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
-					return '#1e40af';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'client':
-					return '#065f46';
+					return 'V9_COLORS.PRIMARY.GREEN_DARK';
 				case 'auth-server':
-					return '#92400e';
+					return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 				case 'server':
 					return '#5b21b6';
 				default:
-					return '#374151';
+					return 'V9_COLORS.TEXT.GRAY_DARK';
 			}
 		}};
     margin-bottom: 0.25rem;
@@ -245,7 +245,7 @@ const ActorCard = styled.div<{ $actor: string }>`
   
   .actor-description {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.3;
   }
 `;
@@ -256,11 +256,11 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return 'linear-gradient(135deg, #dbeafe, #bfdbfe)';
+				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
 			case 'completed':
-				return 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS, #a7f3d0)';
 			case 'error':
-				return 'linear-gradient(135deg, #fee2e2, #fecaca)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR, V9_COLORS.BG.ERROR_BORDER)';
 			default:
 				return 'white';
 		}
@@ -268,13 +268,13 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'completed':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -292,13 +292,13 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
     color: ${({ $status }) => {
 			switch ($status) {
 				case 'active':
-					return '#1e40af';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'completed':
-					return '#065f46';
+					return 'V9_COLORS.PRIMARY.GREEN_DARK';
 				case 'error':
-					return '#991b1b';
+					return 'V9_COLORS.PRIMARY.RED_DARK';
 				default:
-					return '#374151';
+					return 'V9_COLORS.TEXT.GRAY_DARK';
 			}
 		}};
     margin-bottom: 0.5rem;
@@ -316,7 +316,7 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 
   .step-explanation {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.3;
     font-style: italic;
     background: rgba(255, 255, 255, 0.6);
@@ -326,23 +326,23 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
     border-left: 3px solid ${({ $status }) => {
 			switch ($status) {
 				case 'active':
-					return '#3b82f6';
+					return 'V9_COLORS.PRIMARY.BLUE';
 				case 'completed':
-					return '#10b981';
+					return 'V9_COLORS.PRIMARY.GREEN';
 				case 'error':
-					return '#ef4444';
+					return 'V9_COLORS.PRIMARY.RED';
 				default:
-					return '#d1d5db';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			}
 		}};
   }
   
   .step-data {
     font-size: 0.7rem;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-family: 'Monaco', 'Menlo', monospace;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background-color: V9_COLORS.BG.GRAY_LIGHT;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     padding: 0.75rem;
     border-radius: 0.375rem;
     margin-top: 0.5rem;
@@ -366,22 +366,22 @@ const StatusIndicator = styled.div<{ $status: string }>`
 			case 'active':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
         `;
 			case 'completed':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -910,7 +910,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 			style={{
 				width: '24px',
 				height: '24px',
-				background: '#dc2626',
+				background: 'V9_COLORS.PRIMARY.RED_DARK',
 				borderRadius: '4px',
 				display: 'flex',
 				alignItems: 'center',
@@ -918,7 +918,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				color: 'white',
 				fontSize: '12px',
 				fontWeight: 'bold',
-				border: '2px solid #b91c1c',
+				border: '2px solid V9_COLORS.PRIMARY.RED_DARK',
 			}}
 		>
 			P1
@@ -1040,7 +1040,14 @@ const InteractiveFlowDiagram: React.FC = () => {
 					<FiArrowDown style={{ transform: 'rotate(-90deg)' }} />
 				</ControlButton>
 
-				<div style={{ width: '1px', height: '2rem', background: '#e5e7eb', margin: '0 0.5rem' }} />
+				<div
+					style={{
+						width: '1px',
+						height: '2rem',
+						background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+						margin: '0 0.5rem',
+					}}
+				/>
 
 				<ControlButton $variant="primary" onClick={handlePlay} disabled={isPlaying}>
 					<FiPlay />
@@ -1062,7 +1069,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
-						color: '#6b7280',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						fontSize: '0.875rem',
 						marginLeft: '0.5rem',
 					}}
@@ -1091,7 +1098,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 										{step.status === 'error' && <FiAlertCircle />}
 										<span
 											style={{
-												background: '#3b82f6',
+												background: 'V9_COLORS.PRIMARY.BLUE',
 												color: 'white',
 												borderRadius: '50%',
 												width: '20px',
@@ -1127,7 +1134,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '25%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: '#3b82f6',
+								color: 'V9_COLORS.PRIMARY.BLUE',
 								opacity: 0.7,
 							}}
 						>
@@ -1140,7 +1147,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '50%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: '#3b82f6',
+								color: 'V9_COLORS.PRIMARY.BLUE',
 								opacity: 0.7,
 							}}
 						>
@@ -1153,7 +1160,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '75%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: '#3b82f6',
+								color: 'V9_COLORS.PRIMARY.BLUE',
 								opacity: 0.7,
 							}}
 						>

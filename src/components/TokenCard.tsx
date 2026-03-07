@@ -18,8 +18,8 @@ interface InlineTokenDisplayProps {
 }
 
 const Card = styled.div`
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1rem;
@@ -35,8 +35,8 @@ const CardHeader = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem 1.5rem;
-	background: #f8fafc;
-	border-bottom: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TokenLabel = styled.div`
@@ -44,7 +44,7 @@ const TokenLabel = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
@@ -60,9 +60,9 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 			case 'access':
 				return '#dbeafe';
 			case 'id':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'refresh':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			default:
 				return '#f3f4f6';
 		}
@@ -70,13 +70,13 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'id':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'refresh':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 `;
@@ -95,19 +95,19 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'management':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			default:
-				return '#d1d5db';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'management':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			default:
 				return 'white';
 		}
@@ -118,7 +118,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 			case 'management':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 	font-size: 0.75rem;
@@ -130,7 +130,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 		background: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return '#2563eb';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'management':
 					return '#047857';
 				default:
@@ -140,11 +140,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 		border-color: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return '#2563eb';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'management':
 					return '#047857';
 				default:
-					return '#9ca3af';
+					return 'V9_COLORS.TEXT.GRAY_LIGHT';
 			}
 		}};
 	}
@@ -167,11 +167,11 @@ const TokenPreview = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	background: #f0fdf4; /* Light green for generated content */
 	padding: 1rem;
 	border-radius: 8px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 1rem;
 	overflow-x: auto;
 	white-space: pre-wrap;
@@ -215,7 +215,7 @@ const DecodeModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CloseButton = styled.button`
@@ -223,11 +223,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -235,11 +235,11 @@ const DecodeContent = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	background: #f0fdf4; /* Light green for generated content */
 	padding: 1rem;
 	border-radius: 8px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow-x: auto;
 `;
 
@@ -248,10 +248,10 @@ const OpaqueMessage = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 1rem;
-	background: #fef3c7;
-	border: 1px solid #f59e0b;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 8px;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	font-size: 0.875rem;
 `;
 
@@ -392,10 +392,16 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						</OpaqueMessage>
 					) : decodedContent ? (
 						<div>
-							<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Header:</h4>
+							<h4 style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Header:</h4>
 							<DecodeContent>{JSON.stringify(decodedContent.header, null, 2)}</DecodeContent>
 
-							<h4 style={{ marginBottom: '1rem', marginTop: '1.5rem', color: '#374151' }}>
+							<h4
+								style={{
+									marginBottom: '1rem',
+									marginTop: '1.5rem',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
+								}}
+							>
 								Payload:
 							</h4>
 							<DecodeContent>{JSON.stringify(decodedContent.payload, null, 2)}</DecodeContent>

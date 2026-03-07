@@ -14,8 +14,8 @@ const NextStepItem = styled.div`
 	align-items: flex-start;
 	gap: 0.75rem;
 	padding: 0.75rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	font-size: 0.875rem;
 	color: #334155;
@@ -23,13 +23,13 @@ const NextStepItem = styled.div`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 		border-color: #cbd5e1;
 	}
 `;
 
 const NextStepIcon = styled.div`
-	color: #10b981;
+	color: V9_COLORS.PRIMARY.GREEN;
 	font-size: 1rem;
 	margin-top: 0.125rem;
 	flex-shrink: 0;

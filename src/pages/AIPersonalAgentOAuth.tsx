@@ -2,6 +2,7 @@ import { FiAlertTriangle, FiArrowRight, FiExternalLink, FiLayers, FiTrendingUp }
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Content = styled.div`
 	display: grid;
@@ -9,8 +10,8 @@ const Content = styled.div`
 `;
 
 const IntroCard = styled.section`
-	background: #0f172a;
-	color: #e2e8f0;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1.25rem;
 	padding: clamp(1.75rem, 5vw, 2.5rem);
 	display: grid;
@@ -38,7 +39,7 @@ const Callout = styled.div<{ $tone?: 'warning' | 'vision' }>`
 	gap: 0.75rem;
 	background: ${({ $tone }) =>
 		$tone === 'warning' ? 'rgba(254, 226, 226, 0.8)' : 'rgba(59, 130, 246, 0.12)'};
-	border: 1px solid ${({ $tone }) => ($tone === 'warning' ? '#fca5a5' : '#60a5fa')};
+	border: 1px solid ${({ $tone }) => ($tone === 'warning' ? '#fca5a5' : 'V9_COLORS.PRIMARY.BLUE_LIGHT')};
 `;
 
 const CalloutTitle = styled.h3`
@@ -48,7 +49,7 @@ const CalloutTitle = styled.h3`
 	gap: 0.6rem;
 	font-size: 1.05rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SectionText = styled.p`
@@ -61,7 +62,7 @@ const SectionText = styled.p`
 const HighlightList = styled.ul`
 	margin: 0;
 	padding-left: 1.25rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 1rem;
 	line-height: 1.7;
 	display: grid;
@@ -72,12 +73,12 @@ const ExternalLink = styled.a`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	text-decoration: none;
 	font-weight: 600;
 
 	&:hover {
-		color: #1d4ed8;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 		text-decoration: underline;
 	}
 `;
@@ -105,7 +106,7 @@ const CardTitle = styled.h3`
 	gap: 0.6rem;
 	font-size: 1.05rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CardBody = styled.div`
@@ -121,7 +122,7 @@ const StepList = styled.ol`
 	padding-left: 1.25rem;
 	display: grid;
 	gap: 0.75rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const LinkGroup = styled.div`

@@ -37,15 +37,15 @@ const TooltipTrigger = styled.span`
 	color: ${(props) => {
 		switch (props['data-variant']) {
 			case 'security':
-				return '#dc2626'; // red
+				return 'V9_COLORS.PRIMARY.RED_DARK'; // red
 			case 'warning':
-				return '#d97706'; // orange
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK'; // orange
 			case 'success':
-				return '#059669'; // green
+				return 'V9_COLORS.PRIMARY.GREEN_DARK'; // green
 			case 'learning':
-				return '#2563eb'; // blue
+				return 'V9_COLORS.PRIMARY.BLUE_DARK'; // blue
 			default:
-				return '#6b7280'; // gray
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM'; // gray
 		}
 	}};
 	
@@ -61,12 +61,12 @@ const TooltipContent = styled.div<{ $placement: string; $variant: TooltipVariant
 	max-width: 400px;
 	padding: 1rem;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	
 	${(props) => {
 		switch (props.$placement) {
@@ -140,27 +140,27 @@ const TooltipContent = styled.div<{ $placement: string; $variant: TooltipVariant
 		switch (props.$variant) {
 			case 'security':
 				return `
-					border-left: 4px solid #dc2626;
-					background: #fef2f2;
+					border-left: 4px solid V9_COLORS.PRIMARY.RED_DARK;
+					background: V9_COLORS.BG.ERROR;
 				`;
 			case 'warning':
 				return `
-					border-left: 4px solid #d97706;
-					background: #fffbeb;
+					border-left: 4px solid V9_COLORS.PRIMARY.YELLOW_DARK;
+					background: V9_COLORS.BG.WARNING;
 				`;
 			case 'success':
 				return `
-					border-left: 4px solid #059669;
+					border-left: 4px solid V9_COLORS.PRIMARY.GREEN_DARK;
 					background: #f0fdf4;
 				`;
 			case 'learning':
 				return `
-					border-left: 4px solid #2563eb;
-					background: #eff6ff;
+					border-left: 4px solid V9_COLORS.PRIMARY.BLUE_DARK;
+					background: V9_COLORS.BG.GRAY_LIGHT;
 				`;
 			default:
 				return `
-					border-left: 4px solid #6b7280;
+					border-left: 4px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 					background: #f9fafb;
 				`;
 		}
@@ -170,7 +170,7 @@ const TooltipContent = styled.div<{ $placement: string; $variant: TooltipVariant
 const TooltipTitle = styled.div`
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;

@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';
 import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -39,11 +40,11 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {

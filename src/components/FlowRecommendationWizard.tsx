@@ -74,7 +74,7 @@ const ProgressBar = styled.div`
   
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #22c55e);
+    background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
     border-radius: 2px;
     transition: width 0.3s ease;
   }
@@ -511,7 +511,9 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 										<h3 className="recommendation-title">{rec.title}</h3>
 									</div>
 
-									<p style={{ color: '#6b7280', marginBottom: '1rem' }}>{rec.description}</p>
+									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+										{rec.description}
+									</p>
 
 									<div className="recommendation-meta">
 										<div className="meta-item">
@@ -602,7 +604,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 							Previous
 						</button>
 
-						<span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+						<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 							Step {currentStep + 1} of {wizardSteps.length}
 						</span>
 

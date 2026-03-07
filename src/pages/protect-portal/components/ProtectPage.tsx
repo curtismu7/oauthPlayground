@@ -18,6 +18,7 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -32,19 +33,19 @@ const ProtectCard = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
   border: 1px solid ${(props) => {
 		switch (props.variant) {
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-left: 4px solid ${(props) => {
 		switch (props.variant) {
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
 				return 'var(--brand-primary)';
 		}
@@ -64,9 +65,9 @@ const ProtectIcon = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
   background: ${(props) => {
 		switch (props.variant) {
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
 				return 'var(--brand-primary)';
 		}
@@ -93,8 +94,8 @@ const ProtectList = styled.ul`
 `;
 
 const UserInfo = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -124,9 +125,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
   background: ${(props) => {
 		switch (props.variant) {
 			case 'secondary':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
 				return 'var(--brand-primary)';
 		}
@@ -150,7 +151,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 				case 'secondary':
 					return '#4b5563';
 				case 'danger':
-					return '#dc2626';
+					return 'V9_COLORS.PRIMARY.RED_DARK';
 				default:
 					return 'var(--brand-primary-dark)';
 			}

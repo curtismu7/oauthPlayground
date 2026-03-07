@@ -18,22 +18,22 @@ import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
-	PRIMARY_BLUE: '#2563eb',
-	DARK_BLUE: '#1e40af',
+	PRIMARY_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
+	DARK_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
 	DARKEST_BLUE: '#1e3a8a',
-	LIGHT_BLUE_BG: '#eff6ff',
+	LIGHT_BLUE_BG: 'V9_COLORS.BG.GRAY_LIGHT',
 	LIGHTER_BLUE_BG: '#dbeafe',
-	RED: '#dc2626',
-	BLACK: '#000000',
-	WHITE: '#ffffff',
-	BORDER: '#e5e7eb',
-	TEXT_PRIMARY: '#111827',
-	TEXT_SECONDARY: '#6b7280',
-	SUCCESS: '#10b981',
-	WARNING: '#f59e0b',
-	SUCCESS_BG: '#ecfdf5',
-	WARNING_BG: '#fffbeb',
-	INFO_BG: '#eff6ff',
+	RED: 'V9_COLORS.PRIMARY.RED_DARK',
+	BLACK: 'V9_COLORS.TEXT.BLACK',
+	WHITE: 'V9_COLORS.TEXT.WHITE',
+	BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+	TEXT_PRIMARY: 'V9_COLORS.TEXT.GRAY_DARK',
+	TEXT_SECONDARY: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+	SUCCESS: 'V9_COLORS.PRIMARY.GREEN',
+	WARNING: 'V9_COLORS.PRIMARY.YELLOW',
+	SUCCESS_BG: 'V9_COLORS.BG.SUCCESS',
+	WARNING_BG: 'V9_COLORS.BG.WARNING',
+	INFO_BG: 'V9_COLORS.BG.GRAY_LIGHT',
 };
 
 // Styled Components with V9 Colors
@@ -207,7 +207,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const CodeBlock = styled.pre`
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border: 1px solid ${V9_COLORS.BORDER};
 	border-radius: 0.375rem;
 	padding: 1rem;

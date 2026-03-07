@@ -9,6 +9,7 @@ import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 import { logger } from '../../../../utils/logger';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowConfigurationProps {
 	credentials: FlowCredentials;

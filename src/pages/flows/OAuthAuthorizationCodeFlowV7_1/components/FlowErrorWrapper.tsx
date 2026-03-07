@@ -5,6 +5,7 @@ import React from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 import { logger } from '../../../../utils/logger';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowErrorWrapperProps {
 	children: React.ReactNode;

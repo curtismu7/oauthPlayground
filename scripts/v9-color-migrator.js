@@ -5,8 +5,8 @@
  * Automatically migrates hardcoded hex colors to V9 color standards
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // V9 Color mappings
 const V9_COLOR_MAPPINGS = {
@@ -226,9 +226,7 @@ class V9ColorMigrator {
 }
 
 // Run the migrator
-if (require.main === module) {
-  const migrator = new V9ColorMigrator();
-  migrator.run();
-}
+const migrator = new V9ColorMigrator();
+migrator.run();
 
-module.exports = V9ColorMigrator;
+export default V9ColorMigrator;

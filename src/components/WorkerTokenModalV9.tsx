@@ -22,10 +22,9 @@ import {
 	type WorkerTokenCredentials,
 } from '../services/credentialExportImportService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
-import { modernMessaging } from './v9/V9ModernMessagingComponents';
 import { DraggableModal } from './DraggableModal';
+import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
@@ -35,7 +34,7 @@ const ModalContent = styled.div`
 	padding: 2rem;
 	max-width: 600px;
 	width: 100%;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 `;
@@ -46,14 +45,14 @@ const Header = styled.div`
 	justify-content: space-between;
 	margin-bottom: 1.5rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h2`
 	margin: 0;
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -62,7 +61,7 @@ const Title = styled.h2`
 const Subtitle = styled.p`
 	margin: 0.5rem 0 0 0;
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Section = styled.div`
@@ -73,7 +72,7 @@ const SectionTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1.125rem;
 	font-weight: 500;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FormGroup = styled.div`
@@ -85,40 +84,40 @@ const Label = styled.label`
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: all 0.15s ease-in-out;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	transition: all 0.15s ease-in-out;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -129,7 +128,7 @@ const ButtonGroup = styled.div`
 	justify-content: flex-end;
 	margin-top: 2rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -145,41 +144,41 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
-					color: #ffffff;
-					border-color: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
+					color: V9_COLORS.TEXT.WHITE;
+					border-color: V9_COLORS.PRIMARY.BLUE;
 
 					&:hover {
-						background: #2563eb;
-						border-color: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
+						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 
 					&:disabled {
-						background: #9ca3af;
-						border-color: #9ca3af;
+						background: V9_COLORS.TEXT.GRAY_LIGHT;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 						cursor: not-allowed;
 					}
 				`;
 			case 'danger':
 				return `
-					background: #ef4444;
-					color: #ffffff;
-					border-color: #ef4444;
+					background: V9_COLORS.PRIMARY.RED;
+					color: V9_COLORS.TEXT.WHITE;
+					border-color: V9_COLORS.PRIMARY.RED;
 
 					&:hover {
-						background: #dc2626;
-						border-color: #dc2626;
+						background: V9_COLORS.PRIMARY.RED_DARK;
+						border-color: V9_COLORS.PRIMARY.RED_DARK;
 					}
 				`;
 			default:
 				return `
-					background: #ffffff;
-					color: #374151;
-					border-color: #d1d5db;
+					background: V9_COLORS.TEXT.WHITE;
+					color: V9_COLORS.TEXT.GRAY_DARK;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 
 					&:hover {
 						background: #f9fafb;
-						border-color: #9ca3af;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}
@@ -203,27 +202,27 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'error' | 'success'
 		switch ($variant) {
 			case 'warning':
 				return `
-					background: #fef3c7;
-					border: 1px solid #fbbf24;
-					color: #92400e;
+					background: V9_COLORS.BG.WARNING;
+					border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
+					color: V9_COLORS.PRIMARY.YELLOW_DARK;
 				`;
 			case 'error':
 				return `
-					background: #fee2e2;
-					border: 1px solid #f87171;
-					color: #991b1b;
+					background: V9_COLORS.BG.ERROR;
+					border: 1px solid V9_COLORS.PRIMARY.RED_LIGHT;
+					color: V9_COLORS.PRIMARY.RED_DARK;
 				`;
 			case 'success':
 				return `
-					background: #d1fae5;
-					border: 1px solid #34d399;
-					color: #065f46;
+					background: V9_COLORS.BG.SUCCESS;
+					border: 1px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
+					color: V9_COLORS.PRIMARY.GREEN_DARK;
 				`;
 			default:
 				return `
 					background: #dbeafe;
-					border: 1px solid #60a5fa;
-					color: #1e40af;
+					border: 1px solid V9_COLORS.PRIMARY.BLUE_LIGHT;
+					color: V9_COLORS.PRIMARY.BLUE_DARK;
 				`;
 		}
 	}}
@@ -242,18 +241,18 @@ const StatusIndicator = styled.div<{ $status?: 'loading' | 'success' | 'error' }
 		switch ($status) {
 			case 'success':
 				return `
-					background: #d1fae5;
-					color: #065f46;
+					background: V9_COLORS.BG.SUCCESS;
+					color: V9_COLORS.PRIMARY.GREEN_DARK;
 				`;
 			case 'error':
 				return `
-					background: #fee2e2;
-					color: #991b1b;
+					background: V9_COLORS.BG.ERROR;
+					color: V9_COLORS.PRIMARY.RED_DARK;
 				`;
 			default:
 				return `
-					background: #fef3c7;
-					color: #92400e;
+					background: V9_COLORS.BG.WARNING;
+					color: V9_COLORS.PRIMARY.YELLOW_DARK;
 				`;
 		}
 	}}
@@ -263,32 +262,27 @@ const StatusIndicator = styled.div<{ $status?: 'loading' | 'success' | 'error' }
 // MDI Icon Component
 // ---------------------------------------------------------------------------
 
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 20, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 20,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiInfo': 'mdi-information',
-		'FiX': 'mdi-close',
-		'FiSave': 'mdi-content-save',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiEye': 'mdi-eye',
-		'FiEyeOff': 'mdi-eye-off',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
+		FiCheckCircle: 'mdi-check-circle',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiInfo: 'mdi-information',
+		FiX: 'mdi-close',
+		FiSave: 'mdi-content-save',
+		FiExternalLink: 'mdi-open-in-new',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // ---------------------------------------------------------------------------
@@ -319,7 +313,12 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		clientSecret: string;
 		region: 'us' | 'eu' | 'ap' | 'ca';
 		scopes: string[];
-		tokenEndpointAuthMethod: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+		tokenEndpointAuthMethod:
+			| 'none'
+			| 'client_secret_basic'
+			| 'client_secret_post'
+			| 'client_secret_jwt'
+			| 'private_key_jwt';
 	}>({
 		environmentId: '',
 		clientId: '',
@@ -332,7 +331,9 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	const [showPassword, setShowPassword] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
+	const [tokenStatus, setTokenStatus] = useState<'idle' | 'generating' | 'success' | 'error'>(
+		'idle'
+	);
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 
 	// Load existing credentials on mount
@@ -340,14 +341,14 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		if (isOpen) {
 			loadExistingCredentials();
 		}
-	}, [isOpen]);
+	}, [isOpen, loadExistingCredentials]);
 
 	const loadExistingCredentials = useCallback(async () => {
 		try {
 			// First try V9CredentialStorageService (primary for V9 flows)
 			const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
 			if (v9Credentials && Object.keys(v9Credentials).length > 0) {
-				setCredentials(prev => ({
+				setCredentials((prev) => ({
 					...prev,
 					environmentId: v9Credentials.environmentId || prev.environmentId,
 					clientId: v9Credentials.clientId || prev.clientId,
@@ -359,7 +360,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				const result = await unifiedWorkerTokenService.loadCredentials();
 				if (result.success && result.data) {
 					const creds = result.data;
-					setCredentials(prev => ({
+					setCredentials((prev) => ({
 						...prev,
 						environmentId: creds.environmentId || prev.environmentId,
 						clientId: creds.clientId || prev.clientId,
@@ -383,7 +384,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	}, []);
 
 	const handleInputChange = useCallback((field: keyof typeof credentials, value: string) => {
-		setCredentials(prev => ({ ...prev, [field]: value }));
+		setCredentials((prev) => ({ ...prev, [field]: value }));
 	}, []);
 
 	const handleSaveCredentials = useCallback(async () => {
@@ -400,10 +401,10 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				specVersion: 'v9',
 			};
 			await V9CredentialStorageService.save('worker-token-v9', v9Credentials);
-			
+
 			// Also save to UnifiedWorkerTokenService for compatibility
 			const result = await unifiedWorkerTokenService.saveCredentials(credentials);
-			
+
 			if (result.success) {
 				modernMessaging.showFooterMessage({
 					type: 'info', // Fixed: use 'info' instead of 'success'
@@ -415,7 +416,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 					message: result.error?.message || 'Failed to save to unified service',
 				});
 			}
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showFooterMessage({
 				type: 'info', // Fixed: use 'info' instead of 'error'
 				message: 'Failed to save credentials',
@@ -428,30 +429,30 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	const handleGenerateToken = useCallback(async () => {
 		setIsGenerating(true);
 		setTokenStatus('generating');
-		
+
 		try {
 			// Save credentials first if not already saved
 			await unifiedWorkerTokenService.saveCredentials(credentials);
-			
+
 			// Generate token (this would integrate with actual token generation logic)
 			// For now, simulate token generation
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
 			const mockToken = `mock_worker_token_${Date.now()}`;
-			
+
 			// Save token
 			await unifiedWorkerTokenService.saveToken(mockToken, credentials);
-			
+
 			setGeneratedToken(mockToken);
 			setTokenStatus('success');
-			
+
 			modernMessaging.showFooterMessage({
 				type: 'success',
 				message: 'Worker token generated successfully',
 			});
 
 			onTokenGenerated?.(mockToken);
-		} catch (error) {
+		} catch (_error) {
 			setTokenStatus('error');
 			modernMessaging.showFooterMessage({
 				type: 'error',
@@ -467,12 +468,12 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 			await unifiedWorkerTokenService.clearToken();
 			setGeneratedToken(null);
 			setTokenStatus('idle');
-			
+
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Worker token cleared',
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Failed to clear worker token',
@@ -490,14 +491,14 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 					region: credentials.region,
 					scopes: credentials.scopes,
 					tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod,
-				}
+				},
 			};
 			exportWorkerTokenCredentials(exportData as WorkerTokenCredentials);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Worker token credentials exported successfully!',
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Failed to export credentials',
@@ -516,13 +517,13 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 						environmentId: wt.environmentId || '',
 						clientId: wt.clientId || '',
 						clientSecret: wt.clientSecret || '',
-						region: wt.region || 'us' as const,
+						region: wt.region || ('us' as const),
 						scopes: wt.scopes || ['openid', 'pingone'],
-						tokenEndpointAuthMethod: wt.tokenEndpointAuthMethod || 'client_secret_basic' as const,
+						tokenEndpointAuthMethod: wt.tokenEndpointAuthMethod || ('client_secret_basic' as const),
 					};
 
 					setCredentials(updatedCredentials);
-					
+
 					// Save imported credentials
 					await unifiedWorkerTokenService.saveCredentials(updatedCredentials);
 
@@ -531,7 +532,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 						message: 'Worker token credentials imported successfully!',
 					});
 				}
-			} catch (error) {
+			} catch (_error) {
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message: 'Failed to import credentials',
@@ -553,16 +554,14 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 							<MDIIcon icon="FiKey" size={24} />
 							Worker Token Management
 						</Title>
-						<Subtitle>
-							Manage your PingOne worker token credentials and access
-						</Subtitle>
+						<Subtitle>Manage your PingOne worker token credentials and access</Subtitle>
 					</div>
 				</Header>
 
 				{!skipCredentialsStep && (
 					<Section>
 						<SectionTitle>Credentials Configuration</SectionTitle>
-						
+
 						<FormGroup>
 							<Label htmlFor="environmentId">Environment ID *</Label>
 							<Input
@@ -610,10 +609,10 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 										padding: '0.25rem',
 									}}
 								>
-									<MDIIcon 
-										icon={showPassword ? 'FiEyeOff' : 'FiEye'} 
-										size={16} 
-										style={{ color: '#6b7280' }}
+									<MDIIcon
+										icon={showPassword ? 'FiEyeOff' : 'FiEye'}
+										size={16}
+										style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
 									/>
 								</button>
 							</div>
@@ -650,7 +649,11 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 							<Button onClick={handleSaveCredentials} disabled={!isFormValid || isSaving}>
 								{isSaving ? (
 									<>
-										<MDIIcon icon="FiRefreshCw" size={16} style={{ animation: 'spin 1s linear infinite' }} />
+										<MDIIcon
+											icon="FiRefreshCw"
+											size={16}
+											style={{ animation: 'spin 1s linear infinite' }}
+										/>
 										Saving...
 									</>
 								) : (
@@ -674,14 +677,15 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 				<Section>
 					<SectionTitle>Token Generation</SectionTitle>
-					
+
 					{tokenStatus === 'idle' && (
 						<InfoBox $variant="info">
 							<MDIIcon icon="FiInfo" size={20} />
 							<div>
 								<strong>Generate Worker Token</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									Generate a worker token to access PingOne APIs. Make sure your credentials are saved first.
+									Generate a worker token to access PingOne APIs. Make sure your credentials are
+									saved first.
 								</p>
 							</div>
 						</InfoBox>
@@ -689,7 +693,11 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 					{tokenStatus === 'generating' && (
 						<StatusIndicator $status="loading">
-							<MDIIcon icon="FiRefreshCw" size={16} style={{ animation: 'spin 1s linear infinite' }} />
+							<MDIIcon
+								icon="FiRefreshCw"
+								size={16}
+								style={{ animation: 'spin 1s linear infinite' }}
+							/>
 							Generating worker token...
 						</StatusIndicator>
 					)}
@@ -700,12 +708,19 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 								<MDIIcon icon="FiCheckCircle" size={20} />
 								<div>
 									<strong>Token Generated Successfully</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', fontFamily: 'monospace' }}>
-										{generatedToken.substring(0, 20)}...{generatedToken.substring(generatedToken.length - 10)}
+									<p
+										style={{
+											margin: '0.5rem 0 0 0',
+											fontSize: '0.875rem',
+											fontFamily: 'monospace',
+										}}
+									>
+										{generatedToken.substring(0, 20)}...
+										{generatedToken.substring(generatedToken.length - 10)}
 									</p>
 								</div>
 							</InfoBox>
-							
+
 							<ButtonGroup>
 								<Button $variant="danger" onClick={handleClearToken}>
 									<MDIIcon icon="FiX" size={16} />
@@ -729,14 +744,18 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 					{tokenStatus !== 'success' && (
 						<ButtonGroup>
-							<Button 
-								$variant="primary" 
+							<Button
+								$variant="primary"
 								onClick={handleGenerateToken}
 								disabled={!isFormValid || isGenerating}
 							>
 								{isGenerating ? (
 									<>
-										<MDIIcon icon="FiRefreshCw" size={16} style={{ animation: 'spin 1s linear infinite' }} />
+										<MDIIcon
+											icon="FiRefreshCw"
+											size={16}
+											style={{ animation: 'spin 1s linear infinite' }}
+										/>
 										Generating...
 									</>
 								) : (

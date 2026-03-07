@@ -13,7 +13,7 @@ interface RARExampleSelectorProps {
 }
 
 const Container = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   background: white;
@@ -30,13 +30,13 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const Description = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 `;
@@ -48,14 +48,14 @@ const ExampleGrid = styled.div`
 `;
 
 const ExampleCard = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   overflow: hidden;
   background: white;
   transition: all 0.2s;
 
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -63,19 +63,19 @@ const ExampleCard = styled.div`
 const ExampleHeader = styled.div`
   padding: 1rem;
   background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ExampleTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const ExampleSubtitle = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
 `;
 
@@ -85,7 +85,7 @@ const ExampleContent = styled.div`
 
 const ViewToggle = styled.div`
   display: flex;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -99,20 +99,20 @@ const ViewButton = styled.button<{ active: boolean }>`
   gap: 0.5rem;
   padding: 0.5rem;
   border: none;
-  background: ${(props) => (props.active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.active ? 'white' : '#6b7280')};
+  background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+  color: ${(props) => (props.active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.active ? '#2563eb' : '#f9fafb')};
+    background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
   }
 `;
 
 const JsonDisplay = styled.pre`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   padding: 0.75rem;
   font-size: 0.75rem;
@@ -127,8 +127,8 @@ const FormattedView = styled.div`
 `;
 
 const DetailItem = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   padding: 0.75rem;
   margin-bottom: 0.5rem;
@@ -136,7 +136,7 @@ const DetailItem = styled.div`
 
 const DetailType = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 `;
@@ -149,12 +149,12 @@ const DetailFields = styled.div`
 `;
 
 const FieldItem = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FieldLabel = styled.span`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ActionButtons = styled.div`
@@ -169,26 +169,26 @@ const ActionButton = styled.button`
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   background: white;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 4px;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 
   &.primary {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     color: white;
 
     &:hover {
-      background: #2563eb;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   }
 `;
@@ -203,9 +203,9 @@ const CollapsibleHeader = styled.button`
   justify-content: space-between;
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   background: #f9fafb;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -220,7 +220,7 @@ const CollapsibleHeader = styled.button`
 const CollapsibleContent = styled.div<{ isOpen: boolean }>`
   display: ${(props) => (props.isOpen ? 'block' : 'none')};
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-top: none;
   border-radius: 0 0 6px 6px;
   background: white;

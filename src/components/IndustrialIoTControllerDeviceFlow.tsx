@@ -48,7 +48,7 @@ const ControlPanelHeader = styled.div`
 const PanelTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -70,7 +70,7 @@ const StatusIndicators = styled.div`
 
 const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   background: ${(props) => (props.$active ? props.$color : '#333333')};
-  color: ${(props) => (props.$active ? '#ffffff' : '#666666')};
+  color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : '#666666')};
   border: 2px solid ${(props) => (props.$active ? props.$color : '#555555')};
   border-radius: 0.25rem;
   padding: 0.5rem 1rem;
@@ -84,7 +84,7 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Main Display Area
 const MainDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   border: 3px solid #666666;
   border-radius: 0.5rem;
   padding: 1.5rem;
@@ -103,7 +103,7 @@ const DisplayLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2rem;
@@ -132,7 +132,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -253,7 +253,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -261,7 +261,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.75rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Industrial Labels
@@ -380,8 +380,8 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -428,7 +428,7 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="#374151"
+				borderColor="V9_COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#00ff00"
 			/>
 		</>

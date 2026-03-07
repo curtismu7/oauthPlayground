@@ -201,15 +201,15 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' | 'o
 			case 'secondary':
 				return theme.colors.secondary;
 			case 'danger':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'outline':
 				return 'transparent';
 			default:
 				return theme.colors.primary;
 		}
 	}};
-	color: ${({ $variant }) => ($variant === 'outline' ? '#374151' : 'white')};
-	border: ${({ $variant }) => ($variant === 'outline' ? '1px solid #d1d5db' : 'none')};
+	color: ${({ $variant }) => ($variant === 'outline' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'white')};
+	border: ${({ $variant }) => ($variant === 'outline' ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	border-radius: 0.375rem;
 	font-weight: 500;
 	font-size: 0.9rem;
@@ -408,7 +408,9 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 												<ParameterLabel>Token Status</ParameterLabel>
 												<ParameterValue
 													style={{
-														color: introspectionResults.active ? '#16a34a' : '#dc2626',
+														color: introspectionResults.active
+															? 'V9_COLORS.PRIMARY.GREEN_DARK'
+															: 'V9_COLORS.PRIMARY.RED_DARK',
 														fontWeight: 'bold',
 													}}
 												>

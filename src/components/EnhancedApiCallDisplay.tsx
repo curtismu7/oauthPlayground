@@ -7,15 +7,23 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
-	type ApiCallDisplayOptions,
-	type EnhancedApiCallData,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+type ApiCallDisplayOptions
+,
+type EnhancedApiCallData
+,
 	EnhancedApiCallDisplayService,
-} from '../services/enhancedApiCallDisplayService';
+} from '../services/enhancedApiCallDisplayService'
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#ffffff')};
-	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#374151' : '#e5e7eb')};
+	background: ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -29,14 +37,14 @@ const Header = styled.div`
 	align-items: center;
 	margin-bottom: 1rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -60,11 +68,11 @@ const StatusBadge = styled.div<{
 	background: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'error':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'pending':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'info':
 				return '#dbeafe';
 			default:
@@ -74,15 +82,15 @@ const StatusBadge = styled.div<{
 	color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'pending':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'info':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 
@@ -109,52 +117,52 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 		if ($sectionType === 'response' && $statusCode !== undefined) {
 			// Color based on status code
 			if ($statusCode >= 200 && $statusCode < 300) {
-				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient for success
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient for success
 			} else if ($statusCode >= 400) {
-				return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'; // Red gradient for errors
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)'; // Red gradient for errors
 			} else {
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'; // Yellow gradient for other statuses
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient for other statuses
 			}
 		}
 		switch ($sectionType) {
 			case 'details':
-				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'; // Blue gradient
+				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'; // Blue gradient
 			case 'curl':
-				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient
 			case 'pingone':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'; // Yellow gradient
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)'; // Yellow gradient
 			case 'response':
 				return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient (fallback)
 			case 'notes':
 				return 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)'; // Purple gradient
 			default:
-				return '#f8fafc';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 2px solid ${({ $sectionType, $statusCode }) => {
 		if ($sectionType === 'response' && $statusCode !== undefined) {
 			// Color based on status code
 			if ($statusCode >= 200 && $statusCode < 300) {
-				return '#10b981'; // Green border for success
+				return 'V9_COLORS.PRIMARY.GREEN'; // Green border for success
 			} else if ($statusCode >= 400) {
-				return '#ef4444'; // Red border for errors
+				return 'V9_COLORS.PRIMARY.RED'; // Red border for errors
 			} else {
-				return '#f59e0b'; // Yellow border for other statuses
+				return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border for other statuses
 			}
 		}
 		switch ($sectionType) {
 			case 'details':
-				return '#3b82f6'; // Blue border
+				return 'V9_COLORS.PRIMARY.BLUE'; // Blue border
 			case 'curl':
-				return '#10b981'; // Green border
+				return 'V9_COLORS.PRIMARY.GREEN'; // Green border
 			case 'pingone':
-				return '#f59e0b'; // Yellow border
+				return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border
 			case 'response':
 				return '#ec4899'; // Pink border (fallback)
 			case 'notes':
 				return '#8b5cf6'; // Purple border
 			default:
-				return '#e2e8f0';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 6px;
@@ -167,26 +175,26 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 			if ($sectionType === 'response' && $statusCode !== undefined) {
 				// Darker shades based on status code
 				if ($statusCode >= 200 && $statusCode < 300) {
-					return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+					return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
 				} else if ($statusCode >= 400) {
-					return 'linear-gradient(135deg, #fecaca 0%, #fca5a5 100%)'; // Darker red
+					return 'linear-gradient(135deg, V9_COLORS.BG.ERROR_BORDER 0%, #fca5a5 100%)'; // Darker red
 				} else {
-					return 'linear-gradient(135deg, #fde68a 0%, #fcd34d 100%)'; // Darker yellow
+					return 'linear-gradient(135deg, V9_COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
 				}
 			}
 			switch ($sectionType) {
 				case 'details':
-					return 'linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%)'; // Darker blue
+					return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%)'; // Darker blue
 				case 'curl':
-					return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+					return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
 				case 'pingone':
-					return 'linear-gradient(135deg, #fde68a 0%, #fcd34d 100%)'; // Darker yellow
+					return 'linear-gradient(135deg, V9_COLORS.BG.WARNING_BORDER 0%, #fcd34d 100%)'; // Darker yellow
 				case 'response':
 					return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink (fallback)
 				case 'notes':
 					return 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%)'; // Darker purple
 				default:
-					return '#f1f5f9';
+					return 'V9_COLORS.BG.GRAY_MEDIUM';
 			}
 		}};
 		transform: translateY(-1px);
@@ -202,29 +210,29 @@ const StatusLine = styled.div<{ $statusCode: number }>`
 	font-weight: 600;
 	color: ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return '#065f46'; // Green text for success
+			return 'V9_COLORS.PRIMARY.GREEN_DARK'; // Green text for success
 		} else if ($statusCode >= 400) {
-			return '#991b1b'; // Red text for errors
+			return 'V9_COLORS.PRIMARY.RED_DARK'; // Red text for errors
 		} else {
-			return '#92400e'; // Yellow text for other statuses
+			return 'V9_COLORS.PRIMARY.YELLOW_DARK'; // Yellow text for other statuses
 		}
 	}};
 	background: ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return '#d1fae5'; // Green background for success
+			return 'V9_COLORS.BG.SUCCESS'; // Green background for success
 		} else if ($statusCode >= 400) {
-			return '#fee2e2'; // Red background for errors
+			return 'V9_COLORS.BG.ERROR'; // Red background for errors
 		} else {
-			return '#fef3c7'; // Yellow background for other statuses
+			return 'V9_COLORS.BG.WARNING'; // Yellow background for other statuses
 		}
 	}};
 	border: 1px solid ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return '#10b981'; // Green border for success
+			return 'V9_COLORS.PRIMARY.GREEN'; // Green border for success
 		} else if ($statusCode >= 400) {
-			return '#ef4444'; // Red border for errors
+			return 'V9_COLORS.PRIMARY.RED'; // Red border for errors
 		} else {
-			return '#f59e0b'; // Yellow border for other statuses
+			return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border for other statuses
 		}
 	}};
 `;
@@ -233,7 +241,7 @@ const SectionTitle = styled.h4`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -244,14 +252,14 @@ const SectionContent = styled.div<{ $isExpanded: boolean }>`
 	overflow: hidden;
 	transition: max-height 0.3s ease;
 	padding: ${({ $isExpanded }) => ($isExpanded ? '1rem' : '0')};
-	border: ${({ $isExpanded }) => ($isExpanded ? '1px solid #e2e8f0' : 'none')};
+	border: ${({ $isExpanded }) => ($isExpanded ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	border-top: none;
 	border-radius: 0 0 6px 6px;
 `;
 
 const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => ($theme === 'dark' ? '#111827' : '#f8fafc')};
-	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#374151' : '#e2e8f0')};
+	background: ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 6px;
 	padding: 1rem;
 	overflow-x: auto;
@@ -260,7 +268,7 @@ const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : '#374151')};
+	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	margin: 0;
 	white-space: pre-wrap;
 	word-wrap: break-word;
@@ -287,13 +295,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'secondary':
 				return '#f3f4f6';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
 				return '#f3f4f6';
 		}
@@ -303,13 +311,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 			case 'primary':
 				return 'white';
 			case 'secondary':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			case 'success':
 				return 'white';
 			case 'danger':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 	
@@ -317,15 +325,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		background: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return '#2563eb';
+					return 'V9_COLORS.PRIMARY.BLUE_DARK';
 				case 'secondary':
-					return '#e5e7eb';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 				case 'success':
-					return '#059669';
+					return 'V9_COLORS.PRIMARY.GREEN_DARK';
 				case 'danger':
-					return '#dc2626';
+					return 'V9_COLORS.PRIMARY.RED_DARK';
 				default:
-					return '#e5e7eb';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			}
 		}};
 	}
@@ -337,8 +345,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 `;
 
 const EducationalNote = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 0.75rem 0;
@@ -349,12 +357,12 @@ const EducationalNote = styled.div`
 
 const FlowContext = styled.div`
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 0.75rem 0;
 	font-size: 0.875rem;
-	color: #166534;
+	color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const ParameterList = styled.ul`
@@ -368,23 +376,23 @@ const ParameterItem = styled.li`
 	font-size: 0.875rem;
 	margin: 0.5rem 0;
 	padding: 0.75rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 `;
 
 const ParameterValue = styled.code`
-	background: #e2e8f0;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	font-size: 0.8rem;
 `;
 
 const RevealableValue = styled.code<{ $revealed: boolean }>`
-	background: ${({ $revealed }) => ($revealed ? '#e2e8f0' : '#fef3c7')};
+	background: ${({ $revealed }) => ($revealed ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.WARNING')};
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	font-size: 0.8rem;
@@ -399,12 +407,12 @@ const RevealToggleBtn = styled.button`
 	cursor: pointer;
 	padding: 0.2rem 0.35rem;
 	border-radius: 4px;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
 	font-size: 0.75rem;
-	&:hover { background: #f3f4f6; color: #374151; }
+	&:hover { background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK; }
 `;
 
 const REDACTED_SENTINELS = ['***REDACTED***', '[REDACTED]'];
@@ -443,13 +451,15 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 /** Renders a permanently-masked credential field (client_secret etc.) */
 const CredentialMaskedValue: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue style={{ background: '#fee2e2', color: '#991b1b' }}>
+		<ParameterValue
+			style={{ background: 'V9_COLORS.BG.ERROR', color: 'V9_COLORS.PRIMARY.RED_DARK' }}
+		>
 			***REDACTED***
 		</ParameterValue>
 		<span
 			style={{
 				fontSize: '0.7rem',
-				color: '#9ca3af',
+				color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 				display: 'inline-flex',
 				alignItems: 'center',
 				gap: '0.2rem',
@@ -463,13 +473,13 @@ const CredentialMaskedValue: React.FC = () => (
 /** Renders a masked token with no reveal available (Basic auth, or service not yet wired). */
 const TokenMaskedNoReveal: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue style={{ background: '#fef3c7', color: '#78350f' }}>
+		<ParameterValue style={{ background: 'V9_COLORS.BG.WARNING', color: '#78350f' }}>
 			••••••••masked••••••••
 		</ParameterValue>
 		<span
 			style={{
 				fontSize: '0.7rem',
-				color: '#9ca3af',
+				color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 				display: 'inline-flex',
 				alignItems: 'center',
 				gap: '0.2rem',
@@ -584,7 +594,9 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</Title>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 					{apiCall.duration && (
-						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{apiCall.duration}ms</span>
+						<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							{apiCall.duration}ms
+						</span>
 					)}
 					<div style={{ position: 'relative' }}>
 						<StatusBadge $status={getStatus()}>{getStatus().toUpperCase()}</StatusBadge>
@@ -593,7 +605,13 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			</Header>
 
 			{apiCall.description && (
-				<p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+				<p
+					style={{
+						margin: '0 0 1rem 0',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						fontSize: '0.875rem',
+					}}
+				>
 					{apiCall.description}
 				</p>
 			)}
@@ -623,7 +641,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							URL
@@ -641,7 +659,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Query Parameters
@@ -680,7 +698,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Headers
@@ -719,7 +737,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Body
@@ -791,7 +809,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Status
@@ -820,7 +838,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 											margin: '0 0 0.5rem 0',
 											fontSize: '0.875rem',
 											fontWeight: 600,
-											color: '#374151',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 										}}
 									>
 										Response Headers
@@ -846,7 +864,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Body
@@ -881,7 +899,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							cURL Command
@@ -909,7 +927,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							Code Examples
@@ -935,7 +953,13 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</SectionHeader>
 				<SectionContent $isExpanded={expandedSections.has('pingone')}>
 					<div style={{ marginBottom: '1rem' }}>
-						<p style={{ margin: '0 0 0.75rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+						<p
+							style={{
+								margin: '0 0 0.75rem 0',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								fontSize: '0.875rem',
+							}}
+						>
 							This shows the actual HTTP request that will be sent to PingOne's token endpoint:
 						</p>
 
@@ -946,7 +970,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								PingOne Token Endpoint
@@ -964,7 +988,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									HTTP Headers
@@ -990,7 +1014,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Request Body (JSON)
@@ -1010,7 +1034,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								JavaScript Fetch Example
@@ -1087,7 +1111,7 @@ console.log('PingOne Response:', data);`,
 										margin: 0,
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									📮 Postman Collection Example
@@ -1275,7 +1299,7 @@ ${
 									margin: '0 0 0.75rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								📚 Official Documentation & Examples
@@ -1312,11 +1336,11 @@ ${
 								style={{
 									marginTop: '0.75rem',
 									padding: '0.75rem',
-									background: '#f8fafc',
-									border: '1px solid #e2e8f0',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.8rem',
-									color: '#64748b',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into
@@ -1331,7 +1355,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Real cURL Command to PingOne
@@ -1393,7 +1417,7 @@ ${
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Response Headers
@@ -1418,7 +1442,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Status
@@ -1435,7 +1459,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Response Body
@@ -1467,7 +1491,10 @@ ${
 					<SectionContent $isExpanded={expandedSections.has('notes')}>
 						{apiCall.educationalNotes.map((note, index) => (
 							<EducationalNote key={index}>
-								<FiExternalLink size={16} style={{ color: '#3b82f6', marginTop: '2px' }} />
+								<FiExternalLink
+									size={16}
+									style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '2px' }}
+								/>
 								<span>{note}</span>
 							</EducationalNote>
 						))}
@@ -1490,10 +1517,10 @@ ${
 					style={{
 						marginTop: '1rem',
 						padding: '0.75rem',
-						background: '#f8fafc',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
 						borderRadius: '6px',
 						fontSize: '0.875rem',
-						color: '#6b7280',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 					}}
 				>
 					<strong>Duration:</strong>{' '}

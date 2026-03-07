@@ -129,7 +129,7 @@ const NavItems = styled.div`
   
   button, a {
     background: white;
-    border: 1px solid #e2e8f0;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     color: black;
     font-size: 1.25rem;
     cursor: pointer;
@@ -141,7 +141,7 @@ const NavItems = styled.div`
     transition: all 0.2s;
     
     &:hover {
-      background-color: #f8fafc;
+      background-color: V9_COLORS.BG.GRAY_LIGHT;
       transform: translateY(-1px);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
@@ -206,22 +206,22 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContent = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   width: 100%;
   max-width: 500px;
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalHeader = styled.div`
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 12px 12px 0 0;
   color: white;
 `;
@@ -258,7 +258,7 @@ const ModalBody = styled.div`
 
 const ModalMessage = styled.p`
   margin: 0 0 1.5rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
   font-size: 0.95rem;
 `;
@@ -284,24 +284,24 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
   ${({ $variant }) => {
 		if ($variant === 'markdown') {
 			return `
-        background-color: #3b82f6;
-        color: #ffffff;
-        border-color: #2563eb;
+        background-color: V9_COLORS.PRIMARY.BLUE;
+        color: V9_COLORS.TEXT.WHITE;
+        border-color: V9_COLORS.PRIMARY.BLUE_DARK;
         
         &:hover {
-          background-color: #2563eb;
-          border-color: #1d4ed8;
+          background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
         }
       `;
 		} else {
 			return `
-        background-color: #dc2626;
-        color: #ffffff;
-        border-color: #b91c1c;
+        background-color: V9_COLORS.PRIMARY.RED_DARK;
+        color: V9_COLORS.TEXT.WHITE;
+        border-color: V9_COLORS.PRIMARY.RED_DARK;
         
         &:hover {
-          background-color: #b91c1c;
-          border-color: #991b1b;
+          background-color: V9_COLORS.PRIMARY.RED_DARK;
+          border-color: V9_COLORS.PRIMARY.RED_DARK;
         }
       `;
 		}

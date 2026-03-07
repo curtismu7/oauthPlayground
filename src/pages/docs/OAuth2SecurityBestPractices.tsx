@@ -18,6 +18,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -26,7 +27,7 @@ const PageContainer = styled.div`
 `;
 
 const PageHeader = styled.div`
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
   color: white;
   padding: 3rem;
   border-radius: 1rem;
@@ -57,8 +58,8 @@ const PageDescription = styled.p`
 `;
 
 const ReferenceCard = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 2rem 0;
@@ -68,7 +69,7 @@ const ReferenceCard = styled.div`
 `;
 
 const ReferenceIcon = styled.div`
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   font-size: 1.5rem;
   margin-top: 0.25rem;
 `;
@@ -85,12 +86,12 @@ const ReferenceTitle = styled.h3`
 
 const ReferenceText = styled.p`
   margin: 0 0 1rem 0;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
 const ReferenceLink = styled.a`
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   text-decoration: none;
   font-weight: 500;
   display: inline-flex;
@@ -104,7 +105,7 @@ const ReferenceLink = styled.a`
 
 const Section = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1rem;
   padding: 2.5rem;
   margin-bottom: 2rem;
@@ -115,14 +116,14 @@ const SectionTitle = styled.h2`
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1.5rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.75rem;
 `;
 
 const SectionIcon = styled.div`
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   font-size: 1.5rem;
 `;
 
@@ -134,14 +135,14 @@ const SubsectionTitle = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
 
 const SubsectionIcon = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.25rem;
 `;
 
@@ -149,11 +150,11 @@ const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recomme
   background: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'important':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'recommended':
-				return '#f0f9ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			default:
 				return '#f9fafb';
 		}
@@ -161,13 +162,13 @@ const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recomme
   border: 2px solid ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'important':
 				return '#fed7aa';
 			case 'recommended':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -182,13 +183,13 @@ const PracticeIcon = styled.div<{ $type: 'critical' | 'important' | 'recommended
   color: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'important':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'recommended':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   font-size: 1.25rem;
@@ -201,21 +202,21 @@ const PracticeContent = styled.div`
 
 const PracticeTitle = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
 
 const PracticeDescription = styled.p`
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.6;
 `;
 
 const PracticeList = styled.ul`
   margin: 0;
   padding-left: 1.5rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const PracticeListItem = styled.li`
@@ -224,7 +225,7 @@ const PracticeListItem = styled.li`
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1.5rem;
   border-radius: 0.5rem;
@@ -236,24 +237,24 @@ const CodeBlock = styled.pre`
 `;
 
 const CodeComment = styled.span`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeString = styled.span`
-  color: #10b981;
+  color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const CodeKeyword = styled.span`
-  color: #f59e0b;
+  color: V9_COLORS.PRIMARY.YELLOW;
 `;
 
 const CodeNumber = styled.span`
-  color: #22c55e;
+  color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const WarningBox = styled.div`
-  background: #fef2f2;
-  border: 2px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 2px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1.5rem 0;
@@ -263,7 +264,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 1.5rem;
   margin-top: 0.25rem;
 `;
@@ -274,20 +275,20 @@ const WarningContent = styled.div`
 
 const WarningTitle = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
 
 const WarningText = styled.p`
   margin: 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.6;
 `;
 
 const InfoBox = styled.div`
-  background: #f0f9ff;
-  border: 2px solid #bae6fd;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1.5rem 0;
@@ -308,14 +309,14 @@ const InfoContent = styled.div`
 
 const InfoTitle = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #0c4a6e;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
 
 const InfoText = styled.p`
   margin: 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.6;
 `;
 

@@ -130,8 +130,8 @@ const Alert = styled.div`
 `;
 
 const _PingOneSetupSection = styled.div`
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: V9_COLORS.TEXT.WHITE;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
@@ -202,7 +202,7 @@ const SetupSteps = styled.div`
 `;
 
 const _CredentialsBox = styled.div`
-  background-color: var(--color-background, #ffffff);
+  background-color: var(--color-background, V9_COLORS.TEXT.WHITE);
   border: 1px solid var(--color-border, #dee2e6);
   border-radius: 6px;
   padding: 1rem;
@@ -1559,7 +1559,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: '#ffffff',
+														backgroundColor: 'V9_COLORS.TEXT.WHITE',
 													}}
 												>
 													<option value="default">default</option>
@@ -1592,7 +1592,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: '#ffffff',
+														backgroundColor: 'V9_COLORS.TEXT.WHITE',
 													}}
 												/>
 											</CredentialWrapper>
@@ -1651,7 +1651,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: '#ffffff',
+														backgroundColor: 'V9_COLORS.TEXT.WHITE',
 													}}
 												/>
 											</CredentialWrapper>

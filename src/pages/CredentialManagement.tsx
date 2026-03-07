@@ -25,6 +25,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	container: {
@@ -33,7 +34,7 @@ const styles = {
 		padding: '2rem',
 	} as React.CSSProperties,
 	pageHeader: {
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		borderRadius: '12px',
 		padding: '2rem',
 		marginBottom: '1.5rem',
@@ -63,14 +64,14 @@ const styles = {
 	title: {
 		fontSize: '1.5rem',
 		fontWeight: 600,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '1rem',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.75rem',
 	} as React.CSSProperties,
 	description: {
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		marginBottom: '2rem',
 		lineHeight: 1.6,
 	} as React.CSSProperties,
@@ -82,7 +83,7 @@ const styles = {
 	flowName: {
 		fontSize: '1.125rem',
 		fontWeight: 600,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '0.5rem',
 		display: 'flex',
 		alignItems: 'center',
@@ -93,7 +94,7 @@ const styles = {
 		flexDirection: 'column' as const,
 		gap: '0.5rem',
 		fontSize: '0.875rem',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	metaRow: {
 		display: 'flex',
@@ -105,7 +106,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.5rem 1rem',
-		background: '#3b82f6',
+		background: 'V9_COLORS.PRIMARY.BLUE',
 		color: 'white',
 		border: 'none',
 		borderRadius: '6px',
@@ -117,7 +118,7 @@ const styles = {
 	emptyState: {
 		textAlign: 'center' as const,
 		padding: '3rem',
-		color: '#9ca3af',
+		color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 	} as React.CSSProperties,
 	buttonRow: {
 		display: 'flex',
@@ -130,7 +131,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.75rem 1.5rem',
-		background: '#10b981',
+		background: 'V9_COLORS.PRIMARY.GREEN',
 		color: 'white',
 		border: 'none',
 		borderRadius: '8px',
@@ -143,7 +144,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.75rem 1.5rem',
-		background: '#3b82f6',
+		background: 'V9_COLORS.PRIMARY.BLUE',
 		color: 'white',
 		border: 'none',
 		borderRadius: '8px',
@@ -156,7 +157,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.75rem 1.5rem',
-		background: '#2563eb',
+		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 		color: 'white',
 		border: 'none',
 		borderRadius: '8px',
@@ -169,7 +170,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.75rem 1.5rem',
-		background: '#ef4444',
+		background: 'V9_COLORS.PRIMARY.RED',
 		color: 'white',
 		border: 'none',
 		borderRadius: '8px',
@@ -183,7 +184,7 @@ const styles = {
 	tabBar: {
 		display: 'flex',
 		gap: 0,
-		borderBottom: '2px solid #e5e7eb',
+		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		marginBottom: '1.5rem',
 	} as React.CSSProperties,
 };
@@ -620,8 +621,8 @@ export const CredentialManagement: React.FC = () => {
 					style={{
 						background: 'none',
 						border: 'none',
-						borderBottom: `2px solid ${activeTab === 'credentials' ? '#2563eb' : 'transparent'}`,
-						color: activeTab === 'credentials' ? '#2563eb' : '#6b7280',
+						borderBottom: `2px solid ${activeTab === 'credentials' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'transparent'}`,
+						color: activeTab === 'credentials' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						fontSize: '0.95rem',
 						fontWeight: activeTab === 'credentials' ? 700 : 500,
 						padding: '0.75rem 1.5rem',
@@ -640,8 +641,8 @@ export const CredentialManagement: React.FC = () => {
 					style={{
 						background: 'none',
 						border: 'none',
-						borderBottom: `2px solid ${activeTab === 'tester' ? '#2563eb' : 'transparent'}`,
-						color: activeTab === 'tester' ? '#2563eb' : '#6b7280',
+						borderBottom: `2px solid ${activeTab === 'tester' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'transparent'}`,
+						color: activeTab === 'tester' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						fontSize: '0.95rem',
 						fontWeight: activeTab === 'tester' ? 700 : 500,
 						padding: '0.75rem 1.5rem',
@@ -672,7 +673,7 @@ export const CredentialManagement: React.FC = () => {
 								display: 'block',
 								fontWeight: 600,
 								fontSize: '0.875rem',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 								marginBottom: '0.5rem',
 							}}
 						>
@@ -687,7 +688,7 @@ export const CredentialManagement: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '1.5px solid #d1d5db',
+								border: '1.5px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '6px',
 								fontFamily: 'monospace',
 								fontSize: '0.85rem',
@@ -701,8 +702,8 @@ export const CredentialManagement: React.FC = () => {
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
-									color: '#dc2626',
-									background: '#fef2f2',
+									color: 'V9_COLORS.PRIMARY.RED_DARK',
+									background: 'V9_COLORS.BG.ERROR',
 									padding: '0.6rem 1rem',
 									borderRadius: '6px',
 									marginTop: '0.75rem',
@@ -729,7 +730,7 @@ export const CredentialManagement: React.FC = () => {
 										icon: <FiClock />,
 										label: 'Status',
 										value: testerIsExpired ? 'EXPIRED' : 'VALID',
-										color: testerIsExpired ? '#dc2626' : '#16a34a',
+										color: testerIsExpired ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK',
 										detail:
 											testerTimeRemaining !== null
 												? (testerIsExpired ? 'Expired ' : 'Expires in ') +
@@ -740,21 +741,21 @@ export const CredentialManagement: React.FC = () => {
 										icon: <FiKey />,
 										label: 'Client ID',
 										value: testerPayload.client_id ?? 'N/A',
-										color: '#1e40af',
+										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 										detail: 'OAuth Client',
 									},
 									{
 										icon: <FiGlobe />,
 										label: 'Environment ID',
 										value: testerPayload.env ?? 'N/A',
-										color: '#1e40af',
+										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 										detail: 'PingOne Environment',
 									},
 									{
 										icon: <FiUser />,
 										label: 'Organization',
 										value: testerPayload.org ?? 'N/A',
-										color: '#1e40af',
+										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 										detail: 'PingOne Org',
 									},
 								].map(({ icon, label, value, color, detail }) => (
@@ -766,7 +767,7 @@ export const CredentialManagement: React.FC = () => {
 											padding: '1rem',
 											background: '#f9fafb',
 											borderRadius: '8px',
-											border: '1px solid #e5e7eb',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										}}
 									>
 										<div style={{ color, fontSize: '1.25rem', flexShrink: 0, marginTop: 2 }}>
@@ -777,7 +778,7 @@ export const CredentialManagement: React.FC = () => {
 												style={{
 													fontSize: '0.7rem',
 													textTransform: 'uppercase',
-													color: '#6b7280',
+													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 													letterSpacing: '0.05em',
 													marginBottom: 2,
 												}}
@@ -795,7 +796,7 @@ export const CredentialManagement: React.FC = () => {
 												{value}
 											</div>
 											{detail && (
-												<div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: 2 }}>
+												<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT', marginTop: 2 }}>
 													{detail}
 												</div>
 											)}
@@ -808,7 +809,7 @@ export const CredentialManagement: React.FC = () => {
 								style={{
 									background: '#f9fafb',
 									borderRadius: '8px',
-									border: '1px solid #e5e7eb',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									overflow: 'hidden',
 									marginBottom: '1.5rem',
 								}}
@@ -832,13 +833,13 @@ export const CredentialManagement: React.FC = () => {
 											display: 'flex',
 											gap: '1rem',
 											padding: '0.6rem 1rem',
-											borderBottom: i < 5 ? '1px solid #e5e7eb' : undefined,
+											borderBottom: i < 5 ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : undefined,
 										}}
 									>
 										<span
 											style={{
 												fontWeight: 600,
-												color: '#6b7280',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 												minWidth: 110,
 												flexShrink: 0,
 												fontSize: '0.875rem',
@@ -848,7 +849,7 @@ export const CredentialManagement: React.FC = () => {
 										</span>
 										<span
 											style={{
-												color: '#111827',
+												color: 'V9_COLORS.TEXT.GRAY_DARK',
 												wordBreak: 'break-all',
 												fontFamily: 'monospace',
 												fontSize: '0.8rem',
@@ -863,9 +864,9 @@ export const CredentialManagement: React.FC = () => {
 							{testerEnvData && (
 								<div
 									style={{
-										background: '#eff6ff',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										borderRadius: '8px',
-										border: '1px solid #bfdbfe',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										padding: '1rem',
 										marginBottom: '1.5rem',
 									}}
@@ -873,7 +874,7 @@ export const CredentialManagement: React.FC = () => {
 									<div
 										style={{
 											fontWeight: 700,
-											color: '#1e40af',
+											color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 											marginBottom: '0.75rem',
 											fontSize: '0.95rem',
 										}}
@@ -899,7 +900,7 @@ export const CredentialManagement: React.FC = () => {
 													<span
 														style={{
 															fontSize: '0.75rem',
-															color: '#6b7280',
+															color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 															textTransform: 'uppercase',
 														}}
 													>
@@ -918,8 +919,8 @@ export const CredentialManagement: React.FC = () => {
 										display: 'flex',
 										alignItems: 'center',
 										gap: '0.5rem',
-										color: '#92400e',
-										background: '#fef3c7',
+										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										background: 'V9_COLORS.BG.WARNING',
 										padding: '0.6rem 1rem',
 										borderRadius: '6px',
 										marginBottom: '0.75rem',
@@ -937,7 +938,7 @@ export const CredentialManagement: React.FC = () => {
 									width: '100%',
 									justifyContent: 'center',
 									padding: '0.75rem',
-									background: testerIsTesting || testerIsExpired ? '#9ca3af' : '#2563eb',
+									background: testerIsTesting || testerIsExpired ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE_DARK',
 									fontSize: '0.95rem',
 									cursor: testerIsTesting || testerIsExpired ? 'not-allowed' : 'pointer',
 									marginTop: 0,
@@ -961,13 +962,13 @@ export const CredentialManagement: React.FC = () => {
 											key={i}
 											style={{
 												padding: '0.75rem 1rem',
-												borderLeft: `4px solid ${r.status === 'success' ? '#16a34a' : r.status === 'error' ? '#dc2626' : '#f59e0b'}`,
+												borderLeft: `4px solid ${r.status === 'success' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : r.status === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW'}`,
 												background:
 													r.status === 'success'
 														? '#f0fdf4'
 														: r.status === 'error'
-															? '#fef2f2'
-															: '#fffbeb',
+															? 'V9_COLORS.BG.ERROR'
+															: 'V9_COLORS.BG.WARNING',
 												borderRadius: '6px',
 											}}
 										>
@@ -980,11 +981,11 @@ export const CredentialManagement: React.FC = () => {
 												}}
 											>
 												{r.status === 'success' ? (
-													<FiCheckCircle color="#16a34a" />
+													<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
 												) : r.status === 'error' ? (
-													<FiXCircle color="#dc2626" />
+													<FiXCircle color="V9_COLORS.PRIMARY.RED_DARK" />
 												) : (
-													<FiAlertCircle color="#f59e0b" />
+													<FiAlertCircle color="V9_COLORS.PRIMARY.YELLOW" />
 												)}
 												<strong style={{ flex: 1 }}>{r.test}</strong>
 												{r.statusCode && (
@@ -996,10 +997,10 @@ export const CredentialManagement: React.FC = () => {
 															fontWeight: 700,
 															background:
 																r.status === 'success'
-																	? '#16a34a'
+																	? 'V9_COLORS.PRIMARY.GREEN_DARK'
 																	: r.status === 'error'
-																		? '#dc2626'
-																		: '#f59e0b',
+																		? 'V9_COLORS.PRIMARY.RED_DARK'
+																		: 'V9_COLORS.PRIMARY.YELLOW',
 															color: 'white',
 														}}
 													>
@@ -1007,9 +1008,9 @@ export const CredentialManagement: React.FC = () => {
 													</span>
 												)}
 											</div>
-											<div style={{ fontSize: '0.875rem', color: '#1f2937' }}>{r.message}</div>
+											<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{r.message}</div>
 											{r.details && (
-												<div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.2rem' }}>
+												<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.2rem' }}>
 													{r.details}
 												</div>
 											)}
@@ -1082,15 +1083,15 @@ export const CredentialManagement: React.FC = () => {
 										width: '100%',
 										...(flow.hasCredentials
 											? { background: '#f0fdf4', outline: '2px solid #86efac' }
-											: { background: '#f9fafb', outline: '2px solid #e5e7eb' }),
+											: { background: '#f9fafb', outline: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER' }),
 									}}
 									onClick={() => handleNavigateToFlow(flow.flowKey)}
 								>
 									<h3 style={styles.flowName}>
 										{flow.hasCredentials ? (
-											<FiCheckCircle color="#16a34a" />
+											<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
 										) : (
-											<FiAlertCircle color="#9ca3af" />
+											<FiAlertCircle color="V9_COLORS.TEXT.GRAY_LIGHT" />
 										)}
 										{flow.flowName}
 									</h3>
@@ -1101,7 +1102,7 @@ export const CredentialManagement: React.FC = () => {
 											alignItems: 'center',
 											gap: '0.5rem',
 											fontSize: '0.875rem',
-											color: flow.hasCredentials ? '#16a34a' : '#9ca3af',
+											color: flow.hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT',
 											marginBottom: '0.75rem',
 										}}
 									>
@@ -1132,9 +1133,9 @@ export const CredentialManagement: React.FC = () => {
 															fontSize: '0.75rem',
 															fontWeight: 500,
 															...(flow.source === 'file'
-																? { background: '#dbeafe', color: '#1e40af' }
+																? { background: '#dbeafe', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }
 																: flow.source === 'browser'
-																	? { background: '#fef3c7', color: '#92400e' }
+																	? { background: 'V9_COLORS.BG.WARNING', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }
 																	: { background: '#e0e7ff', color: '#4338ca' }),
 														}}
 													>

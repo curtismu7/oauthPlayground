@@ -4,7 +4,7 @@ import { DraggableModal } from './DraggableModal';
 
 const ModalMessage = styled.p`
   margin: 0 0 1.5rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.5;
 `;
 
@@ -14,7 +14,7 @@ const ButtonGroup = styled.div`
   justify-content: flex-end;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -33,35 +33,35 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch ($variant) {
 			case 'danger':
 				return `
-          background-color: #dc2626;
-          color: #ffffff;
-          border-color: #dc2626;
+          background-color: V9_COLORS.PRIMARY.RED_DARK;
+          color: V9_COLORS.TEXT.WHITE;
+          border-color: V9_COLORS.PRIMARY.RED_DARK;
           
           &:hover:not(:disabled) {
-            background-color: #b91c1c;
-            border-color: #b91c1c;
+            background-color: V9_COLORS.PRIMARY.RED_DARK;
+            border-color: V9_COLORS.PRIMARY.RED_DARK;
           }
         `;
 			case 'primary':
 				return `
-          background-color: #3b82f6;
-          color: #ffffff;
-          border-color: #2563eb;
+          background-color: V9_COLORS.PRIMARY.BLUE;
+          color: V9_COLORS.TEXT.WHITE;
+          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           
           &:hover:not(:disabled) {
-            background-color: #2563eb;
-            border-color: #1d4ed8;
+            background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			default:
 				return `
-          background-color: #3b82f6;
-          color: #ffffff;
-          border-color: #2563eb;
+          background-color: V9_COLORS.PRIMARY.BLUE;
+          color: V9_COLORS.TEXT.WHITE;
+          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           
           &:hover:not(:disabled) {
-            background-color: #2563eb;
-            border-color: #1d4ed8;
+            background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 		}

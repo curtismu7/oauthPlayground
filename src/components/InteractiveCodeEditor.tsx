@@ -61,8 +61,8 @@ export type LanguageOption =
 	| 'kotlin';
 
 const EditorContainer = styled.div`
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -70,7 +70,7 @@ const EditorContainer = styled.div`
 
 const ConfigPanel = styled.div`
   background: #f8f9fa;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 16px 20px;
 `;
 
@@ -89,14 +89,14 @@ const ConfigField = styled.div`
 const ConfigLabel = styled.label`
   font-size: 12px;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 const ConfigInput = styled.input`
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 14px;
   font-family: 'SF Mono', Monaco, monospace;
@@ -110,8 +110,8 @@ const ConfigInput = styled.input`
 `;
 
 const Toolbar = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
@@ -134,9 +134,9 @@ const ToolbarButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : '#ffffff')};
-  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#374151')};
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : '#d1d5db')};
+  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : 'V9_COLORS.TEXT.WHITE')};
+  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -159,9 +159,9 @@ const ThemeToggle = styled.button<{ $isDark: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: ${(props) => (props.$isDark ? '#1e293b' : '#fef3c7')};
-  color: ${(props) => (props.$isDark ? '#fbbf24' : '#92400e')};
-  border: 1px solid ${(props) => (props.$isDark ? '#334155' : '#fbbf24')};
+  background: ${(props) => (props.$isDark ? '#1e293b' : 'V9_COLORS.BG.WARNING')};
+  color: ${(props) => (props.$isDark ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  border: 1px solid ${(props) => (props.$isDark ? '#334155' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -175,7 +175,7 @@ const ThemeToggle = styled.button<{ $isDark: boolean }>`
 `;
 
 const EditorWrapper = styled.div`
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatusBar = styled.div`
@@ -185,7 +185,7 @@ const StatusBar = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusLeft = styled.div`
@@ -206,14 +206,22 @@ const StatusBadge = styled.span<{ $type: 'success' | 'warning' | 'info' }>`
   font-size: 11px;
   font-weight: 600;
   background: ${(props) =>
-		props.$type === 'success' ? '#d1fae5' : props.$type === 'warning' ? '#fef3c7' : '#dbeafe'};
+		props.$type === 'success'
+			? 'V9_COLORS.BG.SUCCESS'
+			: props.$type === 'warning'
+				? 'V9_COLORS.BG.WARNING'
+				: '#dbeafe'};
   color: ${(props) =>
-		props.$type === 'success' ? '#065f46' : props.$type === 'warning' ? '#92400e' : '#1e40af'};
+		props.$type === 'success'
+			? 'V9_COLORS.PRIMARY.GREEN_DARK'
+			: props.$type === 'warning'
+				? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+				: 'V9_COLORS.PRIMARY.BLUE_DARK'};
 `;
 
 const TabsContainer = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 0 20px;
   display: flex;
   gap: 4px;
@@ -224,7 +232,7 @@ const TabsContainer = styled.div`
   }
   
   &::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
     border-radius: 2px;
   }
 `;
@@ -232,7 +240,7 @@ const TabsContainer = styled.div`
 const Tab = styled.button<{ $active: boolean }>`
   padding: 12px 20px;
   background: ${(props) => (props.$active ? '#667eea' : 'transparent')};
-  color: ${(props) => (props.$active ? '#ffffff' : '#6b7280')};
+  color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   border: none;
   border-bottom: 3px solid ${(props) => (props.$active ? '#667eea' : 'transparent')};
   font-size: 13px;
@@ -244,7 +252,7 @@ const Tab = styled.button<{ $active: boolean }>`
   
   &:hover {
     background: ${(props) => (props.$active ? '#667eea' : '#f3f4f6')};
-    color: ${(props) => (props.$active ? '#ffffff' : '#374151')};
+    color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
   }
   
   &:active {
@@ -254,12 +262,12 @@ const Tab = styled.button<{ $active: boolean }>`
 
 const LanguageSelector = styled.select`
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
-  background: #ffffff;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  background: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   transition: all 0.2s;
   
@@ -270,18 +278,18 @@ const LanguageSelector = styled.select`
   }
   
   &:hover {
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
 const LanguageOptGroup = styled.optgroup`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CategoryPanel = styled.div`
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 16px 20px;
   display: flex;
   gap: 12px;
@@ -292,19 +300,19 @@ const CategoryPanel = styled.div`
 const CategoryLabel = styled.span`
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 const CategorySelector = styled.select`
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
-  background: #ffffff;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  background: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   transition: all 0.2s;
   min-width: 180px;
@@ -316,14 +324,14 @@ const CategorySelector = styled.select`
   }
   
   &:hover {
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
 const Divider = styled.div`
   width: 1px;
   height: 24px;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   margin: 0 4px;
 `;
 
@@ -415,7 +423,7 @@ const SpinnerModal = styled.div`
 const Spinner = styled.div`
   width: 60px;
   height: 60px;
-  border: 5px solid #e5e7eb;
+  border: 5px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-top-color: #667eea;
   border-radius: 50%;
   animation: rotate 0.8s linear infinite;
@@ -433,13 +441,13 @@ const Spinner = styled.div`
 const SpinnerText = styled.div`
   font-size: 18px;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-align: center;
 `;
 
 const SpinnerSubtext = styled.div`
   font-size: 14px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
 `;
 

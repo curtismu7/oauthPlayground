@@ -4,26 +4,21 @@ import { logger } from '../utils/logger';
 import ColorCodedURL from './ColorCodedURL';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheck': 'mdi-check',
-		'FiCopy': 'mdi-content-copy',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiX': 'mdi-close',
+		FiCheck: 'mdi-check',
+		FiCopy: 'mdi-content-copy',
+		FiExternalLink: 'mdi-open-in-new',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 interface AuthorizationRequestModalProps {
@@ -50,7 +45,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContent = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   width: 100%;
@@ -58,12 +53,12 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalHeader = styled.div`
   padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -72,7 +67,7 @@ const ModalHeader = styled.div`
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -82,7 +77,7 @@ const ModalHeader = styled.div`
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 0.375rem;
@@ -90,7 +85,7 @@ const ModalHeader = styled.div`
 
     &:hover {
       background-color: #f3f4f6;
-      color: #374151;
+      color: V9_COLORS.TEXT.GRAY_DARK;
     }
   }
 `;
@@ -106,7 +101,7 @@ const Section = styled.div`
     margin: 0 0 1rem 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -122,24 +117,24 @@ const ParameterGrid = styled.div`
 
 const ParameterLabel = styled.div`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const ParameterValue = styled.div`
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 0.875rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   background-color: #f9fafb;
   padding: 0.5rem;
   border-radius: 0.375rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   word-break: break-all;
 `;
 
 const AuthorizationUrlBox = styled.div`
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -155,7 +150,7 @@ const AuthorizationUrl = styled.div`
 `;
 
 const CopyButton = styled.button<{ $copied: boolean }>`
-  background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
+  background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -169,7 +164,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
   width: fit-content;
 
   &:hover {
-    background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
+    background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   }
 `;
 
@@ -179,7 +174,7 @@ const ActionButtons = styled.div`
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
@@ -197,24 +192,24 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   ${({ $variant }) =>
 		$variant === 'primary'
 			? `
-        background-color: #3b82f6;
+        background-color: V9_COLORS.PRIMARY.BLUE;
         color: white;
         &:hover {
-          background-color: #2563eb;
+          background-color: V9_COLORS.PRIMARY.BLUE_DARK;
         }
       `
 			: `
         background-color: #f3f4f6;
-        color: #374151;
+        color: V9_COLORS.TEXT.GRAY_DARK;
         &:hover {
-          background-color: #e5e7eb;
+          background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
         }
       `}
 `;
 
 const InfoBox = styled.div`
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -223,13 +218,13 @@ const InfoBox = styled.div`
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #1e40af;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   p {
     margin: 0;
     font-size: 0.875rem;
-    color: #1e40af;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
     line-height: 1.5;
   }
 `;
@@ -241,19 +236,19 @@ const CheckboxContainer = styled.div`
   margin: 1.5rem 0;
   padding: 1rem;
   background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
 
   input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
-    accent-color: #3b82f6;
+    accent-color: V9_COLORS.PRIMARY.BLUE;
     cursor: pointer;
   }
 
   label {
     font-size: 0.875rem;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     cursor: pointer;
     user-select: none;
   }
@@ -364,7 +359,11 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 								<ColorCodedURL url={authorizationUrl} />
 							</AuthorizationUrl>
 							<CopyButton $copied={copied} onClick={handleCopy}>
-								{copied ? <MDIIcon icon="FiCheck" size={14} /> : <MDIIcon icon="FiCopy" size={14} />}
+								{copied ? (
+									<MDIIcon icon="FiCheck" size={14} />
+								) : (
+									<MDIIcon icon="FiCopy" size={14} />
+								)}
 								{copied ? 'Copied!' : 'Copy URL'}
 							</CopyButton>
 						</AuthorizationUrlBox>

@@ -24,7 +24,7 @@ export const GlobalInputFix = createGlobalStyle`
 		-webkit-user-select: text !important;
 		z-index: 99999 !important;
 		position: relative !important;
-		background-color: #ffffff !important;
+		background-color: V9_COLORS.TEXT.WHITE !important;
 		opacity: 1 !important;
 	}
 	
@@ -32,7 +32,7 @@ export const GlobalInputFix = createGlobalStyle`
 	form[data-credentials-form] input[readonly] {
 		pointer-events: auto !important;
 		cursor: text !important;
-		background-color: #ffffff !important;
+		background-color: V9_COLORS.TEXT.WHITE !important;
 	}
 `;
 
@@ -86,8 +86,8 @@ export interface CredentialsInputProps {
 }
 
 const CollapsibleContainer = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -104,7 +104,7 @@ const CollapsibleHeader = styled.button`
 	gap: 0.5rem;
 	width: 100%;
 	padding: 1rem 1.5rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -113,7 +113,7 @@ const CollapsibleHeader = styled.button`
 	transition: background-color 0.2s ease;
 	
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -128,8 +128,8 @@ const SecretInputWrapper = styled.div`
 const IconButton = styled.button`
 	position: absolute;
 	background: white;
-	border: 1px solid #d1d5db;
-	color: #374151;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	padding: 0.375rem;
 	display: flex;
 	align-items: center;
@@ -144,8 +144,8 @@ const IconButton = styled.button`
 
 	&:hover {
 		background: #f9fafb;
-		border-color: #9ca3af;
-		color: #111827;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	&:active {
@@ -255,7 +255,7 @@ const FormField = styled.div`
 const FormLabel = styled.label`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0;
 	display: flex;
 	align-items: center;
@@ -265,12 +265,12 @@ const FormLabel = styled.label`
 const FormInput = styled.input<{ $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 0.875rem;
-	border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : '#d1d5db')};
+	border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
 	font-family: inherit;
-	background: #ffffff !important;
+	background: V9_COLORS.TEXT.WHITE !important;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	cursor: text !important;
 	pointer-events: auto !important;
@@ -280,30 +280,30 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	-webkit-user-select: text !important;
 
 	&:hover {
-		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#9ca3af')};
+		border-color: ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
 	}
 
 	&:focus {
 		outline: none;
-		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#2563eb')};
+		border-color: ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 		box-shadow: 0 0 0 3px ${({ $hasError }) => ($hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)')} !important;
 		z-index: 20 !important;
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:disabled {
-		background: #ffffff !important;
-		color: #111827 !important;
+		background: V9_COLORS.TEXT.WHITE !important;
+		color: V9_COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 	}
 
 	&[readonly] {
-		background: #ffffff !important;
-		color: #111827 !important;
+		background: V9_COLORS.TEXT.WHITE !important;
+		color: V9_COLORS.TEXT.GRAY_DARK !important;
 		cursor: text !important;
 		pointer-events: auto !important;
 	}
@@ -312,12 +312,12 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 const FormSelect = styled.select`
 	width: 100%;
 	padding: 0.75rem 0.875rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
 	font-family: inherit;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	cursor: pointer;
 	position: relative;
@@ -325,27 +325,27 @@ const FormSelect = styled.select`
 	user-select: none;
 
 	&:hover {
-		border-color: #9ca3af;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
 		outline: none;
-		border-color: #2563eb;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 		z-index: 20;
 	}
 
 	&:disabled {
 		background: #f9fafb;
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 		pointer-events: none;
 	}
 `;
 
 const EnvironmentSection = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -359,7 +359,7 @@ const EnvironmentHeader = styled.div`
 `;
 
 const EnvironmentTitle = styled.h3`
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 1.125rem;
 	font-weight: 600;
 	margin: 0;
@@ -367,7 +367,7 @@ const EnvironmentTitle = styled.h3`
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background-color: #e5e7eb;
+	background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin: 1.5rem 0;
 	border-radius: 0.5px;
 `;
@@ -502,7 +502,7 @@ export const CredentialsInput = ({
 						<FormGrid>
 							<FormField>
 								<FormLabel>
-									Environment ID <span style={{ color: '#ef4444' }}>*</span>
+									Environment ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -534,7 +534,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: '#ffffff',
+											backgroundColor: 'V9_COLORS.TEXT.WHITE',
 										}}
 										onMouseDown={(e) => {
 											e.stopPropagation();
@@ -580,14 +580,20 @@ export const CredentialsInput = ({
 									<option value="ap">AP (Asia Pacific)</option>
 									<option value="ca">CA (Canada)</option>
 								</FormSelect>
-								<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+								<div
+									style={{
+										fontSize: '0.75rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
+								>
 									The region where your PingOne environment is hosted.
 								</div>
 							</FormField>
 
 							<FormField>
 								<FormLabel>
-									Client ID <span style={{ color: '#ef4444' }}>*</span>
+									Client ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -617,7 +623,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: '#ffffff',
+											backgroundColor: 'V9_COLORS.TEXT.WHITE',
 										}}
 										disabled={false}
 										readOnly={false}
@@ -658,7 +664,7 @@ export const CredentialsInput = ({
 							{showClientSecret && (
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
-										Client Secret <span style={{ color: '#ef4444' }}>*</span>
+										Client Secret <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 									</FormLabel>
 									<SecretInputWrapper>
 										<FormInput
@@ -681,7 +687,7 @@ export const CredentialsInput = ({
 												cursor: 'text',
 												position: 'relative',
 												zIndex: 9999,
-												backgroundColor: '#ffffff',
+												backgroundColor: 'V9_COLORS.TEXT.WHITE',
 											}}
 											disabled={false}
 											readOnly={false}
@@ -727,11 +733,11 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.875rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
-											border: '1px solid #e5e7eb',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											marginTop: '0.5rem',
 										}}
 									>
@@ -744,7 +750,7 @@ export const CredentialsInput = ({
 							{showRedirectUri && (
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
-										Redirect URI <span style={{ color: '#ef4444' }}>*</span>
+										Redirect URI <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 									</FormLabel>
 									<div
 										style={{
@@ -787,11 +793,11 @@ export const CredentialsInput = ({
 										style={{
 											marginTop: '0.5rem',
 											padding: '0.75rem',
-											backgroundColor: '#f8fafc',
-											border: '1px solid #e2e8f0',
+											backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											color: '#475569',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										}}
 									>
 										<strong>
@@ -805,8 +811,8 @@ export const CredentialsInput = ({
 										<br />
 										<code
 											style={{
-												color: '#1e40af',
-												backgroundColor: '#eff6ff',
+												color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+												backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '0.25rem',
 											}}
@@ -817,14 +823,20 @@ export const CredentialsInput = ({
 											}
 										</code>
 										<br />
-										<span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+										<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											{
 												callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code')
 													.note
 											}
 										</span>
 										<br />
-										<span style={{ fontSize: '1rem', color: '#dc2626', fontWeight: '600' }}>
+										<span
+											style={{
+												fontSize: '1rem',
+												color: 'V9_COLORS.PRIMARY.RED_DARK',
+												fontWeight: '600',
+											}}
+										>
 											⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
 										</span>
 									</div>
@@ -836,11 +848,11 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.875rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
-											border: '1px solid #e5e7eb',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											marginTop: '0.5rem',
 										}}
 									>
@@ -852,7 +864,7 @@ export const CredentialsInput = ({
 
 							<FormField style={{ gridColumn: '1 / -1' }}>
 								<FormLabel>
-									Scopes <span style={{ color: '#ef4444' }}>*</span>
+									Scopes <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -885,7 +897,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: '#ffffff',
+											backgroundColor: 'V9_COLORS.TEXT.WHITE',
 										}}
 										disabled={false}
 										readOnly={false}
@@ -917,7 +929,13 @@ export const CredentialsInput = ({
 										</div>
 									)}
 								</div>
-								<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+								<div
+									style={{
+										fontSize: '0.75rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
+								>
 									Space-separated list of scopes. <strong>openid</strong> is always required and
 									will be automatically added.
 								</div>
@@ -927,7 +945,9 @@ export const CredentialsInput = ({
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
 										Login Hint{' '}
-										<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
+											(Optional)
+										</span>
 									</FormLabel>
 									<div
 										style={{
@@ -959,7 +979,13 @@ export const CredentialsInput = ({
 											</div>
 										)}
 									</div>
-									<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+									<div
+										style={{
+											fontSize: '0.75rem',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											marginTop: '0.25rem',
+										}}
+									>
 										Hint about the user identifier (email, username). Helps pre-fill the login form
 										or skip account selection.
 									</div>
@@ -970,7 +996,7 @@ export const CredentialsInput = ({
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
 										🚪 Post-Logout Redirect URI{' '}
-										<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
 											(Required for Logout)
 										</span>
 									</FormLabel>
@@ -1044,7 +1070,7 @@ export const CredentialsInput = ({
 								style={{
 									marginTop: '1.5rem',
 									paddingTop: '1rem',
-									borderTop: '1px solid #e5e7eb',
+									borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									display: 'flex',
 									flexDirection: 'column',
 									gap: '0.5rem',
@@ -1063,9 +1089,9 @@ export const CredentialsInput = ({
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.75rem 1.5rem',
-											backgroundColor: '#10b981',
+											backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
 											color: 'white',
-											border: '1px solid #10b981',
+											border: '1px solid V9_COLORS.PRIMARY.GREEN',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
 											fontWeight: '600',
@@ -1101,7 +1127,7 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											fontStyle: 'italic',
 										}}
 									>

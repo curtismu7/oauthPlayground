@@ -18,12 +18,13 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	min-height: 100vh;
 `;
 
@@ -63,18 +64,18 @@ const Section = styled.section`
 const SectionTitle = styled.h2`
 	font-size: 1.75rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 	padding-bottom: 0.75rem;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const InfoCard = styled(Card)`
 	margin-bottom: 1.5rem;
-	border-left: 4px solid ${(props) => props.$color || '#3b82f6'};
+	border-left: 4px solid ${(props) => props.$color || 'V9_COLORS.PRIMARY.BLUE'};
 `;
 
 const FeatureGrid = styled.div`
@@ -139,7 +140,7 @@ const StepItem = styled.li`
 	h3 {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #1f2937;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		margin-bottom: 0.5rem;
 	}
 
@@ -150,7 +151,7 @@ const StepItem = styled.li`
 `;
 
 const CodeBlock = styled.pre`
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
@@ -177,7 +178,7 @@ const BenefitList = styled.ul`
 			content: '✓';
 			position: absolute;
 			left: 0;
-			color: #22c55e;
+			color: V9_COLORS.PRIMARY.GREEN;
 			font-weight: 600;
 			font-size: 1.25rem;
 		}
@@ -192,24 +193,24 @@ const Alert = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 	align-items: flex-start;
 	gap: 1rem;
 	background: ${(props) => {
-		if (props.$type === 'warning') return '#fef3c7';
-		if (props.$type === 'success') return '#d1fae5';
+		if (props.$type === 'warning') return 'V9_COLORS.BG.WARNING';
+		if (props.$type === 'success') return 'V9_COLORS.BG.SUCCESS';
 		return '#dbeafe';
 	}};
 	border-left: 4px solid ${(props) => {
-		if (props.$type === 'warning') return '#f59e0b';
-		if (props.$type === 'success') return '#22c55e';
-		return '#3b82f6';
+		if (props.$type === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
+		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
+		return 'V9_COLORS.PRIMARY.BLUE';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'warning') return '#92400e';
-		if (props.$type === 'success') return '#065f46';
-		return '#1e40af';
+		if (props.$type === 'warning') return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN_DARK';
+		return 'V9_COLORS.PRIMARY.BLUE_DARK';
 	}};
 `;
 
 const Link = styled.a`
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-decoration: none;
 	font-weight: 500;
 	display: inline-flex;
@@ -218,7 +219,7 @@ const Link = styled.a`
 	transition: color 0.2s;
 
 	&:hover {
-		color: #2563eb;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 		text-decoration: underline;
 	}
 `;
@@ -243,7 +244,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FiInfo />
 					What is SPIFFE?
 				</SectionTitle>
-				<InfoCard $color="#3b82f6">
+				<InfoCard $color="V9_COLORS.PRIMARY.BLUE">
 					<CardBody>
 						<p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#4b5563' }}>
 							<strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is an
@@ -257,7 +258,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 				<FeatureGrid>
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#3b82f6">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiKey />
 							</FeatureIcon>
 							<h3
@@ -265,7 +266,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								SPIFFE ID
@@ -289,7 +290,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#22c55e">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiShield />
 							</FeatureIcon>
 							<h3
@@ -297,7 +298,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								SVID (SPIFFE Verifiable Identity Document)
@@ -311,7 +312,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#f59e0b">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiGlobe />
 							</FeatureIcon>
 							<h3
@@ -319,7 +320,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Trust Domain
@@ -338,7 +339,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FiServer />
 					What is SPIRE?
 				</SectionTitle>
-				<InfoCard $color="#22c55e">
+				<InfoCard $color="V9_COLORS.PRIMARY.GREEN">
 					<CardBody>
 						<p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#4b5563' }}>
 							<strong>SPIRE</strong> (SPIFFE Runtime Environment) is the reference implementation of
@@ -352,7 +353,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 				<FeatureGrid>
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#3b82f6">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiZap />
 							</FeatureIcon>
 							<h3
@@ -360,7 +361,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								SPIRE Server
@@ -374,7 +375,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#22c55e">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiServer />
 							</FeatureIcon>
 							<h3
@@ -382,7 +383,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								SPIRE Agent
@@ -397,7 +398,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#f59e0b">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiLock />
 							</FeatureIcon>
 							<h3
@@ -405,7 +406,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Workload API
@@ -471,7 +472,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 				</SectionTitle>
 				<InfoCard $color="#8b5cf6">
 					<CardHeader>
-						<h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1f2937' }}>
+						<h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							How SPIFFE/SPIRE Works with PingOne SSO
 						</h3>
 					</CardHeader>
@@ -624,7 +625,7 @@ POST /v1/environments/{envId}/serviceAccounts
 				<FeatureGrid>
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#22c55e">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiLock />
 							</FeatureIcon>
 							<h3
@@ -632,7 +633,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Short-Lived SVIDs
@@ -646,7 +647,7 @@ POST /v1/environments/{envId}/serviceAccounts
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#3b82f6">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiShield />
 							</FeatureIcon>
 							<h3
@@ -654,7 +655,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Principle of Least Privilege
@@ -668,7 +669,7 @@ POST /v1/environments/{envId}/serviceAccounts
 
 					<FeatureCard>
 						<CardBody>
-							<FeatureIcon $color="#f59e0b">
+							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiServer />
 							</FeatureIcon>
 							<h3
@@ -676,7 +677,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Monitor and Audit
@@ -698,7 +699,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Federation Security
@@ -717,7 +718,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FiExternalLink />
 					Additional Resources
 				</SectionTitle>
-				<InfoCard $color="#3b82f6">
+				<InfoCard $color="V9_COLORS.PRIMARY.BLUE">
 					<CardBody>
 						<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 							<li

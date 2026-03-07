@@ -16,6 +16,7 @@ import {
 } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -63,17 +64,17 @@ const ContentGrid = styled.div`
 `;
 
 const ScopeCategory = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 1rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.12);
 	overflow: hidden;
 `;
 
 const CategoryHeader = styled.div`
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-	border-bottom: 2px solid #e2e8f0;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.BG.GRAY_MEDIUM);
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -83,7 +84,7 @@ const CategoryTitle = styled.h2`
 	margin: 0;
 	font-size: 1.3rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -91,7 +92,7 @@ const CategoryTitle = styled.h2`
 
 const CategoryDescription = styled.p`
 	margin: 0.5rem 0 0 0;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 `;
 
@@ -106,9 +107,9 @@ const ScopeItem = styled.div`
 	display: flex;
 	gap: 1rem;
 	padding: 1rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.75rem;
-	border-left: 4px solid ${(props) => props.color || '#3b82f6'};
+	border-left: 4px solid ${(props) => props.color || 'V9_COLORS.PRIMARY.BLUE'};
 `;
 
 const ScopeIcon = styled.div`
@@ -116,11 +117,11 @@ const ScopeIcon = styled.div`
 	width: 40px;
 	height: 40px;
 	border-radius: 0.5rem;
-	background: ${(props) => props.color || '#3b82f6'}22;
+	background: ${(props) => props.color || 'V9_COLORS.PRIMARY.BLUE'}22;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: ${(props) => props.color || '#3b82f6'};
+	color: ${(props) => props.color || 'V9_COLORS.PRIMARY.BLUE'};
 `;
 
 const ScopeDetails = styled.div`
@@ -134,7 +135,7 @@ const ScopeName = styled.div`
 	font-family: 'Courier New', monospace;
 	font-size: 1rem;
 	font-weight: 700;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	background: #e0e7ff;
 	padding: 0.25rem 0.75rem;
 	border-radius: 0.375rem;
@@ -144,7 +145,7 @@ const ScopeName = styled.div`
 
 const ScopeDescription = styled.p`
 	margin: 0;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 	line-height: 1.5;
 `;
@@ -160,7 +161,7 @@ const ClaimBadge = styled.span`
 	font-size: 0.8rem;
 	padding: 0.25rem 0.6rem;
 	background: #dbeafe;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	border-radius: 999px;
 	font-weight: 500;
 	font-family: 'Courier New', monospace;
@@ -168,8 +169,8 @@ const ClaimBadge = styled.span`
 
 const InfoBox = styled.div`
 	padding: 1.25rem;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	display: flex;
 	gap: 0.75rem;
@@ -178,12 +179,12 @@ const InfoBox = styled.div`
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const InfoText = styled.div`
 	flex: 1;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.95rem;
 	line-height: 1.6;
 	
@@ -213,19 +214,19 @@ const PingOneScopesReference: React.FC = () => {
 					API. Scopes control what data and permissions an application receives when authenticating.
 				</Subtitle>
 				<InfoBox
-					style={{ margin: '1rem 0 0 0', background: '#eff6ff', border: '1px solid #bfdbfe' }}
+					style={{ margin: '1rem 0 0 0', background: 'V9_COLORS.BG.GRAY_LIGHT', border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' }}
 				>
 					<InfoIcon>
-						<FiInfo size={20} style={{ color: '#2563eb' }} />
+						<FiInfo size={20} style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }} />
 					</InfoIcon>
-					<InfoText style={{ color: '#1e40af' }}>
+					<InfoText style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
 						<strong>📖 Complete Scope Documentation:</strong> For the full list of all PingOne
 						Management API scopes and detailed permissions, see the official{' '}
 						<a
 							href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#pingone-role-permissions"
 							target="_blank"
 							rel="noopener noreferrer"
-							style={{ color: '#2563eb', fontWeight: 600 }}
+							style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
 						>
 							PingOne Platform API Reference
 						</a>
@@ -323,8 +324,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="#f59e0b">
-							<ScopeIcon color="#f59e0b">
+						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
+							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
 								<FiMapPin size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -344,8 +345,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="#10b981">
-							<ScopeIcon color="#10b981">
+						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
+							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
 								<FiPhone size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -381,7 +382,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiDatabase size={24} style={{ color: '#3b82f6' }} />
+							<FiDatabase size={24} style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 							Common PingOne Management API Scopes
 						</CategoryTitle>
 					</CategoryHeader>
@@ -397,7 +398,7 @@ const PingOneScopesReference: React.FC = () => {
 								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#pingone-role-permissions"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: '#2563eb' }}
+								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
 							>
 								official PingOne API documentation
 							</a>{' '}
@@ -405,8 +406,8 @@ const PingOneScopesReference: React.FC = () => {
 						</strong>
 					</CategoryDescription>
 					<ScopeList>
-						<ScopeItem color="#3b82f6">
-							<ScopeIcon color="#3b82f6">
+						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
+							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
 								<FiUser size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -417,8 +418,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="#3b82f6">
-							<ScopeIcon color="#3b82f6">
+						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
+							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
 								<FiUser size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -429,8 +430,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="#10b981">
-							<ScopeIcon color="#10b981">
+						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
+							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
 								<FiDatabase size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -453,8 +454,8 @@ const PingOneScopesReference: React.FC = () => {
 							</ScopeDetails>
 						</ScopeItem>
 
-						<ScopeItem color="#f59e0b">
-							<ScopeIcon color="#f59e0b">
+						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
+							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
 								<FiDatabase size={20} />
 							</ScopeIcon>
 							<ScopeDetails>
@@ -519,7 +520,7 @@ const PingOneScopesReference: React.FC = () => {
 										margin: '0 0 0.75rem 0',
 										fontSize: '1.1rem',
 										fontWeight: '600',
-										color: '#0f172a',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									🔑 For Worker Apps (Machine-to-Machine)
@@ -538,19 +539,19 @@ const PingOneScopesReference: React.FC = () => {
 								<div
 									style={{
 										padding: '1rem',
-										background: '#f1f5f9',
+										background: 'V9_COLORS.BG.GRAY_MEDIUM',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
 									}}
 								>
-									<strong style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a' }}>
+									<strong style={{ display: 'block', marginBottom: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Step-by-Step: Assigning Roles to Worker Apps
 									</strong>
 									<ol
 										style={{
 											margin: '0',
 											paddingLeft: '1.25rem',
-											color: '#475569',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											lineHeight: '1.8',
 										}}
 									>
@@ -567,7 +568,7 @@ const PingOneScopesReference: React.FC = () => {
 											Click <strong>"Grant Roles"</strong> button
 										</li>
 										<li>
-											🚨 <strong style={{ color: '#dc2626' }}>CRITICAL:</strong> Select{' '}
+											🚨 <strong style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>CRITICAL:</strong> Select{' '}
 											<strong>"Environment"</strong> from the level dropdown (NOT "Organization")
 										</li>
 										<li>Select the environment you want the app to access</li>
@@ -605,13 +606,13 @@ const PingOneScopesReference: React.FC = () => {
 								<div
 									style={{
 										padding: '1rem',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
+										background: 'V9_COLORS.BG.ERROR',
+										border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
 									}}
 								>
-									<strong style={{ display: 'block', marginBottom: '0.5rem', color: '#991b1b' }}>
+									<strong style={{ display: 'block', marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 										⚠️ Common Mistake
 									</strong>
 									<p
@@ -650,7 +651,7 @@ const PingOneScopesReference: React.FC = () => {
 										margin: '0 0 0.75rem 0',
 										fontSize: '1.1rem',
 										fontWeight: '600',
-										color: '#0f172a',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									🎯 For User-Facing Apps (OIDC SSO)
@@ -659,19 +660,19 @@ const PingOneScopesReference: React.FC = () => {
 								<div
 									style={{
 										padding: '1rem',
-										background: '#f1f5f9',
+										background: 'V9_COLORS.BG.GRAY_MEDIUM',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
 									}}
 								>
-									<strong style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a' }}>
+									<strong style={{ display: 'block', marginBottom: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Step-by-Step: Configuring OIDC Scopes
 									</strong>
 									<ol
 										style={{
 											margin: '0',
 											paddingLeft: '1.25rem',
-											color: '#475569',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											lineHeight: '1.8',
 										}}
 									>
@@ -709,7 +710,7 @@ const PingOneScopesReference: React.FC = () => {
 										margin: '0 0 0.75rem 0',
 										fontSize: '1.1rem',
 										fontWeight: '600',
-										color: '#0f172a',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									🛠️ Creating Custom Resources & Scopes
@@ -728,19 +729,19 @@ const PingOneScopesReference: React.FC = () => {
 								<div
 									style={{
 										padding: '1rem',
-										background: '#f1f5f9',
+										background: 'V9_COLORS.BG.GRAY_MEDIUM',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
 									}}
 								>
-									<strong style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a' }}>
+									<strong style={{ display: 'block', marginBottom: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Step-by-Step: Creating a Custom Resource
 									</strong>
 									<ol
 										style={{
 											margin: '0',
 											paddingLeft: '1.25rem',
-											color: '#475569',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											lineHeight: '1.8',
 										}}
 									>
@@ -801,15 +802,15 @@ const PingOneScopesReference: React.FC = () => {
 									</ol>
 								</div>
 
-								<div style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem' }}>
-									<strong style={{ display: 'block', marginBottom: '0.75rem', color: '#0f172a' }}>
+								<div style={{ padding: '1rem', background: 'V9_COLORS.BG.GRAY_MEDIUM', borderRadius: '0.5rem' }}>
+									<strong style={{ display: 'block', marginBottom: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Step-by-Step: Granting Resource Access to Applications
 									</strong>
 									<ol
 										style={{
 											margin: '0',
 											paddingLeft: '1.25rem',
-											color: '#475569',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											lineHeight: '1.8',
 										}}
 									>
@@ -833,7 +834,7 @@ const PingOneScopesReference: React.FC = () => {
 							</div>
 
 							<InfoBox
-								style={{ margin: '1rem 0 0 0', background: '#fff7ed', border: '1px solid #fed7aa' }}
+								style={{ margin: '1rem 0 0 0', background: 'V9_COLORS.TEXT.WHITE7ed', border: '1px solid #fed7aa' }}
 							>
 								<InfoIcon>
 									<FiShield size={20} style={{ color: '#c2410c' }} />
@@ -853,7 +854,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiShield size={24} style={{ color: '#10b981' }} />
+							<FiShield size={24} style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 							Best Practices
 						</CategoryTitle>
 					</CategoryHeader>

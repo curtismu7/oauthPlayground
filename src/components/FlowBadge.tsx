@@ -26,7 +26,7 @@ const Badge = styled.span<{ $type: FlowBadgeProps['type'] }>`
         `;
 			case 'warning':
 				return `
-          background-color: #fff3cd;
+          background-color: V9_COLORS.TEXT.WHITE3cd;
           color: #856404;
           border: 1px solid #ffeaa7;
         `;

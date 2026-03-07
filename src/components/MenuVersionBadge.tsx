@@ -10,7 +10,7 @@ interface VersionBadgeProps {
 const BadgeContainer = styled.span<{ $color: string; $bgColor: string }>`
 	background: ${(props) => props.$bgColor};
 	border: 1px solid ${(props) => props.$color};
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	padding: 0.125rem 0.375rem;
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
@@ -26,12 +26,12 @@ const BadgeContainer = styled.span<{ $color: string; $bgColor: string }>`
 
 const BADGE_STYLES = {
 	v8: {
-		color: '#3b82f6',
+		color: 'V9_COLORS.PRIMARY.BLUE',
 		bgColor: 'rgba(59, 130, 246, 0.9)',
 		defaultLabel: 'V8',
 	},
 	v8u: {
-		color: '#10b981',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		bgColor: 'rgba(16, 185, 129, 0.9)',
 		defaultLabel: 'V8U',
 	},
@@ -41,17 +41,17 @@ const BADGE_STYLES = {
 		defaultLabel: 'V7',
 	},
 	v6: {
-		color: '#f59e0b',
+		color: 'V9_COLORS.PRIMARY.YELLOW',
 		bgColor: 'rgba(245, 158, 11, 0.9)',
 		defaultLabel: 'V6',
 	},
 	production: {
-		color: '#22c55e',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		bgColor: 'rgba(34, 197, 94, 0.9)',
 		defaultLabel: 'PROD',
 	},
 	legacy: {
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		bgColor: 'rgba(107, 114, 128, 0.9)',
 		defaultLabel: 'LEGACY',
 	},

@@ -14,11 +14,12 @@ import {
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const PageContainer = styled.div`
 	min-height: 100vh;
-	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%);
 	padding: 2rem 0 6rem;
 `;
 
@@ -95,7 +96,7 @@ const StatCard = styled.div`
 	border-radius: 1rem;
 	padding: 1.5rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	text-align: center;
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -114,7 +115,7 @@ const StatNumber = styled.div`
 
 const StatLabel = styled.div`
 	font-size: 0.875rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 500;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -124,13 +125,13 @@ const MainContent = styled.div`
 	background: white;
 	border-radius: 1rem;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow: hidden;
 `;
 
 const Section = styled.section`
 	padding: 2rem;
-	border-bottom: 1px solid #f1f5f9;
+	border-bottom: 1px solid V9_COLORS.BG.GRAY_MEDIUM;
 
 	&:last-child {
 		border-bottom: none;
@@ -145,11 +146,11 @@ const SectionHeader = styled.div`
 	cursor: pointer;
 	padding: 1rem;
 	border-radius: 0.75rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	transition: background 0.2s ease;
 
 	&:hover {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 	}
 `;
 
@@ -166,7 +167,7 @@ const SectionTitle = styled.h2`
 const SectionToggle = styled.div<{ $expanded: boolean }>`
 	transition: transform 0.2s ease;
 	transform: ${({ $expanded }) => ($expanded ? 'rotate(0deg)' : 'rotate(-90deg)')};
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const SectionContent = styled.div<{ $expanded: boolean }>`
@@ -190,14 +191,14 @@ const AchievementCard = styled.div<{ $variant: 'success' | 'warning' | 'info' }>
 	align-items: flex-start;
 	gap: 1rem;
 	background: ${({ $variant }) =>
-		$variant === 'success' ? '#f0fdf4' : $variant === 'warning' ? '#fffbeb' : '#f0f9ff'};
+		$variant === 'success' ? '#f0fdf4' : $variant === 'warning' ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT'};
 	border-color: ${({ $variant }) =>
-		$variant === 'success' ? '#22c55e' : $variant === 'warning' ? '#f59e0b' : '#3b82f6'};
+		$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : $variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE'};
 `;
 
 const AchievementIcon = styled.div<{ $variant: 'success' | 'warning' | 'info' }>`
 	color: ${({ $variant }) =>
-		$variant === 'success' ? '#16a34a' : $variant === 'warning' ? '#d97706' : '#2563eb'};
+		$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : $variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK'};
 	font-size: 1.5rem;
 	margin-top: 0.125rem;
 `;
@@ -215,7 +216,7 @@ const AchievementTitle = styled.h3`
 
 const AchievementText = styled.p`
 	font-size: 0.875rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.5;
 `;
@@ -255,7 +256,7 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
 				`;
 			case 'secondary':
 				return `
-					background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 					color: white;
 					&:hover {
 						transform: translateY(-2px);
@@ -264,7 +265,7 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
 				`;
 			case 'success':
 				return `
-					background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 					color: white;
 					&:hover {
 						transform: translateY(-2px);
@@ -274,10 +275,10 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
 			case 'outline':
 				return `
 					background: white;
-					color: #64748b;
-					border-color: #e2e8f0;
+					color: V9_COLORS.TEXT.GRAY_MEDIUM;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 					&:hover {
-						background: #f8fafc;
+						background: V9_COLORS.BG.GRAY_LIGHT;
 						border-color: #cbd5e1;
 						transform: translateY(-1px);
 					}
@@ -287,8 +288,8 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
 `;
 
 const MigrationSection = styled.div`
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border: 1px solid #f59e0b;
+	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -297,7 +298,7 @@ const MigrationSection = styled.div`
 const MigrationTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
@@ -320,14 +321,14 @@ const MigrationStep = styled.div`
 	background: white;
 	padding: 1.5rem;
 	border-radius: 0.5rem;
-	border: 1px solid #f59e0b;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 `;
 
 const StepNumber = styled.div`
 	width: 2rem;
 	height: 2rem;
 	border-radius: 50%;
-	background: #f59e0b;
+	background: V9_COLORS.PRIMARY.YELLOW;
 	color: white;
 	display: flex;
 	align-items: center;
@@ -340,7 +341,7 @@ const StepNumber = styled.div`
 const StepTitle = styled.h4`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin: 0 0 0.5rem 0;
 `;
 
@@ -356,8 +357,8 @@ const FooterActions = styled.div`
 	justify-content: center;
 	gap: 1rem;
 	padding: 2rem;
-	background: #f8fafc;
-	border-top: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const OAuthImplicitFlowCompletion: React.FC = () => {

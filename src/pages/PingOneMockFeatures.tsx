@@ -1,6 +1,7 @@
 import { FiAlertTriangle, FiBookOpen, FiExternalLink, FiShield, FiTool } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Simple container for testing
 const PageContainer = styled.div`
@@ -22,14 +23,14 @@ const CollapsibleHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
   }
 `;
 
 const WarningBanner = styled.div`
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
+  border: 2px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -38,7 +39,7 @@ const WarningBanner = styled.div`
   gap: 1rem;
 
   .warning-icon {
-    color: #d97706;
+    color: V9_COLORS.PRIMARY.YELLOW_DARK;
     font-size: 1.5rem;
     margin-top: 0.25rem;
     flex-shrink: 0;
@@ -48,7 +49,7 @@ const WarningBanner = styled.div`
     flex: 1;
 
     h3 {
-      color: #92400e;
+      color: V9_COLORS.PRIMARY.YELLOW_DARK;
       margin: 0 0 0.5rem 0;
       font-size: 1.25rem;
       font-weight: 700;
@@ -73,11 +74,11 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
   background: ${(props) => {
 		switch (props.$category) {
 			case 'oauth':
-				return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%)';
 			case 'oidc':
-				return 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
 			case 'security':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 			case 'advanced':
 				return 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)';
 			default:
@@ -87,15 +88,15 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
   border: 2px solid ${(props) => {
 		switch (props.$category) {
 			case 'oauth':
-				return '#f87171';
+				return 'V9_COLORS.PRIMARY.RED_LIGHT';
 			case 'oidc':
-				return '#60a5fa';
+				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
 			case 'security':
 				return '#4ade80';
 			case 'advanced':
 				return '#a78bfa';
 			default:
-				return '#d1d5db';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 12px;
@@ -118,15 +119,15 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
       color: ${(props) => {
 				switch (props.$category) {
 					case 'oauth':
-						return '#dc2626';
+						return 'V9_COLORS.PRIMARY.RED_DARK';
 					case 'oidc':
-						return '#2563eb';
+						return 'V9_COLORS.PRIMARY.BLUE_DARK';
 					case 'security':
-						return '#16a34a';
+						return 'V9_COLORS.PRIMARY.GREEN_DARK';
 					case 'advanced':
 						return '#7c3aed';
 					default:
-						return '#6b7280';
+						return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 				}
 			}};
     }
@@ -138,15 +139,15 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
       color: ${(props) => {
 				switch (props.$category) {
 					case 'oauth':
-						return '#991b1b';
+						return 'V9_COLORS.PRIMARY.RED_DARK';
 					case 'oidc':
-						return '#1e40af';
+						return 'V9_COLORS.PRIMARY.BLUE_DARK';
 					case 'security':
 						return '#14532d';
 					case 'advanced':
 						return '#581c87';
 					default:
-						return '#374151';
+						return 'V9_COLORS.TEXT.GRAY_DARK';
 				}
 			}};
     }
@@ -166,26 +167,26 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
     border-left: 4px solid ${(props) => {
 			switch (props.$category) {
 				case 'oauth':
-					return '#f87171';
+					return 'V9_COLORS.PRIMARY.RED_LIGHT';
 				case 'oidc':
-					return '#60a5fa';
+					return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
 				case 'security':
 					return '#4ade80';
 				case 'advanced':
 					return '#a78bfa';
 				default:
-					return '#d1d5db';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			}
 		}};
 
     .reason-label {
       font-weight: 600;
-      color: #374151;
+      color: V9_COLORS.TEXT.GRAY_DARK;
       margin-bottom: 0.5rem;
     }
 
     .reason-text {
-      color: #6b7280;
+      color: V9_COLORS.TEXT.GRAY_MEDIUM;
       font-size: 0.9rem;
       line-height: 1.5;
     }
@@ -213,12 +214,12 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
 					case 'advanced':
 						return '#c4b5fd';
 					default:
-						return '#d1d5db';
+						return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 				}
 			}};
       border-radius: 6px;
       text-decoration: none;
-      color: #374151;
+      color: V9_COLORS.TEXT.GRAY_DARK;
       font-size: 0.875rem;
       font-weight: 500;
       transition: all 0.2s ease;
@@ -240,11 +241,11 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
   background: ${(props) => {
 		switch (props.$type) {
 			case 'info':
-				return 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)';
 			case 'warning':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
 			case 'success':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 			default:
 				return 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)';
 		}
@@ -252,13 +253,13 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
   border: 2px solid ${(props) => {
 		switch (props.$type) {
 			case 'info':
-				return '#60a5fa';
+				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
 			case 'warning':
-				return '#fbbf24';
+				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 			case 'success':
 				return '#4ade80';
 			default:
-				return '#d1d5db';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 12px;
@@ -276,13 +277,13 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
       color: ${(props) => {
 				switch (props.$type) {
 					case 'info':
-						return '#2563eb';
+						return 'V9_COLORS.PRIMARY.BLUE_DARK';
 					case 'warning':
-						return '#d97706';
+						return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 					case 'success':
-						return '#16a34a';
+						return 'V9_COLORS.PRIMARY.GREEN_DARK';
 					default:
-						return '#6b7280';
+						return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 				}
 			}};
     }
@@ -294,13 +295,13 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
       color: ${(props) => {
 				switch (props.$type) {
 					case 'info':
-						return '#1e40af';
+						return 'V9_COLORS.PRIMARY.BLUE_DARK';
 					case 'warning':
-						return '#92400e';
+						return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 					case 'success':
 						return '#14532d';
 					default:
-						return '#374151';
+						return 'V9_COLORS.TEXT.GRAY_DARK';
 				}
 			}};
     }
@@ -333,7 +334,7 @@ const PingOneMockFeatures: React.FC = () => {
 						style={{
 							fontSize: '2.5rem',
 							fontWeight: '800',
-							color: '#111827',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 							marginBottom: '1rem',
 						}}
 					>
@@ -342,14 +343,14 @@ const PingOneMockFeatures: React.FC = () => {
 					<p
 						style={{
 							fontSize: '1.25rem',
-							color: '#6b7280',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							lineHeight: '1.6',
 							maxWidth: '800px',
 						}}
 					>
 						<strong>
 							Features implemented as mock demonstrations because they are{' '}
-							<span style={{ color: '#dc2626' }}>not supported by PingOne</span>. Click the links
+							<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>not supported by PingOne</span>. Click the links
 							below to try existing mock flows.
 						</strong>
 					</p>
@@ -357,12 +358,12 @@ const PingOneMockFeatures: React.FC = () => {
 
 				<WarningBanner>
 					<FiAlertTriangle
-						style={{ color: '#d97706', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
+						style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
 					/>
 					<div style={{ flex: 1 }}>
 						<h3
 							style={{
-								color: '#92400e',
+								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 								margin: '0 0 0.5rem 0',
 								fontSize: '1.25rem',
 								fontWeight: '700',
@@ -391,8 +392,8 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#dc2626' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#991b1b' }}>
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									JWT Bearer Token Flow
 								</h3>
 							</div>
@@ -406,13 +407,13 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid #f87171',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne doesn't support JWT Bearer Token flow. Our existing implementation shows
 									how services can authenticate using signed JWTs.
 								</div>
@@ -429,7 +430,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -448,7 +449,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -468,8 +469,8 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#dc2626' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#991b1b' }}>
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									SAML Bearer Assertion Flow
 								</h3>
 							</div>
@@ -483,13 +484,13 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid #f87171',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne doesn't support SAML Bearer Assertion flow for OAuth. Our existing mock
 									demonstrates SAML-to-OAuth token exchange.
 								</div>
@@ -506,7 +507,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -526,8 +527,8 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#dc2626' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#991b1b' }}>
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									DPoP (Demonstration of Proof-of-Possession)
 								</h3>
 							</div>
@@ -541,13 +542,13 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid #f87171',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne does not support DPoP token binding. Our mock implementation demonstrates
 									how DPoP prevents token replay attacks and enhances OAuth security.
 								</div>
@@ -564,7 +565,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -585,7 +586,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -605,8 +606,8 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#dc2626' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#991b1b' }}>
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									Dynamic Client Registration (DCR)
 								</h3>
 							</div>
@@ -620,13 +621,13 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid #f87171',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne doesn't support Dynamic Client Registration. Our mock demonstrates how
 									clients can register themselves programmatically without manual configuration.
 								</div>
@@ -643,7 +644,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -664,7 +665,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -684,8 +685,8 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#dc2626' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#991b1b' }}>
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									Resource Owner Password Credentials
 								</h3>
 							</div>
@@ -699,13 +700,13 @@ const PingOneMockFeatures: React.FC = () => {
 									borderRadius: '8px',
 									padding: '1rem',
 									marginBottom: '1rem',
-									borderLeft: '4px solid #f87171',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.RED_LIGHT',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne doesn't support ROPC flow due to security concerns. Our existing mock
 									shows why this flow is deprecated.
 								</div>
@@ -722,7 +723,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #fca5a5',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -765,10 +766,10 @@ const PingOneMockFeatures: React.FC = () => {
 									borderLeft: '4px solid #a78bfa',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									Many advanced OAuth parameters like custom claims, advanced scopes, and
 									specialized response modes aren't supported by PingOne.
 								</div>
@@ -785,7 +786,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #c4b5fd',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -823,10 +824,10 @@ const PingOneMockFeatures: React.FC = () => {
 									borderLeft: '4px solid #a78bfa',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Why Mock:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne doesn't support RAR for complex authorization scenarios. Our existing
 									implementation demonstrates fine-grained permissions.
 								</div>
@@ -843,7 +844,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #c4b5fd',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -868,7 +869,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#16a34a' }} />
+								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
 									OAuth 2.1 Security Features
 								</h3>
@@ -885,10 +886,10 @@ const PingOneMockFeatures: React.FC = () => {
 									borderLeft: '4px solid #4ade80',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Educational Value:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									PingOne implements OAuth 2.0, not OAuth 2.1. Our existing page shows the security
 									improvements in OAuth 2.1.
 								</div>
@@ -905,7 +906,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #86efac',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -925,7 +926,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiTool style={{ fontSize: '1.5rem', color: '#16a34a' }} />
+								<FiTool style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
 									Interactive Learning
 								</h3>
@@ -942,10 +943,10 @@ const PingOneMockFeatures: React.FC = () => {
 									borderLeft: '4px solid #4ade80',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '0.5rem' }}>
 									Educational Value:
 								</div>
-								<div style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem', lineHeight: 1.5 }}>
 									Our existing tutorials and training materials help developers understand
 									OAuth/OIDC security concepts and implementation patterns.
 								</div>
@@ -962,7 +963,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #86efac',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -981,7 +982,7 @@ const PingOneMockFeatures: React.FC = () => {
 										border: '1px solid #86efac',
 										borderRadius: '6px',
 										textDecoration: 'none',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontSize: '0.875rem',
 										fontWeight: 500,
 									}}
@@ -996,7 +997,7 @@ const PingOneMockFeatures: React.FC = () => {
 
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+						background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
 						border: '2px solid #4ade80',
 						borderRadius: '12px',
 						padding: '1.5rem',
@@ -1005,7 +1006,7 @@ const PingOneMockFeatures: React.FC = () => {
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
 						<FiShield
-							style={{ color: '#16a34a', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
+							style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
 						/>
 						<div style={{ flex: 1 }}>
 							<h3
@@ -1046,20 +1047,20 @@ const PingOneMockFeatures: React.FC = () => {
 
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-						border: '2px solid #f59e0b',
+						background: 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+						border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 						borderRadius: '12px',
 						padding: '1.5rem',
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
 						<FiAlertTriangle
-							style={{ color: '#d97706', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
+							style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
 						/>
 						<div style={{ flex: 1 }}>
 							<h3
 								style={{
-									color: '#92400e',
+									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 									margin: '0 0 0.5rem 0',
 									fontSize: '1.25rem',
 									fontWeight: '700',

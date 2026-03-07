@@ -27,6 +27,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();
@@ -79,7 +80,7 @@ const FlowCard = styled(MainCard)`
 	position: relative;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	border: 2px solid #e5e7eb;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
@@ -89,7 +90,7 @@ const FlowCard = styled(MainCard)`
 	&:hover {
 		transform: translateY(-4px);
 		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
 	
 
@@ -112,11 +113,11 @@ const FlowTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FlowDescription = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 	line-height: 1.6;
 `;
@@ -135,7 +136,7 @@ const SecurityLevel = styled.div<{ $level: number }>`
 	.star {
 		width: 1rem;
 		height: 1rem;
-		background: ${(props) => (props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444')};
+		background: ${(props) => (props.$level >= 3 ? 'V9_COLORS.PRIMARY.GREEN' : props.$level >= 2 ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.RED')};
 		clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 	}
 `;
@@ -161,7 +162,7 @@ const ConceptCard = styled(MainCard)`
 	display: flex;
 	flex-direction: column;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	
 	&:hover {
 		transform: translateY(-2px);
@@ -170,7 +171,7 @@ const ConceptCard = styled(MainCard)`
 	
 	.icon {
 		font-size: 2rem;
-		color: #3b82f6;
+		color: V9_COLORS.PRIMARY.BLUE;
 		margin-bottom: 1rem;
 	}
 	
@@ -178,11 +179,11 @@ const ConceptCard = styled(MainCard)`
 		font-size: 1.125rem;
 		font-weight: 600;
 		margin-bottom: 0.5rem;
-		color: #1f2937;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 	
 	p {
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.6;
 	}
 `;
@@ -202,13 +203,13 @@ const ComparisonTable = styled.div`
 		th, td {
 			padding: 1rem;
 			text-align: left;
-			border-bottom: 1px solid #e5e7eb;
+			border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 		
 		th {
 			background: #f9fafb;
 			font-weight: 600;
-			color: #374151;
+			color: V9_COLORS.TEXT.GRAY_DARK;
 		}
 		
 		tr:hover {
@@ -240,7 +241,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'The most secure flow for applications that can securely store client credentials. Provides both access and ID tokens.',
 		icon: FiKey,
-		color: '#10b981',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		securityLevel: 5,
 		oauth21Status: 'included',
 		path: '/flows/oauth-authorization-code-v7',
@@ -254,7 +255,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Legacy flow for browser-based applications. Returns tokens directly from authorization endpoint.',
 		icon: FiZap,
-		color: '#f59e0b',
+		color: 'V9_COLORS.PRIMARY.YELLOW',
 		securityLevel: 2,
 		deprecated: true,
 		oauth21Status: 'deprecated',
@@ -323,7 +324,7 @@ const oidcFlows: OIDCFlow[] = [
 		title: 'Resource Owner Password',
 		description: 'Direct username/password authentication. Deprecated for most use cases.',
 		icon: FiLock,
-		color: '#ef4444',
+		color: 'V9_COLORS.PRIMARY.RED',
 		securityLevel: 2,
 		deprecated: true,
 		oauth21Status: 'deprecated',
@@ -338,7 +339,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Client Initiated Backchannel Authentication for decoupled authentication scenarios.',
 		icon: FiUsers,
-		color: '#10b981',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		securityLevel: 5,
 		oauth21Status: 'not-specified',
 		path: '/flows/ciba-v7',
@@ -352,7 +353,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Exchange tokens for different audiences or scopes (RFC 8693). Modern microservices pattern.',
 		icon: FiCode,
-		color: '#f59e0b',
+		color: 'V9_COLORS.PRIMARY.YELLOW',
 		securityLevel: 4,
 		oauth21Status: 'not-specified',
 		path: '/flows/token-exchange-v7',
@@ -463,7 +464,7 @@ const OIDCOverviewV7: React.FC = () => {
 								</div>
 								<h4>{concept.title}</h4>
 								<p>{concept.description}</p>
-								<div style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+								<div style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									<strong>Examples:</strong> {concept.examples.join(', ')}
 								</div>
 							</ConceptCard>
@@ -491,22 +492,22 @@ const OIDCOverviewV7: React.FC = () => {
 										textTransform: 'uppercase',
 										backgroundColor:
 											flow.oauth21Status === 'included'
-												? '#dcfce7'
+												? 'V9_COLORS.BG.SUCCESS'
 												: flow.oauth21Status === 'deprecated'
-													? '#fef3c7'
+													? 'V9_COLORS.BG.WARNING'
 													: '#f3f4f6',
 										color:
 											flow.oauth21Status === 'included'
-												? '#166534'
+												? 'V9_COLORS.PRIMARY.GREEN'
 												: flow.oauth21Status === 'deprecated'
-													? '#d97706'
-													: '#6b7280',
+													? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+													: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										border: `1px solid ${
 											flow.oauth21Status === 'included'
-												? '#bbf7d0'
+												? 'V9_COLORS.BG.SUCCESS_BORDER'
 												: flow.oauth21Status === 'deprecated'
-													? '#fde68a'
-													: '#e5e7eb'
+													? 'V9_COLORS.BG.WARNING_BORDER'
+													: 'V9_COLORS.TEXT.GRAY_LIGHTER'
 										}`,
 									}}
 								>
@@ -527,13 +528,13 @@ const OIDCOverviewV7: React.FC = () => {
 								{renderSecurityLevel(flow.securityLevel)}
 
 								<div style={{ marginBottom: '1rem' }}>
-									<strong style={{ color: '#374151', fontSize: '0.875rem' }}>Best For:</strong>
+									<strong style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', fontSize: '0.875rem' }}>Best For:</strong>
 									<ul
 										style={{
 											margin: '0.5rem 0',
 											paddingLeft: '1rem',
 											fontSize: '0.875rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										}}
 									>
 										{flow.bestFor.map((item, index) => (
@@ -549,11 +550,11 @@ const OIDCOverviewV7: React.FC = () => {
 										justifyContent: 'space-between',
 										marginTop: 'auto',
 										paddingTop: '1rem',
-										borderTop: '1px solid #e5e7eb',
+										borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Click to explore</span>
-									<FiArrowRight style={{ color: '#3b82f6' }} />
+									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Click to explore</span>
+									<FiArrowRight style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 								</div>
 							</FlowCard>
 						))}
@@ -604,9 +605,9 @@ const OIDCOverviewV7: React.FC = () => {
 										</td>
 										<td>
 											{flow.deprecated ? (
-												<span style={{ color: '#f59e0b', fontWeight: '600' }}>Deprecated</span>
+												<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontWeight: '600' }}>Deprecated</span>
 											) : (
-												<span style={{ color: '#10b981', fontWeight: '600' }}>Recommended</span>
+												<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontWeight: '600' }}>Recommended</span>
 											)}
 										</td>
 									</tr>

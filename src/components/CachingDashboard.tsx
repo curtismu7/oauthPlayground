@@ -41,7 +41,7 @@ const DashboardIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;
@@ -100,21 +100,21 @@ const StatusIcon = styled.div<{ $status: 'active' | 'inactive' | 'error' }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'inactive':
 				return '#f3f4f6';
 			case 'error':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 		}
 	}};
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'inactive':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
   font-size: 16px;
@@ -221,7 +221,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 			case 'danger':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   font-weight: 600;
@@ -235,7 +235,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 				case 'primary':
 					return theme.colors.primaryDark;
 				case 'danger':
-					return '#dc2626';
+					return 'V9_COLORS.PRIMARY.RED_DARK';
 				default:
 					return theme.colors.gray100;
 			}
@@ -270,13 +270,13 @@ const Notification = styled.div<{ type: 'info' | 'success' | 'warning' | 'error'
   border-left: 4px solid ${({ type }) => {
 		switch (type) {
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
   min-width: 300px;
@@ -298,13 +298,13 @@ const NotificationIcon = styled.div<{ type: 'info' | 'success' | 'warning' | 'er
   color: ${({ type }) => {
 		switch (type) {
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
   font-size: 18px;

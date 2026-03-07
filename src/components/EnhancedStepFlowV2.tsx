@@ -98,7 +98,7 @@ const Title = styled.h1`
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -106,7 +106,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 2rem;
 `;
 
@@ -140,9 +140,9 @@ const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' |
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   background: white;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   position: relative;
   z-index: 2;
   
@@ -150,28 +150,28 @@ const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' |
 		switch (props.$status) {
 			case 'completed':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          border-color: #10b981;
+          border-color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'active':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border-color: #3b82f6;
+          border-color: V9_COLORS.PRIMARY.BLUE;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         `;
 			case 'error':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          border-color: #ef4444;
+          border-color: V9_COLORS.PRIMARY.RED;
         `;
 			default:
 				return `
           background: white;
-          color: #9ca3af;
-          border-color: #e5e7eb;
+          color: V9_COLORS.TEXT.GRAY_LIGHT;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
         `;
 		}
 	}}
@@ -186,9 +186,10 @@ const StepConnector = styled.div<{ $completed: boolean; $active: boolean }>`
   width: 3rem;
   height: 2px;
   background: ${(props) => {
-		if (props.$completed) return '#10b981';
-		if (props.$active) return 'linear-gradient(to right, #10b981 50%, #e5e7eb 50%)';
-		return '#e5e7eb';
+		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN';
+		if (props.$active)
+			return 'linear-gradient(to right, V9_COLORS.PRIMARY.GREEN 50%, V9_COLORS.TEXT.GRAY_LIGHTER 50%)';
+		return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 	}};
   position: relative;
   z-index: 1;
@@ -202,7 +203,7 @@ const StepLabel = styled.div`
   transform: translateX(-50%);
   font-size: 0.75rem;
   font-weight: 500;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   white-space: nowrap;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -216,12 +217,12 @@ const StepLabel = styled.div`
 const StepCount = styled.div`
   margin-left: 1rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
 const _SuccessMessage = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   color: white;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
@@ -260,7 +261,7 @@ const StepHeader = styled.div`
   gap: 0.75rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StepIcon = styled.div`
@@ -270,13 +271,13 @@ const StepIcon = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
@@ -285,12 +286,12 @@ const StepDescription = styled.div`
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepDescriptionText = styled.p`
   margin: 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1rem;
 `;
 
@@ -303,7 +304,7 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{
@@ -339,10 +340,10 @@ const Button = styled.button<{
 		switch (props.$variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
           &:hover:not(:disabled) {
-            background: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
           }
@@ -350,44 +351,44 @@ const Button = styled.button<{
 			case 'secondary':
 				return `
           background: white;
-          color: #1f2937;
-          border: 1px solid #e5e7eb;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
           &:hover:not(:disabled) {
             background: #f9fafb;
-            border-color: #6b7280;
+            border-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
           &:hover:not(:disabled) {
-            background: #059669;
+            background: V9_COLORS.PRIMARY.GREEN_DARK;
             transform: translateY(-1px);
           }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
           &:hover:not(:disabled) {
-            background: #dc2626;
+            background: V9_COLORS.PRIMARY.RED_DARK;
             transform: translateY(-1px);
           }
         `;
 			case 'outline':
 				return `
           background: transparent;
-          color: #3b82f6;
-          border: 1px solid #3b82f6;
+          color: V9_COLORS.PRIMARY.BLUE;
+          border: 1px solid V9_COLORS.PRIMARY.BLUE;
           &:hover:not(:disabled) {
-            background: #3b82f6;
+            background: V9_COLORS.PRIMARY.BLUE;
             color: white;
           }
         `;
 			default:
 				return `
-          background: #6b7280;
+          background: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover:not(:disabled) {
             background: #4b5563;
@@ -443,7 +444,7 @@ const PanelHeader = styled.div`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: #e5e7eb;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 
@@ -452,7 +453,7 @@ const PanelTitle = styled.div`
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
@@ -460,7 +461,7 @@ const PanelToggle = styled.button`
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   transition: transform 0.2s ease;
   
@@ -490,23 +491,23 @@ const StatusIndicator = styled.div<{ type: 'success' | 'error' | 'warning' | 'in
 		switch (props.type) {
 			case 'success':
 				return `
-          background: #ecfdf5;
-          color: #10b981;
+          background: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: #fef2f2;
-          color: #ef4444;
+          background: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED;
         `;
 			case 'warning':
 				return `
-          background: #fffbeb;
-          color: #f59e0b;
+          background: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW;
         `;
 			case 'info':
 				return `
-          background: #eff6ff;
-          color: #3b82f6;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          color: V9_COLORS.PRIMARY.BLUE;
         `;
 		}
 	}}
@@ -514,8 +515,8 @@ const StatusIndicator = styled.div<{ type: 'success' | 'error' | 'warning' | 'in
 
 // Code Blocks
 const CodeBlock = styled.div`
-  background: #1f2937;
-  color: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_DARK;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 1rem;
   border-radius: 0.5rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -532,7 +533,7 @@ const CopyButton = styled.button`
   right: 0.5rem;
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #e5e7eb;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -548,7 +549,7 @@ const CopyButton = styled.button`
 const JsonDisplay = styled.div`
   background: #f0fdf4;
   color: #15803d;
-  border: 2px solid #16a34a;
+  border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
@@ -577,8 +578,8 @@ const LoadingSpinner = styled.div`
   display: inline-block;
   width: 1rem;
   height: 1rem;
-  border: 2px solid #e5e7eb;
-  border-top: 2px solid #3b82f6;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 `;
@@ -587,7 +588,7 @@ const LoadingSpinner = styled.div`
 const ProgressBar = styled.div`
   width: 100%;
   height: 0.5rem;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
   overflow: hidden;
   margin: 1rem 0;
@@ -595,7 +596,7 @@ const ProgressBar = styled.div`
 
 const ProgressFill = styled.div<{ $progress: number }>`
   height: 100%;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   transition: width 0.3s ease;
   border-radius: 0.25rem;
   width: ${(props) => props.$progress}%;
@@ -1282,7 +1283,11 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				{/* Bottom Step Progress Indicator - Duplicate for easy access */}
 				<StepProgressContainer
 					data-testid="step-progress-bottom"
-					style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}
+					style={{
+						marginTop: '2rem',
+						paddingTop: '2rem',
+						borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+					}}
 				>
 					<StepProgressWrapper>
 						{steps.map((step, index) => {

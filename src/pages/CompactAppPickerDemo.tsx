@@ -9,6 +9,7 @@ import { CompactApplicationPicker } from '../components/CompactApplicationPicker
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -50,9 +51,9 @@ const Subtitle = styled.p`
 `;
 
 const Card = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 1rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
 	padding: 1.5rem;
 	display: flex;
@@ -67,7 +68,7 @@ const SectionTitle = styled.h2`
 	gap: 0.5rem;
 	font-size: 1.1rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ButtonRow = styled.div`
@@ -80,7 +81,7 @@ const PrimaryButton = styled.button<{ disabled?: boolean }>`
 	border: none;
 	border-radius: 0.75rem;
 	padding: 0.85rem 1.35rem;
-	background: ${({ disabled }) => (disabled ? '#cbd5f5' : '#667eea')};
+	background: ${({ disabled }) => (disabled ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : '#667eea')};
 	color: white;
 	font-weight: 600;
 	display: inline-flex;
@@ -99,7 +100,7 @@ const DangerButton = styled.button`
 	border: none;
 	border-radius: 0.75rem;
 	padding: 0.85rem 1.35rem;
-	background: #ef4444;
+	background: V9_COLORS.PRIMARY.RED;
 	color: white;
 	font-weight: 600;
 	display: inline-flex;
@@ -111,14 +112,14 @@ const DangerButton = styled.button`
 	&:hover {
 		transform: translateY(-1px);
 		box-shadow: 0 10px 22px -12px rgba(239, 68, 68, 0.65);
-		background: #dc2626;
+		background: V9_COLORS.PRIMARY.RED_DARK;
 	}
 `;
 
 const WarningBanner = styled.div`
 	padding: 1rem;
-	background: #fef3c7;
-	border: 1px solid #fbbf24;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
 	border-radius: 0.75rem;
 	display: flex;
 	align-items: flex-start;
@@ -127,15 +128,15 @@ const WarningBanner = styled.div`
 
 const SelectedAppCard = styled.div`
 	padding: 1.5rem;
-	background: #f0f9ff;
-	border: 1px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 `;
 
 const SelectedAppTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -150,7 +151,7 @@ const AppDetails = styled.div`
 
 const DetailLabel = styled.div`
 	font-weight: 600;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.5rem;
 	background: white;
 	border-radius: 0.375rem;
@@ -164,7 +165,7 @@ const DetailValue = styled.div`
 	font-size: 0.8rem;
 	background: white;
 	border-radius: 0.375rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CompactAppPickerDemo: React.FC = () => {
@@ -281,7 +282,7 @@ const CompactAppPickerDemo: React.FC = () => {
 					<PrimaryButton
 						onClick={handleGetWorkerToken}
 						type="button"
-						style={{ background: hasWorkerToken ? '#10b981' : undefined }}
+						style={{ background: hasWorkerToken ? 'V9_COLORS.PRIMARY.GREEN' : undefined }}
 					>
 						{hasWorkerToken ? (
 							<>
@@ -314,7 +315,7 @@ const CompactAppPickerDemo: React.FC = () => {
 				/>
 
 				{!hasWorkerToken && (
-					<p style={{ margin: 0, color: '#64748b', fontSize: '0.875rem' }}>
+					<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 						Generate a worker token above to enable the application picker.
 					</p>
 				)}

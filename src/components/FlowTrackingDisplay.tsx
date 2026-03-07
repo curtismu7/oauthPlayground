@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { FlowContext, flowTrackingService } from '../services/flowTrackingService';
 
 const Container = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 16px;
 	margin: 16px 0;
@@ -26,22 +26,22 @@ const Section = styled.div`
 
 const SectionTitle = styled.div`
 	font-weight: 600;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 4px;
 `;
 
 const Info = styled.div`
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-left: 8px;
 `;
 
 const ErrorInfo = styled.div`
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	margin-left: 8px;
 `;
 
 const Button = styled.button`
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -52,17 +52,17 @@ const Button = styled.button`
 	margin-top: 8px;
 	
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
 const LogoutUrlInfo = styled.div`
-	background: #fef3c7;
-	border: 1px solid #f59e0b;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 4px;
 	padding: 8px;
 	margin-top: 8px;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	font-size: 11px;
 `;
 

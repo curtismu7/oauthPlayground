@@ -11,6 +11,7 @@ import ResponseModeSelector, {
 	type ResponseModeSelectorProps,
 } from '../../components/response-modes/ResponseModeSelector';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const Container = styled.div`
@@ -35,7 +36,7 @@ const MainCard = styled.div`
 
 const Section = styled.section`
   padding: 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   
   &:last-child {
     border-bottom: none;
@@ -46,7 +47,7 @@ const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -55,7 +56,7 @@ const SectionTitle = styled.h3`
 const SectionDescription = styled.p`
   margin: 0 0 1.5rem 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
@@ -75,34 +76,34 @@ const InputGroup = styled.div`
 const InputLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const Select = styled.select`
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   background: white;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -118,13 +119,13 @@ const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' | 'danger'
   ${(props) => {
 		switch (props.$variant) {
 			case 'info':
-				return 'background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;';
+				return 'background: V9_COLORS.BG.GRAY_LIGHT; border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 			case 'success':
-				return 'background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;';
+				return 'background: #f0fdf4; border: 1px solid V9_COLORS.BG.SUCCESS_BORDER; color: V9_COLORS.PRIMARY.GREEN;';
 			case 'warning':
-				return 'background: #fffbeb; border: 1px solid #fed7aa; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; border: 1px solid #fed7aa; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			case 'danger':
-				return 'background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;';
+				return 'background: V9_COLORS.BG.ERROR; border: 1px solid V9_COLORS.BG.ERROR_BORDER; color: V9_COLORS.PRIMARY.RED_DARK;';
 			default:
 				return '';
 		}
@@ -156,7 +157,7 @@ const CompatibilityGrid = styled.div`
 
 const CompatibilityCard = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
 `;
@@ -165,14 +166,14 @@ const CompatibilityTitle = styled.h5`
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CompatibilityList = styled.ul`
   margin: 0;
   padding-left: 1rem;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.5;
 `;
 

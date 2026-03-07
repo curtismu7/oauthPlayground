@@ -43,15 +43,15 @@ const ModalContent = styled.div`
 `;
 
 const TokenSection = styled.div<{ $variant: TokenType }>`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 2px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'id':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'refresh':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 		}
 	}};
   border-radius: 8px;
@@ -72,11 +72,11 @@ const TokenHeader = styled.div<{ $variant: TokenType }>`
   background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
 			case 'id':
-				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)';
 			case 'refresh':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
 		}
 	}};
   border-bottom: 2px solid ${({ $variant }) => {
@@ -100,11 +100,11 @@ const TokenLabel = styled.div<{ $variant: TokenType }>`
   color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'id':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'refresh':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 		}
 	}};
 `;
@@ -121,11 +121,11 @@ const TokenBadge = styled.span<{ $variant: TokenType }>`
   background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'id':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'refresh':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 		}
 	}};
   color: white;
@@ -153,22 +153,22 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'warni
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
         `;
 			case 'warning':
 				return `
-          background: #f59e0b;
+          background: V9_COLORS.PRIMARY.YELLOW;
           color: white;
-          &:hover { background: #d97706; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); }
+          &:hover { background: V9_COLORS.PRIMARY.YELLOW_DARK; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); }
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
-          &:hover { background: #e5e7eb; transform: translateY(-1px); }
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; transform: translateY(-1px); }
         `;
 		}
 	}}
@@ -210,14 +210,14 @@ const TokenValue = styled.div<{ $masked?: boolean }>`
 const DecodedSection = styled.div`
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #e2e8f0;
+  border-top: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DecodedTitle = styled.h4`
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -254,10 +254,10 @@ const OpaqueMessage = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 6px;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   font-size: 0.875rem;
   margin-top: 1rem;
 `;
@@ -268,9 +268,9 @@ const MetadataGrid = styled.div`
   gap: 1rem;
   margin-top: 1rem;
   padding: 1rem;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const MetadataItem = styled.div`
@@ -282,7 +282,7 @@ const MetadataItem = styled.div`
 const MetadataLabel = styled.span`
   font-size: 0.7rem;
   font-weight: 700;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -290,7 +290,7 @@ const MetadataLabel = styled.span`
 const MetadataValue = styled.span`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 `;
 
@@ -503,7 +503,9 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		>
 			<ModalContent>
 				{availableTokens.length === 0 ? (
-					<div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+					<div
+						style={{ padding: '2rem', textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
+					>
 						No tokens available to display
 					</div>
 				) : (

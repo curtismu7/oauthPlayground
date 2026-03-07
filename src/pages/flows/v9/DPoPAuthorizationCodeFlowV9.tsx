@@ -5,6 +5,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // V9 Flow Components
 const {
@@ -371,7 +372,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 			<div>
 				{/* Credentials Panel */}
 				<div style={{ marginBottom: '2rem' }}>
-					<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>Credentials Configuration</h3>
+					<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>Credentials Configuration</h3>
 
 					<CompactAppPickerV8U
 						environmentId={params.environmentId}
@@ -395,7 +396,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.5rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 								}}
@@ -418,7 +419,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.5rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 								}}
@@ -441,7 +442,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.5rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 								}}
@@ -464,7 +465,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.5rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 								}}
@@ -487,7 +488,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.5rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 								}}
@@ -503,8 +504,8 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 				{/* Step 1: DPoP Keys Generated */}
 				{params.currentStep === 1 && (
 					<div>
-						<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>DPoP Key Pair Generated</h3>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>DPoP Key Pair Generated</h3>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Your DPoP key pair has been generated. The public key is:
 						</p>
 						<p style={{ marginBottom: '1rem' }}>
@@ -529,8 +530,8 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 				{/* Step 2: Authorization Code Received */}
 				{params.currentStep === 2 && (
 					<div>
-						<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>Authorization Code Received</h3>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>Authorization Code Received</h3>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Authorization Code:{' '}
 							<code
 								style={{
@@ -552,8 +553,8 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 				{/* Step 3: Token Received */}
 				{params.currentStep === 3 && (
 					<div>
-						<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>DPoP-Bound Access Token</h3>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>DPoP-Bound Access Token</h3>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Access Token:{' '}
 							<code
 								style={{
@@ -565,10 +566,10 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 								{params.accessToken.substring(0, 20)}...
 							</code>
 						</p>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Token Type: <strong>{params.tokenType}</strong>
 						</p>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Expires in: <strong>{params.expiresIn} seconds</strong>
 						</p>
 
@@ -581,10 +582,10 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 				{/* Step 4: Complete */}
 				{params.currentStep === 4 && (
 					<div>
-						<h3 style={{ color: '#10b981', marginBottom: '1rem' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
 							✅ DPoP Flow Completed Successfully!
 						</h3>
-						<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+						<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							You have successfully completed the DPoP Authorization Code Flow. The access token is
 							cryptographically bound to your DPoP key pair.
 						</p>
@@ -599,12 +600,12 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 				{error && (
 					<div
 						style={{
-							background: '#fef2f2',
-							border: '1px solid #fecaca',
+							background: 'V9_COLORS.BG.ERROR',
+							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
-							color: '#dc2626',
+							color: 'V9_COLORS.PRIMARY.RED_DARK',
 						}}
 					>
 						<strong>Error:</strong> {error}
@@ -613,10 +614,10 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 
 				{/* Server Logs */}
 				<div style={{ marginTop: '2rem' }}>
-					<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>Mock Server Logs</h3>
+					<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>Mock Server Logs</h3>
 					<div
 						style={{
-							background: '#1f2937',
+							background: 'V9_COLORS.TEXT.GRAY_DARK',
 							color: '#f3f4f6',
 							borderRadius: '0.5rem',
 							padding: '1rem',
@@ -631,17 +632,17 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 							.getLogs()
 							.map((log: { timestamp: number; level: string; message: string }, index: number) => (
 								<div key={index} style={{ marginBottom: '0.5rem' }}>
-									<span style={{ color: '#9ca3af' }}>
+									<span style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT' }}>
 										{new Date(log.timestamp).toLocaleTimeString()}
 									</span>{' '}
 									<span
 										style={{
 											color:
 												log.level === 'error'
-													? '#ef4444'
+													? 'V9_COLORS.PRIMARY.RED'
 													: log.level === 'success'
-														? '#10b981'
-														: '#3b82f6',
+														? 'V9_COLORS.PRIMARY.GREEN'
+														: 'V9_COLORS.PRIMARY.BLUE',
 										}}
 									>
 										[{log.level.toUpperCase()}]
@@ -654,25 +655,25 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 
 				{/* Educational Content */}
 				<div style={{ marginTop: '2rem' }}>
-					<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>Learn More About DPoP</h3>
+					<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>Learn More About DPoP</h3>
 
 					<div
 						style={{
-							background: '#f0f9ff',
-							border: '1px solid #bae6fd',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ color: '#1e40af', marginBottom: '0.5rem' }}>Official Resources:</h4>
+						<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '0.5rem' }}>Official Resources:</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 							<li>
 								<a
 									href="https://www.rfc-editor.org/rfc/rfc9449.html"
 									target="_blank"
 									rel="noopener noreferrer"
-									style={{ color: '#2563eb', textDecoration: 'underline' }}
+									style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', textDecoration: 'underline' }}
 								>
 									RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
 								</a>
@@ -682,7 +683,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 									href="https://www.pingidentity.com/pingone/"
 									target="_blank"
 									rel="noopener noreferrer"
-									style={{ color: '#2563eb', textDecoration: 'underline' }}
+									style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', textDecoration: 'underline' }}
 								>
 									PingOne Documentation
 								</a>
@@ -692,14 +693,14 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 
 					<div
 						style={{
-							background: '#f0f9ff',
-							border: '1px solid #bae6fd',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ color: '#1e40af', marginBottom: '0.5rem' }}>Key Concepts:</h4>
+						<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '0.5rem' }}>Key Concepts:</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 							<li>
 								<strong>DPoP Proof JWT:</strong> Signed JWT demonstrating key possession

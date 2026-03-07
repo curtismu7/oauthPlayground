@@ -22,8 +22,8 @@ interface GeneratedParametersDisplayProps {
 }
 
 const Container = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -56,18 +56,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.5rem 0.75rem;
-	border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#d1d5db')};
+	border: 1px solid ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 6px;
-	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : 'white')};
-	color: ${(props) => (props.$variant === 'primary' ? 'white' : '#374151')};
+	background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+	color: ${(props) => (props.$variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
-		border-color: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#9ca3af')};
+		background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+		border-color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
 	}
 
 	&:disabled {
@@ -96,7 +96,7 @@ const ParameterLabel = styled.div`
 
 const Label = styled.span`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
@@ -107,7 +107,7 @@ const ParameterActions = styled.div`
 
 const ValueContainer = styled.div<{ $isVisible?: boolean }>`
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 0.75rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -115,7 +115,7 @@ const ValueContainer = styled.div<{ $isVisible?: boolean }>`
 	line-height: 1.5;
 	word-break: break-all;
 	white-space: pre-wrap;
-	color: ${(props) => (props.$isVisible ? '#1f2937' : '#6b7280')};
+	color: ${(props) => (props.$isVisible ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	position: relative;
 	min-height: 2.5rem;
 	display: flex;
@@ -164,11 +164,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -188,13 +188,13 @@ const InfoSectionTitle = styled.h4`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const InfoText = styled.p`
 	margin: 0;
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -202,7 +202,7 @@ const InfoList = styled.ul`
 	margin: 0;
 	padding-left: 1rem;
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 

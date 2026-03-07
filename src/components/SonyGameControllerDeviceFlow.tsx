@@ -12,7 +12,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sony DualSense Controller Physical Housing - Authentic White Design
 const SonyControllerContainer = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%);
   border-radius: 1.8rem;
   padding: 1.8rem;
   margin: 2rem 0;
@@ -20,12 +20,12 @@ const SonyControllerContainer = styled.div`
     0 30px 60px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border: 3px solid #e5e7eb;
+  border: 3px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   position: relative;
   max-width: 480px;
   margin-left: auto;
   margin-right: auto;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   
   /* DualSense specific styling - white with subtle gradients */
   &::before {
@@ -49,7 +49,7 @@ const SonyControllerContainer = styled.div`
     transform: translateX(-50%);
     font-size: 0.75rem;
     font-weight: 700;
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
     letter-spacing: 0.5px;
     z-index: 2;
   }
@@ -76,14 +76,14 @@ const DPad = styled.div`
 `;
 
 const DPadButton = styled.div`
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 
     0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -119,7 +119,7 @@ const ActionButton = styled.div<{ $color: string }>`
   justify-content: center;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 
     0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -149,25 +149,25 @@ const CenterSection = styled.div`
 const PlayStationLogo = styled.div`
   font-size: 1.5rem;
   font-weight: 900;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   margin-bottom: 0.5rem;
 `;
 
 const ControllerModel = styled.div`
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 `;
 
 // Status Display
 const StatusDisplay = styled.div`
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
-  border: 2px solid #374151;
+  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -176,7 +176,7 @@ const StatusRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   
   &:last-child {
     border-bottom: none;
@@ -186,7 +186,7 @@ const StatusRow = styled.div`
 const StatusLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -197,13 +197,13 @@ const StatusValue = styled.div<{ $status?: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'disconnected':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#ffffff';
+				return 'V9_COLORS.TEXT.WHITE';
 		}
 	}};
   display: flex;
@@ -215,7 +215,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -227,7 +227,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 1.5rem;
@@ -246,31 +246,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin: 1rem 0;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -285,8 +285,8 @@ const ActionButtons = styled.div`
 `;
 
 const UIActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: #ffffff;
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.25rem;
@@ -312,12 +312,12 @@ const UIActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 1rem;
   text-align: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -416,10 +416,10 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 
 					{/* Action Buttons */}
 					<ControllerActionButtons>
-						<ActionButton $color="#ef4444">△</ActionButton>
-						<ActionButton $color="#3b82f6">○</ActionButton>
-						<ActionButton $color="#f59e0b">□</ActionButton>
-						<ActionButton $color="#10b981">✕</ActionButton>
+						<ActionButton $color="V9_COLORS.PRIMARY.RED">△</ActionButton>
+						<ActionButton $color="V9_COLORS.PRIMARY.BLUE">○</ActionButton>
+						<ActionButton $color="V9_COLORS.PRIMARY.YELLOW">□</ActionButton>
+						<ActionButton $color="V9_COLORS.PRIMARY.GREEN">✕</ActionButton>
 					</ControllerActionButtons>
 				</ControllerFace>
 
@@ -428,14 +428,14 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 					<StatusRow>
 						<StatusLabel>Battery</StatusLabel>
 						<StatusValue $status="connected">
-							<StatusDot $active={true} $color="#10b981" />
+							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
 							87% - Good
 						</StatusValue>
 					</StatusRow>
 					<StatusRow>
 						<StatusLabel>Connection</StatusLabel>
 						<StatusValue $status={state.status === 'authorized' ? 'connected' : 'disconnected'}>
-							<StatusDot $active={state.status === 'authorized'} $color="#10b981" />
+							<StatusDot $active={state.status === 'authorized'} $color="V9_COLORS.PRIMARY.GREEN" />
 							{state.status === 'authorized' ? 'Connected' : 'Disconnected'}
 						</StatusValue>
 					</StatusRow>
@@ -456,8 +456,8 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="#ffffff"
-							fgColor="#1f2937"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.GRAY_DARK"
 							level="H"
 							includeMargin={true}
 						/>
@@ -491,7 +491,7 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

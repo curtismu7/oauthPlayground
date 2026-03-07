@@ -16,30 +16,26 @@ import React from 'react';
 import styled from 'styled-components';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiInfo': 'mdi-information',
-		'FiLoader': 'mdi-loading',
-		'FiPhone': 'mdi-phone',
-		'FiX': 'mdi-close',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiInfo: 'mdi-information',
+		FiLoader: 'mdi-loading',
+		FiPhone: 'mdi-phone',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
 import {
 	type BannerConfig,
 	type CriticalErrorConfig,
@@ -50,25 +46,25 @@ import {
 
 // V9 Color Standards
 const V9_COLORS = {
-	PRIMARY_BLUE: '#2563eb',
-	DARK_BLUE: '#1e40af',
-	RED: '#dc2626',
-	LIGHT_RED_BG: '#fef2f2',
-	LIGHT_RED_BORDER: '#fecaca',
-	ORANGE: '#f59e0b',
-	LIGHT_ORANGE_BG: '#fffbeb',
+	PRIMARY_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
+	DARK_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
+	RED: 'V9_COLORS.PRIMARY.RED_DARK',
+	LIGHT_RED_BG: 'V9_COLORS.BG.ERROR',
+	LIGHT_RED_BORDER: 'V9_COLORS.BG.ERROR_BORDER',
+	ORANGE: 'V9_COLORS.PRIMARY.YELLOW',
+	LIGHT_ORANGE_BG: 'V9_COLORS.BG.WARNING',
 	LIGHT_ORANGE_BORDER: '#fed7aa',
-	GREEN: '#10b981',
+	GREEN: 'V9_COLORS.PRIMARY.GREEN',
 	LIGHT_GREEN_BG: '#f0fdf4',
-	LIGHT_GREEN_BORDER: '#bbf7d0',
-	BLUE: '#3b82f6',
-	LIGHT_BLUE_BG: '#eff6ff',
-	LIGHT_BLUE_BORDER: '#bfdbfe',
-	GRAY: '#6b7280',
+	LIGHT_GREEN_BORDER: 'V9_COLORS.BG.SUCCESS_BORDER',
+	BLUE: 'V9_COLORS.PRIMARY.BLUE',
+	LIGHT_BLUE_BG: 'V9_COLORS.BG.GRAY_LIGHT',
+	LIGHT_BLUE_BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+	GRAY: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	LIGHT_GRAY_BG: '#f9fafb',
-	LIGHT_GRAY_BORDER: '#e5e7eb',
-	BLACK: '#000000',
-	WHITE: '#ffffff',
+	LIGHT_GRAY_BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+	BLACK: 'V9_COLORS.TEXT.BLACK',
+	WHITE: 'V9_COLORS.TEXT.WHITE',
 };
 
 // Wait Screen Component
@@ -373,7 +369,12 @@ export const WaitScreen: React.FC<{ config: WaitScreenConfig }> = ({ config }) =
 		<WaitScreenOverlay>
 			<WaitScreenContent>
 				<WaitScreenIcon>
-					<MDIIcon icon="FiLoader" size={48} className="animate-spin" style={{ color: V9_COLORS.PRIMARY_BLUE }} />
+					<MDIIcon
+						icon="FiLoader"
+						size={48}
+						className="animate-spin"
+						style={{ color: V9_COLORS.PRIMARY_BLUE }}
+					/>
 				</WaitScreenIcon>
 				<WaitScreenTitle>{config.message}</WaitScreenTitle>
 				{config.detail && <WaitScreenMessage>{config.detail}</WaitScreenMessage>}

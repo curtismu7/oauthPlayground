@@ -5,26 +5,21 @@ import styled, { css, keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheck': 'mdi-check',
-		'FiCopy': 'mdi-content-copy',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiX': 'mdi-close',
+		FiCheck: 'mdi-check',
+		FiCopy: 'mdi-content-copy',
+		FiExternalLink: 'mdi-open-in-new',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // Animation for success checkmark
@@ -79,7 +74,7 @@ const ModalContainer = styled.div`
 `;
 
 const ModalHeader = styled.div`
-	background: linear-gradient(135deg, #10b981, #059669);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
 	color: white;
 	padding: 1.5rem;
 	display: flex;
@@ -128,7 +123,7 @@ const SuccessSection = styled.div`
 const SuccessIcon = styled.div`
 	width: 80px;
 	height: 80px;
-	background: linear-gradient(135deg, #10b981, #059669);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -138,22 +133,22 @@ const SuccessIcon = styled.div`
 `;
 
 const SuccessTitle = styled.h3`
-	color: #10b981;
+	color: V9_COLORS.PRIMARY.GREEN;
 	font-size: 1.5rem;
 	font-weight: 700;
 	margin: 0 0 0.5rem;
 `;
 
 const SuccessMessage = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1rem;
 	margin: 0;
 	line-height: 1.6;
 `;
 
 const AuthorizationCodeSection = styled.div`
-	background: #f8fafc;
-	border: 2px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 2rem;
@@ -163,13 +158,13 @@ const SectionLabel = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 `;
 
 const CodeContainer = styled.div`
 	background: white;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -183,7 +178,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	position: absolute;
 	top: 0.5rem;
 	right: 0.5rem;
-	background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
+	background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
 	color: white;
 	border: none;
 	padding: 0.5rem;
@@ -198,22 +193,22 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
 	&:hover {
-		background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
+		background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}
 `;
 
 const InfoSection = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.25rem;
 	margin-bottom: 2rem;
 `;
 
 const InfoTitle = styled.h4`
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 1rem;
 	font-weight: 600;
 	margin: 0 0 0.75rem;
@@ -223,7 +218,7 @@ const InfoTitle = styled.h4`
 `;
 
 const InfoText = styled.p`
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.875rem;
 	margin: 0;
 	line-height: 1.6;
@@ -233,13 +228,13 @@ const ModalActions = styled.div`
 	flex-shrink: 0;
 	padding: 1.5rem 2rem;
 	background: #f9fafb;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	justify-content: center;
 `;
 
 const ContinueButton = styled.button`
-	background: linear-gradient(135deg, #3b82f6, #2563eb);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
 	color: white;
 	border: none;
 	padding: 1rem 2rem;
@@ -254,7 +249,7 @@ const ContinueButton = styled.button`
 	box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 
 	&:hover {
-		background: linear-gradient(135deg, #2563eb, #1d4ed8);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK);
 		transform: translateY(-2px);
 		box-shadow: 0 8px 12px -2px rgba(59, 130, 246, 0.4);
 	}

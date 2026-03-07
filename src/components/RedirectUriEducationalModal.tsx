@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { redirectUriService, type FlowUriInfo } from '../services/redirectUriService';
+import { type FlowUriInfo, redirectUriService } from '../services/redirectUriService';
 import { logger } from '../utils/logger';
 
 interface RedirectUriEducationalModalProps {
@@ -38,8 +38,8 @@ const ModalContent = styled.div`
 
 const ModalHeader = styled.div`
 	padding: 1.5rem;
-	border-bottom: 1px solid #e5e7eb;
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 `;
 
@@ -67,21 +67,27 @@ const SectionTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const FlowTypeBadge = styled.span<{ type: string }>`
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.type) {
-			case 'OAuth': return '#16a34a';
-			case 'OIDC': return '#3b82f6';
-			case 'Hybrid': return '#8b5cf6';
-			case 'Device Code': return '#f59e0b';
-			case 'Client Credentials': return '#ef4444';
-			default: return '#6b7280';
+			case 'OAuth':
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+			case 'OIDC':
+				return 'V9_COLORS.PRIMARY.BLUE';
+			case 'Hybrid':
+				return '#8b5cf6';
+			case 'Device Code':
+				return 'V9_COLORS.PRIMARY.YELLOW';
+			case 'Client Credentials':
+				return 'V9_COLORS.PRIMARY.RED';
+			default:
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 	color: white;
@@ -94,8 +100,8 @@ const FlowTypeBadge = styled.span<{ type: string }>`
 `;
 
 const UriCard = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -113,8 +119,8 @@ const UriHeader = styled.div`
 `;
 
 const UriValue = styled.code`
-	background: #1f2937;
-	color: #10b981;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: V9_COLORS.PRIMARY.GREEN;
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -124,12 +130,12 @@ const UriValue = styled.code`
 
 const UriPurpose = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const UriDescription = styled.div`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	margin-bottom: 1rem;
 `;
@@ -142,7 +148,7 @@ const SecurityTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
@@ -152,7 +158,7 @@ const BestPracticesTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
@@ -175,8 +181,8 @@ const List = styled.ul`
 `;
 
 const EducationalNotes = styled.div`
-	background: #fef3c7;
-	border: 1px solid #fbbf24;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
 	border-radius: 0.5rem;
 	padding: 1rem;
 `;
@@ -185,7 +191,7 @@ const EducationalNotesTitle = styled.h4`
 	margin: 0 0 0.75rem 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -207,7 +213,7 @@ const CloseButton = styled.button`
 `;
 
 const Icon = styled.span<{ color?: string }>`
-	color: ${props => props.color || 'currentColor'};
+	color: ${(props) => props.color || 'currentColor'};
 `;
 
 export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalProps> = ({
@@ -224,7 +230,7 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 			const info = redirectUriService.getFlowUriInfo(flowKey);
 			setFlowInfo(info);
 			setLoading(false);
-			
+
 			logger.info('RedirectUriEducationalModal', `Loaded URI information for flow: ${flowKey}`);
 		}
 	}, [isOpen, flowKey]);
@@ -275,16 +281,14 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 					<Section>
 						<SectionTitle>
 							Flow Overview
-							<FlowTypeBadge type={flowInfo.flowType}>
-								{flowInfo.flowType}
-							</FlowTypeBadge>
+							<FlowTypeBadge type={flowInfo.flowType}>{flowInfo.flowType}</FlowTypeBadge>
 						</SectionTitle>
 					</Section>
 
 					{flowInfo.redirectUris.length > 0 && (
 						<Section>
 							<SectionTitle>
-								<Icon color="#3b82f6">🔗</Icon>
+								<Icon color="V9_COLORS.PRIMARY.BLUE">🔗</Icon>
 								Redirect URIs
 							</SectionTitle>
 							{flowInfo.redirectUris.map((uri, index) => (
@@ -294,11 +298,11 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 									</UriHeader>
 									<UriPurpose>{uri.purpose}</UriPurpose>
 									<UriDescription>{uri.description}</UriDescription>
-									
+
 									{uri.securityConsiderations.length > 0 && (
 										<SecuritySection>
 											<SecurityTitle>
-												<Icon color="#dc2626">⚠️</Icon>
+												<Icon color="V9_COLORS.PRIMARY.RED_DARK">⚠️</Icon>
 												Security Considerations
 											</SecurityTitle>
 											<List>
@@ -308,11 +312,11 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 											</List>
 										</SecuritySection>
 									)}
-									
+
 									{uri.bestPractices.length > 0 && (
 										<SecuritySection>
 											<BestPracticesTitle>
-												<Icon color="#059669">✅</Icon>
+												<Icon color="V9_COLORS.PRIMARY.GREEN_DARK">✅</Icon>
 												Best Practices
 											</BestPracticesTitle>
 											<List>
@@ -330,7 +334,7 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 					{flowInfo.logoutUris.length > 0 && (
 						<Section>
 							<SectionTitle>
-								<Icon color="#ef4444">🚪</Icon>
+								<Icon color="V9_COLORS.PRIMARY.RED">🚪</Icon>
 								Logout URIs
 							</SectionTitle>
 							{flowInfo.logoutUris.map((uri, index) => (
@@ -340,11 +344,11 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 									</UriHeader>
 									<UriPurpose>{uri.purpose}</UriPurpose>
 									<UriDescription>{uri.description}</UriDescription>
-									
+
 									{uri.securityConsiderations.length > 0 && (
 										<SecuritySection>
 											<SecurityTitle>
-												<Icon color="#dc2626">⚠️</Icon>
+												<Icon color="V9_COLORS.PRIMARY.RED_DARK">⚠️</Icon>
 												Security Considerations
 											</SecurityTitle>
 											<List>
@@ -354,11 +358,11 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 											</List>
 										</SecuritySection>
 									)}
-									
+
 									{uri.bestPractices.length > 0 && (
 										<SecuritySection>
 											<BestPracticesTitle>
-												<Icon color="#059669">✅</Icon>
+												<Icon color="V9_COLORS.PRIMARY.GREEN_DARK">✅</Icon>
 												Best Practices
 											</BestPracticesTitle>
 											<List>
@@ -377,7 +381,7 @@ export const RedirectUriEducationalModal: React.FC<RedirectUriEducationalModalPr
 						<Section>
 							<EducationalNotes>
 								<EducationalNotesTitle>
-									<Icon color="#92400e">📚</Icon>
+									<Icon color="V9_COLORS.PRIMARY.YELLOW_DARK">📚</Icon>
 									Educational Notes
 								</EducationalNotesTitle>
 								<List>

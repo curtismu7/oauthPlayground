@@ -7,11 +7,17 @@ import { formatUserCode } from '../../utils/deviceCode';
 import { logger } from '../../utils/logger';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 import {
-	formatUrlForQRCode,
+import
+{
+	V9_COLORS;
+}
+from;
+('../../services/v9/V9ColorStandards');
+formatUrlForQRCode,
 	generateQRCode,
 	getQRCodeAltText,
 	validateQRCodeUrl,
-} from '../../utils/qrCode';
+} from '../../utils/qrCode'
 
 interface DeviceVerificationProps {
 	userCode: string;
@@ -41,12 +47,12 @@ const Header = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const Subtitle = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1rem;
   margin: 0;
 `;
@@ -76,7 +82,7 @@ const QRCodeContainer = styled.div`
   justify-content: center;
   width: 200px;
   height: 200px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   background: white;
   overflow: hidden;
@@ -98,7 +104,7 @@ const QRCodeFallback = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   text-align: center;
   padding: 1rem;
@@ -108,7 +114,7 @@ const QRCodeLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 500;
   font-size: 0.875rem;
 `;
@@ -126,14 +132,14 @@ const UserCodeDisplay = styled.div`
   padding: 1.5rem;
   background: #f9fafb;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const UserCodeLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 500;
   font-size: 0.875rem;
 `;
@@ -142,12 +148,12 @@ const UserCodeValue = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-align: center;
   letter-spacing: 0.1em;
   padding: 1rem;
   background: white;
-  border: 2px solid #d1d5db;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   user-select: all;
 `;
@@ -166,7 +172,7 @@ const InstructionStep = styled.div`
   padding: 1rem;
   background: #f3f4f6;
   border-radius: 8px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepNumber = styled.div`
@@ -175,7 +181,7 @@ const StepNumber = styled.div`
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border-radius: 50%;
   font-size: 0.75rem;
@@ -189,12 +195,12 @@ const StepContent = styled.div`
 
 const StepTitle = styled.div`
   font-weight: 500;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StepDescription = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.4;
 `;
@@ -210,9 +216,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
-  color: ${(props) => (props.variant === 'primary' ? 'white' : '#374151')};
-  border: 1px solid ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#d1d5db')};
+  background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6')};
+  color: ${(props) => (props.variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  border: 1px solid ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -220,8 +226,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#e5e7eb')};
-    border-color: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#9ca3af')};
+    background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+    border-color: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
   }
 
   &:active {
@@ -235,10 +241,10 @@ const TimerSection = styled.div`
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 8px;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   font-weight: 500;
 `;
 
@@ -255,11 +261,11 @@ const VerificationUrl = styled.div`
   gap: 0.5rem;
   padding: 0.75rem;
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   word-break: break-all;
 `;
 
@@ -401,7 +407,9 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 					</UserCodeDisplay>
 
 					<VerificationUrlSection>
-						<div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+						<div
+							style={{ fontSize: '0.875rem', fontWeight: '500', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+						>
 							Verification URL:
 						</div>
 						<VerificationUrl>{formatUrlForQRCode(verificationUri)}</VerificationUrl>

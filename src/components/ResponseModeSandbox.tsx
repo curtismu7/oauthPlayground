@@ -203,13 +203,13 @@ const Title = styled.h2`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 1.75rem;
 `;
 
 const Intro = styled.p`
 	margin: 0;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 	font-size: 1.05rem;
 `;
@@ -225,11 +225,11 @@ const ModeCard = styled.button<{ $selected: boolean }>`
 	text-align: left;
 	padding: 1.25rem;
 	border-radius: 0.75rem;
-	border: 2px solid ${({ $selected }) => ($selected ? '#0ea5e9' : '#cbd5f5')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#0ea5e9' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	background: ${({ $selected }) =>
 		$selected
 			? 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.2))'
-			: '#ffffff'};
+			: 'V9_COLORS.TEXT.WHITE'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 20px rgba(14, 165, 233, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -245,7 +245,7 @@ const ModeCard = styled.button<{ $selected: boolean }>`
 
 const ModeTitle = styled.div`
 	font-weight: 700;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 1.05rem;
 `;
 
@@ -266,10 +266,10 @@ const DetailLayout = styled.div`
 `;
 
 const TimelineCard = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 1px solid #bae6fd;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -279,7 +279,7 @@ const TimelineHeader = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	font-weight: 700;
 	font-size: 1.1rem;
 `;
@@ -293,7 +293,7 @@ const TimelineList = styled.ol`
 `;
 
 const TimelineItem = styled.li`
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.95rem;
 	line-height: 1.6;
 	list-style: none;
@@ -319,15 +319,15 @@ const TimelineActor = styled.span<{ $actor: TimelineStep['actor'] }>`
 	color: ${({ $actor }) => {
 		switch ($actor) {
 			case 'browser':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'authorizationServer':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'application':
 				return '#f97316';
 			case 'pingone':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			default:
-				return '#0f172a';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 `;
@@ -336,14 +336,14 @@ const SecurityNote = styled.div`
 	margin-top: 0.35rem;
 	padding: 0.5rem 0.75rem;
 	background: rgba(239, 68, 68, 0.12);
-	border-left: 4px solid #ef4444;
-	color: #991b1b;
+	border-left: 4px solid V9_COLORS.PRIMARY.RED;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 0.85rem;
 	border-radius: 0.35rem;
 `;
 
 const MetaCard = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	border: 1px solid #dbeafe;
 	padding: 1.5rem;
@@ -356,7 +356,7 @@ const MetaRow = styled.div`
 	display: flex;
 	align-items: flex-start;
 	gap: 0.75rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const MetaLabel = styled.div`
@@ -378,14 +378,14 @@ const TagList = styled.div`
 const Tag = styled.span`
 	padding: 0.35rem 0.75rem;
 	background: rgba(14, 165, 233, 0.12);
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	border-radius: 999px;
 	font-weight: 600;
 `;
 
 const SampleBox = styled.div`
-	background: #0f172a;
-	color: #f1f5f9;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', monospace;
 	border-radius: 0.75rem;
 	padding: 1rem;
@@ -433,7 +433,7 @@ const SupportBadge = styled.span<{ $support: ResponseModeDefinition['pingoneSupp
 			case 'partial':
 				return '#b45309';
 			default:
-				return '#b91c1c';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
 `;

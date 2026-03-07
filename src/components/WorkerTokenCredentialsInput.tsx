@@ -36,8 +36,8 @@ interface WorkerTokenCredentialsInputProps {
 
 // Styled Components
 const Container = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   overflow: hidden;
 `;
@@ -53,7 +53,7 @@ const Header = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #ea580c 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
   }
 `;
 
@@ -120,7 +120,7 @@ const FormField = styled.div`
 
 const FormLabel = styled.label`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -128,7 +128,7 @@ const FormLabel = styled.label`
 `;
 
 const RequiredIndicator = styled.span`
-  color: #ef4444;
+  color: V9_COLORS.PRIMARY.RED;
   font-weight: 600;
 `;
 
@@ -141,7 +141,7 @@ const InputGroup = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   transition: all 0.2s ease;
@@ -154,12 +154,12 @@ const Input = styled.input`
 
   &:disabled {
     background-color: #f9fafb;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     cursor: not-allowed;
   }
 
   &[data-error="true"] {
-    border-color: #ef4444;
+    border-color: V9_COLORS.PRIMARY.RED;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
   }
 `;
@@ -170,7 +170,7 @@ const PasswordToggle = styled.button`
   padding: 0.25rem;
   background: none;
   border: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -179,14 +179,14 @@ const PasswordToggle = styled.button`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const Select = styled.select`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   background-color: white;
@@ -200,7 +200,7 @@ const Select = styled.select`
 
   &:disabled {
     background-color: #f9fafb;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     cursor: not-allowed;
   }
 `;
@@ -243,7 +243,7 @@ const ActionsContainer = styled.div`
   justify-content: flex-start;
   gap: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SaveButton = styled.button<{ $isSaving?: boolean; $hasChanges?: boolean }>`
@@ -251,7 +251,7 @@ const SaveButton = styled.button<{ $isSaving?: boolean; $hasChanges?: boolean }>
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #10b981;
+  background: V9_COLORS.PRIMARY.GREEN;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -261,7 +261,7 @@ const SaveButton = styled.button<{ $isSaving?: boolean; $hasChanges?: boolean }>
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #059669;
+    background: V9_COLORS.PRIMARY.GREEN_DARK;
     transform: translateY(-1px);
   }
 
@@ -283,9 +283,9 @@ const ValidationItem = styled.div<{ $type: 'error' | 'warning' }>`
   padding: 0.5rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  background: ${({ $type }) => ($type === 'error' ? '#fef2f2' : '#fffbeb')};
-  color: ${({ $type }) => ($type === 'error' ? '#dc2626' : '#d97706')};
-  border: 1px solid ${({ $type }) => ($type === 'error' ? '#fecaca' : '#fed7aa')};
+  background: ${({ $type }) => ($type === 'error' ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.WARNING')};
+  color: ${({ $type }) => ($type === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  border: 1px solid ${({ $type }) => ($type === 'error' ? 'V9_COLORS.BG.ERROR_BORDER' : '#fed7aa')};
 `;
 
 const InfoBox = styled.div`
@@ -293,10 +293,10 @@ const InfoBox = styled.div`
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const InfoContent = styled.div`
@@ -548,7 +548,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					<ActionsContainer>
 						<div>
 							{hasUnsavedChanges && (
-								<span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
+								<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '0.875rem' }}>
 									You have unsaved changes
 								</span>
 							)}

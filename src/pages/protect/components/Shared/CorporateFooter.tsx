@@ -21,6 +21,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

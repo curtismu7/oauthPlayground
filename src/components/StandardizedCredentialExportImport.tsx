@@ -24,7 +24,7 @@ const ExportButton = styled.button`
 	align-items: center;
 	gap: 8px;
 	padding: 8px 16px;
-	background: #10b981;
+	background: V9_COLORS.PRIMARY.GREEN;
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -33,7 +33,7 @@ const ExportButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #059669;
+		background: V9_COLORS.PRIMARY.GREEN_DARK;
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 	}
@@ -51,7 +51,7 @@ const ImportButton = styled.button`
 	align-items: center;
 	gap: 8px;
 	padding: 8px 16px;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -60,7 +60,7 @@ const ImportButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 	}

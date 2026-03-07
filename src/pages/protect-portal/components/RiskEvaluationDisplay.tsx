@@ -25,6 +25,7 @@ import { workerTokenManager } from '@/services/workerTokenManager';
 import { logger } from '../../../utils/logger';
 import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 	EducationalContent,
 	LoginContext,
 	PortalError,
@@ -45,20 +46,20 @@ const EvaluationContainer = styled.div`
 const EvaluationTitle = styled.h2`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
 `;
 
 const EvaluationDescription = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 `;
 
 const ProgressContainer = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -75,7 +76,7 @@ const ProgressHeader = styled.div`
 const ProgressTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
@@ -95,11 +96,11 @@ const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'e
   background: ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'complete':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return 'transparent';
 		}
@@ -107,13 +108,13 @@ const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'e
   border: 1px solid ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'complete':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 `;
@@ -130,13 +131,13 @@ const StepIcon = styled.div<{ status: 'pending' | 'active' | 'complete' | 'error
   background: ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'complete':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 		}
 	}};
 `;
@@ -148,19 +149,19 @@ const StepContent = styled.div`
 
 const StepTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StepDescription = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const LoadingSpinner = styled(FiLoader)`
   animation: spin 1s linear infinite;
   font-size: 1.5rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
 
   @keyframes spin {
     from { transform: rotate(0deg); }
@@ -174,19 +175,19 @@ const ResultContainer = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 			case 'LOW':
 				return '#f0fdf4';
 			case 'MEDIUM':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'HIGH':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'MEDIUM':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'HIGH':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 		}
 	}};
   border-radius: 1rem;
@@ -203,11 +204,11 @@ const ResultHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'MEDIUM':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'HIGH':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
 `;
@@ -226,12 +227,12 @@ const ResultDescription = styled.p`
   font-size: 1rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.6;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ResultDetails = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -250,19 +251,19 @@ const DetailRow = styled.div`
 
 const DetailLabel = styled.span`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DetailValue = styled.span`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.5rem;
   padding: 1rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -271,8 +272,8 @@ const ErrorMessage = styled.div`
 `;
 
 const EducationalSection = styled.div`
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1rem;
   padding: 1.5rem;
   text-align: left;
@@ -288,13 +289,13 @@ const EducationalHeader = styled.div`
 const EducationalTitle = styled.h4`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin: 0;
 `;
 
 const EducationalDescription = styled.p`
   font-size: 0.875rem;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
@@ -311,18 +312,18 @@ const KeyPoint = styled.li`
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.4;
 `;
 
 const KeyPointIcon = styled(FiCheckCircle)`
-  color: #10b981;
+  color: V9_COLORS.PRIMARY.GREEN;
   flex-shrink: 0;
   margin-top: 0.125rem;
 `;
 
 const LearnMoreLink = styled.a`
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
@@ -332,7 +333,7 @@ const LearnMoreLink = styled.a`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #1d4ed8;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
     text-decoration: underline;
   }
 `;
@@ -350,7 +351,7 @@ const RiskScoreContainer = styled.div`
 
 const RiskScoreLabel = styled.span`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   min-width: 100px;
 `;
 
@@ -360,11 +361,11 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'MEDIUM':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'HIGH':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 		}
 	}};
   min-width: 60px;
@@ -373,7 +374,7 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 const RiskScoreBar = styled.div`
   flex: 1;
   height: 8px;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -384,11 +385,11 @@ const RiskScoreFill = styled.div<{ percentage: number; riskLevel: 'LOW' | 'MEDIU
   background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'MEDIUM':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'HIGH':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 		}
 	}};
   transition: width 0.5s ease;
@@ -401,7 +402,7 @@ const RiskFactorsContainer = styled.div`
 const RiskFactorsTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -418,7 +419,7 @@ const RiskFactorItem = styled.div`
   align-items: center;
   gap: 0.75rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
@@ -430,11 +431,11 @@ const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'MEDIUM':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'HIGH':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 		}
 	}};
 `;
@@ -449,7 +450,7 @@ const NextStepsContainer = styled.div`
 const NextStepsTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -466,7 +467,7 @@ const NextStepItem = styled.div`
   align-items: center;
   gap: 0.75rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 // ============================================================================
@@ -728,7 +729,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						</>
 					) : result ? (
 						<>
-							<FiCheckCircle style={{ color: '#10b981' }} />
+							<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 							<ProgressTitle>✅ Evaluation Complete</ProgressTitle>
 						</>
 					) : (
@@ -790,19 +791,19 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						<RiskFactorsTitle>🔍 Risk Factors Analyzed:</RiskFactorsTitle>
 						<RiskFactorsList>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								<span>Device fingerprint and browser analysis</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								<span>Geolocation and IP address verification</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								<span>Login pattern and behavioral analysis</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								<span>Historical authentication data</span>
 							</RiskFactorItem>
 						</RiskFactorsList>
@@ -839,11 +840,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'LOW' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiCheckCircle style={{ color: '#10b981' }} />
+									<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 									<span>Direct access granted - no additional security needed</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiCheckCircle style={{ color: '#10b981' }} />
+									<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 									<span>You'll be redirected to the success page</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -851,11 +852,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'MEDIUM' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiShield style={{ color: '#f59e0b' }} />
+									<FiShield style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }} />
 									<span>Multi-factor authentication required</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiShield style={{ color: '#f59e0b' }} />
+									<FiShield style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }} />
 									<span>You'll be prompted for additional verification</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -863,11 +864,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'HIGH' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiXCircle style={{ color: '#ef4444' }} />
+									<FiXCircle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
 									<span>Access blocked due to high-risk indicators</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiXCircle style={{ color: '#ef4444' }} />
+									<FiXCircle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
 									<span>Please contact your administrator or try again later</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -879,7 +880,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			{/* Educational Section */}
 			<EducationalSection>
 				<EducationalHeader>
-					<FiInfo style={{ color: '#1e40af' }} />
+					<FiInfo style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }} />
 					<EducationalTitle>{educationalContent.title}</EducationalTitle>
 				</EducationalHeader>
 				<EducationalDescription>{educationalContent.description}</EducationalDescription>

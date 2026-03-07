@@ -27,8 +27,8 @@ interface ColoredTokenDisplayProps {
 }
 
 const TokenContainer = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -42,7 +42,7 @@ const TokenContainer = styled.div`
 const TokenLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 	display: flex;
 	align-items: center;
@@ -51,7 +51,7 @@ const TokenLabel = styled.div`
 
 const TokenContent = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem 5rem 1rem 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -88,17 +88,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#d1d5db')};
-	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#374151')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#f9fafb')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#9ca3af')};
+		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
 	}
 
 	&:active {
@@ -141,7 +141,7 @@ const InfoModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CloseButton = styled.button`
@@ -149,11 +149,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -165,34 +165,34 @@ const TokenList = styled.div`
 
 const TokenItem = styled.div`
 	padding: 1rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 8px;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const TokenName = styled.div`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const TokenDescription = styled.div`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin-bottom: 0.5rem;
 `;
 
 const TokenValue = styled.div`
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
 	word-break: break-all;
 	background: #f0fdf4;
 	padding: 0.5rem;
 	border-radius: 4px;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 `;
 
 const TokenType = styled.div<{ $type: string }>`
@@ -207,9 +207,9 @@ const TokenType = styled.div<{ $type: string }>`
 			case 'access_token':
 				return '#dbeafe';
 			case 'id_token':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'refresh_token':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'scope':
 				return '#e0e7ff';
 			default:
@@ -219,15 +219,15 @@ const TokenType = styled.div<{ $type: string }>`
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'access_token':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'id_token':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'refresh_token':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'scope':
 				return '#3730a3';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 `;
@@ -235,12 +235,12 @@ const TokenType = styled.div<{ $type: string }>`
 // Color scheme for JSON syntax highlighting
 const JSON_COLORS = {
 	key: '#7c3aed', // Purple for keys
-	string: '#059669', // Green for strings
-	number: '#dc2626', // Red for numbers
+	string: 'V9_COLORS.PRIMARY.GREEN_DARK', // Green for strings
+	number: 'V9_COLORS.PRIMARY.RED_DARK', // Red for numbers
 	boolean: '#ea580c', // Orange for booleans
-	null: '#6b7280', // Gray for null
-	punctuation: '#1f2937', // Dark gray for punctuation
-	whitespace: '#ffffff', // White for whitespace
+	null: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Gray for null
+	punctuation: 'V9_COLORS.TEXT.GRAY_DARK', // Dark gray for punctuation
+	whitespace: 'V9_COLORS.TEXT.WHITE', // White for whitespace
 };
 
 type ColoredJsonPart = { text: string; color: string; fontWeight?: string };

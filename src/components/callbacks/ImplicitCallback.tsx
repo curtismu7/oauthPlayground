@@ -21,23 +21,23 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' | 'warn
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			default:
-				return '#f8fafc';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'warning':
 				return '#fed7aa';
 			default:
-				return '#e2e8f0';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -51,13 +51,13 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' | 'warn
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'warning':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   margin-bottom: 1rem;
@@ -67,17 +67,17 @@ const StatusTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const _WarningMessage = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -86,8 +86,8 @@ const _WarningMessage = styled.div`
 
 const ErrorDetails = styled.pre`
   background: #f3f4f6;
-  color: #1f2937;
-  border: 1px solid #d1d5db;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   font-size: 0.875rem;

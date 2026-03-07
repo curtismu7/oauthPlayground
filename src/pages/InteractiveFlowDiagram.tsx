@@ -7,6 +7,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import InteractiveFlowDiagramService from '../services/interactiveFlowDiagramService';
 import PageLayoutService from '../services/pageLayoutService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const pageConfig = {
 	flowType: 'documentation' as const,
@@ -119,12 +120,12 @@ const InteractiveFlowDiagram: React.FC = () => {
 					<div style={{ padding: '1.5rem' }}>
 						<div
 							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
+								background: 'V9_COLORS.BG.ERROR',
+								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '8px',
 								padding: '1rem',
 								marginBottom: '1rem',
-								color: '#dc2626',
+								color: 'V9_COLORS.PRIMARY.RED_DARK',
 							}}
 						>
 							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not be
@@ -144,14 +145,14 @@ const InteractiveFlowDiagram: React.FC = () => {
 					<div style={{ padding: '1.5rem' }}>
 						<div
 							style={{
-								background: '#f0f9ff',
-								border: '1px solid #bae6fd',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
 							}}
 						>
-							<h3 style={{ color: '#0c4a6e', marginBottom: '1rem' }}>Flow Selection Guidelines</h3>
+							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>Flow Selection Guidelines</h3>
 
 							<div
 								style={{
@@ -165,13 +166,13 @@ const InteractiveFlowDiagram: React.FC = () => {
 										padding: '1rem',
 										background: 'white',
 										borderRadius: '6px',
-										border: '1px solid #e0f2fe',
+										border: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 									}}
 								>
-									<h4 style={{ color: '#0369a1', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '0.5rem' }}>
 										✅ Use Authorization Code Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#0c4a6e' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										<li>Web applications with backend servers</li>
 										<li>Mobile applications</li>
 										<li>SPAs with backend support</li>
@@ -184,13 +185,13 @@ const InteractiveFlowDiagram: React.FC = () => {
 										padding: '1rem',
 										background: 'white',
 										borderRadius: '6px',
-										border: '1px solid #e0f2fe',
+										border: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 									}}
 								>
-									<h4 style={{ color: '#0369a1', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '0.5rem' }}>
 										✅ Use Client Credentials Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#0c4a6e' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										<li>Machine-to-machine communication</li>
 										<li>API access without user context</li>
 										<li>Server-to-server authentication</li>
@@ -203,13 +204,13 @@ const InteractiveFlowDiagram: React.FC = () => {
 										padding: '1rem',
 										background: 'white',
 										borderRadius: '6px',
-										border: '1px solid #fecaca',
+										border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 									}}
 								>
-									<h4 style={{ color: '#dc2626', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginBottom: '0.5rem' }}>
 										❌ Avoid Implicit Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#991b1b' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 										<li>Deprecated in OAuth 2.1</li>
 										<li>Security vulnerabilities</li>
 										<li>Token exposure risks</li>
@@ -222,13 +223,13 @@ const InteractiveFlowDiagram: React.FC = () => {
 						<div
 							style={{
 								background: '#f0fdf4',
-								border: '1px solid #bbf7d0',
+								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 								borderRadius: '8px',
 								padding: '1.5rem',
 							}}
 						>
 							<h3 style={{ color: '#14532d', marginBottom: '1rem' }}>Security Best Practices</h3>
-							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 								<li>
 									<strong>Always use HTTPS:</strong> Encrypt all OAuth communications
 								</li>

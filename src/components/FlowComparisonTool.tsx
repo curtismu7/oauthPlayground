@@ -58,27 +58,31 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: 2px solid ${({ $selected, $added }) =>
-		$added ? '#dc2626' : $selected ? '#dc2626' : '#d1d5db'};
+		$added
+			? 'V9_COLORS.PRIMARY.RED_DARK'
+			: $selected
+				? 'V9_COLORS.PRIMARY.RED_DARK'
+				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
   border-radius: 0.5rem;
   background-color: ${({ $selected, $added }) =>
-		$added ? '#fef2f2' : $selected ? '#fef2f2' : 'white'};
-  color: ${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#374151')};
+		$added ? 'V9_COLORS.BG.ERROR' : $selected ? 'V9_COLORS.BG.ERROR' : 'white'};
+  color: ${({ $selected, $added }) => ($added ? 'V9_COLORS.PRIMARY.RED_DARK' : $selected ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    border-color: #dc2626;
-    background-color: #fef2f2;
-    color: #dc2626;
+    border-color: V9_COLORS.PRIMARY.RED_DARK;
+    background-color: V9_COLORS.BG.ERROR;
+    color: V9_COLORS.PRIMARY.RED_DARK;
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background-color: #f9fafb;
-    color: #9ca3af;
-    border-color: #e5e7eb;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 
@@ -183,23 +187,23 @@ const SecurityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'high':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'low':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -218,23 +222,23 @@ const ComplexityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'low':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'high':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -289,7 +293,7 @@ const ActionButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #dc2626;
+  background-color: V9_COLORS.PRIMARY.RED_DARK;
   color: white !important;
   border-radius: 0.5rem;
   text-decoration: none;
@@ -297,11 +301,11 @@ const ActionButton = styled(Link)`
   transition: all 0.2s;
   width: 100%;
   justify-content: center;
-  border: 2px solid #dc2626;
+  border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
   
   &:hover {
-    background-color: #b91c1c;
-    border-color: #b91c1c;
+    background-color: V9_COLORS.PRIMARY.RED_DARK;
+    border-color: V9_COLORS.PRIMARY.RED_DARK;
     color: white !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
@@ -623,7 +627,7 @@ const FlowComparisonTool: React.FC = () => {
 														gap: '0.25rem',
 														padding: '0.25rem 0.75rem',
 														backgroundColor: '#dbeafe',
-														color: '#1e40af',
+														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 														borderRadius: '1rem',
 														fontSize: '0.75rem',
 														fontWeight: '500',

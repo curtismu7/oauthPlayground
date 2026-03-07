@@ -1,5 +1,6 @@
 import { Link, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Page = styled.div`
   display: flex;

@@ -18,9 +18,9 @@ export interface FlowWalkthroughProps {
 }
 
 const Container = styled.div`
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
 `;
@@ -32,13 +32,13 @@ const Header = styled.div<{ $isCollapsible?: boolean }>`
 	gap: 0.75rem;
 	margin-bottom: ${({ $isCollapsible }) => ($isCollapsible ? '0' : '1.5rem')};
 	padding-bottom: ${({ $isCollapsible }) => ($isCollapsible ? '0' : '1rem')};
-	border-bottom: ${({ $isCollapsible }) => ($isCollapsible ? 'none' : '1px solid #e5e7eb')};
+	border-bottom: ${({ $isCollapsible }) => ($isCollapsible ? 'none' : '1px solid V9_COLORS.TEXT.GRAY_LIGHTER')};
 	cursor: ${({ $isCollapsible }) => ($isCollapsible ? 'pointer' : 'default')};
 	padding: ${({ $isCollapsible }) => ($isCollapsible ? '1.5rem' : '0')};
 	border-radius: ${({ $isCollapsible }) => ($isCollapsible ? '0.75rem 0.75rem 0 0' : '0')};
 	
 	&:hover {
-		background: ${({ $isCollapsible }) => ($isCollapsible ? '#f8fafc' : 'transparent')};
+		background: ${({ $isCollapsible }) => ($isCollapsible ? 'V9_COLORS.BG.GRAY_LIGHT' : 'transparent')};
 	}
 `;
 
@@ -49,7 +49,7 @@ const HeaderContent = styled.div`
 `;
 
 const HeaderIcon = styled.div`
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -58,7 +58,7 @@ const HeaderIcon = styled.div`
 const Title = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -84,7 +84,7 @@ const StepsContainer = styled.div<{ $collapsed: boolean }>`
 	flex-direction: column;
 	gap: 1rem;
 	padding: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	animation: ${({ $collapsed }) => ($collapsed ? 'none' : 'fadeIn 0.2s ease')};
 
 	@keyframes fadeIn {
@@ -102,14 +102,14 @@ const StepItem = styled.div`
 	align-items: flex-start;
 	gap: 1rem;
 	padding: 0.75rem;
-	border-left: 3px solid #3b82f6;
-	background: #f8fafc;
+	border-left: 3px solid V9_COLORS.PRIMARY.BLUE;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: #f1f5f9;
-		border-left-color: #2563eb;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+		border-left-color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -120,8 +120,8 @@ const StepNumber = styled.div`
 	width: 2rem;
 	height: 2rem;
 	min-width: 2rem;
-	background: #3b82f6;
-	color: #ffffff;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: V9_COLORS.TEXT.WHITE;
 	border-radius: 50%;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -144,7 +144,7 @@ const StepTitle = styled.div`
 
 const StepDescription = styled.div`
 	font-size: 0.875rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 

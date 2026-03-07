@@ -29,8 +29,8 @@ import WorkerTokenModalV9Styled from './WorkerTokenModalV9Styled';
 // ---------------------------------------------------------------------------
 
 const Section = styled.div<{ $compact?: boolean }>`
-	background: #ffffff;
-	border: 1px solid #e5e7eb;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
 	margin-bottom: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
@@ -48,12 +48,12 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Badge = styled.span`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	background: #f3f4f6;
 	padding: 0.125rem 0.5rem;
 	border-radius: 0.75rem;
@@ -62,12 +62,12 @@ const Badge = styled.span`
 const Description = styled.p`
 	margin: 0 0 1rem;
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
 const StatusBox = styled.div<{ $valid: boolean }>`
-	background: ${({ $valid }) => ($valid ? '#f0fdf4' : '#fef2f2')};
+	background: ${({ $valid }) => ($valid ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
 	border: 1px solid ${({ $valid }) => ($valid ? '#86efac' : '#fca5a5')};
 	border-radius: 0.375rem;
 	padding: 0.75rem;
@@ -81,7 +81,7 @@ const StatusBox = styled.div<{ $valid: boolean }>`
 const StatusText = styled.div<{ $valid: boolean }>`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${({ $valid }) => ($valid ? '#166534' : '#991b1b')};
+	color: ${({ $valid }) => ($valid ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
 `;
 
 const StatusSub = styled.div`
@@ -92,7 +92,7 @@ const StatusSub = styled.div`
 
 const ExpiryText = styled.div`
 	font-size: 0.75rem;
-	color: #166534;
+	color: V9_COLORS.PRIMARY.GREEN;
 	margin-top: 0.25rem;
 `;
 
@@ -102,11 +102,11 @@ const RefreshBtn = styled.button`
 	gap: 0.25rem;
 	padding: 0.375rem 0.5rem;
 	background: transparent;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	cursor: pointer;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	flex-shrink: 0;
 	&:hover {
 		background: #f9fafb;
@@ -137,10 +137,18 @@ const Btn = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
 	transition: background 0.15s, transform 0.1s;
 	color: white;
 	background: ${({ $variant }) =>
-		$variant === 'primary' ? '#2563eb' : $variant === 'success' ? '#10b981' : '#ef4444'};
+		$variant === 'primary'
+			? 'V9_COLORS.PRIMARY.BLUE_DARK'
+			: $variant === 'success'
+				? 'V9_COLORS.PRIMARY.GREEN'
+				: 'V9_COLORS.PRIMARY.RED'};
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary' ? '#1d4ed8' : $variant === 'success' ? '#059669' : '#dc2626'};
+			$variant === 'primary'
+				? 'V9_COLORS.PRIMARY.BLUE_DARK'
+				: $variant === 'success'
+					? 'V9_COLORS.PRIMARY.GREEN_DARK'
+					: 'V9_COLORS.PRIMARY.RED_DARK'};
 		transform: translateY(-1px);
 	}
 	&:active {
@@ -251,7 +259,7 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 		<>
 			<Section $compact={compact}>
 				<Header>
-					<FiKey size={20} color="#2563eb" />
+					<FiKey size={20} color="V9_COLORS.PRIMARY.BLUE_DARK" />
 					<Title>Worker Token (Admin Flow)</Title>
 					{!compact && <Badge>Service Account</Badge>}
 				</Header>

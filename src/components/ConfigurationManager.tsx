@@ -40,13 +40,13 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -76,12 +76,12 @@ const ControlGroup = styled.div`
 const ControlLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ControlSelect = styled.select`
   padding: 0.75rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 1rem;
   background: white;
@@ -89,7 +89,7 @@ const ControlSelect = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -115,42 +115,42 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border-color: #3b82f6;
+          border-color: V9_COLORS.PRIMARY.BLUE;
           &:hover {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          border-color: #10b981;
+          border-color: V9_COLORS.PRIMARY.GREEN;
           &:hover {
-            background: #059669;
-            border-color: #059669;
+            background: V9_COLORS.PRIMARY.GREEN_DARK;
+            border-color: V9_COLORS.PRIMARY.GREEN_DARK;
           }
         `;
 			case 'warning':
 				return `
-          background: #f59e0b;
+          background: V9_COLORS.PRIMARY.YELLOW;
           color: white;
-          border-color: #f59e0b;
+          border-color: V9_COLORS.PRIMARY.YELLOW;
           &:hover {
-            background: #d97706;
-            border-color: #d97706;
+            background: V9_COLORS.PRIMARY.YELLOW_DARK;
+            border-color: V9_COLORS.PRIMARY.YELLOW_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: #374151;
-          border-color: #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
           &:hover {
             background: #f9fafb;
-            border-color: #9ca3af;
+            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -168,7 +168,7 @@ const ConfigurationSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -182,7 +182,7 @@ const ConfigGrid = styled.div`
 `;
 
 const ConfigGroup = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
 `;
@@ -190,7 +190,7 @@ const ConfigGroup = styled.div`
 const ConfigGroupTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -209,21 +209,21 @@ const ConfigLabel = styled.label`
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const ConfigInput = styled.input`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   background: white;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -250,11 +250,11 @@ const ValidationStatus = styled.div<{ status: 'valid' | 'invalid' | 'warning' }>
   ${(props) => {
 		switch (props.status) {
 			case 'valid':
-				return 'background: #dcfce7; border: 1px solid #16a34a; color: #166534;';
+				return 'background: V9_COLORS.BG.SUCCESS; border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK; color: V9_COLORS.PRIMARY.GREEN;';
 			case 'warning':
-				return 'background: #fef3c7; border: 1px solid #d97706; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; border: 1px solid V9_COLORS.PRIMARY.YELLOW_DARK; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			default:
-				return 'background: #fee2e2; border: 1px solid #dc2626; color: #991b1b;';
+				return 'background: V9_COLORS.BG.ERROR; border: 1px solid V9_COLORS.PRIMARY.RED_DARK; color: V9_COLORS.PRIMARY.RED_DARK;';
 		}
 	}}
 `;
@@ -272,7 +272,7 @@ const SuggestionsSection = styled.div`
 `;
 
 const SuggestionCard = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -285,19 +285,19 @@ const SuggestionCard = styled.div`
 const SuggestionTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const SuggestionText = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.5rem;
 `;
 
 const SuggestionBenefit = styled.div`
   font-size: 0.875rem;
-  color: #059669;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-weight: 500;
 `;
 
@@ -305,9 +305,9 @@ const LoadingSpinner = styled.div`
   display: inline-block;
   width: 1rem;
   height: 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
-  border-top-color: #3b82f6;
+  border-top-color: V9_COLORS.PRIMARY.BLUE;
   animation: spin 1s ease-in-out infinite;
 
   @keyframes spin {

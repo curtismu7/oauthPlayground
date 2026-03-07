@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -42,7 +43,7 @@ const DashboardIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;
@@ -132,11 +133,11 @@ const MetricTrend = styled.div<{ trend: 'up' | 'down' | 'neutral' }>`
   color: ${({ trend }) => {
 		switch (trend) {
 			case 'up':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'down':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   margin-top: 0.5rem;
@@ -286,7 +287,7 @@ export const PerformanceDashboard: React.FC = () => {
 				<MetricCard>
 					<MetricHeader>
 						<MetricLabel>Load Time</MetricLabel>
-						<MetricIcon color="#3b82f6">
+						<MetricIcon color="V9_COLORS.PRIMARY.BLUE">
 							<FiClock />
 						</MetricIcon>
 					</MetricHeader>
@@ -304,7 +305,7 @@ export const PerformanceDashboard: React.FC = () => {
 				<MetricCard>
 					<MetricHeader>
 						<MetricLabel>Render Time</MetricLabel>
-						<MetricIcon color="#10b981">
+						<MetricIcon color="V9_COLORS.PRIMARY.GREEN">
 							<FiZap />
 						</MetricIcon>
 					</MetricHeader>
@@ -322,7 +323,7 @@ export const PerformanceDashboard: React.FC = () => {
 				<MetricCard>
 					<MetricHeader>
 						<MetricLabel>Bundle Size</MetricLabel>
-						<MetricIcon color="#22c55e">
+						<MetricIcon color="V9_COLORS.PRIMARY.GREEN">
 							<FiDownload />
 						</MetricIcon>
 					</MetricHeader>
@@ -340,7 +341,7 @@ export const PerformanceDashboard: React.FC = () => {
 				<MetricCard>
 					<MetricHeader>
 						<MetricLabel>Chunk Count</MetricLabel>
-						<MetricIcon color="#f59e0b">
+						<MetricIcon color="V9_COLORS.PRIMARY.YELLOW">
 							<FiActivity />
 						</MetricIcon>
 					</MetricHeader>
@@ -355,7 +356,7 @@ export const PerformanceDashboard: React.FC = () => {
 				<MetricCard>
 					<MetricHeader>
 						<MetricLabel>Memory Usage</MetricLabel>
-						<MetricIcon color="#ef4444">
+						<MetricIcon color="V9_COLORS.PRIMARY.RED">
 							<FiMonitor />
 						</MetricIcon>
 					</MetricHeader>

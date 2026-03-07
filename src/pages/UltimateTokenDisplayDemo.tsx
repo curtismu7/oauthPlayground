@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -27,19 +28,19 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
 `;
 
 const ControlPanel = styled.div`
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -61,19 +62,19 @@ const ControlGroup = styled.div`
 const ControlLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 0.875rem;
   background: white;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -87,7 +88,7 @@ const CheckboxGroup = styled.div`
 const Checkbox = styled.input`
   width: 1rem;
   height: 1rem;
-  accent-color: #3b82f6;
+  accent-color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const Button = styled.button`
@@ -95,7 +96,7 @@ const Button = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -117,7 +118,7 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -357,11 +358,11 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🎨 Visual Features</h3>
-							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
+							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>🎨 Visual Features</h3>
+							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								<li>Color-coded token types with gradients</li>
 								<li>Responsive design with hover effects</li>
 								<li>Professional styling and animations</li>
@@ -375,11 +376,11 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🔧 Functional Features</h3>
-							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
+							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>🔧 Functional Features</h3>
+							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								<li>JWT decoding with header/payload separation</li>
 								<li>Token masking/unmasking</li>
 								<li>Copy to clipboard with feedback</li>
@@ -393,11 +394,11 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								background: 'white',
 								padding: '1.5rem',
 								borderRadius: '8px',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>📊 Metadata Features</h3>
-							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
+							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>📊 Metadata Features</h3>
+							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								<li>Token expiry formatting</li>
 								<li>Scope display</li>
 								<li>Token type indicators</li>

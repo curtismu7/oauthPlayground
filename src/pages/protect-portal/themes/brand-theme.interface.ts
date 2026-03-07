@@ -10,6 +10,7 @@
  */
 
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export interface BrandTheme {
 	name: string;

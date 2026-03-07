@@ -6,10 +6,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   padding: 2rem;
 `;
 
@@ -27,9 +28,9 @@ const BackButton = styled(Link)`
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   background: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -37,19 +38,19 @@ const BackButton = styled(Link)`
   
   &:hover {
     background: #f9fafb;
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const Subtitle = styled.p`
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1rem;
   margin: 0.5rem 0 0 0;
 `;
@@ -58,15 +59,15 @@ const InfoCard = styled.div`
   max-width: 1200px;
   margin: 0 auto 2rem auto;
   padding: 1.5rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
 `;
 
 const InfoTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -74,7 +75,7 @@ const InfoTitle = styled.h3`
 `;
 
 const InfoText = styled.p`
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;

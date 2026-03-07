@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import PageLayoutService from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const MarkdownContent = styled.div`
   max-width: 960px;
   margin: 0 auto 4rem;
   padding: 2.5rem 3rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
   border-radius: 1rem;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
   border: 1px solid ${({ theme }) => theme.colors.gray200};
@@ -75,8 +76,8 @@ const MarkdownContent = styled.div`
   }
 
   pre {
-    background: #0f172a;
-    color: #f8fafc;
+    background: V9_COLORS.TEXT.GRAY_DARK;
+    color: V9_COLORS.BG.GRAY_LIGHT;
     padding: 1.25rem;
     border-radius: 0.75rem;
     overflow-x: auto;
@@ -165,8 +166,8 @@ const BackButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 1.8rem;
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
-  color: #f8fafc;
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%);
+  color: V9_COLORS.BG.GRAY_LIGHT;
   text-decoration: none;
   border-radius: 0.65rem;
   font-weight: 600;
@@ -193,11 +194,11 @@ const LoadingMessage = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.5rem;
   padding: 1.5rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin: 2rem 0;
 `;
 

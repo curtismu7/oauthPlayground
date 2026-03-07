@@ -4,6 +4,7 @@
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface FeatureSupport {
 	pf: 'full' | 'partial' | 'none' | 'plugin';
@@ -30,7 +31,7 @@ const PageContainer = styled.div`
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	min-height: 100vh;
 `;
 
@@ -42,13 +43,13 @@ const Header = styled.div`
 const Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
 	font-size: 1.125rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	max-width: 800px;
 	margin: 0 auto;
 `;
@@ -63,9 +64,9 @@ const FilterBar = styled.div`
 
 const FilterButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
-	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
-	color: ${(props) => (props.$active ? 'white' : '#374151')};
+	border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -73,8 +74,8 @@ const FilterButton = styled.button<{ $active: boolean }>`
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: #3b82f6;
-		background: ${(props) => (props.$active ? '#2563eb' : '#eff6ff')};
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
 	}
 `;
 
@@ -94,7 +95,7 @@ const LegendItem = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-size: 0.875rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ComparisonTable = styled.div`
@@ -109,7 +110,7 @@ const TableHeader = styled.div`
 	grid-template-columns: 2fr 1fr 1fr 1fr;
 	gap: 1rem;
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
 	color: white;
 	font-weight: 600;
 	font-size: 0.875rem;
@@ -118,7 +119,7 @@ const TableHeader = styled.div`
 `;
 
 const CategorySection = styled.div`
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
 	&:last-child {
 		border-bottom: none;
@@ -127,11 +128,11 @@ const CategorySection = styled.div`
 
 const CategoryHeader = styled.div`
 	padding: 1rem 1.5rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	font-weight: 600;
 	font-size: 1rem;
-	color: #1f2937;
-	border-bottom: 1px solid #e5e7eb;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FeatureRow = styled.div<{ $unverified?: boolean }>`
@@ -141,11 +142,11 @@ const FeatureRow = styled.div<{ $unverified?: boolean }>`
 	padding: 1rem 1.5rem;
 	border-bottom: 1px solid #f3f4f6;
 	transition: background 0.2s;
-	background: ${(props) => (props.$unverified ? '#fef3c7' : 'transparent')};
-	border-left: ${(props) => (props.$unverified ? '4px solid #f59e0b' : '4px solid transparent')};
+	background: ${(props) => (props.$unverified ? 'V9_COLORS.BG.WARNING' : 'transparent')};
+	border-left: ${(props) => (props.$unverified ? '4px solid V9_COLORS.PRIMARY.YELLOW' : '4px solid transparent')};
 
 	&:hover {
-		background: ${(props) => (props.$unverified ? '#fde68a' : '#f9fafb')};
+		background: ${(props) => (props.$unverified ? 'V9_COLORS.BG.WARNING_BORDER' : '#f9fafb')};
 	}
 
 	&:last-child {
@@ -155,7 +156,7 @@ const FeatureRow = styled.div<{ $unverified?: boolean }>`
 
 const FeatureName = styled.div`
 	font-weight: 500;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	flex-direction: column;
 	gap: 0.25rem;
@@ -169,22 +170,22 @@ const VerificationBadge = styled.div<{ $verified: boolean }>`
 	border-radius: 9999px;
 	font-size: 0.65rem;
 	font-weight: 600;
-	background: ${(props) => (props.$verified ? '#dcfce7' : '#fef3c7')};
-	color: ${(props) => (props.$verified ? '#166534' : '#92400e')};
-	border: 1px solid ${(props) => (props.$verified ? '#86efac' : '#fbbf24')};
+	background: ${(props) => (props.$verified ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING')};
+	color: ${(props) => (props.$verified ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+	border: 1px solid ${(props) => (props.$verified ? '#86efac' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
 	width: fit-content;
 `;
 
 const VerificationInfo = styled.div`
 	font-size: 0.7rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 400;
 	margin-top: 0.25rem;
 `;
 
 const FeatureDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 400;
 `;
 
@@ -206,25 +207,25 @@ const SupportBadge = styled.div<{ $type: 'full' | 'partial' | 'none' | 'plugin' 
 	background: ${(props) => {
 		switch (props.$type) {
 			case 'full':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'partial':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'plugin':
 				return '#dbeafe';
 			case 'none':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 		}
 	}};
 	color: ${(props) => {
 		switch (props.$type) {
 			case 'full':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'partial':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'plugin':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'none':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
 `;
@@ -954,13 +955,13 @@ const PingProductComparison: React.FC = () => {
 	const getSupportIcon = (support: 'full' | 'partial' | 'none' | 'plugin') => {
 		switch (support) {
 			case 'full':
-				return <FiCheckCircle size={16} color="#16a34a" />;
+				return <FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
 			case 'partial':
-				return <FiAlertCircle size={16} color="#d97706" />;
+				return <FiAlertCircle size={16} color="V9_COLORS.PRIMARY.YELLOW_DARK" />;
 			case 'plugin':
-				return <FiInfo size={16} color="#2563eb" />;
+				return <FiInfo size={16} color="V9_COLORS.PRIMARY.BLUE_DARK" />;
 			case 'none':
-				return <FiXCircle size={16} color="#dc2626" />;
+				return <FiXCircle size={16} color="V9_COLORS.PRIMARY.RED_DARK" />;
 		}
 	};
 
@@ -991,10 +992,10 @@ const PingProductComparison: React.FC = () => {
 			<div
 				style={{
 					padding: '1.5rem',
-					background: verificationPercentage === 100 ? '#dcfce7' : '#fef3c7',
+					background: verificationPercentage === 100 ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING',
 					borderRadius: '0.75rem',
 					marginBottom: '1.5rem',
-					border: `2px solid ${verificationPercentage === 100 ? '#86efac' : '#fbbf24'}`,
+					border: `2px solid ${verificationPercentage === 100 ? '#86efac' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT'}`,
 				}}
 			>
 				<div
@@ -1010,7 +1011,7 @@ const PingProductComparison: React.FC = () => {
 						<div
 							style={{
 								fontSize: '2.5rem',
-								color: verificationPercentage === 100 ? '#166534' : '#92400e',
+								color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
 							}}
 						>
 							{verificationPercentage === 100 ? '✓' : '⚠️'}
@@ -1019,7 +1020,7 @@ const PingProductComparison: React.FC = () => {
 							<h3
 								style={{
 									margin: '0 0 0.25rem 0',
-									color: verificationPercentage === 100 ? '#166534' : '#92400e',
+									color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
 									fontSize: '1.125rem',
 									fontWeight: 700,
 								}}
@@ -1029,7 +1030,7 @@ const PingProductComparison: React.FC = () => {
 							<p
 								style={{
 									margin: 0,
-									color: verificationPercentage === 100 ? '#166534' : '#92400e',
+									color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -1046,13 +1047,13 @@ const PingProductComparison: React.FC = () => {
 								padding: '0.75rem 1.25rem',
 								borderRadius: '0.5rem',
 								textAlign: 'center',
-								border: '1px solid #e5e7eb',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
 								{verifiedFeatures}
 							</div>
-							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Verified</div>
+							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>Verified</div>
 						</div>
 						<div
 							style={{
@@ -1060,13 +1061,13 @@ const PingProductComparison: React.FC = () => {
 								padding: '0.75rem 1.25rem',
 								borderRadius: '0.5rem',
 								textAlign: 'center',
-								border: '1px solid #e5e7eb',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706' }}>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 								{unverifiedFeatures}
 							</div>
-							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>
+							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>
 								Unverified
 							</div>
 						</div>
@@ -1080,8 +1081,8 @@ const PingProductComparison: React.FC = () => {
 							background: 'white',
 							borderRadius: '0.5rem',
 							fontSize: '0.875rem',
-							color: '#92400e',
-							border: '1px solid #fbbf24',
+							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+							border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 						}}
 					>
 						<strong>⚠️ Unverified features are highlighted in yellow.</strong> These features are
@@ -1093,25 +1094,25 @@ const PingProductComparison: React.FC = () => {
 
 			<Legend>
 				<LegendItem>
-					<FiCheckCircle size={18} color="#16a34a" />
+					<FiCheckCircle size={18} color="V9_COLORS.PRIMARY.GREEN_DARK" />
 					<strong>Full Support</strong> - Feature fully supported out of the box
 				</LegendItem>
 				<LegendItem>
-					<FiAlertCircle size={18} color="#d97706" />
+					<FiAlertCircle size={18} color="V9_COLORS.PRIMARY.YELLOW_DARK" />
 					<strong>Partial Support</strong> - Limited or requires configuration
 				</LegendItem>
 				<LegendItem>
-					<FiInfo size={18} color="#2563eb" />
+					<FiInfo size={18} color="V9_COLORS.PRIMARY.BLUE_DARK" />
 					<strong>Plugin/Integration</strong> - Requires additional plugin or integration
 				</LegendItem>
 				<LegendItem>
-					<FiXCircle size={18} color="#dc2626" />
+					<FiXCircle size={18} color="V9_COLORS.PRIMARY.RED_DARK" />
 					<strong>Not Supported</strong> - Feature not available
 				</LegendItem>
 			</Legend>
 
 			<FilterBar>
-				<span style={{ fontWeight: 600, color: '#374151' }}>Filter by category:</span>
+				<span style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Filter by category:</span>
 				{categories.map((category) => (
 					<FilterButton
 						key={category}
@@ -1129,12 +1130,12 @@ const PingProductComparison: React.FC = () => {
 							gap: '0.5rem',
 							cursor: 'pointer',
 							padding: '0.5rem 1rem',
-							background: showOnlyUnverified ? '#fef3c7' : 'white',
-							border: `2px solid ${showOnlyUnverified ? '#f59e0b' : '#e5e7eb'}`,
+							background: showOnlyUnverified ? 'V9_COLORS.BG.WARNING' : 'white',
+							border: `2px solid ${showOnlyUnverified ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 							borderRadius: '0.5rem',
 							fontSize: '0.875rem',
 							fontWeight: 600,
-							color: showOnlyUnverified ? '#92400e' : '#374151',
+							color: showOnlyUnverified ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : 'V9_COLORS.TEXT.GRAY_DARK',
 							transition: 'all 0.2s',
 						}}
 					>
@@ -1233,15 +1234,15 @@ const PingProductComparison: React.FC = () => {
 				style={{
 					marginTop: '3rem',
 					padding: '1.5rem',
-					background: '#fef3c7',
+					background: 'V9_COLORS.BG.WARNING',
 					borderRadius: '0.75rem',
-					border: '2px solid #f59e0b',
+					border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 				}}
 			>
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: '#92400e',
+						color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1250,7 +1251,7 @@ const PingProductComparison: React.FC = () => {
 					<FiAlertCircle size={20} />
 					⚠️ Important Disclaimer
 				</h3>
-				<div style={{ color: '#92400e', lineHeight: 1.8, fontSize: '0.95rem' }}>
+				<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', lineHeight: 1.8, fontSize: '0.95rem' }}>
 					<p style={{ margin: '0 0 1rem 0', fontWeight: 600 }}>
 						This comparison is based on general knowledge and publicly available information.
 						Feature support may vary based on:
@@ -1276,15 +1277,15 @@ const PingProductComparison: React.FC = () => {
 				style={{
 					marginTop: '1.5rem',
 					padding: '1.5rem',
-					background: '#eff6ff',
+					background: 'V9_COLORS.BG.GRAY_LIGHT',
 					borderRadius: '0.75rem',
-					border: '1px solid #bfdbfe',
+					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 				}}
 			>
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: '#1e40af',
+						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1293,7 +1294,7 @@ const PingProductComparison: React.FC = () => {
 					<FiInfo size={20} />
 					Key Takeaways
 				</h3>
-				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e40af', lineHeight: 1.8 }}>
+				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.BLUE_DARK', lineHeight: 1.8 }}>
 					<li>
 						<strong>PingOne</strong> - Modern cloud-native platform with excellent OAuth/OIDC
 						support, best for new deployments
@@ -1320,13 +1321,13 @@ const PingProductComparison: React.FC = () => {
 					padding: '1.5rem',
 					background: '#f9fafb',
 					borderRadius: '0.75rem',
-					border: '1px solid #e5e7eb',
+					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 				}}
 			>
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: '#374151',
+						color: 'V9_COLORS.TEXT.GRAY_DARK',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1335,7 +1336,7 @@ const PingProductComparison: React.FC = () => {
 					<FiInfo size={20} />
 					Sources & Verification
 				</h3>
-				<div style={{ color: '#6b7280', lineHeight: 1.8, fontSize: '0.875rem' }}>
+				<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: 1.8, fontSize: '0.875rem' }}>
 					<p style={{ margin: '0 0 0.75rem 0' }}>This comparison is compiled from:</p>
 					<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem' }}>
 						<li>Ping Identity official documentation</li>
@@ -1352,7 +1353,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://docs.pingidentity.com"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: '#2563eb' }}
+								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
 							>
 								Ping Identity Documentation
 							</a>
@@ -1362,7 +1363,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://www.pingidentity.com/en/resources/product-comparison.html"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: '#2563eb' }}
+								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
 							>
 								Official Product Comparison
 							</a>
@@ -1372,7 +1373,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://support.pingidentity.com"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: '#2563eb' }}
+								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
 							>
 								Ping Identity Support Portal
 							</a>

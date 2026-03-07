@@ -22,21 +22,21 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)'
-			: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
+			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 2rem 0;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.1),
-    0 0 0 1px ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')},
+    0 0 0 1px ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')},
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
-  border: 2px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
+  border: 2px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   transition: all 0.3s ease;
   
   /* Square tablet design - white with modern styling */
@@ -63,7 +63,7 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
     left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: ${({ $authorized }) => ($authorized ? '#000000' : '#00d4aa')};
+    color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#00d4aa')};
     letter-spacing: 1px;
     z-index: 3;
   }
@@ -74,14 +74,14 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)'
-			: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
-  border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
+			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
+  border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
@@ -92,7 +92,7 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
 const SquareTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -101,15 +101,15 @@ const SquareTitle = styled.div<{ $authorized?: boolean }>`
 
 const SquareSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 0.875rem;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#6b7280')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   font-weight: 500;
   transition: all 0.3s ease;
 `;
 
 // POS Display Screen
 const POSDisplay = styled.div`
-  background: #000000;
-  border: 3px solid #1f2937;
+  background: V9_COLORS.TEXT.BLACK;
+  border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -133,31 +133,31 @@ const POSHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const POSLogo = styled.div`
   font-size: 0.875rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 const POSStatus = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -179,16 +179,16 @@ const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
   background: ${(props) => {
 		switch (props.$type) {
 			case 'number':
-				return 'linear-gradient(135deg, #374151 0%, #1f2937 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%)';
 			case 'action':
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 			case 'special':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-size: 1.25rem;
   font-weight: 600;
   cursor: pointer;
@@ -211,7 +211,7 @@ const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
 
 // Card Reader
 const CardReader = styled.div`
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -228,23 +228,23 @@ const CardReader = styled.div`
 const CardReaderSlot = styled.div`
   width: 60px;
   height: 40px;
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   border: 2px solid #4b5563;
   border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.5rem;
 `;
 
 // Status Display
 const StatusDisplay = styled.div`
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
-  border: 2px solid #374151;
+  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -253,7 +253,7 @@ const StatusRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   
   &:last-child {
     border-bottom: none;
@@ -263,7 +263,7 @@ const StatusRow = styled.div`
 const StatusLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -274,13 +274,13 @@ const StatusValue = styled.div<{ $status?: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'disconnected':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#ffffff';
+				return 'V9_COLORS.TEXT.WHITE';
 		}
 	}};
   display: flex;
@@ -292,7 +292,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -304,7 +304,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 1.5rem;
@@ -323,31 +323,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin: 1rem 0;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -362,8 +362,8 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: #ffffff;
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.25rem;
@@ -389,12 +389,12 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 1rem;
   text-align: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -518,7 +518,9 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					<CardReaderSlot>
 						<FiCreditCard />
 					</CardReaderSlot>
-					<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
+					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT' }}>
+						Card Reader Ready
+					</span>
 				</CardReader>
 
 				{/* Status Display */}
@@ -526,14 +528,14 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					<StatusRow>
 						<StatusLabel>Network</StatusLabel>
 						<StatusValue $status="connected">
-							<StatusDot $active={true} $color="#10b981" />
+							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
 							Connected
 						</StatusValue>
 					</StatusRow>
 					<StatusRow>
 						<StatusLabel>Power</StatusLabel>
 						<StatusValue>
-							<StatusDot $active={true} $color="#10b981" />
+							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
 							AC Power
 						</StatusValue>
 					</StatusRow>
@@ -554,8 +556,8 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="#ffffff"
-							fgColor="#1f2937"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.GRAY_DARK"
 							level="H"
 							includeMargin={true}
 						/>
@@ -589,7 +591,7 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

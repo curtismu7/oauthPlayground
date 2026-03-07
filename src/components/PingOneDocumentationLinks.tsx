@@ -10,8 +10,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const DocsContainer = styled.div`
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-	border: 1px solid #bae6fd;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -32,7 +32,7 @@ const DocsTitle = styled.div`
 	gap: 0.5rem;
 	font-weight: 600;
 	font-size: 1.1rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const DocsContent = styled.div<{ $expanded: boolean }>`
@@ -72,13 +72,13 @@ const DocsLink = styled.a`
 	border-radius: 6px;
 	margin-bottom: 0.5rem;
 	text-decoration: none;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.9rem;
 	transition: all 0.2s;
 	
 	&:hover {
-		background: #eff6ff;
-		border-color: #3b82f6;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		transform: translateX(4px);
 	}
 	
@@ -89,7 +89,7 @@ const DocsLink = styled.a`
 
 const DocsDescription = styled.div`
 	font-size: 0.85rem;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-left: 2rem;
 	margin-top: 0.25rem;
 	font-style: italic;
