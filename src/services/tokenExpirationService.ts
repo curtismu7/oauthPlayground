@@ -2,7 +2,7 @@
 // Unified service for checking worker token expiration and showing appropriate messages
 
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface TokenExpirationInfo {
 	token: string | null;
@@ -100,9 +100,7 @@ export const getValidWorkerToken = (
 		if (!expirationInfo) {
 			// Token exists but no expiration data - assume it might be expired
 			if (showToast) {
-				v4ToastManager.showWarning(
-					'Worker token found but expiration data is missing. The token may be expired.'
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Worker token found but expiration data is missing. The token may be expired.', dismissible: true });
 			}
 			return {
 				isValid: false,
@@ -119,9 +117,7 @@ export const getValidWorkerToken = (
 				localStorage.removeItem(tokenExpiryKey);
 			}
 			if (showToast) {
-				v4ToastManager.showError(
-					`Worker token has EXPIRED (expired at ${expirationInfo.expiresAtFormatted}). Please generate a new worker token.`
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Worker token has EXPIRED (expired at ${expirationInfo.expiresAtFormatted}). Please generate a new worker token.`, dismissible: true });
 			}
 			return {
 				isValid: false,
@@ -132,9 +128,7 @@ export const getValidWorkerToken = (
 		}
 
 		if (expirationInfo.isExpiringSoon && showToast) {
-			v4ToastManager.showWarning(
-				`Worker token expires soon (${expirationInfo.minutesRemaining} minutes remaining). Consider generating a new token.`
-			);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Worker token expires soon (${expirationInfo.minutesRemaining} minutes remaining). Consider generating a new token.`, dismissible: true });
 		}
 
 		return {
@@ -172,9 +166,7 @@ export const showTokenSuccessMessage = (expiresIn: number, requiredScopes?: stri
 	const scopeText =
 		requiredScopes && requiredScopes.length > 0 ? ` with scopes: ${requiredScopes.join(', ')}` : '';
 
-	v4ToastManager.showSuccess(
-		`Worker token generated successfully! Expires in ${timeText}.${scopeText}`
-	);
+	modernMessaging.showFooterMessage({ type: 'status', message: `Worker token generated successfully! Expires in ${timeText}.${scopeText}`, duration: 4000 });
 };
 
 /**
@@ -182,13 +174,9 @@ export const showTokenSuccessMessage = (expiresIn: number, requiredScopes?: stri
  */
 export const showExpirationWarning = (expirationInfo: TokenExpirationInfo): void => {
 	if (expirationInfo.isExpired) {
-		v4ToastManager.showError(
-			`Worker token has EXPIRED (expired at ${expirationInfo.expiresAtFormatted}). Please generate a new token.`
-		);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Worker token has EXPIRED (expired at ${expirationInfo.expiresAtFormatted}). Please generate a new token.`, dismissible: true });
 	} else if (expirationInfo.isExpiringSoon) {
-		v4ToastManager.showWarning(
-			`Worker token expires soon (${expirationInfo.minutesRemaining} minutes remaining, expires at ${expirationInfo.expiresAtFormatted}). Consider generating a new token.`
-		);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Worker token expires soon (${expirationInfo.minutesRemaining} minutes remaining, expires at ${expirationInfo.expiresAtFormatted}). Consider generating a new token.`, dismissible: true });
 	}
 };
 

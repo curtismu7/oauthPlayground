@@ -11,7 +11,7 @@ import {
 import { forcePasswordChange, readPasswordState } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
@@ -52,10 +52,10 @@ export const ForceResetTab: React.FC<ForceResetTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -108,7 +108,7 @@ export const ForceResetTab: React.FC<ForceResetTabProps> = ({
 				setAfterState(afterUserState);
 
 				setSuccess(true);
-				v4ToastManager.showSuccess('Password change forced successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password change forced successfully', duration: 4000 });
 				return;
 			}
 

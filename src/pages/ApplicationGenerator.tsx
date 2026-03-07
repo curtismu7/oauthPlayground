@@ -39,7 +39,7 @@ import {
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
 import { clearAllTokens } from '../utils/tokenCleaner';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
@@ -632,7 +632,7 @@ const ApplicationGenerator: React.FC = () => {
 		if (result.success) {
 			console.log(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
 			if (result.clearedCount > 0) {
-				v4ToastManager.showSuccess(`🧹 Cleared ${result.clearedCount} tokens for fresh start`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `🧹 Cleared ${result.clearedCount} tokens for fresh start`, duration: 4000 });
 			} else {
 				console.log('[ApplicationGenerator] No tokens found to clear');
 			}
@@ -642,7 +642,7 @@ const ApplicationGenerator: React.FC = () => {
 				'[ApplicationGenerator] Token clearing completed with errors:',
 				{ errors: result.errors }
 			);
-			v4ToastManager.showError('⚠️ Some tokens could not be cleared');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: '⚠️ Some tokens could not be cleared', dismissible: true });
 		}
 
 		// Additional cleanup - clear any remaining token-related items
@@ -730,7 +730,7 @@ const ApplicationGenerator: React.FC = () => {
 			localStorage.setItem(APP_GENERATOR_STORAGE_KEY, JSON.stringify(payload));
 
 			setIsSavedIndicator(true);
-			v4ToastManager.showSuccess('Application configuration saved');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Application configuration saved', duration: 4000 });
 			setTimeout(() => setIsSavedIndicator(false), 3000);
 		} catch (error) {
 			logger.error(
@@ -739,7 +739,7 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to save configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', dismissible: true });
 		}
 	}, [formData, selectedAppType]);
 
@@ -752,7 +752,7 @@ const ApplicationGenerator: React.FC = () => {
 			setCreationResult(null);
 			setIsSavedIndicator(false);
 			setCurrentStep(1);
-			v4ToastManager.showSuccess('Saved configuration cleared');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Saved configuration cleared', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'ApplicationGenerator',
@@ -760,7 +760,7 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to clear configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear configuration', dismissible: true });
 		}
 	}, []);
 
@@ -955,9 +955,9 @@ const ApplicationGenerator: React.FC = () => {
 			if (appliedFormData) {
 				setFormData(appliedFormData);
 				setValidationErrors(new Set()); // Clear validation errors
-				v4ToastManager.showSuccess('Preset applied successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Preset applied successfully!', duration: 4000 });
 			} else {
-				v4ToastManager.showError('Failed to apply preset');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply preset', dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -966,13 +966,13 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to apply preset');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply preset', dismissible: true });
 		}
 	};
 
 	const _handleSaveAsPreset = async () => {
 		if (!selectedAppType) {
-			v4ToastManager.showError('Please select an application type first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an application type first', dismissible: true });
 			return;
 		}
 
@@ -1023,9 +1023,9 @@ const ApplicationGenerator: React.FC = () => {
 			});
 
 			if (existingPreset) {
-				v4ToastManager.showSuccess(`Preset "${savedPreset.name}" updated successfully!`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Preset "${savedPreset.name}" updated successfully!`, duration: 4000 });
 			} else {
-				v4ToastManager.showSuccess(`Preset "${savedPreset.name}" created successfully!`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Preset "${savedPreset.name}" created successfully!`, duration: 4000 });
 			}
 		} catch (error) {
 			logger.error(
@@ -1034,7 +1034,7 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to save preset');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save preset', dismissible: true });
 		}
 	};
 
@@ -1048,9 +1048,7 @@ const ApplicationGenerator: React.FC = () => {
 				setSelectedAppType(metadata.appType);
 			}
 
-			v4ToastManager.showSuccess(
-				`Configuration "${metadata?.name || 'imported'}" applied successfully!`
-			);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Configuration "${metadata?.name || 'imported'}" applied successfully!`, duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'ApplicationGenerator',
@@ -1058,7 +1056,7 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to apply imported configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply imported configuration', dismissible: true });
 		}
 	};
 
@@ -1115,7 +1113,7 @@ const ApplicationGenerator: React.FC = () => {
 		// Validate form
 		const validationErrors = validateForm();
 		if (validationErrors.length > 0) {
-			v4ToastManager.showError(validationErrors.join(', '));
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: validationErrors.join(', '), dismissible: true });
 			return;
 		}
 
@@ -1286,7 +1284,7 @@ const ApplicationGenerator: React.FC = () => {
 			setCreationErrorDetails(null);
 
 			if (result.success) {
-				v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully!`, duration: 4000 });
 				// Advance to results step
 				setCurrentStep(4);
 				// DON'T reset form - keep fields on screen for user reference
@@ -1295,11 +1293,9 @@ const ApplicationGenerator: React.FC = () => {
 				// Check if it's a name conflict error and provide helpful message
 				const errorMsg = result.error || '';
 				if (errorMsg.includes('name already exists') || errorMsg.includes('already exists')) {
-					v4ToastManager.showError(
-						`Application name "${formData.name}" already exists. Please try a different name.`
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Application name "${formData.name}" already exists. Please try a different name.`, dismissible: true });
 				} else {
-					v4ToastManager.showError(`Failed to create application: ${result.error}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${result.error}`, dismissible: true });
 				}
 			}
 		} catch (error) {
@@ -1310,11 +1306,11 @@ const ApplicationGenerator: React.FC = () => {
 				const betterMessage = `Application name "${formData.name}" already exists. Please try a different name.`;
 				setCreationResult({ success: false, error: betterMessage });
 				setCreationErrorDetails(toErrorDetails(error));
-				v4ToastManager.showError(betterMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: betterMessage, dismissible: true });
 			} else {
 				setCreationResult({ success: false, error: errorMessage });
 				setCreationErrorDetails(toErrorDetails(error));
-				v4ToastManager.showError(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 			}
 		} finally {
 			setIsCreating(false);
@@ -1341,11 +1337,11 @@ const ApplicationGenerator: React.FC = () => {
 
 		// Validate required fields
 		if (!appName.trim()) {
-			v4ToastManager.showError('Application name is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Application name is required', dismissible: true });
 			return;
 		}
 		if (!redirectUri.trim()) {
-			v4ToastManager.showError('Redirect URI is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Redirect URI is required', dismissible: true });
 			return;
 		}
 
@@ -1524,17 +1520,15 @@ const ApplicationGenerator: React.FC = () => {
 					hasSecret: !!result.app.clientSecret,
 				});
 
-				v4ToastManager.showSuccess(
-					`Application "${formData.name}" created successfully! Credentials updated.`
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully! Credentials updated.`, duration: 4000 });
 				// Advance to results step
 				setCurrentStep(4);
 				// DON'T reset form - keep fields on screen for user reference
 			} else if (result.success) {
-				v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully!`, duration: 4000 });
 				setCurrentStep(4);
 			} else {
-				v4ToastManager.showError(`Failed to create application: ${result.error}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${result.error}`, dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -1549,7 +1543,7 @@ const ApplicationGenerator: React.FC = () => {
 				error: errorMessage,
 			});
 			setCreationErrorDetails(toErrorDetails(error));
-			v4ToastManager.showError(`Application creation failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Application creation failed: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsCreating(false);
 		}
@@ -1571,9 +1565,7 @@ const ApplicationGenerator: React.FC = () => {
 							isCreating={isCreating}
 							onCreateApplication={handleCreateApplication}
 							onGenerateWorkerToken={() => {
-								v4ToastManager.showInfo(
-									'Please go to the Client Generator to create a new worker token.'
-								);
+								modernMessaging.showFooterMessage({ type: 'info', message: 'Please go to the Client Generator to create a new worker token.', duration: 4000 });
 							}}
 							onImportConfig={(importedConfig) => {
 								// Update form data with imported PingOne configuration
@@ -1587,7 +1579,7 @@ const ApplicationGenerator: React.FC = () => {
 									grantTypes: (importedConfig.grantTypes as string[]) || prev.grantTypes,
 									responseTypes: (importedConfig.responseTypes as string[]) || prev.responseTypes,
 								}));
-								v4ToastManager.showSuccess('Configuration imported from PingOne!');
+								modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported from PingOne!', duration: 4000 });
 							}}
 						/>
 

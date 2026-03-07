@@ -69,7 +69,7 @@ import {
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { logger } from '../../utils/logger';
 import { trackedFetch } from '../../utils/trackedFetch';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Type for PingOne user objects
 interface PingOneUserName {
@@ -689,7 +689,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const handleClearWorkerToken = useCallback(async () => {
 		await unifiedWorkerTokenService.clearToken();
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		v4ToastManager.showSuccess('Worker token cleared');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token cleared', duration: 4000 });
 	}, []);
 
 	// Load environment ID, worker token, and authz credentials
@@ -770,9 +770,9 @@ const HelioMartPasswordReset: React.FC = () => {
 						? creds.scopes.join(' ')
 						: creds.scopes || 'openid profile email',
 				});
-				v4ToastManager.showSuccess('Config imported successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Config imported successfully', duration: 4000 });
 			} catch {
-				v4ToastManager.showError('Invalid config file — must be JSON');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid config file — must be JSON', dismissible: true });
 			}
 		};
 		reader.readAsText(file);
@@ -783,7 +783,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	// Handle login with PingOne
 	const handleLogin = useCallback(async () => {
 		if (!loginUsername || !loginPassword) {
-			v4ToastManager.showError('Please enter username and password');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password', dismissible: true });
 			return;
 		}
 
@@ -792,7 +792,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			!authzCredentials.clientId ||
 			!authzCredentials.clientSecret
 		) {
-			v4ToastManager.showError('Please configure application credentials first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure application credentials first', dismissible: true });
 			setShowAuthzConfigModal(true);
 			return;
 		}
@@ -936,7 +936,7 @@ const HelioMartPasswordReset: React.FC = () => {
 							}
 						}
 
-						v4ToastManager.showSuccess('Login successful!');
+						modernMessaging.showFooterMessage({ type: 'status', message: 'Login successful!', duration: 4000 });
 						setShowLoginModal(false);
 						setActiveTab('change'); // Show change password tab by default after login
 						completed = true;
@@ -960,7 +960,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Login failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Login failed', dismissible: true });
 		} finally {
 			setIsLoggingIn(false);
 		}
@@ -989,7 +989,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!recoverEmail) {
-			v4ToastManager.showError('Please enter your email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter your email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -997,7 +997,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1011,7 +1011,7 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
@@ -1020,7 +1020,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			// First, lookup user by email
 			const trimmedEmail = recoverEmail.trim();
 			if (!trimmedEmail) {
-				v4ToastManager.showError('Please enter an email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an email address', dismissible: true });
 				setRecoverLoading(false);
 				return;
 			}
@@ -1031,7 +1031,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 
 			if (!result.user) {
-				v4ToastManager.showError('User not found with that email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User not found with that email address', dismissible: true });
 				setRecoverLoading(false);
 				return;
 			}
@@ -1048,14 +1048,12 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (sendResult.success) {
 				setRecoveryCodeSent(true);
-				v4ToastManager.showSuccess(`Recovery code sent to ${recoverEmail}`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Recovery code sent to ${recoverEmail}`, duration: 4000 });
 			} else {
-				v4ToastManager.showError(sendResult.errorDescription || 'Failed to send recovery code');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: sendResult.errorDescription || 'Failed to send recovery code', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to send recovery code'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to send recovery code', dismissible: true });
 		} finally {
 			setRecoverLoading(false);
 		}
@@ -1070,7 +1068,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			!globalTokenStatus.token ||
 			!environmentId
 		) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 
@@ -1086,9 +1084,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (result.success) {
 				setRecoverSuccess(true);
-				v4ToastManager.showSuccess(
-					'Password recovered successfully! You can now sign in with your new password.'
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password recovered successfully! You can now sign in with your new password.', duration: 4000 });
 				// Reset form
 				setRecoveryCode('');
 				setNewPassword('');
@@ -1096,10 +1092,10 @@ const HelioMartPasswordReset: React.FC = () => {
 				setRecoveryCodeSent(false);
 				setRecoverUserId('');
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password recovery failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password recovery failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password recovery failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password recovery failed', dismissible: true });
 		} finally {
 			setRecoverLoading(false);
 		}
@@ -1111,7 +1107,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!forceResetIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1119,7 +1115,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1133,14 +1129,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = forceResetIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1151,17 +1147,17 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (result.user) {
 				setForceResetUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [forceResetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Force password reset
 	const handleForcePasswordReset = useCallback(async () => {
 		if (!forceResetUser || !forceResetUser.id || !globalTokenStatus.token || !environmentId) {
-			v4ToastManager.showError('User not found or credentials missing');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User not found or credentials missing', dismissible: true });
 			return;
 		}
 
@@ -1175,14 +1171,12 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (result.success) {
 				setForceResetSuccess(true);
-				v4ToastManager.showSuccess('Password change forced successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password change forced successfully', duration: 4000 });
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Force password reset failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Force password reset failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Force password reset failed'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Force password reset failed', dismissible: true });
 		} finally {
 			setForceResetLoading(false);
 		}
@@ -1198,12 +1192,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			!userAccessToken ||
 			!environmentId
 		) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 
 		if (changeNewPassword !== confirmPassword) {
-			v4ToastManager.showError('New passwords do not match');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'New passwords do not match', dismissible: true });
 			return;
 		}
 
@@ -1219,16 +1213,16 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (result.success) {
 				setChangePasswordSuccess(true);
-				v4ToastManager.showSuccess('Password changed successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password changed successfully!', duration: 4000 });
 				// Reset form
 				setOldPassword('');
 				setChangeNewPassword('');
 				setConfirmPassword('');
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password change failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password change failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password change failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password change failed', dismissible: true });
 		} finally {
 			setChangePasswordLoading(false);
 		}
@@ -1240,7 +1234,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!checkPasswordIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1248,7 +1242,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1262,14 +1256,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = checkPasswordIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1279,21 +1273,21 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setCheckPasswordUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [checkPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Check password
 	const handleCheckPassword = useCallback(async () => {
 		if (!checkPasswordUser || !checkPasswordValue || !globalTokenStatus.token || !environmentId) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 		if (!checkPasswordUser?.id) {
-			v4ToastManager.showError('User ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User ID is required', dismissible: true });
 			return;
 		}
 
@@ -1307,16 +1301,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			);
 			if (result.success) {
 				setCheckPasswordResult({ valid: true, message: result.message || 'Password is valid' });
-				v4ToastManager.showSuccess('Password check successful');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password check successful', duration: 4000 });
 			} else {
 				setCheckPasswordResult({
 					valid: false,
 					message: result.errorDescription || 'Password check failed',
 				});
-				v4ToastManager.showError(result.errorDescription || 'Password check failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password check failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password check failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password check failed', dismissible: true });
 		} finally {
 			setCheckPasswordLoading(false);
 		}
@@ -1328,7 +1322,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!unlockIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1336,7 +1330,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1350,14 +1344,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = unlockIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1367,17 +1361,17 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setUnlockUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [unlockIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Unlock password
 	const handleUnlockPassword = useCallback(async () => {
 		if (!unlockUser || !unlockUser.id || !globalTokenStatus.token || !environmentId) {
-			v4ToastManager.showError('User not found or credentials missing');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User not found or credentials missing', dismissible: true });
 			return;
 		}
 		setUnlockLoading(true);
@@ -1389,12 +1383,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			);
 			if (result.success) {
 				setUnlockSuccess(true);
-				v4ToastManager.showSuccess('Password unlocked successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password unlocked successfully', duration: 4000 });
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password unlock failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password unlock failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password unlock failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password unlock failed', dismissible: true });
 		} finally {
 			setUnlockLoading(false);
 		}
@@ -1406,7 +1400,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!stateIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1414,7 +1408,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1428,14 +1422,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = stateIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1445,17 +1439,17 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setStateUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [stateIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {
 		if (!stateUser || !stateUser.id || !globalTokenStatus.token || !environmentId) {
-			v4ToastManager.showError('User not found or credentials missing');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User not found or credentials missing', dismissible: true });
 			return;
 		}
 		setStateLoading(true);
@@ -1467,14 +1461,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			);
 			if (result.success && result.passwordState) {
 				setPasswordState(result.passwordState as PasswordState);
-				v4ToastManager.showSuccess('Password state read successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password state read successfully', duration: 4000 });
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Failed to read password state');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Failed to read password state', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to read password state'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to read password state', dismissible: true });
 		} finally {
 			setStateLoading(false);
 		}
@@ -1486,7 +1478,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!adminSetIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1494,7 +1486,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1508,14 +1500,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = adminSetIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1525,10 +1517,10 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setAdminSetUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [adminSetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
@@ -1541,7 +1533,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			!globalTokenStatus.token ||
 			!environmentId
 		) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 		setAdminSetLoading(true);
@@ -1558,13 +1550,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				const message = adminSetForceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully!';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setAdminSetPassword('');
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password set failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password set failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password set failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password set failed', dismissible: true });
 		} finally {
 			setAdminSetLoading(false);
 		}
@@ -1583,7 +1575,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!setPasswordIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1591,7 +1583,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1605,14 +1597,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = setPasswordIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1622,10 +1614,10 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setSetPasswordUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [setPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
@@ -1638,7 +1630,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			!globalTokenStatus.token ||
 			!environmentId
 		) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 		setSetPasswordLoading(true);
@@ -1655,13 +1647,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				const message = setPasswordForceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully!';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setSetPasswordValue('');
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password set failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password set failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password set failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password set failed', dismissible: true });
 		} finally {
 			setSetPasswordLoading(false);
 		}
@@ -1680,7 +1672,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!ldapIdentifier) {
-			v4ToastManager.showError('Please enter a username or email address');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
@@ -1688,7 +1680,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
-			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required. Please generate a worker token first.', dismissible: true });
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
@@ -1702,14 +1694,14 @@ const HelioMartPasswordReset: React.FC = () => {
 					effectiveEnvId: effectiveEnvironmentId || '(empty)',
 				}
 			);
-			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required. Please configure it first.', dismissible: true });
 			return;
 		}
 
 		try {
 			const trimmedIdentifier = ldapIdentifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username or email address');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username or email address', dismissible: true });
 				return;
 			}
 			const result = await lookupPingOneUser({
@@ -1719,17 +1711,17 @@ const HelioMartPasswordReset: React.FC = () => {
 			});
 			if (result.user) {
 				setLdapUser(result.user);
-				v4ToastManager.showSuccess('User found successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 		}
 	}, [ldapIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Set password via LDAP Gateway
 	const handleSetPasswordLdap = useCallback(async () => {
 		if (!ldapUser || !ldapUser.id || !ldapPassword || !globalTokenStatus.token || !environmentId) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 		setLdapLoading(true);
@@ -1747,15 +1739,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				const message = ldapForceChange
 					? 'Password set successfully via LDAP Gateway! User will be required to change password on next sign-on.'
 					: 'Password set successfully via LDAP Gateway!';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setLdapPassword('');
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'LDAP Gateway password set failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'LDAP Gateway password set failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'LDAP Gateway password set failed'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'LDAP Gateway password set failed', dismissible: true });
 		} finally {
 			setLdapLoading(false);
 		}
@@ -2012,11 +2002,11 @@ export { changePassword, handleChangePassword };`;
 		try {
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
-			v4ToastManager.showSuccess('Code copied to clipboard!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
 			logger.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
-			v4ToastManager.showError('Failed to copy code to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy code to clipboard', dismissible: true });
 		}
 	}, []);
 
@@ -4051,7 +4041,7 @@ export { changePassword, handleChangePassword };`;
 						onTokenGenerated={() => {
 							// Token is now managed by useGlobalWorkerToken hook
 							// No need to manually set state
-							v4ToastManager.showSuccess('Worker token generated successfully');
+							modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token generated successfully', duration: 4000 });
 						}}
 						environmentId={environmentId}
 					/>

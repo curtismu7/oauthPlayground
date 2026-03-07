@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '../utils/logger';
 import { safeJsonParse } from '../utils/secureJson';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export type ClientAuthMethod =
 	| 'client_secret_post'
@@ -242,7 +242,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Configuration is required';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 			return;
 		}
 
@@ -251,7 +251,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Client ID is required';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 			return;
 		}
 
@@ -259,7 +259,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Client secret or private key is required for authentication';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 			return;
 		}
 
@@ -365,7 +365,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				logger.error('useClientCredentialsFlow', `Token request failed`, errorMsg);
 				logger.error('useClientCredentialsFlow', `Response`, responseData);
 				setError(errorMsg);
-				v4ToastManager.showError(`Token request failed: ${errorMsg}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token request failed: ${errorMsg}`, dismissible: true });
 				return;
 			}
 
@@ -431,7 +431,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			console.log(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
 			console.log(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`);
 
-			v4ToastManager.showSuccess('Access token received successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Access token received successfully!', duration: 4000 });
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.name === 'AbortError') {
@@ -440,11 +440,11 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				}
 				logger.error('useClientCredentialsFlow', `Token request failed`, error.message);
 				setError(error.message);
-				v4ToastManager.showError(`Token request failed: ${error.message}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token request failed: ${error.message}`, dismissible: true });
 			} else {
 				logger.error('useClientCredentialsFlow', `Unknown error`, undefined, error as Error);
 				setError('Unknown error occurred');
-				v4ToastManager.showError('An unknown error occurred');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'An unknown error occurred', dismissible: true });
 			}
 		} finally {
 			setIsRequesting(false);
@@ -454,12 +454,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 	// Introspect token (for opaque tokens or validation)
 	const introspectToken = useCallback(async () => {
 		if (!tokens || !config) {
-			v4ToastManager.showError('No token available to introspect');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No token available to introspect', dismissible: true });
 			return;
 		}
 
 		console.log(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`);
-		v4ToastManager.showSuccess('Navigate to Token Management page for introspection');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Navigate to Token Management page for introspection', duration: 4000 });
 	}, [tokens, config]);
 
 	// Reset flow
@@ -477,7 +477,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			});
 		}
 
-		v4ToastManager.showSuccess('Flow reset');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Flow reset', duration: 4000 });
 	}, []);
 
 	// Format expiry time

@@ -18,7 +18,7 @@ import {
 	WorkerTokenResponse,
 } from '../../types/workerToken';
 import { logger } from '../../utils/logger';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
 const Container = styled.div`
@@ -303,12 +303,12 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			onCopy?.(token.access_token);
 
 			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
-			v4ToastManager.showCopySuccess('Access Token');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Access Token copied to clipboard', duration: 4000 });
 
 			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (error) {
 			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
-			v4ToastManager.showCopyError('Access Token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy Access Token', dismissible: true });
 		}
 	}, [token.access_token, onCopy]);
 
@@ -316,10 +316,10 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(value);
 			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
-			v4ToastManager.showCopySuccess(label);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 		} catch (error) {
 			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
-			v4ToastManager.showCopyError(label);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label}`, dismissible: true });
 		}
 	}, []);
 

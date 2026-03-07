@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { logger } from '../../utils/logger';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -232,7 +232,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 
 	const handleLookup = async () => {
 		if (!identifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token and environment ID first', dismissible: true });
 			return;
 		}
 		setLookupLoading(true);
@@ -254,13 +254,9 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 			});
 			if (result.user?.id) {
 				setUser(result.user as unknown as User);
-				v4ToastManager.showSuccess(
-					`User found: ${result.user.email || result.user.username || result.user.id}`
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: `User found: ${result.user.email || result.user.username || result.user.id}`, duration: 4000 });
 			} else {
-				v4ToastManager.showError(
-					`User not found with identifier: ${identifier}. Please check the username or email address.`
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `User not found with identifier: ${identifier}. Please check the username or email address.`, dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -270,9 +266,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				error as Error
 			);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to lookup user';
-			v4ToastManager.showError(
-				`${errorMessage}. Make sure the worker token has p1:read:user scope.`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${errorMessage}. Make sure the worker token has p1:read:user scope.`, dismissible: true });
 		} finally {
 			setLookupLoading(false);
 		}
@@ -280,7 +274,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 
 	const handleSetPassword = async () => {
 		if (!user || !password || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 		setLoading(true);
@@ -298,15 +292,15 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				const message = forceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully! User can now sign in with the new password.';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setPassword('');
 				// Clear success message after 5 seconds
 				setTimeout(() => setSuccess(false), 5000);
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Password set failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password set failed', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Password set failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password set failed', dismissible: true });
 		} finally {
 			setLoading(false);
 		}

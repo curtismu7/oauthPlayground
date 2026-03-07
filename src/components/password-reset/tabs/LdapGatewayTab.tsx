@@ -9,7 +9,7 @@ import {
 	FiKey,
 } from '../../../services/commonImportsService';
 import { setPasswordLdapGateway } from '../../../services/passwordResetService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordOptions } from '../shared/PasswordOptions';
@@ -53,10 +53,10 @@ export const LdapGatewayTab: React.FC<LdapGatewayTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -94,7 +94,7 @@ export const LdapGatewayTab: React.FC<LdapGatewayTabProps> = ({
 				const message = forceChange
 					? 'Password set successfully via LDAP Gateway! User will be required to change password on next sign-on.'
 					: 'Password set successfully via LDAP Gateway!';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setPassword('');
 				return;
 			}
