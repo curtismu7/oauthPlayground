@@ -877,9 +877,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				localStorage.removeItem('worker_token_expires_at');
 
 				// Show both toast and modal for authentication errors
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token expired. Please generate a new worker token.', {
+				modernMessaging.showBanner({ 
+					type: 'error', 
+					title: 'Error', 
+					message: 'Worker token expired. Please generate a new worker token.',
 					duration: 8000,
-				}, dismissible: true });
+					dismissible: true 
+				});
 				setShowAuthErrorModal(true);
 				logger.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
 					clientId,
@@ -890,9 +894,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				errorMessage.includes('CORS') ||
 				errorMessage.includes('Access-Control-Allow-Origin')
 			) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error. Please check your connection and try again.', {
+				modernMessaging.showBanner({ 
+					type: 'error', 
+					title: 'Error', 
+					message: 'Network error. Please check your connection and try again.',
 					duration: 6000,
-				}, dismissible: true });
+					dismissible: true 
+				});
 				logger.error('CONFIG-CHECKER', 'CORS/Network error', {
 					clientId,
 					selectedAppType,

@@ -399,9 +399,14 @@ const OIDCOverviewV7: React.FC = () => {
 	const handleFlowClick = useCallback(
 		(flow: OIDCFlow) => {
 			if (flow.deprecated) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `${flow.title} is deprecated`,
-					{ description: 'This flow is deprecated and should not be used in new applications.' },
-					{ duration: 4000 }, dismissible: true });
+				modernMessaging.showBanner({ 
+					type: 'warning', 
+					title: 'Warning', 
+					message: `${flow.title} is deprecated`,
+					description: 'This flow is deprecated and should not be used in new applications.',
+					duration: 4000, 
+					dismissible: true 
+				});
 			}
 
 			// Navigate with OIDC context
