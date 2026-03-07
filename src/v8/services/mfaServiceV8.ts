@@ -5181,6 +5181,7 @@ export class MFAServiceV8 {
 					Authorization: `Bearer ***REDACTED***`,
 				},
 				body: null,
+				revealableFields: { headers: { Authorization: `Bearer ${accessToken}` } },
 				step: 'mfa-List Device Authentication Policies',
 				flowType: 'mfa',
 			});
