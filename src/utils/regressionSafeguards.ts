@@ -59,7 +59,7 @@ export const DEFAULT_SAFEGUARD_CONFIG: SafeguardConfig = {
 export class RegressionSafeguards {
 	private config: SafeguardConfig;
 	private testResults: Map<string, RegressionTestSuite> = new Map();
-	private errorLog: Array<{ timestamp: number; error: string; context: any }> = [];
+	private errorLog: Array<{ timestamp: number; error: string; context: unknown }> = [];
 
 	constructor(config: SafeguardConfig = DEFAULT_SAFEGUARD_CONFIG) {
 		this.config = config;
@@ -122,7 +122,7 @@ export class RegressionSafeguards {
 	/**
 	 * Log error with context
 	 */
-	private logError(message: string, context: any): void {
+	private logError(message: string, context: unknown): void {
 		const errorEntry = {
 			timestamp: Date.now(),
 			error: message,
@@ -141,7 +141,7 @@ export class RegressionSafeguards {
 	/**
 	 * Log performance metrics
 	 */
-	private logPerformance(metric: string, data: any): void {
+	private logPerformance(metric: string, data: unknown): void {
 		console.log(`[Performance Monitor] ${metric}:`, data);
 	}
 
@@ -151,7 +151,7 @@ export class RegressionSafeguards {
 	validateOAuth2Compliance(
 		flowName: string,
 		credentials: StepCredentials,
-		tokens: any
+		tokens: unknown
 	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'oauth2-compliance';
@@ -214,7 +214,7 @@ export class RegressionSafeguards {
 	validateOIDCCompliance(
 		flowName: string,
 		credentials: StepCredentials,
-		tokens: any
+		tokens: unknown
 	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'oidc-compliance';
@@ -240,7 +240,7 @@ export class RegressionSafeguards {
 					if (!decoded.payload.aud) {
 						errors.push('ID token missing audience claim');
 					}
-				} catch (_e) {
+				} catch {
 					errors.push('Invalid ID token format');
 				}
 			}
@@ -280,7 +280,7 @@ export class RegressionSafeguards {
 	validateFlowSpecific(
 		flowName: string,
 		credentials: StepCredentials,
-		_tokens: any
+		_tokens: unknown
 	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'flow-specific';
@@ -356,7 +356,7 @@ export class RegressionSafeguards {
 	async runValidationSuite(
 		flowName: string,
 		credentials: StepCredentials,
-		tokens: any
+		tokens: unknown
 	): Promise<RegressionTestSuite> {
 		console.log(`[Regression Safeguards] Running validation suite for ${flowName}`);
 
@@ -422,7 +422,7 @@ export class RegressionSafeguards {
 	/**
 	 * Decode JWT token
 	 */
-	private decodeJWT(token: string): { header: any; payload: any; signature: string } {
+	private decodeJWT(token: string): { header: Record<string, unknown>; payload: Record<string, unknown>; signature: string } {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');
@@ -452,7 +452,7 @@ export class RegressionSafeguards {
 	/**
 	 * Get error log
 	 */
-	getErrorLog(): Array<{ timestamp: number; error: string; context: any }> {
+	getErrorLog(): Array<{ timestamp: number; error: string; context: unknown }> {
 		return this.errorLog;
 	}
 
