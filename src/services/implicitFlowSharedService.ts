@@ -126,6 +126,7 @@ export class SessionStorageManager {
 	): PingOneApplicationState | null {
 		const key = `${variant}-implicit-${version}-app-config`;
 		const stored = sessionStorage.getItem(key);
+		// educational-ok: parsing own stored JSON from session storage
 		return stored ? JSON.parse(stored) : null;
 	}
 }

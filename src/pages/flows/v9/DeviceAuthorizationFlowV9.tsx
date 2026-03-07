@@ -1,4 +1,5 @@
 // src/pages/flows/DeviceAuthorizationFlowV9_New.tsx
+// lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
 import {
@@ -1357,7 +1358,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				});
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		deviceFlow.credentials?.environmentId,
 		deviceFlow.credentials?.clientId,

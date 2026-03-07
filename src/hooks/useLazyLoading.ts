@@ -7,7 +7,7 @@ export interface LazyLoadingState {
 	isLoading: boolean;
 	error: Error | null;
 	progress: number;
-	component: React.ComponentType<any> | null;
+	component: React.ComponentType<Record<string, unknown>> | null;
 	loadTime: number | null;
 }
 
@@ -19,7 +19,7 @@ export interface UseLazyLoadingConfig {
 	maxRetries?: number;
 	retryDelay?: number;
 	onLoadStart?: () => void;
-	onLoadComplete?: (component: React.ComponentType<any>) => void;
+	onLoadComplete?: (component: React.ComponentType<Record<string, unknown>>) => void;
 	onLoadError?: (error: Error) => void;
 }
 
@@ -232,7 +232,7 @@ export const usePreloadFlows = (flowTypes: string[]) => {
 
 // Hook for lazy loading with Suspense
 export const useLazyComponent = (flowType: string) => {
-	const [component, setComponent] = useState<React.ComponentType<any> | null>(null);
+	const [component, setComponent] = useState<React.ComponentType<Record<string, unknown>> | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
 

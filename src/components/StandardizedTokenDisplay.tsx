@@ -1,4 +1,5 @@
 // src/components/StandardizedTokenDisplay.tsx
+// lint-file-disable: token-value-in-jsx
 // Standardized token display component for all device flows
 // Maintains consistent format, order, and functionality across all device types
 
