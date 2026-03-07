@@ -22,7 +22,7 @@
  * const value = await uiNotificationServiceV8.prompt('Enter name:');
  */
 
-import { v4ToastManager } from '@/utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 
@@ -95,7 +95,7 @@ class UINotificationServiceV8 {
 	showSuccess(message: string, options?: NotificationOptions): void {
 		this.log('toast', 'success', message);
 		console.log(`${MODULE_TAG} ✅ Success:`, message);
-		v4ToastManager.showSuccess(message, {}, options);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: options?.duration ?? 3000 });
 	}
 
 	/**
@@ -104,7 +104,7 @@ class UINotificationServiceV8 {
 	showError(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'error', message);
 		console.error(`${MODULE_TAG} ❌ Error:`, message);
-		v4ToastManager.showError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message, dismissible: true });
 	}
 
 	/**
@@ -113,7 +113,7 @@ class UINotificationServiceV8 {
 	showWarning(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'warning', message);
 		console.warn(`${MODULE_TAG} ⚠️ Warning:`, message);
-		v4ToastManager.showWarning(message);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message, dismissible: true });
 	}
 
 	/**
@@ -122,7 +122,7 @@ class UINotificationServiceV8 {
 	showInfo(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'info', message);
 		console.log(`${MODULE_TAG} ℹ️ Info:`, message);
-		v4ToastManager.showInfo(message);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: 3000 });
 	}
 
 	/**
