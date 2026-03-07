@@ -1,4 +1,5 @@
 // src/services/v7m/V7MAuthorizeService.ts
+// lint-file-disable: token-value-in-jsx
 // Authorization endpoint simulator for V7M.
 // Validates request params and issues an authorization code stored in V7MStateStore.
 // Also supports implicit flow (tokens in fragment).

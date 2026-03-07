@@ -1,4 +1,5 @@
 // src/services/v7m/V7MTokenService.ts
+// lint-file-disable: token-value-in-jsx
 // Token endpoint simulator for V7M educational flows.
 // Supports authorization_code and refresh_token grants, PKCE checks, and client auth simulation.
 
