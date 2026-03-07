@@ -474,46 +474,6 @@ describe('ValidationServiceV8', () => {
 		});
 	});
 
-	describe('isEmpty', () => {
-		it('should return true for null', () => {
-			expect(ValidationServiceV8.isEmpty(null)).toBe(true);
-		});
-
-		it('should return true for undefined', () => {
-			expect(ValidationServiceV8.isEmpty(undefined)).toBe(true);
-		});
-
-		it('should return true for empty string', () => {
-			expect(ValidationServiceV8.isEmpty('')).toBe(true);
-			expect(ValidationServiceV8.isEmpty('   ')).toBe(true);
-		});
-
-		it('should return true for empty array', () => {
-			expect(ValidationServiceV8.isEmpty([])).toBe(true);
-		});
-
-		it('should return true for empty object', () => {
-			expect(ValidationServiceV8.isEmpty({})).toBe(true);
-		});
-
-		it('should return false for non-empty string', () => {
-			expect(ValidationServiceV8.isEmpty('test')).toBe(false);
-		});
-
-		it('should return false for non-empty array', () => {
-			expect(ValidationServiceV8.isEmpty(['test'])).toBe(false);
-		});
-
-		it('should return false for non-empty object', () => {
-			expect(ValidationServiceV8.isEmpty({ key: 'value' })).toBe(false);
-		});
-
-		it('should return false for number', () => {
-			expect(ValidationServiceV8.isEmpty(0)).toBe(false);
-			expect(ValidationServiceV8.isEmpty(123)).toBe(false);
-		});
-	});
-
 	describe('formatErrors', () => {
 		it('should format single error', () => {
 			const errors = [

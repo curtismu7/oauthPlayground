@@ -15,7 +15,7 @@ import {
 	styled,
 } from '../../../services/commonImportsService';
 import { logger } from '../../../utils/logger';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const CodeGeneratorSection = styled.div`
 	background: #F9FAFB;
@@ -175,11 +175,11 @@ export const CodeGenerator: React.FC<CodeGeneratorProps> = ({ code, onGenerate }
 		try {
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
-			v4ToastManager.showSuccess('Code copied to clipboard!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
 			logger.error('CodeGenerator', 'Failed to copy code:', undefined, error as Error);
-			v4ToastManager.showError('Failed to copy code to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy code to clipboard', dismissible: true });
 		}
 	};
 

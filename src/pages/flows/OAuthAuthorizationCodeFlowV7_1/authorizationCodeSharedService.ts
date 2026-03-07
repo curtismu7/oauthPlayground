@@ -11,7 +11,7 @@
 import { useCallback, useState } from 'react';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { validateForStep } from './credentialsValidationService';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
@@ -85,14 +85,14 @@ export class AuthzFlowToastManager {
 	 * Show success toast for PingOne config save
 	 */
 	static showPingOneConfigSaved(): void {
-		v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne configuration saved successfully!', duration: 4000 });
 	}
 
 	/**
 	 * Show success toast for credentials save
 	 */
 	static showCredentialsSaved(): void {
-		v4ToastManager.showSuccess('Credentials saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials saved successfully!', duration: 4000 });
 	}
 
 	/**
@@ -100,14 +100,14 @@ export class AuthzFlowToastManager {
 	 */
 	static showCredentialsSaveFailed(error?: Error): void {
 		console.error('[AuthzFlowToastManager] Failed to save credentials:', error);
-		v4ToastManager.showError('Failed to save credentials');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for redirect URI save
 	 */
 	static showRedirectUriSaved(): void {
-		v4ToastManager.showSuccess('Redirect URI saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Redirect URI saved successfully!', duration: 4000 });
 	}
 
 	/**
@@ -115,14 +115,14 @@ export class AuthzFlowToastManager {
 	 */
 	static showRedirectUriSaveFailed(error?: Error): void {
 		console.error('[AuthzFlowToastManager] Failed to save redirect URI:', error);
-		v4ToastManager.showError('Failed to save redirect URI');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save redirect URI', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for PKCE generation
 	 */
 	static showPKCEGenerated(): void {
-		v4ToastManager.showSuccess('PKCE parameters generated successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'PKCE parameters generated successfully!', duration: 4000 });
 	}
 
 	/**
@@ -130,14 +130,14 @@ export class AuthzFlowToastManager {
 	 */
 	static showPKCEGenerationFailed(error?: Error): void {
 		console.error('[AuthzFlowToastManager] Failed to generate PKCE:', error);
-		v4ToastManager.showError('Failed to generate PKCE parameters');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE parameters', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for authorization URL generation
 	 */
 	static showAuthUrlGenerated(): void {
-		v4ToastManager.showSuccess('Authorization URL generated successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization URL generated successfully!', duration: 4000 });
 	}
 
 	/**
@@ -145,21 +145,21 @@ export class AuthzFlowToastManager {
 	 */
 	static showAuthUrlGenerationFailed(error: Error | unknown): void {
 		const message = error instanceof Error ? error.message : 'Failed to generate authorization URL';
-		v4ToastManager.showError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 	}
 
 	/**
 	 * Show success toast for authorization code received
 	 */
 	static showAuthCodeReceived(): void {
-		v4ToastManager.showSuccess('Authorization code received successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code received successfully!', duration: 4000 });
 	}
 
 	/**
 	 * Show success toast for token exchange
 	 */
 	static showTokenExchangeSuccess(): void {
-		v4ToastManager.showSuccess('Tokens exchanged successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens exchanged successfully!', duration: 4000 });
 	}
 
 	/**
@@ -167,35 +167,35 @@ export class AuthzFlowToastManager {
 	 */
 	static showTokenExchangeFailed(error?: Error): void {
 		console.error('[AuthzFlowToastManager] Token exchange failed:', error);
-		v4ToastManager.showError('Failed to exchange authorization code for tokens');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to exchange authorization code for tokens', dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing credentials
 	 */
 	static showMissingCredentials(): void {
-		v4ToastManager.showError('Complete above action: Fill in Client ID and Environment ID first.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Fill in Client ID and Environment ID first.', dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing PKCE
 	 */
 	static showMissingPKCE(): void {
-		v4ToastManager.showError('Complete above action: Generate PKCE parameters first.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Generate PKCE parameters first.', dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing auth URL
 	 */
 	static showMissingAuthUrl(): void {
-		v4ToastManager.showError('Complete above action: Generate the authorization URL first.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Generate the authorization URL first.', dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing auth code
 	 */
 	static showMissingAuthCode(): void {
-		v4ToastManager.showError('Complete above action: Complete authorization to receive the code.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Complete authorization to receive the code.', dismissible: true });
 	}
 
 	/**
@@ -203,14 +203,14 @@ export class AuthzFlowToastManager {
 	 */
 	static showValidationError(missingFields: string[]): void {
 		const fieldNames = missingFields.join(', ');
-		v4ToastManager.showError(`Please fill in required fields: ${fieldNames}`);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Please fill in required fields: ${fieldNames}`, dismissible: true });
 	}
 
 	/**
 	 * Show step completion error
 	 */
 	static showStepIncomplete(): void {
-		v4ToastManager.showError('Complete the action above to continue.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete the action above to continue.', dismissible: true });
 	}
 }
 
@@ -631,7 +631,7 @@ export class AuthzFlowCodeProcessor {
 
 		if (error) {
 			console.error('[CodeProcessor] OAuth error:', error, errorDescription);
-			v4ToastManager.showError(`Authorization failed: ${errorDescription || error}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization failed: ${errorDescription || error}`, dismissible: true });
 			return { code: null, state: null, error };
 		}
 

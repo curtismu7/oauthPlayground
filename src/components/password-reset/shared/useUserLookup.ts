@@ -4,7 +4,7 @@
 import { useCallback, useState } from 'react';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { logger } from '../../../utils/logger';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 // PingOneUser type definition
 export interface PingOneUser {
 	id: string;
@@ -41,13 +41,13 @@ export const useUserLookup = (environmentId: string, workerToken: string): UseUs
 					identifierLength: identifier?.length || 0,
 					workerTokenLength: workerToken?.length || 0,
 				});
-				v4ToastManager.showError(`Please configure: ${missing.join(', ')}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Please configure: ${missing.join(', ')}`, dismissible: true });
 				return;
 			}
 
 			const trimmedIdentifier = identifier.trim();
 			if (!trimmedIdentifier) {
-				v4ToastManager.showError('Please enter a username, email, or user ID');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username, email, or user ID', dismissible: true });
 				return;
 			}
 
@@ -68,13 +68,13 @@ export const useUserLookup = (environmentId: string, workerToken: string): UseUs
 
 				if (result.user) {
 					setUser(result.user);
-					v4ToastManager.showSuccess('User found successfully');
+					modernMessaging.showFooterMessage({ type: 'status', message: 'User found successfully', duration: 4000 });
 				} else {
-					v4ToastManager.showError('User not found');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User not found', dismissible: true });
 					setUser(null);
 				}
 			} catch (error) {
-				v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to lookup user', dismissible: true });
 				setUser(null);
 			} finally {
 				setLoading(false);

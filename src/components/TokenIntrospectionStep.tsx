@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { themeService } from '../services/themeService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const CollapsibleSection = styled.div`
@@ -260,7 +260,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 	}, []);
 
 	const getFlowSpecificText = () => {

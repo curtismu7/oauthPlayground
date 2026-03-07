@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 
 const Container = styled.div`
@@ -214,7 +214,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 		credentialBackupService.clearAllBackups();
 		loadBackupData();
 		onRefresh?.();
-		v4ToastManager.showSuccess('All credential backups cleared successfully');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'All credential backups cleared successfully', duration: 4000 });
 		console.log(
 			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credential backups cleared successfully in CredentialBackupManager`
 		);
