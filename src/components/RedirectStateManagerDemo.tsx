@@ -22,13 +22,13 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const Section = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -37,7 +37,7 @@ const Section = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
 `;
 
@@ -59,28 +59,28 @@ const Button = styled.button<{ variant?: 'primary' | 'success' | 'danger' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: #2563eb; }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: #059669; }
+          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background: #dc2626; }
+          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
-          &:hover { background: #e5e7eb; }
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
         `;
 		}
 	}}
@@ -100,28 +100,28 @@ const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #166534;
+          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #991b1b;
+          background: V9_COLORS.BG.ERROR;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          color: #1e40af;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
         `;
 		}
 	}}
 `;
 
 const CodeBlock = styled.pre`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   padding: 1rem;
   font-size: 0.75rem;
@@ -259,7 +259,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 		<Container>
 			<Header>
 				<Title>RedirectStateManager Demo</Title>
-				<p style={{ color: '#6b7280', margin: 0 }}>
+				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
 					Demonstration of flow state preservation across OAuth redirects
 				</p>
 			</Header>
@@ -291,7 +291,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 
 			<Section>
 				<SectionTitle>State Management Actions</SectionTitle>
-				<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
 					Simulate the OAuth redirect flow with state preservation:
 				</p>
 
@@ -317,7 +317,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 			{preservedState && (
 				<Section>
 					<SectionTitle>Restored Flow State</SectionTitle>
-					<p style={{ color: '#059669', marginBottom: '1rem' }}>
+					<p style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginBottom: '1rem' }}>
 						✅ State successfully preserved and restored across redirect!
 					</p>
 					<CodeBlock>{JSON.stringify(preservedState, null, 2)}</CodeBlock>

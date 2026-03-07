@@ -16,7 +16,7 @@ import {
 import { logger } from '../utils/logger';
 
 const CallbackUrlContainer = styled.div`
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 50%, V9_COLORS.BG.GRAY_LIGHT 100%);
   border: 2px solid #0ea5e9;
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -45,16 +45,16 @@ const CallbackUrlHeader = styled.div`
   margin-bottom: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%) !important;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #2563eb;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
   position: relative;
   z-index: 1;
   
   &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%) !important;
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
     transform: translateY(-1px);
   }
@@ -63,13 +63,13 @@ const CallbackUrlHeader = styled.div`
 const CallbackUrlTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const ChevronIcon = styled.div`
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-size: 1.25rem;
   transition: transform 0.2s ease;
 `;
@@ -89,8 +89,8 @@ const UrlDisplay = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: V9_COLORS.TEXT.WHITE;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 0.75rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -99,7 +99,7 @@ const UrlDisplay = styled.div`
 
 const UrlText = styled.code`
   flex: 1;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   word-break: break-all;
 `;
 
@@ -108,17 +108,17 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem;
-  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? '#d1d5db' : '#3b82f6')};
+  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE')};
   border-radius: 0.375rem;
-  background: ${({ $variant }) => ($variant === 'copy' ? '#ffffff' : '#3b82f6')};
-  color: ${({ $variant }) => ($variant === 'copy' ? '#374151' : '#ffffff')};
+  background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.PRIMARY.BLUE')};
+  color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'copy' ? '#f9fafb' : '#2563eb')};
-    border-color: ${({ $variant }) => ($variant === 'copy' ? '#9ca3af' : '#1d4ed8')};
+    background: ${({ $variant }) => ($variant === 'copy' ? '#f9fafb' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    border-color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   }
 
   &:disabled {
@@ -128,15 +128,15 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
 `;
 
 const Description = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
 `;
 
 const WarningBox = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 0.5rem;
   padding: 1rem;
   display: flex;
@@ -145,7 +145,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-  color: #d97706;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   font-size: 1.25rem;
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -158,20 +158,20 @@ const WarningContent = styled.div`
 const WarningTitle = styled.h4`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0 0 0.25rem 0;
 `;
 
 const WarningText = styled.p`
   font-size: 0.875rem;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0;
   line-height: 1.5;
 `;
 
 const SetupInstructions = styled.div`
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   margin-top: 1rem;
 `;
@@ -179,7 +179,7 @@ const SetupInstructions = styled.div`
 const SetupTitle = styled.h4`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -188,7 +188,7 @@ const SetupTitle = styled.h4`
 
 const SetupList = styled.ol`
   font-size: 0.875rem;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin: 0;
   padding-left: 1.25rem;
   line-height: 1.5;

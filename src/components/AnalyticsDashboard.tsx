@@ -47,7 +47,7 @@ const DashboardIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;
@@ -67,7 +67,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   border: 1px solid ${({ $variant, theme }) =>
 		$variant === 'primary' ? theme.colors.primary : theme.colors.gray300};
   background: ${({ $variant, theme }) => ($variant === 'primary' ? theme.colors.primary : 'white')};
-  color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#374151')};
+  color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -506,7 +506,7 @@ export const AnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<BarChart3 size={48} style={{ marginBottom: '1rem' }} />
 							<p>User engagement chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -521,7 +521,7 @@ export const AnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiTrendingUp style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Flow performance chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								Integration with charting library required
 							</p>
 						</div>

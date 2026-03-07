@@ -14,7 +14,7 @@ import { logger } from '../utils/logger';
 
 // Amazon Echo Show Main Container - Realistic Physical Device
 const EchoShowContainer = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0;
   padding: 0;
   margin: 1rem 0;
@@ -30,7 +30,7 @@ const EchoShowContainer = styled.div`
 
 // Physical Echo Show Frame - Black Device with Fabric Sides
 const EchoShowFrame = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   border-radius: 0.625rem;
   padding: 0.375rem;
   box-shadow: 
@@ -90,7 +90,7 @@ const QRCodeContainer = styled.div`
   justify-content: center;
   margin-bottom: 1rem;
   padding: 0.5rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 `;
@@ -143,7 +143,7 @@ const EchoScreen = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   overflow: hidden;
   
   /* Weather background - sky with clouds */
@@ -221,7 +221,7 @@ const StatusIndicator = styled.div<{ $active: boolean }>`
 const DisplayTitle = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   font-family: 'Amazon Ember', 'Helvetica Neue', sans-serif;
 `;
@@ -306,7 +306,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   font-family: 'Amazon Ember', 'Helvetica Neue', sans-serif;
 `;
@@ -327,7 +327,7 @@ const ControlButtons = styled.div`
 
 const ControlButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? '#ff9900' : 'rgba(255, 153, 0, 0.2)')};
-  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#ff9900')};
+  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : '#ff9900')};
   border: 1px solid ${(props) => (props.$variant === 'primary' ? '#ff9900' : 'rgba(255, 153, 0, 0.4)')};
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;

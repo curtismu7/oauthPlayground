@@ -14,7 +14,7 @@ import { logger } from '../utils/logger';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0;
   padding: 0;
   margin: 1rem 0;
@@ -59,7 +59,7 @@ const TVFrame = styled.div`
 
 // Apple TV Screen - Realistic tvOS Interface with Movie Background
 const TVScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #0a0a0a 100%);
   border: none;
   border-radius: 0.1875rem;
   padding: 1rem;
@@ -71,7 +71,7 @@ const TVScreen = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   overflow: hidden;
   
   /* Forest Gump movie poster background - iconic poster with Tom Hanks on park bench */
@@ -116,7 +116,7 @@ const PlaybackProgress = styled.div`
 const ProgressBar = styled.div`
   height: 100%;
   width: 35%;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 2px;
 `;
 
@@ -146,7 +146,7 @@ const PlayButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   font-size: 0.75rem;
   
@@ -159,7 +159,7 @@ const PlayButton = styled.button`
 const AppleTVBox = styled.div`
   width: 120px;
   height: 40px;
-  background: linear-gradient(135deg, #1d1d1f 0%, #000000 100%);
+  background: linear-gradient(135deg, #1d1d1f 0%, V9_COLORS.TEXT.BLACK 100%);
   border-radius: 0.25rem;
   margin: 0.5rem 0;
   box-shadow: 
@@ -308,7 +308,7 @@ const StatusIndicator = styled.div<{ $active: boolean }>`
 const TVTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   letter-spacing: -0.02em;
@@ -317,7 +317,7 @@ const TVTitle = styled.div`
 
 const TVSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 1.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   font-weight: 600;
@@ -327,7 +327,7 @@ const TVSubtitle = styled.div`
 // Apple TV User Code Display - Clean, Modern
 const UserCodeDisplay = styled.div`
   background: rgba(0, 0, 0, 0.7);
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   font-size: 2rem;
   font-weight: 700;
@@ -346,7 +346,7 @@ const UserCodeDisplay = styled.div`
 `;
 
 const UserCodeLabel = styled.div`
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-size: 0.75rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
@@ -400,7 +400,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
@@ -408,7 +408,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);

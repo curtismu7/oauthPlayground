@@ -2,10 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { PageTitle } from '../components/PageTitle';
 import { SecurityAnalyticsDashboard } from '../components/SecurityAnalyticsDashboard';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%);
   padding: 2rem 0;
 `;
 

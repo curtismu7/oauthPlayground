@@ -21,7 +21,7 @@ export const PageHeader = styled.div`
 
 export const TokenDisplay = styled.pre`
   background-color: #f0fdf4; /* Light green for generated content */
-  border: 1px solid #16a34a;
+  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
   padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
   border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
   overflow-x: auto;
@@ -38,11 +38,11 @@ export const TokenDisplay = styled.pre`
 `;
 
 export const TokenHeader = styled.pre`
-  background-color: #000000;
-  color: #ffffff;
+  background-color: V9_COLORS.TEXT.BLACK;
+  color: V9_COLORS.TEXT.WHITE;
   padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
   border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
-  border: 2px solid #374151;
+  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -54,16 +54,16 @@ export const TokenHeader = styled.pre`
   
   code {
     font-family: inherit;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
   }
 `;
 
 export const TokenPayload = styled.pre`
-  background-color: #ffffff;
-  color: #000000;
+  background-color: V9_COLORS.TEXT.WHITE;
+  color: V9_COLORS.TEXT.BLACK;
   padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
   border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -75,7 +75,7 @@ export const TokenPayload = styled.pre`
   
   code {
     font-family: inherit;
-    color: #000000;
+    color: V9_COLORS.TEXT.BLACK;
   }
 `;
 

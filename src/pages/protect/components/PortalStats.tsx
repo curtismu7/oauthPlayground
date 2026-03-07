@@ -18,6 +18,7 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -35,7 +36,7 @@ const StatCard = styled.div`
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -191,7 +192,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 							<FiActivity />
 						</StatIcon>
 						<StatTitle>Risk Level</StatTitle>
-						<StatValue style={{ color: '#10b981' }}>LOW</StatValue>
+						<StatValue style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>LOW</StatValue>
 						<StatDescription>Your login attempt passed all security checks</StatDescription>
 					</StatCard>
 				</StatsGrid>

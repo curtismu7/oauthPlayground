@@ -4,6 +4,7 @@ import { FiAlertCircle, FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Animation for loading spinner
 const spin = keyframes`
@@ -40,10 +41,10 @@ const IconContainer = styled.div<{ $success: boolean; $error: boolean }>`
   margin: 0 auto 2rem;
   background: ${({ $success, $error }) =>
 		$success
-			? 'linear-gradient(135deg, #10b981, #059669)'
+			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK)'
 			: $error
-				? 'linear-gradient(135deg, #ef4444, #dc2626)'
-				: 'linear-gradient(135deg, #3b82f6, #2563eb)'};
+				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED, V9_COLORS.PRIMARY.RED_DARK)'
+				: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK)'};
 `;
 
 const Spinner = styled.div`
@@ -59,41 +60,41 @@ const Title = styled.h1<{ $success: boolean; $error: boolean }>`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
-  color: ${({ $success, $error }) => ($success ? '#10b981' : $error ? '#ef4444' : '#1f2937')};
+  color: ${({ $success, $error }) => ($success ? 'V9_COLORS.PRIMARY.GREEN' : $error ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_DARK')};
 `;
 
 const Message = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 `;
 
 const CodeDisplay = styled.div`
   background: #f0fdf4; /* Light green for generated content */
-  border: 2px solid #16a34a;
+  border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   word-break: break-all;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ErrorDetails = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
-  color: #991b1b;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
 `;
 
 const RedirectingMessage = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-style: italic;
 `;
 

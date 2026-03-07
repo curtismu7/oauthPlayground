@@ -18,7 +18,7 @@ const HelpHeader = styled.div`
 
 const HelpTitle = styled.h2`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.5rem;
 `;
 
@@ -30,20 +30,20 @@ const SearchContainer = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const TabContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 1.5rem;
 `;
 
@@ -54,11 +54,11 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   
   &:hover {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -72,24 +72,28 @@ const TutorialSection = styled.div`
 
 const TutorialTitle = styled.h3`
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
 
 const TutorialStep = styled.div<{ $active: boolean; $completed: boolean }>`
   border: 2px solid ${({ $active, $completed }) =>
-		$active ? '#3b82f6' : $completed ? '#22c55e' : '#e5e7eb'};
+		$active
+			? 'V9_COLORS.PRIMARY.BLUE'
+			: $completed
+				? 'V9_COLORS.PRIMARY.GREEN'
+				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
   background: ${({ $active, $completed }) =>
-		$active ? '#eff6ff' : $completed ? '#f0fdf4' : 'white'};
+		$active ? 'V9_COLORS.BG.GRAY_LIGHT' : $completed ? '#f0fdf4' : 'white'};
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -103,7 +107,7 @@ const StepHeader = styled.div`
 
 const StepTitle = styled.h4`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -121,18 +125,18 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
   ${({ $active, $completed }) => {
 		if ($completed) {
 			return `
-        background-color: #22c55e;
+        background-color: V9_COLORS.PRIMARY.GREEN;
         color: white;
       `;
 		} else if ($active) {
 			return `
-        background-color: #3b82f6;
+        background-color: V9_COLORS.PRIMARY.BLUE;
         color: white;
       `;
 		} else {
 			return `
-        background-color: #e5e7eb;
-        color: #6b7280;
+        background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+        color: V9_COLORS.TEXT.GRAY_MEDIUM;
       `;
 		}
 	}}
@@ -140,13 +144,13 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
 
 const StepDescription = styled.p`
   margin: 0 0 0.75rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -170,28 +174,28 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 		}
 	}}
 `;
 
 const FAQItem = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   margin-bottom: 0.75rem;
   overflow: hidden;
@@ -204,7 +208,7 @@ const FAQQuestion = styled.button`
   border: none;
   text-align: left;
   font-weight: 500;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -221,14 +225,14 @@ const FAQAnswer = styled.div<{ $expanded: boolean }>`
   overflow: hidden;
   transition: all 0.3s ease;
   background: white;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const TroubleshootingItem = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.375rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -236,7 +240,7 @@ const TroubleshootingItem = styled.div`
 
 const TroubleshootingTitle = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #991b1b;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
   font-weight: 600;
 `;
@@ -253,7 +257,7 @@ const TroubleshootingSolution = styled.div`
   border: 1px solid #86efac;
   border-radius: 0.25rem;
   padding: 0.75rem;
-  color: #166534;
+  color: V9_COLORS.PRIMARY.GREEN;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
@@ -487,7 +491,7 @@ const InteractiveHelpSystem: React.FC = () => {
 					style={{
 						width: '100%',
 						padding: '0.5rem',
-						border: '1px solid #d1d5db',
+						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '0.375rem',
 						fontSize: '0.875rem',
 					}}

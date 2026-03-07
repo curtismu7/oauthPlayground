@@ -17,7 +17,7 @@ export const ResultsSection = styled.div`
 export const ResultsHeading = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -25,6 +25,6 @@ export const ResultsHeading = styled.h3`
 
 export const HelperText = styled.p`
   font-size: 0.875rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
 `;

@@ -18,6 +18,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 import { PageLayoutService } from '../services/pageLayoutService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Card = FlowUIService.getMainCard();
 const InfoBox = FlowUIService.getInfoBox();
@@ -30,8 +31,8 @@ const ResourceGrid = styled.div`
 `;
 
 const ResourceCard = styled.a`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-decoration: none;
@@ -42,7 +43,7 @@ const ResourceCard = styled.a`
   gap: 0.75rem;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
   }
@@ -50,7 +51,7 @@ const ResourceCard = styled.a`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin: 0;
     display: flex;
     align-items: center;
@@ -58,14 +59,14 @@ const ResourceCard = styled.a`
   }
 
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-size: 0.875rem;
     line-height: 1.6;
     margin: 0;
   }
 
   .icon {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
     font-size: 1.5rem;
   }
 
@@ -74,7 +75,7 @@ const ResourceCard = styled.a`
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
     font-size: 0.875rem;
     font-weight: 500;
   }
@@ -87,7 +88,7 @@ const Header = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -100,7 +101,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;

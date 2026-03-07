@@ -19,17 +19,17 @@ interface CodeExamplesDisplayProps {
 }
 
 const Container = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 12px;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow: hidden;
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
 
 const Header = styled.div`
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 1rem 1.5rem;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -39,7 +39,7 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -53,10 +53,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
+	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 6px;
-	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -64,8 +64,8 @@ const LanguageButton = styled.button<{ $active: boolean }>`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
-		border-color: ${({ $active }) => ($active ? '#2563eb' : '#9ca3af')};
+		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
+		border-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
 	}
 `;
 
@@ -74,7 +74,7 @@ const CodeContainer = styled.div`
 `;
 
 const CodeHeader = styled.div`
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 0.75rem 1rem;
 	display: flex;
@@ -117,7 +117,7 @@ const ActionButton = styled.button`
 const CodeBlock = styled.pre`
 	margin: 0;
 	padding: 1.5rem;
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
@@ -135,14 +135,14 @@ const CodeBlock = styled.pre`
 	}
 
 	&::-webkit-scrollbar-track {
-		background: #2d3748;
+		background: V9_COLORS.TEXT.GRAY_MEDIUM;
 		border-radius: 6px;
 	}
 
 	&::-webkit-scrollbar-thumb {
 		background: #4a5568;
 		border-radius: 6px;
-		border: 2px solid #2d3748;
+		border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 
 	&::-webkit-scrollbar-thumb:hover {
@@ -150,35 +150,35 @@ const CodeBlock = styled.pre`
 	}
 
 	&::-webkit-scrollbar-corner {
-		background: #2d3748;
+		background: V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
 const DependenciesList = styled.div`
 	background: #f3f4f6;
 	padding: 0.75rem 1rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const DependenciesTitle = styled.strong`
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-right: 0.5rem;
 `;
 
 const EmptyState = styled.div`
 	padding: 3rem 1.5rem;
 	text-align: center;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorState = styled.div`
 	padding: 1.5rem;
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 8px;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	text-align: center;
 `;
 

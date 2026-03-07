@@ -41,7 +41,7 @@ const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   transition: all 0.3s ease;
   
   /* HP Smart App green interface with scanline effect */
@@ -68,7 +68,7 @@ const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`
     left: 1rem;
     font-size: 1.25rem;
     font-weight: 800;
-    color: #000000;
+    color: V9_COLORS.TEXT.BLACK;
     letter-spacing: 2px;
     z-index: 3;
   }
@@ -86,7 +86,7 @@ const PrinterHeader = styled.div<{ $authorized?: boolean }>`
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#ffffff')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   font-size: 0.875rem;
@@ -97,7 +97,7 @@ const PrinterHeader = styled.div<{ $authorized?: boolean }>`
 const PrinterTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#ffffff')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -142,17 +142,17 @@ const ToolbarButton = styled.button<{
   background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'move':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			case 'expand':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'back':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			case 'delete':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'forward':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   color: white;
@@ -175,7 +175,7 @@ const PrinterStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 14px;
   height: 14px;
   border-radius: 2px;
-  background: ${(props) => (props.$active ? props.$color : '#374151')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
   box-shadow: ${(props) => (props.$active ? `0 0 15px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'printerBlink 2s infinite' : 'none')};
   position: relative;
@@ -189,7 +189,7 @@ const PrinterStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 6px;
     height: 6px;
     border-radius: 1px;
-    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerBlink 1s infinite' : 'none')};
   }
   
@@ -212,7 +212,7 @@ const PrinterStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Printer Display Screen
 const PrinterDisplayScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1e293b 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
   border: 3px solid #22d3ee;
   border-radius: 0.75rem;
   padding: 2rem;
@@ -234,7 +234,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #f97316;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2.5rem;
@@ -252,8 +252,8 @@ const UserCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
@@ -295,13 +295,13 @@ const PrinterControlButton = styled.button<{
 			case 'primary':
 				return '#22d3ee';
 			case 'secondary':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			case 'success':
 				return '#f97316';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   color: white;
@@ -314,7 +314,7 @@ const PrinterControlButton = styled.button<{
 			case 'success':
 				return '#ea580c';
 			case 'danger':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
 				return '#4b5563';
 		}
@@ -348,25 +348,25 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
 				return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorized':
 				return '#ea580c';
 			case 'denied':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -387,7 +387,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -395,12 +395,12 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Printer Base
 const PrinterBase = styled.div`
-  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, #06b6d4 100%);
   height: 1.5rem;
   border-radius: 0 0 0.75rem 0.75rem;
   margin: 0 -2rem -2rem -2rem;
@@ -486,10 +486,19 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 
 				{/* Printer Status Indicators */}
 				<PrinterStatusIndicators>
-					<PrinterStatusIndicator $active={state.status === 'pending'} $color="#f59e0b" />
+					<PrinterStatusIndicator
+						$active={state.status === 'pending'}
+						$color="V9_COLORS.PRIMARY.YELLOW"
+					/>
 					<PrinterStatusIndicator $active={state.status === 'authorized'} $color="#f97316" />
-					<PrinterStatusIndicator $active={state.status === 'denied'} $color="#ef4444" />
-					<PrinterStatusIndicator $active={state.status === 'expired'} $color="#6b7280" />
+					<PrinterStatusIndicator
+						$active={state.status === 'denied'}
+						$color="V9_COLORS.PRIMARY.RED"
+					/>
+					<PrinterStatusIndicator
+						$active={state.status === 'expired'}
+						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+					/>
 				</PrinterStatusIndicators>
 
 				{/* HP Floating Toolbar */}
@@ -528,8 +537,8 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 							<QRCodeSVG
 								value={state.verificationUriComplete}
 								size={180}
-								bgColor="#ffffff"
-								fgColor="#000000"
+								bgColor="V9_COLORS.TEXT.WHITE"
+								fgColor="V9_COLORS.TEXT.BLACK"
 								level="M"
 								includeMargin={true}
 							/>
@@ -541,13 +550,14 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{state.verificationUri && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+							background:
+								'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 							borderRadius: '0.75rem',
 							padding: '0.75rem 1rem',
 							marginBottom: '1rem',
 							textAlign: 'center',
 							boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)',
-							border: '2px solid #1e40af',
+							border: '2px solid V9_COLORS.PRIMARY.BLUE_DARK',
 						}}
 					>
 						<PrinterControlButton
@@ -558,7 +568,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								padding: '0.75rem 1.5rem',
 								minWidth: '200px',
 								background: 'white',
-								color: '#2563eb',
+								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 								border: '2px solid white',
 								fontWeight: '700',
 								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
@@ -590,7 +600,8 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{state.status === 'authorized' && state.tokens && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+							background:
+								'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 							border: '3px solid #22d3ee',
 							borderRadius: '1rem',
 							padding: '2rem',
@@ -629,14 +640,14 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
 										HP OfficeJet Pro 9015e
 									</div>
-									<div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+									<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										All-in-One Printer • Ready
 									</div>
 								</div>
 							</div>
 							<div
 								style={{
-									background: '#10b981',
+									background: 'V9_COLORS.PRIMARY.GREEN',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -662,7 +673,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									background: 'white',
 									padding: '1rem',
 									borderRadius: '0.5rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									textAlign: 'center',
 								}}
 							>
@@ -670,27 +681,27 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 									Paper
 								</div>
-								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>Full</div>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>Full</div>
 							</div>
 							<div
 								style={{
 									background: 'white',
 									padding: '1rem',
 									borderRadius: '0.5rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									textAlign: 'center',
 								}}
 							>
 								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🖨️</div>
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>Ink</div>
-								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>85%</div>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>85%</div>
 							</div>
 							<div
 								style={{
 									background: 'white',
 									padding: '1rem',
 									borderRadius: '0.5rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									textAlign: 'center',
 								}}
 							>
@@ -698,7 +709,9 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 									WiFi
 								</div>
-								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>Connected</div>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+									Connected
+								</div>
 							</div>
 						</div>
 
@@ -708,7 +721,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								background: 'white',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								marginBottom: '1.5rem',
 							}}
 						>
@@ -727,8 +740,8 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								</h3>
 								<div
 									style={{
-										background: '#f0f9ff',
-										color: '#0369a1',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										color: 'V9_COLORS.PRIMARY.BLUE',
 										padding: '0.25rem 0.75rem',
 										borderRadius: '0.375rem',
 										fontSize: '0.75rem',
@@ -746,9 +759,9 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										alignItems: 'center',
 										gap: '0.75rem',
 										padding: '0.75rem',
-										background: '#f8fafc',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										borderRadius: '0.5rem',
-										border: '1px solid #e2e8f0',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div style={{ fontSize: '1.25rem' }}>📄</div>
@@ -756,14 +769,14 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Q4_Report_Final.pdf
 										</div>
-										<div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											From: john.doe@company.com • 12 pages
 										</div>
 									</div>
 									<div
 										style={{
-											background: '#fef3c7',
-											color: '#92400e',
+											background: 'V9_COLORS.BG.WARNING',
+											color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 											padding: '0.25rem 0.5rem',
 											borderRadius: '0.25rem',
 											fontSize: '0.75rem',
@@ -780,9 +793,9 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										alignItems: 'center',
 										gap: '0.75rem',
 										padding: '0.75rem',
-										background: '#f8fafc',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										borderRadius: '0.5rem',
-										border: '1px solid #e2e8f0',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div style={{ fontSize: '1.25rem' }}>📊</div>
@@ -790,14 +803,14 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Sales_Presentation.pptx
 										</div>
-										<div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											From: sarah.smith@company.com • 8 pages
 										</div>
 									</div>
 									<div
 										style={{
 											background: '#dbeafe',
-											color: '#1e40af',
+											color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 											padding: '0.25rem 0.5rem',
 											borderRadius: '0.25rem',
 											fontSize: '0.75rem',
@@ -866,7 +879,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(255, 255, 255, 0.95)"
-				borderColor="#e2e8f0"
+				borderColor="V9_COLORS.TEXT.GRAY_LIGHTER"
 				headerTextColor="#1e293b"
 			/>
 		</>

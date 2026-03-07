@@ -2,7 +2,7 @@ import { FiAlertTriangle } from '@icons';
 import type React from 'react';
 
 const cardStyle: React.CSSProperties = {
-	background: '#fff7ed',
+	background: 'V9_COLORS.TEXT.WHITE7ed',
 	border: '1px solid #fcd34d',
 	borderRadius: '16px',
 	padding: '24px 28px',
@@ -14,7 +14,7 @@ const headingStyle: React.CSSProperties = {
 	margin: '0 0 12px 0',
 	fontSize: '1.45rem',
 	fontWeight: 700,
-	color: '#0f172a',
+	color: 'V9_COLORS.TEXT.GRAY_DARK',
 };
 
 const gridStyle: React.CSSProperties = {
@@ -24,7 +24,7 @@ const gridStyle: React.CSSProperties = {
 };
 
 const blockStyle: React.CSSProperties = {
-	background: '#ffffff',
+	background: 'V9_COLORS.TEXT.WHITE',
 	borderRadius: '12px',
 	padding: '18px',
 	boxShadow: '0 12px 24px rgba(15, 23, 42, 0.06)',
@@ -41,10 +41,10 @@ const listStyle: React.CSSProperties = {
 const securityStyle: React.CSSProperties = {
 	marginTop: '24px',
 	background: '#fefce8',
-	border: '1px solid #facc15',
+	border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 	borderRadius: '12px',
 	padding: '18px',
-	color: '#92400e',
+	color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 };
 
 const ImplicitSafetySummary: React.FC = () => (
@@ -56,7 +56,7 @@ const ImplicitSafetySummary: React.FC = () => (
 					style={{
 						margin: '0 0 10px',
 						fontSize: '1.1rem',
-						color: 'var(--color-text-primary, #111827)',
+						color: 'var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK)',
 					}}
 				>
 					How It Works
@@ -74,7 +74,7 @@ const ImplicitSafetySummary: React.FC = () => (
 					style={{
 						margin: '0 0 10px',
 						fontSize: '1.1rem',
-						color: 'var(--color-text-primary, #111827)',
+						color: 'var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK)',
 					}}
 				>
 					When to Use

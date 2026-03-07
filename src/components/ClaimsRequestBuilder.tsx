@@ -34,14 +34,14 @@ const Header = styled.button`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem;
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-	border: 1px solid #bae6fd;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+		background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	}
 `;
 
@@ -53,53 +53,53 @@ const HeaderLeft = styled.div`
 
 const HeaderIcon = styled.div`
 	font-size: 1.25rem;
-	color: #0284c7;
+	color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const HeaderTitle = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	text-align: left;
 `;
 
 const HeaderSubtitle = styled.div`
 	font-size: 0.75rem;
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-align: left;
 	margin-top: 0.25rem;
 `;
 
 const Content = styled.div`
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
 	padding: 1.5rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const TabContainer = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 1.5rem;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: ${(props) => (props.$active ? '#0284c7' : '#6b7280')};
-	background: ${(props) => (props.$active ? '#f0f9ff' : 'transparent')};
+	color: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	background: ${(props) => (props.$active ? 'V9_COLORS.BG.GRAY_LIGHT' : 'transparent')};
 	border: none;
-	border-bottom: 2px solid ${(props) => (props.$active ? '#0284c7' : 'transparent')};
+	border-bottom: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
 	margin-bottom: -2px;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		color: #0284c7;
-		background: #f0f9ff;
+		color: V9_COLORS.PRIMARY.BLUE;
+		background: V9_COLORS.BG.GRAY_LIGHT;
 	}
 `;
 
@@ -117,20 +117,20 @@ const ClaimRow = styled.div`
 	align-items: center;
 	padding: 1rem;
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const ClaimInput = styled.input`
 	padding: 0.5rem 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', monospace;
 
 	&:focus {
 		outline: none;
-		border-color: #0284c7;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
 	}
 `;
@@ -142,21 +142,21 @@ const EssentialToggle = styled.button<{ $essential: boolean }>`
 	padding: 0.5rem 1rem;
 	font-size: 0.75rem;
 	font-weight: 500;
-	color: ${(props) => (props.$essential ? '#ffffff' : '#6b7280')};
-	background: ${(props) => (props.$essential ? '#dc2626' : '#ffffff')};
-	border: 1px solid ${(props) => (props.$essential ? '#dc2626' : '#d1d5db')};
+	color: ${(props) => (props.$essential ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	background: ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.WHITE')};
+	border: 1px solid ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.375rem;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$essential ? '#b91c1c' : '#f3f4f6')};
+		background: ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : '#f3f4f6')};
 	}
 `;
 
 const DeleteButton = styled.button`
 	padding: 0.5rem;
-	color: #ef4444;
+	color: V9_COLORS.PRIMARY.RED;
 	background: transparent;
 	border: none;
 	border-radius: 0.375rem;
@@ -164,7 +164,7 @@ const DeleteButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #fee2e2;
+		background: V9_COLORS.BG.ERROR;
 	}
 `;
 
@@ -176,8 +176,8 @@ const AddButton = styled.button`
 	padding: 0.875rem 1.25rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #ffffff;
-	background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+	color: V9_COLORS.TEXT.WHITE;
+	background: linear-gradient(135deg, #0ea5e9 0%, V9_COLORS.PRIMARY.BLUE 100%);
 	border: none;
 	border-radius: 0.5rem;
 	cursor: pointer;
@@ -185,7 +185,7 @@ const AddButton = styled.button`
 	box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2);
 
 	&:hover {
-		background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE 100%);
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 	}
@@ -201,23 +201,23 @@ const AddClaimHelper = styled.div`
 	gap: 0.5rem;
 	padding: 0.75rem 1rem;
 	margin-bottom: 0.75rem;
-	background: #f0f9ff;
-	border: 1px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.8125rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.5;
 	
 	svg {
 		flex-shrink: 0;
-		color: #0284c7;
+		color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const JSONPreview = styled.pre`
 	padding: 1rem;
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	line-height: 1.6;
@@ -235,7 +235,7 @@ const JSONPreview = styled.pre`
 	}
 	
 	.json-number {
-		color: #fbbf24; /* Amber for numbers */
+		color: V9_COLORS.PRIMARY.YELLOW_LIGHT; /* Amber for numbers */
 	}
 	
 	.json-boolean {
@@ -243,7 +243,7 @@ const JSONPreview = styled.pre`
 	}
 	
 	.json-null {
-		color: #f87171; /* Red for null */
+		color: V9_COLORS.PRIMARY.RED_LIGHT; /* Red for null */
 	}
 	
 	.json-punctuation {
@@ -328,11 +328,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${(props) => (props.$variant === 'success' ? '#f0fdf4' : '#eff6ff')};
-	border: 1px solid ${(props) => (props.$variant === 'success' ? '#bbf7d0' : '#bfdbfe')};
+	background: ${(props) => (props.$variant === 'success' ? '#f0fdf4' : 'V9_COLORS.BG.GRAY_LIGHT')};
+	border: 1px solid ${(props) => (props.$variant === 'success' ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: ${(props) => (props.$variant === 'success' ? '#166534' : '#1e40af')};
+	color: ${(props) => (props.$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	line-height: 1.5;
 	margin-bottom: 1rem;
 `;
@@ -340,8 +340,8 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 const CommonClaimsContainer = styled.div`
 	margin-bottom: 1.5rem;
 	padding: 1rem;
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border: 2px solid #fbbf24;
+	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
+	border: 2px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
 	border-radius: 0.75rem;
 `;
 
@@ -351,7 +351,7 @@ const CommonClaimsTitle = styled.div`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin-bottom: 0.75rem;
 `;
 
@@ -366,15 +366,15 @@ const DraggableClaim = styled.div<{ $isDragging?: boolean }>`
 	flex-direction: column;
 	padding: 0.75rem;
 	background: white;
-	border: 2px solid ${(props) => (props.$isDragging ? '#3b82f6' : '#e5e7eb')};
+	border: 2px solid ${(props) => (props.$isDragging ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
 	cursor: grab;
 	transition: all 0.2s;
 	opacity: ${(props) => (props.$isDragging ? 0.5 : 1)};
 
 	&:hover {
-		border-color: #3b82f6;
-		background: #f0f9ff;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: V9_COLORS.BG.GRAY_LIGHT;
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 	}
@@ -388,19 +388,19 @@ const ClaimName = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-size: 0.8125rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const ClaimDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
 const ClaimCategory = styled.div`
 	font-size: 0.6875rem;
-	color: #9ca3af;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
 	text-transform: uppercase;
 	letter-spacing: 0.025em;
 	margin-top: 0.25rem;
@@ -609,9 +609,9 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							style={{
 								marginTop: '0.75rem',
 								padding: '0.75rem',
-								background: '#f0f9ff',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
-								border: '1px solid #bae6fd',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<strong>Understanding Claim Values:</strong>
@@ -638,7 +638,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							<pre
 								style={{
 									background: '#1e293b',
-									color: '#e2e8f0',
+									color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 									padding: '0.75rem',
 									borderRadius: '0.5rem',
 									fontSize: '0.8rem',
@@ -743,8 +743,9 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 					style={{
 						marginTop: '1.5rem',
 						padding: '1rem',
-						background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-						border: '2px solid #fbbf24',
+						background:
+							'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+						border: '2px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 						borderRadius: '0.75rem',
 						fontSize: '0.85rem',
 					}}
@@ -757,8 +758,8 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							marginBottom: '0.75rem',
 						}}
 					>
-						<FiInfo style={{ color: '#92400e', fontSize: '1.25rem' }} />
-						<strong style={{ color: '#92400e' }}>JSON Format Guide:</strong>
+						<FiInfo style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.25rem' }} />
+						<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>JSON Format Guide:</strong>
 					</div>
 					<div
 						style={{
@@ -773,7 +774,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								background: 'white',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '1px solid #fbbf24',
+								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
 						>
 							<div
@@ -784,7 +785,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									marginBottom: '0.5rem',
 								}}
 							>
-								<FiCheckCircle style={{ color: '#059669' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 								<strong>Voluntary (Optional)</strong>
 							</div>
 							<code
@@ -797,7 +798,13 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							>
 								"email": null
 							</code>
-							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+							<div
+								style={{
+									marginTop: '0.5rem',
+									fontSize: '0.8rem',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								}}
+							>
 								Server tries to return this claim but won't fail if missing
 							</div>
 						</div>
@@ -806,7 +813,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								background: 'white',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '1px solid #fbbf24',
+								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
 						>
 							<div
@@ -817,7 +824,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									marginBottom: '0.5rem',
 								}}
 							>
-								<FiAlertCircle style={{ color: '#dc2626' }} />
+								<FiAlertCircle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
 								<strong>Essential (Required)</strong>
 							</div>
 							<code
@@ -831,7 +838,13 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							>
 								{`"email": {"essential": true}`}
 							</code>
-							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+							<div
+								style={{
+									marginTop: '0.5rem',
+									fontSize: '0.8rem',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								}}
+							>
 								Server MUST return this claim or request fails
 							</div>
 						</div>

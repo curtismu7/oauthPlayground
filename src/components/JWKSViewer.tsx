@@ -21,7 +21,7 @@ const ViewerHeader = styled.div`
 
 const ViewerTitle = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
 `;
 
@@ -40,27 +40,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background-color: #ef4444;
+          background-color: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background-color: #dc2626; }
+          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
@@ -74,19 +74,19 @@ const Label = styled.label`
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -94,7 +94,7 @@ const Input = styled.input`
 const TextArea = styled.textarea`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -103,13 +103,13 @@ const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -131,19 +131,19 @@ const StatCard = styled.div`
   background: #f9fafb;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
@@ -152,7 +152,7 @@ const KeyList = styled.div`
 `;
 
 const KeyItem = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -168,7 +168,7 @@ const KeyHeader = styled.div`
 
 const KeyID = styled.h4`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -185,22 +185,22 @@ const KeyType = styled.span<{ $type: string }>`
 			case 'RSA':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
         `;
 			case 'EC':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'oct':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #6b7280;
+          color: V9_COLORS.TEXT.GRAY_MEDIUM;
         `;
 		}
 	}}
@@ -211,7 +211,7 @@ const KeyDetails = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const DetailItem = styled.div`
@@ -221,7 +221,7 @@ const DetailItem = styled.div`
 
 const DetailLabel = styled.span`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DetailValue = styled.span`
@@ -240,25 +240,25 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
 			case 'info':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
           border: 1px solid #93c5fd;
         `;
 			case 'success':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
           border: 1px solid #86efac;
         `;
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fde68a;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 1px solid V9_COLORS.BG.WARNING_BORDER;
         `;
 			case 'error':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
           border: 1px solid #fca5a5;
         `;
 		}
@@ -270,12 +270,12 @@ const LoadingSpinner = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const TabContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 1.5rem;
 `;
 
@@ -286,11 +286,11 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   
   &:hover {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -473,7 +473,7 @@ const JWKSViewer: React.FC = () => {
 	const renderViewTab = () => {
 		if (!jwksResponse) {
 			return (
-				<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+				<div style={{ textAlign: 'center', padding: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 					No JWKS loaded. Fetch or import JWKS to view details.
 				</div>
 			);

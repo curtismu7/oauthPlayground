@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { pingOneConfigService } from '../services/pingoneConfigService';
 
 const Container = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -23,7 +23,7 @@ const Header = styled.div`
 const Title = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -38,7 +38,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 	position: relative;
 	width: 3rem;
 	height: 1.5rem;
-	background-color: ${({ $active }) => ($active ? '#22c55e' : '#d1d5db')};
+	background-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border: none;
 	border-radius: 9999px;
 	cursor: pointer;
@@ -64,7 +64,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 
 const Description = styled.p`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.5;
 `;

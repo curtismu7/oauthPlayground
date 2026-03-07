@@ -28,7 +28,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   width: 100%;
@@ -36,19 +36,19 @@ const ModalContent = styled.div`
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalHeader = styled.div`
   padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   text-align: center;
 
   h2 {
     margin: 0 0 0.5rem 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,7 +57,7 @@ const ModalHeader = styled.div`
 
   p {
     margin: 0;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-size: 1rem;
   }
 `;
@@ -73,7 +73,7 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-size: 0.9rem;
   }
 
@@ -81,22 +81,22 @@ const FormGroup = styled.div`
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     border-radius: 6px;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
     &:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: V9_COLORS.PRIMARY.BLUE;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     &::placeholder {
-      color: #9ca3af;
+      color: V9_COLORS.TEXT.GRAY_LIGHT;
     }
 
     &.is-invalid {
-      border-color: #ef4444;
+      border-color: V9_COLORS.PRIMARY.RED;
     }
   }
 
@@ -104,20 +104,20 @@ const FormGroup = styled.div`
     display: block;
     margin-top: 0.25rem;
     font-size: 0.8rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
   }
 
   .invalid-feedback {
     display: block;
     margin-top: 0.25rem;
     font-size: 0.8rem;
-    color: #ef4444;
+    color: V9_COLORS.PRIMARY.RED;
   }
 `;
 
 const ModalFooter = styled.div`
   padding: 1rem 2rem 2rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   text-align: right;
 `;
 
@@ -130,14 +130,14 @@ const SaveButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background-color: #10b981;
+  background-color: V9_COLORS.PRIMARY.GREEN;
   border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #059669;
+    background-color: V9_COLORS.PRIMARY.GREEN_DARK;
   }
 
   &:disabled {
@@ -159,9 +159,9 @@ const CancelButton = styled.button`
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   background-color: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -169,8 +169,8 @@ const CancelButton = styled.button`
 
   &:hover {
     background-color: #f9fafb;
-    border-color: #9ca3af;
-    color: #374151;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   &:disabled {
@@ -935,7 +935,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									width: '100%',
 									padding: '0.75rem',
 									fontSize: '0.875rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 								}}
 							>
@@ -961,7 +961,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									width: '100%',
 									padding: '0.75rem',
 									fontSize: '0.875rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 								}}
 							/>
@@ -1047,7 +1047,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								alignItems: 'center',
 								gap: '0.5rem',
 								fontSize: '0.875rem',
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								cursor: 'pointer',
 							}}
 						>
@@ -1087,9 +1087,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										padding: '0.75rem 1rem',
 										fontSize: '0.875rem',
 										fontWeight: '500',
-										color: '#3b82f6',
+										color: 'V9_COLORS.PRIMARY.BLUE',
 										background: 'white',
-										border: '1px solid #3b82f6',
+										border: '1px solid V9_COLORS.PRIMARY.BLUE',
 										borderRadius: '6px',
 										cursor: isLoading ? 'not-allowed' : 'pointer',
 										opacity: isLoading ? 0.65 : 1,
@@ -1111,9 +1111,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										padding: '0.75rem 1rem',
 										fontSize: '0.875rem',
 										fontWeight: '500',
-										color: '#10b981',
+										color: 'V9_COLORS.PRIMARY.GREEN',
 										background: 'white',
-										border: '1px solid #10b981',
+										border: '1px solid V9_COLORS.PRIMARY.GREEN',
 										borderRadius: '6px',
 										cursor: isLoading ? 'not-allowed' : 'pointer',
 										opacity: isLoading ? 0.65 : 1,

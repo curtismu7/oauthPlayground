@@ -8,10 +8,15 @@
 
 import React, { useState } from 'react';
 import {
-	FloatingStepper,
-	FloatingStepperService,
-	type FloatingStepperStep,
-} from '../services/FloatingStepperService';
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+FloatingStepper, FloatingStepperService, type;
+FloatingStepperStep,
+} from '../services/FloatingStepperService'
 
 const FloatingStepperExample: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);

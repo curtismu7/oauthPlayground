@@ -55,7 +55,7 @@ const CloseButton = styled.button`
 	right: 1rem;
 	background: none;
 	border: none;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.5rem;
 	border-radius: 6px;
@@ -64,7 +64,7 @@ const CloseButton = styled.button`
 
 	&:hover {
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	&:active {
@@ -75,7 +75,7 @@ const CloseButton = styled.button`
 const SuccessIcon = styled.div`
 	width: 64px;
 	height: 64px;
-	background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -104,21 +104,21 @@ const SuccessIcon = styled.div`
 `;
 
 const ModalTitle = styled.h2`
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 1.5rem;
 	font-weight: 600;
 	margin: 0 0 0.5rem;
 `;
 
 const ModalMessage = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1rem;
 	line-height: 1.5;
 	margin: 0 0 1.5rem;
 `;
 
 const ActionButton = styled.button`
-	background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	color: white;
 	border: none;
 	padding: 0.75rem 1.5rem;

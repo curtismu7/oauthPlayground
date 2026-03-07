@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const VisualizerContainer = styled.div`
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -26,7 +26,7 @@ const Title = styled.h2`
 `;
 
 const Subtitle = styled.p`
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0 0 2rem 0;
 	font-size: 1rem;
 `;
@@ -49,9 +49,11 @@ const TabButton = styled.button<{ $active: boolean }>`
 	align-items: center;
 	gap: 0.5rem;
 	background: ${({ $active }) =>
-		$active ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'white'};
-	color: ${({ $active }) => ($active ? 'white' : '#475569')};
-	border: 2px solid ${({ $active }) => ($active ? '#3b82f6' : '#e2e8f0')};
+		$active
+			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
+			: 'white'};
+	color: ${({ $active }) => ($active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	border: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 
 	&:hover {
 		transform: translateY(-2px);
@@ -74,7 +76,7 @@ const ScenarioCard = styled.div<{ variant: 'before' | 'after' }>`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 3px solid ${({ variant }) => (variant === 'before' ? '#ef4444' : '#10b981')};
+	border: 3px solid ${({ variant }) => (variant === 'before' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.GREEN')};
 	position: relative;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
@@ -85,7 +87,7 @@ const ScenarioHeader = styled.div<{ variant: 'before' | 'after' }>`
 	gap: 0.75rem;
 	margin-bottom: 1.5rem;
 	padding-bottom: 1rem;
-	border-bottom: 2px solid ${({ variant }) => (variant === 'before' ? '#fecaca' : '#d1fae5')};
+	border-bottom: 2px solid ${({ variant }) => (variant === 'before' ? 'V9_COLORS.BG.ERROR_BORDER' : 'V9_COLORS.BG.SUCCESS')};
 `;
 
 const HeaderIcon = styled.div<{ variant: 'before' | 'after' }>`
@@ -95,14 +97,14 @@ const HeaderIcon = styled.div<{ variant: 'before' | 'after' }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: ${({ variant }) => (variant === 'before' ? '#ef4444' : '#10b981')};
+	background: ${({ variant }) => (variant === 'before' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.GREEN')};
 	color: white;
 	font-size: 1.25rem;
 `;
 
 const ScenarioTitle = styled.h3<{ variant: 'before' | 'after' }>`
 	margin: 0;
-	color: ${({ variant }) => (variant === 'before' ? '#dc2626' : '#059669')};
+	color: ${({ variant }) => (variant === 'before' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
 	font-size: 1.25rem;
 `;
 
@@ -118,23 +120,23 @@ const TimelineEvent = styled.div<{ type: 'normal' | 'danger' | 'success' | 'warn
 	border-left: 4px solid ${({ type }) => {
 		switch (type) {
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
 	background: ${({ type }) => {
 		switch (type) {
 			case 'danger':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'success':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'warning':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			default:
 				return '#dbeafe';
 		}
@@ -144,7 +146,7 @@ const TimelineEvent = styled.div<{ type: 'normal' | 'danger' | 'success' | 'warn
 const EventTime = styled.div`
 	font-weight: 600;
 	font-size: 0.875rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -163,9 +165,9 @@ const Impact = styled.div<{ type: 'negative' | 'positive' }>`
 	border-radius: 0.75rem;
 	background: ${({ type }) =>
 		type === 'negative'
-			? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
-			: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)'};
-	border: 2px solid ${({ type }) => (type === 'negative' ? '#ef4444' : '#10b981')};
+			? 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)'
+			: 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)'};
+	border: 2px solid ${({ type }) => (type === 'negative' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.GREEN')};
 `;
 
 const ImpactTitle = styled.div`
@@ -176,13 +178,13 @@ const ImpactTitle = styled.div`
 `;
 
 const ImpactText = styled.div`
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	padding: 1rem;
 	border-radius: 0.5rem;
 	overflow-x: auto;
@@ -738,7 +740,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 	return (
 		<VisualizerContainer>
 			<Title>
-				<FiShield size={28} style={{ color: '#3b82f6' }} />
+				<FiShield size={28} style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 				Parameter Impact Visualizer
 			</Title>
 			<Subtitle>
@@ -806,7 +808,9 @@ const ParameterImpactVisualizer: React.FC = () => {
 						</HeaderIcon>
 						<div>
 							<ScenarioTitle variant="before">❌ WITHOUT {selectedParameter}</ScenarioTitle>
-							<div style={{ color: '#64748b', fontSize: '0.875rem' }}>See what goes wrong</div>
+							<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+								See what goes wrong
+							</div>
 						</div>
 					</ScenarioHeader>
 
@@ -835,7 +839,9 @@ const ParameterImpactVisualizer: React.FC = () => {
 						</HeaderIcon>
 						<div>
 							<ScenarioTitle variant="after">✅ WITH {selectedParameter}</ScenarioTitle>
-							<div style={{ color: '#64748b', fontSize: '0.875rem' }}>See how it protects</div>
+							<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+								See how it protects
+							</div>
 						</div>
 					</ScenarioHeader>
 
@@ -871,7 +877,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 					padding: '1.5rem',
 					background: 'white',
 					borderRadius: '0.75rem',
-					border: '2px solid #3b82f6',
+					border: '2px solid V9_COLORS.PRIMARY.BLUE',
 				}}
 			>
 				<div
@@ -884,10 +890,10 @@ const ParameterImpactVisualizer: React.FC = () => {
 						gap: '0.5rem',
 					}}
 				>
-					<FiCheckCircle style={{ color: '#3b82f6' }} />
+					<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 					Key Takeaway
 				</div>
-				<div style={{ color: '#475569', lineHeight: '1.6' }}>
+				<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 					OAuth parameters aren't just "nice to have" — they're critical security controls. Each one
 					prevents a specific attack or improves user experience. Always use them in production!
 				</div>

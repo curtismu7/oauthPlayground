@@ -8,6 +8,7 @@ import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBann
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface TokenPayload {
 	client_id?: string;
@@ -107,7 +108,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		color: '#f57c00',
-		background: '#fff3e0',
+		background: 'V9_COLORS.TEXT.WHITE3e0',
 		padding: '0.75rem 1rem',
 		borderRadius: '6px',
 		marginTop: '1rem',
@@ -204,7 +205,7 @@ const styles = {
 	testResultCard: (status: 'success' | 'error' | 'warning'): React.CSSProperties => ({
 		padding: '1rem',
 		borderLeft: `4px solid ${status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#ff9800'}`,
-		background: status === 'success' ? '#f1f8f4' : status === 'error' ? '#fef5f5' : '#fff8f0',
+		background: status === 'success' ? '#f1f8f4' : status === 'error' ? '#fef5f5' : 'V9_COLORS.TEXT.WHITE8f0',
 		borderRadius: '6px',
 	}),
 	testResultHeader: {
@@ -249,24 +250,24 @@ const styles = {
 		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 	} as React.CSSProperties,
 	envTableRow: {
-		borderBottom: '1px solid #e5e7eb',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	envTableLabel: {
 		padding: '1rem 1.5rem',
 		fontWeight: 600,
 		fontSize: '0.875rem',
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		textTransform: 'uppercase',
 		letterSpacing: '0.5px',
 		width: '200px',
 		background: '#f3f4f6',
-		borderRight: '2px solid #e5e7eb',
+		borderRight: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	envTableValue: (highlight?: boolean, mono?: boolean): React.CSSProperties => ({
 		padding: '1rem 1.5rem',
 		fontSize: highlight ? '1.25rem' : mono ? '0.875rem' : '1rem',
 		fontWeight: highlight ? 700 : 500,
-		color: highlight ? '#1f2937' : mono ? '#6b7280' : '#4b5563',
+		color: highlight ? 'V9_COLORS.TEXT.GRAY_DARK' : mono ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : '#4b5563',
 		wordBreak: mono ? 'break-all' : 'break-word',
 		overflowWrap: 'break-word',
 		...(mono && {
@@ -281,7 +282,7 @@ const styles = {
 		fontSize: '0.875rem',
 		textTransform: 'uppercase',
 		letterSpacing: '1px',
-		background: type === 'PRODUCTION' ? '#dc2626' : type === 'SANDBOX' ? '#3b82f6' : '#10b981',
+		background: type === 'PRODUCTION' ? 'V9_COLORS.PRIMARY.RED_DARK' : type === 'SANDBOX' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN',
 		color: 'white',
 		boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
 	}),

@@ -25,12 +25,12 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const LabelIcon = styled.div`
-	color: #10b981;
+	color: V9_COLORS.PRIMARY.GREEN;
 	font-size: 1rem;
 `;
 
@@ -41,7 +41,7 @@ const InputWrapper = styled.div`
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -49,7 +49,7 @@ const Input = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: #10b981;
+		border-color: V9_COLORS.PRIMARY.GREEN;
 		box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 	}
 
@@ -59,14 +59,14 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const HelperText = styled.div`
 	margin-top: 0.5rem;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -74,14 +74,14 @@ const ExamplesBox = styled.div`
 	margin-top: 0.75rem;
 	padding: 0.75rem;
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const ExampleTitle = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -93,19 +93,19 @@ const ExampleItem = styled.button<{ $isFromDiscovery?: boolean }>`
 	text-align: left;
 	padding: 0.5rem;
 	margin-bottom: 0.25rem;
-	background: ${(props) => (props.$isFromDiscovery ? '#eff6ff' : '#ffffff')};
-	border: 1px solid ${(props) => (props.$isFromDiscovery ? '#60a5fa' : '#e5e7eb')};
+	background: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
+	border: 1px solid ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${(props) => (props.$isFromDiscovery ? '#1e40af' : '#10b981')};
+	color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.PRIMARY.GREEN')};
 	cursor: grab;
 	transition: all 0.2s;
 	position: relative;
 
 	&:hover {
 		background: ${(props) => (props.$isFromDiscovery ? '#dbeafe' : '#f0fdf4')};
-		border-color: ${(props) => (props.$isFromDiscovery ? '#3b82f6' : '#10b981')};
+		border-color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN')};
 		transform: translateX(2px);
 	}
 
@@ -136,7 +136,7 @@ const DiscoveryBadge = styled.span`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.125rem 0.375rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border-radius: 0.25rem;
 	font-size: 0.625rem;
@@ -149,19 +149,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${(props) => (props.$variant === 'warning' ? '#fef3c7' : '#f0fdf4')};
-	border: 1px solid ${(props) => (props.$variant === 'warning' ? '#fbbf24' : '#86efac')};
+	background: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.BG.WARNING' : '#f0fdf4')};
+	border: 1px solid ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : '#86efac')};
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : '#166534')};
+	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : 'V9_COLORS.PRIMARY.GREEN')};
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${(props) => (props.$variant === 'warning' ? '#f59e0b' : '#10b981')};
+	color: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.GREEN')};
 `;
 
 const defaultExamples = [
@@ -271,7 +271,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 				Specify the intended <strong>audience</strong> (target API) for the access token. The access
 				token will be scoped to this specific API/resource.
 				{(tokenEndpoint || issuer) && (
-					<div style={{ marginTop: '0.5rem', color: '#3b82f6', fontWeight: 500 }}>
+					<div style={{ marginTop: '0.5rem', color: 'V9_COLORS.PRIMARY.BLUE', fontWeight: 500 }}>
 						✓ OIDC Discovery endpoints available - drag them to the field above!
 					</div>
 				)}

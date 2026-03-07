@@ -4,6 +4,7 @@ import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const _DocsContainer = styled.div`
   max-width: 1200px;
@@ -55,17 +56,17 @@ const CompatibilityTable = styled.table`
   }
 
   .status-supported {
-    color: #16a34a;
+    color: V9_COLORS.PRIMARY.GREEN_DARK;
     font-weight: 600;
   }
 
   .status-partial {
-    color: #f59e0b;
+    color: V9_COLORS.PRIMARY.YELLOW;
     font-weight: 600;
   }
 
   .status-not-supported {
-    color: #dc2626;
+    color: V9_COLORS.PRIMARY.RED_DARK;
     font-weight: 600;
   }
 
@@ -75,7 +76,7 @@ const CompatibilityTable = styled.table`
   }
 
   .status-proposed {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-weight: 600;
   }
 `;
@@ -96,17 +97,17 @@ const StatusBadge = styled.span<{
 			case 'supported':
 				return `
           background: rgba(22, 163, 74, 0.1);
-          color: #16a34a;
+          color: V9_COLORS.PRIMARY.GREEN_DARK;
         `;
 			case 'partial':
 				return `
           background: rgba(245, 158, 11, 0.1);
-          color: #f59e0b;
+          color: V9_COLORS.PRIMARY.YELLOW;
         `;
 			case 'not-supported':
 				return `
           background: rgba(220, 38, 38, 0.1);
-          color: #dc2626;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'draft':
 				return `
@@ -116,7 +117,7 @@ const StatusBadge = styled.span<{
 			case 'proposed':
 				return `
           background: rgba(107, 114, 128, 0.1);
-          color: #6b7280;
+          color: V9_COLORS.TEXT.GRAY_MEDIUM;
         `;
 		}
 	}}
@@ -550,7 +551,7 @@ const OAuthForAI = () => {
 					defaultCollapsed={true}
 				>
 					<div style={{ margin: '2rem 0' }}>
-						<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>
 							Core OAuth 2.0 Specifications
 						</h3>
 						<ReferenceList>
@@ -616,7 +617,7 @@ const OAuthForAI = () => {
 							</li>
 						</ReferenceList>
 
-						<h3 style={{ color: '#1e40af', marginTop: '2rem', marginBottom: '1rem' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginTop: '2rem', marginBottom: '1rem' }}>
 							AI-Relevant OAuth Extensions
 						</h3>
 						<ReferenceList>
@@ -692,7 +693,7 @@ const OAuthForAI = () => {
 							</li>
 						</ReferenceList>
 
-						<h3 style={{ color: '#1e40af', marginTop: '2rem', marginBottom: '1rem' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginTop: '2rem', marginBottom: '1rem' }}>
 							Emerging Standards & Drafts
 						</h3>
 						<ReferenceList>
@@ -744,7 +745,7 @@ const OAuthForAI = () => {
 							style={{
 								marginTop: '2rem',
 								fontSize: '0.9rem',
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								fontStyle: 'italic',
 							}}
 						>

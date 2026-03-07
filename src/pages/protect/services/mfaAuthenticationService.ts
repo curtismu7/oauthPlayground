@@ -11,6 +11,7 @@
 
 import { logger } from '../../../utils/logger';
 import type {
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 	MFADevice,
 	MFADeviceType,
 	PortalError,

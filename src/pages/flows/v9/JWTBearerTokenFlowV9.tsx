@@ -13,6 +13,7 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {
@@ -425,8 +426,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										width: '32px',
 										height: '32px',
 										borderRadius: '50%',
-										background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
-										color: index <= currentStep ? 'white' : '#6b7280',
+										background: index <= currentStep ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										color: index <= currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -441,7 +442,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										style={{
 											flex: 1,
 											height: '2px',
-											background: index < currentStep ? '#3b82f6' : '#e5e7eb',
+											background: index < currentStep ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 											margin: '0 1rem',
 										}}
 									/>
@@ -450,8 +451,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 						))}
 					</div>
 					<div>
-						<h3 style={{ margin: 0, color: '#1f2937' }}>{STEP_METADATA[currentStep].title}</h3>
-						<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+						<h3 style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{STEP_METADATA[currentStep].title}</h3>
+						<p style={{ margin: '0.25rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 							{STEP_METADATA[currentStep].subtitle}
 						</p>
 					</div>
@@ -464,11 +465,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* Overview Section */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<button
@@ -500,11 +501,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								</button>
 								{!collapsedSections.overview && (
 									<div>
-										<p style={{ color: '#374151', marginBottom: '1rem' }}>
+										<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
 											<strong>RFC 7523</strong> defines how to use JSON Web Tokens (JWTs) for OAuth
 											2.0 bearer tokens.
 										</p>
-										<ul style={{ color: '#374151', paddingLeft: '1.5rem', margin: 0 }}>
+										<ul style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', paddingLeft: '1.5rem', margin: 0 }}>
 											<li>JWTs are self-contained tokens with claims</li>
 											<li>No need for token introspection</li>
 											<li>Suitable for service-to-service authentication</li>
@@ -517,11 +518,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* Credentials Configuration */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<button
@@ -572,7 +573,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 												}}
 											/>
@@ -584,11 +585,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* Token Endpoint Configuration */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<button
@@ -635,7 +636,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 												}}
 											/>
@@ -655,7 +656,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 												}}
 											/>
@@ -667,11 +668,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* JWT Configuration */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<button
@@ -717,7 +718,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 												}}
 											>
@@ -745,7 +746,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 													fontFamily: 'monospace',
 													fontSize: '0.875rem',
@@ -768,7 +769,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												style={{
 													width: '100%',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.25rem',
 													fontFamily: 'monospace',
 													fontSize: '0.875rem',
@@ -786,15 +787,15 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* JWT Generation */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<h3 style={{ margin: '0 0 1rem 0' }}>🔧 JWT Generation</h3>
-								<p style={{ color: '#374151', marginBottom: '1rem' }}>
+								<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
 									Generate a signed JWT assertion for the OAuth 2.0 token request.
 								</p>
 								<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
@@ -804,7 +805,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										type="button"
 										style={{
 											padding: '0.75rem 1.5rem',
-											background: isLoading ? '#9ca3af' : '#3b82f6',
+											background: isLoading ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.375rem',
@@ -819,7 +820,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										type="button"
 										style={{
 											padding: '0.75rem 1.5rem',
-											background: '#10b981',
+											background: 'V9_COLORS.PRIMARY.GREEN',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.375rem',
@@ -836,7 +837,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{generatedJWT && (
 								<div
 									style={{
-										background: '#f0f9ff',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										padding: '1.5rem',
 										borderRadius: '0.5rem',
 										border: '1px solid #0ea5e9',
@@ -846,7 +847,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									<div
 										style={{
 											background: '#1e293b',
-											color: '#e2e8f0',
+											color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 											padding: '1rem',
 											borderRadius: '0.375rem',
 											fontFamily: 'monospace',
@@ -884,15 +885,15 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* Token Request */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<h3 style={{ margin: '0 0 1rem 0' }}>🚀 Token Request</h3>
-								<p style={{ color: '#374151', marginBottom: '1rem' }}>
+								<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
 									Send the JWT assertion to the token endpoint to obtain an access token.
 								</p>
 								<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
@@ -902,7 +903,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 										type="button"
 										style={{
 											padding: '0.75rem 1.5rem',
-											background: isLoading || !generatedJWT ? '#9ca3af' : '#3b82f6',
+											background: isLoading || !generatedJWT ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.375rem',
@@ -916,14 +917,14 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								{!generatedJWT && (
 									<div
 										style={{
-											background: '#fef3c7',
+											background: 'V9_COLORS.BG.WARNING',
 											padding: '1rem',
 											borderRadius: '0.375rem',
-											border: '1px solid #f59e0b',
+											border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 											marginBottom: '1rem',
 										}}
 									>
-										<p style={{ margin: 0, color: '#92400e' }}>
+										<p style={{ margin: 0, color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 											⚠️ Please generate a JWT first before requesting an access token.
 										</p>
 									</div>
@@ -937,23 +938,23 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{/* Token Response */}
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<h3 style={{ margin: '0 0 1rem 0' }}>📋 Token Response</h3>
 								{tokenResponse ? (
 									<div>
-										<p style={{ color: '#374151', marginBottom: '1rem' }}>
+										<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
 											Successfully obtained access token from the token endpoint.
 										</p>
 										<div
 											style={{
 												background: '#1e293b',
-												color: '#e2e8f0',
+												color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 												padding: '1rem',
 												borderRadius: '0.375rem',
 												fontFamily: 'monospace',
@@ -984,13 +985,13 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								) : (
 									<div
 										style={{
-											background: '#fef3c7',
+											background: 'V9_COLORS.BG.WARNING',
 											padding: '1rem',
 											borderRadius: '0.375rem',
-											border: '1px solid #f59e0b',
+											border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 										}}
 									>
-										<p style={{ margin: 0, color: '#92400e' }}>
+										<p style={{ margin: 0, color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 											⚠️ No token response yet. Please complete the token request step first.
 										</p>
 									</div>
@@ -1008,30 +1009,30 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									marginBottom: '2rem',
-									border: '1px solid #22c55e',
+									border: '1px solid V9_COLORS.PRIMARY.GREEN',
 								}}
 							>
-								<h3 style={{ margin: '0 0 1rem 0', color: '#166534' }}>✅ Flow Completion</h3>
-								<p style={{ color: '#166534', marginBottom: '1rem' }}>
+								<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>✅ Flow Completion</h3>
+								<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
 									Congratulations! You have successfully completed the JWT Bearer Token Flow.
 								</p>
 								<div
 									style={{
-										background: '#f8fafc',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										padding: '1rem',
 										borderRadius: '0.375rem',
 										marginBottom: '1rem',
 									}}
 								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Summary:</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151' }}>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Summary:</h4>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										<li>✅ Configured JWT Bearer credentials</li>
 										<li>✅ Generated signed JWT assertion</li>
 										<li>✅ Obtained access token from token endpoint</li>
 										<li>✅ Completed OAuth 2.0 JWT Bearer Token Flow</li>
 									</ul>
 								</div>
-								<p style={{ color: '#166534', margin: 0 }}>
+								<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', margin: 0 }}>
 									Your access token is ready to use for API authentication.
 								</p>
 							</div>
@@ -1046,7 +1047,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 						justifyContent: 'space-between',
 						marginTop: '2rem',
 						paddingTop: '2rem',
-						borderTop: '1px solid #e5e7eb',
+						borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
 					<button
@@ -1055,7 +1056,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 						type="button"
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+							background: currentStep === 0 ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1073,8 +1074,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								type="button"
 								style={{
 									padding: '0.5rem 1rem',
-									background: index === currentStep ? '#3b82f6' : '#e5e7eb',
-									color: index === currentStep ? 'white' : '#6b7280',
+									background: index === currentStep ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+									color: index === currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									border: 'none',
 									borderRadius: '0.375rem',
 									cursor: 'pointer',
@@ -1094,8 +1095,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							padding: '0.75rem 1.5rem',
 							background:
 								currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
-									? '#e5e7eb'
-									: '#3b82f6',
+									? 'V9_COLORS.TEXT.GRAY_LIGHTER'
+									: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1124,7 +1125,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: '#16a34a',
+								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 								fontSize: '1.25rem',
 								fontWeight: 600,
 							}}
@@ -1139,7 +1140,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ JWT Bearer Token configuration completed</li>
 								<li>✅ Token request successfully executed</li>
@@ -1155,7 +1156,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									padding: '1rem',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Details:</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Token Details:</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
 									<p>
 										<strong>Type:</strong> {tokenResponse.token_type}

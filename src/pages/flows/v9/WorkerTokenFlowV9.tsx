@@ -26,6 +26,7 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -45,14 +46,14 @@ const StepTitle = styled.h2`
 	font-size: 24px;
 	font-weight: 600;
 	margin-bottom: 16px;
-	color: #1a202c;
+	color: V9_COLORS.TEXT.BLACK;
 	display: flex;
 	align-items: center;
 	gap: 12px;
 `;
 
 const StyledHelperText = styled.p`
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 14px;
 	line-height: 1.6;
 	margin-bottom: 20px;
@@ -66,7 +67,7 @@ const TokenSection = styled.div`
 
 const StyledSectionDivider = styled.div`
 	height: 1px;
-	background: #e2e8f0;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin: 24px 0;
 `;
 
@@ -341,7 +342,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* Administration API Overview */}
 				<div
 					style={{
-						background: '#f0f9ff',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
 						border: '1px solid #0ea5e9',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -353,12 +354,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#0c4a6e',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 						}}
 					>
 						🏢 PingOne Administration APIs
 					</h4>
-					<div style={{ fontSize: '0.875rem', color: '#0c4a6e', lineHeight: 1.6 }}>
+					<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: 1.6 }}>
 						<p style={{ margin: '0 0 1rem 0' }}>
 							Worker tokens provide machine-to-machine authentication for PingOne Management APIs.
 							These APIs allow you to:
@@ -388,7 +389,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* Common API Calls */}
 				<div
 					style={{
-						background: '#eff6ff',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
 						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -400,7 +401,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#1e40af',
+							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						}}
 					>
 						🔧 Common Administration API Calls
@@ -425,14 +426,14 @@ const WorkerTokenFlowV9: React.FC = () => {
 									margin: '0 0 0.5rem 0',
 									fontSize: '1rem',
 									fontWeight: 600,
-									color: '#1e40af',
+									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 								}}
 							>
 								{icon} {label}
 							</h5>
 							<div
 								style={{
-									background: '#ffffff',
+									background: 'V9_COLORS.TEXT.WHITE',
 									border: '1px solid #dbeafe',
 									borderRadius: '0.5rem',
 									padding: '1rem',
@@ -440,8 +441,8 @@ const WorkerTokenFlowV9: React.FC = () => {
 									fontSize: '0.875rem',
 								}}
 							>
-								<div style={{ color: '#2563eb', marginBottom: '0.5rem' }}>GET {path}</div>
-								<div style={{ color: '#6b7280' }}>
+								<div style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '0.5rem' }}>GET {path}</div>
+								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									Authorization: Bearer{' '}
 									{accessToken ? `${accessToken.substring(0, 20)}...` : '<your-worker-token>'}
 								</div>
@@ -453,8 +454,8 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* JavaScript examples */}
 				<div
 					style={{
-						background: '#fef3c7',
-						border: '1px solid #f59e0b',
+						background: 'V9_COLORS.BG.WARNING',
+						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
 						marginBottom: '1.5rem',
@@ -465,15 +466,15 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#92400e',
+							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 						}}
 					>
 						💻 JavaScript Code Examples
 					</h4>
 					<div
 						style={{
-							background: '#ffffff',
-							border: '1px solid #fbbf24',
+							background: 'V9_COLORS.TEXT.WHITE',
+							border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontFamily: 'monospace',
@@ -514,15 +515,15 @@ getApplications('${envId}', '${accessToken || '<worker-token>'}')
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#1e40af',
+							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						}}
 					>
 						🖥️ cURL Examples
 					</h4>
 					<div
 						style={{
-							background: '#ffffff',
-							border: '1px solid #bfdbfe',
+							background: 'V9_COLORS.TEXT.WHITE',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontFamily: 'monospace',
@@ -549,7 +550,7 @@ curl -X GET \\
 				{/* Best Practices */}
 				<div
 					style={{
-						background: '#eff6ff',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
 						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -561,7 +562,7 @@ curl -X GET \\
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#1e40af',
+							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						}}
 					>
 						✅ Best Practices for Worker Tokens

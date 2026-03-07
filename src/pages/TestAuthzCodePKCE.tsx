@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -13,7 +14,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #1a202c;
+  color: V9_COLORS.TEXT.BLACK;
   margin-bottom: 10px;
 `;
 
@@ -41,7 +42,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 15px;
   font-size: 18px;
 `;
@@ -53,7 +54,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
   display: block;
   margin-bottom: 5px;
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 700;
   font-size: 13px;
 `;
@@ -61,12 +62,12 @@ const Label = styled.label`
 const Input = styled.input`
   width: 100%;
   padding: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 14px;
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  color: #1a202c;
+  color: V9_COLORS.TEXT.BLACK;
 `;
 
 const Button = styled.button`
@@ -90,8 +91,8 @@ const Button = styled.button`
 `;
 
 const Log = styled.div`
-  background: #1a202c;
-  color: #e2e8f0;
+  background: V9_COLORS.TEXT.BLACK;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 15px;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
@@ -119,8 +120,8 @@ const LogEntry = styled.div<{ type?: string }>`
 `;
 
 const CodeBlock = styled.div`
-  background: #2d3748;
-  color: #e2e8f0;
+  background: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 10px;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
@@ -570,7 +571,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 					<Title style={{ marginBottom: '5px' }}>🔐 Authorization Code + PKCE Test</Title>
 					<Subtitle>Test the complete OAuth 2.0 Authorization Code flow with PKCE</Subtitle>
 				</div>
-				<Button onClick={handleStartOver} style={{ background: '#f59e0b', height: 'fit-content' }}>
+				<Button onClick={handleStartOver} style={{ background: 'V9_COLORS.PRIMARY.YELLOW', height: 'fit-content' }}>
 					🔄 Start Over
 				</Button>
 			</div>
@@ -626,7 +627,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 									onChange={(e) => setAutoExchangeEnabled(e.target.checked)}
 									style={{ width: 'auto', cursor: 'pointer' }}
 								/>
-								<span style={{ color: '#2d3748', fontWeight: 600 }}>
+								<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>
 									Auto-exchange authorization code for tokens
 								</span>
 							</label>

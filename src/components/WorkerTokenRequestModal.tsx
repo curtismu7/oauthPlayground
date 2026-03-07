@@ -67,7 +67,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContainer = styled.div`
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 0.75rem;
 	box-shadow: 
 		0 25px 50px -12px rgba(0, 0, 0, 0.25),
@@ -85,8 +85,8 @@ const ModalHeader = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1.25rem 1.5rem 0.75rem 1.5rem;
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border-bottom: 1px solid #e2e8f0;
+	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const HeaderContent = styled.div`
@@ -99,7 +99,7 @@ const HeaderIcon = styled.div`
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 50%;
-	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -121,7 +121,7 @@ const ModalTitle = styled.h2`
 
 const ModalSubtitle = styled.p`
 	font-size: 0.8rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0.25rem 0 0 0;
 	font-weight: 500;
 `;
@@ -129,7 +129,7 @@ const ModalSubtitle = styled.p`
 const CloseButton = styled.button`
 	background: none;
 	border: none;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.5rem;
 	border-radius: 0.5rem;
@@ -158,7 +158,7 @@ const Section = styled.div`
 const SectionTitle = styled.h3`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -166,8 +166,8 @@ const SectionTitle = styled.h3`
 `;
 
 const InfoBox = styled.div`
-	background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-	border: 1px solid #10b981;
+	background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS 100%);
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 	margin-bottom: 1.25rem;
@@ -177,12 +177,12 @@ const InfoBox = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	margin-top: 0.125rem;
 `;
 
 const InfoText = styled.div`
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.75rem;
 	line-height: 1.4;
 
@@ -196,14 +196,14 @@ const ParameterGrid = styled.div`
 	grid-template-columns: auto 1fr;
 	gap: 0.5rem 0.75rem;
 	background: white;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 0.75rem;
 `;
 
 const ParameterLabel = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.8rem;
 `;
 
@@ -215,10 +215,10 @@ const ParameterValue = styled.div`
 	font-family: 'Fira Code', monospace;
 	font-size: 0.8rem;
 	color: #1e293b;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 0.5rem 0.75rem;
 	border-radius: 0.375rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow-x: auto;
 	max-width: 100%;
 	white-space: nowrap;
@@ -234,7 +234,7 @@ const ParameterValue = styled.div`
 const ToggleSecretButton = styled.button`
 	background: none;
 	border: none;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	display: flex;
@@ -248,8 +248,8 @@ const ToggleSecretButton = styled.button`
 	transform: translateY(-50%);
 
 	&:hover {
-		background: #e2e8f0;
-		color: #475569;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
@@ -268,23 +268,23 @@ const FormLabel = styled.label`
 const FormInput = styled.input`
 	width: 100%;
 	padding: 0.625rem 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
-	background-color: #fff;
+	background-color: V9_COLORS.TEXT.WHITE;
   
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 1px #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 1px V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const PasswordToggle = styled.button`
 	background: none;
 	border: none;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	display: flex;
@@ -298,14 +298,14 @@ const PasswordToggle = styled.button`
 	transform: translateY(-50%);
 
 	&:hover {
-		background: #e2e8f0;
-		color: #475569;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 0.75rem;
 	border-radius: 0.5rem;
 	font-size: 0.75rem;
@@ -317,7 +317,7 @@ const CodeBlock = styled.pre`
 
 const CopyButton = styled.button<{ $copied: boolean }>`
 	padding: 0.4rem 0.75rem;
-	background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
+	background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -331,7 +331,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	margin-top: 0.5rem;
 
 	&:hover {
-		background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
+		background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	}
 `;
 
@@ -340,7 +340,7 @@ const ModalActions = styled.div`
 	gap: 0.75rem;
 	justify-content: flex-end;
 	padding: 1rem 1.5rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-top: auto;
 	background: #f9fafb;
 `;
@@ -368,24 +368,24 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary'; disable
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 					color: white;
 					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
 					&:hover {
-						background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+						background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 						transform: translateY(-1px);
 					}
 				`;
 			case 'secondary':
 				return `
 					background: white;
-					color: #374151;
-					border: 1px solid #d1d5db;
+					color: V9_COLORS.TEXT.GRAY_DARK;
+					border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
 					&:hover {
 						background: #f9fafb;
-						border-color: #9ca3af;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}
@@ -617,7 +617,13 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 									showCopyButton={true}
 									showOpenButton={false}
 								/>
-								<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+								<div
+									style={{
+										marginTop: '0.5rem',
+										fontSize: '0.75rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									}}
+								>
 									<strong>Region:</strong> {getRegionDisplayName(region)}
 								</div>
 							</Section>
@@ -679,15 +685,16 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<InfoBox
 								style={{
-									background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-									border: '1px solid #f59e0b',
+									background:
+										'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 									marginBottom: 0,
 								}}
 							>
-								<InfoIcon style={{ color: '#d97706' }}>
+								<InfoIcon style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 									<FiInfo size={14} />
 								</InfoIcon>
-								<InfoText style={{ color: '#92400e' }}>
+								<InfoText style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 									<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
 								</InfoText>
 							</InfoBox>

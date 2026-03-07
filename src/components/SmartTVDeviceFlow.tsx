@@ -11,7 +11,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 2rem 0;
@@ -47,7 +47,7 @@ const SmartTVContainer = styled.div`
     left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     letter-spacing: 1px;
     z-index: 2;
   }
@@ -68,7 +68,7 @@ const TVScreen = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   
   /* Vizio SmartCast interface styling */
   &::before {
@@ -78,7 +78,7 @@ const TVScreen = styled.div`
     left: 1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     letter-spacing: 0.5px;
     z-index: 2;
   }
@@ -113,7 +113,7 @@ const TVStatusIndicator = styled.div<{ $active: boolean }>`
 const TVTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -128,7 +128,7 @@ const TVSubtitle = styled.div`
 // Vizio SmartCast User Code Display - Modern Streaming Interface
 const UserCodeDisplay = styled.div`
   background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   font-size: 3rem;
   font-weight: 700;
@@ -145,7 +145,7 @@ const UserCodeDisplay = styled.div`
 `;
 
 const UserCodeLabel = styled.div`
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -167,7 +167,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 1rem;
   text-transform: uppercase;
 `;
@@ -222,13 +222,13 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
 `;
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Control Buttons
@@ -364,8 +364,8 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 								<QRCodeSVG
 									value={state.verificationUriComplete}
 									size={180}
-									bgColor="#ffffff"
-									fgColor="#000000"
+									bgColor="V9_COLORS.TEXT.WHITE"
+									fgColor="V9_COLORS.TEXT.BLACK"
 									level="M"
 									includeMargin={true}
 								/>
@@ -384,13 +384,14 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 					{state.verificationUri && (
 						<div
 							style={{
-								background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+								background:
+									'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 								borderRadius: '0.75rem',
 								padding: '0.75rem 1rem',
 								marginBottom: '1rem',
 								textAlign: 'center',
 								boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)',
-								border: '2px solid #1e40af',
+								border: '2px solid V9_COLORS.PRIMARY.BLUE_DARK',
 							}}
 						>
 							<ControlButton
@@ -401,7 +402,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 									padding: '0.75rem 1.5rem',
 									minWidth: '200px',
 									background: 'white',
-									color: '#2563eb',
+									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 									border: '2px solid white',
 									fontWeight: '700',
 									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
@@ -457,7 +458,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
 				borderColor="#3a3a3c"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

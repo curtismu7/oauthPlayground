@@ -17,7 +17,13 @@ import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
-	Alert,
+import
+{
+	V9_COLORS;
+}
+from;
+('../../../services/v9/V9ColorStandards');
+Alert,
 	Button,
 	Card,
 	DocumentationLink,
@@ -32,7 +38,7 @@ import {
 	UserAvatar,
 	UserCard,
 	UserInfo,
-} from '../shared/PasswordResetSharedComponents';
+} from '../shared/PasswordResetSharedComponents'
 
 interface ChangePasswordTabProps {
 	environmentId: string;
@@ -290,7 +296,7 @@ export const ChangePasswordTab: React.FC<ChangePasswordTabProps> = ({
 							<div
 								style={{
 									fontSize: '0.8rem',
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 									fontFamily: 'monospace',
 									background: 'rgba(255, 255, 255, 0.7)',
 									padding: '0.5rem',

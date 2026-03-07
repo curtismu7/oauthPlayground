@@ -3,30 +3,25 @@ import styled from 'styled-components';
 import { Card, CardBody } from './Card';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiChevronRight': 'mdi-chevron-right',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiHelpCircle': 'mdi-help-circle',
-		'FiInfo': 'mdi-information',
-		'FiShield': 'mdi-shield-check',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiChevronRight: 'mdi-chevron-right',
+		FiExternalLink: 'mdi-open-in-new',
+		FiHelpCircle: 'mdi-help-circle',
+		FiInfo: 'mdi-information',
+		FiShield: 'mdi-shield-check',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 interface HelpContent {
@@ -159,39 +154,39 @@ const SecurityNote = styled.div<{ $type: string }>`
 		switch ($type) {
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #f59e0b;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 1px solid V9_COLORS.PRIMARY.YELLOW;
           
           .note-icon {
-            color: #d97706;
+            color: V9_COLORS.PRIMARY.YELLOW_DARK;
           }
         `;
 			case 'info':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
-          border: 1px solid #3b82f6;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          border: 1px solid V9_COLORS.PRIMARY.BLUE;
           
           .note-icon {
-            color: #2563eb;
+            color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'success':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
-          border: 1px solid #22c55e;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
+          border: 1px solid V9_COLORS.PRIMARY.GREEN;
           
           .note-icon {
-            color: #16a34a;
+            color: V9_COLORS.PRIMARY.GREEN_DARK;
           }
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
         `;
 		}
 	}}
@@ -555,9 +550,13 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 							<SecurityNotes>
 								{helpContent.securityNotes.map((note, index) => (
 									<SecurityNote key={index} $type={note.type}>
-										{note.type === 'warning' && <MDIIcon icon="FiAlertTriangle" className="note-icon" />}
+										{note.type === 'warning' && (
+											<MDIIcon icon="FiAlertTriangle" className="note-icon" />
+										)}
 										{note.type === 'info' && <MDIIcon icon="FiInfo" className="note-icon" />}
-										{note.type === 'success' && <MDIIcon icon="FiCheckCircle" className="note-icon" />}
+										{note.type === 'success' && (
+											<MDIIcon icon="FiCheckCircle" className="note-icon" />
+										)}
 										{note.text}
 									</SecurityNote>
 								))}

@@ -6,13 +6,19 @@ import { FiBook, FiCode, FiGitBranch, FiInfo, FiSearch } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
-	FlowType,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+FlowType,
 	ServiceCategory,
 	ServiceComplexity,
 	ServiceDefinition,
 	ServiceDiscoveryService,
 	ServiceMaturity,
-} from '../services/serviceDiscoveryService';
+} from '../services/serviceDiscoveryService'
 
 const Container = styled.div`
   max-width: 1200px;
@@ -29,13 +35,13 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -58,20 +64,20 @@ const SearchBar = styled.div`
 const SearchInput = styled.input`
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: border-color 0.2s;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
 const SearchButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -84,7 +90,7 @@ const SearchButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -103,12 +109,12 @@ const FilterGroup = styled.div`
 const FilterLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FilterSelect = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   background: white;
@@ -132,35 +138,35 @@ const ServiceList = styled.div`
 const ServiceListTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
 `;
 
 const ServiceItem = styled.div<{ isSelected: boolean }>`
   padding: 1rem;
-  border: 2px solid ${(props) => (props.isSelected ? '#3b82f6' : '#e5e7eb')};
+  border: 2px solid ${(props) => (props.isSelected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
-  background: ${(props) => (props.isSelected ? '#eff6ff' : 'white')};
+  background: ${(props) => (props.isSelected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
 
   &:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: V9_COLORS.BG.GRAY_LIGHT;
   }
 `;
 
 const ServiceName = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const ServiceDescription = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.75rem;
   line-height: 1.4;
 `;
@@ -181,13 +187,13 @@ const ServiceBadge = styled.span<{ variant: 'category' | 'complexity' | 'maturit
   ${(props) => {
 		switch (props.variant) {
 			case 'category':
-				return 'background: #dbeafe; color: #1e40af;';
+				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 			case 'complexity':
-				return 'background: #fef3c7; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			case 'maturity':
-				return 'background: #dcfce7; color: #166534;';
+				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
 			default:
-				return 'background: #e5e7eb; color: #374151;';
+				return 'background: V9_COLORS.TEXT.GRAY_LIGHTER; color: V9_COLORS.TEXT.GRAY_DARK;';
 		}
 	}}
 `;
@@ -208,13 +214,13 @@ const DetailHeader = styled.div`
 const DetailTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const DetailDescription = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
@@ -225,7 +231,7 @@ const DetailSection = styled.div`
 const SectionTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -240,7 +246,7 @@ const FeatureList = styled.ul`
 
 const FeatureItem = styled.li`
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -251,13 +257,13 @@ const FeatureItem = styled.li`
 
   &::before {
     content: '✓';
-    color: #10b981;
+    color: V9_COLORS.PRIMARY.GREEN;
     font-weight: bold;
   }
 `;
 
 const CodeExample = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -270,7 +276,7 @@ const CodeExample = styled.pre`
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyIcon = styled.div`
@@ -281,7 +287,7 @@ const EmptyIcon = styled.div`
 const EmptyTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
@@ -309,13 +315,13 @@ const StatCard = styled.div`
 const StatNumber = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -481,7 +487,10 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 					</FilterGroup>
 
 					<FilterGroup style={{ justifyContent: 'flex-end' }}>
-						<SearchButton onClick={clearFilters} style={{ background: '#6b7280' }}>
+						<SearchButton
+							onClick={clearFilters}
+							style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
+						>
 							Clear Filters
 						</SearchButton>
 					</FilterGroup>
@@ -503,7 +512,13 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 								>
 									<ServiceName>{rec.service.name}</ServiceName>
 									<ServiceDescription>{rec.service.description}</ServiceDescription>
-									<div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', color: '#059669' }}>
+									<div
+										style={{
+											marginBottom: '0.5rem',
+											fontSize: '0.875rem',
+											color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+										}}
+									>
 										🎯 {rec.relevance}% relevant - {rec.rationale}
 									</div>
 									<ServiceMeta>
@@ -569,7 +584,13 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 											<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: 600 }}>
 												{example.title}
 											</h4>
-											<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
+											<p
+												style={{
+													margin: '0 0 0.5rem 0',
+													fontSize: '0.875rem',
+													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												}}
+											>
 												{example.description}
 											</p>
 											<CodeExample>{example.code.trim()}</CodeExample>
@@ -585,7 +606,10 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 								</SectionTitle>
 								<ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
 									{selectedService.bestPractices.map((practice, index) => (
-										<li key={index} style={{ marginBottom: '0.5rem', color: '#374151' }}>
+										<li
+											key={index}
+											style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+										>
 											{practice}
 										</li>
 									))}

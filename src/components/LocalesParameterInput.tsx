@@ -24,12 +24,12 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const LabelIcon = styled.div`
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	font-size: 1rem;
 `;
 
@@ -40,7 +40,7 @@ const InputWrapper = styled.div`
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -48,7 +48,7 @@ const Input = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
@@ -58,14 +58,14 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const HelperText = styled.div`
 	margin-top: 0.5rem;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
@@ -79,17 +79,17 @@ const ExamplesBox = styled.div`
 const ExampleTag = styled.button<{ $selected: boolean }>`
 	padding: 0.375rem 0.75rem;
 	background: ${(props) => (props.$selected ? '#dbeafe' : '#f3f4f6')};
-	border: 1px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
+	border: 1px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${(props) => (props.$selected ? '#1e40af' : '#6b7280')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$selected ? '#dbeafe' : '#e5e7eb')};
-		border-color: #3b82f6;
+		background: ${(props) => (props.$selected ? '#dbeafe' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
@@ -97,19 +97,19 @@ const InfoBox = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const commonLocales = [

@@ -43,7 +43,7 @@ const ComparisonIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;
@@ -375,7 +375,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 			case 'success':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   font-weight: 600;
@@ -636,7 +636,7 @@ export const FlowComparisonTools: React.FC = () => {
 												margin: '0 0 0.5rem 0',
 												fontSize: '0.875rem',
 												fontWeight: '600',
-												color: '#374151',
+												color: 'V9_COLORS.TEXT.GRAY_DARK',
 											}}
 										>
 											Key Features:
@@ -646,7 +646,7 @@ export const FlowComparisonTools: React.FC = () => {
 												margin: 0,
 												paddingLeft: '1rem',
 												fontSize: '0.875rem',
-												color: '#6b7280',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											}}
 										>
 											{flow.features.map((feature, index) => (
@@ -680,7 +680,9 @@ export const FlowComparisonTools: React.FC = () => {
 												<TableCell>
 													<strong>{flow.name}</strong>
 													<br />
-													<small style={{ color: '#6b7280' }}>{flow.description}</small>
+													<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+														{flow.description}
+													</small>
 												</TableCell>
 												<TableCell>{flow.security}/10</TableCell>
 												<TableCell>{flow.complexity}/10</TableCell>

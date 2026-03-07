@@ -20,16 +20,16 @@ import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const TheaterContainer = styled.div`
-	background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e3a8a 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
 	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-	border: 2px solid #1d4ed8;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const Title = styled.h2`
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -54,9 +54,9 @@ const AttackSelector = styled.div`
 const AttackCard = styled.button<{ $selected: boolean }>`
 	background: ${({ $selected }) =>
 		$selected
-			? 'linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%)'
-			: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'};
-	border: 2px solid ${({ $selected }) => ($selected ? '#1d4ed8' : '#475569')};
+			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%)'
+			: 'linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%)'};
+	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	cursor: pointer;
@@ -65,7 +65,7 @@ const AttackCard = styled.button<{ $selected: boolean }>`
 
 	&:hover {
 		transform: translateY(-4px);
-		border-color: #1d4ed8;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
 	}
 `;
@@ -76,7 +76,7 @@ const AttackIcon = styled.div`
 `;
 
 const AttackTitle = styled.div`
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	font-weight: 700;
 	font-size: 1.1rem;
 	margin-bottom: 0.5rem;
@@ -97,13 +97,13 @@ const SeasonBadge = styled.span<{ $season: 'season1' | 'season2' }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: ${({ $season }) => ($season === 'season2' ? '#fbbf24' : '#93c5fd')};
+	color: ${({ $season }) => ($season === 'season2' ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : '#93c5fd')};
 	background: ${({ $season }) =>
 		$season === 'season2' ? 'rgba(250, 204, 21, 0.12)' : 'rgba(59, 130, 246, 0.12)'};
 `;
 
 const SimulationArea = styled.div`
-	background: #0f172a;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -131,11 +131,11 @@ const SimulationButton = styled.button<{ variant?: 'primary' | 'danger' | 'succe
 	background: ${({ variant }) => {
 		switch (variant) {
 			case 'danger':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'success':
-				return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)';
 			default:
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 		}
 	}};
 	color: white;
@@ -165,23 +165,23 @@ const Actor = styled.div<{ role: 'user' | 'attacker' | 'server'; $active?: boole
 	background: ${({ role }) => {
 		switch (role) {
 			case 'user':
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 			case 'attacker':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'server':
-				return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)';
 		}
 	}};
 	border-radius: 0.75rem;
 	border: 3px solid ${({ role, $active }) => {
-		if ($active) return '#fbbf24';
+		if ($active) return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 		switch (role) {
 			case 'user':
-				return '#60a5fa';
+				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
 			case 'attacker':
-				return '#f87171';
+				return 'V9_COLORS.PRIMARY.RED_LIGHT';
 			case 'server':
-				return '#34d399';
+				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
 		}
 	}};
 	animation: ${({ $active }) => ($active ? pulse : 'none')} 1.5s ease-in-out infinite;
@@ -202,7 +202,7 @@ const ActorLabel = styled.div`
 `;
 
 const ActorStatus = styled.div`
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	font-size: 0.875rem;
 	text-align: center;
 	min-height: 40px;
@@ -231,13 +231,13 @@ const LogEntry = styled.div<{ type: 'info' | 'warning' | 'danger' | 'success' }>
 	border-left: 3px solid ${({ type }) => {
 		switch (type) {
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
 	color: ${({ type }) => {
@@ -245,7 +245,7 @@ const LogEntry = styled.div<{ type: 'info' | 'warning' | 'danger' | 'success' }>
 			case 'danger':
 				return '#fca5a5';
 			case 'warning':
-				return '#fbbf24';
+				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 			case 'success':
 				return '#6ee7b7';
 			default:
@@ -262,15 +262,15 @@ const Outcome = styled.div<{ success: boolean }>`
 	border-radius: 0.75rem;
 	background: ${({ success }) =>
 		success
-			? 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)'
-			: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'};
-	border: 3px solid ${({ success }) => (success ? '#10b981' : '#ef4444')};
+			? 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)'
+			: 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)'};
+	border: 3px solid ${({ success }) => (success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
 `;
 
 const OutcomeTitle = styled.div<{ success: boolean }>`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: ${({ success }) => (success ? '#065f46' : '#991b1b')};
+	color: ${({ success }) => (success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
 	margin-bottom: 1rem;
 	display: flex;
 	align-items: center;
@@ -287,13 +287,13 @@ const MitigationBox = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
 	background: rgba(59, 130, 246, 0.1);
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 	border-radius: 0.375rem;
 `;
 
 const CodeExample = styled.pre`
 	background: #1e293b;
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	padding: 1rem;
 	border-radius: 0.5rem;
 	overflow-x: auto;
@@ -940,7 +940,7 @@ const SecurityThreatTheater: React.FC = () => {
 	return (
 		<TheaterContainer>
 			<Title>
-				<FiAlertTriangle size={32} style={{ color: '#fbbf24' }} />
+				<FiAlertTriangle size={32} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT' }} />
 				Security Threat Theater
 			</Title>
 			<Subtitle>
@@ -1029,7 +1029,7 @@ const SecurityThreatTheater: React.FC = () => {
 					<div>
 						<div
 							style={{
-								color: '#f1f5f9',
+								color: 'V9_COLORS.BG.GRAY_MEDIUM',
 								fontWeight: 600,
 								marginBottom: '0.75rem',
 								fontSize: '1.1rem',
@@ -1082,7 +1082,13 @@ const SecurityThreatTheater: React.FC = () => {
 							>
 								🛡️ How {scenario.mitigation.parameter} Protected Us:
 							</div>
-							<div style={{ color: '#475569', marginBottom: '1rem', lineHeight: '1.6' }}>
+							<div
+								style={{
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									marginBottom: '1rem',
+									lineHeight: '1.6',
+								}}
+							>
 								{scenario.mitigation.explanation}
 							</div>
 							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#1e293b' }}>
@@ -1104,7 +1110,13 @@ const SecurityThreatTheater: React.FC = () => {
 							>
 								✅ How to Prevent This Attack:
 							</div>
-							<div style={{ color: '#475569', marginBottom: '1rem', lineHeight: '1.6' }}>
+							<div
+								style={{
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									marginBottom: '1rem',
+									lineHeight: '1.6',
+								}}
+							>
 								<strong>Always use the {scenario.mitigation.parameter} parameter!</strong>{' '}
 								{scenario.mitigation.explanation}
 							</div>
@@ -1123,7 +1135,7 @@ const SecurityThreatTheater: React.FC = () => {
 					padding: '1.5rem',
 					background: 'rgba(239, 68, 68, 0.1)',
 					borderRadius: '0.75rem',
-					border: '2px solid #ef4444',
+					border: '2px solid V9_COLORS.PRIMARY.RED',
 				}}
 			>
 				<div
@@ -1139,7 +1151,9 @@ const SecurityThreatTheater: React.FC = () => {
 					<FiAlertTriangle size={20} />
 					Critical Security Warning
 				</div>
-				<div style={{ color: '#e2e8f0', lineHeight: '1.6', fontSize: '0.95rem' }}>
+				<div
+					style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHTER', lineHeight: '1.6', fontSize: '0.95rem' }}
+				>
 					These attacks are NOT theoretical — they happen in production every day. Security
 					parameters like <code>state</code>, <code>nonce</code>, and <code>PKCE</code> are
 					REQUIRED, not optional. Every parameter you skip is a vulnerability you introduce.

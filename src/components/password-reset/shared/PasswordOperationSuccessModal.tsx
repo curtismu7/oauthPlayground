@@ -76,7 +76,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalHeader = styled.div`
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	padding: 2rem;
 	border-radius: 16px 16px 0 0;
 	position: relative;
@@ -112,7 +112,7 @@ const SuccessIcon = styled.div`
 	align-items: center;
 	justify-content: center;
 	margin: 0 auto 1rem;
-	color: #10b981;
+	color: V9_COLORS.PRIMARY.GREEN;
 	font-size: 2rem;
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
@@ -146,7 +146,7 @@ const UserInfoSection = styled.div`
 const SectionTitle = styled.h3`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin: 0 0 1rem 0;
@@ -164,7 +164,7 @@ const InfoRow = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: #10b981;
+	color: V9_COLORS.PRIMARY.GREEN;
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -177,7 +177,7 @@ const InfoContent = styled.div`
 const InfoLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin-bottom: 0.25rem;
@@ -185,13 +185,13 @@ const InfoLabel = styled.div`
 
 const InfoValue = styled.div`
 	font-size: 1rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-weight: 500;
 	word-break: break-word;
 `;
 
 const MessageBox = styled.div`
-	background: #ecfdf5;
+	background: V9_COLORS.BG.SUCCESS;
 	border: 1px solid #a7f3d0;
 	border-radius: 8px;
 	padding: 1rem;
@@ -199,7 +199,7 @@ const MessageBox = styled.div`
 `;
 
 const MessageText = styled.p`
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin: 0;
@@ -208,14 +208,14 @@ const MessageText = styled.p`
 const AccomplishmentsList = styled.ul`
 	margin: 0.75rem 0 0 1.25rem;
 	padding: 0;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.875rem;
 	line-height: 1.6;
 `;
 
 const AdditionalDataSection = styled.div`
-	background: #f0f9ff;
-	border: 1px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin-bottom: 1.5rem;
@@ -224,7 +224,7 @@ const AdditionalDataSection = styled.div`
 const DataLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin-bottom: 0.5rem;
@@ -232,7 +232,7 @@ const DataLabel = styled.div`
 
 const DataValue = styled.div`
 	font-size: 0.875rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 	background: white;
 	padding: 0.5rem;
@@ -243,7 +243,7 @@ const DataValue = styled.div`
 const ActionButton = styled.button`
 	width: 100%;
 	padding: 0.75rem 1.5rem;
-	background: #10b981;
+	background: V9_COLORS.PRIMARY.GREEN;
 	color: white;
 	border: none;
 	border-radius: 8px;
@@ -253,7 +253,7 @@ const ActionButton = styled.button`
 	transition: background 0.2s;
 
 	&:hover {
-		background: #059669;
+		background: V9_COLORS.PRIMARY.GREEN_DARK;
 	}
 `;
 

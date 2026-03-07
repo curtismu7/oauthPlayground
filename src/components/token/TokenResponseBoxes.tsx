@@ -38,12 +38,12 @@ const TokenTitle = styled.h4`
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CopyButton = styled.button`
   background: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -56,7 +56,7 @@ const CopyButton = styled.button`
 
   &:hover {
     background: #f9fafb;
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -80,8 +80,8 @@ const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 	};
 
 	const tokenData = [
-		{ name: 'Access Token', value: tokens.access_token, color: '#e0f2fe' },
-		{ name: 'ID Token', value: tokens.id_token, color: '#dcfce7' },
+		{ name: 'Access Token', value: tokens.access_token, color: 'V9_COLORS.BG.GRAY_LIGHT' },
+		{ name: 'ID Token', value: tokens.id_token, color: 'V9_COLORS.BG.SUCCESS' },
 		{ name: 'Refresh Token', value: tokens.refresh_token, color: '#ffedd5' },
 	];
 

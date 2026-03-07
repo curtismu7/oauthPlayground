@@ -44,7 +44,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   max-width: 1200px;
@@ -61,7 +61,7 @@ const Header = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   display: flex;
   align-items: center;
@@ -69,7 +69,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
@@ -81,9 +81,9 @@ const SecurityAssessment = styled.div<{ level: 'low' | 'medium' | 'high' | 'crit
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'high':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -95,15 +95,15 @@ const SecurityAssessment = styled.div<{ level: 'low' | 'medium' | 'high' | 'crit
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'high':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'medium':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'low':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   margin-bottom: 1.5rem;
@@ -119,13 +119,13 @@ const AssessmentHeader = styled.div`
 const AssessmentTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const AssessmentScore = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Recommendations = styled.div`
@@ -138,7 +138,7 @@ const RecommendationItem = styled.div`
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CategoriesGrid = styled.div`
@@ -148,8 +148,8 @@ const CategoriesGrid = styled.div`
 `;
 
 const CategoryCard = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
 `;
@@ -164,20 +164,20 @@ const CategoryHeader = styled.div`
 const CategoryTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const CategoryDescription = styled.p`
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 1rem 0;
 `;
 
 const SettingItem = styled.div`
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   
   &:last-child {
     border-bottom: none;
@@ -196,7 +196,7 @@ const SettingHeader = styled.div`
 const SettingLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -205,7 +205,7 @@ const SettingLabel = styled.label`
 
 const SettingDescription = styled.p`
   font-size: 0.75rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
 `;
@@ -216,7 +216,7 @@ const SettingInput = styled.input`
 
 const SettingSelect = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 0.875rem;
   background: white;
@@ -234,9 +234,9 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'high':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -248,29 +248,29 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   color: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'high':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'medium':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'low':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'high':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'medium':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'low':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 `;
@@ -281,7 +281,7 @@ const ActionBar = styled.div`
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -300,32 +300,32 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border-color: #3b82f6;
+          border-color: V9_COLORS.PRIMARY.BLUE;
           &:hover {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          border-color: #ef4444;
+          border-color: V9_COLORS.PRIMARY.RED;
           &:hover {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: V9_COLORS.PRIMARY.RED_DARK;
+            border-color: V9_COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: #374151;
-          border-color: #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
           &:hover {
             background: #f9fafb;
-            border-color: #9ca3af;
+            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -476,7 +476,13 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 									)}
 
 									{setting.type === 'dropdown' && setting.options && (
-										<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>
+										<div
+											style={{
+												marginTop: '0.5rem',
+												fontSize: '0.75rem',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											}}
+										>
 											{
 												setting.options.find(
 													(opt) =>

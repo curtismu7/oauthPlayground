@@ -27,6 +27,7 @@ import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
 import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -335,7 +336,7 @@ const TokenInspector: React.FC = () => {
 										style={{
 											marginTop: '0.5rem',
 											padding: '0.5rem',
-											background: '#00000010',
+											background: 'V9_COLORS.TEXT.BLACK10',
 											borderRadius: '4px',
 											overflowX: 'auto',
 											fontSize: '0.8em',

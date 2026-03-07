@@ -11,6 +11,7 @@
 
 import { logger } from '../../../utils/logger';
 import type { MFADevice, ProtectPortalConfig, RiskThresholds } from '../types/protectPortal.types';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // RISK POLICY CONFIGURATION
@@ -150,32 +151,32 @@ export const UI_CONFIG = {
 
 export const CORPORATE_THEME = {
 	colors: {
-		primary: '#1e40af', // Blue 800
-		primaryLight: '#3b82f6', // Blue 500
+		primary: 'V9_COLORS.PRIMARY.BLUE_DARK', // Blue 800
+		primaryLight: 'V9_COLORS.PRIMARY.BLUE', // Blue 500
 		primaryDark: '#1e3a8a', // Blue 900
 
-		success: '#059669', // Emerald 600
-		successLight: '#10b981', // Emerald 500
+		success: 'V9_COLORS.PRIMARY.GREEN_DARK', // Emerald 600
+		successLight: 'V9_COLORS.PRIMARY.GREEN', // Emerald 500
 
-		warning: '#d97706', // Amber 600
-		warningLight: '#f59e0b', // Amber 500
+		warning: 'V9_COLORS.PRIMARY.YELLOW_DARK', // Amber 600
+		warningLight: 'V9_COLORS.PRIMARY.YELLOW', // Amber 500
 
-		error: '#dc2626', // Red 600
-		errorLight: '#ef4444', // Red 500
+		error: 'V9_COLORS.PRIMARY.RED_DARK', // Red 600
+		errorLight: 'V9_COLORS.PRIMARY.RED', // Red 500
 
 		gray50: '#f9fafb',
 		gray100: '#f3f4f6',
-		gray200: '#e5e7eb',
-		gray300: '#d1d5db',
-		gray400: '#9ca3af',
-		gray500: '#6b7280',
+		gray200: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		gray300: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		gray400: 'V9_COLORS.TEXT.GRAY_LIGHT',
+		gray500: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		gray600: '#4b5563',
-		gray700: '#374151',
-		gray800: '#1f2937',
-		gray900: '#111827',
+		gray700: 'V9_COLORS.TEXT.GRAY_DARK',
+		gray800: 'V9_COLORS.TEXT.GRAY_DARK',
+		gray900: 'V9_COLORS.TEXT.GRAY_DARK',
 
-		white: '#ffffff',
-		black: '#000000',
+		white: 'V9_COLORS.TEXT.WHITE',
+		black: 'V9_COLORS.TEXT.BLACK',
 	},
 
 	typography: {

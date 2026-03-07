@@ -5,6 +5,7 @@ import EnvironmentIdInput from '../components/EnvironmentIdInput';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -19,7 +20,7 @@ const Header = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -29,7 +30,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.125rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -41,7 +42,7 @@ const DemoSection = styled.div`
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 2rem;
 `;
 
@@ -51,7 +52,7 @@ const SectionHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -59,14 +60,14 @@ const SectionHeader = styled.div`
   }
 
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.6;
   }
 `;
 
 const ResultCard = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -75,12 +76,12 @@ const ResultCard = styled.div`
 const ResultTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const ResultContent = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   border-radius: 0.375rem;
   padding: 1rem;
@@ -104,7 +105,7 @@ const ComparisonGrid = styled.div`
 
 const ComparisonCard = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
 `;
@@ -112,7 +113,7 @@ const ComparisonCard = styled.div`
 const ComparisonTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -130,7 +131,7 @@ const ProItem = styled.li`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &::before {
@@ -144,7 +145,7 @@ const ConItem = styled.li`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &::before {
@@ -245,7 +246,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<ComparisonGrid>
 				<ComparisonCard>
 					<ComparisonTitle>
-						<span style={{ color: '#ef4444' }}>❌</span>
+						<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>❌</span>
 						Old Approach
 					</ComparisonTitle>
 					<ConItem>Users need to enter full issuer URL</ConItem>
@@ -258,7 +259,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 				<ComparisonCard>
 					<ComparisonTitle>
-						<span style={{ color: '#10b981' }}>✅</span>
+						<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 						New Approach
 					</ComparisonTitle>
 					<ProItem>Just enter environment ID</ProItem>
@@ -289,39 +290,39 @@ const EnvironmentIdInputDemo: React.FC = () => {
 					<div
 						style={{
 							padding: '1rem',
-							background: '#f1f5f9',
+							background: 'V9_COLORS.BG.GRAY_MEDIUM',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example US:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#475569' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							12345678-1234-1234-1234-123456789012
 						</div>
 					</div>
 					<div
 						style={{
 							padding: '1rem',
-							background: '#f1f5f9',
+							background: 'V9_COLORS.BG.GRAY_MEDIUM',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example EU:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#475569' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							abcdef12-3456-7890-abcd-ef1234567890
 						</div>
 					</div>
 					<div
 						style={{
 							padding: '1rem',
-							background: '#f1f5f9',
+							background: 'V9_COLORS.BG.GRAY_MEDIUM',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example AP:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#475569' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							98765432-1098-7654-3210-987654321098
 						</div>
 					</div>
