@@ -20,7 +20,7 @@ import {
 	PrivateKeyJWTConfig,
 	RequestPropertyPayload,
 } from '../services/pingOneJWTService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const ToolsContainer = styled.div`
 	background: white;
@@ -285,9 +285,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 	const copyToClipboard = async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${label} copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 		} catch (_error) {
-			v4ToastManager.showError(`Failed to copy ${label}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label}`, dismissible: true });
 		}
 	};
 
@@ -304,11 +304,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			// Auto-populate private key fields
 			setPrivateKeyJWTPrivateKey(newKeypair.privateKey);
 			setPrivateKeyJWTKeyId(newKeypair.keyId || '');
-			v4ToastManager.showSuccess('Keypair generated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Keypair generated successfully', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError(
-				`Failed to generate keypair: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate keypair: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setGeneratingKeypair(false);
 		}
@@ -316,7 +314,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 	const handleCreateLoginHintToken = async () => {
 		if (!keypair) {
-			v4ToastManager.showError('Please generate a keypair first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please generate a keypair first', dismissible: true });
 			return;
 		}
 
@@ -338,22 +336,20 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			if (onLoginHintTokenGenerated) {
 				onLoginHintTokenGenerated(token);
 			}
-			v4ToastManager.showSuccess('Login hint token created successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Login hint token created successfully', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError(
-				`Failed to create login hint token: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create login hint token: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
 	const handleCreateRequestPropertyJWT = async () => {
 		if (!keypair) {
-			v4ToastManager.showError('Please generate a keypair first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please generate a keypair first', dismissible: true });
 			return;
 		}
 
 		if (!requestPropertyClientId) {
-			v4ToastManager.showError('Client ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Client ID is required', dismissible: true });
 			return;
 		}
 
@@ -374,25 +370,23 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				keypair.keyId
 			);
 			setRequestPropertyToken(token);
-			v4ToastManager.showSuccess('Request property JWT created successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Request property JWT created successfully', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError(
-				`Failed to create request property JWT: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create request property JWT: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
 	const handleCreatePrivateKeyJWT = async () => {
 		if (!privateKeyJWTPrivateKey) {
-			v4ToastManager.showError('Private key is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Private key is required', dismissible: true });
 			return;
 		}
 		if (!privateKeyJWTClientId) {
-			v4ToastManager.showError('Client ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Client ID is required', dismissible: true });
 			return;
 		}
 		if (!privateKeyJWTAudience) {
-			v4ToastManager.showError('Audience (token endpoint) is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Audience (token endpoint) is required', dismissible: true });
 			return;
 		}
 
@@ -406,11 +400,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			const token = await PingOneJWTService.createPrivateKeyJWT(jwtConfig);
 			setPrivateKeyJWT(token);
-			v4ToastManager.showSuccess('Private key JWT created successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Private key JWT created successfully', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError(
-				`Failed to create private key JWT: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create private key JWT: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 

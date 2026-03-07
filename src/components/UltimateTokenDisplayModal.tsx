@@ -13,7 +13,7 @@ import {
 	FiZap,
 } from '../services/commonImportsService';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 
 interface TokenSet {
@@ -386,13 +386,13 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
-			v4ToastManager.showSuccess(`${getTokenLabel(tokenType)} copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} copied to clipboard`, duration: 4000 });
 
 			setTimeout(() => {
 				setCopiedStates((prev) => ({ ...prev, [tokenType]: false }));
 			}, 2000);
 		} catch (_error) {
-			v4ToastManager.showError('Failed to copy token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
 		}
 	};
 

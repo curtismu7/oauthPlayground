@@ -3,6 +3,8 @@
 
 import { logger } from '../utils/logger';
 
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+
 interface EnvironmentIdConfig {
 	environmentId: string;
 	lastUpdated: number;
@@ -160,12 +162,8 @@ After updating .env:
 
 		logger.info('EnvironmentIdPersistenceService', instructions);
 
-		// Show a toast notification if available
-		if (typeof window !== 'undefined' && (window as any).v4ToastManager) {
-			(window as any).v4ToastManager.showInfo(
-				'Environment ID updated. Check console for .env update instructions.'
-			);
-		}
+		// Show a toast notification
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Environment ID updated. Check console for .env update instructions.', duration: 4000 });
 	}
 
 	/**

@@ -8,7 +8,7 @@ import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -469,7 +469,7 @@ const OAuthDetective: React.FC = () => {
 	// Main analysis function
 	const analyzeURL = useCallback(() => {
 		if (!url.trim()) {
-			v4ToastManager.showWarning('Please paste an OAuth URL to analyze');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please paste an OAuth URL to analyze', dismissible: true });
 			return;
 		}
 
@@ -500,7 +500,7 @@ const OAuthDetective: React.FC = () => {
 				parameters,
 			});
 
-			v4ToastManager.showSuccess(`Analyzed ${parameters.length} parameters from ${provider}`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Analyzed ${parameters.length} parameters from ${provider}`, duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'OAuthDetective',
@@ -508,7 +508,7 @@ const OAuthDetective: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Invalid URL. Please paste a complete OAuth authorization URL.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid URL. Please paste a complete OAuth authorization URL.', dismissible: true });
 		} finally {
 			setIsAnalyzing(false);
 		}
@@ -523,7 +523,7 @@ const OAuthDetective: React.FC = () => {
 	// Copy parameter to clipboard
 	const copyParameter = useCallback((name: string, value: string) => {
 		navigator.clipboard.writeText(`${name}=${value}`);
-		v4ToastManager.showSuccess(`Copied ${name} parameter`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Copied ${name} parameter`, duration: 4000 });
 	}, []);
 
 	return (

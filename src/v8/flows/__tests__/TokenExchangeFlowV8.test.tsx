@@ -2,26 +2,21 @@
 // Token Exchange Phase 1B - V8 Flow Component Tests
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { GlobalEnvironmentService } from '../../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../../services/tokenExchangeConfigServiceV8';
 import { TokenExchangeServiceV8 } from '../../services/tokenExchangeServiceV8';
 import { TokenExchangeFlowV8 } from '../TokenExchangeFlowV8';
 
 // Mock the services
-jest.mock('../../services/tokenExchangeServiceV8');
-jest.mock('../../services/tokenExchangeConfigServiceV8');
-jest.mock('../../services/globalEnvironmentService');
-jest.mock('../../utils/toastNotificationsV8');
+vi.mock('../../services/tokenExchangeServiceV8');
+vi.mock('../../services/tokenExchangeConfigServiceV8');
+vi.mock('../../services/globalEnvironmentService');
+vi.mock('../../utils/toastNotificationsV8');
 
-const mockTokenExchangeService = TokenExchangeServiceV8 as jest.Mocked<
-	typeof TokenExchangeServiceV8
->;
-const mockConfigService = TokenExchangeConfigServiceV8 as jest.Mocked<
-	typeof TokenExchangeConfigServiceV8
->;
-const mockGlobalEnvironmentService = GlobalEnvironmentService as jest.Mocked<
-	typeof GlobalEnvironmentService
->;
+const mockTokenExchangeService = TokenExchangeServiceV8 as any;
+const mockConfigService = TokenExchangeConfigServiceV8 as any;
+const mockGlobalEnvironmentService = GlobalEnvironmentService as any;
 
 describe('TokenExchangeFlowV8', () => {
 	const mockEnvironmentId = 'test-env-123';
@@ -29,16 +24,16 @@ describe('TokenExchangeFlowV8', () => {
 		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW52X2lkIjoidGVzdC1lbnYtMTIzIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksInRlc3RfdG9rZW5fZXhjaGFuZ2UiOiJhY2Nlc3MifQ.mock-signature';
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Mock GlobalEnvironmentService
-		mockGlobalEnvironmentService.getInstance = jest.fn().mockReturnValue({
+		mockGlobalEnvironmentService.getInstance = vi.fn().mockReturnValue({
 			getEnvironmentId: () => mockEnvironmentId,
 		} as any);
 
 		// Mock TokenExchangeConfigServiceV8
-		mockConfigService.isEnabled = jest.fn().mockResolvedValue(true);
-		mockConfigService.getAdminConfig = jest.fn().mockResolvedValue({
+		mockConfigService.isEnabled = vi.fn().mockResolvedValue(true);
+		mockConfigService.getAdminConfig = vi.fn().mockResolvedValue({
 			enabled: true,
 			allowedScopes: ['read', 'write', 'admin'],
 			maxTokenLifetime: 3600,
@@ -49,7 +44,7 @@ describe('TokenExchangeFlowV8', () => {
 		});
 
 		// Mock TokenExchangeServiceV8
-		mockTokenExchangeService.exchangeToken = jest.fn().mockResolvedValue({
+		mockTokenExchangeService.exchangeToken = vi.fn().mockResolvedValue({
 			access_token: 'new-access-token-mock',
 			token_type: 'Bearer',
 			expires_in: 3600,
@@ -88,7 +83,7 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('shows disabled state when admin is not enabled', async () => {
-		mockConfigService.isEnabled = jest.fn().mockResolvedValue(false);
+		mockConfigService.isEnabled = vi.fn().mockResolvedValue(false);
 
 		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
@@ -104,7 +99,7 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('successfully exchanges token when form is filled', async () => {
-		const mockOnTokenReceived = jest.fn();
+		const mockOnTokenReceived = vi.fn();
 
 		render(
 			<TokenExchangeFlowV8
@@ -156,12 +151,12 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('handles token exchange errors', async () => {
-		const mockOnError = jest.fn();
+		const mockOnError = vi.fn();
 		const mockError = new Error('Invalid token') as any;
 		mockError.type = 'INVALID_TOKEN';
 		mockError.message = 'Invalid subject token';
 
-		mockTokenExchangeService.exchangeToken = jest.fn().mockRejectedValue(mockError);
+		mockTokenExchangeService.exchangeToken = vi.fn().mockRejectedValue(mockError);
 
 		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} onError={mockOnError} />);
 
@@ -203,7 +198,7 @@ describe('TokenExchangeFlowV8', () => {
 
 	it('copies token to clipboard', async () => {
 		// Mock clipboard API
-		const mockWriteText = jest.fn().mockResolvedValue(undefined);
+		const mockWriteText = vi.fn().mockResolvedValue(undefined);
 		Object.assign(navigator, {
 			clipboard: {
 				writeText: mockWriteText,

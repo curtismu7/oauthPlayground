@@ -41,7 +41,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -564,11 +564,11 @@ const ClientGenerator: React.FC = () => {
 				scopes: workerCredentials.scopes.split(/\s+/).filter(Boolean),
 				tokenEndpointAuthMethod: workerCredentials.tokenEndpointAuthMethod,
 			});
-			v4ToastManager.showSuccess('Worker credentials saved to global storage');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker credentials saved to global storage', duration: 4000 });
 
 			// Get token
 			await getWorkerTokenSilently(workerCredentials);
-			v4ToastManager.showSuccess('Worker token obtained and saved!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token obtained and saved!', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'ClientGenerator',
@@ -576,9 +576,7 @@ const ClientGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to obtain worker token'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to obtain worker token', dismissible: true });
 		}
 	}, [workerCredentials, getWorkerTokenSilently]);
 
@@ -724,7 +722,7 @@ const ClientGenerator: React.FC = () => {
 								});
 								setWorkerToken(null);
 								setTokenError(null);
-								v4ToastManager.showSuccess('Credentials cleared from global storage');
+								modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials cleared from global storage', duration: 4000 });
 							}}
 							style={{ padding: '0.75rem 1.25rem' }}
 						>
@@ -765,7 +763,7 @@ const ClientGenerator: React.FC = () => {
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
-								v4ToastManager.showSuccess('Token cleared - credentials preserved');
+								modernMessaging.showFooterMessage({ type: 'status', message: 'Token cleared - credentials preserved', duration: 4000 });
 							}}
 							// Clear all through unified service
 							onClearAll={async () => {
@@ -781,7 +779,7 @@ const ClientGenerator: React.FC = () => {
 									scopes: 'openid p1:create:application p1:read:application p1:update:application',
 									tokenEndpointAuthMethod: 'client_secret_post',
 								});
-								v4ToastManager.showSuccess('All credentials and data cleared');
+								modernMessaging.showFooterMessage({ type: 'status', message: 'All credentials and data cleared', duration: 4000 });
 							}}
 						/>
 					</div>
@@ -1406,7 +1404,7 @@ const ClientGenerator: React.FC = () => {
 							setTokenError(null);
 							setWorkerTokenRequest(null);
 							setTokenDecodeStates({});
-							v4ToastManager.showSuccess('Token cleared - credentials preserved');
+							modernMessaging.showFooterMessage({ type: 'status', message: 'Token cleared - credentials preserved', duration: 4000 });
 						}}
 						onClearAll={() => {
 							localStorage.removeItem('app-generator-worker-credentials');
@@ -1421,7 +1419,7 @@ const ClientGenerator: React.FC = () => {
 								scopes: 'openid p1:create:application p1:read:application p1:update:application',
 								tokenEndpointAuthMethod: 'client_secret_post',
 							});
-							v4ToastManager.showSuccess('All credentials and data cleared');
+							modernMessaging.showFooterMessage({ type: 'status', message: 'All credentials and data cleared', duration: 4000 });
 						}}
 					/>
 				</div>

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
@@ -268,7 +268,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			if (!effectiveWorkerToken) {
 				setShowWorkerTokenModal(true);
 			} else {
-				v4ToastManager.showWarning('Environment ID is required to check URIs');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Environment ID is required to check URIs', dismissible: true });
 			}
 			return;
 		}
@@ -313,11 +313,9 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			}
 
 			if (matchedApp) {
-				v4ToastManager.showSuccess('URI check completed');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'URI check completed', duration: 4000 });
 			} else if (clientId) {
-				v4ToastManager.showWarning(
-					`Application with Client ID ${clientId.substring(0, 8)}... not found in PingOne`
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Application with Client ID ${clientId.substring(0, 8)}... not found in PingOne`, dismissible: true });
 			}
 		} catch (err) {
 			logger.error(
@@ -329,13 +327,13 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			setError(err instanceof Error ? err.message : 'Failed to check URIs');
 			setRedirectURIStatus((prev) => ({ ...prev, isChecking: false }));
 			setLogoutURIStatus((prev) => ({ ...prev, isChecking: false }));
-			v4ToastManager.showError('Failed to check URIs against PingOne');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to check URIs against PingOne', dismissible: true });
 		}
 	}, [effectiveWorkerToken, environmentId, clientId, redirectUri, postLogoutRedirectUri, region]);
 
 	const handleCopy = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 	};
 
 	// Get the flow type for display
