@@ -207,6 +207,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						</div>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'none',
@@ -332,8 +333,16 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 									{/* Platform Authenticator */}
 									{capabilities.platformAuthenticator && (
-										<div
+										<button
+											type="button"
 											onClick={() => setSelectedAuthenticatorType('platform')}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													setSelectedAuthenticatorType('platform');
+												}
+											}}
+											aria-pressed={selectedAuthenticatorType === 'platform'}
 											style={{
 												padding: '1rem',
 												border:
@@ -345,6 +354,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												backgroundColor:
 													selectedAuthenticatorType === 'platform' ? '#eff6ff' : '#ffffff',
 												transition: 'all 0.2s ease',
+												width: '100%',
+												textAlign: 'left',
 											}}
 										>
 											<div
@@ -375,13 +386,21 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													</div>
 												</div>
 											</div>
-										</div>
+										</button>
 									)}
 
 									{/* Cross-Platform Authenticator */}
 									{capabilities.crossPlatformAuthenticator && (
-										<div
+										<button
+											type="button"
 											onClick={() => setSelectedAuthenticatorType('cross-platform')}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													setSelectedAuthenticatorType('cross-platform');
+												}
+											}}
+											aria-pressed={selectedAuthenticatorType === 'cross-platform'}
 											style={{
 												padding: '1rem',
 												border:
@@ -393,6 +412,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												backgroundColor:
 													selectedAuthenticatorType === 'cross-platform' ? '#eff6ff' : '#ffffff',
 												transition: 'all 0.2s ease',
+												width: '100%',
+												textAlign: 'left',
 											}}
 										>
 											<div
@@ -423,12 +444,20 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													</div>
 												</div>
 											</div>
-										</div>
+										</button>
 									)}
 
 									{/* Any Authenticator */}
-									<div
+									<button
+										type="button"
 										onClick={() => setSelectedAuthenticatorType('any')}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												setSelectedAuthenticatorType('any');
+											}
+										}}
+										aria-pressed={selectedAuthenticatorType === 'any'}
 										style={{
 											padding: '1rem',
 											border:
@@ -439,6 +468,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 											cursor: 'pointer',
 											backgroundColor: selectedAuthenticatorType === 'any' ? '#eff6ff' : '#ffffff',
 											transition: 'all 0.2s ease',
+											width: '100%',
+											textAlign: 'left',
 										}}
 									>
 										<div
@@ -469,7 +500,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												</div>
 											</div>
 										</div>
-									</div>
+									</button>
 								</div>
 							</div>
 						)}
@@ -567,6 +598,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onClose}
 						disabled={isRegistering}
 						style={{
@@ -585,6 +617,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						Cancel
 					</button>
 					<button
+						type="button"
 						onClick={handleRegisterCredential}
 						disabled={isRegistering || !capabilities?.webAuthnSupported || !!error}
 						style={{
