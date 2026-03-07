@@ -41,6 +41,17 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 const FLOW_KEY = 'ciba-v8';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
 	max-width: 1200px;
@@ -772,7 +783,7 @@ const CIBAFlowV8: React.FC = () => {
 						<TokenDisplay>
 							<strong>Access Token:</strong>
 							<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
-								{cibaFlow.state.tokens.access_token}
+								{maskToken(cibaFlow.state.tokens.access_token)}
 								<CopyButton onClick={() => copyToClipboard(cibaFlow.state.tokens!.access_token)}>
 									<FiCopy /> Copy
 								</CopyButton>
@@ -797,7 +808,7 @@ const CIBAFlowV8: React.FC = () => {
 							<TokenDisplay>
 								<strong>ID Token:</strong>
 								<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
-									{cibaFlow.state.tokens.id_token}
+									{maskToken(cibaFlow.state.tokens.id_token)}
 									<CopyButton onClick={() => copyToClipboard(cibaFlow.state.tokens!.id_token!)}>
 										<FiCopy /> Copy
 									</CopyButton>

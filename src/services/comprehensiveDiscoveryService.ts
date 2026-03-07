@@ -322,7 +322,7 @@ export class ComprehensiveDiscoveryService {
 	/**
 	 * Validate discovery document
 	 */
-	private validateDiscoveryDocument(document: any, issuerUrl: string): void {
+	private validateDiscoveryDocument(document: Record<string, unknown>, issuerUrl: string): void {
 		const requiredFields = [
 			'issuer',
 			'authorization_endpoint',

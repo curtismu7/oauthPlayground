@@ -458,6 +458,7 @@ export const CredentialManagement: React.FC = () => {
 		try {
 			const parts = tokenString.trim().split('.');
 			if (parts.length !== 3) throw new Error('Invalid JWT format');
+			// educational-ok: manual JWT decode for credential display in UI
 			const decoded = JSON.parse(atob(parts[1])) as TokenPayload;
 			if (decoded.exp) {
 				const now = Math.floor(Date.now() / 1000);

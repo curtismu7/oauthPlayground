@@ -79,7 +79,7 @@ export interface WorkerTokenStep {
 	category: 'preparation' | 'token-exchange' | 'validation' | 'cleanup';
 	canExecute: boolean;
 	completed: boolean;
-	execute: () => Promise<{ success: boolean; data?: any }>;
+	execute: () => Promise<{ success: boolean; data?: Record<string, unknown> }>;
 }
 
 export interface WorkerTokenCredentials {
@@ -120,7 +120,7 @@ export interface JWTPayload {
 	scope?: string;
 	client_id?: string;
 	token_type?: string;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export interface ApiEndpoint {
@@ -128,12 +128,12 @@ export interface ApiEndpoint {
 	method: string;
 	description: string;
 	requiredScope: string;
-	parameters?: Record<string, any>;
+	parameters?: Record<string, unknown>;
 }
 
 export interface ApiResponse {
 	success: boolean;
-	data?: any;
+	data?: Record<string, unknown>;
 	error?: string;
 	statusCode?: number;
 	responseTime?: number;
@@ -142,7 +142,7 @@ export interface ApiResponse {
 export interface WorkerTokenError extends Error {
 	code?: string;
 	statusCode?: number;
-	details?: any;
+	details?: Record<string, unknown>;
 }
 
 export interface TokenValidationResult {

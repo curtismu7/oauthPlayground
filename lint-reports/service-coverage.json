@@ -439,7 +439,8 @@
   ],
   "workerTokenServiceV8.ts": [
     "admin-configuration",
-    "review"
+    "review",
+    "developer-tools"
   ],
   "workerTokenStatusServiceV8.ts": [
     "admin-configuration"

@@ -27,8 +27,8 @@ export interface FlowCredentialResult {
 	hasFlowSpecificCredentials: boolean;
 	hasSharedCredentials: boolean;
 	credentialSource: 'flow-specific' | 'shared-fallback' | 'none';
-	flowSpecificData?: any;
-	sharedData?: any;
+	flowSpecificData?: Record<string, unknown>;
+	sharedData?: Record<string, unknown>;
 }
 
 class FlowCredentialIsolationService {
@@ -325,7 +325,7 @@ export const flowCredentialIsolationService = new FlowCredentialIsolationService
 
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as any).FlowCredentialIsolationService = flowCredentialIsolationService;
+	(window as Record<string, unknown>).FlowCredentialIsolationService = flowCredentialIsolationService;
 }
 
 export default flowCredentialIsolationService;

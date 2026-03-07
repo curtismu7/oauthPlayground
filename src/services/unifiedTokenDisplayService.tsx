@@ -7,6 +7,17 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from './tokenDisplayService';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Styled components for unified token display
 const TokenContainer = styled.div`
 	background: #ffffff;
@@ -201,8 +212,9 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 
 	const isOIDC = flowType === 'oidc' || flowType === 'rar' || flowType === 'redirectless';
 
-	const handleCopy = async (token: string, label: string) => {
-		await TokenDisplayService.copyToClipboard(token, label);
+	const handleCopy = async (fullToken: string, label: string) => {
+		// Copy the full token, not the masked version
+		await TokenDisplayService.copyToClipboard(fullToken, label);
 	};
 
 	const handleDecode = (token: string, label: string) => {
@@ -303,7 +315,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 				</TokenHeader>
 				<TokenContent>
 					{!isDecoded ? (
-						<TokenValue>{token}</TokenValue>
+						<TokenValue>{maskToken(token)}</TokenValue>
 					) : (
 						<DecodedContent>
 							{decoded

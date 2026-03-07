@@ -23,6 +23,17 @@ import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Common styled components
 export const FormField = styled.div`
   margin-bottom: 1rem;
@@ -978,7 +989,7 @@ export const createTokenExchangeStep = (
 									<FiCopy /> Copy
 								</CopyButton>
 							</div>
-							<TokenDisplay>{tokens.access_token}</TokenDisplay>
+							<TokenDisplay>{maskToken(tokens.access_token)}</TokenDisplay>
 						</FormField>
 					)}
 
@@ -1016,7 +1027,7 @@ export const createTokenExchangeStep = (
 									<FiCopy /> Copy
 								</CopyButton>
 							</div>
-							<TokenDisplay>{tokens.id_token}</TokenDisplay>
+							<TokenDisplay>{maskToken(tokens.id_token)}</TokenDisplay>
 						</FormField>
 					)}
 				</div>
@@ -1808,7 +1819,7 @@ export const createRefreshTokenStep = (
 								overflowY: 'auto',
 							}}
 						>
-							{newTokens.access_token}
+							{maskToken(newTokens.access_token)}
 						</code>
 					</div>
 

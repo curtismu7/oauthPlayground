@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiDownload, FiEye, FiXCircle } from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiDownload, FiEye, FiEyeOff, FiXCircle } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import {
@@ -28,6 +28,17 @@ import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } fr
 import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 interface ClaimEntry {
 	key: string;
 	value: unknown;
@@ -52,6 +63,7 @@ const TokenInspector: React.FC = () => {
 	});
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [copied, setCopied] = useState<boolean>(false);
+	const [maskInput, setMaskInput] = useState<boolean>(true);
 
 	const { formattedToken, validation, claims, error } = inspectionResult;
 
@@ -234,17 +246,18 @@ const TokenInspector: React.FC = () => {
 						<h3>Token Input</h3>
 					</CardHeader>
 					<CardBody>
-						<div style={{ marginBottom: '1rem' }}>
-							<textarea
-								value={token}
-								onChange={(e) => setToken(e.target.value)}
-								placeholder="Paste your JWT token here..."
-								style={{
-									width: '100%',
-									minHeight: '100px',
-									padding: '0.5rem',
-									borderRadius: '4px',
-									border: '1px solid #ced4da',
+						<div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+							<div style={{ flex: 1 }}>
+								<textarea
+									value={maskInput ? maskToken(token) : token}
+									onChange={(e) => setToken(e.target.value)}
+									placeholder="Paste your JWT token here..."
+									style={{
+										width: '100%',
+										minHeight: '100px',
+										padding: '0.5rem',
+										borderRadius: '4px',
+										border: '1px solid #ced4da',
 									fontFamily: 'monospace',
 									fontSize: '14px',
 								}}
@@ -261,6 +274,12 @@ const TokenInspector: React.FC = () => {
 								variant="secondary"
 							>
 								<FiEye /> Load from Storage
+							</ActionButton>
+							<ActionButton
+								onClick={() => setMaskInput(!maskInput)}
+								variant="secondary"
+							>
+								{maskInput ? <FiEyeOff /> : <FiEye />} {maskInput ? 'Show Token' : 'Hide Token'}
 							</ActionButton>
 							<ActionButton
 								onClick={() => {

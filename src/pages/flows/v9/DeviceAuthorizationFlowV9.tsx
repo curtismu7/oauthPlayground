@@ -74,6 +74,17 @@ import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Get UI components from FlowUIService
 const FlowContainer = FlowUIService.getContainer();
 const FlowContent = FlowUIService.getContentWrapper();
@@ -1782,7 +1793,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														fontSize: '0.75rem',
 													}}
 												>
-													{deviceFlow.tokens.access_token}
+													{maskToken(deviceFlow.tokens.access_token)}
 												</ParameterValue>
 											</div>
 
@@ -1797,7 +1808,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 															backgroundColor: '#f0f9ff',
 														}}
 													>
-														{deviceFlow.tokens.id_token}
+														{maskToken(deviceFlow.tokens.id_token)}
 													</ParameterValue>
 												</div>
 											)}
@@ -1812,7 +1823,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 															fontSize: '0.75rem',
 														}}
 													>
-														{deviceFlow.tokens.refresh_token}
+														{maskToken(deviceFlow.tokens.refresh_token)}
 													</ParameterValue>
 												</div>
 											)}
@@ -1913,7 +1924,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 															fontSize: '0.75rem',
 														}}
 													>
-														{deviceFlow.tokens.refresh_token}
+														{maskToken(deviceFlow.tokens.refresh_token)}
 													</ParameterValue>
 												</div>
 											</ParameterGrid>

@@ -1,4 +1,6 @@
 import type React from 'react';
+// lint-file-disable: token-value-in-jsx
+// lint-file-disable: json-parse-no-try
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';

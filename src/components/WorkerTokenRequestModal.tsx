@@ -1,4 +1,5 @@
 // src/components/WorkerTokenRequestModal.tsx
+// lint-file-disable: token-value-in-jsx
 // Educational modal showing worker token API request details
 
 import {

@@ -19,9 +19,9 @@ export interface FlowState {
 	authCode?: string;
 	state?: string;
 	nonce?: string;
-	tokens?: any;
-	userInfo?: any;
-	[key: string]: any;
+	tokens?: Record<string, unknown>;
+	userInfo?: Record<string, unknown>;
+	[key: string]: unknown;
 }
 
 export interface WorkerTokenData {
@@ -46,7 +46,7 @@ export interface WorkerTokenData {
  * - Support for multiple data types (credentials, PKCE, flow state, tokens)
  */
 export class CredentialStorageManager {
-	private memoryCache: Map<string, any> = new Map();
+	private memoryCache: Map<string, unknown> = new Map();
 	private config: CredentialStorageConfig;
 
 	constructor(config?: Partial<CredentialStorageConfig>) {
@@ -158,7 +158,7 @@ export class CredentialStorageManager {
 	 */
 	async saveFlowCredentials(
 		flowKey: string,
-		credentials: FlowCredentials | any
+		credentials: FlowCredentials | Record<string, unknown>
 	): Promise<StorageResult<void>> {
 		logger.debug(
 			'CredentialStorageManager',
@@ -401,7 +401,7 @@ export class CredentialStorageManager {
 	/**
 	 * Save credentials to browser localStorage
 	 */
-	private saveToBrowser(flowKey: string, credentials: any): void {
+	private saveToBrowser(flowKey: string, credentials: Record<string, unknown>): void {
 		const key = `flow_credentials_${flowKey}`;
 		const sanitized = this.sanitizeForLogging(credentials);
 		logger.info('CredentialStorageManager', `💾 Saving to browser storage:`, {
@@ -454,7 +454,7 @@ export class CredentialStorageManager {
 	/**
 	 * Save credentials to file storage
 	 */
-	private async saveToFile(flowKey: string, credentials: any): Promise<void> {
+	private async saveToFile(flowKey: string, credentials: Record<string, unknown>): Promise<void> {
 		const result = await FileStorageUtil.save(
 			{
 				directory: 'credentials',
@@ -485,7 +485,7 @@ export class CredentialStorageManager {
 	/**
 	 * Sanitize credentials for logging (hide secrets)
 	 */
-	private sanitizeForLogging(credentials: any): any {
+	private sanitizeForLogging(credentials: Record<string, unknown>): Record<string, unknown> {
 		if (!credentials) return credentials;
 
 		const sanitized = { ...credentials };
@@ -753,7 +753,7 @@ export class CredentialStorageManager {
 	// Cross-Tab Synchronization
 	// ============================================================================
 
-	private syncListeners: Map<string, Set<(data: any) => void>> = new Map();
+	private syncListeners: Map<string, Set<(data: Record<string, unknown>) => void>> = new Map();
 	private storageEventHandler: ((event: StorageEvent) => void) | null = null;
 
 	/**
@@ -870,7 +870,7 @@ export class CredentialStorageManager {
 	/**
 	 * Subscribe to credential changes for a specific flow
 	 */
-	onCredentialChange(flowKey: string, callback: (data: any) => void): () => void {
+	onCredentialChange(flowKey: string, callback: (data: Record<string, unknown>) => void): () => void {
 		if (!this.syncListeners.has(flowKey)) {
 			this.syncListeners.set(flowKey, new Set());
 		}
@@ -894,7 +894,7 @@ export class CredentialStorageManager {
 	/**
 	 * Notify all listeners for a flow key
 	 */
-	private notifyListeners(flowKey: string, data: any): void {
+	private notifyListeners(flowKey: string, data: Record<string, unknown>): void {
 		const listeners = this.syncListeners.get(flowKey);
 		if (listeners && listeners.size > 0) {
 			logger.info(
@@ -919,7 +919,7 @@ export class CredentialStorageManager {
 	/**
 	 * Broadcast a credential change to other tabs
 	 */
-	broadcastChange(flowKey: string, _data: any): void {
+	broadcastChange(flowKey: string, _data: Record<string, unknown>): void {
 		// The storage event will automatically fire in other tabs when we write to localStorage
 		// This method is here for explicit broadcasting if needed
 		logger.info('CredentialStorageManager', `📡 [CrossTabSync] Broadcasting change for ${flowKey}`);
