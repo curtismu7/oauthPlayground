@@ -2,7 +2,7 @@ import { FiCheck, FiCopy } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   background: #f8fafc;
@@ -102,7 +102,7 @@ const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
 	const handleCopy = () => {
 		navigator.clipboard.writeText(assertion);
 		setCopied(true);
-		v4ToastManager.showSuccess('SAML assertion copied to clipboard');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'SAML assertion copied to clipboard', duration: 4000 });
 
 		// Reset the copied state after 2 seconds
 		setTimeout(() => {

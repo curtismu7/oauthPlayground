@@ -16,7 +16,7 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`
@@ -470,9 +470,7 @@ const CredentialStatusPanel: React.FC = () => {
 					<RefreshButton
 						onClick={(e) => {
 							console.log(' [CredentialStatusPanel] Refresh button clicked!', e);
-							v4ToastManager.showSuccess(
-								'Refreshing system status - loading all credential statuses...'
-							);
+							modernMessaging.showFooterMessage({ type: 'status', message: 'Refreshing system status - loading all credential statuses...', duration: 4000 });
 							refreshStatuses();
 						}}
 						disabled={isLoading}
@@ -482,9 +480,7 @@ const CredentialStatusPanel: React.FC = () => {
 					<StatusButton
 						onClick={() => {
 							setShowServerStatusModal(true);
-							v4ToastManager.showSuccess(
-								'Server status modal opened - checking frontend and backend servers'
-							);
+							modernMessaging.showFooterMessage({ type: 'status', message: 'Server status modal opened - checking frontend and backend servers', duration: 4000 });
 						}}
 					>
 						<FiServer size={16} />

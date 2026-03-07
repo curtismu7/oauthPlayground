@@ -6,7 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;
@@ -62,7 +62,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to generate TOTP configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate TOTP configuration', dismissible: true });
 		} finally {
 			setIsGenerating(false);
 		}
@@ -81,7 +81,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 		try {
 			await navigator.clipboard.writeText(totpConfig.secret);
 			setCopied(true);
-			v4ToastManager.showSuccess('Secret key copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Secret key copied to clipboard', duration: 4000 });
 
 			// Reset copied state after 2 seconds
 			setTimeout(() => setCopied(false), 2000);
@@ -92,7 +92,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to copy secret key');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy secret key', dismissible: true });
 		}
 	};
 

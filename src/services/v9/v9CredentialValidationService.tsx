@@ -35,7 +35,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialGuardService } from '../credentialGuardService';
 import ModalPresentationService from '../modalPresentationService';
 
@@ -329,7 +329,7 @@ export const useV9CredentialValidation = ({
 
 			// Validation successful
 			if (config.showToastOnSuccess) {
-				v4ToastManager.showSuccess(`${config.flowName} credentials validated successfully`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `${config.flowName} credentials validated successfully`, duration: 4000 });
 			}
 			onValidationSuccess?.();
 			onProceed();
