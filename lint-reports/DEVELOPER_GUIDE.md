@@ -26,7 +26,8 @@ Each scan writes a **per-group JSON report** to `lint-reports/groups/<id>.json` 
 
 ```
 Pass 1 (--fix):   Biome auto-fixes formatting / import rules in the group's files
-Pass 2 (scan):    Biome + ESLint + tsc + runtime-analysis collect remaining issues
+Pass 2 (scan):    Biome + ESLint + tsc + runtime-analysis + a11y-keyboard
+                  + a11y-color + migration-check collect remaining issues
 Pass 3 (track):   Issues are persisted in JSON; manually-set statuses survive re-scans
 ```
 
@@ -597,3 +598,160 @@ A: Add an entry to the `GROUPS` dict in `scripts/lint_per_group.py`, following t
 
 **Q: Can I run this in CI?**
 A: Yes. Use `--tests unit --all` (no `--fix` in CI so the diff is clean). Set `--scanned-by ci` for the report. Gate the CI step on `summary.errors == 0`.
+
+**Q: There are 2,409 `a11y-keyboard/onclick-no-keydown` issues — do I need to fix all of them?**
+A: No. The majority are on custom component wrappers that already render as native `<button>` elements internally (e.g. `<StepButton>`, `<PButton>`, `<IconButton>`). Waive those per the guidance in Section 16. The real fixes are on raw `<div onClick>` and `<span onClick>` elements. See Section 18 for the fix pattern.
+
+**Q: There are 6,147 `a11y-color/hardcoded-hex-color` issues. Where do I start?**
+A: This is `info` severity — fix it last, after all `error` and `warning` items are clear. Start with the files that have the most hits: `ConfigCheckerButtons.tsx` (612), `WorkerTokenRequestModalV8.tsx` (530), `WorkerTokenModalV8.tsx` (500). The V8 files can be waived. For V9 files, replace `#xxxxxx` values with CSS variables from the design token set.
+
+**Q: `token-value-in-jsx` is firing on `CommonSteps.tsx` 120 times. Are those all real?**
+A: Most are not. `CommonSteps.tsx` is a shared step display component that intentionally shows token field names (not values) as props and labels. Review each hit — if the string is used as a prop name, object key, or inside a `<TokenDisplay>`/`<pre>` demo component, waive it. If it renders a raw token value to the user with no masking, fix it.
+
+**Q: The scan is very slow on large groups. Can I speed it up?**
+A: The bottleneck is `tsc --noEmit` (runs the full TypeScript compiler). You cannot skip it without losing type-error detection. To parallelize your work: have each programmer take a different group so tsc runs are independent. If you only want pattern analysis without tsc, there is no flag for that currently — add `--skip-tsc` to the script as a future enhancement.
+
+**Q: A `migration-check` issue says `raw-console-in-src` but the file is in the known-exception list.**
+A: Waive it using `--update-issue ... --status waived --notes "known exception: <reason>"`. See the full exception list in Section 16. The pattern scanner does not read the exception list automatically — waivers are intentional so they show up in code review.
+
+---
+
+## 18. Common Fix Patterns
+
+Quick reference for the most frequently occurring real (non-waiveable) issues.
+
+---
+
+### Fix: `a11y-keyboard/div-click-no-role` and `onclick-no-keydown` on raw elements
+
+**Before:**
+```tsx
+<div onClick={handleSelect} className="option-item">
+  {label}
+</div>
+```
+
+**After:**
+```tsx
+<div
+  role="button"
+  tabIndex={0}
+  onClick={handleSelect}
+  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelect(); }}
+  className="option-item"
+>
+  {label}
+</div>
+```
+
+> Prefer replacing with a real `<button>` element and resetting its styles — it is semantically correct and gives you keyboard + screen reader support for free.
+
+---
+
+### Fix: `a11y-keyboard/missing-aria-label-icon-btn`
+
+**Before:**
+```tsx
+<button onClick={handleClose}>
+  <CloseIcon />
+</button>
+```
+
+**After:**
+```tsx
+<button onClick={handleClose} aria-label="Close">
+  <CloseIcon aria-hidden="true" />
+</button>
+```
+
+---
+
+### Fix: `migration-check/token-value-in-jsx` — mask before render
+
+**Before:**
+```tsx
+<p>Token: {tokenResponse.access_token}</p>
+```
+
+**After:**
+```tsx
+// Utility: show first 8 + last 4 chars with masked middle
+const maskToken = (t: string) =>
+  t.length > 12 ? `${t.slice(0, 8)}...${t.slice(-4)}` : '••••••••';
+
+<p>Token: {maskToken(tokenResponse.access_token)}</p>
+```
+
+---
+
+### Fix: `migration-check/fetch-no-abort-signal`
+
+**Before:**
+```tsx
+const data = await fetch(url, { method: 'POST', body });
+```
+
+**After:**
+```tsx
+const controller = new AbortController();
+// In a useEffect, return () => controller.abort() for cleanup
+const data = await fetch(url, { method: 'POST', body, signal: controller.signal });
+```
+
+In a React hook:
+```tsx
+useEffect(() => {
+  const controller = new AbortController();
+  async function load() {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) return;
+    setData(await res.json());
+  }
+  load();
+  return () => controller.abort();
+}, [url]);
+```
+
+---
+
+### Fix: `migration-check/fetch-in-component`
+
+Move the fetch call out of the component/hook into a service function:
+
+**Before (in component):**
+```tsx
+const res = await fetch(`/api/token`, { method: 'POST', body });
+const data = await res.json();
+```
+
+**After (in `src/services/myService.ts`):**
+```ts
+export async function fetchToken(body: string, signal?: AbortSignal) {
+  const res = await fetch(`/api/token`, { method: 'POST', body, signal });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+```
+
+Then in the component:
+```tsx
+const data = await fetchToken(body, controller.signal);
+```
+
+---
+
+### Fix: `migration-check/toastv8-straggler` and `v4toast-straggler`
+
+Replace any remaining `toastV8.*` or `v4ToastManager.*` calls with `modernMessaging`:
+
+```ts
+// Before
+toastV8.showError('Something failed');
+v4ToastManager.showBanner({ type: 'error', message: 'Failed' });
+
+// After
+import { modernMessaging } from '@/services/modernMessagingService';
+modernMessaging.showError('Something failed');
+```
+
+See `A-Migration/STANDARDIZATION_HANDOFF.md` for the full `modernMessaging` API reference.
