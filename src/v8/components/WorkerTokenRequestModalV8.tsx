@@ -7,6 +7,7 @@
  */
 // lint-file-disable: token-value-in-jsx
 
+import { logger } from '@/utils/logger';
 import React, { useState } from 'react';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
@@ -179,7 +180,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 			});
 			setShowPreflightModal(true);
 		} catch (error) {
-			console.error('Pre-flight validation error:', error);
+			logger.error('Pre-flight validation error:', error);
 			setPreflightResult({
 				success: false,
 				message: `❌ Pre-flight validation error:\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check the browser console for more details.`,
@@ -341,7 +342,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													duration: 3000,
 												});
 											} catch (error) {
-												console.error('[WorkerTokenRequestModal] Failed to save token:', error);
+												logger.error('[WorkerTokenRequestModal] Failed to save token:', error);
 												modernMessaging.showBanner({
 													type: 'error',
 													title: 'Error',
