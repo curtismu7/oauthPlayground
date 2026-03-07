@@ -1025,7 +1025,17 @@ def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
                         continue
 
                     # Skip if preceded by an educational-ok suppression comment
-                    if lineno >= 2 and lines[lineno - 2].strip().startswith("// educational-ok:"):
+                    # Supports: // educational-ok:  # educational-ok:  {/* educational-ok:  and inline variants
+                    if lineno >= 2:
+                        prev = lines[lineno - 2].strip()
+                        if (
+                            prev.startswith("// educational-ok:")
+                            or prev.startswith("# educational-ok:")
+                            or "educational-ok:" in prev
+                        ):
+                            continue
+                    # Also check if the CURRENT line itself contains an inline educational-ok comment
+                    if "educational-ok:" in line_text:
                         continue
 
                     # --- heuristic: json_parse — skip if inside a try block ---

@@ -1287,6 +1287,7 @@ class DeviceFlowAuth:
 # Usage
 auth = DeviceFlowAuth(env_id='YOUR_ENV_ID', client_id='YOUR_CLIENT_ID')
 tokens = auth.authorize()
+# educational-ok: Python code example string - access_token is a dict key, not a real token value
 print(f"Access Token: {tokens['access_token'][:20]}...")
 print(f"Expires in: {tokens['expires_in']} seconds")`,
 			java: `// IoT Device / Smart TV OAuth (Device Flow)

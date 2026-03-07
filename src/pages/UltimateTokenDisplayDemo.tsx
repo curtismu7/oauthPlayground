@@ -220,7 +220,12 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 						<ControlGroup>
 							<ControlLabel>Display Mode</ControlLabel>
-							<Select value={displayMode} onChange={(e) => setDisplayMode(e.target.value as any)}>
+							<Select
+								value={displayMode}
+								onChange={(e) =>
+									setDisplayMode(e.target.value as 'compact' | 'detailed' | 'educational')
+								}
+							>
 								<option value="compact">Compact</option>
 								<option value="detailed">Detailed</option>
 								<option value="educational">Educational</option>
@@ -229,7 +234,10 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 						<ControlGroup>
 							<ControlLabel>Flow Type</ControlLabel>
-							<Select value={flowType} onChange={(e) => setFlowType(e.target.value as any)}>
+							<Select
+								value={flowType}
+								onChange={(e) => setFlowType(e.target.value as 'oauth' | 'oidc' | 'token-exchange')}
+							>
 								<option value="oauth">OAuth 2.0</option>
 								<option value="oidc">OpenID Connect</option>
 								<option value="token-exchange">Token Exchange</option>
