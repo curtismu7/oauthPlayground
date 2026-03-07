@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 
 export type FlowStep =
@@ -597,10 +597,10 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-			v4ToastManager.showSuccess('Code copied to clipboard!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
 		} catch (err) {
 			logger.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
-			v4ToastManager.showError('Failed to copy code to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy code to clipboard', dismissible: true });
 		}
 	};
 
@@ -638,10 +638,10 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			a.click();
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
-			v4ToastManager.showSuccess(`Downloaded ${filename}`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Downloaded ${filename}`, duration: 4000 });
 		} catch (err) {
 			logger.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
-			v4ToastManager.showError('Failed to download file');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to download file', dismissible: true });
 		}
 	};
 
@@ -651,7 +651,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 
 	const confirmReset = () => {
 		setCode(initialCode);
-		v4ToastManager.showSuccess('Code reset to original');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Code reset to original', duration: 4000 });
 		console.log(
 			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`
 		);
@@ -661,14 +661,14 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 	const handleFormat = () => {
 		if (editorRef.current) {
 			editorRef.current.getAction('editor.action.formatDocument').run();
-			v4ToastManager.showSuccess('Code formatted');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Code formatted', duration: 4000 });
 		}
 	};
 
 	const toggleTheme = () => {
 		const newTheme = theme === 'light' ? 'vs-dark' : 'light';
 		setTheme(newTheme);
-		v4ToastManager.showSuccess(`Switched to ${newTheme === 'light' ? 'Light' : 'Dark'} theme`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Switched to ${newTheme === 'light' ? 'Light' : 'Dark'} theme`, duration: 4000 });
 	};
 
 	const handleConfigChange = (field: keyof typeof config, value: string) => {
@@ -695,12 +695,12 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 		if (codeByStep?.[step]) {
 			setCode(codeByStep[step]);
 		}
-		v4ToastManager.showSuccess(`Switched to ${FLOW_STEP_LABELS[step]}`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Switched to ${FLOW_STEP_LABELS[step]}`, duration: 4000 });
 	};
 
 	const handleLanguageChange = (lang: LanguageOption) => {
 		setSelectedLanguage(lang);
-		v4ToastManager.showSuccess(`Switched to ${lang}`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Switched to ${lang}`, duration: 4000 });
 	};
 
 	const handleCategoryChange = (category: CodeCategory) => {
@@ -718,7 +718,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			// Hide spinner after generation
 			setTimeout(() => {
 				setCodeUpdated(false);
-				v4ToastManager.showSuccess(`Generated ${CODE_CATEGORY_LABELS[category]} code`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Generated ${CODE_CATEGORY_LABELS[category]} code`, duration: 4000 });
 			}, 300);
 		}, 500);
 	};
@@ -735,7 +735,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			// Hide spinner after generation
 			setTimeout(() => {
 				setCodeUpdated(false);
-				v4ToastManager.showSuccess(`Generated ${CODE_TYPE_LABELS[type]} code`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Generated ${CODE_TYPE_LABELS[type]} code`, duration: 4000 });
 			}, 300);
 		}, 500);
 	};

@@ -18,7 +18,7 @@ import {
 } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const ExplorerContainer = styled.div`
 	background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
@@ -923,7 +923,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 	const copyCode = useCallback((code: string) => {
 		navigator.clipboard.writeText(code);
-		v4ToastManager.showSuccess('Code copied!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied!', duration: 4000 });
 	}, []);
 
 	return (

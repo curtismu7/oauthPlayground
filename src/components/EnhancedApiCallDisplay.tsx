@@ -10,7 +10,7 @@ import {
 	type EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`
@@ -424,9 +424,9 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	const handleCopy = useCallback(async (text: string, description: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${description} copied to clipboard.`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${description} copied to clipboard.`, duration: 4000 });
 		} catch {
-			v4ToastManager.showError('Failed to copy to clipboard.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard.', dismissible: true });
 		}
 	}, []);
 
@@ -437,7 +437,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		try {
 			await onExecute();
 		} catch {
-			v4ToastManager.showError('Failed to execute API call.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to execute API call.', dismissible: true });
 		} finally {
 			setIsExecuting(false);
 		}

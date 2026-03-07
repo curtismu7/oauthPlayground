@@ -26,7 +26,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();
@@ -399,11 +399,9 @@ const OIDCOverviewV7: React.FC = () => {
 	const handleFlowClick = useCallback(
 		(flow: OIDCFlow) => {
 			if (flow.deprecated) {
-				v4ToastManager.showWarning(
-					`${flow.title} is deprecated`,
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `${flow.title} is deprecated`,
 					{ description: 'This flow is deprecated and should not be used in new applications.' },
-					{ duration: 4000 }
-				);
+					{ duration: 4000 }, dismissible: true });
 			}
 
 			// Navigate with OIDC context

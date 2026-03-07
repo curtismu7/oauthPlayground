@@ -11,7 +11,7 @@ import type { PingOneApplicationState } from '../components/PingOneApplicationCo
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { storeFlowNavigationState } from '../utils/flowNavigation';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { validateForStep } from './credentialsValidationService';
 import { FlowRedirectUriService } from './flowRedirectUriService';
 
@@ -139,14 +139,14 @@ export class ImplicitFlowToastManager {
 	 * Show success toast for PingOne config save
 	 */
 	static showPingOneConfigSaved(): void {
-		v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne configuration saved successfully!', duration: 4000 });
 	}
 
 	/**
 	 * Show success toast for credentials save
 	 */
 	static showCredentialsSaved(): void {
-		v4ToastManager.showSuccess('Credentials saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials saved successfully!', duration: 4000 });
 	}
 
 	/**
@@ -159,14 +159,14 @@ export class ImplicitFlowToastManager {
 			undefined,
 			error as Error
 		);
-		v4ToastManager.showError('Failed to save credentials');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for redirect URI save
 	 */
 	static showRedirectUriSaved(): void {
-		v4ToastManager.showSuccess('Redirect URI saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Redirect URI saved successfully!', duration: 4000 });
 	}
 
 	/**
@@ -179,14 +179,14 @@ export class ImplicitFlowToastManager {
 			undefined,
 			error as Error
 		);
-		v4ToastManager.showError('Failed to save redirect URI');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save redirect URI', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for authorization URL generation
 	 */
 	static showAuthUrlGenerated(): void {
-		v4ToastManager.showSuccess('Authorization URL generated successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization URL generated successfully!', duration: 4000 });
 	}
 
 	/**
@@ -194,28 +194,28 @@ export class ImplicitFlowToastManager {
 	 */
 	static showAuthUrlGenerationFailed(error: Error | unknown): void {
 		const message = error instanceof Error ? error.message : 'Failed to generate authorization URL';
-		v4ToastManager.showError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing credentials
 	 */
 	static showMissingCredentials(): void {
-		v4ToastManager.showError('Complete above action: Fill in Client ID and Environment ID first.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Fill in Client ID and Environment ID first.', dismissible: true });
 	}
 
 	/**
 	 * Show error toast for missing auth URL
 	 */
 	static showMissingAuthUrl(): void {
-		v4ToastManager.showError('Complete above action: Generate the authorization URL first.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Generate the authorization URL first.', dismissible: true });
 	}
 
 	/**
 	 * Show success toast for tokens received
 	 */
 	static showTokensReceived(): void {
-		v4ToastManager.showSuccess('Tokens received successfully from authorization server!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens received successfully from authorization server!', duration: 4000 });
 	}
 
 	/**
@@ -223,14 +223,14 @@ export class ImplicitFlowToastManager {
 	 */
 	static showValidationError(missingFields: string[]): void {
 		const fieldNames = missingFields.join(', ');
-		v4ToastManager.showError(`Please fill in required fields: ${fieldNames}`);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Please fill in required fields: ${fieldNames}`, dismissible: true });
 	}
 
 	/**
 	 * Show step completion error
 	 */
 	static showStepIncomplete(): void {
-		v4ToastManager.showError('Complete the action above to continue.');
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete the action above to continue.', dismissible: true });
 	}
 }
 

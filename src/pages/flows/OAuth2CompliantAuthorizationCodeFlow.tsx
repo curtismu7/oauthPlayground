@@ -35,7 +35,7 @@ import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const Container = styled.div`
@@ -371,9 +371,9 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${label} copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 		} catch (_error) {
-			v4ToastManager.showError('Failed to copy to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
 		}
 	}, []);
 

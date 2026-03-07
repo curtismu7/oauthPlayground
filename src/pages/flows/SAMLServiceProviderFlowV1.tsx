@@ -25,7 +25,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import { samlService as SAMLService } from '../../services/samlService';
 import { logger } from '../../utils/logger';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const Container = styled.div`
@@ -389,14 +389,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	// Copy to clipboard
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		if (!text) {
-			v4ToastManager.showWarning(`No ${label} available to copy.`);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `No ${label} available to copy.`, dismissible: true });
 			return;
 		}
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${label} copied to clipboard.`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard.`, duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError(`Unable to copy ${label}.`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Unable to copy ${label}.`, dismissible: true });
 		}
 	}, []);
 
@@ -417,9 +417,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			!pingOneAdminCredentials.clientId ||
 			!pingOneAdminCredentials.clientSecret
 		) {
-			v4ToastManager.showWarning(
-				'Provide environment ID, client ID, and client secret before saving.'
-			);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Provide environment ID, client ID, and client secret before saving.', dismissible: true });
 			return;
 		}
 
@@ -427,12 +425,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		try {
 			const success = await savePingOneAdmin({ showToast: false });
 			if (success) {
-				v4ToastManager.showSuccess('PingOne admin credentials saved locally.');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne admin credentials saved locally.', duration: 4000 });
 			} else {
-				v4ToastManager.showError('Unable to save PingOne admin credentials.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to save PingOne admin credentials.', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError('Failed to save PingOne admin credentials.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save PingOne admin credentials.', dismissible: true });
 		} finally {
 			setIsSavingAdmin(false);
 		}
@@ -440,12 +438,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const handleFetchPingOneApplication = useCallback(async () => {
 		if (!isAdminConfigured) {
-			v4ToastManager.showWarning('Configure PingOne admin credentials first.');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Configure PingOne admin credentials first.', dismissible: true });
 			return;
 		}
 
 		if (!pingOneAppIdInput.trim()) {
-			v4ToastManager.showWarning('Enter a PingOne application ID first.');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Enter a PingOne application ID first.', dismissible: true });
 			return;
 		}
 
@@ -453,7 +451,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		try {
 			const app = await fetchPingOneApplication(pingOneAppIdInput.trim());
 			if (app) {
-				v4ToastManager.showSuccess('Loaded PingOne application details.');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Loaded PingOne application details.', duration: 4000 });
 				updateConfig((prev) => ({
 					...prev,
 					pingOneApplicationId: app.id,
@@ -461,7 +459,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				}));
 			}
 		} catch (error) {
-			v4ToastManager.showError('Unable to load PingOne application details.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to load PingOne application details.', dismissible: true });
 		} finally {
 			setIsFetchingPingOneApp(false);
 		}
@@ -469,7 +467,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const handleSyncDynamicAcs = useCallback(async () => {
 		if (!pingOneAppIdInput.trim()) {
-			v4ToastManager.showWarning('Enter a PingOne application ID first.');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Enter a PingOne application ID first.', dismissible: true });
 			return;
 		}
 
@@ -490,17 +488,17 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 			const app = await syncDynamicAcsWithPingOne(syncPayload);
 			if (app) {
-				v4ToastManager.showSuccess('PingOne application updated successfully.');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne application updated successfully.', duration: 4000 });
 				updateConfig((prev) => ({
 					...prev,
 					pingOneApplicationId: app.id,
 					pingOneApplicationName: app.name,
 				}));
 			} else {
-				v4ToastManager.showError('Failed to update PingOne application.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update PingOne application.', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError('Unable to update PingOne application.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to update PingOne application.', dismissible: true });
 		} finally {
 			setIsSyncingPingOne(false);
 		}
@@ -525,13 +523,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		});
 
 		setAuthnRequestXml(sampleAuthnRequest);
-		v4ToastManager.showSuccess('Sample AuthnRequest generated with dynamic ACS URL');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Sample AuthnRequest generated with dynamic ACS URL', duration: 4000 });
 	}, [samlConfig.entityId, samlConfig.nameIdFormat]);
 
 	// Process AuthnRequest
 	const processAuthnRequest = useCallback(async () => {
 		if (!authnRequestXml.trim()) {
-			v4ToastManager.showWarning('Please provide an AuthnRequest XML first');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please provide an AuthnRequest XML first', dismissible: true });
 			return;
 		}
 
@@ -540,7 +538,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			const result = await SAMLService.processAuthnRequest(authnRequestXml, samlConfig);
 
 			if (!result.success) {
-				v4ToastManager.showError('Failed to process AuthnRequest');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to process AuthnRequest', dismissible: true });
 				setValidationResult({
 					isValid: false,
 					explanation: result.error.message,
@@ -553,9 +551,9 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			setValidationResult(result.data.validation);
 
 			if (result.data.validation.isValid) {
-				v4ToastManager.showSuccess('AuthnRequest processed and validated successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'AuthnRequest processed and validated successfully!', duration: 4000 });
 			} else {
-				v4ToastManager.showError('AuthnRequest validation failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'AuthnRequest validation failed', dismissible: true });
 			}
 		} finally {
 			setIsProcessing(false);
@@ -565,7 +563,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	// Generate SAML Response
 	const generateSamlResponse = useCallback(() => {
 		if (!parsedAuthnRequest || !validationResult?.isValid) {
-			v4ToastManager.showWarning('Please process and validate an AuthnRequest first');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please process and validate an AuthnRequest first', dismissible: true });
 			return;
 		}
 
@@ -582,9 +580,9 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			});
 
 			setSamlResponse(response);
-			v4ToastManager.showSuccess('SAML Response generated successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'SAML Response generated successfully!', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError('Failed to generate SAML Response');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate SAML Response', dismissible: true });
 		}
 	}, [parsedAuthnRequest, validationResult, samlConfig]);
 

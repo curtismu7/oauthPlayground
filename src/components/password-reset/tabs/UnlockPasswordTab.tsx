@@ -13,7 +13,7 @@ import { readPasswordState, unlockPassword } from '../../../services/passwordRes
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
 import { logger } from '../../../utils/logger';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
@@ -52,10 +52,10 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -107,9 +107,7 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 
 				setSuccess(true);
 				setShowSuccessModal(true);
-				v4ToastManager.showSuccess(
-					`Password unlocked successfully for ${user.name?.given || user.username || user.email || 'user'}!`
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Password unlocked successfully for ${user.name?.given || user.username || user.email || 'user'}!`, duration: 4000 });
 				return;
 			}
 

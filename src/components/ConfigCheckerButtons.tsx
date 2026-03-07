@@ -18,7 +18,7 @@ import { ConfigComparisonService, ConfigDiffResult } from '../services/configCom
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 
 // Custom P1 Logo Component
@@ -788,7 +788,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	const handleRefresh = async () => {
 		setLoading('refresh');
 		setLastCheckTime(null); // Clear last check time to force fresh data
-		v4ToastManager.showInfo('Refreshing configuration from PingOne...');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Refreshing configuration from PingOne...', duration: 4000 });
 
 		// Wait a moment to ensure the message is seen
 		await new Promise((resolve) => setTimeout(resolve, 500));
@@ -801,7 +801,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	const handleCheck = async () => {
 		const clientId = formData.clientId as string;
 		if (!clientId) {
-			v4ToastManager.showError('Enter a client ID before checking.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Enter a client ID before checking.', dismissible: true });
 			return;
 		}
 
@@ -813,7 +813,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			try {
 				// Call the worker token generation function
 				onGenerateWorkerToken();
-				v4ToastManager.showInfo('Worker token refreshed! Proceeding with config check...');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token refreshed! Proceeding with config check...', duration: 4000 });
 
 				// Wait a moment for the token to be generated
 				await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -824,9 +824,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					undefined,
 					error as Error
 				);
-				v4ToastManager.showError(
-					'Failed to refresh worker token. Proceeding with existing token...'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh worker token. Proceeding with existing token...', dismissible: true });
 			}
 		}
 
@@ -851,7 +849,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			setSelectedDiffs(new Set(result.diffs.map((diff) => diff.path)));
 
 			if (!result.hasDiffs) {
-				v4ToastManager.showSuccess('No differences detected.');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'No differences detected.', duration: 4000 });
 				logger.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
 					clientId,
 					selectedAppType,
@@ -879,9 +877,9 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				localStorage.removeItem('worker_token_expires_at');
 
 				// Show both toast and modal for authentication errors
-				v4ToastManager.showError('Worker token expired. Please generate a new worker token.', {
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token expired. Please generate a new worker token.', {
 					duration: 8000,
-				});
+				}, dismissible: true });
 				setShowAuthErrorModal(true);
 				logger.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
 					clientId,
@@ -892,16 +890,16 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				errorMessage.includes('CORS') ||
 				errorMessage.includes('Access-Control-Allow-Origin')
 			) {
-				v4ToastManager.showError('Network error. Please check your connection and try again.', {
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error. Please check your connection and try again.', {
 					duration: 6000,
-				});
+				}, dismissible: true });
 				logger.error('CONFIG-CHECKER', 'CORS/Network error', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
 				});
 			} else {
-				v4ToastManager.showError(`Configuration check failed: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Configuration check failed: ${errorMessage}`, dismissible: true });
 				logger.error('CONFIG-CHECKER', 'Configuration check failed', {
 					clientId,
 					selectedAppType,
@@ -915,7 +913,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 	const handleCreate = () => {
 		if (!onCreateApplication) {
-			v4ToastManager.showError('Application creation not available.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Application creation not available.', dismissible: true });
 			return;
 		}
 
@@ -986,7 +984,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 	const handleCreateConfirm = async () => {
 		if (!onCreateApplication) {
-			v4ToastManager.showError('Application creation not available.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Application creation not available.', dismissible: true });
 			return;
 		}
 
@@ -1016,7 +1014,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
-			v4ToastManager.showError(`Application creation failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Application creation failed: ${errorMessage}`, dismissible: true });
 			logger.error('CONFIG-CHECKER', 'Application creation failed', {
 				selectedAppType,
 				error: errorMessage,
@@ -1044,7 +1042,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		};
 
 		onImportConfig(importedConfig);
-		v4ToastManager.showSuccess('Configuration imported successfully!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported successfully!', duration: 4000 });
 		setOpen(false);
 	};
 
@@ -1053,7 +1051,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		// Check if any fields are selected
 		if (selectedDiffs.size === 0) {
-			v4ToastManager.showWarning('Please select at least one field to update');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select at least one field to update', dismissible: true });
 			return;
 		}
 
@@ -1067,7 +1065,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			// We need to find the app ID from the client ID
 			const clientId = formData.clientId as string;
 			if (!clientId) {
-				v4ToastManager.showError('Client ID is required to update configuration');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Client ID is required to update configuration', dismissible: true });
 				return;
 			}
 
@@ -1076,7 +1074,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			const app = applications.find((a: { clientId?: string }) => a.clientId === clientId);
 
 			if (!app) {
-				v4ToastManager.showError('Application not found in PingOne');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Application not found in PingOne', dismissible: true });
 				return;
 			}
 
@@ -1106,9 +1104,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			const hasUnsafeFields = unsafeFields.some((field) => selectedDiffs.has(field));
 
 			if (hasUnsafeFields) {
-				v4ToastManager.showWarning(
-					'Only redirect URIs, token auth method, and scopes can be updated in PingOne for safety. Other fields are read-only.'
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Only redirect URIs, token auth method, and scopes can be updated in PingOne for safety. Other fields are read-only.', dismissible: true });
 				return;
 			}
 
@@ -1117,7 +1113,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			if (result.success) {
 				const fieldCount = selectedDiffs.size;
 				const fieldLabel = fieldCount === 1 ? 'field' : 'fields';
-				v4ToastManager.showSuccess(`Successfully updated ${fieldCount} ${fieldLabel} in PingOne!`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Successfully updated ${fieldCount} ${fieldLabel} in PingOne!`, duration: 4000 });
 
 				// Re-check config to show updated state
 				setOpen(false);
@@ -1129,7 +1125,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					handleCheck();
 				}, 1000);
 			} else {
-				v4ToastManager.showError(`Failed to update application: ${result.error}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update application: ${result.error}`, dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -1138,9 +1134,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				`Failed to update application: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update application: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsUpdating(false);
 		}
@@ -1151,7 +1145,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		// Check if any fields are selected
 		if (selectedDiffs.size === 0) {
-			v4ToastManager.showWarning('Please select at least one field to update');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select at least one field to update', dismissible: true });
 			return;
 		}
 
@@ -1190,9 +1184,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				onImportConfig(updatePayload);
 				const fieldCount = selectedDiffs.size;
 				const fieldLabel = fieldCount === 1 ? 'field' : 'fields';
-				v4ToastManager.showSuccess(
-					`Successfully updated ${fieldCount} ${fieldLabel} in Our App with PingOne values!`
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Successfully updated ${fieldCount} ${fieldLabel} in Our App with PingOne values!`, duration: 4000 });
 
 				// Clear selected diffs after successful update
 				setSelectedDiffs(new Set());
@@ -1211,9 +1203,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				`Failed to update Our App: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update Our App: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsUpdating(false);
 		}
@@ -1237,15 +1227,15 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		try {
 			await navigator.clipboard.writeText(JSON.stringify(diffs, null, 2));
-			v4ToastManager.showSuccess('Configuration differences copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration differences copied to clipboard', duration: 4000 });
 		} catch (_error) {
-			v4ToastManager.showError('Failed to copy to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
 		}
 	};
 
 	const exportPingOneConfig = async () => {
 		if (!diffs || !diffs.normalizedRemote) {
-			v4ToastManager.showError('No PingOne configuration available to export');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No PingOne configuration available to export', dismissible: true });
 			return;
 		}
 
@@ -1280,7 +1270,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			v4ToastManager.showSuccess('PingOne configuration exported successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne configuration exported successfully!', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'ConfigCheckerButtons',
@@ -1288,9 +1278,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				`Failed to export configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to export configuration: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsUpdating(false);
 		}
@@ -1416,9 +1404,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							if (onGenerateWorkerToken) {
 								onGenerateWorkerToken();
 							} else {
-								v4ToastManager.showInfo(
-									'Please go to the Client Generator to create a new worker token.'
-								);
+								modernMessaging.showFooterMessage({ type: 'info', message: 'Please go to the Client Generator to create a new worker token.', duration: 4000 });
 							}
 						}}
 						style={{
@@ -1505,7 +1491,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						<Button
 							onClick={() => {
 								navigator.clipboard.writeText(String(formData.clientId));
-								v4ToastManager.showSuccess('Client ID copied to clipboard');
+								modernMessaging.showFooterMessage({ type: 'status', message: 'Client ID copied to clipboard', duration: 4000 });
 							}}
 							style={{
 								background: '#3b82f6',
@@ -2570,9 +2556,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										onGenerateWorkerToken();
 									} else {
 										// Fallback: Show instructions to go to Client Generator
-										v4ToastManager.showInfo(
-											'Please go to the Client Generator to create a new worker token.'
-										);
+										modernMessaging.showFooterMessage({ type: 'info', message: 'Please go to the Client Generator to create a new worker token.', duration: 4000 });
 									}
 								}}
 								style={{
@@ -2750,7 +2734,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									// Copy client ID to clipboard
 									if (creationResult.app?.clientId) {
 										navigator.clipboard.writeText(creationResult.app.clientId);
-										v4ToastManager.showSuccess('Client ID copied to clipboard!');
+										modernMessaging.showFooterMessage({ type: 'status', message: 'Client ID copied to clipboard!', duration: 4000 });
 									}
 								}}
 								style={{
