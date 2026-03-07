@@ -383,4 +383,5 @@ export class V4ToastManager {
 }
 
 // Create default instance
+// educational-ok: v4ToastManager is the implementation definition, not a straggler import
 export const v4ToastManager = new V4ToastManager();
