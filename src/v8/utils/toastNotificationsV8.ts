@@ -24,11 +24,11 @@
  * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL copied to clipboard', duration: 3000 });
  */
 
-import { v4ToastManager } from '@/utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 /**
  * V8 Toast Notification Service
- * Wrapper around v4ToastManager for consistent V8 messaging
+ * Wrapper around modernMessaging for consistent V8 messaging
  */
 export class ToastNotificationsV8 {
 	private static readonly MODULE_TAG = '[🔔 TOAST-V8]';
@@ -42,7 +42,7 @@ export class ToastNotificationsV8 {
 	 */
 	static success(message: string, options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
-		v4ToastManager.showSuccess(message, {}, options);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: options?.duration ?? 3000 });
 	}
 
 	/**
@@ -82,7 +82,7 @@ export class ToastNotificationsV8 {
 	static error(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
 		const shortMessage = ToastNotificationsV8.extractShortSummary(message);
-		v4ToastManager.showError(shortMessage);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: shortMessage, dismissible: true });
 	}
 
 	/**
@@ -94,7 +94,7 @@ export class ToastNotificationsV8 {
 	 */
 	static warning(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Warning:`, message);
-		v4ToastManager.showWarning(message);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message, dismissible: true });
 	}
 
 	/**
@@ -106,7 +106,7 @@ export class ToastNotificationsV8 {
 	 */
 	static info(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Info:`, message);
-		v4ToastManager.showInfo(message);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: 3000 });
 	}
 
 	/**
