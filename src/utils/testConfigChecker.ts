@@ -31,11 +31,16 @@ export function testConfigChecker() {
 		const service = new ConfigComparisonService('mock-token', 'mock-env', 'NA');
 
 		// Test normalization
-		const normalizedForm = (service as any).normalize(mockFormData);
-		const normalizedApp = (service as any).normalize(mockPingOneApp);
+		type ServiceInternal = {
+			normalize: (x: unknown) => unknown;
+			diff: (a: unknown, b: unknown) => unknown;
+		};
+		const svc = service as unknown as ServiceInternal;
+		const normalizedForm = svc.normalize(mockFormData);
+		const normalizedApp = svc.normalize(mockPingOneApp);
 
 		// Test diff function
-		const _diffs = (service as any).diff(normalizedForm, normalizedApp);
+		const _diffs = svc.diff(normalizedForm, normalizedApp);
 	} catch (error) {
 		console.error('❌ Config Checker test failed:', error);
 	}

@@ -59,7 +59,7 @@ export function createPingOneClient(
 /**
  * Make authenticated API request to PingOne Management API
  */
-export async function makeApiRequest<T = any>(
+export async function makeApiRequest<T = unknown>(
 	client: PingOneClient,
 	endpoint: string,
 	options: RequestInit = {}
@@ -105,7 +105,10 @@ export async function makeApiRequest<T = any>(
 			// If there are validation details, include them
 			if (errorData.details && Array.isArray(errorData.details)) {
 				const validationErrors = errorData.details
-					.map((d: any) => `${d.target || 'field'}: ${d.message || d.code}`)
+					.map(
+						(d: Record<string, unknown>) =>
+							`${d['target'] || 'field'}: ${d['message'] || d['code']}`
+					)
 					.join(', ');
 				errorMessage += ` | Validation errors: ${validationErrors}`;
 			}
@@ -153,7 +156,7 @@ export async function discoverWorkerApp(
 
 	try {
 		// First, try to get the application by client ID
-		const applications = await makeApiRequest<any[]>(client, '/applications');
+		const applications = await makeApiRequest<Record<string, unknown>[]>(client, '/applications');
 
 		const workerApp = applications.find(
 			(app) =>
@@ -203,7 +206,7 @@ export async function getEnvironmentInfo(client: PingOneClient): Promise<Environ
 	});
 
 	try {
-		const environment = await makeApiRequest<any>(client, '');
+		const environment = await makeApiRequest<Record<string, unknown>>(client, '');
 
 		const envInfo: Environment = {
 			id: environment.id || client.environmentId,
@@ -291,9 +294,12 @@ export async function testApiAccess(
 /**
  * Get users list (if accessible)
  */
-export async function getUsers(client: PingOneClient, limit: number = 10): Promise<any[]> {
+export async function getUsers(
+	client: PingOneClient,
+	limit: number = 10
+): Promise<Record<string, unknown>[]> {
 	try {
-		const response = await makeApiRequest<any>(client, `/users?limit=${limit}`);
+		const response = await makeApiRequest<Record<string, unknown>>(client, `/users?limit=${limit}`);
 		return response._embedded?.users || response.users || [];
 	} catch (error) {
 		logger.error('API-CLIENT', 'Failed to get users', {
@@ -307,9 +313,15 @@ export async function getUsers(client: PingOneClient, limit: number = 10): Promi
 /**
  * Get applications list (if accessible)
  */
-export async function getApplications(client: PingOneClient, limit: number = 10): Promise<any[]> {
+export async function getApplications(
+	client: PingOneClient,
+	limit: number = 10
+): Promise<Record<string, unknown>[]> {
 	try {
-		const response = await makeApiRequest<any>(client, `/applications?limit=${limit}`);
+		const response = await makeApiRequest<Record<string, unknown>>(
+			client,
+			`/applications?limit=${limit}`
+		);
 		return response._embedded?.applications || response.applications || [];
 	} catch (error) {
 		logger.error('API-CLIENT', 'Failed to get applications', {
@@ -323,9 +335,16 @@ export async function getApplications(client: PingOneClient, limit: number = 10)
 /**
  * Get user groups list (if accessible)
  */
-export async function getUserGroups(client: PingOneClient, limit: number = 10): Promise<any[]> {
+export async function getUserGroups(
+	client: PingOneClient,
+	limit: number = 10
+): Promise<Record<string, unknown>[]> {
 	try {
-		const response = await makeApiRequest<any>(client, `/userGroups?limit=${limit}`);
+		const response = await makeApiRequest<Record<string, unknown>>(
+			client,
+			`/userGroups?limit=${limit}`
+		);
+
 		return response._embedded?.userGroups || response.userGroups || [];
 	} catch (error) {
 		logger.error('API-CLIENT', 'Failed to get user groups', {

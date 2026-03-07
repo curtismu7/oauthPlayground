@@ -261,7 +261,7 @@ const HiddenInput = styled.input`
 interface ExportImportPanelProps {
 	formData: FormDataState;
 	appType: BuilderAppType | null;
-	onImport: (config: FormDataState, metadata: any) => void;
+	onImport: (config: FormDataState, metadata: Record<string, unknown>) => void;
 	disabled?: boolean;
 }
 
