@@ -4,6 +4,7 @@
 import React from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
+import { logger } from '../../../../utils/logger';
 
 interface FlowErrorWrapperProps {
 	children: React.ReactNode;
@@ -21,7 +22,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 	onReset,
 }) => {
 	const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-		console.error('Flow Error Wrapper caught error:', error, errorInfo);
+		logger.error('Flow Error Wrapper caught error:', error, errorInfo);
 
 		// Call the provided error handler
 		if (onError) {
@@ -29,7 +30,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 		}
 
 		// Log to console for debugging
-		console.error('Error in flow:', {
+		logger.error('Error in flow:', {
 			flowName,
 			error: error.message,
 			stack: error.stack,
@@ -51,7 +52,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 			sessionStorage.removeItem(FLOW_CONSTANTS.STORAGE_KEYS.CURRENT_STEP);
 			sessionStorage.removeItem(FLOW_CONSTANTS.STORAGE_KEYS.AUTH_CODE);
 		} catch (e) {
-			console.warn('Failed to clear session storage:', e);
+			logger.warn('Failed to clear session storage:', e);
 		}
 	};
 
@@ -71,7 +72,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 			sessionStorage.removeItem(FLOW_CONSTANTS.STORAGE_KEYS.AUTH_CODE);
 			localStorage.removeItem(FLOW_CONSTANTS.STORAGE_KEYS.FLOW_SOURCE);
 		} catch (e) {
-			console.warn('Failed to clear storage:', e);
+			logger.warn('Failed to clear storage:', e);
 		}
 	};
 

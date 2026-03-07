@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -13,7 +14,7 @@ const log = {
 	},
 	error: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		logger.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
 	},
 	success: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);

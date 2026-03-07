@@ -7,6 +7,7 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -499,7 +500,7 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`,
+  .catch(error => logger.error('Error:', error));`,
 											'PAR JavaScript code'
 										)
 									}
@@ -580,7 +581,7 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`}</CodeBlock>
+  .catch(error => logger.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>
@@ -1246,7 +1247,7 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`,
+  .catch(error => logger.error('Error:', error));`,
 											'PAR + RAR JavaScript code'
 										)
 									}
@@ -1342,7 +1343,7 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`}</CodeBlock>
+  .catch(error => logger.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>

@@ -18,11 +18,12 @@ import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
+import { logger } from '../../../utils/logger';
 
 // Mock services - these would be imported from actual services in real implementation
 const _v4ToastManager = {
 	showSuccess: (message: string) => console.log('✅ Toast:', message),
-	showError: (message: string) => console.error('❌ Toast:', message),
+	showError: (message: string) => logger.error('❌ Toast:', message),
 	showInfo: (message: string) => console.log('ℹ️ Toast:', message),
 };
 
@@ -39,7 +40,7 @@ const _FlowCredentialService = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(credentials));
 		} catch (error) {
-			console.warn('Failed to save credentials:', error);
+			logger.warn('Failed to save credentials:', error);
 		}
 	},
 };
@@ -294,7 +295,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					duration: 4000,
 				});
 			} catch (error) {
-				console.error('Failed to initialize flow:', error);
+				logger.error('Failed to initialize flow:', error);
 				onFlowError?.(error as Error);
 				setIsLoading(false);
 			}

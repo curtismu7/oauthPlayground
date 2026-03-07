@@ -8,6 +8,7 @@
 
 import { FiDownload, FiUpload } from '@icons';
 import React, { useRef } from 'react';
+import { logger } from '../utils/logger';
 import {
 	credentialsImportExportService,
 	type ImportExportOptions,
@@ -34,7 +35,7 @@ export interface CredentialsImportExportProps {
  *     flowType: 'oauth-authorization-code',
  *     appName: 'OAuth Authorization Code Flow',
  *     onImportSuccess: (creds) => setCredentials(creds),
- *     onImportError: (error) => console.error(error),
+ *     onImportError: (error) => logger.error(error),
  *   }}
  * />
  * ```

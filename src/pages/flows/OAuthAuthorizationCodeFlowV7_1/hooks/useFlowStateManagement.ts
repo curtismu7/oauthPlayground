@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
+import { logger } from '../../../../utils/logger';
 import type {
 	AuthCodeState,
 	FlowCredentials,
@@ -95,7 +96,7 @@ export const useFlowStateManagement = () => {
 				setCredentials(JSON.parse(storedCredentials));
 			}
 		} catch (error) {
-			console.warn('Failed to load flow state from storage:', error);
+			logger.warn('Failed to load flow state from storage:', error);
 		}
 	}, []);
 
@@ -104,7 +105,7 @@ export const useFlowStateManagement = () => {
 		try {
 			sessionStorage.setItem(STORAGE_KEYS.FLOW_STATE, JSON.stringify(flowState));
 		} catch (error) {
-			console.warn('Failed to save flow state to storage:', error);
+			logger.warn('Failed to save flow state to storage:', error);
 		}
 	}, [flowState]);
 
@@ -112,7 +113,7 @@ export const useFlowStateManagement = () => {
 		try {
 			sessionStorage.setItem(STORAGE_KEYS.PKCE_CODES, JSON.stringify(pkceCodes));
 		} catch (error) {
-			console.warn('Failed to save PKCE codes to storage:', error);
+			logger.warn('Failed to save PKCE codes to storage:', error);
 		}
 	}, [pkceCodes]);
 
@@ -124,7 +125,7 @@ export const useFlowStateManagement = () => {
 				sessionStorage.removeItem(STORAGE_KEYS.TOKENS);
 			}
 		} catch (error) {
-			console.warn('Failed to save tokens to storage:', error);
+			logger.warn('Failed to save tokens to storage:', error);
 		}
 	}, [tokens]);
 
@@ -136,7 +137,7 @@ export const useFlowStateManagement = () => {
 				sessionStorage.removeItem(STORAGE_KEYS.USER_INFO);
 			}
 		} catch (error) {
-			console.warn('Failed to save user info to storage:', error);
+			logger.warn('Failed to save user info to storage:', error);
 		}
 	}, [userInfo]);
 
@@ -144,7 +145,7 @@ export const useFlowStateManagement = () => {
 		try {
 			sessionStorage.setItem(STORAGE_KEYS.STEP_COMPLETION, JSON.stringify(stepCompletion));
 		} catch (error) {
-			console.warn('Failed to save step completion to storage:', error);
+			logger.warn('Failed to save step completion to storage:', error);
 		}
 	}, [stepCompletion]);
 
@@ -152,7 +153,7 @@ export const useFlowStateManagement = () => {
 		try {
 			sessionStorage.setItem(STORAGE_KEYS.CREDENTIALS, JSON.stringify(credentials));
 		} catch (error) {
-			console.warn('Failed to save credentials to storage:', error);
+			logger.warn('Failed to save credentials to storage:', error);
 		}
 	}, [credentials]);
 
@@ -311,7 +312,7 @@ export const useFlowStateManagement = () => {
 				sessionStorage.removeItem(key);
 			});
 		} catch (error) {
-			console.warn('Failed to clear storage:', error);
+			logger.warn('Failed to clear storage:', error);
 		}
 	}, []);
 
