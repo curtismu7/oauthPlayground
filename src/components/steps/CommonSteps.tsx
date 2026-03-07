@@ -622,7 +622,7 @@ export const createPKCEStep = (
 								<FiCopy /> Copy
 							</CopyButton>
 						</div>
-						<TokenDisplay>{pkceCodes.codeVerifier}</TokenDisplay>
+						<TokenDisplay>{maskToken(pkceCodes.codeVerifier)}</TokenDisplay>
 					</FormField>
 
 					<FormField>
@@ -641,7 +641,7 @@ export const createPKCEStep = (
 								<FiCopy /> Copy
 							</CopyButton>
 						</div>
-						<TokenDisplay>{pkceCodes.codeChallenge}</TokenDisplay>
+						<TokenDisplay>{maskToken(pkceCodes.codeChallenge)}</TokenDisplay>
 					</FormField>
 				</div>
 			)}
