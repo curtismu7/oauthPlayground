@@ -8,6 +8,7 @@ import type { PingOneApplicationState } from '../../../components/PingOneApplica
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
+import { logger } from '../../../../utils/logger';
 
 interface FlowConfigurationProps {
 	credentials: FlowCredentials;
@@ -297,7 +298,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				);
 				console.log('✅ Configuration saved successfully');
 			} catch (error) {
-				console.error('❌ Failed to save configuration:', error);
+				logger.error('❌ Failed to save configuration:', error);
 			}
 		} else {
 			setValidationErrors(errors);
