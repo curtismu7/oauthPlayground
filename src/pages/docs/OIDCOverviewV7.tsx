@@ -222,7 +222,7 @@ interface OIDCFlow {
 	id: string;
 	title: string;
 	description: string;
-	icon: React.ComponentType<any>;
+	icon: React.ComponentType<Record<string, unknown>>;
 	color: string;
 	securityLevel: number;
 	deprecated?: boolean;
