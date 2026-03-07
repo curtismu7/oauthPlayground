@@ -1404,7 +1404,7 @@ class CredentialManager {
 	/**
 	 * Save arbitrary custom credentials scoped by a unique key
 	 */
-	saveCustomData<T = any>(key: string, data: T): boolean {
+	saveCustomData<T = unknown>(key: string, data: T): boolean {
 		try {
 			const storageKey = this.getCustomStorageKey(key);
 			localStorage.setItem(storageKey, JSON.stringify(data));
@@ -1419,7 +1419,7 @@ class CredentialManager {
 	/**
 	 * Load previously saved custom credentials
 	 */
-	loadCustomData<T = any>(key: string, defaultValue: T | null = null): T | null {
+	loadCustomData<T = unknown>(key: string, defaultValue: T | null = null): T | null {
 		try {
 			const storageKey = this.getCustomStorageKey(key);
 			const stored = localStorage.getItem(storageKey);

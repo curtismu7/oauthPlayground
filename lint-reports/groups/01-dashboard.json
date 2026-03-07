@@ -1,7 +1,7 @@
 {
   "group_id": "dashboard",
   "label": "Dashboard",
-  "scanned_at": "2026-03-07T14:06:33.766214+00:00",
+  "scanned_at": "2026-03-07T16:26:43.699219+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/AppVersionBadge.tsx",
@@ -58,18 +58,18 @@
   ],
   "biome": {
     "errors": 0,
-    "warnings": 3,
+    "warnings": 0,
     "auto_fixed": 0
   },
   "eslint": {
-    "errors": 3,
+    "errors": 0,
     "warnings": 7
   },
   "tsc": {
     "errors": 0
   },
   "runtime": {
-    "errors": 10,
+    "errors": 0,
     "warnings": 22
   },
   "tests": {
@@ -82,54 +82,6 @@
   "issues": [
     {
       "id": "dashboard-001",
-      "tool": "biome",
-      "file": "src/utils/credentialManager.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-002",
-      "tool": "biome",
-      "file": "src/utils/credentialManager.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-003",
-      "tool": "biome",
-      "file": "src/utils/logger.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-004",
       "tool": "eslint",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1090,
@@ -145,7 +97,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-005",
+      "id": "dashboard-002",
       "tool": "eslint",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1538,
@@ -161,7 +113,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-006",
+      "id": "dashboard-003",
       "tool": "eslint",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1912,
@@ -177,7 +129,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-007",
+      "id": "dashboard-004",
       "tool": "eslint",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2166,
@@ -193,7 +145,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-008",
+      "id": "dashboard-005",
       "tool": "eslint",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2488,
@@ -209,7 +161,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-009",
+      "id": "dashboard-006",
       "tool": "eslint",
       "file": "src/utils/configurationStatus.ts",
       "line": 155,
@@ -225,7 +177,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-010",
+      "id": "dashboard-007",
       "tool": "eslint",
       "file": "src/utils/configurationStatus.ts",
       "line": 212,
@@ -241,55 +193,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-011",
-      "tool": "eslint",
-      "file": "src/utils/credentialManager.ts",
-      "line": 1407,
-      "col": 21,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-012",
-      "tool": "eslint",
-      "file": "src/utils/credentialManager.ts",
-      "line": 1422,
-      "col": 21,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-013",
-      "tool": "eslint",
-      "file": "src/utils/logger.ts",
-      "line": 229,
-      "col": 31,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-014",
+      "id": "dashboard-008",
       "tool": "runtime-analysis",
       "file": "src/components/Icon/Icon.tsx",
       "line": 57,
@@ -305,7 +209,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-015",
+      "id": "dashboard-009",
       "tool": "runtime-analysis",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 237,
@@ -321,7 +225,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-016",
+      "id": "dashboard-010",
       "tool": "a11y-keyboard",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 301,
@@ -337,7 +241,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-017",
+      "id": "dashboard-011",
       "tool": "a11y-keyboard",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 305,
@@ -353,7 +257,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-018",
+      "id": "dashboard-012",
       "tool": "a11y-keyboard",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 328,
@@ -369,7 +273,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-019",
+      "id": "dashboard-013",
       "tool": "a11y-keyboard",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 333,
@@ -385,7 +289,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-020",
+      "id": "dashboard-014",
       "tool": "a11y-color",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 323,
@@ -401,7 +305,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-021",
+      "id": "dashboard-015",
       "tool": "a11y-color",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 149,
@@ -417,7 +321,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-022",
+      "id": "dashboard-016",
       "tool": "a11y-color",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 323,
@@ -433,7 +337,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-023",
+      "id": "dashboard-017",
       "tool": "a11y-color",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 323,
@@ -449,7 +353,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-024",
+      "id": "dashboard-018",
       "tool": "migration-check",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 204,
@@ -465,7 +369,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-025",
+      "id": "dashboard-019",
       "tool": "migration-check",
       "file": "src/components/ServerHealthCheck.tsx",
       "line": 204,
@@ -481,7 +385,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-026",
+      "id": "dashboard-020",
       "tool": "runtime-analysis",
       "file": "src/hooks/useServerHealth.ts",
       "line": 81,
@@ -497,7 +401,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-027",
+      "id": "dashboard-021",
       "tool": "migration-check",
       "file": "src/hooks/useServerHealth.ts",
       "line": 28,
@@ -513,7 +417,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-028",
+      "id": "dashboard-022",
       "tool": "migration-check",
       "file": "src/hooks/useServerHealth.ts",
       "line": 28,
@@ -529,7 +433,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-029",
+      "id": "dashboard-023",
       "tool": "runtime-analysis",
       "file": "src/pages/Dashboard.tsx",
       "line": 431,
@@ -545,7 +449,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-030",
+      "id": "dashboard-024",
       "tool": "runtime-analysis",
       "file": "src/pages/Dashboard.tsx",
       "line": 625,
@@ -561,7 +465,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-031",
+      "id": "dashboard-025",
       "tool": "runtime-analysis",
       "file": "src/pages/Dashboard.tsx",
       "line": 763,
@@ -577,7 +481,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-032",
+      "id": "dashboard-026",
       "tool": "a11y-keyboard",
       "file": "src/pages/Dashboard.tsx",
       "line": 396,
@@ -593,7 +497,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-033",
+      "id": "dashboard-027",
       "tool": "a11y-keyboard",
       "file": "src/pages/Dashboard.tsx",
       "line": 573,
@@ -609,103 +513,103 @@
       "notes": null
     },
     {
+      "id": "dashboard-028",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 537,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "dashboard-029",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 561,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "dashboard-030",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 537,
+      "col": 1,
+      "severity": "warning",
+      "rule": "a11y-color/color-only-error-state",
+      "message": "Error/success state may be communicated by color alone — add an icon, text label, or aria-label (WCAG 1.4.1)",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "dashboard-031",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 561,
+      "col": 1,
+      "severity": "warning",
+      "rule": "a11y-color/color-only-error-state",
+      "message": "Error/success state may be communicated by color alone — add an icon, text label, or aria-label (WCAG 1.4.1)",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "dashboard-032",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 537,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/inline-color-style",
+      "message": "Inline color style= on JSX element — extract to CSS module or design token to support high-contrast mode",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "dashboard-033",
+      "tool": "a11y-color",
+      "file": "src/pages/Dashboard.tsx",
+      "line": 561,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/inline-color-style",
+      "message": "Inline color style= on JSX element — extract to CSS module or design token to support high-contrast mode",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
       "id": "dashboard-034",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 537,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-035",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 561,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-036",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 537,
-      "col": 1,
-      "severity": "warning",
-      "rule": "a11y-color/color-only-error-state",
-      "message": "Error/success state may be communicated by color alone — add an icon, text label, or aria-label (WCAG 1.4.1)",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-037",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 561,
-      "col": 1,
-      "severity": "warning",
-      "rule": "a11y-color/color-only-error-state",
-      "message": "Error/success state may be communicated by color alone — add an icon, text label, or aria-label (WCAG 1.4.1)",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-038",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 537,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/inline-color-style",
-      "message": "Inline color style= on JSX element — extract to CSS module or design token to support high-contrast mode",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-039",
-      "tool": "a11y-color",
-      "file": "src/pages/Dashboard.tsx",
-      "line": 561,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/inline-color-style",
-      "message": "Inline color style= on JSX element — extract to CSS module or design token to support high-contrast mode",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-040",
       "tool": "runtime-analysis",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 317,
@@ -721,7 +625,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-041",
+      "id": "dashboard-035",
       "tool": "runtime-analysis",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 320,
@@ -737,7 +641,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-042",
+      "id": "dashboard-036",
       "tool": "a11y-keyboard",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 368,
@@ -753,7 +657,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-043",
+      "id": "dashboard-037",
       "tool": "migration-check",
       "file": "src/services/customDomainService.ts",
       "line": 98,
@@ -769,7 +673,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-044",
+      "id": "dashboard-038",
       "tool": "migration-check",
       "file": "src/services/customDomainService.ts",
       "line": 110,
@@ -785,7 +689,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-045",
+      "id": "dashboard-039",
       "tool": "migration-check",
       "file": "src/services/customDomainService.ts",
       "line": 117,
@@ -801,7 +705,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-046",
+      "id": "dashboard-040",
       "tool": "migration-check",
       "file": "src/services/customDomainService.ts",
       "line": 128,
@@ -817,7 +721,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-047",
+      "id": "dashboard-041",
       "tool": "runtime-analysis",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 148,
@@ -833,7 +737,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-048",
+      "id": "dashboard-042",
       "tool": "runtime-analysis",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 224,
@@ -849,7 +753,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-049",
+      "id": "dashboard-043",
       "tool": "runtime-analysis",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 296,
@@ -865,7 +769,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-050",
+      "id": "dashboard-044",
       "tool": "runtime-analysis",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 112,
@@ -881,7 +785,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-051",
+      "id": "dashboard-045",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 97,
@@ -897,7 +801,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-052",
+      "id": "dashboard-046",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 109,
@@ -913,7 +817,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-053",
+      "id": "dashboard-047",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 115,
@@ -929,7 +833,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-054",
+      "id": "dashboard-048",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 210,
@@ -945,7 +849,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-055",
+      "id": "dashboard-049",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 218,
@@ -961,7 +865,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-056",
+      "id": "dashboard-050",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 228,
@@ -977,7 +881,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-057",
+      "id": "dashboard-051",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 234,
@@ -993,7 +897,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-058",
+      "id": "dashboard-052",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 252,
@@ -1009,7 +913,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-059",
+      "id": "dashboard-053",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 310,
@@ -1025,7 +929,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-060",
+      "id": "dashboard-054",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 332,
@@ -1041,7 +945,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-061",
+      "id": "dashboard-055",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 338,
@@ -1057,7 +961,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-062",
+      "id": "dashboard-056",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 342,
@@ -1073,7 +977,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-063",
+      "id": "dashboard-057",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 346,
@@ -1089,7 +993,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-064",
+      "id": "dashboard-058",
       "tool": "migration-check",
       "file": "src/services/oidcDiscoveryService.ts",
       "line": 350,
@@ -1105,7 +1009,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-065",
+      "id": "dashboard-059",
       "tool": "runtime-analysis",
       "file": "src/services/serverHealthService.ts",
       "line": 179,
@@ -1121,7 +1025,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-066",
+      "id": "dashboard-060",
       "tool": "migration-check",
       "file": "src/services/serverHealthService.ts",
       "line": 76,
@@ -1137,7 +1041,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-067",
+      "id": "dashboard-061",
       "tool": "migration-check",
       "file": "src/services/serverHealthService.ts",
       "line": 161,
@@ -1153,103 +1057,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-068",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 1407,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-069",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 1639,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-070",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 2028,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-071",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 2295,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-072",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 2798,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-073",
-      "tool": "runtime-analysis",
-      "file": "src/services/unifiedTokenStorageService.ts",
-      "line": 2902,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-074",
+      "id": "dashboard-062",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 356,
@@ -1265,7 +1073,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-075",
+      "id": "dashboard-063",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 494,
@@ -1281,7 +1089,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-076",
+      "id": "dashboard-064",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 605,
@@ -1297,7 +1105,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-077",
+      "id": "dashboard-065",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 826,
@@ -1313,7 +1121,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-078",
+      "id": "dashboard-066",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1412,
@@ -1329,7 +1137,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-079",
+      "id": "dashboard-067",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1516,
@@ -1345,7 +1153,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-080",
+      "id": "dashboard-068",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1533,
@@ -1361,7 +1169,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-081",
+      "id": "dashboard-069",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1780,
@@ -1377,7 +1185,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-082",
+      "id": "dashboard-070",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1888,
@@ -1393,7 +1201,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-083",
+      "id": "dashboard-071",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1907,
@@ -1409,7 +1217,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-084",
+      "id": "dashboard-072",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2144,
@@ -1425,7 +1233,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-085",
+      "id": "dashboard-073",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2161,
@@ -1441,7 +1249,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-086",
+      "id": "dashboard-074",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2483,
@@ -1457,7 +1265,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-087",
+      "id": "dashboard-075",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 2724,
@@ -1473,7 +1281,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-088",
+      "id": "dashboard-076",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 591,
@@ -1489,7 +1297,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-089",
+      "id": "dashboard-077",
       "tool": "runtime-analysis",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 702,
@@ -1505,7 +1313,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-090",
+      "id": "dashboard-078",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 451,
@@ -1521,7 +1329,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-091",
+      "id": "dashboard-079",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 586,
@@ -1537,7 +1345,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-092",
+      "id": "dashboard-080",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 696,
@@ -1553,7 +1361,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-093",
+      "id": "dashboard-081",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 799,
@@ -1569,7 +1377,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-094",
+      "id": "dashboard-082",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 923,
@@ -1585,7 +1393,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-095",
+      "id": "dashboard-083",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 434,
@@ -1601,7 +1409,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-096",
+      "id": "dashboard-084",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 463,
@@ -1617,7 +1425,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-097",
+      "id": "dashboard-085",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 550,
@@ -1633,7 +1441,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-098",
+      "id": "dashboard-086",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 588,
@@ -1649,7 +1457,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-099",
+      "id": "dashboard-087",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 679,
@@ -1665,7 +1473,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-100",
+      "id": "dashboard-088",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 699,
@@ -1681,7 +1489,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-101",
+      "id": "dashboard-089",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 751,
@@ -1697,7 +1505,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-102",
+      "id": "dashboard-090",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 782,
@@ -1713,7 +1521,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-103",
+      "id": "dashboard-091",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 804,
@@ -1729,7 +1537,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-104",
+      "id": "dashboard-092",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 823,
@@ -1745,7 +1553,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-105",
+      "id": "dashboard-093",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 906,
@@ -1761,7 +1569,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-106",
+      "id": "dashboard-094",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 928,
@@ -1777,7 +1585,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-107",
+      "id": "dashboard-095",
       "tool": "migration-check",
       "file": "src/services/unifiedTokenStorageService.ts",
       "line": 1571,
@@ -1793,71 +1601,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-108",
-      "tool": "runtime-analysis",
-      "file": "src/utils/configurationStatus.ts",
-      "line": 65,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-109",
-      "tool": "runtime-analysis",
-      "file": "src/utils/configurationStatus.ts",
-      "line": 118,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-110",
-      "tool": "runtime-analysis",
-      "file": "src/utils/credentialManager.ts",
-      "line": 250,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-111",
-      "tool": "runtime-analysis",
-      "file": "src/utils/credentialManager.ts",
-      "line": 368,
-      "col": 1,
-      "severity": "error",
-      "rule": "runtime-analysis/json-parse-no-try",
-      "message": "JSON.parse() outside try/catch — throws SyntaxError on bad input",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "dashboard-112",
+      "id": "dashboard-096",
       "tool": "runtime-analysis",
       "file": "src/utils/credentialManager.ts",
       "line": 935,
@@ -1873,7 +1617,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-113",
+      "id": "dashboard-097",
       "tool": "migration-check",
       "file": "src/utils/credentialManager.ts",
       "line": 930,
@@ -1889,7 +1633,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-114",
+      "id": "dashboard-098",
       "tool": "migration-check",
       "file": "src/utils/credentialManager.ts",
       "line": 930,
@@ -1905,7 +1649,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-115",
+      "id": "dashboard-099",
       "tool": "migration-check",
       "file": "src/utils/credentialManager.ts",
       "line": 1272,
@@ -1921,7 +1665,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-116",
+      "id": "dashboard-100",
       "tool": "migration-check",
       "file": "src/utils/logger.ts",
       "line": 105,
@@ -1937,7 +1681,7 @@
       "notes": null
     },
     {
-      "id": "dashboard-117",
+      "id": "dashboard-101",
       "tool": "migration-check",
       "file": "src/utils/logger.ts",
       "line": 113,
@@ -1954,12 +1698,12 @@
     }
   ],
   "summary": {
-    "total": 117,
-    "errors": 13,
-    "warnings": 32,
+    "total": 101,
+    "errors": 0,
+    "warnings": 29,
     "auto_fixed": 0,
-    "manual_required": 117,
-    "open": 117,
+    "manual_required": 101,
+    "open": 101,
     "in_progress": 0,
     "fixed": 0,
     "waived": 0
