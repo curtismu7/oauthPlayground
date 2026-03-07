@@ -34,6 +34,17 @@ import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();
@@ -850,7 +861,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 								{controller.tokens?.access_token && (
 									<GeneratedContentBox>
 										<GeneratedLabel>Example API Call</GeneratedLabel>
-										<CodeBlock>{`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\
+										<CodeBlock>{`curl -H "Authorization: Bearer ${maskToken(controller.tokens.access_token)}" \\
   https://api.example.com/protected-resource`}</CodeBlock>
 										<ActionRow>
 											<CopyButtonService

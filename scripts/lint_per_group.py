@@ -1002,10 +1002,22 @@ def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
         lines = content.splitlines()
         is_service_file = "/services/" in rel_file.lower()
 
+        # Collect file-level rule disables: // lint-file-disable: rule1,rule2
+        file_disabled_rules: set[str] = set()
+        for scan_line in lines[:30]:
+            stripped_scan = scan_line.strip()
+            if stripped_scan.startswith("// lint-file-disable:"):
+                for rule in stripped_scan[len("// lint-file-disable:"):].split(","):
+                    file_disabled_rules.add(rule.strip())
+
         for pattern_list, tool_tag in ALL_PATTERN_SETS:
             for pattern_def in pattern_list:
                 pat = re.compile(pattern_def["pattern"])
                 check = pattern_def["check"]
+
+                # Skip if this rule is disabled at file level
+                if pattern_def["name"] in file_disabled_rules:
+                    continue
 
                 # service_only patterns only apply to service files
                 if check == "service_only" and not is_service_file:

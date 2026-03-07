@@ -4,6 +4,17 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const Container = styled.div`
 	max-width: 800px;
 	margin: 2rem auto;
@@ -136,7 +147,7 @@ const TestCallback: React.FC = () => {
 						{tokens.access_token && (
 							<div>
 								<TokenLabel>Access Token</TokenLabel>
-								<TokenValue>{tokens.access_token}</TokenValue>
+								<TokenValue>{maskToken(tokens.access_token)}</TokenValue>
 								<Button onClick={() => handleCopyToken(tokens.access_token)}>Copy Token</Button>
 							</div>
 						)}
@@ -144,7 +155,7 @@ const TestCallback: React.FC = () => {
 						{tokens.id_token && (
 							<div>
 								<TokenLabel>ID Token</TokenLabel>
-								<TokenValue>{tokens.id_token}</TokenValue>
+								<TokenValue>{maskToken(tokens.id_token)}</TokenValue>
 								<Button onClick={() => handleCopyToken(tokens.id_token)}>Copy Token</Button>
 							</div>
 						)}
@@ -152,7 +163,7 @@ const TestCallback: React.FC = () => {
 						{tokens.refresh_token && (
 							<div>
 								<TokenLabel>Refresh Token</TokenLabel>
-								<TokenValue>{tokens.refresh_token}</TokenValue>
+								<TokenValue>{maskToken(tokens.refresh_token)}</TokenValue>
 								<Button onClick={() => handleCopyToken(tokens.refresh_token)}>Copy Token</Button>
 							</div>
 						)}

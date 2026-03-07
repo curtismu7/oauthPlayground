@@ -38,6 +38,17 @@ interface UserInfo {
 	preferred_username?: string;
 }
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Step metadata
 const STEP_METADATA = [
 	{
@@ -582,7 +593,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									</button>
 								</div>
 								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
-									{tokenResponse.access_token}
+									{maskToken(tokenResponse.access_token)}
 								</div>
 
 								<div style={{ marginTop: '1rem', fontSize: '0.875rem' }}>
@@ -617,7 +628,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 											<div
 												style={{ wordBreak: 'break-all', color: '#6b7280', marginTop: '0.25rem' }}
 											>
-												{tokenResponse.refresh_token}
+												{maskToken(tokenResponse.refresh_token)}
 											</div>
 										</div>
 									)}
@@ -740,7 +751,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									</button>
 								</div>
 								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
-									{refreshedToken.access_token}
+									{maskToken(refreshedToken.access_token)}
 								</div>
 
 								<div style={{ marginTop: '1rem', fontSize: '0.875rem' }}>

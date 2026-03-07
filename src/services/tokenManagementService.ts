@@ -176,7 +176,7 @@ export class TokenManagementService {
 			const _headers = this.buildTokenHeaders(authMethod);
 
 			// Convert FormData to JSON if needed
-			let jsonBody: any = {};
+			let jsonBody: Record<string, string> = {};
 			if (requestBody instanceof FormData) {
 				for (const [key, value] of requestBody.entries()) {
 					jsonBody[key] = value;

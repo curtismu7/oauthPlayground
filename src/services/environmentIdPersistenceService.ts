@@ -18,7 +18,7 @@ class EnvironmentIdPersistenceService {
 	private getEnvVar(name: string): string | undefined {
 		try {
 			// @ts-expect-error - import.meta is a Vite construct; guarded access
-			const meta: any = import.meta as any;
+			const meta = import.meta as unknown as { env?: Record<string, string> };
 			const env = meta?.env ? meta.env : undefined;
 			if (env) {
 				// Try exact name first
@@ -266,5 +266,5 @@ export const environmentIdPersistenceService = new EnvironmentIdPersistenceServi
 
 // Export for global access in development
 if (typeof window !== 'undefined') {
-	(window as any).environmentIdPersistenceService = environmentIdPersistenceService;
+	(window as Record<string, unknown>).environmentIdPersistenceService = environmentIdPersistenceService;
 }

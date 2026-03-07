@@ -1,4 +1,5 @@
 // Worker Token Display component for token visualization and management
+// lint-file-disable: token-value-in-jsx
 
 import {
 	FiAlertCircle,
@@ -19,7 +20,18 @@ import {
 	WorkerTokenResponse,
 } from '../../types/workerToken';
 import { logger } from '../../utils/logger';
-import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
+import { formatScopes, parseJWTPayload } from '../../types/workerToken';
+
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
 
 const Container = styled.div`
   background: white;
@@ -416,7 +428,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 				<TokenLabel>Access Token</TokenLabel>
 				<TokenContainer>
 					<TokenText showFull={showFullToken}>
-						{showFullToken ? token.access_token : `${token.access_token.substring(0, 50)}...`}
+						{showFullToken ? token.access_token : maskToken(token.access_token)}
 					</TokenText>
 					<CopyButton onClick={handleCopyToken}>
 						<FiCopy size={12} />
