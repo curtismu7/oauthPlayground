@@ -1,0 +1,184 @@
+{
+  "collapsibleHeaderService.tsx": [
+    "dashboard",
+    "oauth-flows"
+  ],
+  "customDomainService.ts": [
+    "dashboard"
+  ],
+  "oidcDiscoveryService.ts": [
+    "dashboard",
+    "oauth-flows"
+  ],
+  "serverHealthService.ts": [
+    "dashboard"
+  ],
+  "unifiedTokenStorageService.ts": [
+    "dashboard"
+  ],
+  "FlowInfoService.ts": [
+    "oauth-flows"
+  ],
+  "FlowWalkthroughService.ts": [
+    "oauth-flows"
+  ],
+  "authenticationModalService.tsx": [
+    "oauth-flows"
+  ],
+  "authorizationCodeSharedService.ts": [
+    "oauth-flows"
+  ],
+  "authorizationUrlValidationModalService.tsx": [
+    "oauth-flows"
+  ],
+  "authorizationUrlValidationService.ts": [
+    "oauth-flows"
+  ],
+  "callbackUriService.ts": [
+    "oauth-flows"
+  ],
+  "codeExamplesService.ts": [
+    "oauth-flows"
+  ],
+  "comprehensiveCredentialsService.tsx": [
+    "oauth-flows"
+  ],
+  "comprehensiveDiscoveryService.ts": [
+    "oauth-flows"
+  ],
+  "comprehensiveFlowDataService.ts": [
+    "oauth-flows"
+  ],
+  "configComparisonService.ts": [
+    "oauth-flows"
+  ],
+  "copyButtonService.tsx": [
+    "oauth-flows"
+  ],
+  "credentialBackupService.ts": [
+    "oauth-flows"
+  ],
+  "credentialsValidationService.ts": [
+    "oauth-flows"
+  ],
+  "deviceFlowService.ts": [
+    "oauth-flows"
+  ],
+  "deviceTypeService.tsx": [
+    "oauth-flows"
+  ],
+  "discoveryPersistenceService.ts": [
+    "oauth-flows"
+  ],
+  "educationPreferenceService.ts": [
+    "oauth-flows"
+  ],
+  "enhancedApiCallDisplayService.ts": [
+    "oauth-flows"
+  ],
+  "environmentIdPersistenceService.ts": [
+    "oauth-flows"
+  ],
+  "flowCompletionService.tsx": [
+    "oauth-flows"
+  ],
+  "flowCredentialIsolationService.ts": [
+    "oauth-flows"
+  ],
+  "flowCredentialService.ts": [
+    "oauth-flows"
+  ],
+  "flowHeaderService.tsx": [
+    "oauth-flows"
+  ],
+  "flowRedirectUriService.ts": [
+    "oauth-flows"
+  ],
+  "flowScopeMappingService.ts": [
+    "oauth-flows"
+  ],
+  "flowSequenceService.ts": [
+    "oauth-flows"
+  ],
+  "flowStateService.ts": [
+    "oauth-flows"
+  ],
+  "flowStorageService.ts": [
+    "oauth-flows"
+  ],
+  "flowTrackingService.ts": [
+    "oauth-flows"
+  ],
+  "flowUIService.tsx": [
+    "oauth-flows"
+  ],
+  "implicitFlowSharedService.ts": [
+    "oauth-flows"
+  ],
+  "loggingService.ts": [
+    "oauth-flows"
+  ],
+  "oauthErrorHandlingService.ts": [
+    "oauth-flows"
+  ],
+  "pingOneAppCreationService.ts": [
+    "oauth-flows"
+  ],
+  "pingOneApplicationService.ts": [
+    "oauth-flows"
+  ],
+  "pkceGenerationService.tsx": [
+    "oauth-flows"
+  ],
+  "scopeValidationService.ts": [
+    "oauth-flows"
+  ],
+  "securityFeaturesConfigService.tsx": [
+    "oauth-flows"
+  ],
+  "sessionTerminationService.ts": [
+    "oauth-flows"
+  ],
+  "themeService.ts": [
+    "oauth-flows"
+  ],
+  "tokenDisplayService.ts": [
+    "oauth-flows"
+  ],
+  "tokenExpirationService.ts": [
+    "oauth-flows"
+  ],
+  "tokenIntrospectionService.ts": [
+    "oauth-flows"
+  ],
+  "uiSettingsService.tsx": [
+    "oauth-flows"
+  ],
+  "unifiedTokenDisplayService.tsx": [
+    "oauth-flows"
+  ],
+  "unifiedWorkerTokenService.ts": [
+    "oauth-flows"
+  ],
+  "V9CredentialStorageService.ts": [
+    "oauth-flows"
+  ],
+  "V9ModernMessagingService.ts": [
+    "oauth-flows"
+  ],
+  "environmentIdServiceV9.ts": [
+    "oauth-flows"
+  ],
+  "v9FlowUIService.tsx": [
+    "oauth-flows"
+  ],
+  "unifiedFlowLoggerServiceV8U.ts": [
+    "oauth-flows"
+  ],
+  "unifiedOAuthBackupServiceV8U.ts": [
+    "oauth-flows"
+  ],
+  "unifiedOAuthCredentialsServiceV8U.ts": [
+    "oauth-flows"
+  ]
+}
