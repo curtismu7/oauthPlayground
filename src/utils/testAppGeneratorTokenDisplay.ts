@@ -16,8 +16,7 @@ export function testAppGeneratorTokenDisplay() {
 		const isJWT = TokenDisplayService.isJWT(mockJWTToken);
 
 		// Test 2: Opaque Token Detection
-		!TokenDisplayService.isJWT(mockOpaqueToken);
-
+		void TokenDisplayService.isJWT(mockOpaqueToken);
 		// Test 3: Token Masking
 		TokenDisplayService.maskToken(mockJWTToken, 8);
 		TokenDisplayService.maskToken(mockOpaqueToken, 4);
