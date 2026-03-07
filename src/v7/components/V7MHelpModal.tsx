@@ -26,7 +26,13 @@ export const V7MHelpModal: React.FC<Props> = ({
 			aria-labelledby="v7m-help-title"
 			style={backdropStyle}
 			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') onClose();
+			}}
+			tabIndex={-1}
 		>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: inner content stops backdrop click propagation only */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: inner modal content container */}
 			<div style={modalStyle} onClick={(e) => e.stopPropagation()}>
 				<div style={{ ...headerStyle, backgroundColor: themeColor }}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -35,7 +41,7 @@ export const V7MHelpModal: React.FC<Props> = ({
 							{title}
 						</h2>
 					</div>
-					<button onClick={onClose} aria-label="Close" style={closeBtnStyle}>
+					<button type="button" onClick={onClose} aria-label="Close" style={closeBtnStyle}>
 						×
 					</button>
 				</div>

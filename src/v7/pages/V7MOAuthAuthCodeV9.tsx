@@ -1,4 +1,5 @@
 // src/v7/pages/V7MOAuthAuthCodeV9.tsx
+/* eslint-disable no-alert */
 
 import { FiBook, FiKey, FiSend } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
