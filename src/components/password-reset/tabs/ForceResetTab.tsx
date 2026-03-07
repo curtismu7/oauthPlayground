@@ -2,6 +2,7 @@
 // Force Password Reset Tab Component
 
 import React from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -11,7 +12,6 @@ import {
 import { forcePasswordChange, readPasswordState } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
@@ -52,10 +52,20 @@ export const ForceResetTab: React.FC<ForceResetTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: info.message,
+					dismissible: true,
+				});
 				return;
 			}
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: info.message,
+				dismissible: true,
+			});
 		},
 		[onError]
 	);
@@ -108,7 +118,11 @@ export const ForceResetTab: React.FC<ForceResetTabProps> = ({
 				setAfterState(afterUserState);
 
 				setSuccess(true);
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Password change forced successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Password change forced successfully',
+					duration: 4000,
+				});
 				return;
 			}
 

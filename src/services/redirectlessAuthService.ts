@@ -2,8 +2,8 @@
 // Reusable service for PingOne redirectless authentication flows (response_mode=pi.flow)
 // Based on working implementations in PingOneAuthentication.tsx and RedirectlessFlowV7_Real.tsx
 
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export interface RedirectlessAuthCredentials {
 	environmentId: string;
@@ -793,7 +793,12 @@ export class RedirectlessAuthService {
 			if (config.onError) {
 				config.onError(error instanceof Error ? error : new Error(errorMessage));
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Redirectless authentication failed: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Redirectless authentication failed: ${errorMessage}`,
+					dismissible: true,
+				});
 			}
 
 			throw error;

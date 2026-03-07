@@ -4,8 +4,8 @@
 import { FiRefreshCw, FiSettings, FiZap } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -172,13 +172,21 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 	const [defaultMasked, setDefaultMasked] = useState(false);
 
 	const handleTokenAnalyze = (tokenType: string, _token: string) => {
-		modernMessaging.showFooterMessage({ type: 'info', message: `Custom analysis requested for ${tokenType} token`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Custom analysis requested for ${tokenType} token`,
+			duration: 4000,
+		});
 	};
 
 	const generateNewTokens = () => {
 		// Simulate generating new tokens with different timestamps
 		const _timestamp = Date.now();
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Generated new mock tokens with fresh timestamps', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Generated new mock tokens with fresh timestamps',
+			duration: 4000,
+		});
 	};
 
 	return (

@@ -4,8 +4,8 @@
 import { FiCopy, FiExternalLink, FiKey, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 
 interface InlineTokenDisplayProps {
 	label: string;
@@ -264,9 +264,18 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(token);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Token copied to clipboard', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Token copied to clipboard',
+				duration: 4000,
+			});
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy token',
+				dismissible: true,
+			});
 		}
 	};
 

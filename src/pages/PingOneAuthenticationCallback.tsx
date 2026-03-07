@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { PKCEStorageServiceV8U } from '../v8u/services/pkceStorageServiceV8U';
 import {
 	DEFAULT_CONFIG,
@@ -365,27 +365,54 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				});
 
 				if (errorParam === 'unsupported_response_type') {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.',
+						dismissible: true,
+					});
 					setError(
 						`Unsupported response type: ${errorDescription || 'Your PingOne application does not support the selected response type. Please use "code" (Authorization Code) instead.'}`
 					);
 				} else if (errorParam === 'invalid_client') {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid client configuration. Check your Client ID and Client Secret.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Invalid client configuration. Check your Client ID and Client Secret.',
+						dismissible: true,
+					});
 					setError(
 						`Client error: ${errorDescription || 'Invalid client credentials or configuration.'}`
 					);
 				} else if (errorParam === 'invalid_scope') {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid scope configuration. Check your scopes in PingOne application settings.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Invalid scope configuration. Check your scopes in PingOne application settings.',
+						dismissible: true,
+					});
 					setError(
 						`Scope error: ${errorDescription || 'The requested scopes are not valid for this application.'}`
 					);
 				} else if (errorParam === 'invalid_request') {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid request parameters. Check your configuration.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Invalid request parameters. Check your configuration.',
+						dismissible: true,
+					});
 					setError(
 						`Request error: ${errorDescription || 'The request parameters are invalid. Please check your configuration.'}`
 					);
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication error: ${errorParam}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Authentication error: ${errorParam}`,
+						dismissible: true,
+					});
 					setError(`Authentication failed: ${errorDescription || errorParam}`);
 				}
 
@@ -394,7 +421,12 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			}
 
 			if (Object.keys(mergedTokens).length === 0) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No tokens found on callback. Complete the flow and try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'No tokens found on callback. Complete the flow and try again.',
+					dismissible: true,
+				});
 				setError('Missing tokens in callback response.');
 				setIsProcessing(false);
 				return;
@@ -459,7 +491,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					sessionStorage.removeItem(REDIRECT_FLOW_CONTEXT_KEY);
 					sessionStorage.removeItem(FLOW_CONTEXT_KEY);
 
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization successful! Tokens received.', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Authorization successful! Tokens received.',
+						duration: 4000,
+					});
 
 					// Validate returnPath - never use dashboard for PingOne authentication
 					// CRITICAL: Always default to PingOne result page, never dashboard
@@ -511,7 +547,12 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						undefined,
 						tokenError as Error
 					);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to exchange authorization code for tokens.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Failed to exchange authorization code for tokens.',
+						dismissible: true,
+					});
 					setError(
 						`Token exchange failed: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`
 					);
@@ -619,7 +660,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				}
 			}
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens captured! Redirecting to the lounge…', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Tokens captured! Redirecting to the lounge…',
+				duration: 4000,
+			});
 
 			// Validate returnPath - never use dashboard for PingOne authentication
 			// CRITICAL: Always default to PingOne result page, never dashboard

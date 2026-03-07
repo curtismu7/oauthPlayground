@@ -909,9 +909,18 @@ const SecurityThreatTheater: React.FC = () => {
 			setIsSimulating(false);
 
 			if (mode === 'protected') {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Attack blocked by security parameter!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Attack blocked by security parameter!',
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security breach demonstrated!', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Security breach demonstrated!',
+					dismissible: true,
+				});
 			}
 		},
 		[scenario, addLog]

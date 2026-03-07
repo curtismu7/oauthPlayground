@@ -55,8 +55,8 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
 const ColoredIcon = styled.div<{ $color: string }>`
@@ -2604,7 +2604,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				}
 			}
 
-			modernMessaging.showFooterMessage({ type: 'status', message: `Moved "${sourceItem.label}" to ${targetLocation}`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Moved "${sourceItem.label}" to ${targetLocation}`,
+				duration: 4000,
+			});
 		}
 	};
 
@@ -2657,7 +2661,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 					setMenuGroups(newGroups);
 					saveWithFeedback(newGroups);
-					modernMessaging.showFooterMessage({ type: 'status', message: `Moved "${movedItem.label}" to end of ${targetGroup.label}`, duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: `Moved "${movedItem.label}" to end of ${targetGroup.label}`,
+						duration: 4000,
+					});
 
 					// Clear draggedItem after successful drop
 					setDraggedItem(null);
@@ -2681,7 +2689,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 			setMenuGroups(newGroups);
 			saveWithFeedback(newGroups);
-			modernMessaging.showFooterMessage({ type: 'status', message: `Reordered "${movedGroup.label}" section`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Reordered "${movedGroup.label}" section`,
+				duration: 4000,
+			});
 
 			// Clear draggedItem after successful drop
 			setDraggedItem(null);

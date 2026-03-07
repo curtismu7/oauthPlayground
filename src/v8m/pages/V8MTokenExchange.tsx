@@ -25,12 +25,12 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowUIService } from '../../services/flowUIService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -906,7 +906,11 @@ const V8MTokenExchange: React.FC = () => {
 			claims: scenarios[scenario].defaultClaims,
 			authorizationDetails: scenarios[scenario].defaultAuthDetails,
 		}));
-		modernMessaging.showFooterMessage({ type: 'status', message: `Selected ${scenarios[scenario].title} scenario`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `Selected ${scenarios[scenario].title} scenario`,
+			duration: 4000,
+		});
 	}, []);
 
 	const handleScopeToggle = useCallback((scopeName: string) => {
@@ -928,7 +932,12 @@ const V8MTokenExchange: React.FC = () => {
 
 	const simulateTokenExchange = useCallback(async () => {
 		if (selectedScopes.length === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one scope for the exchanged token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one scope for the exchanged token',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1029,7 +1038,11 @@ const V8MTokenExchange: React.FC = () => {
 
 		setExchangedToken(JSON.stringify(mockExchangedToken, null, 2));
 		setIsLoading(false);
-		modernMessaging.showFooterMessage({ type: 'status', message: `Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`,
+			duration: 4000,
+		});
 	}, [selectedScenario, exchangeParams.audience, selectedScopes, exchangeParams]);
 
 	const currentScenario = scenarios[selectedScenario];
@@ -2556,7 +2569,11 @@ function TokenExchangeComponent() {
 							// Simulate authorization request
 							const mockAuthCode = `auth_code_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 							setAuthCode(mockAuthCode);
-							modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code received!', duration: 4000 });
+							modernMessaging.showFooterMessage({
+								type: 'status',
+								message: 'Authorization code received!',
+								duration: 4000,
+							});
 						}}
 						disabled={!!authCode}
 					>
@@ -2633,7 +2650,11 @@ function TokenExchangeComponent() {
 								$variant="secondary"
 								onClick={() => {
 									navigator.clipboard.writeText(authCode);
-									modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code copied!', duration: 4000 });
+									modernMessaging.showFooterMessage({
+										type: 'status',
+										message: 'Authorization code copied!',
+										duration: 4000,
+									});
 								}}
 								style={{ marginTop: '0.5rem' }}
 							>
@@ -2768,7 +2789,12 @@ function TokenExchangeComponent() {
 								setSubjectToken(mockAccessToken); // This becomes the subject_token for Token Exchange
 								setIsExchangingAuthCode(false);
 
-								modernMessaging.showFooterMessage({ type: 'status', message: 'Access token received! This will be used as the subject_token for Token Exchange.', duration: 4000 });
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message:
+										'Access token received! This will be used as the subject_token for Token Exchange.',
+									duration: 4000,
+								});
 							}}
 							disabled={isExchangingAuthCode || !!initialAccessToken}
 							style={{ marginTop: '1rem' }}

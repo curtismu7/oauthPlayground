@@ -8,10 +8,10 @@
 
 import { FiEdit2, FiPlus, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
-import { logger } from '../../utils/logger';
 
 // ============================================================================
 // TYPES

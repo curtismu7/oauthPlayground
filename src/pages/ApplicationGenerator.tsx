@@ -17,6 +17,7 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { ExportImportPanel } from '../components/ExportImportPanel';
 import { PresetSelector } from '../components/PresetSelector';
@@ -39,7 +40,6 @@ import {
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
 import { clearAllTokens } from '../utils/tokenCleaner';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
@@ -632,7 +632,11 @@ const ApplicationGenerator: React.FC = () => {
 		if (result.success) {
 			console.log(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
 			if (result.clearedCount > 0) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `🧹 Cleared ${result.clearedCount} tokens for fresh start`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `🧹 Cleared ${result.clearedCount} tokens for fresh start`,
+					duration: 4000,
+				});
 			} else {
 				console.log('[ApplicationGenerator] No tokens found to clear');
 			}
@@ -642,7 +646,12 @@ const ApplicationGenerator: React.FC = () => {
 				'[ApplicationGenerator] Token clearing completed with errors:',
 				{ errors: result.errors }
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: '⚠️ Some tokens could not be cleared', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: '⚠️ Some tokens could not be cleared',
+				dismissible: true,
+			});
 		}
 
 		// Additional cleanup - clear any remaining token-related items
@@ -730,7 +739,11 @@ const ApplicationGenerator: React.FC = () => {
 			localStorage.setItem(APP_GENERATOR_STORAGE_KEY, JSON.stringify(payload));
 
 			setIsSavedIndicator(true);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Application configuration saved', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Application configuration saved',
+				duration: 4000,
+			});
 			setTimeout(() => setIsSavedIndicator(false), 3000);
 		} catch (error) {
 			logger.error(
@@ -739,7 +752,12 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save configuration',
+				dismissible: true,
+			});
 		}
 	}, [formData, selectedAppType]);
 
@@ -752,7 +770,11 @@ const ApplicationGenerator: React.FC = () => {
 			setCreationResult(null);
 			setIsSavedIndicator(false);
 			setCurrentStep(1);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Saved configuration cleared', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Saved configuration cleared',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'ApplicationGenerator',
@@ -760,7 +782,12 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear configuration',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -955,9 +982,18 @@ const ApplicationGenerator: React.FC = () => {
 			if (appliedFormData) {
 				setFormData(appliedFormData);
 				setValidationErrors(new Set()); // Clear validation errors
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Preset applied successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Preset applied successfully!',
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply preset', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to apply preset',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -966,13 +1002,23 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply preset', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to apply preset',
+				dismissible: true,
+			});
 		}
 	};
 
 	const _handleSaveAsPreset = async () => {
 		if (!selectedAppType) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an application type first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select an application type first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1023,9 +1069,17 @@ const ApplicationGenerator: React.FC = () => {
 			});
 
 			if (existingPreset) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Preset "${savedPreset.name}" updated successfully!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Preset "${savedPreset.name}" updated successfully!`,
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Preset "${savedPreset.name}" created successfully!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Preset "${savedPreset.name}" created successfully!`,
+					duration: 4000,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -1034,7 +1088,12 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save preset', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save preset',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -1048,7 +1107,11 @@ const ApplicationGenerator: React.FC = () => {
 				setSelectedAppType(metadata.appType);
 			}
 
-			modernMessaging.showFooterMessage({ type: 'status', message: `Configuration "${metadata?.name || 'imported'}" applied successfully!`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Configuration "${metadata?.name || 'imported'}" applied successfully!`,
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'ApplicationGenerator',
@@ -1056,7 +1119,12 @@ const ApplicationGenerator: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to apply imported configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to apply imported configuration',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -1113,7 +1181,12 @@ const ApplicationGenerator: React.FC = () => {
 		// Validate form
 		const validationErrors = validateForm();
 		if (validationErrors.length > 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: validationErrors.join(', '), dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: validationErrors.join(', '),
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1284,7 +1357,11 @@ const ApplicationGenerator: React.FC = () => {
 			setCreationErrorDetails(null);
 
 			if (result.success) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Application "${formData.name}" created successfully!`,
+					duration: 4000,
+				});
 				// Advance to results step
 				setCurrentStep(4);
 				// DON'T reset form - keep fields on screen for user reference
@@ -1293,9 +1370,19 @@ const ApplicationGenerator: React.FC = () => {
 				// Check if it's a name conflict error and provide helpful message
 				const errorMsg = result.error || '';
 				if (errorMsg.includes('name already exists') || errorMsg.includes('already exists')) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Application name "${formData.name}" already exists. Please try a different name.`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Application name "${formData.name}" already exists. Please try a different name.`,
+						dismissible: true,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${result.error}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Failed to create application: ${result.error}`,
+						dismissible: true,
+					});
 				}
 			}
 		} catch (error) {
@@ -1306,11 +1393,21 @@ const ApplicationGenerator: React.FC = () => {
 				const betterMessage = `Application name "${formData.name}" already exists. Please try a different name.`;
 				setCreationResult({ success: false, error: betterMessage });
 				setCreationErrorDetails(toErrorDetails(error));
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: betterMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: betterMessage,
+					dismissible: true,
+				});
 			} else {
 				setCreationResult({ success: false, error: errorMessage });
 				setCreationErrorDetails(toErrorDetails(error));
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsCreating(false);
@@ -1337,11 +1434,21 @@ const ApplicationGenerator: React.FC = () => {
 
 		// Validate required fields
 		if (!appName.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Application name is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Application name is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!redirectUri.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Redirect URI is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Redirect URI is required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1520,15 +1627,28 @@ const ApplicationGenerator: React.FC = () => {
 					hasSecret: !!result.app.clientSecret,
 				});
 
-				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully! Credentials updated.`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Application "${formData.name}" created successfully! Credentials updated.`,
+					duration: 4000,
+				});
 				// Advance to results step
 				setCurrentStep(4);
 				// DON'T reset form - keep fields on screen for user reference
 			} else if (result.success) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Application "${formData.name}" created successfully!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Application "${formData.name}" created successfully!`,
+					duration: 4000,
+				});
 				setCurrentStep(4);
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${result.error}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to create application: ${result.error}`,
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -1543,7 +1663,12 @@ const ApplicationGenerator: React.FC = () => {
 				error: errorMessage,
 			});
 			setCreationErrorDetails(toErrorDetails(error));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Application creation failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Application creation failed: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsCreating(false);
 		}
@@ -1565,7 +1690,11 @@ const ApplicationGenerator: React.FC = () => {
 							isCreating={isCreating}
 							onCreateApplication={handleCreateApplication}
 							onGenerateWorkerToken={() => {
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Please go to the Client Generator to create a new worker token.', duration: 4000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Please go to the Client Generator to create a new worker token.',
+									duration: 4000,
+								});
 							}}
 							onImportConfig={(importedConfig) => {
 								// Update form data with imported PingOne configuration
@@ -1579,7 +1708,11 @@ const ApplicationGenerator: React.FC = () => {
 									grantTypes: (importedConfig.grantTypes as string[]) || prev.grantTypes,
 									responseTypes: (importedConfig.responseTypes as string[]) || prev.responseTypes,
 								}));
-								modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported from PingOne!', duration: 4000 });
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message: 'Configuration imported from PingOne!',
+									duration: 4000,
+								});
 							}}
 						/>
 

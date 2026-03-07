@@ -5,12 +5,12 @@ import { FiChevronDown, FiCode, FiCopy, FiExternalLink } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type ApiCallDisplayOptions,
 	type EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`
@@ -424,9 +424,18 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	const handleCopy = useCallback(async (text: string, description: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			modernMessaging.showFooterMessage({ type: 'status', message: `${description} copied to clipboard.`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${description} copied to clipboard.`,
+				duration: 4000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy to clipboard.',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -437,7 +446,12 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		try {
 			await onExecute();
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to execute API call.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to execute API call.',
+				dismissible: true,
+			});
 		} finally {
 			setIsExecuting(false);
 		}
