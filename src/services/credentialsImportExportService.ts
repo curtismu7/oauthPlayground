@@ -36,7 +36,7 @@ export interface CredentialsConfiguration {
 		clientAuthMethod?: string;
 		grantTypes?: string[];
 		responseTypes?: string[];
-		[key: string]: any; // Allow additional flow-specific fields
+		[key: string]: unknown; // Allow additional flow-specific fields
 	};
 }
 
@@ -44,7 +44,7 @@ export interface ImportExportOptions {
 	flowType: string;
 	appName?: string;
 	description?: string;
-	onImportSuccess?: (credentials: any) => void;
+	onImportSuccess?: (credentials: Record<string, unknown>) => void;
 	onImportError?: (error: string) => void;
 	onExportSuccess?: () => void;
 	onExportError?: (error: string) => void;
@@ -57,7 +57,7 @@ class CredentialsImportExportService {
 	/**
 	 * Export credentials configuration as downloadable JSON file
 	 */
-	exportCredentials(credentials: Record<string, any>, options: ImportExportOptions): void {
+	exportCredentials(credentials: Record<string, unknown>, options: ImportExportOptions): void {
 		try {
 			const config: CredentialsConfiguration = {
 				_meta: {
@@ -120,7 +120,7 @@ class CredentialsImportExportService {
 	/**
 	 * Import credentials from uploaded JSON file
 	 */
-	async importCredentials(file: File, options: ImportExportOptions): Promise<any> {
+	async importCredentials(file: File, options: ImportExportOptions): Promise<unknown> {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
@@ -225,7 +225,7 @@ class CredentialsImportExportService {
 			if (!file) return;
 
 			this.importCredentials(file, options)
-				.then((_credentials) => {
+				.then(() => {
 					// Reset input to allow re-importing same file
 					event.target.value = '';
 				})
@@ -239,7 +239,7 @@ class CredentialsImportExportService {
 	/**
 	 * Create export handler function for React components
 	 */
-	createExportHandler(credentials: Record<string, any>, options: ImportExportOptions): () => void {
+	createExportHandler(credentials: Record<string, unknown>, options: ImportExportOptions): () => void {
 		return () => {
 			this.exportCredentials(credentials, options);
 		};
@@ -296,7 +296,7 @@ class CredentialsImportExportService {
 						errors: credentialErrors,
 						metadata: config._meta,
 					});
-				} catch (_error) {
+				} catch {
 					resolve({
 						valid: false,
 						errors: ['Invalid JSON format'],
@@ -318,9 +318,9 @@ class CredentialsImportExportService {
 	/**
 	 * Private helper methods
 	 */
-	private sanitizeCredentials(credentials: Record<string, any>): Record<string, any> {
+	private sanitizeCredentials(credentials: Record<string, unknown>): Record<string, unknown> {
 		// Remove sensitive or internal fields
-		const { lastUpdated, ...sanitized } = credentials;
+		const { lastUpdated: _lastUpdated, ...sanitized } = credentials;
 		return sanitized;
 	}
 
@@ -331,7 +331,7 @@ class CredentialsImportExportService {
 		return fileMajor === currentMajor;
 	}
 
-	private validateCredentials(credentials: Record<string, any>): string[] {
+	private validateCredentials(credentials: Record<string, unknown>): string[] {
 		const errors: string[] = [];
 
 		// Check for at least one credential field
@@ -342,7 +342,7 @@ class CredentialsImportExportService {
 		}
 
 		// Validate environmentId format if present
-		if (credentials.environmentId && !this.isValidEnvironmentId(credentials.environmentId)) {
+		if (credentials.environmentId && !this.isValidEnvironmentId(credentials.environmentId as string)) {
 			errors.push('Invalid environmentId format');
 		}
 
