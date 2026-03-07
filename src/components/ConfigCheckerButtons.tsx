@@ -174,78 +174,6 @@ const ModalHeader = styled.div<{ $isMinimized: boolean }>`
   border-radius: ${(props) => (props.$isMinimized ? '0.75rem' : '0.75rem 0.75rem 0 0')};
 `;
 
-const _DragHandle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: grab;
-  user-select: none;
-  flex: 1;
-  padding: 0.25rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: #f1f5f9;
-  }
-  
-  &:active {
-    cursor: grabbing;
-  }
-`;
-
-const _HeaderControls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const _ControlButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #64748b;
-  
-  &:hover {
-    background-color: #f1f5f9;
-    color: #334155;
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-const _ModalTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-`;
-
-const _CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background: #f3f4f6;
-    color: #374151;
-  }
-`;
 
 const Badge = styled.span<{ $tone: 'warning' | 'success' }>`
   display: inline-flex;
@@ -369,29 +297,6 @@ const DiffItem = styled.div<{ $change: 'added' | 'removed' | 'mismatch' }>`
   }
 `;
 
-const _DiffContent = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`;
-
-const _DiffLabel = styled.div`
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-`;
-
-const _DiffSource = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
-`;
 
 const DiffValue = styled.div<{ $isRedirectUri?: boolean }>`
   background: #ffffff;
@@ -671,16 +576,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		}
 	};
 
-	// Get allowed response types for the selected app type
-	const _getAllowedResponseTypes = (_appType: string) => {
-		// For create app modal, allow all response types for maximum flexibility
-		// Users should be able to create apps with any combination they need
-		// Note: Some combinations may not be valid (e.g., 'token' alone without 'id_token' in implicit flow)
-		// but we allow selection here and let PingOne API validate
-		return ['code', 'token', 'id_token'];
-	};
-
 	// Get allowed grant types for the selected app type
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const getAllowedGrantTypes = (_appType: string) => {
 		// For create app modal, allow all grant types for maximum flexibility
 		// Users should be able to create apps with any combination they need
@@ -1335,7 +1232,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				message: 'Configuration differences copied to clipboard',
 				duration: 4000,
 			});
-		} catch (_error) {
+		} catch {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
