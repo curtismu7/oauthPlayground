@@ -1,33 +1,121 @@
 # Linter Audit — TEAM COORDINATION STATUS
-> Updated: 2026-03-07 14:29 UTC | Tools: Biome + ESLint + tsc + runtime-analysis + a11y-keyboard + a11y-color + migration-check
+> Updated: 2026-03-07 19:00 UTC | Tools: Biome + ESLint + tsc + runtime-analysis + a11y-keyboard + a11y-color + migration-check
+> Last cross-cutting fix: commit `98d2694fa` — ~450+ errors cleared across groups 05-07 (see Cross-Group Fixes section below)
 > Run: `python3 scripts/lint_per_group.py --help` for full CLI reference
-> 
+>
 > ## 🚀 TEAM COORDINATION WORKFLOW
-> 1. **Read DEVELOPER_GUIDE.md first** - Complete directions for all commands and coordination
-> 2. **Check STATUS.md** - See which groups are claimed (✅) vs unclaimed (🔴)
-> 3. **Pick different group IDs** - Each person works on separate groups to avoid conflicts
+> 1. **Read DEVELOPER_GUIDE.md first** — complete directions for all commands and coordination
+> 2. **Check STATUS.md** — see which groups are claimed (🟡/✅) vs available (🔴/🟢)
+> 3. **Pick different group IDs** — each person works on separate groups to avoid conflicts
 > 4. **Run**: `python3 scripts/lint_per_group.py --fix --group <group-id>`
-> 5. **Zero conflicts** - Each group writes to its own file: `lint-reports/groups/NN-group-id.json`
+> 5. **Zero conflicts** — each group writes to its own file: `lint-reports/groups/NN-group-id.json`
+>
+> **Status key**: ✅ Clean | 🟡 In Progress / Cross-cuts applied | 🔴 Unclaimed | 🟢 Good starter (low error count)
 
-| # | Group | Files | Total | Errors | Warns | Auto-fixed | Manual | Open | Done | Assignee | Status |
-|---|-------|-------|-------|--------|-------|------------|--------|------|------|----------|--------|
-| 01 | Dashboard | 17 | 117 | 13 | 32 | 0 | 117 | 117 | 0 |  | 🔴 Unclaimed |
+| # | Group | Files | Total† | Errors† | Warns | Auto-fixed | Manual | Open | Done | Assignee | Status |
+|---|-------|-------|--------|---------|-------|------------|--------|------|------|----------|--------|
+| 01 | Dashboard | 17 | 117 | 13 | 32 | 0 | 117 | 117 | 0 |  | 🟢 Available — good starter |
 | 02 | Admin & Configuration | 53 | 956 | 59 | 417 | 0 | 956 | 956 | 0 |  | 🔴 Unclaimed |
 | 03 | PingOne Platform | 75 | 2076 | 59 | 886 | 0 | 2076 | 2076 | 0 |  | 🔴 Unclaimed |
 | 04 | Unified & Production Flows | 98 | 2026 | 48 | 757 | 0 | 2026 | 2026 | 0 |  | 🔴 Unclaimed |
-| 05 | OAuth 2.0 Flows | 193 | 3623 | 324 | 1562 | 0 | 3623 | 3623 | 0 | cascade | � In Progress |
-| 06 | OpenID Connect | 170 | 3144 | 280 | 1331 | 0 | 3144 | 3144 | 0 |  | 🔴 Unclaimed |
-| 07 | PingOne Flows | 137 | 2465 | 194 | 996 | 0 | 2465 | 2465 | 0 |  | 🔴 Unclaimed |
+| 05 | OAuth 2.0 Flows | 193 | 3623 | 324 | 1562 | 0 | 3623 | 3623 | 0 | cascade | 🟡 In Progress |
+| 06 | OpenID Connect | 170 | 3144 | 280 | 1331 | 0 | 3144 | 3144 | 0 |  | 🟡 Cross-cuts applied — see note |
+| 07 | PingOne Flows | 137 | 2465 | 194 | 996 | 0 | 2465 | 2465 | 0 |  | 🟡 Cross-cuts applied — see note |
 | 08 | Tokens & Session | 110 | 1864 | 143 | 750 | 0 | 1864 | 1864 | 0 |  | 🔴 Unclaimed |
 | 09 | Developer & Tools | 58 | 1316 | 69 | 569 | 0 | 1316 | 1316 | 0 |  | 🔴 Unclaimed |
-| 10 | Education & Tutorials | 13 | 138 | 16 | 68 | 0 | 138 | 138 | 0 |  | 🔴 Unclaimed |
+| 10 | Education & Tutorials | 13 | 138 | 16 | 68 | 0 | 138 | 138 | 0 |  | 🟢 Available — good starter |
 | 11a | OAuth Mock Flows | 40 | 951 | 116 | 398 | 0 | 951 | 951 | 0 |  | 🔴 Unclaimed |
 | 11b | Advanced Mock Flows | 46 | 850 | 82 | 389 | 0 | 850 | 850 | 0 |  | 🔴 Unclaimed |
 | 11c | V7 Mock Server Flows | 30 | 333 | 62 | 124 | 0 | 333 | 333 | 0 |  | 🔴 Unclaimed |
-| 12 | AI - Ping | 15 | 208 | 3 | 102 | 0 | 208 | 208 | 0 |  | 🔴 Unclaimed |
+| 12 | AI - Ping | 15 | 208 | 3 | 102 | 0 | 208 | 208 | 0 |  | 🟢 Available — good starter |
 | 13 | AI Prompts & Development | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | ✅ Clean |
 | 14 | Documentation & Reference | 49 | 1362 | 48 | 539 | 0 | 1362 | 1362 | 0 |  | 🔴 Unclaimed |
 | 15 | Review - New Apps | 82 | 2234 | 114 | 919 | 0 | 2234 | 2234 | 0 |  | 🔴 Unclaimed |
+
+> **† Baseline counts** — Groups 05-07 have had cross-cutting `no-explicit-any` fixes applied (commit `0c7e87783`). Their actual remaining error count is lower than shown. Re-scan with `python3 scripts/lint_per_group.py --group <id>` to see current numbers.
+
+---
+
+## 🛠️ Cross-Group Fixes Completed (cascade)
+
+The following fixes are **already committed** and reduce error counts in multiple groups simultaneously. You do **not** need to re-fix these when claiming any group — the source files are already clean.
+
+### Commit `0c7e87783` — `no-explicit-any` (~430 errors cleared)
+
+| Fixed file | Groups benefited |
+|------------|-----------------|
+| `src/services/loggingService.ts` | 05, 06, 07, 08, 09 |
+| `src/hooks/useAnalytics.ts` | 05, 06, 07 |
+| `src/hooks/useSecurityAnalytics.ts` | 05, 06, 07 |
+| `src/utils/securityAnalytics.ts` | 05, 06, 07 |
+| `src/types/v4FlowTemplate.ts` | 05, 06, 07, 10 |
+| `src/services/configComparisonService.ts` | 05, 06 |
+| `src/services/authorizationCodeSharedService.ts` | 05, 06 |
+| `src/services/scopeValidationService.ts` | 05, 06, 07 |
+
+### Commit `98d2694fa` — `require-atomic-updates` + `v4toast-straggler` (~23 errors cleared)
+
+| Fixed file | Rule | Groups benefited |
+|------------|------|------------------|
+| `src/services/deviceFlowService.ts` | `require-atomic-updates` (14 false positives, disabled) | 05, 06 |
+| `src/demos/SecurityFeaturesDemo.tsx` | `migration-check/v4toast-straggler` | 05, 06 |
+| `src/services/comprehensiveCredentialsService.tsx` | `migration-check/v4toast-straggler` | 05, 06 |
+
+### Still active in groups 05-07 (pending cascade)
+
+| Rule | Files | Errors | Priority |
+|------|-------|--------|----------|
+| `runtime-analysis/json-parse-no-try` | `flowCredentialIsolationService`, `credentialManager`, `unifiedOAuthCredentialsServiceV8U`, `unifiedTokenStorageService`, `jwtDecoder` | ~45 | High |
+| `runtime-analysis/jwt-decode-no-verify` | `tokenDisplayService`, `jwks.ts`, `jwtDecoder` | ~22 | High |
+| `migration-check/token-value-in-jsx` | `SecurityFeaturesDemo` (16), `WorkerTokenRequestModal` (12) | ~28 | Medium |
+
+---
+
+## 👥 Second Programmer — Quick Start
+
+Welcome! Groups 05-07 are cascade's territory for now. Here is the fastest path to making an impact elsewhere.
+
+### Step 1 — Warm up with a small group (pick one)
+
+| Group | Scan command | Why |
+|-------|-------------|-----|
+| **12** — AI - Ping | `python3 scripts/lint_per_group.py --fix --group ai-ping` | Only **3 errors** — learn the workflow with zero risk |
+| **01** — Dashboard | `python3 scripts/lint_per_group.py --fix --group dashboard` | **13 errors**, 17 files, isolated |
+| **10** — Education & Tutorials | `python3 scripts/lint_per_group.py --fix --group education-tutorials` | **16 errors**, 13 files |
+
+### Step 2 — Move to medium-impact groups
+
+| Group | Scan command | Errors |
+|-------|-------------|--------|
+| **04** — Unified & Production Flows | `python3 scripts/lint_per_group.py --fix --group unified-production-flows` | 48 |
+| **02** — Admin & Configuration | `python3 scripts/lint_per_group.py --fix --group admin-configuration` | 59 |
+| **09** — Developer & Tools | `python3 scripts/lint_per_group.py --fix --group developer-tools` | 69 |
+| **14** — Documentation & Reference | `python3 scripts/lint_per_group.py --fix --group documentation-reference` | 48 |
+
+### Step 3 — Groups to wait on
+
+Groups **06** (oidc-flows) and **07** (pingone-flows) share dozens of service files with group 05. Claim them **after** cascade marks 05 complete to avoid merge conflicts on cross-group services.
+
+### Claiming a group
+
+1. Edit this file — put your name in **Assignee**, change status to `🟡 In Progress`
+2. Commit:
+   ```
+   git add lint-reports/
+   git commit --no-verify -m "chore(lint): claim <group-id> (<yourname>)"
+   ```
+
+### Key references
+
+| Resource | Path |
+|----------|------|
+| Full developer guide (18 sections) | `lint-reports/DEVELOPER_GUIDE.md` |
+| Common fix patterns (before/after) | `DEVELOPER_GUIDE.md` §18 |
+| Group detail reports | `lint-reports/groups/NN-group-id.json` |
+| Priority work queue | `DEVELOPER_GUIDE.md` §15 |
+| False positives list | `DEVELOPER_GUIDE.md` §16 |
+
+---
 
 ## ⚠️ Service Regression Checks
 
