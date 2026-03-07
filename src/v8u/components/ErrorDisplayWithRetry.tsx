@@ -38,7 +38,7 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 				if (!trimmed) return null;
 
 				// Check if this is a heading (starts with emoji and bold text)
-				const isHeading = /^[📋💡⚠️🔧📝📚🔍]/u.test(trimmed);
+				const isHeading = /^(?:📋|💡|⚠️|🔧|📝|📚|🔍)/u.test(trimmed);
 
 				// Check if this is a bullet list item
 				const isBulletItem = /^[•\-*]\s/.test(trimmed);
@@ -71,7 +71,10 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 				let lastIndex = 0;
 				let match: RegExpExecArray | null;
 
-				while ((match = urlRegex.exec(displayText)) !== null) {
+				while (true) {
+					match = urlRegex.exec(displayText);
+					if (match === null) break;
+					
 					if (match.index > lastIndex) {
 						parts.push({ text: displayText.substring(lastIndex, match.index), isUrl: false });
 					}
