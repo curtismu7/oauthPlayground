@@ -26,7 +26,7 @@ import {
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 import type { PingOneApplicationState } from './PingOneApplicationConfig';
 
@@ -721,7 +721,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 				terminateSessionService();
 				onTerminateSession?.();
 				setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-				v4ToastManager.showSuccess('Session terminated successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Session terminated successfully', duration: 4000 });
 			},
 		});
 	}, [onTerminateSession]);
@@ -734,7 +734,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			onConfirm: () => {
 				onRevokeTokens?.();
 				setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-				v4ToastManager.showSuccess('Tokens revoked successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens revoked successfully', duration: 4000 });
 			},
 		});
 	}, [onRevokeTokens]);
@@ -849,7 +849,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 										const logoutUrl =
 											calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
 										navigator.clipboard.writeText(logoutUrl);
-										v4ToastManager.showSuccess('📋 Logout URL copied to clipboard!');
+										modernMessaging.showFooterMessage({ type: 'status', message: '📋 Logout URL copied to clipboard!', duration: 4000 });
 									}}
 								>
 									<FiDownload /> Copy URL

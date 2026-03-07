@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const CallbackContainer = styled.div`
 	display: flex;
@@ -111,7 +111,7 @@ const LogoutCallback: React.FC = () => {
 				logger.auth('LogoutCallback', 'Logout completed successfully');
 
 				// Show success message
-				v4ToastManager.showSuccess('You have been successfully logged out');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'You have been successfully logged out', duration: 4000 });
 
 				// Small delay to ensure cleanup is complete
 				setTimeout(() => {
@@ -119,7 +119,7 @@ const LogoutCallback: React.FC = () => {
 				}, 1000);
 			} catch (error) {
 				logger.error('LogoutCallback', 'Error during logout processing', error);
-				v4ToastManager.showError('An error occurred during logout');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'An error occurred during logout', dismissible: true });
 				setIsProcessing(false);
 			}
 		};

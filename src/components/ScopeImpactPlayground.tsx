@@ -15,7 +15,7 @@ import {
 } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type ProviderId = 'pingone' | 'microsoft' | 'google';
 
@@ -683,7 +683,7 @@ const ScopeImpactPlayground: React.FC = () => {
 				if (definition?.dependsOn) {
 					const missing = definition.dependsOn.filter((dep) => !prev.includes(dep));
 					if (missing.length) {
-						v4ToastManager.showInfo(`Added required scopes: ${missing.join(', ')} for ${scope}.`);
+						modernMessaging.showFooterMessage({ type: 'info', message: `Added required scopes: ${missing.join(', ')} for ${scope}.`, duration: 4000 });
 						return [...prev, ...missing, scope];
 					}
 				}

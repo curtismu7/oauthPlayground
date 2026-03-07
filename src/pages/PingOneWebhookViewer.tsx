@@ -27,7 +27,7 @@ import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -694,7 +694,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			const subscriptionsList = responseData._embedded?.subscriptions || [];
 			setSubscriptions(subscriptionsList);
 			console.log(`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`);
-			v4ToastManager.showSuccess(`Loaded ${subscriptionsList.length} webhook subscriptions`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Loaded ${subscriptionsList.length} webhook subscriptions`, duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'PingOneWebhookViewer',
@@ -702,9 +702,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to load webhook subscriptions'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to load webhook subscriptions', dismissible: true });
 		} finally {
 			setIsLoadingSubscriptions(false);
 		}
@@ -763,7 +761,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					undefined,
 					error as Error
 				);
-				v4ToastManager.showError('Failed to load webhook events');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load webhook events', dismissible: true });
 			}
 		}
 	}, []);
@@ -797,15 +795,13 @@ const PingOneWebhookViewer: React.FC = () => {
 	const handleStartMonitoring = useCallback(() => {
 		setIsActive(true);
 		fetchWebhookEvents();
-		v4ToastManager.showSuccess(
-			'Webhook monitoring started - polling for new events every 3 seconds'
-		);
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook monitoring started - polling for new events every 3 seconds', duration: 4000 });
 		secureLog('PingOneWebhookViewer', 'Started webhook monitoring');
 	}, [fetchWebhookEvents]);
 
 	const handleStopMonitoring = useCallback(() => {
 		setIsActive(false);
-		v4ToastManager.showSuccess('Webhook monitoring stopped');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook monitoring stopped', duration: 4000 });
 		secureLog('PingOneWebhookViewer', 'Stopped webhook monitoring');
 	}, []);
 
@@ -818,7 +814,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				throw new Error('Failed to clear webhook events');
 			}
 			setWebhooks([]);
-			v4ToastManager.showSuccess('Webhook history cleared');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook history cleared', duration: 4000 });
 			secureLog('PingOneWebhookViewer', 'Cleared webhook history');
 		} catch (error) {
 			logger.error(
@@ -827,7 +823,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to clear webhook events');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear webhook events', dismissible: true });
 		}
 	}, []);
 
@@ -839,13 +835,13 @@ const PingOneWebhookViewer: React.FC = () => {
 		link.href = url;
 		link.download = `pingone-webhooks-${new Date().toISOString()}.json`;
 		link.click();
-		v4ToastManager.showSuccess('Webhooks exported');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Webhooks exported', duration: 4000 });
 	}, [webhooks]);
 
 	const handleCreateSubscription = useCallback(async () => {
 		const effectiveWorkerToken = getAnyWorkerToken();
 		if (!effectiveWorkerToken || !environmentId) {
-			v4ToastManager.showError('Worker token and environment ID are required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token and environment ID are required', dismissible: true });
 			return;
 		}
 
@@ -908,7 +904,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				);
 			}
 
-			v4ToastManager.showSuccess('Webhook subscription created successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook subscription created successfully', duration: 4000 });
 			setShowCreateModal(false);
 			setFormData({
 				name: '',
@@ -926,9 +922,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to create webhook subscription'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to create webhook subscription', dismissible: true });
 		} finally {
 			setIsLoadingSubscriptions(false);
 		}
@@ -938,7 +932,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		async (subscription: WebhookSubscription) => {
 			const effectiveWorkerToken = getAnyWorkerToken();
 			if (!effectiveWorkerToken || !environmentId) {
-				v4ToastManager.showError('Worker token and environment ID are required');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token and environment ID are required', dismissible: true });
 				return;
 			}
 
@@ -1001,7 +995,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					);
 				}
 
-				v4ToastManager.showSuccess('Webhook subscription updated successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook subscription updated successfully', duration: 4000 });
 				setEditingSubscription(null);
 				setFormData({
 					name: '',
@@ -1019,9 +1013,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					undefined,
 					error as Error
 				);
-				v4ToastManager.showError(
-					error instanceof Error ? error.message : 'Failed to update webhook subscription'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to update webhook subscription', dismissible: true });
 			} finally {
 				setIsLoadingSubscriptions(false);
 			}
@@ -1033,7 +1025,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		async (subscriptionId: string) => {
 			const effectiveWorkerToken = getAnyWorkerToken();
 			if (!effectiveWorkerToken || !environmentId) {
-				v4ToastManager.showError('Worker token and environment ID are required');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token and environment ID are required', dismissible: true });
 				return;
 			}
 
@@ -1074,7 +1066,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					throw new Error(`Failed to delete subscription (${response.status})`);
 				}
 
-				v4ToastManager.showSuccess('Webhook subscription deleted successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook subscription deleted successfully', duration: 4000 });
 				await fetchSubscriptions();
 			} catch (error) {
 				logger.error(
@@ -1083,9 +1075,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					undefined,
 					error as Error
 				);
-				v4ToastManager.showError(
-					error instanceof Error ? error.message : 'Failed to delete webhook subscription'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to delete webhook subscription', dismissible: true });
 			} finally {
 				setIsLoadingSubscriptions(false);
 			}
@@ -1723,7 +1713,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									type="button"
 									onClick={() => {
 										navigator.clipboard.writeText(`${window.location.origin}/api/webhooks/pingone`);
-										v4ToastManager.showSuccess('Webhook URL copied to clipboard');
+										modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook URL copied to clipboard', duration: 4000 });
 									}}
 									style={{
 										display: 'flex',

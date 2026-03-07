@@ -27,6 +27,7 @@ import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { callbackUriService } from './callbackUriService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,
@@ -1244,13 +1245,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 			// Use setTimeout to avoid React warning about updating NotificationProvider during render
 			setTimeout(() => {
-				v4ToastManager.showSuccess(toastMessage);
+				modernMessaging.showFooterMessage({ type: 'status', message: toastMessage, duration: 4000 });
 
 				// Show separate warning if client secret is not available
 				if (!application.clientSecret) {
-					v4ToastManager.showWarning(
-						'⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.'
-					);
+					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.', dismissible: true });
 				}
 			}, 0);
 		},
@@ -2331,7 +2330,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 								// Show success message
 								import('../utils/v4ToastMessages').then(({ v4ToastManager }) => {
-									v4ToastManager.showSuccess('Configuration imported from PingOne!');
+									modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported from PingOne!', duration: 4000 });
 								});
 							}}
 							onCreateApplication={async (appData?: {
@@ -2600,11 +2599,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										// Update the UI immediately
 										applyCredentialUpdates(updates, { shouldSave: true });
 
-										v4ToastManager.showSuccess(
-											`Application "${result.app.name}" created successfully! Credentials updated.`
-										);
+										modernMessaging.showFooterMessage({ type: 'status', message: `Application "${result.app.name}" created successfully! Credentials updated.`, duration: 4000 });
 									} else {
-										v4ToastManager.showSuccess('PingOne application created successfully!');
+										modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne application created successfully!', duration: 4000 });
 									}
 
 									// Return the result for the modal
@@ -2616,9 +2613,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										undefined,
 										error
 									);
-									v4ToastManager.showError(
-										`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`
-									);
+									modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 									throw error;
 								}
 							}}
@@ -2639,10 +2634,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							environmentId={resolvedCredentials.environmentId || ''}
 							issuer={resolvedCredentials.issuerUrl || ''}
 							onCopyJwksUrlSuccess={(url) => {
-								v4ToastManager.showSuccess(`JWKS URL copied: ${url}`);
+								modernMessaging.showFooterMessage({ type: 'status', message: `JWKS URL copied: ${url}`, duration: 4000 });
 							}}
 							onCopyJwksUrlError={(error) => {
-								v4ToastManager.showError(`Failed to copy JWKS URL: ${error}`);
+								modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy JWKS URL: ${error}`, dismissible: true });
 							}}
 							privateKey={privateKey}
 							onPrivateKeyChange={(key) => {

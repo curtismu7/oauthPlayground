@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;
@@ -214,7 +214,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 
 	const handleGenerateKeyPair = useCallback(async () => {
 		if (!status.supported) {
-			v4ToastManager.showError('DPoP is not supported in this browser');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'DPoP is not supported in this browser', dismissible: true });
 			return;
 		}
 
@@ -222,7 +222,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 		try {
 			await DPoPService.generateKeyPair(config);
 			refreshStatus();
-			v4ToastManager.showSuccess('DPoP key pair generated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'DPoP key pair generated successfully', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'DPoPConfiguration',
@@ -230,7 +230,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to generate DPoP key pair');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate DPoP key pair', dismissible: true });
 		} finally {
 			setIsGenerating(false);
 		}
