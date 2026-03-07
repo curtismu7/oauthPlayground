@@ -33,6 +33,17 @@ const copyToClipboard = async (text: string): Promise<void> => {
 	}
 };
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // JWT Claims interface
 interface JWTClaims {
 	iss: string; // issuer
@@ -950,11 +961,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												marginBottom: '1rem',
 											}}
 										>
-											{JSON.stringify(tokenResponse, null, 2)}
+											{maskToken(JSON.stringify(tokenResponse, null, 2))}
 										</div>
 										<div style={{ display: 'flex', gap: '1rem' }}>
 											<button
-												onClick={() => handleCopy(JSON.stringify(tokenResponse, null, 2))}
+												onClick={() => handleCopy(JSON.stringify(tokenResponse, null, 2))} // Copy full token for educational purposes
 												type="button"
 												style={{
 													padding: '0.5rem 1rem',

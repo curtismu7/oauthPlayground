@@ -117,6 +117,17 @@ const DynamicStepNumber = styled(StepNumber)`
 	color: #ffffff;
 `;
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const DynamicVersionBadge = styled(VersionBadge)<{ $variant: 'oauth' | 'oidc' }>`
 	background: rgba(59, 130, 246, 0.2);
 	border: 1px solid #60a5fa;
@@ -1600,7 +1611,7 @@ const ImplicitFlowV9: React.FC = () => {
 										{/* Raw Response Display */}
 										<GeneratedContentBox>
 											<GeneratedLabel>Raw Token Response</GeneratedLabel>
-											<CodeBlock>{JSON.stringify(tokens, null, 2)}</CodeBlock>
+											<CodeBlock>{maskToken(JSON.stringify(tokens, null, 2))}</CodeBlock>
 											<ActionRow>
 												<CopyButtonService
 													text={JSON.stringify(tokens, null, 2)}
