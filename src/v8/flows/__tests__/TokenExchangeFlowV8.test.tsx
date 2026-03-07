@@ -322,7 +322,9 @@ describe('TokenExchangeFlowV8', () => {
 			});
 
 			// Check for achievements
-			expect(screen.getByText('✅ Token exchange request executed successfully')).toBeInTheDocument();
+			expect(
+				screen.getByText('✅ Token exchange request executed successfully')
+			).toBeInTheDocument();
 			expect(screen.getByText('✅ access_token token obtained')).toBeInTheDocument();
 			expect(screen.getByText('✅ Security delegation completed')).toBeInTheDocument();
 			expect(screen.getByText('✅ RFC 8693 token exchange implemented')).toBeInTheDocument();
@@ -423,7 +425,9 @@ describe('TokenExchangeFlowV8', () => {
 
 			// Wait for completion
 			await waitFor(() => {
-				expect(screen.getByText('✅ RFC 8693 token exchange standard followed')).toBeInTheDocument();
+				expect(
+					screen.getByText('✅ RFC 8693 token exchange standard followed')
+				).toBeInTheDocument();
 			});
 		});
 

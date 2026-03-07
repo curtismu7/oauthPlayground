@@ -14,6 +14,7 @@ import { FiCheckCircle, FiKey, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
@@ -27,7 +28,6 @@ import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { callbackUriService } from './callbackUriService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,
@@ -1245,11 +1245,21 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 			// Use setTimeout to avoid React warning about updating NotificationProvider during render
 			setTimeout(() => {
-				modernMessaging.showFooterMessage({ type: 'status', message: toastMessage, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: toastMessage,
+					duration: 4000,
+				});
 
 				// Show separate warning if client secret is not available
 				if (!application.clientSecret) {
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message:
+							'⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.',
+						dismissible: true,
+					});
 				}
 			}, 0);
 		},
@@ -2330,7 +2340,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 								// Show success message
 								import('../utils/v4ToastMessages').then(({ v4ToastManager }) => {
-									modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported from PingOne!', duration: 4000 });
+									modernMessaging.showFooterMessage({
+										type: 'status',
+										message: 'Configuration imported from PingOne!',
+										duration: 4000,
+									});
 								});
 							}}
 							onCreateApplication={async (appData?: {
@@ -2599,9 +2613,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										// Update the UI immediately
 										applyCredentialUpdates(updates, { shouldSave: true });
 
-										modernMessaging.showFooterMessage({ type: 'status', message: `Application "${result.app.name}" created successfully! Credentials updated.`, duration: 4000 });
+										modernMessaging.showFooterMessage({
+											type: 'status',
+											message: `Application "${result.app.name}" created successfully! Credentials updated.`,
+											duration: 4000,
+										});
 									} else {
-										modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne application created successfully!', duration: 4000 });
+										modernMessaging.showFooterMessage({
+											type: 'status',
+											message: 'PingOne application created successfully!',
+											duration: 4000,
+										});
 									}
 
 									// Return the result for the modal
@@ -2613,7 +2635,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										undefined,
 										error
 									);
-									modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+									modernMessaging.showBanner({
+										type: 'error',
+										title: 'Error',
+										message: `Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`,
+										dismissible: true,
+									});
 									throw error;
 								}
 							}}
@@ -2634,10 +2661,19 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							environmentId={resolvedCredentials.environmentId || ''}
 							issuer={resolvedCredentials.issuerUrl || ''}
 							onCopyJwksUrlSuccess={(url) => {
-								modernMessaging.showFooterMessage({ type: 'status', message: `JWKS URL copied: ${url}`, duration: 4000 });
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message: `JWKS URL copied: ${url}`,
+									duration: 4000,
+								});
 							}}
 							onCopyJwksUrlError={(error) => {
-								modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy JWKS URL: ${error}`, dismissible: true });
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message: `Failed to copy JWKS URL: ${error}`,
+									dismissible: true,
+								});
 							}}
 							privateKey={privateKey}
 							onPrivateKeyChange={(key) => {

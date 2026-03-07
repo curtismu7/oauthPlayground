@@ -2,10 +2,10 @@
 // V7 Resource Owner Password Flow controller with real PingOne API integration
 
 import { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface ResourceOwnerPasswordCredentials {
 	environmentId: string;
@@ -149,7 +149,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				timestamp: Date.now(),
 			});
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration saved successfully.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Configuration saved successfully.',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -157,12 +161,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ 
-				type: 'error', 
-				title: 'Error', 
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
 				message: 'Failed to save configuration',
 				error: error instanceof Error ? error.message : 'Unknown error',
-				dismissible: true 
+				dismissible: true,
 			});
 		} finally {
 			setIsSavingCredentials(false);
@@ -178,7 +182,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 			!credentials.username ||
 			!credentials.password
 		) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'All credentials are required for Resource Owner Password flow', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'All credentials are required for Resource Owner Password flow',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -242,7 +251,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				scope: tokenData.scope,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Authentication successful! Access token received.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Authentication successful! Access token received.',
+				duration: 4000,
+			});
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
@@ -270,7 +283,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	// Fetch user info using access token
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token is required to fetch user information', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Access token is required to fetch user information',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -306,7 +324,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				userSub: userData.sub,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'User information fetched successfully.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'User information fetched successfully.',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -331,7 +353,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	// Refresh tokens using refresh token
 	const refreshTokens = useCallback(async () => {
 		if (!tokens?.refresh_token) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Refresh token is required to refresh access token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Refresh token is required to refresh access token',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -383,7 +410,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				expiresIn: newTokens.expires_in,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens refreshed successfully.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Tokens refreshed successfully.',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -412,7 +443,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		setRefreshedTokens(null);
 		setStepResults({});
 		stepManager.setStep(0, 'flow reset');
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Flow reset successfully.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Flow reset successfully.',
+			duration: 4000,
+		});
 	}, [stepManager]);
 
 	// Step result management

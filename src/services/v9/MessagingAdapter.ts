@@ -193,16 +193,6 @@ function getMessagingAdapter(): IMessagingAdapter {
 		);
 	}
 
-	// Check if V8 toast is available
-	try {
-		if (typeof toastV8 === 'object' && (toastV8 as any).success) {
-			logger.info('MessagingAdapter', '[MessagingAdapter] Using V8 Toast');
-			return new V8ToastAdapter();
-		}
-	} catch (_err) {
-		logger.info('MessagingAdapter', '[MessagingAdapter] V8 Toast not available');
-	}
-
 	// Fallback to console (shouldn't happen in production)
 	logger.info(
 		'MessagingAdapter',

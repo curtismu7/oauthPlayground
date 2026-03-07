@@ -3,8 +3,8 @@
 import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiKey, FiShield, FiUser } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
 
@@ -412,13 +412,32 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard
 			.writeText(text)
-			.then(() => modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 }))
-			.catch(() => modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label}: Unable to copy to clipboard.`, dismissible: true }));
+			.then(() =>
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `${label} copied to clipboard!`,
+					duration: 4000,
+				})
+			)
+			.catch(() =>
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to copy ${label}: Unable to copy to clipboard.`,
+					dismissible: true,
+				})
+			);
 	}, []);
 
 	const handleIntrospectToken = useCallback(async () => {
 		if (!tokens?.access_token || !onIntrospectToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No access token available for introspection or introspection handler not provided.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'No access token available for introspection or introspection handler not provided.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -426,10 +445,19 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 		try {
 			const results = await onIntrospectToken(tokens.access_token);
 			setIntrospectionResults(results);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Token introspection completed successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Token introspection completed successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token introspection failed. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Token introspection failed. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsIntrospecting(false);
 		}

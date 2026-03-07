@@ -12,6 +12,7 @@ import {
 } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CardBody, CardHeader } from '../../components/Card';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
@@ -22,7 +23,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -221,7 +221,11 @@ const JWTBearerFlow: React.FC = () => {
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }
 			);
-			modernMessaging.showFooterMessage({ type: 'status', message: `Selected app: ${app.name}`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Selected app: ${app.name}`,
+				duration: 4000,
+			});
 			logger.info('JWTBearerFlow', 'App selected', { appName: app.name, clientId: app.clientId });
 		},
 		[config?.environmentId]
@@ -331,13 +335,22 @@ const JWTBearerFlow: React.FC = () => {
 			setStepStatus((prev) => ({ ...prev, 1: 'completed', 2: 'active' }));
 			setCurrentStep(2);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'JWT assertion generated successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'JWT assertion generated successfully!',
+				duration: 4000,
+			});
 			logger.info('JWTBearerFlow', 'JWT assertion generated successfully');
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to generate JWT assertion';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 1: 'error' }));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 			logger.error('JWTBearerFlow', 'JWT generation failed', err);
 		} finally {
 			setIsLoading(false);
@@ -384,7 +397,11 @@ const JWTBearerFlow: React.FC = () => {
 			setStepStatus((prev) => ({ ...prev, 2: 'completed', 3: 'active' }));
 			setCurrentStep(3);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Access token received successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Access token received successfully!',
+				duration: 4000,
+			});
 			logger.info('JWTBearerFlow', 'Access token received successfully', {
 				token_type: tokenData.token_type,
 				expires_in: tokenData.expires_in,
@@ -394,7 +411,12 @@ const JWTBearerFlow: React.FC = () => {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to request access token';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 2: 'error' }));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 			logger.error('JWTBearerFlow', 'Token request failed', err);
 		} finally {
 			setIsLoading(false);
@@ -432,7 +454,11 @@ const JWTBearerFlow: React.FC = () => {
 			setStepStatus((prev) => ({ ...prev, 3: 'completed', 4: 'active' }));
 			setCurrentStep(4);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Token validation successful!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Token validation successful!',
+				duration: 4000,
+			});
 			logger.info('JWTBearerFlow', 'Token validation successful', {
 				header,
 				payload: {
@@ -444,7 +470,12 @@ const JWTBearerFlow: React.FC = () => {
 			const errorMessage = err instanceof Error ? err.message : 'Token validation failed';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 3: 'error' }));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 			logger.error('JWTBearerFlow', 'Token validation failed', err);
 		} finally {
 			setIsLoading(false);
@@ -480,7 +511,11 @@ const JWTBearerFlow: React.FC = () => {
 
 			setStepStatus((prev) => ({ ...prev, 4: 'completed' }));
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Access token used successfully to retrieve user information!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Access token used successfully to retrieve user information!',
+				duration: 4000,
+			});
 			logger.info('JWTBearerFlow', 'Successfully used access token', {
 				userInfo,
 			});
@@ -488,7 +523,12 @@ const JWTBearerFlow: React.FC = () => {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to use access token';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 4: 'error' }));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 			logger.error('JWTBearerFlow', 'Token usage failed', err);
 		} finally {
 			setIsLoading(false);
@@ -497,7 +537,11 @@ const JWTBearerFlow: React.FC = () => {
 
 	const copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard!`,
+			duration: 4000,
+		});
 		logger.info('JWTBearerFlow', `Copied ${label} to clipboard`);
 	};
 
@@ -513,7 +557,11 @@ const JWTBearerFlow: React.FC = () => {
 			3: 'pending',
 			4: 'pending',
 		});
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Flow reset successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Flow reset successfully!',
+			duration: 4000,
+		});
 	};
 
 	return (

@@ -15,6 +15,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { oauth2ComplianceService } from '../services/oauth2ComplianceService';
 import {
 	type ClaimsRequest,
@@ -24,7 +25,6 @@ import {
 	oidcComplianceService,
 	type UserInfoResponse,
 } from '../services/oidcComplianceService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface OIDCCredentials {
 	environmentId: string;
@@ -254,9 +254,18 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 
 		// Show validation results
 		if (isValid) {
-			modernMessaging.showFooterMessage({ type: 'status', message: 'OIDC configuration validated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'OIDC configuration validated successfully',
+				duration: 4000,
+			});
 		} else {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Configuration validation failed: ${errors.join(', ')}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Configuration validation failed: ${errors.join(', ')}`,
+				dismissible: true,
+			});
 		}
 
 		warnings.forEach((warning) => {
@@ -287,7 +296,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 
 			nonceRef.current = nonce;
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'PKCE codes and nonce generated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'PKCE codes and nonce generated successfully',
+				duration: 4000,
+			});
 			console.log('[OIDCCompliantFlow] PKCE and nonce generated:', {
 				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 20)}...`,
@@ -298,7 +311,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to generate PKCE codes and nonce';
 			addError({ error: 'server_error', error_description: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [clearMessages, addError]);
 
@@ -382,7 +400,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 			sessionStorage.setItem('oidc_nonce', state.nonce);
 			sessionStorage.setItem('oidc_code_verifier', state.pkceCodes.codeVerifier);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'OIDC authorization URL generated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'OIDC authorization URL generated successfully',
+				duration: 4000,
+			});
 			console.log('[OIDCCompliantFlow] Authorization URL generated:', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
@@ -393,7 +415,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			addError({ error: 'server_error', error_description: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [
 		state.isConfigValid,
@@ -433,7 +460,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 					currentStep: 4,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'OIDC authorization callback received successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'OIDC authorization callback received successfully',
+					duration: 4000,
+				});
 				console.log('[OIDCCompliantFlow] Authorization callback processed:', {
 					code: `${code.substring(0, 20)}...`,
 					stateValid,
@@ -442,7 +473,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				const errorMessage =
 					error instanceof Error ? error.message : 'Authorization callback failed';
 				addError({ error: 'access_denied', error_description: errorMessage, state: receivedState });
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 			}
 		},
 		[clearMessages, addError]
@@ -544,7 +580,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 			sessionStorage.removeItem('oidc_nonce');
 			sessionStorage.removeItem('oidc_code_verifier');
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'OIDC tokens exchanged and validated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'OIDC tokens exchanged and validated successfully',
+				duration: 4000,
+			});
 			console.log('[OIDCCompliantFlow] Token exchange successful:', {
 				hasAccessToken: !!tokens.access_token,
 				hasRefreshToken: !!tokens.refresh_token,
@@ -563,7 +603,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				tokenErrors: [errorMessage],
 			}));
 			addError({ error: 'server_error', error_description: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [state.authorizationCode, state.credentials, clearMessages, addError, addWarning]);
 
@@ -634,7 +679,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				isFetchingUserInfo: false,
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'UserInfo fetched and validated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'UserInfo fetched and validated successfully',
+				duration: 4000,
+			});
 			console.log('[OIDCCompliantFlow] UserInfo request successful:', {
 				subject: userInfo.sub,
 				claimsCount: Object.keys(userInfo).length,
@@ -649,7 +698,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				userInfoErrors: [errorMessage],
 			}));
 			addError({ error: 'server_error', error_description: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [
 		state.tokens,
@@ -668,7 +722,11 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 		sessionStorage.removeItem('oidc_state');
 		sessionStorage.removeItem('oidc_nonce');
 		sessionStorage.removeItem('oidc_code_verifier');
-		modernMessaging.showFooterMessage({ type: 'info', message: 'OIDC flow reset successfully', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'OIDC flow reset successfully',
+			duration: 4000,
+		});
 	}, []);
 
 	// Go to specific step
@@ -693,7 +751,12 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				error_description: errorDescription || undefined,
 				state: receivedState || undefined,
 			});
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `OIDC authorization error: ${error}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `OIDC authorization error: ${error}`,
+				dismissible: true,
+			});
 		} else if (code && receivedState) {
 			handleAuthorizationCallback(code, receivedState);
 

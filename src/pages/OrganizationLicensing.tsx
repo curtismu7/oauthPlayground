@@ -3,6 +3,7 @@
 
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { usePageStepper } from '../contexts/FloatingStepperContext';
@@ -21,7 +22,6 @@ import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
 type CredentialsState = {
@@ -442,7 +442,12 @@ const OrganizationLicensingV2: React.FC = () => {
 			const errorMsg =
 				'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -450,7 +455,12 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		if (!organizationId.trim()) {
 			setError('Please enter an Organization ID.');
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Organization ID.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter an Organization ID.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -468,12 +478,21 @@ const OrganizationLicensingV2: React.FC = () => {
 			if (info) {
 				console.log('[OrganizationLicensing] Organization info received:', info);
 				setOrgInfo(info);
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Organization licensing information loaded!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Organization licensing information loaded!',
+					duration: 4000,
+				});
 			} else {
 				const errorMsg =
 					'Failed to fetch organization information. The API returned no data. This usually means:\n1. The worker token is expired or invalid\n2. The Organization ID is incorrect\n3. The worker app lacks required permissions (p1:read:organization p1:read:licensing)\n\nPlease click "Get Worker Token" to generate a new token and try again.';
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch organization information. Check the error message for details.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to fetch organization information. Check the error message for details.',
+					dismissible: true,
+				});
 				logger.error(
 					'OrganizationLicensing',
 					'[OrganizationLicensing] getOrganizationLicensingInfo returned null'
@@ -493,10 +512,20 @@ const OrganizationLicensingV2: React.FC = () => {
 				const errorMsg =
 					'Worker token is expired or invalid. Please click "Get Worker Token" to generate a new token with the required scopes (p1:read:organization p1:read:licensing).';
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token expired or invalid. Please generate a new worker token.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Token expired or invalid. Please generate a new worker token.',
+					dismissible: true,
+				});
 			} else {
 				setError(errorMessage);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to load licensing information: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to load licensing information: ${errorMessage}`,
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsFetchingOrgInfo(false);
@@ -513,11 +542,20 @@ const OrganizationLicensingV2: React.FC = () => {
 				organizationId.trim() || undefined
 			);
 			setAllLicenses(licenses);
-			modernMessaging.showFooterMessage({ type: 'status', message: `Successfully fetched ${licenses.length} licenses`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Successfully fetched ${licenses.length} licenses`,
+				duration: 4000,
+			});
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
 			setError(errorMessage);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to fetch licenses: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to fetch licenses: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsFetchingAllLicenses(false);
 		}
