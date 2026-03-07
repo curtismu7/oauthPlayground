@@ -21,6 +21,32 @@ import { pingOneFetch } from '@/utils/pingOneFetch';
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
 /**
+ * Extended Error type for password change requirements.
+ */
+interface PasswordChangeError extends Error {
+	code?: string;
+	requiresPasswordChange?: boolean;
+	userId?: string | null;
+	errorData?: unknown;
+	accessToken?: string;
+	tokens?: unknown;
+}
+
+
+/**
+ * Extended Error type for password change requirements.
+ */
+interface PasswordChangeError extends Error {
+	code?: string;
+	requiresPasswordChange?: boolean;
+	userId?: string | null;
+	errorData?: unknown;
+	accessToken?: string;
+	tokens?: unknown;
+}
+
+
+/**
  * Format authentication method for display
  * Converts various formats (snake_case, UPPERCASE, etc.) to a readable format
  */
@@ -201,7 +227,7 @@ export class OAuthIntegrationServiceV8 {
 					// login_hint is an OIDC parameter for pre-filling the username field
 					// Only add for OIDC flows (openid scope is present)
 					if (finalScopes.includes('openid')) {
-						(jarRequestParams as any).login_hint = credentials.username;
+						(jarRequestParams as Record<string, unknown>).login_hint = credentials.username;
 						console.log(
 							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`
 						);
@@ -631,11 +657,11 @@ export class OAuthIntegrationServiceV8 {
 
 				if (requiresPasswordChange) {
 					console.log(`${MODULE_TAG} 🔐 Password change required detected`);
-					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
-					(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
-					(passwordChangeError as any).requiresPasswordChange = true;
-					(passwordChangeError as any).userId = errorData.user_id || errorData.userId;
-					(passwordChangeError as any).errorData = errorData;
+					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
+					passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
+					passwordChangeError.requiresPasswordChange = true;
+					passwordChangeError.userId = (errorData.user_id || errorData.userId) as string;
+					passwordChangeError.errorData = errorData;
 					throw passwordChangeError;
 				}
 
@@ -894,25 +920,25 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
 							console.log(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
-							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
-							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
-							(passwordChangeError as any).requiresPasswordChange = true;
-							(passwordChangeError as any).userId = payload.sub || payload.user_id;
-							(passwordChangeError as any).accessToken = tokens.access_token; // Store access token for password change API call
-							(passwordChangeError as any).tokens = tokens; // Store tokens for after password change
+							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
+							passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
+							passwordChangeError.requiresPasswordChange = true;
+							passwordChangeError.userId = payload.sub || payload.user_id;
+							passwordChangeError.accessToken = tokens.access_token; // Store access token for password change API call
+							passwordChangeError.tokens = tokens; // Store tokens for after password change
 							throw passwordChangeError;
 						}
 					}
-				} catch (_parseError) {
+				} catch {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
 						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
-						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
-						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
-						(passwordChangeError as any).requiresPasswordChange = true;
-						(passwordChangeError as any).userId = (responseData as Record<string, unknown>).user_id;
-						(passwordChangeError as any).accessToken = tokens.access_token;
-						(passwordChangeError as any).tokens = tokens;
+						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
+						passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
+						passwordChangeError.requiresPasswordChange = true;
+						passwordChangeError.userId = (responseData as Record<string, unknown>).user_id as string;
+						passwordChangeError.accessToken = tokens.access_token;
+						passwordChangeError.tokens = tokens;
 						throw passwordChangeError;
 					}
 				}
