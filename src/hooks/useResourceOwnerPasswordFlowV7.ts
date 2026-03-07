@@ -34,7 +34,7 @@ export interface ResourceOwnerPasswordUserInfo {
 	given_name?: string;
 	family_name?: string;
 	picture?: string;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export interface ResourceOwnerPasswordFlowV7Controller {
@@ -64,7 +64,7 @@ export interface ResourceOwnerPasswordFlowV7Controller {
 	resetFlow: () => void;
 	stepManager: ReturnType<typeof useFlowStepManager>;
 	hasStepResult: (stepKey: string) => boolean;
-	saveStepResult: (stepKey: string, result: any) => void;
+	saveStepResult: (stepKey: string, result: unknown) => void;
 }
 
 interface UseResourceOwnerPasswordFlowV7Params {
@@ -108,10 +108,10 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	const [isRefreshingTokens, setIsRefreshingTokens] = useState(false);
 
 	// Step results storage
-	const [stepResults, setStepResults] = useState<Record<string, any>>({});
+	const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
 
 	// Step result management - defined early so it can be used in other callbacks
-	const saveStepResult = useCallback((stepKey: string, result: any) => {
+	const saveStepResult = useCallback((stepKey: string, result: unknown) => {
 		setStepResults((prev) => ({ ...prev, [stepKey]: result }));
 	}, []);
 
@@ -427,9 +427,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh tokens', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			}, dismissible: true });
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh tokens', dismissible: true });
 
 			saveStepResult('refresh-tokens', {
 				success: false,
