@@ -67,6 +67,8 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 	return (
 		<>
 			{/* Backdrop */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop dismissal on click, keyboard close via Cancel button */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
 			<div
 				style={{
 					position: 'fixed',
@@ -84,6 +86,8 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 			/>
 
 			{/* Modal */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: inner modal stops backdrop click propagation */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: inner modal content container */}
 			<div
 				style={{
 					position: 'fixed',
@@ -140,6 +144,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onCancel}
 						style={{
 							padding: '8px 16px',
@@ -155,6 +160,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 						{cancelText}
 					</button>
 					<button
+						type="button"
 						onClick={onConfirm}
 						style={{
 							padding: '8px 16px',

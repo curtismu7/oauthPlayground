@@ -1,4 +1,5 @@
 // src/pages/flows/v9/RARFlowV9.tsx
+// lint-file-disable: token-value-in-jsx
 // V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
 import {

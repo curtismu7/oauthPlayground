@@ -22,6 +22,7 @@ import styled from 'styled-components';
 import { copyToClipboard } from '../../utils/clipboard';
 import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
+
 // import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay'; // Unused
 
 /**
