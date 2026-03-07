@@ -147,6 +147,7 @@ const MockButton = styled.button`
 	}
 `;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type AdvancedOAuthParametersDemoFlowProps = {};
 
 const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowProps> = () => {
@@ -164,7 +165,13 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 	// Generated outputs
 	const [mockAuthUrl, setMockAuthUrl] = useState<string>('');
-	const [mockTokens, setMockTokens] = useState<any>(null);
+	const [mockTokens, setMockTokens] = useState<{
+		access_token: string;
+		id_token: string;
+		token_type: string;
+		expires_in: number;
+		scope: string;
+	} | null>(null);
 
 	// Generate mock authorization URL
 	const handleGenerateMockUrl = useCallback(() => {
@@ -180,7 +187,9 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 		// Add all configured parameters
 		if (audience) params.set('audience', audience);
-		resources.forEach((r) => params.append('resource', r));
+		for (const r of resources) {
+			params.append('resource', r);
+		}
 		if (promptValues.length > 0) params.set('prompt', promptValues.join(' '));
 		if (displayMode !== 'page') params.set('display', displayMode);
 		if (claimsRequest) params.set('claims', JSON.stringify(claimsRequest));
