@@ -216,34 +216,36 @@ const JsonNull = styled.span`
 const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	const [revealed, setRevealed] = React.useState(false);
 	const masked = `${tokenValue.substring(0, 12)}••••••••••••${tokenValue.substring(tokenValue.length - 8)}`;
+	const codeStyle: React.CSSProperties = {
+		background: revealed ? '#e2e8f0' : '#fef3c7',
+		padding: '0.15rem 0.4rem',
+		borderRadius: '4px',
+		fontSize: '0.8rem',
+		wordBreak: 'break-all',
+		maxWidth: '400px',
+	};
+	const btnStyle: React.CSSProperties = {
+		background: 'none',
+		border: '1px solid #d1d5db',
+		borderRadius: '4px',
+		cursor: 'pointer',
+		padding: '0.1rem 0.4rem',
+		fontSize: '0.75rem',
+		color: '#6b7280',
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.2rem',
+	};
 	return (
 		<div style={{ marginLeft: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
 			<span>Authorization: Bearer</span>
-			<code style={{
-				background: revealed ? '#e2e8f0' : '#fef3c7',
-				padding: '0.15rem 0.4rem',
-				borderRadius: '4px',
-				fontSize: '0.8rem',
-				wordBreak: 'break-all',
-				maxWidth: '400px',
-			}}>
+			<code style={codeStyle}>
 				{revealed ? tokenValue : masked}
 			</code>
 			<button
 				type="button"
 				onClick={() => setRevealed((r) => !r)}
-				style={{
-					background: 'none',
-					border: '1px solid #d1d5db',
-					borderRadius: '4px',
-					cursor: 'pointer',
-					padding: '0.1rem 0.4rem',
-					fontSize: '0.75rem',
-					color: '#6b7280',
-					display: 'inline-flex',
-					alignItems: 'center',
-					gap: '0.2rem',
-				}}
+				style={btnStyle}
 				title={revealed ? 'Mask token' : 'Reveal full Bearer token for inspection'}
 				aria-label={revealed ? 'Mask Authorization token' : 'Reveal Authorization token'}
 			>
