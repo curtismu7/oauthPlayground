@@ -157,9 +157,13 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', {
+			modernMessaging.showBanner({ 
+				type: 'error', 
+				title: 'Error', 
+				message: 'Failed to save configuration',
 				error: error instanceof Error ? error.message : 'Unknown error',
-			}, dismissible: true });
+				dismissible: true 
+			});
 		} finally {
 			setIsSavingCredentials(false);
 		}
