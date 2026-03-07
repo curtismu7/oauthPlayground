@@ -1,7 +1,7 @@
 {
   "group_id": "ai-ping",
   "label": "AI - Ping",
-  "scanned_at": "2026-03-07T14:09:03.674468+00:00",
+  "scanned_at": "2026-03-07T16:23:35.423053+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/CollapsibleIcon.tsx",
@@ -50,11 +50,11 @@
   ],
   "biome": {
     "errors": 0,
-    "warnings": 39,
+    "warnings": 36,
     "auto_fixed": 0
   },
   "eslint": {
-    "errors": 3,
+    "errors": 0,
     "warnings": 4
   },
   "tsc": {
@@ -75,7 +75,7 @@
     {
       "id": "ai-ping-001",
       "tool": "biome",
-      "file": "src/services/flowHeaderService.tsx",
+      "file": "src/services/flowUIService.tsx",
       "line": 0,
       "col": 0,
       "severity": "warning",
@@ -91,7 +91,7 @@
     {
       "id": "ai-ping-002",
       "tool": "biome",
-      "file": "src/services/flowHeaderService.tsx",
+      "file": "src/services/flowUIService.tsx",
       "line": 0,
       "col": 0,
       "severity": "warning",
@@ -111,8 +111,8 @@
       "line": 0,
       "col": 0,
       "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
+      "rule": "lint/complexity/noStaticOnlyClass",
+      "message": "Avoid classes that contain only static members.",
       "can_autofix": false,
       "fix_type": "manual",
       "status": "open",
@@ -143,8 +143,8 @@
       "line": 0,
       "col": 0,
       "severity": "warning",
-      "rule": "lint/complexity/noStaticOnlyClass",
-      "message": "Avoid classes that contain only static members.",
+      "rule": "lint/suspicious/noExplicitAny",
+      "message": "Unexpected any. Specify a different type.",
       "can_autofix": false,
       "fix_type": "manual",
       "status": "open",
@@ -491,7 +491,7 @@
     {
       "id": "ai-ping-027",
       "tool": "biome",
-      "file": "src/services/flowUIService.tsx",
+      "file": "src/services/pageLayoutService.ts",
       "line": 0,
       "col": 0,
       "severity": "warning",
@@ -507,7 +507,7 @@
     {
       "id": "ai-ping-028",
       "tool": "biome",
-      "file": "src/services/flowUIService.tsx",
+      "file": "src/services/pageLayoutService.ts",
       "line": 0,
       "col": 0,
       "severity": "warning",
@@ -650,54 +650,6 @@
     },
     {
       "id": "ai-ping-037",
-      "tool": "biome",
-      "file": "src/services/pageLayoutService.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-038",
-      "tool": "biome",
-      "file": "src/services/pageLayoutService.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-039",
-      "tool": "biome",
-      "file": "src/utils/logger.ts",
-      "line": 0,
-      "col": 0,
-      "severity": "warning",
-      "rule": "lint/suspicious/noExplicitAny",
-      "message": "Unexpected any. Specify a different type.",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-040",
       "tool": "eslint",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 8,
@@ -713,7 +665,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-041",
+      "id": "ai-ping-038",
       "tool": "eslint",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 14,
@@ -729,7 +681,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-042",
+      "id": "ai-ping-039",
       "tool": "eslint",
       "file": "src/pages/docs/OIDCForAI.tsx",
       "line": 7,
@@ -745,7 +697,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-043",
+      "id": "ai-ping-040",
       "tool": "eslint",
       "file": "src/pages/docs/OIDCForAI.tsx",
       "line": 13,
@@ -761,14 +713,62 @@
       "notes": null
     },
     {
+      "id": "ai-ping-041",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 369,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-042",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 379,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-043",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 382,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
       "id": "ai-ping-044",
-      "tool": "eslint",
-      "file": "src/services/flowHeaderService.tsx",
-      "line": 768,
-      "col": 17,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 392,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
       "can_autofix": false,
       "fix_type": "manual",
       "status": "open",
@@ -778,13 +778,13 @@
     },
     {
       "id": "ai-ping-045",
-      "tool": "eslint",
-      "file": "src/services/flowHeaderService.tsx",
-      "line": 788,
-      "col": 18,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 402,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
       "can_autofix": false,
       "fix_type": "manual",
       "status": "open",
@@ -794,13 +794,13 @@
     },
     {
       "id": "ai-ping-046",
-      "tool": "eslint",
-      "file": "src/utils/logger.ts",
-      "line": 229,
-      "col": 31,
-      "severity": "error",
-      "rule": "@typescript-eslint/no-explicit-any",
-      "message": "Unexpected any. Specify a different type.",
+      "tool": "a11y-color",
+      "file": "src/pages/AIIdentityArchitectures.tsx",
+      "line": 405,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
       "can_autofix": false,
       "fix_type": "manual",
       "status": "open",
@@ -812,7 +812,7 @@
       "id": "ai-ping-047",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 369,
+      "line": 416,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -828,7 +828,7 @@
       "id": "ai-ping-048",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 379,
+      "line": 426,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -844,7 +844,7 @@
       "id": "ai-ping-049",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 382,
+      "line": 429,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -860,7 +860,7 @@
       "id": "ai-ping-050",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 392,
+      "line": 486,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -876,7 +876,7 @@
       "id": "ai-ping-051",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 402,
+      "line": 493,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -892,7 +892,7 @@
       "id": "ai-ping-052",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 405,
+      "line": 503,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -908,7 +908,7 @@
       "id": "ai-ping-053",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 416,
+      "line": 511,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -924,7 +924,7 @@
       "id": "ai-ping-054",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 426,
+      "line": 518,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -940,7 +940,7 @@
       "id": "ai-ping-055",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 429,
+      "line": 528,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -956,7 +956,7 @@
       "id": "ai-ping-056",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 486,
+      "line": 536,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -972,7 +972,7 @@
       "id": "ai-ping-057",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 493,
+      "line": 543,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -988,7 +988,7 @@
       "id": "ai-ping-058",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 503,
+      "line": 553,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1004,7 +1004,7 @@
       "id": "ai-ping-059",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 511,
+      "line": 581,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1020,7 +1020,7 @@
       "id": "ai-ping-060",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 518,
+      "line": 588,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1036,7 +1036,7 @@
       "id": "ai-ping-061",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 528,
+      "line": 598,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1052,7 +1052,7 @@
       "id": "ai-ping-062",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 536,
+      "line": 609,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1068,7 +1068,7 @@
       "id": "ai-ping-063",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 543,
+      "line": 616,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1084,7 +1084,7 @@
       "id": "ai-ping-064",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 553,
+      "line": 626,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1100,7 +1100,7 @@
       "id": "ai-ping-065",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 581,
+      "line": 744,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1116,7 +1116,7 @@
       "id": "ai-ping-066",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 588,
+      "line": 751,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1132,7 +1132,7 @@
       "id": "ai-ping-067",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 598,
+      "line": 761,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1148,7 +1148,7 @@
       "id": "ai-ping-068",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 609,
+      "line": 771,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1164,7 +1164,7 @@
       "id": "ai-ping-069",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 616,
+      "line": 778,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1180,7 +1180,7 @@
       "id": "ai-ping-070",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 626,
+      "line": 788,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1196,7 +1196,7 @@
       "id": "ai-ping-071",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 744,
+      "line": 798,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1212,7 +1212,7 @@
       "id": "ai-ping-072",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 751,
+      "line": 805,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1228,7 +1228,7 @@
       "id": "ai-ping-073",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 761,
+      "line": 815,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1244,7 +1244,7 @@
       "id": "ai-ping-074",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 771,
+      "line": 825,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1260,7 +1260,7 @@
       "id": "ai-ping-075",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 778,
+      "line": 832,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1276,7 +1276,7 @@
       "id": "ai-ping-076",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 788,
+      "line": 842,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1292,7 +1292,7 @@
       "id": "ai-ping-077",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 798,
+      "line": 871,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1308,7 +1308,7 @@
       "id": "ai-ping-078",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 805,
+      "line": 881,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1324,7 +1324,7 @@
       "id": "ai-ping-079",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 815,
+      "line": 885,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -1340,102 +1340,6 @@
       "id": "ai-ping-080",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 825,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-081",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 832,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-082",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 842,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-083",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 871,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-084",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 881,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-085",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
-      "line": 885,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-086",
-      "tool": "a11y-color",
-      "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 369,
       "col": 1,
       "severity": "warning",
@@ -1449,7 +1353,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-087",
+      "id": "ai-ping-081",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 379,
@@ -1465,7 +1369,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-088",
+      "id": "ai-ping-082",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 382,
@@ -1481,7 +1385,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-089",
+      "id": "ai-ping-083",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 392,
@@ -1497,7 +1401,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-090",
+      "id": "ai-ping-084",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 402,
@@ -1513,7 +1417,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-091",
+      "id": "ai-ping-085",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 405,
@@ -1529,7 +1433,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-092",
+      "id": "ai-ping-086",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 416,
@@ -1545,7 +1449,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-093",
+      "id": "ai-ping-087",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 426,
@@ -1561,7 +1465,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-094",
+      "id": "ai-ping-088",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 429,
@@ -1577,7 +1481,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-095",
+      "id": "ai-ping-089",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 493,
@@ -1593,7 +1497,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-096",
+      "id": "ai-ping-090",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 503,
@@ -1609,7 +1513,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-097",
+      "id": "ai-ping-091",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 518,
@@ -1625,7 +1529,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-098",
+      "id": "ai-ping-092",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 528,
@@ -1641,7 +1545,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-099",
+      "id": "ai-ping-093",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 543,
@@ -1657,7 +1561,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-100",
+      "id": "ai-ping-094",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 553,
@@ -1673,7 +1577,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-101",
+      "id": "ai-ping-095",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 588,
@@ -1689,7 +1593,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-102",
+      "id": "ai-ping-096",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 598,
@@ -1705,7 +1609,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-103",
+      "id": "ai-ping-097",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 616,
@@ -1721,7 +1625,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-104",
+      "id": "ai-ping-098",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 626,
@@ -1737,7 +1641,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-105",
+      "id": "ai-ping-099",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 751,
@@ -1753,7 +1657,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-106",
+      "id": "ai-ping-100",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 761,
@@ -1769,7 +1673,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-107",
+      "id": "ai-ping-101",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 778,
@@ -1785,7 +1689,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-108",
+      "id": "ai-ping-102",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 788,
@@ -1801,7 +1705,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-109",
+      "id": "ai-ping-103",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 805,
@@ -1817,7 +1721,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-110",
+      "id": "ai-ping-104",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 815,
@@ -1833,7 +1737,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-111",
+      "id": "ai-ping-105",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 832,
@@ -1849,7 +1753,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-112",
+      "id": "ai-ping-106",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 842,
@@ -1865,7 +1769,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-113",
+      "id": "ai-ping-107",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 871,
@@ -1881,7 +1785,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-114",
+      "id": "ai-ping-108",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 881,
@@ -1897,7 +1801,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-115",
+      "id": "ai-ping-109",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 885,
@@ -1913,7 +1817,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-116",
+      "id": "ai-ping-110",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 379,
@@ -1929,7 +1833,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-117",
+      "id": "ai-ping-111",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 382,
@@ -1945,7 +1849,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-118",
+      "id": "ai-ping-112",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 402,
@@ -1961,7 +1865,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-119",
+      "id": "ai-ping-113",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 405,
@@ -1977,7 +1881,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-120",
+      "id": "ai-ping-114",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 426,
@@ -1993,7 +1897,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-121",
+      "id": "ai-ping-115",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 429,
@@ -2009,7 +1913,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-122",
+      "id": "ai-ping-116",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 503,
@@ -2025,7 +1929,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-123",
+      "id": "ai-ping-117",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 528,
@@ -2041,7 +1945,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-124",
+      "id": "ai-ping-118",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 553,
@@ -2057,7 +1961,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-125",
+      "id": "ai-ping-119",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 598,
@@ -2073,7 +1977,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-126",
+      "id": "ai-ping-120",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 626,
@@ -2089,7 +1993,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-127",
+      "id": "ai-ping-121",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 761,
@@ -2105,7 +2009,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-128",
+      "id": "ai-ping-122",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 788,
@@ -2121,7 +2025,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-129",
+      "id": "ai-ping-123",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 815,
@@ -2137,7 +2041,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-130",
+      "id": "ai-ping-124",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 842,
@@ -2153,7 +2057,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-131",
+      "id": "ai-ping-125",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 881,
@@ -2169,7 +2073,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-132",
+      "id": "ai-ping-126",
       "tool": "a11y-color",
       "file": "src/pages/AIIdentityArchitectures.tsx",
       "line": 885,
@@ -2185,7 +2089,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-133",
+      "id": "ai-ping-127",
       "tool": "runtime-analysis",
       "file": "src/pages/docs/AIAgentAuthDraft.tsx",
       "line": 278,
@@ -2201,7 +2105,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-134",
+      "id": "ai-ping-128",
       "tool": "a11y-color",
       "file": "src/pages/docs/AIAgentAuthDraft.tsx",
       "line": 619,
@@ -2217,7 +2121,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-135",
+      "id": "ai-ping-129",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 553,
@@ -2233,7 +2137,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-136",
+      "id": "ai-ping-130",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 619,
@@ -2249,7 +2153,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-137",
+      "id": "ai-ping-131",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 695,
@@ -2265,7 +2169,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-138",
+      "id": "ai-ping-132",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 747,
@@ -2281,7 +2185,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-139",
+      "id": "ai-ping-133",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 98,
@@ -2297,7 +2201,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-140",
+      "id": "ai-ping-134",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 103,
@@ -2313,7 +2217,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-141",
+      "id": "ai-ping-135",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 108,
@@ -2329,7 +2233,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-142",
+      "id": "ai-ping-136",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 113,
@@ -2345,7 +2249,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-143",
+      "id": "ai-ping-137",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 118,
@@ -2361,7 +2265,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-144",
+      "id": "ai-ping-138",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 553,
@@ -2377,7 +2281,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-145",
+      "id": "ai-ping-139",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 619,
@@ -2393,7 +2297,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-146",
+      "id": "ai-ping-140",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 695,
@@ -2409,7 +2313,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-147",
+      "id": "ai-ping-141",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 747,
@@ -2425,7 +2329,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-148",
+      "id": "ai-ping-142",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 553,
@@ -2441,7 +2345,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-149",
+      "id": "ai-ping-143",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 619,
@@ -2457,7 +2361,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-150",
+      "id": "ai-ping-144",
       "tool": "a11y-color",
       "file": "src/pages/docs/OAuthForAI.tsx",
       "line": 695,
@@ -2473,7 +2377,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-151",
+      "id": "ai-ping-145",
       "tool": "a11y-color",
       "file": "src/pages/docs/OIDCForAI.tsx",
       "line": 357,
@@ -2489,10 +2393,106 @@
       "notes": null
     },
     {
-      "id": "ai-ping-152",
+      "id": "ai-ping-146",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 485,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-147",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 490,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-148",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 494,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-149",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 515,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-150",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 520,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-151",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 524,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-152",
+      "tool": "a11y-color",
+      "file": "src/pages/docs/PingViewOnAI.tsx",
+      "line": 545,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -2508,7 +2508,7 @@
       "id": "ai-ping-153",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 490,
+      "line": 550,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -2524,7 +2524,7 @@
       "id": "ai-ping-154",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 494,
+      "line": 554,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -2540,102 +2540,6 @@
       "id": "ai-ping-155",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 515,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-156",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 520,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-157",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 524,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-158",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 545,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-159",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 550,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-160",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
-      "line": 554,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-161",
-      "tool": "a11y-color",
-      "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 140,
       "col": 1,
       "severity": "warning",
@@ -2649,7 +2553,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-162",
+      "id": "ai-ping-156",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 485,
@@ -2665,7 +2569,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-163",
+      "id": "ai-ping-157",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 490,
@@ -2681,7 +2585,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-164",
+      "id": "ai-ping-158",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 494,
@@ -2697,7 +2601,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-165",
+      "id": "ai-ping-159",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 515,
@@ -2713,7 +2617,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-166",
+      "id": "ai-ping-160",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 520,
@@ -2729,7 +2633,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-167",
+      "id": "ai-ping-161",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 524,
@@ -2745,7 +2649,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-168",
+      "id": "ai-ping-162",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 545,
@@ -2761,7 +2665,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-169",
+      "id": "ai-ping-163",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 550,
@@ -2777,7 +2681,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-170",
+      "id": "ai-ping-164",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 554,
@@ -2793,7 +2697,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-171",
+      "id": "ai-ping-165",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 490,
@@ -2809,7 +2713,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-172",
+      "id": "ai-ping-166",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 494,
@@ -2825,7 +2729,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-173",
+      "id": "ai-ping-167",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 520,
@@ -2841,7 +2745,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-174",
+      "id": "ai-ping-168",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 524,
@@ -2857,7 +2761,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-175",
+      "id": "ai-ping-169",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 550,
@@ -2873,7 +2777,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-176",
+      "id": "ai-ping-170",
       "tool": "a11y-color",
       "file": "src/pages/docs/PingViewOnAI.tsx",
       "line": 554,
@@ -2889,7 +2793,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-177",
+      "id": "ai-ping-171",
       "tool": "runtime-analysis",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 317,
@@ -2905,7 +2809,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-178",
+      "id": "ai-ping-172",
       "tool": "runtime-analysis",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 320,
@@ -2921,7 +2825,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-179",
+      "id": "ai-ping-173",
       "tool": "a11y-keyboard",
       "file": "src/services/collapsibleHeaderService.tsx",
       "line": 368,
@@ -2937,7 +2841,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-180",
+      "id": "ai-ping-174",
       "tool": "runtime-analysis",
       "file": "src/services/flowHeaderService.tsx",
       "line": 759,
@@ -2953,7 +2857,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-181",
+      "id": "ai-ping-175",
       "tool": "runtime-analysis",
       "file": "src/services/flowHeaderService.tsx",
       "line": 760,
@@ -2969,7 +2873,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-182",
+      "id": "ai-ping-176",
       "tool": "a11y-color",
       "file": "src/services/flowHeaderService.tsx",
       "line": 179,
@@ -2985,7 +2889,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-183",
+      "id": "ai-ping-177",
       "tool": "a11y-color",
       "file": "src/services/flowHeaderService.tsx",
       "line": 195,
@@ -3001,7 +2905,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-184",
+      "id": "ai-ping-178",
       "tool": "a11y-keyboard",
       "file": "src/services/flowUIService.tsx",
       "line": 1341,
@@ -3017,10 +2921,106 @@
       "notes": null
     },
     {
-      "id": "ai-ping-185",
+      "id": "ai-ping-179",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 311,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-180",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 312,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-181",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 313,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-182",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 314,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-183",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 315,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-184",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 417,
+      "col": 1,
+      "severity": "info",
+      "rule": "a11y-color/hardcoded-hex-color",
+      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+      "can_autofix": false,
+      "fix_type": "manual",
+      "status": "open",
+      "assignee": null,
+      "fixed_at": null,
+      "notes": null
+    },
+    {
+      "id": "ai-ping-185",
+      "tool": "a11y-color",
+      "file": "src/services/flowUIService.tsx",
+      "line": 422,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -3036,7 +3036,7 @@
       "id": "ai-ping-186",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
-      "line": 312,
+      "line": 427,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -3052,7 +3052,7 @@
       "id": "ai-ping-187",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
-      "line": 313,
+      "line": 432,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -3068,7 +3068,7 @@
       "id": "ai-ping-188",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
-      "line": 314,
+      "line": 437,
       "col": 1,
       "severity": "info",
       "rule": "a11y-color/hardcoded-hex-color",
@@ -3084,102 +3084,6 @@
       "id": "ai-ping-189",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
-      "line": 315,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-190",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
-      "line": 417,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-191",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
-      "line": 422,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-192",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
-      "line": 427,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-193",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
-      "line": 432,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-194",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
-      "line": 437,
-      "col": 1,
-      "severity": "info",
-      "rule": "a11y-color/hardcoded-hex-color",
-      "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
-      "can_autofix": false,
-      "fix_type": "manual",
-      "status": "open",
-      "assignee": null,
-      "fixed_at": null,
-      "notes": null
-    },
-    {
-      "id": "ai-ping-195",
-      "tool": "a11y-color",
-      "file": "src/services/flowUIService.tsx",
       "line": 355,
       "col": 1,
       "severity": "info",
@@ -3193,7 +3097,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-196",
+      "id": "ai-ping-190",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 377,
@@ -3209,7 +3113,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-197",
+      "id": "ai-ping-191",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 311,
@@ -3225,7 +3129,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-198",
+      "id": "ai-ping-192",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 312,
@@ -3241,7 +3145,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-199",
+      "id": "ai-ping-193",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 313,
@@ -3257,7 +3161,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-200",
+      "id": "ai-ping-194",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 314,
@@ -3273,7 +3177,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-201",
+      "id": "ai-ping-195",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 315,
@@ -3289,7 +3193,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-202",
+      "id": "ai-ping-196",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 417,
@@ -3305,7 +3209,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-203",
+      "id": "ai-ping-197",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 422,
@@ -3321,7 +3225,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-204",
+      "id": "ai-ping-198",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 427,
@@ -3337,7 +3241,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-205",
+      "id": "ai-ping-199",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 432,
@@ -3353,7 +3257,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-206",
+      "id": "ai-ping-200",
       "tool": "a11y-color",
       "file": "src/services/flowUIService.tsx",
       "line": 437,
@@ -3369,7 +3273,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-207",
+      "id": "ai-ping-201",
       "tool": "migration-check",
       "file": "src/utils/logger.ts",
       "line": 105,
@@ -3385,7 +3289,7 @@
       "notes": null
     },
     {
-      "id": "ai-ping-208",
+      "id": "ai-ping-202",
       "tool": "migration-check",
       "file": "src/utils/logger.ts",
       "line": 113,
@@ -3402,12 +3306,12 @@
     }
   ],
   "summary": {
-    "total": 208,
-    "errors": 3,
-    "warnings": 102,
+    "total": 202,
+    "errors": 0,
+    "warnings": 99,
     "auto_fixed": 0,
-    "manual_required": 208,
-    "open": 208,
+    "manual_required": 202,
+    "open": 202,
     "in_progress": 0,
     "fixed": 0,
     "waived": 0
