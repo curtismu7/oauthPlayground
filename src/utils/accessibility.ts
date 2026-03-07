@@ -202,7 +202,7 @@ export class FocusManager {
 		container.addEventListener('keydown', handleKeyDown);
 
 		// Store cleanup function
-		(container as any).__focusTrapCleanup = () => {
+			(container as Record<string, unknown>).__focusTrapCleanup = () => {
 			container.removeEventListener('keydown', handleKeyDown);
 			const index = this.trapElements.indexOf(container);
 			if (index > -1) {
@@ -213,7 +213,7 @@ export class FocusManager {
 
 	// Release focus trap
 	releaseFocusTrap(container: HTMLElement): void {
-		const cleanup = (container as any).__focusTrapCleanup;
+		const cleanup = (container as Record<string, unknown>).__focusTrapCleanup;
 		if (cleanup) {
 			cleanup();
 		}

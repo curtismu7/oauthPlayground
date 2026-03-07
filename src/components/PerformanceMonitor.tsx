@@ -226,8 +226,10 @@ export const PerformanceMonitor: React.FC = () => {
 			paint.find((entry) => entry.name === 'first-contentful-paint')?.startTime || 0;
 
 		// Memory usage (if available)
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const memoryUsage = (performance as any).memory
-			? (performance as any).memory.usedJSHeapSize / 1024 / 1024
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				? (performance as any).memory.usedJSHeapSize / 1024 / 1024
 			: 0;
 
 		// Bundle size estimation (from build output)

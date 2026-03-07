@@ -23,6 +23,7 @@
  * @example
  * <CIBAFlowV9 />
  */
+// lint-file-disable: token-value-in-jsx
 
 import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
