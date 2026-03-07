@@ -24,22 +24,10 @@ import { trackedFetch } from '../../utils/trackedFetch';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
-const _KROGER_LIGHT_BLUE = '#4DA3FF';
 const KROGER_DARK = '#0B2142';
 const KROGER_LIGHT = '#F5F7FA';
-const _KROGER_RED = '#E31837'; // For accent colors
 const KROGER_GREEN = '#00A651'; // For success states
 
-/**
- * Utility function to mask tokens for security
- * Shows first 8 characters, masks middle, shows last 4 characters
- */
-const maskToken = (token: string): string => {
-	if (!token || token.length <= 12) {
-		return '••••••••';
-	}
-	return `${token.slice(0, 8)}...${token.slice(-4)}`;
-};
 
 // Styled Components
 const PageContainer = styled.div`
@@ -48,90 +36,11 @@ const PageContainer = styled.div`
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 `;
 
-const _Header = styled.header`
-	background: ${KROGER_BLUE};
-	color: white;
-	padding: 1rem 2rem;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-	position: sticky;
-	top: 0;
-	z-index: 1000;
-`;
 
-const _HeaderContent = styled.div`
-	max-width: 1400px;
-	margin: 0 auto;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 2rem;
-`;
 
-const _Logo = styled.div`
-	font-size: 2rem;
-	font-weight: bold;
-	letter-spacing: -0.5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
 
-const _SearchBar = styled.div`
-	flex: 1;
-	max-width: 600px;
-	position: relative;
-	
-	input {
-		width: 100%;
-		padding: 0.75rem 1rem 0.75rem 3rem;
-		border: none;
-		border-radius: 4px;
-		font-size: 1rem;
-		background: white;
-		color: ${KROGER_DARK};
-		
-		&::placeholder {
-			color: #999;
-		}
-	}
-	
-	svg {
-		position: absolute;
-		left: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		color: #999;
-	}
-`;
 
-const _HeaderActions = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1.5rem;
-`;
 
-const _HeaderButton = styled.button`
-	background: transparent;
-	border: none;
-	color: white;
-	font-size: 1.5rem;
-	cursor: pointer;
-	padding: 0.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: opacity 0.2s;
-	
-	&:hover {
-		opacity: 0.8;
-	}
-	
-	span {
-		font-size: 0.875rem;
-		font-weight: 500;
-	}
-`;
 
 const MainContent = styled.main`
 	max-width: 1400px;
@@ -139,25 +48,6 @@ const MainContent = styled.main`
 	padding: 2rem;
 `;
 
-const _HeroBanner = styled.div`
-	background: linear-gradient(135deg, ${KROGER_GREEN} 0%, ${KROGER_BLUE} 100%);
-	color: white;
-	padding: 3rem 2rem;
-	border-radius: 12px;
-	margin-bottom: 2rem;
-	text-align: center;
-	
-	h1 {
-		font-size: 2.5rem;
-		margin-bottom: 1rem;
-		font-weight: 700;
-	}
-	
-	p {
-		font-size: 1.25rem;
-		opacity: 0.95;
-	}
-`;
 
 const ProductsGrid = styled.div`
 	display: grid;
@@ -245,21 +135,7 @@ const LoginModal = styled.div`
 	box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 `;
 
-const _LoginPageContainer = styled.div`
-	max-width: 500px;
-	margin: 3rem auto 2rem;
-	background: white;
-	border-radius: 12px;
-	padding: 2rem;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-`;
 
-const _ApiCallTableContainer = styled.div`
-	max-width: 1400px;
-	width: 100%;
-	margin: 0 auto 2rem;
-	padding: 0 2rem;
-`;
 
 const ModalHeader = styled.div`
 	display: flex;
@@ -286,30 +162,6 @@ const ModalHeader = styled.div`
 	}
 `;
 
-const _FormGroup = styled.div`
-	margin-bottom: 1.5rem;
-	
-	label {
-		display: block;
-		margin-bottom: 0.5rem;
-		font-weight: 600;
-		color: ${KROGER_DARK};
-	}
-	
-	input {
-		width: 100%;
-		padding: 0.75rem;
-		border: 2px solid #e0e0e0;
-		border-radius: 4px;
-		font-size: 1rem;
-		transition: border-color 0.2s;
-		
-		&:focus {
-			outline: none;
-			border-color: ${KROGER_BLUE};
-		}
-	}
-`;
 
 const LoginButton = styled.button`
 	width: 100%;
@@ -450,7 +302,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const [username, setUsername] = useState('curtis7');
 	const [password, setPassword] = useState('');
 	const [mfaCode, setMfaCode] = useState('');
-	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
 	const [credentials, setCredentials] = useState<StepCredentials>({
@@ -460,26 +312,22 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		redirectUri: 'https://localhost:3000/callback',
 		scopes: 'openid profile email consents',
 	});
-	const [phoneNumber, _setPhoneNumber] = useState('');
 	const [mfaDevices, setMfaDevices] = useState<MfaDevice[]>([]);
-	const [_selectedDevice, setSelectedDevice] = useState<string | null>(null);
+	const [, setSelectedDevice] = useState<string | null>(null);
 	const [showConfig, setShowConfig] = useState(false);
-	const [_activeView, _setActiveView] = useState<'profile' | 'dashboard'>('profile');
-	const [_userInfo, setUserInfo] = useState<UserInfo | null>(null);
-	const [_userInfoLoading, setUserInfoLoading] = useState(false);
-	const [_userInfoError, setUserInfoError] = useState<string | null>(null);
+	const [, setUserInfo] = useState<UserInfo | null>(null);
+	const [, setUserInfoLoading] = useState(false);
+	const [, setUserInfoError] = useState<string | null>(null);
 
 	// MFA Workflow State (Steps 11-20)
 	const [userId, setUserId] = useState('');
 	const [deviceId, setDeviceId] = useState('');
 	const [flowId, setFlowId] = useState('');
-	const [_authorizationCode, setAuthorizationCode] = useState('');
+	const [, setAuthorizationCode] = useState('');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [tokens, setTokens] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [_loginStep, setLoginStep] = useState<'login' | 'device-setup' | 'mfa' | 'success'>(
-		'login'
-	);
+	const [, setLoginStep] = useState<'login' | 'device-setup' | 'mfa' | 'success'>('login');
 	const [workerToken, setWorkerToken] = useState('');
 
 	// API Call Tracking
@@ -487,7 +335,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 	// Use refs to avoid circular dependency issues in useCallback
 	const completeMFALoginRef = useRef<(() => Promise<void>) | null>(null);
-	const _loginFormRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		if (!showLoginModal) {
@@ -941,16 +788,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		void fetchKrogerUserInfo();
 	}, [isAuthenticated, credentials.environmentId, tokens, fetchKrogerUserInfo]);
 
-	// Enable MFA Device
-	const enableMFADevice = useCallback(
-		async (deviceId: string): Promise<boolean> => {
-			if (!credentials.environmentId || !userId || !workerToken) {
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: 'Missing required parameters for device enablement',
-					dismissible: true,
-				});
 				return false;
 			}
 
@@ -993,62 +830,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		[credentials.environmentId, userId, workerToken]
 	);
 
-	// Step 11: Register Mobile Phone Device
-	const _registerMobilePhone = useCallback(async () => {
-		if (!credentials.environmentId || !userId || !phoneNumber || !workerToken) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please provide all required information',
-				dismissible: true,
-			});
-			return;
-		}
-
-		setIsLoading(true);
-		try {
-			const response = await trackedFetch(
-				`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${workerToken}`,
-					},
-					body: JSON.stringify({
-						type: 'SMS',
-						phone: phoneNumber,
-						nickname: 'Mobile Phone',
-					}),
-				}
-			);
-
-			const data = await response.json();
-			if (response.ok && data.id) {
-				setDeviceId(data.id);
-				// Step 11b: Enable the device
-				const enabled = await enableMFADevice(data.id);
-				if (enabled) {
-					// Automatically start login flow after device is enabled
-					setTimeout(() => {
-						if (completeMFALoginRef.current) {
-							completeMFALoginRef.current();
-						}
-					}, 500);
-				}
-			} else {
-				throw new Error(data.error_description || data.error || 'Failed to register device');
-			}
-		} catch (error) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to register device',
-				dismissible: true,
-			});
-			setIsLoading(false);
-		}
-	}, [credentials.environmentId, userId, phoneNumber, workerToken, enableMFADevice]);
 
 	// Step 15-17: Complete MFA and Get Tokens
 	const verifyMFACode = useCallback(async () => {
