@@ -427,7 +427,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh tokens', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to refresh tokens',
+				dismissible: true,
+			});
 
 			saveStepResult('refresh-tokens', {
 				success: false,
@@ -490,14 +495,14 @@ export const useResourceOwnerPasswordFlowV7 = ({
 							: String(savedCredentials.scopes)
 						: 'read write';
 
-					setCredentials((prev) => ({
-						...prev,
+					setCredentials({
 						environmentId: savedCredentials.environmentId,
 						clientId: savedCredentials.clientId,
 						clientSecret: savedCredentials.clientSecret || '',
 						scope: scopeString,
-						clientAuthMethod: savedCredentials.clientAuthMethod || 'client_secret_post',
-					}));
+						username: '',
+						password: '',
+					});
 					setHasCredentialsSaved(true);
 
 					logger.debug(

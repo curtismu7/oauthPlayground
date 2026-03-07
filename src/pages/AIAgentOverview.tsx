@@ -1692,6 +1692,7 @@ const AIAgentOverview = () => {
 						<PopupContent onClick={(e) => e.stopPropagation()}>
 							<CloseButton onClick={closePopup}>&times;</CloseButton>
 							<h3>{popupData.title}</h3>
+							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: popup content is authored in-app, not user-supplied */}
 							<div dangerouslySetInnerHTML={{ __html: popupData.content }} />
 						</PopupContent>
 					</PopupOverlay>
