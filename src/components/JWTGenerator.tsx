@@ -21,13 +21,13 @@ const GeneratorHeader = styled.div`
 
 const GeneratorTitle = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
 `;
 
 const TabContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 1.5rem;
 `;
 
@@ -38,11 +38,11 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   
   &:hover {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -68,25 +68,25 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const TextArea = styled.textarea`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -95,21 +95,21 @@ const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   background: white;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -129,21 +129,21 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 		}
 	}}
@@ -155,13 +155,13 @@ const OutputContainer = styled.div`
 
 const OutputTitle = styled.h4`
   margin: 0 0 0.75rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -190,25 +190,25 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
 			case 'info':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
           border: 1px solid #93c5fd;
         `;
 			case 'success':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
           border: 1px solid #86efac;
         `;
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fde68a;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 1px solid V9_COLORS.BG.WARNING_BORDER;
         `;
 			case 'error':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
           border: 1px solid #fca5a5;
         `;
 		}

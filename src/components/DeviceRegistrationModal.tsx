@@ -38,7 +38,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   display: flex;
   align-items: center;
@@ -48,7 +48,7 @@ const ModalTitle = styled.h2`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 0.375rem;
@@ -56,7 +56,7 @@ const CloseButton = styled.button`
 
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -66,14 +66,14 @@ const SuccessIcon = styled.div`
   justify-content: center;
   width: 4rem;
   height: 4rem;
-  background: #dcfce7;
+  background: V9_COLORS.BG.SUCCESS;
   border-radius: 50%;
   margin: 0 auto 1.5rem;
 `;
 
 const DeviceInfo = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -92,12 +92,12 @@ const InfoRow = styled.div`
 
 const InfoLabel = styled.span`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   min-width: 100px;
 `;
 
 const InfoValue = styled.span`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   flex: 1;
 `;
 
@@ -109,7 +109,7 @@ const DeviceIcon = styled.div`
   height: 2rem;
   background: #dbeafe;
   border-radius: 0.375rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StatusBadge = styled.div<{ status: 'active' | 'pending' | 'inactive' }>`
@@ -126,23 +126,23 @@ const StatusBadge = styled.div<{ status: 'active' | 'pending' | 'inactive' }>`
 		switch (props.status) {
 			case 'active':
 				return `
-          background: #dcfce7;
-          color: #166534;
+          background: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'pending':
 				return `
-          background: #fef3c7;
-          color: #92400e;
+          background: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'inactive':
 				return `
-          background: #fee2e2;
-          color: #991b1b;
+          background: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -167,20 +167,20 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${(props) => {
 		if (props.variant === 'primary') {
 			return `
-        background: #3b82f6;
+        background: V9_COLORS.PRIMARY.BLUE;
         color: white;
         
         &:hover {
-          background: #2563eb;
+          background: V9_COLORS.PRIMARY.BLUE_DARK;
         }
       `;
 		} else {
 			return `
         background: #f3f4f6;
-        color: #374151;
+        color: V9_COLORS.TEXT.GRAY_DARK;
         
         &:hover {
-          background: #e5e7eb;
+          background: V9_COLORS.TEXT.GRAY_LIGHTER;
         }
       `;
 		}
@@ -243,7 +243,7 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiCheckCircle size={24} color="#10b981" />
+						<FiCheckCircle size={24} color="V9_COLORS.PRIMARY.GREEN" />
 						Device Registered Successfully
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
@@ -252,7 +252,7 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 				</ModalHeader>
 
 				<SuccessIcon>
-					<FiCheckCircle size={32} color="#10b981" />
+					<FiCheckCircle size={32} color="V9_COLORS.PRIMARY.GREEN" />
 				</SuccessIcon>
 
 				<DeviceInfo>
@@ -288,7 +288,13 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 
 					<InfoRow>
 						<InfoLabel>Device ID:</InfoLabel>
-						<InfoValue style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#6b7280' }}>
+						<InfoValue
+							style={{
+								fontFamily: 'monospace',
+								fontSize: '0.75rem',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							}}
+						>
 							{deviceData.deviceId}
 						</InfoValue>
 					</InfoRow>

@@ -12,6 +12,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { getOAuthTokens } from '../../utils/tokenStorage';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -276,8 +277,8 @@ const _ResponseBox = styled.div<{
   margin: 1rem 0;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  border: 1px solid ${({ $borderColor }) => $borderColor || 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || 'V9_COLORS.BG.GRAY_LIGHT'};
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.4;
@@ -291,7 +292,7 @@ const _ResponseBox = styled.div<{
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   pre {
@@ -304,7 +305,7 @@ const _ResponseBox = styled.div<{
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
-    color: #1f2937 !important;
+    color: V9_COLORS.TEXT.GRAY_DARK !important;
   }
 `;
 
@@ -636,8 +637,8 @@ console.log('ID token is valid!');`,
 					</div>
 					<div
 						style={{
-							background: '#f8fafc',
-							border: '1px solid #e2e8f0',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontSize: '0.875rem',
@@ -740,10 +741,10 @@ console.log('ID token is valid!');`,
 								gap: '0.5rem',
 							}}
 						>
-							<FiCheckCircle style={{ color: '#22c55e' }} />
+							<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 							<div>
-								<strong style={{ color: '#22c55e' }}>ID Token Available:</strong>
-								<span style={{ color: '#059669' }}>
+								<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>ID Token Available:</strong>
+								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
 									{' '}
 									Found stored ID token from previous OAuth flow
 								</span>

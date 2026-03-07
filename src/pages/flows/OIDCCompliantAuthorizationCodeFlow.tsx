@@ -17,11 +17,12 @@ import { FiCheckCircle, FiShield } from '@icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components (reusing from OAuth2 compliant flow)
 const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   padding: 2rem 0;
 `;
 
@@ -32,7 +33,7 @@ const ContentWrapper = styled.div`
 `;
 
 const Header = styled.div`
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   color: white;
   padding: 2rem;
   border-radius: 1rem 1rem 0 0;
@@ -59,8 +60,8 @@ const ComplianceBadge = styled.div`
   align-items: center;
   gap: 0.5rem;
   background: rgba(59, 130, 246, 0.2);
-  border: 1px solid #3b82f6;
-  color: #bfdbfe;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.875rem;

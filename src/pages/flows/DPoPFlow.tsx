@@ -22,6 +22,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { copyToClipboard } from '../../utils/clipboard';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -38,7 +39,7 @@ const MainCard = styled(Card)`
 `;
 
 const WarningBox = styled.div`
-	background-color: #fef3c7;
+	background-color: V9_COLORS.BG.WARNING;
 	border: 1px solid #fcd34d;
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -49,7 +50,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-	color: #f59e0b;
+	color: V9_COLORS.PRIMARY.YELLOW;
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -60,7 +61,7 @@ const WarningContent = styled.div`
 
 	h4 {
 		font-weight: 600;
-		color: #92400e;
+		color: V9_COLORS.PRIMARY.YELLOW_DARK;
 		margin-bottom: 0.5rem;
 	}
 
@@ -72,8 +73,8 @@ const WarningContent = styled.div`
 `;
 
 const InfoBox = styled.div`
-	background-color: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -83,7 +84,7 @@ const InfoBox = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -94,7 +95,7 @@ const InfoContent = styled.div`
 
 	h4 {
 		font-weight: 600;
-		color: #1e40af;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 		margin-bottom: 0.5rem;
 	}
 
@@ -106,8 +107,8 @@ const InfoContent = styled.div`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: #f8fafc;
-	border: 1px solid #e5e7eb;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	padding: 1rem;
 	font-size: 0.875rem;
@@ -125,24 +126,24 @@ const CodeBlockHeader = styled.div`
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CopyButton = styled.button`
 	background: #f3f4f6;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	font-size: 0.75rem;
 	cursor: pointer;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
 	transition: all 0.2s;
 
 	&:hover {
-		background: #e5e7eb;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
@@ -157,11 +158,11 @@ const ActionButton = styled.button`
 	cursor: pointer;
 	transition: all 0.2s;
 	border: none;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
@@ -172,7 +173,7 @@ const ActionButton = styled.button`
 
 const KeyPairDisplay = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -182,7 +183,7 @@ const KeyPairInfo = styled.div`
 	margin-bottom: 1rem;
 
 	strong {
-		color: #111827;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		font-weight: 600;
 		display: block;
 		margin-bottom: 0.5rem;
@@ -190,7 +191,7 @@ const KeyPairInfo = styled.div`
 
 	pre {
 		background: white;
-		border: 1px solid #d1d5db;
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 		border-radius: 0.25rem;
 		padding: 0.75rem;
 		font-size: 0.75rem;
@@ -201,7 +202,7 @@ const KeyPairInfo = styled.div`
 
 const ProofDisplay = styled.div`
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -211,7 +212,7 @@ const ProofInfo = styled.div`
 	margin-bottom: 0.75rem;
 
 	strong {
-		color: #166534;
+		color: V9_COLORS.PRIMARY.GREEN;
 		font-weight: 600;
 		display: block;
 		margin-bottom: 0.25rem;
@@ -219,11 +220,11 @@ const ProofInfo = styled.div`
 
 	code {
 		background: white;
-		border: 1px solid #bbf7d0;
+		border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 		border-radius: 0.25rem;
 		padding: 0.25rem 0.5rem;
 		font-size: 0.875rem;
-		color: #166534;
+		color: V9_COLORS.PRIMARY.GREEN;
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	}
 `;
@@ -235,7 +236,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	display: block;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -243,14 +244,14 @@ const Label = styled.label`
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: all 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -258,7 +259,7 @@ const Input = styled.input`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
@@ -266,7 +267,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -549,7 +550,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 								onChange={(e) => setAccessToken(e.target.value)}
 								placeholder="Enter access token to include ath claim"
 							/>
-							<small style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+							<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.25rem', display: 'block' }}>
 								If provided, the access token will be hashed and included in the proof as the "ath"
 								claim
 							</small>

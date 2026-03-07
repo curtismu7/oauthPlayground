@@ -44,7 +44,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   display: flex;
   align-items: center;
@@ -55,14 +55,14 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 0.25rem;
   
   &:hover {
     background-color: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -71,8 +71,8 @@ const ModalBody = styled.div`
 `;
 
 const IntroSection = styled.div`
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
@@ -81,7 +81,7 @@ const IntroSection = styled.div`
 const IntroTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -89,7 +89,7 @@ const IntroTitle = styled.h3`
 `;
 
 const IntroText = styled.p`
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
   margin: 0;
   line-height: 1.5;
 `;
@@ -101,7 +101,7 @@ const FlowGrid = styled.div`
 `;
 
 const FlowCard = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   background: white;
@@ -121,20 +121,20 @@ const FlowIcon = styled.span`
 const FlowName = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const UriContainer = styled.div`
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 0.75rem;
   border-radius: 0.375rem;
   margin-bottom: 0.75rem;
 `;
 
 const UriCode = styled.code`
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   background-color: #dbeafe;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -146,7 +146,7 @@ const UriCode = styled.code`
 `;
 
 const CopyButton = styled.button<{ copied?: boolean }>`
-  background-color: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
+  background-color: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
   color: white;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -159,20 +159,20 @@ const CopyButton = styled.button<{ copied?: boolean }>`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => (props.copied ? '#059669' : '#2563eb')};
+    background-color: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   }
 `;
 
 const FlowDescription = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
   line-height: 1.4;
 `;
 
 const PingOneSection = styled.div`
-  background-color: #fef3c7;
-  border: 1px solid #f59e0b;
+  background-color: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
@@ -181,7 +181,7 @@ const PingOneSection = styled.div`
 const PingOneTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -189,14 +189,14 @@ const PingOneTitle = styled.h3`
 `;
 
 const PingOneText = styled.p`
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0 0 0.75rem 0;
   line-height: 1.5;
 `;
 
 const UriList = styled.div`
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  background-color: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   padding: 0.75rem;
   border-radius: 0.375rem;
 `;
@@ -204,7 +204,7 @@ const UriList = styled.div`
 const UriListItem = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin-bottom: 0.25rem;
   word-break: break-all;
   
@@ -214,8 +214,8 @@ const UriListItem = styled.div`
 `;
 
 const WarningSection = styled.div`
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  background-color: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
@@ -224,7 +224,7 @@ const WarningSection = styled.div`
 const WarningTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -232,7 +232,7 @@ const WarningTitle = styled.h3`
 `;
 
 const WarningText = styled.p`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin: 0;
   line-height: 1.5;
 `;

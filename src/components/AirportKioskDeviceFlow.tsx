@@ -24,14 +24,14 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel
 const KioskContainer = styled.div`
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  background: linear-gradient(180deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 2rem;
   padding: 3rem;
   margin: 2rem 0;
   box-shadow: 
     0 30px 60px rgba(0, 0, 0, 0.3),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  border: 16px solid #0f172a;
+  border: 16px solid V9_COLORS.TEXT.GRAY_DARK;
   position: relative;
   
   /* Simulated kiosk bezel/frame */
@@ -43,7 +43,7 @@ const KioskContainer = styled.div`
     right: -16px;
     bottom: -16px;
     border-radius: 2rem;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
+    background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 50%, #1e293b 100%);
     z-index: -1;
     box-shadow: 
       0 0 40px rgba(0, 0, 0, 0.5),
@@ -59,7 +59,7 @@ const KioskContainer = styled.div`
     transform: translateX(-50%);
     width: 32px;
     height: 32px;
-    background: radial-gradient(circle, #1e40af 0%, #1e3a8a 100%);
+    background: radial-gradient(circle, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -73,7 +73,7 @@ const KioskContainer = styled.div`
 
 // LCD Screen Container - Main display area
 const LCDScreen = styled.div`
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.WHITE 100%);
   border-radius: 1rem;
   padding: 0;
   margin: 1.5rem 0;
@@ -88,7 +88,7 @@ const LCDScreen = styled.div`
 
 // CLEAR Branding Bar
 const CLEARBrandBar = styled.div`
-  background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(90deg, #0ea5e9 0%, V9_COLORS.PRIMARY.BLUE 100%);
   padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
@@ -100,7 +100,7 @@ const CLEARLogo = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 const CLEARLogoText = styled.div`
@@ -111,8 +111,8 @@ const CLEARLogoText = styled.div`
 `;
 
 const TSABadge = styled.div`
-  background: #ffffff;
-  color: #1e40af;
+  background: V9_COLORS.TEXT.WHITE;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.75rem;
@@ -132,9 +132,9 @@ const BiometricScanner = styled.div`
   right: 2rem;
   width: 140px;
   height: 140px;
-  background: radial-gradient(circle, #1e40af 0%, #1e3a8a 60%, #0f172a 100%);
+  background: radial-gradient(circle, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 60%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 50%;
-  border: 4px solid #3b82f6;
+  border: 4px solid V9_COLORS.PRIMARY.BLUE;
   box-shadow: 
     0 0 40px rgba(59, 130, 246, 0.6),
     inset 0 0 30px rgba(30, 64, 175, 0.4);
@@ -168,7 +168,7 @@ const ScannerLabel = styled.div`
   left: 50%;
   transform: translateX(-50%);
   background: #0ea5e9;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   padding: 0.25rem 0.75rem;
   border-radius: 0.25rem;
   font-size: 0.7rem;
@@ -182,11 +182,11 @@ const KioskStatusBadge = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'authorized':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'denied':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'expired':
 				return '#f3f4f6';
 			default:
@@ -196,29 +196,29 @@ const KioskStatusBadge = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 			default:
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorized':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'denied':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   padding: 0.75rem 1.5rem;
@@ -246,7 +246,7 @@ const KioskDisplay = styled.div`
 
 // Passenger Information Panel
 const PassengerPanel = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 2px solid #cbd5e1;
   border-radius: 1rem;
   padding: 2rem;
@@ -255,19 +255,19 @@ const PassengerPanel = styled.div`
 const PanelTitle = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const InfoRow = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid V9_COLORS.BG.GRAY_MEDIUM;
   
   &:last-child {
     border-bottom: none;
@@ -277,21 +277,21 @@ const InfoRow = styled.div`
 const InfoLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const InfoValue = styled.div`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 // Boarding Pass Panel
 const BoardingPassPanel = styled.div`
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%);
   border-radius: 1rem;
   padding: 2rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
   position: relative;
   overflow: hidden;
@@ -311,7 +311,7 @@ const BoardingPassPanel = styled.div`
 const BoardingTitle = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #bfdbfe;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
@@ -320,7 +320,7 @@ const BoardingTitle = styled.div`
 const BoardingValue = styled.div`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 1.5rem;
 `;
 
@@ -341,7 +341,7 @@ const CodeDisplay = styled.div`
 
 const CodeLabel = styled.div`
   font-size: 0.75rem;
-  color: #bfdbfe;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -351,13 +351,13 @@ const CodeValue = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   letter-spacing: 0.2em;
 `;
 
 // QR Code Section
 const QRSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 2px solid #cbd5e1;
   border-radius: 1rem;
   padding: 2rem;
@@ -368,20 +368,20 @@ const QRSection = styled.div`
 const QRTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1.5rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
@@ -399,16 +399,16 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'secondary':
-				return '#64748b';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			case 'success':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#64748b';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.875rem 1.5rem;
@@ -451,15 +451,15 @@ const StatusMessage = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border-radius: 0.75rem;
@@ -475,15 +475,15 @@ const StatusIcon = styled.div<{ $status: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -495,13 +495,13 @@ const StatusText = styled.div`
 const StatusTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatusDescription = styled.div`
   font-size: 0.875rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 
@@ -664,8 +664,8 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 								<QRCodeSVG
 									value={state.verificationUriComplete}
 									size={200}
-									bgColor="#ffffff"
-									fgColor="#0f172a"
+									bgColor="V9_COLORS.TEXT.WHITE"
+									fgColor="V9_COLORS.TEXT.GRAY_DARK"
 									level="H"
 									includeMargin={true}
 								/>
@@ -695,7 +695,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 						<div
 							style={{
 								background: 'rgba(34, 197, 94, 0.1)',
-								border: '2px solid #22c55e',
+								border: '2px solid V9_COLORS.PRIMARY.GREEN',
 								borderRadius: '1rem',
 								padding: '2rem',
 								marginTop: '1rem',
@@ -705,7 +705,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 								style={{
 									fontSize: '1.25rem',
 									fontWeight: '700',
-									color: '#065f46',
+									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 									textAlign: 'center',
 									marginBottom: '1rem',
 									display: 'flex',
@@ -725,7 +725,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
-				backgroundColor="#ffffff"
+				backgroundColor="V9_COLORS.TEXT.WHITE"
 				borderColor="#cbd5e1"
 				headerTextColor="#1e293b"
 			/>

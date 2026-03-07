@@ -19,7 +19,7 @@ const TableContainer = styled.div`
 const TableHeader = styled.div`
 	background: #f9fafb;
 	padding: 1rem 1.5rem;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -28,13 +28,13 @@ const TableHeader = styled.div`
 		margin: 0;
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: #111827;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
 const ClearButton = styled.button`
 	padding: 0.5rem 1rem;
-	background: #ef4444;
+	background: V9_COLORS.PRIMARY.RED;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -44,7 +44,7 @@ const ClearButton = styled.button`
 	transition: background 0.2s;
 	
 	&:hover {
-		background: #dc2626;
+		background: V9_COLORS.PRIMARY.RED_DARK;
 	}
 `;
 
@@ -62,15 +62,15 @@ const TableHead = styled.thead`
 		text-align: left;
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: #374151;
-		border-bottom: 2px solid #e5e7eb;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 `;
 
 const TableBody = styled.tbody``;
 
 const TableRow = styled.tr<{ $isExpanded?: boolean }>`
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	cursor: pointer;
 	transition: background 0.2s;
 	
@@ -88,7 +88,7 @@ const TableRow = styled.tr<{ $isExpanded?: boolean }>`
 const TableCell = styled.td`
 	padding: 0.75rem 1rem;
 	font-size: 0.875rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const MethodBadge = styled.span<{ $method: string }>`
@@ -102,15 +102,15 @@ const MethodBadge = styled.span<{ $method: string }>`
 	${(props) => {
 		switch (props.$method) {
 			case 'GET':
-				return 'background: #dbeafe; color: #1e40af;';
+				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 			case 'POST':
-				return 'background: #dcfce7; color: #166534;';
+				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
 			case 'PUT':
-				return 'background: #fef3c7; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			case 'DELETE':
-				return 'background: #fee2e2; color: #991b1b;';
+				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
 			default:
-				return 'background: #f3f4f6; color: #374151;';
+				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK;';
 		}
 	}}
 `;
@@ -124,11 +124,11 @@ const StatusBadge = styled.span<{ $status: number }>`
 	
 	${(props) => {
 		if (props.$status >= 200 && props.$status < 300) {
-			return 'background: #dcfce7; color: #166534;';
+			return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
 		} else if (props.$status >= 400) {
-			return 'background: #fee2e2; color: #991b1b;';
+			return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
 		} else {
-			return 'background: #fef3c7; color: #92400e;';
+			return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 		}
 	}}
 `;
@@ -137,7 +137,7 @@ const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
 	display: ${(props) => (props.$isExpanded ? 'block' : 'none')};
 	padding: 1rem 1.5rem;
 	background: white;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Section = styled.div`
@@ -152,7 +152,7 @@ const SectionTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -160,7 +160,7 @@ const SectionTitle = styled.h4`
 
 const CodeBlock = styled.pre`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 4px;
 	padding: 1rem;
 	overflow-x: auto;
@@ -174,7 +174,7 @@ const KeyValueList = styled.dl`
 	
 	dt {
 		font-weight: 600;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		margin-top: 0.5rem;
 		
 		&:first-child {
@@ -184,7 +184,7 @@ const KeyValueList = styled.dl`
 	
 	dd {
 		margin: 0.25rem 0 0 1rem;
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		font-family: 'Monaco', 'Menlo', monospace;
 		font-size: 0.8125rem;
 		word-break: break-all;
@@ -194,7 +194,7 @@ const KeyValueList = styled.dl`
 const EmptyState = styled.div`
 	padding: 3rem;
 	text-align: center;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	
 	p {
 		margin: 0;
@@ -284,7 +284,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 												<div
 													style={{
 														fontSize: '0.75rem',
-														color: '#6b7280',
+														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 														marginTop: '0.25rem',
 														fontStyle: 'italic',
 													}}
@@ -299,14 +299,18 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.response.status}
 												</StatusBadge>
 											) : (
-												<span style={{ color: '#6b7280' }}>Pending</span>
+												<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Pending</span>
 											)}
 										</TableCell>
 										<TableCell>
-											<small style={{ color: '#6b7280' }}>{formatTime(call.timestamp)}</small>
+											<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												{formatTime(call.timestamp)}
+											</small>
 										</TableCell>
 										<TableCell>
-											<small style={{ color: '#6b7280' }}>{formatDuration(call.duration)}</small>
+											<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												{formatDuration(call.duration)}
+											</small>
 										</TableCell>
 									</TableRow>
 									{isExpanded && (
@@ -412,7 +416,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																{call.response.data ? (
 																	<JSONHighlighter data={call.response.data as JSONData} />
 																) : call.response.error ? (
-																	<CodeBlock style={{ color: '#dc2626' }}>
+																	<CodeBlock style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 																		{call.response.error}
 																	</CodeBlock>
 																) : (

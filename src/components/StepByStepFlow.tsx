@@ -14,7 +14,11 @@ const StepContainer = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
   border: 2px solid ${({ $isActive, $isCompleted }) =>
 		$isActive ? '#007bff' : $isCompleted ? '#28a745' : '#dee2e6'};
   background-color: ${({ $isActive, $isCompleted }) =>
-		$isActive ? 'rgba(0, 123, 255, 0.05)' : $isCompleted ? 'rgba(40, 167, 69, 0.05)' : '#ffffff'};
+		$isActive
+			? 'rgba(0, 123, 255, 0.05)'
+			: $isCompleted
+				? 'rgba(40, 167, 69, 0.05)'
+				: 'V9_COLORS.TEXT.WHITE'};
   transition: all 0.3s ease;
 `;
 
@@ -55,7 +59,7 @@ const StepDescription = styled.p`
 `;
 
 const CodeBlock = styled.pre`
-  background-color: #1f2937;
+  background-color: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -63,7 +67,7 @@ const CodeBlock = styled.pre`
   font-size: 0.875rem;
   margin: 1rem 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  border: 1px solid #374151;
+  border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   white-space: pre-wrap;
   position: relative;
 `;
@@ -79,16 +83,16 @@ const StepActions = styled.div`
 const StepResult = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  background-color: V9_COLORS.TEXT.GRAY_DARK;
+  border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 0.5rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-family: monospace;
   font-size: 0.875rem;
   
   h4 {
     margin: 0 0 0.5rem 0;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     font-size: 1rem;
     font-weight: 600;
   }
@@ -103,7 +107,7 @@ const StepResult = styled.div`
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
-    color: #ffffff !important;
+    color: V9_COLORS.TEXT.WHITE !important;
   }
 `;
 
@@ -271,7 +275,7 @@ const StatusIndicator = styled.div<{ $status: 'idle' | 'loading' | 'success' | '
 			case 'idle':
 				return 'background-color: #e9ecef; color: #495057;';
 			case 'loading':
-				return 'background-color: #fff3cd; color: #856404;';
+				return 'background-color: V9_COLORS.TEXT.WHITE3cd; color: #856404;';
 			case 'success':
 				return 'background-color: #d4edda; color: #155724;';
 			case 'error':

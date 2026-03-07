@@ -15,19 +15,25 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
-	KeyPair,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+KeyPair,
 	LoginHintTokenPayload,
 	PingOneJWTService,
 	PrivateKeyJWTConfig,
 	RequestPropertyPayload,
-} from '../services/pingOneJWTService';
+} from '../services/pingOneJWTService'
 
 const ToolsContainer = styled.div`
 	background: white;
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionHeader = styled.div`
@@ -52,7 +58,7 @@ const SectionTitle = styled.div`
 	gap: 0.5rem;
 	font-weight: 600;
 	font-size: 1.1rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SectionContent = styled.div<{ $collapsed: boolean }>`
@@ -68,21 +74,21 @@ const Label = styled.label`
 	display: block;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.95rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.95rem;
 	transition: border-color 0.2s;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -90,7 +96,7 @@ const Input = styled.input`
 const Textarea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.95rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -100,7 +106,7 @@ const Textarea = styled.textarea`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -108,7 +114,7 @@ const Textarea = styled.textarea`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.95rem;
 	background: white;
@@ -117,7 +123,7 @@ const Select = styled.select`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -138,23 +144,23 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (props.$variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover:not(:disabled) {
-						background: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'danger':
 				return `
-					background: #ef4444;
+					background: V9_COLORS.PRIMARY.RED;
 					color: white;
 					&:hover:not(:disabled) {
-						background: #dc2626;
+						background: V9_COLORS.PRIMARY.RED_DARK;
 					}
 				`;
 			default:
 				return `
-					background: #6b7280;
+					background: V9_COLORS.TEXT.GRAY_MEDIUM;
 					color: white;
 					&:hover:not(:disabled) {
 						background: #4b5563;
@@ -178,7 +184,7 @@ const ButtonRow = styled.div`
 
 const ResultBox = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -187,7 +193,7 @@ const ResultBox = styled.div`
 const ResultLabel = styled.div`
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.9rem;
 `;
 
@@ -195,29 +201,29 @@ const ResultValue = styled.pre`
 	background: white;
 	padding: 0.75rem;
 	border-radius: 4px;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	font-size: 0.85rem;
 	overflow-x: auto;
 	white-space: pre-wrap;
 	word-break: break-all;
 	margin: 0;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const InfoText = styled.div`
 	font-size: 0.85rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.5rem;
 	line-height: 1.5;
 `;
 
 const SuccessMessage = styled.div`
-	background: #d1fae5;
-	border: 1px solid #10b981;
+	background: V9_COLORS.BG.SUCCESS;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
 	border-radius: 6px;
 	padding: 0.75rem;
 	margin: 1rem 0;
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.9rem;
 	display: flex;
 	align-items: center;

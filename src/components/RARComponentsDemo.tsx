@@ -25,13 +25,13 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
 `;
 
@@ -49,13 +49,13 @@ const SectionHeader = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const SectionDescription = styled.p`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 `;
@@ -84,7 +84,7 @@ const SideColumn = styled.div`
 
 const ConfigPanel = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
 `;
@@ -92,7 +92,7 @@ const ConfigPanel = styled.div`
 const ConfigTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -105,7 +105,7 @@ const ConfigOption = styled.label`
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
 `;
 
@@ -116,21 +116,21 @@ const ConfigCheckbox = styled.input`
 const ScopeInput = styled.input`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const StatsPanel = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1rem;
@@ -152,12 +152,12 @@ const StatItem = styled.div`
 const StatValue = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-top: 0.25rem;
 `;
 
@@ -184,7 +184,7 @@ export const RARComponentsDemo: React.FC = () => {
 				<MainColumn>
 					<Section>
 						<SectionHeader>
-							<FiCheckCircle size={20} color="#059669" />
+							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />
 							<SectionTitle>Example Selector</SectionTitle>
 						</SectionHeader>
 						<SectionDescription>
@@ -197,7 +197,7 @@ export const RARComponentsDemo: React.FC = () => {
 
 					<Section>
 						<SectionHeader>
-							<FiSettings size={20} color="#3b82f6" />
+							<FiSettings size={20} color="V9_COLORS.PRIMARY.BLUE" />
 							<SectionTitle>Authorization Details Editor</SectionTitle>
 						</SectionHeader>
 						<SectionDescription>
@@ -232,7 +232,7 @@ export const RARComponentsDemo: React.FC = () => {
 								<label
 									style={{
 										fontSize: '0.875rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										display: 'block',
 										marginBottom: '0.5rem',
 									}}

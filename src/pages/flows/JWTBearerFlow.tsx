@@ -23,6 +23,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -59,9 +60,9 @@ const StepContainer = styled.div`
 const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
   padding: 1rem;
   border: 2px solid ${(props) =>
-		props.$completed ? '#10b981' : props.$active ? '#3b82f6' : '#e5e7eb'};
+		props.$completed ? 'V9_COLORS.PRIMARY.GREEN' : props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
   border-radius: 0.5rem;
-  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? '#eff6ff' : '#f9fafb')};
+  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
   transition: all 0.2s ease;
 `;
 
@@ -102,45 +103,45 @@ const ActionButton = styled.button<{
 		switch (props.$variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: #2563eb; }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			case 'secondary':
 				return `
-          background: #6b7280;
+          background: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background: #4b5563; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1); }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: #059669; }
+          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background: #dc2626; }
+          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
         `;
 			case 'outline':
 				return `
           background: white;
-          color: #3b82f6;
-          border: 2px solid #3b82f6;
-          &:hover { background: #eff6ff; }
+          color: V9_COLORS.PRIMARY.BLUE;
+          border: 2px solid V9_COLORS.PRIMARY.BLUE;
+          &:hover { background: V9_COLORS.BG.GRAY_LIGHT; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			default:
 				return `
           background: #f3f4f6;
-          color: #374151;
-          &:hover { background: #e5e7eb; }
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
           &:focus { outline: none; box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1); }
         `;
 		}
@@ -153,13 +154,13 @@ const ActionButton = styled.button<{
       background: ${(props) => {
 				switch (props.$variant) {
 					case 'primary':
-						return '#3b82f6';
+						return 'V9_COLORS.PRIMARY.BLUE';
 					case 'secondary':
-						return '#6b7280';
+						return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 					case 'success':
-						return '#10b981';
+						return 'V9_COLORS.PRIMARY.GREEN';
 					case 'danger':
-						return '#ef4444';
+						return 'V9_COLORS.PRIMARY.RED';
 					case 'outline':
 						return 'white';
 					default:
@@ -184,13 +185,13 @@ const StatusIndicator = styled.div<{
   ${(props) => {
 		switch (props.$status) {
 			case 'completed':
-				return 'background: #dcfce7; color: #166534;';
+				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
 			case 'active':
-				return 'background: #dbeafe; color: #1e40af;';
+				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 			case 'error':
-				return 'background: #fef2f2; color: #dc2626;';
+				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
 			default:
-				return 'background: #f3f4f6; color: #6b7280;';
+				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_MEDIUM;';
 		}
 	}}
 `;
@@ -584,8 +585,8 @@ const JWTBearerFlow: React.FC = () => {
 				<CardBody>
 					<div
 						style={{
-							background: '#fef3c7',
-							border: '1px solid #f59e0b',
+							background: 'V9_COLORS.BG.WARNING',
+							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
@@ -595,13 +596,13 @@ const JWTBearerFlow: React.FC = () => {
 						}}
 					>
 						<FiAlertTriangle
-							style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }}
+							style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.25rem', marginTop: '0.125rem' }}
 						/>
 						<div>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '1rem' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1rem' }}>
 								Educational Flow - PingOne Not Supported
 							</h4>
-							<p style={{ margin: 0, color: '#92400e', fontSize: '0.9rem' }}>
+							<p style={{ margin: 0, color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '0.9rem' }}>
 								<strong>Important:</strong> PingOne does not support the JWT Bearer grant type. This
 								flow is for educational purposes only and generates mock tokens to demonstrate how
 								JWT Bearer authentication would work with OAuth 2.0 providers that support it.
@@ -651,11 +652,11 @@ const JWTBearerFlow: React.FC = () => {
 					<CardBody>
 						<div
 							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
+								background: 'V9_COLORS.BG.ERROR',
+								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '0.5rem',
 								padding: '1rem',
-								color: '#dc2626',
+								color: 'V9_COLORS.PRIMARY.RED_DARK',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
@@ -710,14 +711,14 @@ const JWTBearerFlow: React.FC = () => {
 					/>
 					<div
 						style={{
-							background: '#f8fafc',
-							border: '1px solid #e2e8f0',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.9rem' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK', fontSize: '0.9rem' }}>
 							Current Configuration:
 						</h4>
 						<div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.875rem' }}>

@@ -4,11 +4,17 @@
 import React from 'react';
 import { FiAlertCircle, FiBook, FiExternalLink } from '../../../services/commonImportsService';
 import {
-	Alert,
+import
+{
+	V9_COLORS;
+}
+from;
+('../../../services/v9/V9ColorStandards');
+Alert,
 	Card,
 	DocumentationLink,
 	DocumentationSection,
-} from '../shared/PasswordResetSharedComponents';
+} from '../shared/PasswordResetSharedComponents'
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -333,7 +339,13 @@ export const OverviewTab: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ marginBottom: '0.5rem', color: '#374151', fontSize: '1rem' }}>
+						<h4
+							style={{
+								marginBottom: '0.5rem',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								fontSize: '1rem',
+							}}
+						>
 							1. Lookup by Username
 						</h4>
 						<code
@@ -394,7 +406,13 @@ export const OverviewTab: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ marginBottom: '0.5rem', color: '#374151', fontSize: '1rem' }}>
+						<h4
+							style={{
+								marginBottom: '0.5rem',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								fontSize: '1rem',
+							}}
+						>
 							2. Lookup by Email
 						</h4>
 						<code
@@ -437,7 +455,13 @@ export const OverviewTab: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ marginBottom: '0.5rem', color: '#374151', fontSize: '1rem' }}>
+						<h4
+							style={{
+								marginBottom: '0.5rem',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								fontSize: '1rem',
+							}}
+						>
 							3. Direct Lookup by User ID
 						</h4>
 						<code

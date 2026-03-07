@@ -10,6 +10,7 @@
 
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const deltaConfig: CorporatePortalConfig = {
 	company: {
@@ -43,7 +44,7 @@ export const deltaConfig: CorporatePortalConfig = {
 			info: '#3498db',
 			light: '#ecf0f1',
 			dark: '#2c3e50',
-			white: '#ffffff',
+			white: 'V9_COLORS.TEXT.WHITE',
 			gray100: '#f8f9fa',
 			gray200: '#e9ecef',
 			gray300: '#dee2e6',
@@ -53,7 +54,7 @@ export const deltaConfig: CorporatePortalConfig = {
 			gray700: '#495057',
 			gray800: '#343a40',
 			gray900: '#212529',
-			black: '#000000',
+			black: 'V9_COLORS.TEXT.BLACK',
 		},
 		typography: {
 			fontFamily: {
@@ -179,22 +180,22 @@ export const deltaTheme: BrandTheme = {
 		primary: '#c8102e',
 		primaryDark: '#a91b0d',
 		primaryLight: '#f8d7da',
-		secondary: '#111827',
-		secondaryLight: '#d1d5db',
-		secondaryDark: '#1f2937',
+		secondary: 'V9_COLORS.TEXT.GRAY_DARK',
+		secondaryLight: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		secondaryDark: 'V9_COLORS.TEXT.GRAY_DARK',
 		accent: '#ff6b35',
-		background: '#ffffff',
-		surface: '#ffffff',
-		muted: '#6b7280',
-		border: '#d1d5db',
+		background: 'V9_COLORS.TEXT.WHITE',
+		surface: 'V9_COLORS.TEXT.WHITE',
+		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31937',
 		errorLight: '#f8d7da',
-		success: '#059669',
+		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
 		successLight: '#d4edda',
 		warning: '#D97706',
-		warningLight: '#fff3cd',
+		warningLight: 'V9_COLORS.TEXT.WHITE3cd',
 		info: '#c8102e',
 	},
 	typography: {

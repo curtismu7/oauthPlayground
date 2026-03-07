@@ -31,26 +31,26 @@ const FormField = styled.div`
 
 const FormLabel = styled.label`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const FormInput = styled.input`
 	padding: 0.75rem;
-	border: 2px solid #e5e7eb;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 	
 	&:disabled {
 		background-color: #f3f4f6;
-		color: #6b7280;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 	}
 `;
@@ -68,7 +68,7 @@ const InfoBox = styled.div`
 
 const InfoText = styled.div`
 	font-size: 0.8125rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
@@ -86,15 +86,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.375rem;
 	border: none;
-	background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#3b82f6')};
-	color: ${({ $variant }) => ($variant === 'secondary' ? '#374151' : '#ffffff')};
+	background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE')};
+	color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
 	font-weight: 600;
 	cursor: pointer;
 	transition: background 0.2s;
 	font-size: 0.875rem;
 	
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'secondary' ? '#d1d5db' : '#2563eb')};
+		background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	}
 	
 	&:disabled {
@@ -343,7 +343,10 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			maxHeight="calc(100vh - 4rem)"
 		>
 			<InfoBox>
-				<FiInfo size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
+				<FiInfo
+					size={16}
+					style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '0.125rem' }}
+				/>
 				<InfoText>
 					<strong>Authorization Code Flow Configuration</strong>
 					<br />
@@ -423,32 +426,32 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					onClick={handleExport}
 					onFocus={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = '#9ca3af';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
 					}}
 					onBlur={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = '#d1d5db';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 					}}
 					style={{
 						display: 'flex',
 						alignItems: 'center',
 						gap: '6px',
 						padding: '8px 16px',
-						border: '1px solid #d1d5db',
+						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
-						color: '#374151',
+						color: 'V9_COLORS.TEXT.GRAY_DARK',
 						fontSize: '0.875rem',
 						cursor: 'pointer',
 						transition: 'all 0.2s',
 					}}
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = '#9ca3af';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = '#d1d5db';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 					}}
 					title="Export credentials to JSON file"
 				>
@@ -460,32 +463,32 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					onClick={handleImport}
 					onFocus={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = '#9ca3af';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
 					}}
 					onBlur={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = '#d1d5db';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 					}}
 					style={{
 						display: 'flex',
 						alignItems: 'center',
 						gap: '6px',
 						padding: '8px 16px',
-						border: '1px solid #d1d5db',
+						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
-						color: '#374151',
+						color: 'V9_COLORS.TEXT.GRAY_DARK',
 						fontSize: '0.875rem',
 						cursor: 'pointer',
 						transition: 'all 0.2s',
 					}}
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = '#9ca3af';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = '#d1d5db';
+						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 					}}
 					title="Import credentials from JSON file"
 				>

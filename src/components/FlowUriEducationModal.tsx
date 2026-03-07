@@ -40,11 +40,11 @@ const IntroCopy = styled.p`
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const TableContainer = styled.div`
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   overflow: hidden;
 `;
@@ -56,30 +56,30 @@ const Table = styled.table`
 `;
 
 const THead = styled.thead`
-  background: #f1f5f9;
+  background: V9_COLORS.BG.GRAY_MEDIUM;
 `;
 
 const TH = styled.th`
   text-align: left;
   padding: 0.75rem;
   font-weight: 600;
-  color: #0f172a;
-  border-bottom: 1px solid #e2e8f0;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : '#ffffff')};
+  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : 'V9_COLORS.TEXT.WHITE')};
 
   &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
+    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : 'V9_COLORS.BG.GRAY_LIGHT')};
   }
 `;
 
 const TD = styled.td`
   padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   vertical-align: top;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const UriCell = styled.div`
@@ -93,7 +93,7 @@ const UriRow = styled.div`
   align-items: center;
   gap: 0.5rem;
   font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 1px solid #E2E8F0;
   border-radius: 0.5rem;
   padding: 0.45rem 0.65rem;
@@ -110,7 +110,7 @@ const ActionRow = styled.div`
 const Note = styled.p<{ $muted?: boolean }>`
   margin: 0.35rem 0 0;
   font-size: 0.8rem;
-  color: ${({ $muted }) => ($muted ? '#94a3b8' : '#64748b')};
+  color: ${({ $muted }) => ($muted ? '#94a3b8' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   display: flex;
   gap: 0.35rem;
   align-items: flex-start;
@@ -122,7 +122,7 @@ const Tag = styled.span`
   gap: 0.35rem;
   font-size: 0.75rem;
   background: rgba(59, 130, 246, 0.12);
-  color: #1d4ed8;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   border-radius: 9999px;
   padding: 0.15rem 0.65rem;
   font-weight: 600;
@@ -143,19 +143,19 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   ${({ $variant }) =>
 		$variant === 'secondary'
 			? `
-    background: #e2e8f0;
-    color: #1f2937;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
+    color: V9_COLORS.TEXT.GRAY_DARK;
 
     &:hover {
-      background: #cbd5f5;
+      background: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `
 			: `
-    background: #2563eb;
-    color: #ffffff;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    color: V9_COLORS.TEXT.WHITE;
 
     &:hover {
-      background: #1d4ed8;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `}
 `;
@@ -167,7 +167,7 @@ const EmptyState = styled.div`
   padding: 2rem;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyTitle = styled.h4`
@@ -319,7 +319,9 @@ const FlowUriEducationModal: React.FC<{
 										<TR key={entry.flowType} $highlight={isFocus}>
 											<TD>
 												<UriCell>
-													<span style={{ fontWeight: 600, color: '#0f172a' }}>{entry.title}</span>
+													<span style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+														{entry.title}
+													</span>
 													<Tag>
 														<FiTarget size={12} />
 														{entry.flowType}
@@ -331,7 +333,7 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresRedirectUri ? (
 														<>
 															<UriRow>
-																<FiLink2 size={14} color="#1d4ed8" />
+																<FiLink2 size={14} color="V9_COLORS.PRIMARY.BLUE_DARK" />
 																{entry.redirectUri}
 															</UriRow>
 															<ActionRow>
@@ -356,9 +358,9 @@ const FlowUriEducationModal: React.FC<{
 																		<Button
 																			onClick={() => handleSelectBoth(entry)}
 																			style={{
-																				background: '#3b82f6',
-																				color: '#ffffff',
-																				border: '1px solid #2563eb',
+																				background: 'V9_COLORS.PRIMARY.BLUE',
+																				color: 'V9_COLORS.TEXT.WHITE',
+																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
 																			<FiCheckCircle size={14} /> Use Both in App
@@ -408,9 +410,9 @@ const FlowUriEducationModal: React.FC<{
 																		<Button
 																			onClick={() => handleSelectBoth(entry)}
 																			style={{
-																				background: '#3b82f6',
-																				color: '#ffffff',
-																				border: '1px solid #2563eb',
+																				background: 'V9_COLORS.PRIMARY.BLUE',
+																				color: 'V9_COLORS.TEXT.WHITE',
+																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
 																			<FiCheckCircle size={14} /> Use Both in App
@@ -440,7 +442,9 @@ const FlowUriEducationModal: React.FC<{
 															background: entry.requiresLogoutUri
 																? 'rgba(16, 185, 129, 0.14)'
 																: 'rgba(148, 163, 184, 0.16)',
-															color: entry.requiresLogoutUri ? '#047857' : '#475569',
+															color: entry.requiresLogoutUri
+																? '#047857'
+																: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 														}}
 													>
 														{entry.requiresLogoutUri ? 'Logout required' : 'Logout optional'}
@@ -450,8 +454,8 @@ const FlowUriEducationModal: React.FC<{
 															<Button
 																onClick={() => handleSelectBoth(entry)}
 																style={{
-																	background: '#10b981',
-																	color: '#ffffff',
+																	background: 'V9_COLORS.PRIMARY.GREEN',
+																	color: 'V9_COLORS.TEXT.WHITE',
 																	fontWeight: 600,
 																	padding: '0.5rem 1rem',
 																	fontSize: '0.8rem',

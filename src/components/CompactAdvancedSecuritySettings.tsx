@@ -5,9 +5,16 @@ import { FiCheck, FiChevronDown, FiSettings, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-	type AdvancedSecuritySettings,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+type AdvancedSecuritySettings
+,
 	advancedSecuritySettingsService,
-} from '../services/advancedSecuritySettingsService';
+} from '../services/advancedSecuritySettingsService'
 
 type SecurityAssessment = ReturnType<
 	typeof advancedSecuritySettingsService.getSecurityLevelAssessment
@@ -15,8 +22,8 @@ type SecurityAssessment = ReturnType<
 type SettingKey = keyof AdvancedSecuritySettings;
 
 const Container = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0;
@@ -33,7 +40,7 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   display: flex;
   align-items: center;
@@ -51,9 +58,9 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'high':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -65,29 +72,29 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   color: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'high':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'medium':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'low':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'high':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'medium':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'low':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 `;
@@ -127,7 +134,7 @@ const SettingItem = styled.div`
 const SettingLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -140,7 +147,7 @@ const SettingInput = styled.input`
 
 const SettingSelect = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 0.875rem;
   background: white;
@@ -149,7 +156,7 @@ const SettingSelect = styled.select`
 
 const SettingDescription = styled.p`
   font-size: 0.75rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
   line-height: 1.4;
 `;
@@ -159,7 +166,7 @@ const QuickActions = styled.div`
   gap: 0.5rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
@@ -178,22 +185,22 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border-color: #3b82f6;
+          border-color: V9_COLORS.PRIMARY.BLUE;
           &:hover {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: #374151;
-          border-color: #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
           &:hover {
             background: #f9fafb;
-            border-color: #9ca3af;
+            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -206,9 +213,9 @@ const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'criti
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'high':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -220,15 +227,15 @@ const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'criti
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'high':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'medium':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			case 'low':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   margin-bottom: 1rem;
@@ -236,7 +243,7 @@ const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'criti
 
 const AssessmentText = styled.div`
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -295,7 +302,7 @@ const CompactAdvancedSecuritySettings: React.FC = () => {
 						<FiShield size={14} />
 						Security Level: {assessment.overall.toUpperCase()} ({assessment.score}%)
 						{assessment.recommendations.length > 0 && (
-							<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+							<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
 								• {assessment.recommendations.length} recommendations
 							</span>
 						)}

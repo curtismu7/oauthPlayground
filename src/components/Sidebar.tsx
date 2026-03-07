@@ -28,7 +28,7 @@ const SidebarContainer = styled.div<{
 	max-width: ${(props) => props.$maxWidth ?? 600}px;
 	height: 100vh;
 	background: white;
-	border-right: 1px solid #e5e7eb;
+	border-right: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	transition: width 0.2s ease;
 	display: flex;
 	flex-direction: column;
@@ -55,7 +55,7 @@ const ResizeHandle = styled.div`
 		right: 2px;
 		width: 2px;
 		height: 100%;
-		background: #e5e7eb;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
 		transition: background 0.2s ease;
 	}
 
@@ -63,7 +63,7 @@ const ResizeHandle = styled.div`
 		background: rgba(59, 130, 246, 0.1);
 		
 		&::after {
-			background: #3b82f6;
+			background: V9_COLORS.PRIMARY.BLUE;
 			width: 3px;
 		}
 	}
@@ -72,7 +72,7 @@ const ResizeHandle = styled.div`
 		background: rgba(59, 130, 246, 0.2);
 		
 		&::after {
-			background: #2563eb;
+			background: V9_COLORS.PRIMARY.BLUE_DARK;
 			width: 4px;
 		}
 	}
@@ -81,14 +81,14 @@ const ResizeHandle = styled.div`
 // Header section
 const SidebarHeader = styled.div`
 	padding: 16px;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	background: #f9fafb;
 `;
 
 // Footer section
 const SidebarFooter = styled.div`
 	padding: 16px;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	background: #f9fafb;
 `;
 
@@ -98,22 +98,22 @@ const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$isActive ? '#1e40af' : '#374151')};
+	color: ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$isActive ? '#bfdbfe' : '#f9fafb')};
-		border-color: #9ca3af;
+		background: ${(props) => (props.$isActive ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : '#f9fafb')};
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
-		outline: 2px solid #3b82f6;
+		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
 		outline-offset: 2px;
 	}
 `;
@@ -125,21 +125,21 @@ const CloseButton = styled.button`
 	justify-content: center;
 	width: 2.5rem;
 	height: 2.5rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: white;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
 		background: #f9fafb;
-		border-color: #9ca3af;
-		color: #374151;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	&:focus {
-		outline: 2px solid #3b82f6;
+		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
 		outline-offset: 2px;
 	}
 `;
@@ -260,7 +260,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						marginBottom: USE_PING_MENU ? 0 : '16px',
 					}}
 				>
-					<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: '#111827' }}>
+					<h2
+						style={{
+							margin: 0,
+							fontSize: '1.25rem',
+							fontWeight: 'bold',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
+						}}
+					>
 						PingOne MasterFlow API
 					</h2>
 					<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

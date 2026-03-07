@@ -234,13 +234,13 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 	const getV9Color = (variant: 'primary' | 'secondary' | 'disabled') => {
 		switch (variant) {
 			case 'primary':
-				return '#2563eb'; // V9 primary blue
+				return 'V9_COLORS.PRIMARY.BLUE_DARK'; // V9 primary blue
 			case 'secondary':
-				return '#6b7280'; // V9 secondary gray
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM'; // V9 secondary gray
 			case 'disabled':
-				return '#9ca3af'; // V9 disabled gray
+				return 'V9_COLORS.TEXT.GRAY_LIGHT'; // V9 disabled gray
 			default:
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	};
 
@@ -284,7 +284,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		top: '100%',
 		right: '-8px',
 		marginTop: getV9Spacing('xs'),
-		border: `1px solid #e5e7eb`, // V9 border color
+		border: `1px solid V9_COLORS.TEXT.GRAY_LIGHTER`, // V9 border color
 		borderRadius: '8px', // V9 standard border radius
 		background: 'white',
 		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // V9 shadow
@@ -348,7 +348,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 							transform: 'translateX(-50%)',
 							marginBottom: getV9Spacing('xs'),
 							padding: `${getV9Spacing('xs')} ${getV9Spacing('sm')}`,
-							background: '#1f2937', // V9 dark background
+							background: 'V9_COLORS.TEXT.GRAY_DARK', // V9 dark background
 							color: 'white',
 							fontSize: '12px',
 							borderRadius: '4px',
@@ -367,7 +367,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 								left: '50%',
 								transform: 'translateX(-50%)',
 								border: '4px solid transparent',
-								borderTopColor: '#1f2937',
+								borderTopColor: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						/>
 					</div>
@@ -381,7 +381,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 					<div
 						style={{
 							padding: getV9Spacing('sm'),
-							borderBottom: '1px solid #e5e7eb',
+							borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							display: 'flex',
 							alignItems: 'center',
 							gap: getV9Spacing('sm'),
@@ -444,7 +444,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 									style={{
 										width: '100%',
 										padding: `${getV9Spacing('sm')} ${getV9Spacing('md')}`,
-										borderBottom: '1px solid #e5e7eb',
+										borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										cursor: 'pointer',
 										background: 'white',
 										border: 'none',
@@ -463,7 +463,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 										style={{
 											fontWeight: '600',
 											fontSize: '13px',
-											color: '#1f2937',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											marginBottom: '2px',
 										}}
 									>
@@ -472,14 +472,20 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 									<div style={{ fontSize: '11px', color: '#999', marginBottom: '2px' }}>
 										ID: {app.clientId}
 									</div>
-									<div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>
+									<div
+										style={{
+											fontSize: '11px',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											marginBottom: '2px',
+										}}
+									>
 										Type: {app.type} | Enabled: {app.enabled ? 'Yes' : 'No'}
 									</div>
 									{app.description && (
 										<div
 											style={{
 												fontSize: '11px',
-												color: '#6b7280',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 												marginTop: '2px',
 												overflow: 'hidden',
 												textOverflow: 'ellipsis',

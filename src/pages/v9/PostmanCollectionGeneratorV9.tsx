@@ -35,6 +35,7 @@ import {
 	V9SpecVersionService,
 } from '../../services/v9/V9SpecVersionService';
 import { logger } from '../../utils/logger';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 
@@ -417,7 +418,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					const originalBoxShadow = inputElement.style.boxShadow;
 
 					// Apply red highlight
-					inputElement.style.border = '2px solid #ef4444';
+					inputElement.style.border = '2px solid V9_COLORS.PRIMARY.RED';
 					inputElement.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
 					inputElement.style.transition = 'border 0.2s ease, box-shadow 0.2s ease';
 
@@ -1441,7 +1442,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				maxWidth: '1200px',
 				margin: '0 auto',
 				padding: '2rem',
-				background: '#f8fafc',
+				background: 'V9_COLORS.BG.GRAY_LIGHT',
 				minHeight: '100vh',
 			}}
 		>
@@ -1472,12 +1473,12 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						style={{
 							fontSize: '1.2rem',
 							fontWeight: '900',
-							color: '#dc2626',
+							color: 'V9_COLORS.PRIMARY.RED_DARK',
 							marginLeft: '8px',
-							backgroundColor: '#fef2f2',
+							backgroundColor: 'V9_COLORS.BG.ERROR',
 							padding: '4px 8px',
 							borderRadius: '6px',
-							border: '1px solid #fecaca',
+							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 						}}
 					>
 						v{COLLECTION_VERSION}
@@ -1509,7 +1510,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							gap: '12px',
 							cursor: 'pointer',
 							padding: '12px 20px',
-							border: `2px solid ${includeUseCases ? '#8b5cf6' : '#e5e7eb'}`,
+							border: `2px solid ${includeUseCases ? '#8b5cf6' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 							borderRadius: '8px',
 							background: includeUseCases ? '#f3f4f6' : 'white',
 							transition: 'all 0.2s',
@@ -1530,7 +1531,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							gap: '12px',
 							cursor: 'pointer',
 							padding: '12px 20px',
-							border: `2px solid ${includeUnified ? '#8b5cf6' : '#e5e7eb'}`,
+							border: `2px solid ${includeUnified ? '#8b5cf6' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 							borderRadius: '8px',
 							background: includeUnified ? '#f3f4f6' : 'white',
 							transition: 'all 0.2s',
@@ -1551,7 +1552,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							gap: '12px',
 							cursor: 'pointer',
 							padding: '12px 20px',
-							border: `2px solid ${includeMFA ? '#8b5cf6' : '#e5e7eb'}`,
+							border: `2px solid ${includeMFA ? '#8b5cf6' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 							borderRadius: '8px',
 							background: includeMFA ? '#f3f4f6' : 'white',
 							transition: 'all 0.2s',
@@ -1596,17 +1597,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllUseCases}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #10b981',
+									border: '1px solid V9_COLORS.PRIMARY.GREEN',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#10b981',
+									color: 'V9_COLORS.PRIMARY.GREEN',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#ecfdf5';
+									e.currentTarget.style.background = 'V9_COLORS.BG.SUCCESS';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -1619,17 +1620,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllUseCases}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #ef4444',
+									border: '1px solid V9_COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#ef4444',
+									color: 'V9_COLORS.PRIMARY.RED',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#fef2f2';
+									e.currentTarget.style.background = 'V9_COLORS.BG.ERROR';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -1639,7 +1640,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							</button>
 						</div>
 					</div>
-					<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.95rem' }}>
+					<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.95rem' }}>
 						Select which customer identity flow use cases to include:
 					</p>
 					<button
@@ -1655,7 +1656,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							padding: '8px 0',
 							fontSize: '1rem',
 							fontWeight: '600',
-							color: '#374151',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 							marginBottom: '1rem',
 						}}
 					>
@@ -1682,9 +1683,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										gap: '8px',
 										cursor: 'pointer',
 										padding: '8px 12px',
-										border: `1px solid ${selectedUseCases.has(useCase) ? '#10b981' : '#e5e7eb'}`,
+										border: `1px solid ${selectedUseCases.has(useCase) ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 										borderRadius: '6px',
-										background: selectedUseCases.has(useCase) ? '#ecfdf5' : 'white',
+										background: selectedUseCases.has(useCase) ? 'V9_COLORS.BG.SUCCESS' : 'white',
 										transition: 'all 0.2s',
 									}}
 								>
@@ -1730,17 +1731,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllUnifiedSpecs}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #3b82f6',
+									border: '1px solid V9_COLORS.PRIMARY.BLUE',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#3b82f6',
+									color: 'V9_COLORS.PRIMARY.BLUE',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#eff6ff';
+									e.currentTarget.style.background = 'V9_COLORS.BG.GRAY_LIGHT';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -1753,17 +1754,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllUnifiedSpecs}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #ef4444',
+									border: '1px solid V9_COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#ef4444',
+									color: 'V9_COLORS.PRIMARY.RED',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#fef2f2';
+									e.currentTarget.style.background = 'V9_COLORS.BG.ERROR';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -1773,18 +1774,18 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							</button>
 						</div>
 					</div>
-					<p style={{ marginBottom: '0.5rem', color: '#6b7280', fontSize: '0.95rem' }}>
+					<p style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.95rem' }}>
 						Select which OAuth/OIDC specification versions to include:
 					</p>
 					<div
 						style={{
 							marginBottom: '1rem',
 							padding: '12px',
-							background: '#f0f9ff',
-							border: '1px solid #bfdbfe',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '6px',
 							fontSize: '0.875rem',
-							color: '#1e40af',
+							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						}}
 					>
 						<strong style={{ display: 'block', marginBottom: '6px' }}>
@@ -1820,9 +1821,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								gap: '12px',
 								cursor: 'pointer',
 								padding: '10px 16px',
-								border: `2px solid ${includeOAuth20 ? '#3b82f6' : '#e5e7eb'}`,
+								border: `2px solid ${includeOAuth20 ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 								borderRadius: '8px',
-								background: includeOAuth20 ? '#eff6ff' : 'white',
+								background: includeOAuth20 ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 								transition: 'all 0.2s',
 							}}
 						>
@@ -1835,7 +1836,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>
 								OAuth 2.0
 								<br />
-								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>
+								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									(RFC 6749)
 								</span>
 							</span>
@@ -1847,9 +1848,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								gap: '12px',
 								cursor: 'pointer',
 								padding: '10px 16px',
-								border: `2px solid ${includeOIDC ? '#3b82f6' : '#e5e7eb'}`,
+								border: `2px solid ${includeOIDC ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 								borderRadius: '8px',
-								background: includeOIDC ? '#eff6ff' : 'white',
+								background: includeOIDC ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 								transition: 'all 0.2s',
 							}}
 						>
@@ -1862,7 +1863,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>
 								OpenID Connect
 								<br />
-								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>
+								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									Core 1.0
 								</span>
 							</span>
@@ -1874,9 +1875,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								gap: '12px',
 								cursor: 'pointer',
 								padding: '10px 16px',
-								border: `2px solid ${includeOAuth21 ? '#3b82f6' : '#e5e7eb'}`,
+								border: `2px solid ${includeOAuth21 ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 								borderRadius: '8px',
-								background: includeOAuth21 ? '#eff6ff' : 'white',
+								background: includeOAuth21 ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 								transition: 'all 0.2s',
 							}}
 						>
@@ -1889,7 +1890,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>
 								OAuth 2.1 (draft)
 								<br />
-								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>
+								<span style={{ fontSize: '0.75rem', fontWeight: '400', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									with OIDC Core 1.0
 								</span>
 							</span>
@@ -1897,7 +1898,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					</div>
 
 					{/* Unified Flow Variations */}
-					<div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e5e7eb' }}>
+					<div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' }}>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 							<button
 								type="button"
@@ -1912,7 +1913,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 									padding: '8px 0',
 									fontSize: '1rem',
 									fontWeight: '600',
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								{expandedUnifiedVariations ? (
@@ -1929,17 +1930,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										onClick={selectAllUnifiedVariations}
 										style={{
 											padding: '6px 12px',
-											border: '1px solid #3b82f6',
+											border: '1px solid V9_COLORS.PRIMARY.BLUE',
 											borderRadius: '6px',
 											background: 'white',
-											color: '#3b82f6',
+											color: 'V9_COLORS.PRIMARY.BLUE',
 											fontSize: '0.875rem',
 											fontWeight: '500',
 											cursor: 'pointer',
 											transition: 'all 0.2s',
 										}}
 										onMouseEnter={(e) => {
-											e.currentTarget.style.background = '#eff6ff';
+											e.currentTarget.style.background = 'V9_COLORS.BG.GRAY_LIGHT';
 										}}
 										onMouseLeave={(e) => {
 											e.currentTarget.style.background = 'white';
@@ -1952,17 +1953,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										onClick={unselectAllUnifiedVariations}
 										style={{
 											padding: '6px 12px',
-											border: '1px solid #ef4444',
+											border: '1px solid V9_COLORS.PRIMARY.RED',
 											borderRadius: '6px',
 											background: 'white',
-											color: '#ef4444',
+											color: 'V9_COLORS.PRIMARY.RED',
 											fontSize: '0.875rem',
 											fontWeight: '500',
 											cursor: 'pointer',
 											transition: 'all 0.2s',
 										}}
 										onMouseEnter={(e) => {
-											e.currentTarget.style.background = '#fef2f2';
+											e.currentTarget.style.background = 'V9_COLORS.BG.ERROR';
 										}}
 										onMouseLeave={(e) => {
 											e.currentTarget.style.background = 'white';
@@ -2006,10 +2007,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 												gap: '8px',
 												cursor: 'pointer',
 												padding: '8px 12px',
-												border: `1px solid ${selectedUnifiedVariations.has(variation.key as UnifiedVariation) ? '#3b82f6' : '#e5e7eb'}`,
+												border: `1px solid ${selectedUnifiedVariations.has(variation.key as UnifiedVariation) ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 												borderRadius: '6px',
 												background: selectedUnifiedVariations.has(variation.key as UnifiedVariation)
-													? '#eff6ff'
+													? 'V9_COLORS.BG.GRAY_LIGHT'
 													: 'white',
 												transition: 'all 0.2s',
 											}}
@@ -2056,17 +2057,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={selectAllDeviceTypes}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #10b981',
+									border: '1px solid V9_COLORS.PRIMARY.GREEN',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#10b981',
+									color: 'V9_COLORS.PRIMARY.GREEN',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#ecfdf5';
+									e.currentTarget.style.background = 'V9_COLORS.BG.SUCCESS';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -2079,17 +2080,17 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								onClick={unselectAllDeviceTypes}
 								style={{
 									padding: '6px 12px',
-									border: '1px solid #ef4444',
+									border: '1px solid V9_COLORS.PRIMARY.RED',
 									borderRadius: '6px',
 									background: 'white',
-									color: '#ef4444',
+									color: 'V9_COLORS.PRIMARY.RED',
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#fef2f2';
+									e.currentTarget.style.background = 'V9_COLORS.BG.ERROR';
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.background = 'white';
@@ -2099,7 +2100,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							</button>
 						</div>
 					</div>
-					<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.95rem' }}>
+					<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.95rem' }}>
 						Select which MFA device types to include:
 					</p>
 					<button
@@ -2115,7 +2116,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							padding: '8px 0',
 							fontSize: '1rem',
 							fontWeight: '600',
-							color: '#374151',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 							marginBottom: '1rem',
 						}}
 					>
@@ -2137,9 +2138,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 												gap: '8px',
 												cursor: 'pointer',
 												padding: '8px 12px',
-												border: `1px solid ${isSelected ? '#10b981' : '#e5e7eb'}`,
+												border: `1px solid ${isSelected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 												borderRadius: '6px',
-												background: isSelected ? '#ecfdf5' : 'white',
+												background: isSelected ? 'V9_COLORS.BG.SUCCESS' : 'white',
 												transition: 'all 0.2s',
 											}}
 										>
@@ -2162,10 +2163,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														alignItems: 'center',
 														gap: '4px',
 														padding: '4px 8px',
-														border: '1px solid #10b981',
+														border: '1px solid V9_COLORS.PRIMARY.GREEN',
 														borderRadius: '4px',
 														background: 'white',
-														color: '#10b981',
+														color: 'V9_COLORS.PRIMARY.GREEN',
 														cursor: 'pointer',
 														fontSize: '0.75rem',
 														fontWeight: '500',
@@ -2184,10 +2185,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														onClick={() => selectAllMFAUseCases(deviceType)}
 														style={{
 															padding: '4px 8px',
-															border: '1px solid #10b981',
+															border: '1px solid V9_COLORS.PRIMARY.GREEN',
 															borderRadius: '4px',
 															background: 'white',
-															color: '#10b981',
+															color: 'V9_COLORS.PRIMARY.GREEN',
 															fontSize: '0.75rem',
 															fontWeight: '500',
 															cursor: 'pointer',
@@ -2200,10 +2201,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														onClick={() => unselectAllMFAUseCases(deviceType)}
 														style={{
 															padding: '4px 8px',
-															border: '1px solid #ef4444',
+															border: '1px solid V9_COLORS.PRIMARY.RED',
 															borderRadius: '4px',
 															background: 'white',
-															color: '#ef4444',
+															color: 'V9_COLORS.PRIMARY.RED',
 															fontSize: '0.75rem',
 															fontWeight: '500',
 															cursor: 'pointer',
@@ -2230,10 +2231,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 																gap: '8px',
 																cursor: 'pointer',
 																padding: '6px 10px',
-																border: `1px solid ${useCases.has(useCase.key as MFAUseCase) ? '#10b981' : '#e5e7eb'}`,
+																border: `1px solid ${useCases.has(useCase.key as MFAUseCase) ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 																borderRadius: '6px',
 																background: useCases.has(useCase.key as MFAUseCase)
-																	? '#ecfdf5'
+																	? 'V9_COLORS.BG.SUCCESS'
 																	: 'white',
 																transition: 'all 0.2s',
 															}}
@@ -2279,7 +2280,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						alignItems: 'center',
 						gap: '12px',
 						padding: '16px 32px',
-						background: isGenerating ? '#9ca3af' : '#8b5cf6',
+						background: isGenerating ? 'V9_COLORS.TEXT.GRAY_LIGHT' : '#8b5cf6',
 						color: 'white',
 						border: 'none',
 						borderRadius: '10px',
@@ -2333,7 +2334,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						alignItems: 'center',
 						gap: '12px',
 						padding: '16px 32px',
-						background: isGenerating ? '#9ca3af' : '#3b82f6',
+						background: isGenerating ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE',
 						color: 'white',
 						border: 'none',
 						borderRadius: '10px',
@@ -2345,13 +2346,13 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					}}
 					onMouseEnter={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE_DARK';
 							e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
 						}
 					}}
 					onMouseLeave={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE';
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
 						}
 					}}
@@ -2387,7 +2388,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						alignItems: 'center',
 						gap: '12px',
 						padding: '16px 32px',
-						background: isGenerating ? '#9ca3af' : '#10b981',
+						background: isGenerating ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN',
 						color: 'white',
 						border: 'none',
 						borderRadius: '10px',
@@ -2399,13 +2400,13 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					}}
 					onMouseEnter={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN_DARK';
 							e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
 						}
 					}}
 					onMouseLeave={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN';
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 						}
 					}}
@@ -2447,7 +2448,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				<h3 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.2rem', fontWeight: '600' }}>
 					What's Included
 				</h3>
-				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280', lineHeight: '1.8' }}>
+				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.8' }}>
 					<li>Educational comments on every API request</li>
 					<li>Automatic variable extraction scripts</li>
 					<li>Complete OAuth login steps for user flows</li>
@@ -2483,7 +2484,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						alignItems: 'center',
 						gap: '12px',
 						padding: '16px 32px',
-						background: isGenerating ? '#9ca3af' : '#8b5cf6',
+						background: isGenerating ? 'V9_COLORS.TEXT.GRAY_LIGHT' : '#8b5cf6',
 						color: 'white',
 						border: 'none',
 						borderRadius: '10px',
@@ -2518,7 +2519,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						alignItems: 'center',
 						gap: '12px',
 						padding: '16px 32px',
-						background: isGenerating ? '#9ca3af' : '#10b981',
+						background: isGenerating ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN',
 						color: 'white',
 						border: 'none',
 						borderRadius: '10px',
@@ -2530,13 +2531,13 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					}}
 					onMouseEnter={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN_DARK';
 							e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
 						}
 					}}
 					onMouseLeave={(e) => {
 						if (!isGenerating) {
-							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN';
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 						}
 					}}

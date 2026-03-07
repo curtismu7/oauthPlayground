@@ -33,6 +33,7 @@ import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
 // Import types and config
 import type {
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 	LoginContext,
 	PortalError,
 	PortalState,
@@ -80,8 +81,8 @@ const PortalContent = styled.div`
 `;
 
 const ErrorContainer = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   max-width: 500px;
@@ -90,7 +91,7 @@ const ErrorContainer = styled.div`
 `;
 
 const ErrorTitle = styled.h3`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
@@ -116,13 +117,13 @@ const ErrorActions = styled.div`
 
 const ResourceSection = styled.div`
   background: var(--brand-surface, #f9fafb);
-  border-top: 1px solid var(--brand-border, #e5e7eb);
+  border-top: 1px solid var(--brand-border, V9_COLORS.TEXT.GRAY_LIGHTER);
   padding: 2rem 1.5rem;
   text-align: center;
 `;
 
 const ResourceTitle = styled.h3`
-  color: var(--brand-text, #1f2937);
+  color: var(--brand-text, V9_COLORS.TEXT.GRAY_DARK);
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -133,7 +134,7 @@ const ResourceTitle = styled.h3`
 `;
 
 const ResourceDescription = styled.p`
-  color: var(--brand-text-secondary, #6b7280);
+  color: var(--brand-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
   font-size: 1rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
@@ -202,7 +203,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
           background: var(--brand-error);
           color: white;
           &:hover {
-            background: #b91c1c;
+            background: V9_COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
@@ -233,7 +234,7 @@ const LoadingContainer = styled.div`
 const LoadingSpinner = styled(FiLoader)`
   animation: spin 1s linear infinite;
   font-size: 2rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
 
   @keyframes spin {
     from { transform: rotate(0deg); }
@@ -242,7 +243,7 @@ const LoadingSpinner = styled(FiLoader)`
 `;
 
 const LoadingText = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1rem;
   margin: 0;
 `;
@@ -492,7 +493,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					</ErrorTitle>
 					<ErrorMessage>{error.message}</ErrorMessage>
 					{error.suggestedAction && (
-						<p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem', marginBottom: '1rem' }}>
 							{error.suggestedAction}
 						</p>
 					)}

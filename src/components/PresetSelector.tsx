@@ -31,12 +31,12 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const Description = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0.5rem 0 1.5rem 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -49,7 +49,7 @@ const CategorySection = styled.div`
 const CategoryTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -63,7 +63,7 @@ const PresetGrid = styled.div`
 `;
 
 const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custom' }>`
-  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : 'white')};
+  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)' : 'white')};
   border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
   border-radius: 0.75rem;
   padding: 1.25rem;
@@ -87,7 +87,7 @@ const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custo
       right: 0.75rem;
       width: 8px;
       height: 8px;
-      background: #10b981;
+      background: V9_COLORS.PRIMARY.GREEN;
       border-radius: 50%;
     }
   `}
@@ -103,7 +103,7 @@ const PresetHeader = styled.div`
 const PresetName = styled.h5`
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   line-height: 1.3;
 `;
@@ -113,15 +113,15 @@ const PresetBadge = styled.span<{ category: 'built-in' | 'custom' }>`
   font-weight: 500;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
-  background: ${({ category }) => (category === 'built-in' ? '#d1fae5' : '#fef3c7')};
-  color: ${({ category }) => (category === 'built-in' ? '#065f46' : '#92400e')};
+  background: ${({ category }) => (category === 'built-in' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING')};
+  color: ${({ category }) => (category === 'built-in' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
   display: flex;
   align-items: center;
   gap: 0.25rem;
 `;
 
 const PresetDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.4;
   margin: 0 0 1rem 0;
@@ -144,21 +144,21 @@ const MetaTag = styled.span<{ variant: 'security' | 'type' | 'tag' }>`
 		switch (variant) {
 			case 'security':
 				return `
-          background: #fef2f2;
-          color: #991b1b;
-          border: 1px solid #fecaca;
+          background: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
         `;
 			case 'type':
 				return `
-          background: #eff6ff;
-          color: #1e40af;
-          border: 1px solid #bfdbfe;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
         `;
 			case 'tag':
 				return `
           background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
         `;
 		}
 	}}
@@ -170,7 +170,7 @@ const PresetActions = styled.div`
   justify-content: space-between;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SelectButton = styled.button<{ selected: boolean }>`
@@ -197,7 +197,7 @@ const SelectButton = styled.button<{ selected: boolean }>`
 			: `
     background: white;
     color: ${theme.colors.gray700};
-    border-color: #d1d5db;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
     &:hover {
       background: #f9fafb;
       border-color: ${theme.colors.primary};
@@ -209,26 +209,26 @@ const InfoButton = styled.button`
   padding: 0.5rem;
   border: none;
   background: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   border-radius: 0.375rem;
   transition: all 0.2s;
   
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   
   svg {
     font-size: 2rem;
     margin-bottom: 1rem;
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -249,7 +249,7 @@ const FilterButton = styled.button.withConfig({
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   
   ${({ active, theme }) =>
 		active
@@ -260,7 +260,7 @@ const FilterButton = styled.button.withConfig({
   `
 			: `
     background: white;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     &:hover {
       background: #f9fafb;
       border-color: ${theme.colors.primary};
@@ -376,7 +376,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 				Choose from predefined configuration templates or your custom presets to quickly set up
 				applications with best practices.
 				{selectedAppType ? (
-					<strong style={{ color: '#ef4444' }}>
+					<strong style={{ color: 'V9_COLORS.PRIMARY.RED' }}>
 						{' '}
 						Templates are filtered for {selectedAppType.replace(/_/g, ' ')} applications.
 					</strong>
@@ -430,7 +430,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 						<CategoryTitle>
 							{category === 'built-in' ? <FiStar /> : <FiUser />}
 							{category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
-							<span style={{ color: '#6b7280', fontWeight: 'normal' }}>
+							<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 'normal' }}>
 								({categoryPresets.length})
 							</span>
 						</CategoryTitle>

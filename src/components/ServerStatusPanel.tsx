@@ -13,8 +13,8 @@ interface ServerStatus {
 }
 
 const ServerStatusContainer = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 2px solid #e2e8f0;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -29,7 +29,7 @@ const ServerStatusContainer = styled.div`
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+    background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_LIGHT, #93c5fd);
   }
 `;
 
@@ -43,7 +43,7 @@ const ServerStatusHeader = styled.div`
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -55,7 +55,7 @@ const RefreshButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   color: white;
   border: none;
   border-radius: 0.75rem;
@@ -66,7 +66,7 @@ const RefreshButton = styled.button`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
@@ -89,9 +89,9 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 			case 'offline':
-				return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%)';
 			case 'checking':
 				return 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)';
 			default:
@@ -101,13 +101,13 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'offline':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'checking':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -127,13 +127,13 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
     background: ${({ $status }) => {
 			switch ($status) {
 				case 'online':
-					return 'linear-gradient(90deg, #10b981, #34d399)';
+					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_LIGHT)';
 				case 'offline':
-					return 'linear-gradient(90deg, #ef4444, #f87171)';
+					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.RED, V9_COLORS.PRIMARY.RED_LIGHT)';
 				case 'checking':
-					return 'linear-gradient(90deg, #6b7280, #9ca3af)';
+					return 'linear-gradient(90deg, V9_COLORS.TEXT.GRAY_MEDIUM, V9_COLORS.TEXT.GRAY_LIGHT)';
 				default:
-					return 'linear-gradient(90deg, #6b7280, #9ca3af)';
+					return 'linear-gradient(90deg, V9_COLORS.TEXT.GRAY_MEDIUM, V9_COLORS.TEXT.GRAY_LIGHT)';
 			}
 		}};
   }
@@ -148,9 +148,9 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 				case 'offline':
 					return '#fca5a5';
 				case 'checking':
-					return '#d1d5db';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 				default:
-					return '#d1d5db';
+					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			}
 		}};
   }
@@ -169,7 +169,7 @@ const ServerName = styled.div`
   gap: 0.75rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusIndicator = styled.div<{
@@ -183,19 +183,19 @@ const StatusIndicator = styled.div<{
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'offline':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'checking':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
 
 const ServerDetails = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
   
@@ -212,7 +212,7 @@ const ServerDetails = styled.div`
   
   .field-name {
     font-weight: 500;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
   
   .field-value {
@@ -224,21 +224,21 @@ const ServerDetails = styled.div`
   }
   
   .error-message {
-    color: #dc2626;
+    color: V9_COLORS.PRIMARY.RED_DARK;
     margin-top: 0.75rem;
     padding: 0.5rem;
     background: rgba(239, 68, 68, 0.1);
     border-radius: 0.375rem;
-    border-left: 3px solid #dc2626;
+    border-left: 3px solid V9_COLORS.PRIMARY.RED_DARK;
   }
   
   .success-message {
-    color: #059669;
+    color: V9_COLORS.PRIMARY.GREEN_DARK;
     margin-top: 0.75rem;
     padding: 0.5rem;
     background: rgba(16, 185, 129, 0.1);
     border-radius: 0.375rem;
-    border-left: 3px solid #059669;
+    border-left: 3px solid V9_COLORS.PRIMARY.GREEN_DARK;
   }
 `;
 
@@ -361,13 +361,15 @@ const ServerStatusPanel: React.FC = () => {
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
 		switch (status) {
 			case 'online':
-				return <FiCheckCircle size={20} color="#059669" />;
+				return <FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
 			case 'offline':
-				return <FiXCircle size={20} color="#dc2626" />;
+				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
 			case 'checking':
-				return <FiRefreshCw size={20} color="#6b7280" className="animate-spin" />;
+				return (
+					<FiRefreshCw size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" className="animate-spin" />
+				);
 			default:
-				return <FiXCircle size={20} color="#dc2626" />;
+				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
 		}
 	};
 
@@ -408,7 +410,9 @@ const ServerStatusPanel: React.FC = () => {
 				</RefreshButton>
 			</ServerStatusHeader>
 
-			<div style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+			<div
+				style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}
+			>
 				Last updated: {formatLastRefresh()}
 			</div>
 

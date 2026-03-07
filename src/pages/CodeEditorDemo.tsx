@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -21,7 +22,7 @@ const PageHeader = styled.div`
 const PageTitle = styled.h1`
   font-size: 48px;
   font-weight: 800;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin: 0 0 16px 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -34,7 +35,7 @@ const PageSubtitle = styled.p`
 `;
 
 const DemoSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -44,13 +45,13 @@ const DemoSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 16px 0;
 `;
 
 const SectionDescription = styled.p`
   font-size: 16px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
   margin: 0 0 24px 0;
 `;
@@ -64,7 +65,7 @@ const FeatureGrid = styled.div`
 
 const FeatureCard = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 16px;
 `;
@@ -72,7 +73,7 @@ const FeatureCard = styled.div`
 const FeatureTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -81,7 +82,7 @@ const FeatureTitle = styled.h3`
 
 const FeatureDescription = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
   line-height: 1.5;
 `;

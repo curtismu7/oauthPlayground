@@ -23,19 +23,19 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#f8fafc';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#e2e8f0';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -49,11 +49,11 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   margin-bottom: 1rem;
@@ -63,11 +63,11 @@ const StatusTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 

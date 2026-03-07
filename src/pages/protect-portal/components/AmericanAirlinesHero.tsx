@@ -14,13 +14,14 @@ import React from 'react';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
 
 const HeroContainer = styled.section`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   padding: 4rem 2rem;
   text-align: center;
   color: #0f2d5c;
@@ -108,7 +109,7 @@ const ActionIcon = styled.div`
   width: 48px;
   height: 48px;
   background: #eaf2ff;
-  border: 1px solid #bfdbfe;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -166,7 +167,7 @@ const LoginButton = styled.button`
 
 const FlightSearchSection = styled.div`
   margin-top: 3rem;
-  background: #eff6ff;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 16px;
   padding: 2rem;
   border: 1px solid #c7dcff;
@@ -224,20 +225,20 @@ const Label = styled.label`
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid #bfdbfe;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
-  background: #ffffff;
-  color: #0f172a;
+  background: V9_COLORS.TEXT.WHITE;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   
   &::placeholder {
-    color: #64748b;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
   }
   
   &:focus {
     outline: none;
     border-color: #0b4aa2;
-    background: #ffffff;
+    background: V9_COLORS.TEXT.WHITE;
     box-shadow: 0 0 0 3px rgba(11, 74, 162, 0.15);
   }
 `;

@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import FlowCategories from '../components/FlowCategories';
 import FlowRecommendationWizard from '../components/FlowRecommendationWizard';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const FlowsContainer = styled.div`
   max-width: 1200px;

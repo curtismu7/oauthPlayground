@@ -26,11 +26,11 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'online':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'offline':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f3f4f6';
 		}
@@ -38,13 +38,13 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'online':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'offline':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border-radius: 0.75rem;
@@ -64,13 +64,13 @@ const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'online':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'offline':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   font-size: 1.25rem;
@@ -86,13 +86,13 @@ const HealthTitle = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const HealthMessage = styled.p`
   margin: 0;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.4;
 `;
 
@@ -103,7 +103,7 @@ const HealthActions = styled.div`
 `;
 
 const HealthButton = styled.button`
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -117,19 +117,19 @@ const HealthButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:disabled {
-    background: #9ca3af;
+    background: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
 `;
 
 const DismissButton = styled.button`
   background: transparent;
-  color: #6b7280;
-  border: 1px solid #d1d5db;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
@@ -139,7 +139,7 @@ const DismissButton = styled.button`
   
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -155,19 +155,19 @@ const ModalBackdrop = styled.div`
 `;
 
 const ModalDialog = styled.div`
-  background: #fff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   max-width: 420px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -176,7 +176,7 @@ const ModalTitle = styled.h2`
 const ModalBody = styled.p`
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.5;
 `;
 
@@ -320,7 +320,13 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				</HealthHeader>
 				<HealthMessage>{statusInfo.message}</HealthMessage>
 				{lastCheck && (
-					<HealthMessage style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+					<HealthMessage
+						style={{
+							fontSize: '0.75rem',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							marginTop: '0.25rem',
+						}}
+					>
 						Last checked: {lastCheck.toLocaleTimeString()}
 					</HealthMessage>
 				)}

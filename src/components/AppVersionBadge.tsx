@@ -40,10 +40,10 @@ const VersionText = styled.span`
 `;
 
 const APP_COLORS = {
-	app: '#3b82f6', // Blue
+	app: 'V9_COLORS.PRIMARY.BLUE', // Blue
 	mfa: '#8b5cf6', // Purple
-	unified: '#10b981', // Green
-	protect: '#f59e0b', // Amber
+	unified: 'V9_COLORS.PRIMARY.GREEN', // Green
+	protect: 'V9_COLORS.PRIMARY.YELLOW', // Amber
 };
 
 const APP_LABELS = {

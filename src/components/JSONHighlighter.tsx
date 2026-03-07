@@ -20,7 +20,7 @@ interface JSONHighlighterProps {
 
 const JSONContainer = styled.pre`
   background-color: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
@@ -34,32 +34,32 @@ const JSONContainer = styled.pre`
 `;
 
 const JSONKey = styled.span`
-  color: #3b82f6; /* Blue for keys */
+  color: V9_COLORS.PRIMARY.BLUE; /* Blue for keys */
   font-weight: 500;
 `;
 
 const _JSONValue = styled.span`
-  color: #dc2626; /* Red for values */
+  color: V9_COLORS.PRIMARY.RED_DARK; /* Red for values */
 `;
 
 const JSONString = styled.span`
-  color: #dc2626; /* Red for string values */
+  color: V9_COLORS.PRIMARY.RED_DARK; /* Red for string values */
 `;
 
 const JSONNumber = styled.span`
-  color: #dc2626; /* Red for number values */
+  color: V9_COLORS.PRIMARY.RED_DARK; /* Red for number values */
 `;
 
 const JSONBoolean = styled.span`
-  color: #dc2626; /* Red for boolean values */
+  color: V9_COLORS.PRIMARY.RED_DARK; /* Red for boolean values */
 `;
 
 const JSONNull = styled.span`
-  color: #dc2626; /* Red for null values */
+  color: V9_COLORS.PRIMARY.RED_DARK; /* Red for null values */
 `;
 
 const JSONPunctuation = styled.span`
-  color: #6b7280; /* Gray for punctuation */
+  color: V9_COLORS.TEXT.GRAY_MEDIUM; /* Gray for punctuation */
 `;
 
 const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ data, className }) => {

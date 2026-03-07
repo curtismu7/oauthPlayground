@@ -52,7 +52,7 @@ const Modal = styled.div`
 
 const Header = styled.div`
 	padding: 1.5rem;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -62,7 +62,7 @@ const Title = styled.h2`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -73,13 +73,13 @@ const CloseButton = styled.button`
 	border: none;
 	cursor: pointer;
 	padding: 0.5rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	display: flex;
 	align-items: center;
 	transition: color 0.2s;
 	
 	&:hover {
-		color: #111827;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -94,15 +94,15 @@ const Section = styled.div`
 const SectionTitle = styled.h3`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin-bottom: 0.75rem;
 `;
 
 const DiagnosticCard = styled.div<{ $hasIssue: boolean }>`
-	background: ${(props) => (props.$hasIssue ? '#fef2f2' : '#f0fdf4')};
-	border: 1px solid ${(props) => (props.$hasIssue ? '#fecaca' : '#bbf7d0')};
+	background: ${(props) => (props.$hasIssue ? 'V9_COLORS.BG.ERROR' : '#f0fdf4')};
+	border: 1px solid ${(props) => (props.$hasIssue ? 'V9_COLORS.BG.ERROR_BORDER' : 'V9_COLORS.BG.SUCCESS_BORDER')};
 	border-radius: 8px;
 	padding: 1rem;
 	margin-bottom: 0.75rem;
@@ -117,14 +117,14 @@ const DiagnosticHeader = styled.div`
 
 const FieldName = styled.div`
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const StatusIcon = styled.div<{ $hasIssue: boolean }>`
-	color: ${(props) => (props.$hasIssue ? '#dc2626' : '#16a34a')};
+	color: ${(props) => (props.$hasIssue ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
 	display: flex;
 	align-items: center;
 `;
@@ -142,7 +142,7 @@ const DetailRow = styled.div`
 `;
 
 const DetailLabel = styled.span`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-weight: 500;
 `;
 
@@ -152,11 +152,11 @@ const DetailValue = styled.code`
 	border-radius: 4px;
 	font-family: 'Courier New', monospace;
 	font-size: 0.8rem;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const WarningBox = styled.div`
-	background: #fffbeb;
+	background: V9_COLORS.BG.WARNING;
 	border: 1px solid #fcd34d;
 	border-radius: 8px;
 	padding: 1rem;
@@ -166,7 +166,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-	color: #f59e0b;
+	color: V9_COLORS.PRIMARY.YELLOW;
 	flex-shrink: 0;
 `;
 
@@ -176,7 +176,7 @@ const WarningContent = styled.div`
 
 const WarningTitle = styled.div`
 	font-weight: 600;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin-bottom: 0.25rem;
 `;
 
@@ -188,7 +188,7 @@ const WarningMessage = styled.div`
 
 const RequestInfo = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin-bottom: 1.5rem;
@@ -207,18 +207,18 @@ const RequestDetail = styled.div`
 
 const RequestLabel = styled.span`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	min-width: 80px;
 `;
 
 const RequestValue = styled.span`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Courier New', monospace;
 `;
 
 const Footer = styled.div`
 	padding: 1rem 1.5rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	gap: 0.75rem;
 	justify-content: flex-end;
@@ -236,27 +236,27 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	${(props) => {
 		if (props.$variant === 'danger') {
 			return `
-				background: #dc2626;
+				background: V9_COLORS.PRIMARY.RED_DARK;
 				color: white;
 				&:hover {
-					background: #b91c1c;
+					background: V9_COLORS.PRIMARY.RED_DARK;
 				}
 			`;
 		}
 		if (props.$variant === 'primary') {
 			return `
-				background: #2563eb;
+				background: V9_COLORS.PRIMARY.BLUE_DARK;
 				color: white;
 				&:hover {
-					background: #1d4ed8;
+					background: V9_COLORS.PRIMARY.BLUE_DARK;
 				}
 			`;
 		}
 		return `
 			background: #f3f4f6;
-			color: #374151;
+			color: V9_COLORS.TEXT.GRAY_DARK;
 			&:hover {
-				background: #e5e7eb;
+				background: V9_COLORS.TEXT.GRAY_LIGHTER;
 			}
 		`;
 	}}
@@ -278,7 +278,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 			<Modal onClick={(e) => e.stopPropagation()}>
 				<Header>
 					<Title>
-						<FiAlertTriangle size={24} color="#f59e0b" />
+						<FiAlertTriangle size={24} color="V9_COLORS.PRIMARY.YELLOW" />
 						Credential Diagnostic Report
 					</Title>
 					<CloseButton onClick={onClose}>
@@ -349,7 +349,9 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 										<DetailLabel>Status:</DetailLabel>
 										<DetailValue
 											style={{
-												color: diagnostic.isEmpty ? '#dc2626' : '#16a34a',
+												color: diagnostic.isEmpty
+													? 'V9_COLORS.PRIMARY.RED_DARK'
+													: 'V9_COLORS.PRIMARY.GREEN_DARK',
 												fontWeight: 'bold',
 											}}
 										>

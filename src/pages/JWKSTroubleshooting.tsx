@@ -13,12 +13,13 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   min-height: 100vh;
 `;
 
@@ -31,7 +32,7 @@ const _Header = styled.div`
 `;
 
 const _Title = styled.h1`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
@@ -56,7 +57,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
@@ -100,7 +101,7 @@ const IssueContent = styled.div`
 `;
 
 const IssueTitle = styled.h3`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -113,8 +114,8 @@ const IssueDescription = styled.p`
 `;
 
 const CodeBlock = styled.pre`
-  background: #1a202c;
-  color: #e2e8f0;
+  background: V9_COLORS.TEXT.BLACK;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 1.5rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -127,7 +128,7 @@ const CodeBlock = styled.pre`
 
 const CommandContainer = styled.div`
   background: #f7fafc;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -142,7 +143,7 @@ const CommandHeader = styled.div`
 `;
 
 const CommandTitle = styled.h4`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
@@ -166,7 +167,7 @@ const Button = styled.button<{
 			case 'danger':
 				return '#f56565';
 			default:
-				return '#e2e8f0';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   color: ${(props) => (props.$variant === 'secondary' ? '#4a5568' : 'white')};
@@ -196,7 +197,7 @@ const Button = styled.button<{
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 1rem;
   margin-bottom: 1rem;
@@ -209,15 +210,15 @@ const Input = styled.input`
 `;
 
 const OutputContainer = styled.div`
-  background: #1a202c;
+  background: V9_COLORS.TEXT.BLACK;
   border-radius: 0.5rem;
   overflow: hidden;
   margin-top: 1rem;
 `;
 
 const OutputHeader = styled.div`
-  background: #2d3748;
-  color: #e2e8f0;
+  background: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
@@ -235,8 +236,8 @@ const OutputTitle = styled.div`
 `;
 
 const OutputContent = styled.pre<{ $isExpanded: boolean }>`
-	background: #1a202c;
-	color: #e2e8f0;
+	background: V9_COLORS.TEXT.BLACK;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	line-height: 1.5;
 	overflow-x: auto;
@@ -281,7 +282,7 @@ const ChecklistItem = styled.div`
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
   &:last-child {
     border-bottom: none;
@@ -295,7 +296,7 @@ const Checkbox = styled.input`
 `;
 
 const ChecklistLabel = styled.label`
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   cursor: pointer;
   flex: 1;
@@ -578,7 +579,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							display: 'block',
 							marginBottom: '0.5rem',
 							fontWeight: '500',
-							color: '#2d3748',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						}}
 					>
 						Environment ID:
@@ -626,7 +627,7 @@ const JWKSTroubleshooting: React.FC = () => {
 						borderRadius: '0.5rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Regional Endpoints:</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Regional Endpoints:</h4>
 					<p style={{ margin: '0', color: '#4a5568', fontSize: '0.9rem' }}>
 						<strong>EU:</strong> https://auth.pingone.eu/{'{environmentId}'}
 						/as/jwks
@@ -724,7 +725,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Ping JWT Decoder:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Ping JWT Decoder:</h4>
 						<p style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
 							<Link
 								href="https://jwt-decoder.pingidentity.com/"
@@ -735,7 +736,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							</Link>{' '}
 							- Decode and validate JWT tokens with PingOne keys
 						</p>
-						<p style={{ margin: '0', fontSize: '0.875rem', color: '#6b7280' }}>
+						<p style={{ margin: '0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Official Ping Identity tool for decoding JWT tokens and validating signatures using
 							PingOne JWKS endpoints.
 						</p>
@@ -748,7 +749,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>PingOne SSO Documentation:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>PingOne SSO Documentation:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
@@ -785,7 +786,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							style={{
 								margin: '0.5rem 0 0 0',
 								fontSize: '0.875rem',
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
 							Official Ping Identity documentation for configuring and troubleshooting JWKS in
@@ -800,7 +801,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Online Validators:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Online Validators:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link href="https://jwt.io" target="_blank" rel="noopener noreferrer">
@@ -824,7 +825,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>RFC Standards:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>RFC Standards:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link

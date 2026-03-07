@@ -21,7 +21,7 @@ interface TutorialTextFormatterProps {
 const ContentContainer = styled.div<{ $type: string }>`
 	line-height: 1.7;
 	font-size: 1rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 
 	/* Base styling for all content types */
 	p {
@@ -32,7 +32,7 @@ const ContentContainer = styled.div<{ $type: string }>`
 
 	/* Enhanced typography for better readability */
 	h1, h2, h3, h4, h5, h6 {
-		color: #1f2937;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		margin-top: 2rem;
 		margin-bottom: 1rem;
 		font-weight: 600;
@@ -57,29 +57,29 @@ const ContentContainer = styled.div<{ $type: string }>`
 
 	/* Enhanced blockquote styling */
 	blockquote {
-		border-left: 4px solid #3b82f6;
+		border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 		padding: 1rem 1.5rem;
 		margin: 1.5rem 0;
-		background: #f8fafc;
+		background: V9_COLORS.BG.GRAY_LIGHT;
 		border-radius: 0 0.5rem 0.5rem 0;
 		font-style: italic;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	/* Enhanced code styling */
 	code {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 		padding: 0.25rem 0.5rem;
 		border-radius: 0.25rem;
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 		font-size: 0.9em;
 		color: #1e293b;
-		border: 1px solid #e2e8f0;
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 
 	pre {
 		background: #1e293b;
-		color: #f1f5f9;
+		color: V9_COLORS.BG.GRAY_MEDIUM;
 		padding: 1.5rem;
 		border-radius: 0.5rem;
 		overflow-x: auto;
@@ -102,7 +102,7 @@ const ContentContainer = styled.div<{ $type: string }>`
 		switch ($type) {
 			case 'info':
 				return `
-					background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+					background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 					border: 1px solid #0ea5e9;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
@@ -117,8 +117,8 @@ const ContentContainer = styled.div<{ $type: string }>`
 				`;
 			case 'security':
 				return `
-					background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-					border: 1px solid #22c55e;
+					background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
+					border: 1px solid V9_COLORS.PRIMARY.GREEN;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -131,13 +131,13 @@ const ContentContainer = styled.div<{ $type: string }>`
 					}
 
 					h3, h4 {
-						color: #166534;
+						color: V9_COLORS.PRIMARY.GREEN;
 					}
 				`;
 			case 'validation':
 				return `
-					background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
-					border: 1px solid #f59e0b;
+					background: linear-gradient(135deg, #fefce8 0%, V9_COLORS.BG.WARNING 100%);
+					border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -150,13 +150,13 @@ const ContentContainer = styled.div<{ $type: string }>`
 					}
 
 					h3, h4 {
-						color: #92400e;
+						color: V9_COLORS.PRIMARY.YELLOW_DARK;
 					}
 				`;
 			case 'diagram':
 				return `
-					background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-					border: 1px solid #6b7280;
+					background: linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+					border: 1px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -186,8 +186,8 @@ const ContentContainer = styled.div<{ $type: string }>`
 				`;
 			case 'jwt':
 				return `
-					background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-					border: 1px solid #d97706;
+					background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%);
+					border: 1px solid V9_COLORS.PRIMARY.YELLOW_DARK;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -200,15 +200,15 @@ const ContentContainer = styled.div<{ $type: string }>`
 					}
 
 					code {
-						background: #92400e;
-						color: #fef3c7;
+						background: V9_COLORS.PRIMARY.YELLOW_DARK;
+						color: V9_COLORS.BG.WARNING;
 						font-weight: 500;
 					}
 				`;
 			case 'claims':
 				return `
-					background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-					border: 1px solid #10b981;
+					background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS 100%);
+					border: 1px solid V9_COLORS.PRIMARY.GREEN;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -222,8 +222,8 @@ const ContentContainer = styled.div<{ $type: string }>`
 				`;
 			case 'discovery':
 				return `
-					background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 100%);
-					border: 1px solid #0284c7;
+					background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+					border: 1px solid V9_COLORS.PRIMARY.BLUE;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -237,8 +237,8 @@ const ContentContainer = styled.div<{ $type: string }>`
 				`;
 			case 'architecture':
 				return `
-					background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-					border: 1px solid #475569;
+					background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+					border: 1px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 					border-radius: 0.75rem;
 					padding: 1.5rem;
 					margin: 1rem 0;
@@ -267,8 +267,8 @@ const ContentContainer = styled.div<{ $type: string }>`
 				`;
 			default:
 				return `
-					background: #ffffff;
-					border: 1px solid #e5e7eb;
+					background: V9_COLORS.TEXT.WHITE;
+					border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 					border-radius: 0.5rem;
 					padding: 1.25rem;
 					margin: 1rem 0;
@@ -302,13 +302,13 @@ const ContentContainer = styled.div<{ $type: string }>`
 	th, td {
 		padding: 0.75rem;
 		text-align: left;
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	}
 
 	th {
 		background: #f9fafb;
 		font-weight: 600;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	tr:nth-child(even) {
@@ -317,13 +317,13 @@ const ContentContainer = styled.div<{ $type: string }>`
 
 	/* Enhanced link styling */
 	a {
-		color: #3b82f6;
+		color: V9_COLORS.PRIMARY.BLUE;
 		text-decoration: none;
 		border-bottom: 1px solid transparent;
 		transition: border-color 0.2s ease;
 
 		&:hover {
-			border-bottom-color: #3b82f6;
+			border-bottom-color: V9_COLORS.PRIMARY.BLUE;
 		}
 	}
 

@@ -14,8 +14,8 @@ export interface EnhancedFlowWalkthroughProps {
 }
 
 const Container = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	margin-bottom: 2rem;
@@ -28,8 +28,8 @@ const Container = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
 `;
 
 const Header = styled.div<{ $isCollapsible: boolean }>`
-	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-	border-bottom: 1px solid #e2e8f0;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%);
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.5rem;
 	cursor: ${({ $isCollapsible }) => ($isCollapsible ? 'pointer' : 'default')};
 	display: flex;
@@ -38,7 +38,7 @@ const Header = styled.div<{ $isCollapsible: boolean }>`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+		background: linear-gradient(135deg, V9_COLORS.BG.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	}
 `;
 
@@ -54,13 +54,13 @@ const HeaderIcon = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
 	background: ${({ $flowType }) => {
 		switch ($flowType) {
 			case 'oauth':
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 			case 'oidc':
-				return 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #047857 100%)';
 			case 'pingone':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #374151 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_DARK 100%)';
 		}
 	}};
 	border-radius: 8px;
@@ -82,7 +82,7 @@ const Title = styled.h3`
 const ChevronButton = styled.button<{ $collapsed: boolean }>`
 	width: 2rem;
 	height: 2rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	border: none;
 	border-radius: 50%;
 	color: white;
@@ -94,7 +94,7 @@ const ChevronButton = styled.button<{ $collapsed: boolean }>`
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 		transform: ${({ $collapsed }) =>
 			$collapsed ? 'rotate(-90deg) scale(1.05)' : 'rotate(0deg) scale(1.05)'};
 	}
@@ -102,7 +102,7 @@ const ChevronButton = styled.button<{ $collapsed: boolean }>`
 
 const Content = styled.div<{ $collapsed: boolean }>`
 	padding: 1.5rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	display: ${({ $collapsed }) => ($collapsed ? 'none' : 'block')};
 	animation: ${({ $collapsed }) => ($collapsed ? 'none' : 'slideDown 0.3s ease')};
 
@@ -129,14 +129,14 @@ const StepItem = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
 	align-items: flex-start;
 	gap: 1rem;
 	padding: 1rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	transition: all 0.2s ease;
 	position: relative;
 
 	&:hover {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 		border-color: #cbd5e1;
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -152,13 +152,13 @@ const StepItem = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
 		background: ${({ $flowType }) => {
 			switch ($flowType) {
 				case 'oauth':
-					return 'linear-gradient(to bottom, #3b82f6, #cbd5e1)';
+					return 'linear-gradient(to bottom, V9_COLORS.PRIMARY.BLUE, #cbd5e1)';
 				case 'oidc':
-					return 'linear-gradient(to bottom, #10b981, #cbd5e1)';
+					return 'linear-gradient(to bottom, V9_COLORS.PRIMARY.GREEN, #cbd5e1)';
 				case 'pingone':
-					return 'linear-gradient(to bottom, #f59e0b, #cbd5e1)';
+					return 'linear-gradient(to bottom, V9_COLORS.PRIMARY.YELLOW, #cbd5e1)';
 				default:
-					return 'linear-gradient(to bottom, #6b7280, #cbd5e1)';
+					return 'linear-gradient(to bottom, V9_COLORS.TEXT.GRAY_MEDIUM, #cbd5e1)';
 			}
 		}};
 	}
@@ -170,13 +170,13 @@ const StepNumber = styled.div<{ $flowType: 'oauth' | 'oidc' | 'pingone' }>`
 	background: ${({ $flowType }) => {
 		switch ($flowType) {
 			case 'oauth':
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 			case 'oidc':
-				return 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #047857 100%)';
 			case 'pingone':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #374151 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_DARK 100%)';
 		}
 	}};
 	color: white;
@@ -206,16 +206,16 @@ const StepTitle = styled.div`
 
 const StepDescription = styled.div`
 	font-size: 0.875rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 
 const ErrorMessage = styled.div`
 	padding: 1rem;
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 8px;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 `;
 

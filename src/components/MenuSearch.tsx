@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const SearchContainer = styled.div`
 	padding: 1rem;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	background: #f9fafb;
 `;
 
@@ -17,7 +17,7 @@ const SearchInputWrapper = styled.div`
 const SearchInput = styled.input`
 	width: 100%;
 	padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	background: white;
@@ -25,19 +25,19 @@ const SearchInput = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
 const SearchIcon = styled.div`
 	position: absolute;
 	left: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	display: flex;
 	align-items: center;
 	pointer-events: none;
@@ -48,7 +48,7 @@ const ClearButton = styled.button`
 	right: 0.75rem;
 	background: none;
 	border: none;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 0.25rem;
@@ -57,7 +57,7 @@ const ClearButton = styled.button`
 	transition: all 0.2s ease;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		background: #f3f4f6;
 	}
 `;
@@ -74,39 +74,39 @@ const SearchResultItem = styled.div<{ $isActive?: boolean }>`
 	cursor: pointer;
 	transition: all 0.2s ease;
 	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
-	border: 1px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
+	border: 1px solid ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	margin-bottom: 0.25rem;
 
 	&:hover {
-		background: #f0f9ff;
-		border-color: #60a5fa;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+		border-color: V9_COLORS.PRIMARY.BLUE_LIGHT;
 		transform: translateX(2px);
 	}
 `;
 
 const ResultTitle = styled.div`
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 	margin-bottom: 0.25rem;
 `;
 
 const ResultPath = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const ResultCategory = styled.div`
 	font-size: 0.75rem;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	font-weight: 500;
 `;
 
 const NoResults = styled.div`
 	padding: 1rem;
 	text-align: center;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
