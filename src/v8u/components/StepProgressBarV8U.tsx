@@ -82,7 +82,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 					const isAccessible = index <= currentStep;
 
 					return (
-						<div
+						<li
 							key={index}
 							className={`step-indicator ${
 								isCompleted ? 'completed' : ''
@@ -96,7 +96,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 							}`}
 						>
 							{index + 1}
-						</div>
+						</li>
 					);
 				})}
 			</div>
@@ -115,7 +115,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 				background: #4caf50; color: white; .step-indicator.active background: #2196f3; color: white;
 				box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3); .step-indicator.locked background: #f5f5f5;
 				color: #999; border: 1px solid #ddd; .indicator-icon display: inline-block;
-				.indicator-number display: inline-block; /* Mobile responsive */ @media (max-width: 600px)
+				.indicator-number display: inline-block; {/* Mobile responsive */} @media (max-width: 600px)
 				.step-progress-bar-v8 padding: 12px; gap: 8px; .progress-text font-size: 12px;
 				.step-indicator width: 28px; height: 28px; font-size: 10px; `
 			</style>
