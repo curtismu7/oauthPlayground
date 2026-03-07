@@ -422,7 +422,7 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const TVDisplay = styled.div<{ $primaryColor: string }>`
+const _TVDisplay = styled.div<{ $primaryColor: string }>`
 	font-family: 'Courier New', monospace;
 	font-size: 1.25rem;
 	color: ${({ $primaryColor }) => $primaryColor};
@@ -464,7 +464,7 @@ const WelcomeMessage = styled.div`
 	text-align: center;
 `;
 
-const ConsoleLayout = styled.div`
+const _ConsoleLayout = styled.div`
 	width: 100%;
 	background: radial-gradient(circle at top, rgba(59, 130, 246, 0.4), transparent 55%),
 		linear-gradient(135deg, #0f172a 0%, #1f3460 60%, #111827 100%);
@@ -477,7 +477,7 @@ const ConsoleLayout = styled.div`
 	gap: 1.25rem;
 `;
 
-const ConsoleTopBar = styled.div`
+const _ConsoleTopBar = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -487,7 +487,7 @@ const ConsoleTopBar = styled.div`
 	color: #93c5fd;
 `;
 
-const StatusDot = styled.span<{ $active?: boolean }>`
+const _StatusDot = styled.span<{ $active?: boolean }>`
 	width: 8px;
 	height: 8px;
 	border-radius: 999px;
@@ -496,13 +496,13 @@ const StatusDot = styled.span<{ $active?: boolean }>`
 	box-shadow: 0 0 10px ${({ $active }) => ($active ? '#34d399' : '#f87171')};
 `;
 
-const ConsoleTileGrid = styled.div`
+const _ConsoleTileGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 1rem;
 `;
 
-const ConsoleTile = styled.div<{ $featured?: boolean }>`
+const _ConsoleTile = styled.div<{ $featured?: boolean }>`
 	background: ${({ $featured }) =>
 		$featured
 			? 'linear-gradient(135deg, rgba(147, 197, 253, 0.15), rgba(59, 130, 246, 0.35))'
@@ -519,19 +519,19 @@ const ConsoleTile = styled.div<{ $featured?: boolean }>`
 	overflow: hidden;
 `;
 
-const ConsoleTileTitle = styled.h4`
+const _ConsoleTileTitle = styled.h4`
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 700;
 	color: #f8fafc;
 `;
 
-const ConsoleTileMeta = styled.span`
+const _ConsoleTileMeta = styled.span`
 	font-size: 0.75rem;
 	color: rgba(148, 163, 184, 0.8);
 `;
 
-const ConsoleTileBadge = styled.span`
+const _ConsoleTileBadge = styled.span`
 	position: absolute;
 	top: 1rem;
 	left: 1rem;
@@ -545,7 +545,7 @@ const ConsoleTileBadge = styled.span`
 	color: #bfdbfe;
 `;
 
-const ConsoleHero = styled.div`
+const _ConsoleHero = styled.div`
 	background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(30, 64, 175, 0.4));
 	border-radius: 1.25rem;
 	padding: 2rem;
@@ -555,20 +555,20 @@ const ConsoleHero = styled.div`
 	box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6);
 `;
 
-const ConsoleHeroTitle = styled.h3`
+const _ConsoleHeroTitle = styled.h3`
 	margin: 0;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: #f8fafc;
 `;
 
-const ConsoleHeroSubtitle = styled.p`
+const _ConsoleHeroSubtitle = styled.p`
 	margin: 0;
 	font-size: 0.95rem;
 	color: rgba(191, 219, 254, 0.85);
 `;
 
-const ConsoleHintRow = styled.div`
+const _ConsoleHintRow = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
@@ -576,7 +576,7 @@ const ConsoleHintRow = styled.div`
 	color: rgba(148, 163, 184, 0.85);
 `;
 
-const KioskScreen = styled.div`
+const _KioskScreen = styled.div`
 	width: 100%;
 	background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
 	border-radius: 1.25rem;
@@ -588,13 +588,13 @@ const KioskScreen = styled.div`
 	gap: 1.5rem;
 `;
 
-const KioskHeader = styled.div`
+const _KioskHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 `;
 
-const KioskBranding = styled.div`
+const _KioskBranding = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -602,12 +602,12 @@ const KioskBranding = styled.div`
 	font-size: 1.1rem;
 `;
 
-const KioskLogo = styled.span`
+const _KioskLogo = styled.span`
 	font-size: 1.75rem;
 	line-height: 1;
 `;
 
-const KioskFlightIndicator = styled.div`
+const _KioskFlightIndicator = styled.div`
 	font-size: 0.85rem;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
@@ -618,14 +618,14 @@ const KioskFlightIndicator = styled.div`
 	border-radius: 999px;
 `;
 
-const KioskBody = styled.div`
+const _KioskBody = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	gap: 1.5rem;
 	align-items: stretch;
 `;
 
-const KioskForm = styled.div`
+const _KioskForm = styled.div`
 	background: #f8fafc;
 	border-radius: 1rem;
 	padding: 1.5rem;
@@ -635,23 +635,23 @@ const KioskForm = styled.div`
 	gap: 0.75rem;
 `;
 
-const KioskRow = styled.div`
+const _KioskRow = styled.div`
 	display: flex;
 	justify-content: space-between;
 	font-size: 0.9rem;
 	color: #334155;
 `;
 
-const KioskLabel = styled.span`
+const _KioskLabel = styled.span`
 	font-weight: 600;
 `;
 
-const KioskValue = styled.span`
+const _KioskValue = styled.span`
 	font-weight: 500;
 	color: #0f172a;
 `;
 
-const KioskBoardingPass = styled.div`
+const _KioskBoardingPass = styled.div`
 	background: radial-gradient(circle at top, rgba(30, 64, 175, 0.85), rgba(30, 58, 138, 0.95));
 	border-radius: 1rem;
 	padding: 1.75rem;
@@ -663,26 +663,26 @@ const KioskBoardingPass = styled.div`
 	box-shadow: 0 25px 35px rgba(15, 23, 42, 0.3);
 `;
 
-const KioskBoardingTitle = styled.span`
+const _KioskBoardingTitle = styled.span`
 	font-size: 0.75rem;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: rgba(191, 219, 254, 0.75);
 `;
 
-const KioskBoardingValue = styled.span`
+const _KioskBoardingValue = styled.span`
 	font-size: 1.4rem;
 	font-weight: 700;
 	color: #ffffff;
 `;
 
-const KioskDivider = styled.div`
+const _KioskDivider = styled.div`
 	height: 1px;
 	background: rgba(148, 163, 184, 0.3);
 	margin: 0.25rem 0 0.5rem;
 `;
 
-const KioskCodeBox = styled.div`
+const _KioskCodeBox = styled.div`
 	margin-top: auto;
 	background: rgba(15, 23, 42, 0.4);
 	border-radius: 0.75rem;
@@ -693,7 +693,7 @@ const KioskCodeBox = styled.div`
 	text-align: center;
 `;
 
-const KioskActionRow = styled.div`
+const _KioskActionRow = styled.div`
 	display: flex;
 	justify-content: space-between;
 	font-size: 0.8rem;
@@ -3339,7 +3339,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-	const renderGenericSuccessContent = () => (
+	const _renderGenericSuccessContent = () => (
 		<>
 			<div
 				style={{
@@ -3398,7 +3398,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-	const renderGenericPollingContent = () => (
+	const _renderGenericPollingContent = () => (
 		<>
 			<div
 				style={{
@@ -3432,7 +3432,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-	const renderGenericPreAuthContent = () => (
+	const _renderGenericPreAuthContent = () => (
 		<>
 			<div
 				style={{

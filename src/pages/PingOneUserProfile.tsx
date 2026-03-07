@@ -3,18 +3,7 @@
 // Cache bust: 2025-02-17-11:32
 // PingOne User Profile Page - Display detailed user information using real PingOne APIs
 
-import {
-	FiAlertTriangle,
-	FiCalendar,
-	FiCheckCircle,
-	FiCopy,
-	FiLock,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-	FiUsers,
-	FiX,
-} from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -139,7 +128,7 @@ const buildConsentMap = (consents: PingOneConsentRecord[]): Map<string, string> 
 	return map;
 };
 
-const isAffirmativeStatus = (status: string): boolean => {
+const _isAffirmativeStatus = (status: string): boolean => {
 	const normalized = status.trim().toLowerCase();
 	return [
 		'granted',
@@ -680,7 +669,7 @@ const PingOneUserProfile: React.FC = () => {
 	// Use global worker token instead of custom accessToken state
 	const accessToken = globalTokenStatus.token || '';
 
-	const [activeTab, setActiveTab] = useState<'profile' | 'user-status' | 'compare-access'>(
+	const [_activeTab, setActiveTab] = useState<'profile' | 'user-status' | 'compare-access'>(
 		'profile'
 	);
 	const [loading, setLoading] = useState(false);
@@ -715,7 +704,7 @@ const PingOneUserProfile: React.FC = () => {
 	// Always show user selector initially - user must explicitly load the profile
 	const [showUserSelector, setShowUserSelector] = useState(true);
 
-	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
+	const [_showServerErrorModal, setShowServerErrorModal] = useState(false);
 	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
 		credentialManager.getAllCredentials()
 	);
@@ -728,11 +717,11 @@ const PingOneUserProfile: React.FC = () => {
 	const [comparisonRoles, setComparisonRoles] = useState<PingOneUserRole[]>([]);
 	const [comparisonMfaStatus, setComparisonMfaStatus] = useState<PingOneMfaStatus>(null);
 	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
-	const [isComparisonLoading, setIsComparisonLoading] = useState(false);
-	const [comparisonError, setComparisonError] = useState<string | null>(null);
+	const [_isComparisonLoading, setIsComparisonLoading] = useState(false);
+	const [_comparisonError, setComparisonError] = useState<string | null>(null);
 
 	// Start over function — all useState declarations must be above this
-	const handleStartOver = useCallback(() => {
+	const _handleStartOver = useCallback(() => {
 		setUserProfile(null);
 		setUserGroups([]);
 		setUserRoles([]);
@@ -1452,9 +1441,9 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsResolvingUser(false);
 		}
-	}, [accessToken, environmentId, userIdentifier, fetchUserProfile]);
+	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus.isValid]);
 
-	const handleLoadComparisonUser = useCallback(async () => {
+	const _handleLoadComparisonUser = useCallback(async () => {
 		if (!accessToken) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -1561,9 +1550,9 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsComparisonLoading(false);
 		}
-	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle]);
+	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus?.isValid]);
 
-	const handleClearComparison = useCallback(() => {
+	const _handleClearComparison = useCallback(() => {
 		setComparisonProfile(null);
 		setComparisonResolvedId('');
 		setComparisonGroups([]);
@@ -1594,7 +1583,7 @@ const PingOneUserProfile: React.FC = () => {
 		};
 	}, []);
 
-	const copyToClipboard = (text: string) => {
+	const _copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text);
 		modernMessaging.showFooterMessage({
 			type: 'status',
@@ -1603,12 +1592,12 @@ const PingOneUserProfile: React.FC = () => {
 		});
 	};
 
-	const getInitials = (nameInput: unknown): string => {
+	const _getInitials = (nameInput: unknown): string => {
 		if (typeof nameInput !== 'string') {
 			if (nameInput && typeof nameInput === 'object') {
 				const formatted = (nameInput as { formatted?: string }).formatted;
 				if (formatted && typeof formatted === 'string') {
-					return getInitials(formatted);
+					return _getInitials(formatted);
 				}
 			}
 			return 'U';
@@ -1623,7 +1612,7 @@ const PingOneUserProfile: React.FC = () => {
 		return name.substring(0, 2).toUpperCase();
 	};
 
-	const formatDate = (dateString: string) => {
+	const _formatDate = (dateString: string) => {
 		if (!dateString) return 'N/A';
 		const date = new Date(dateString);
 		return date.toLocaleString('en-US', {
@@ -1674,17 +1663,17 @@ const PingOneUserProfile: React.FC = () => {
 
 	// Worker token state derived from global hook
 	const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
-	const workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
+	const _workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
 		? 'valid'
 		: globalTokenStatus.token
 			? 'expired'
 			: 'missing';
-	const workerTokenStatusMessage = hasValidWorkerToken
+	const _workerTokenStatusMessage = hasValidWorkerToken
 		? `Worker token active. ${globalTokenStatus.message}.`
 		: globalTokenStatus.token
 			? `${globalTokenStatus.message}. Refresh before making new API calls.`
 			: globalTokenStatus.message;
-	const workerTokenStatusDetail = '';
+	const _workerTokenStatusDetail = '';
 
 	if (!userProfile && showUserSelector) {
 		return (
@@ -1917,13 +1906,13 @@ const PingOneUserProfile: React.FC = () => {
 		userProfile?.name && typeof userProfile.name === 'object'
 			? (userProfile.name as { formatted?: string; givenName?: string; familyName?: string })
 			: null;
-	const givenNameValue =
+	const _givenNameValue =
 		userProfile?.given_name ||
 		nameDetails?.givenName ||
 		(typeof userProfile?.name === 'string' ? userProfile?.name : '');
-	const formattedNameValue = nameDetails?.formatted || userName;
-	const email = (userProfile.email ?? '') as string;
-	const emailVerified = Boolean(userProfile.email_verified);
+	const _formattedNameValue = nameDetails?.formatted || userName;
+	const _email = (userProfile.email ?? '') as string;
+	const _emailVerified = Boolean(userProfile.email_verified);
 	const enabledStatusText =
 		userProfile.enabled === undefined ? 'Unknown' : userProfile.enabled ? 'Enabled' : 'Disabled';
 	const accountStatusText = userProfile.account?.status || enabledStatusText;
@@ -2029,7 +2018,7 @@ const PingOneUserProfile: React.FC = () => {
 		([label, status]) => `${label}: ${status}`
 	);
 
-	const comparisonUserName = (() => {
+	const _comparisonUserName = (() => {
 		if (!comparisonProfile) return 'Comparison User';
 		const { name } = comparisonProfile;
 		if (typeof name === 'string') {
@@ -2146,13 +2135,13 @@ const PingOneUserProfile: React.FC = () => {
 		.filter((name): name is string => Boolean(name?.trim()))
 		.map((name) => name.trim());
 
-	const allGroupNames = Array.from(new Set([...primaryGroupNames, ...comparisonGroupNames])).sort(
+	const _allGroupNames = Array.from(new Set([...primaryGroupNames, ...comparisonGroupNames])).sort(
 		(a, b) => a.localeCompare(b)
 	);
-	const allAuthMethods = Array.from(
+	const _allAuthMethods = Array.from(
 		new Set([...authenticationMethodsDisplay, ...comparisonAuthMethodsDisplay])
 	).sort((a, b) => a.localeCompare(b));
-	const allConsentLabels = Array.from(
+	const _allConsentLabels = Array.from(
 		new Set([...primaryConsentMap.keys(), ...comparisonConsentMap.keys()])
 	).sort((a, b) => a.localeCompare(b));
 
@@ -2165,7 +2154,7 @@ const PingOneUserProfile: React.FC = () => {
 		comparisonProfile?.username ||
 		(comparisonLoaded ? 'N/A' : 'N/A');
 
-	const comparisonSummaryRows = [
+	const _comparisonSummaryRows = [
 		{
 			label: 'User ID',
 			primary: userProfile?.id || resolvedUserId || 'N/A',

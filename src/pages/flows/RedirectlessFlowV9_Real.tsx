@@ -19,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { CompactAppPickerV9 } from '@/components/CompactAppPickerV9';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -685,54 +684,50 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: string },
 			resumeUrl?: string
 		) => {
-			try {
-				console.log('🔐 [Redirectless V9] Step 3: Resuming flow to get authorization code');
+			console.log('🔐 [Redirectless V9] Step 3: Resuming flow to get authorization code');
 
-				if (!resumeUrl) {
-					// Try to get resumeUrl from session storage if not provided
-					const storedResumeUrl = sessionStorage.getItem('redirectless-v9-resumeUrl');
-					if (!storedResumeUrl) {
-						throw new Error('No resumeUrl available. Please restart the flow.');
-					}
-					resumeUrl = storedResumeUrl;
+			if (!resumeUrl) {
+				// Try to get resumeUrl from session storage if not provided
+				const storedResumeUrl = sessionStorage.getItem('redirectless-v9-resumeUrl');
+				if (!storedResumeUrl) {
+					throw new Error('No resumeUrl available. Please restart the flow.');
 				}
-
-				const resumeResponse = await fetch('/api/pingone/resume', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						resumeUrl,
-						flowId,
-						flowState: stateValue,
-						clientId: controller.credentials.clientId,
-						clientSecret: controller.credentials.clientSecret,
-						codeVerifier: pkceCodes.codeVerifier,
-					}),
-				});
-
-				if (!resumeResponse.ok) {
-					const errorText = await resumeResponse.text();
-					throw new Error(
-						`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
-					);
-				}
-
-				const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
-				console.log('🔐 [Redirectless V9] Resume response data:', resumeData);
-
-				const authCode = (resumeData.code ||
-					(resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
-				if (!authCode) {
-					throw new Error('No authorization code received after calling resumeUrl');
-				}
-
-				// Proceed to token exchange
-				await handleTokenExchange(authCode, pkceCodes.codeVerifier);
-			} catch (error: unknown) {
-				throw error;
+				resumeUrl = storedResumeUrl;
 			}
+
+			const resumeResponse = await fetch('/api/pingone/resume', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					resumeUrl,
+					flowId,
+					flowState: stateValue,
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+					codeVerifier: pkceCodes.codeVerifier,
+				}),
+			});
+
+			if (!resumeResponse.ok) {
+				const errorText = await resumeResponse.text();
+				throw new Error(
+					`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
+				);
+			}
+
+			const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
+			console.log('🔐 [Redirectless V9] Resume response data:', resumeData);
+
+			const authCode = (resumeData.code ||
+				(resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
+			if (!authCode) {
+				throw new Error('No authorization code received after calling resumeUrl');
+			}
+
+			// Proceed to token exchange
+			await handleTokenExchange(authCode, pkceCodes.codeVerifier);
 		},
 		[controller, handleTokenExchange]
 	);
@@ -1718,6 +1713,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		isAuthenticating,
 		isLoading,
 		loginCredentials.username,
+		handleAppSelected,
 	]);
 
 	return (

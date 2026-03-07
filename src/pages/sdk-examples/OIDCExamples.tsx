@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
 
 const Container = styled.div`
   padding: 2rem;

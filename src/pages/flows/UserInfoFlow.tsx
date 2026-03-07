@@ -217,7 +217,7 @@ const UserInfoFlow: React.FC = () => {
 	// Token and config available via useAuth() hook
 
 	// Check if tokens exist in any form
-	const hasTokens = tokens?.access_token;
+	const _hasTokens = tokens?.access_token;
 
 	// Enhanced token detection and loading system
 	const [localTokens, setLocalTokens] = useState<OAuthTokens | null>(null);
@@ -307,7 +307,7 @@ const UserInfoFlow: React.FC = () => {
 				message: 'Config exported successfully',
 				duration: 3000,
 			});
-		} catch (err) {
+		} catch (_err) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -334,7 +334,7 @@ const UserInfoFlow: React.FC = () => {
 					duration: 3000,
 				});
 				setTimeout(() => window.location.reload(), 800);
-			} catch (err) {
+			} catch (_err) {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -789,7 +789,7 @@ console.log('Welcome, ' + user.name + '!');`,
 				}}
 			/>
 
-			<FlowCredentials flowType="userinfo" onCredentialsChange={(credentials) => {}} />
+			<FlowCredentials flowType="userinfo" onCredentialsChange={(_credentials) => {}} />
 
 			{/* Config import/export */}
 			<div

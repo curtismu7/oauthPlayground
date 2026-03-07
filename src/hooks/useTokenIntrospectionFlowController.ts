@@ -41,7 +41,7 @@ interface UseTokenIntrospectionFlowControllerReturn {
 	clearResults: () => void;
 }
 
-const LOG_PREFIX = '[🔍 TOKEN-INTROSPECTION]';
+const _LOG_PREFIX = '[🔍 TOKEN-INTROSPECTION]';
 
 export const useTokenIntrospectionFlowController =
 	(): UseTokenIntrospectionFlowControllerReturn => {
