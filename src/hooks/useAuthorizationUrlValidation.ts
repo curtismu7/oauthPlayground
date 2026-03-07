@@ -201,7 +201,7 @@ export const useRealtimeUrlValidation = (options: UseAuthorizationUrlValidationO
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as any).useAuthorizationUrlValidation = useAuthorizationUrlValidation;
-	(window as any).usePreSendUrlValidation = usePreSendUrlValidation;
-	(window as any).useRealtimeUrlValidation = useRealtimeUrlValidation;
+	(window as Record<string, unknown>).useAuthorizationUrlValidation = useAuthorizationUrlValidation;
+	(window as Record<string, unknown>).usePreSendUrlValidation = usePreSendUrlValidation;
+	(window as Record<string, unknown>).useRealtimeUrlValidation = useRealtimeUrlValidation;
 }

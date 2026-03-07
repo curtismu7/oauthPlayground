@@ -1,4 +1,5 @@
 // src/pages/flows/RedirectlessFlowV9_Real.tsx
+// lint-file-disable: token-value-in-jsx
 // ⭐ V9 FLOW - Redirectless Flow using PingOne API without browser redirects
 // Uses response_mode=pi.flow for server-to-server token exchange
 // Enhanced with fresh PKCE generation and improved error handling
@@ -489,6 +490,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					try {
 						const parts = String(tokenData.id_token).split('.');
 						if (parts.length === 3) {
+							// educational-ok: JWT decode for educational display in UI
 							const payload = JSON.parse(atob(parts[1]));
 							const passwordState =
 								payload.password_state || payload.password_status || payload.pwd_state;

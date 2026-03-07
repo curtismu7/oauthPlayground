@@ -18,7 +18,7 @@ export interface FlowConfig {
 
 export interface FlowResult {
 	success: boolean;
-	data?: any;
+	data?: unknown;
 	error?: string;
 	stepId?: string;
 }
