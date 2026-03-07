@@ -1,26 +1,33 @@
-# Linter Audit — STATUS
+# Linter Audit — TEAM COORDINATION STATUS
 > Updated: 2026-03-07 14:29 UTC | Tools: Biome + ESLint + tsc + runtime-analysis + a11y-keyboard + a11y-color + migration-check
 > Run: `python3 scripts/lint_per_group.py --help` for full CLI reference
+> 
+> ## 🚀 TEAM COORDINATION WORKFLOW
+> 1. **Read DEVELOPER_GUIDE.md first** - Complete directions for all commands and coordination
+> 2. **Check STATUS.md** - See which groups are claimed (✅) vs unclaimed (🔴)
+> 3. **Pick different group IDs** - Each person works on separate groups to avoid conflicts
+> 4. **Run**: `python3 scripts/lint_per_group.py --fix --group <group-id>`
+> 5. **Zero conflicts** - Each group writes to its own file: `lint-reports/groups/NN-group-id.json`
 
 | # | Group | Files | Total | Errors | Warns | Auto-fixed | Manual | Open | Done | Assignee | Status |
 |---|-------|-------|-------|--------|-------|------------|--------|------|------|----------|--------|
-| 01 | Dashboard | 17 | 117 | 13 | 32 | 0 | 117 | 117 | 0 |  | 🔴 Has errors |
-| 02 | Admin & Configuration | 53 | 956 | 59 | 417 | 0 | 956 | 956 | 0 |  | 🔴 Has errors |
-| 03 | PingOne Platform | 75 | 2076 | 59 | 886 | 0 | 2076 | 2076 | 0 |  | 🔴 Has errors |
-| 04 | Unified & Production Flows | 98 | 2026 | 48 | 757 | 0 | 2026 | 2026 | 0 |  | 🔴 Has errors |
-| 05 | OAuth 2.0 Flows | 193 | 3623 | 324 | 1562 | 0 | 3623 | 3623 | 0 |  | 🔴 Has errors |
-| 06 | OpenID Connect | 170 | 3144 | 280 | 1331 | 0 | 3144 | 3144 | 0 |  | 🔴 Has errors |
-| 07 | PingOne Flows | 137 | 2465 | 194 | 996 | 0 | 2465 | 2465 | 0 |  | 🔴 Has errors |
-| 08 | Tokens & Session | 110 | 1864 | 143 | 750 | 0 | 1864 | 1864 | 0 |  | 🔴 Has errors |
-| 09 | Developer & Tools | 58 | 1316 | 69 | 569 | 0 | 1316 | 1316 | 0 |  | 🔴 Has errors |
-| 10 | Education & Tutorials | 13 | 138 | 16 | 68 | 0 | 138 | 138 | 0 |  | 🔴 Has errors |
-| 11a | OAuth Mock Flows | 40 | 951 | 116 | 398 | 0 | 951 | 951 | 0 |  | 🔴 Has errors |
-| 11b | Advanced Mock Flows | 46 | 850 | 82 | 389 | 0 | 850 | 850 | 0 |  | 🔴 Has errors |
-| 11c | V7 Mock Server Flows | 30 | 333 | 62 | 124 | 0 | 333 | 333 | 0 |  | 🔴 Has errors |
-| 12 | AI - Ping | 15 | 208 | 3 | 102 | 0 | 208 | 208 | 0 |  | 🔴 Has errors |
+| 01 | Dashboard | 17 | 117 | 13 | 32 | 0 | 117 | 117 | 0 |  | 🔴 Unclaimed |
+| 02 | Admin & Configuration | 53 | 956 | 59 | 417 | 0 | 956 | 956 | 0 |  | 🔴 Unclaimed |
+| 03 | PingOne Platform | 75 | 2076 | 59 | 886 | 0 | 2076 | 2076 | 0 |  | 🔴 Unclaimed |
+| 04 | Unified & Production Flows | 98 | 2026 | 48 | 757 | 0 | 2026 | 2026 | 0 |  | 🔴 Unclaimed |
+| 05 | OAuth 2.0 Flows | 193 | 3623 | 324 | 1562 | 0 | 3623 | 3623 | 0 |  | 🔴 Unclaimed |
+| 06 | OpenID Connect | 170 | 3144 | 280 | 1331 | 0 | 3144 | 3144 | 0 |  | 🔴 Unclaimed |
+| 07 | PingOne Flows | 137 | 2465 | 194 | 996 | 0 | 2465 | 2465 | 0 |  | 🔴 Unclaimed |
+| 08 | Tokens & Session | 110 | 1864 | 143 | 750 | 0 | 1864 | 1864 | 0 |  | 🔴 Unclaimed |
+| 09 | Developer & Tools | 58 | 1316 | 69 | 569 | 0 | 1316 | 1316 | 0 |  | 🔴 Unclaimed |
+| 10 | Education & Tutorials | 13 | 138 | 16 | 68 | 0 | 138 | 138 | 0 |  | 🔴 Unclaimed |
+| 11a | OAuth Mock Flows | 40 | 951 | 116 | 398 | 0 | 951 | 951 | 0 |  | 🔴 Unclaimed |
+| 11b | Advanced Mock Flows | 46 | 850 | 82 | 389 | 0 | 850 | 850 | 0 |  | 🔴 Unclaimed |
+| 11c | V7 Mock Server Flows | 30 | 333 | 62 | 124 | 0 | 333 | 333 | 0 |  | 🔴 Unclaimed |
+| 12 | AI - Ping | 15 | 208 | 3 | 102 | 0 | 208 | 208 | 0 |  | 🔴 Unclaimed |
 | 13 | AI Prompts & Development | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | ✅ Clean |
-| 14 | Documentation & Reference | 49 | 1362 | 48 | 539 | 0 | 1362 | 1362 | 0 |  | 🔴 Has errors |
-| 15 | Review - New Apps | 82 | 2234 | 114 | 919 | 0 | 2234 | 2234 | 0 |  | 🔴 Has errors |
+| 14 | Documentation & Reference | 49 | 1362 | 48 | 539 | 0 | 1362 | 1362 | 0 |  | 🔴 Unclaimed |
+| 15 | Review - New Apps | 82 | 2234 | 114 | 919 | 0 | 2234 | 2234 | 0 |  | 🔴 Unclaimed |
 
 ## ⚠️ Service Regression Checks
 
