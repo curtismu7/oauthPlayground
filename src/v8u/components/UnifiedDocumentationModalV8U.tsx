@@ -355,7 +355,15 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 	};
 
 	return (
-		<div
+		<button
+			type="button"
+			aria-label="Close documentation modal"
+			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -367,10 +375,21 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				alignItems: 'center',
 				justifyContent: 'center',
 				zIndex: 10000,
+				border: 'none',
+				padding: 0,
+				margin: 0,
+				cursor: 'pointer',
 			}}
-			onClick={onClose}
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -381,7 +400,6 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 					boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
 					width: '90%',
 				}}
-				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
 				<div
@@ -417,7 +435,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 
 				{/* Category Selection */}
 				<div style={{ marginBottom: '24px' }}>
-					<label
+					<div
 						style={{
 							display: 'block',
 							fontSize: '14px',
@@ -427,7 +445,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 						}}
 					>
 						Select Category
-					</label>
+					</div>
 					<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 						{[
 							{ value: 'all', label: 'All Use Cases' },
@@ -461,7 +479,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				{/* Use Case Selection */}
 				{selectedCategory === 'specific' && (
 					<div style={{ marginBottom: '24px' }}>
-						<label
+						<div
 							style={{
 								display: 'block',
 								fontSize: '14px',
@@ -471,7 +489,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							}}
 						>
 							Select Use Cases ({selectedUseCases.size} selected)
-						</label>
+						</div>
 						<div
 							style={{
 								maxHeight: '300px',
@@ -545,7 +563,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 
 				{/* Download Format Selection */}
 				<div style={{ marginBottom: '24px' }}>
-					<label
+					<div
 						style={{
 							display: 'block',
 							fontSize: '14px',
@@ -555,7 +573,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 						}}
 					>
 						Download Format
-					</label>
+					</div>
 					<div style={{ display: 'flex', gap: '12px' }}>
 						{[
 							{ value: 'md', label: 'Markdown (.md)', icon: FiFileText },
@@ -633,6 +651,6 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 					</button>
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 };
