@@ -1,10 +1,30 @@
 // src/services/copyButtonService.tsx
 // Standardized copy button service with black popup and green checkmark
 
-import { FiCheck, FiCopy } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheck': 'mdi-check',
+		'FiCopy': 'mdi-content-copy',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 export interface CopyButtonProps {
 	text: string;
@@ -169,7 +189,7 @@ const CopyButton = styled.button<{
 
 // Icon component that switches between copy and check
 const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
-	return copied ? <FiCheck /> : <FiCopy />;
+	return copied ? <MDIIcon icon="FiCheck" /> : <MDIIcon icon="FiCopy" />;
 };
 
 // Main copy button component

@@ -1,23 +1,40 @@
 // src/services/apiRequestModalService.tsx
 // Unified educational modal service for all API requests (OAuth, PingOne Management API, etc.)
 
-import {
-	FiCheck,
-	FiCode,
-	FiCopy,
-	FiDatabase,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiSend,
-	FiShield,
-	FiX,
-} from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheck': 'mdi-check',
+		'FiCode': 'mdi-code-tags',
+		'FiCopy': 'mdi-content-copy',
+		'FiDatabase': 'mdi-database',
+		'FiEye': 'mdi-eye',
+		'FiEyeOff': 'mdi-eye-off',
+		'FiInfo': 'mdi-information',
+		'FiKey': 'mdi-key',
+		'FiSend': 'mdi-send',
+		'FiShield': 'mdi-shield-check',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // ============================================================================
 // TYPES
@@ -428,19 +445,19 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 	const getIcon = () => {
 		switch (config.type) {
 			case 'oauth_token':
-				return <FiKey size={20} />;
+				return <MDIIcon icon="FiKey" size={20} />;
 			case 'oauth_authorize':
-				return <FiShield size={20} />;
+				return <MDIIcon icon="FiShield" size={20} />;
 			case 'data_api_get':
-				return <FiDatabase size={20} />;
+				return <MDIIcon icon="FiDatabase" size={20} />;
 			case 'data_api_post':
-				return <FiSend size={20} />;
+				return <MDIIcon icon="FiSend" size={20} />;
 			case 'data_api_put':
-				return <FiCode size={20} />;
+				return <MDIIcon icon="FiCode" size={20} />;
 			case 'data_api_delete':
-				return <FiX size={20} />;
+				return <MDIIcon icon="FiX" size={20} />;
 			default:
-				return <FiSend size={20} />;
+				return <MDIIcon icon="FiSend" size={20} />;
 		}
 	};
 
@@ -524,14 +541,14 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 						</HeaderText>
 					</HeaderContent>
 					<CloseButton onClick={handleCancel} title="Close">
-						<FiX size={20} />
+						<MDIIcon icon="FiX" size={20} />
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalContent>
 					<InfoBox>
 						<InfoIcon>
-							<FiInfo size={14} />
+							<MDIIcon icon="FiInfo" size={14} />
 						</InfoIcon>
 						<InfoText>
 							<strong>Educational Preview:</strong> {config.description}
@@ -540,7 +557,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 
 					<Section>
 						<SectionTitle>
-							<FiSend size={14} />
+							<MDIIcon icon="FiSend" size={14} />
 							HTTP Request Details
 						</SectionTitle>
 						<ParameterGrid>
@@ -565,7 +582,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 					{config.headers && Object.keys(config.headers).length > 0 && (
 						<Section>
 							<SectionTitle>
-								<FiShield size={14} />
+								<MDIIcon icon="FiShield" size={14} />
 								Request Headers
 							</SectionTitle>
 							<ParameterGrid>
@@ -582,7 +599,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 														onClick={() => setShowSecrets(!showSecrets)}
 														title={showSecrets ? 'Hide token' : 'Show token'}
 													>
-														{showSecrets ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+														{showSecrets ? <MDIIcon icon="FiEyeOff" size={14} /> : <MDIIcon icon="FiEye" size={14} />}
 													</ToggleSecretButton>
 												</>
 											) : (
@@ -598,7 +615,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 					{config.body && (
 						<Section>
 							<SectionTitle>
-								<FiCode size={14} />
+								<MDIIcon icon="FiCode" size={14} />
 								Request Body
 							</SectionTitle>
 							<CodeBlock>
@@ -612,7 +629,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 					{config.educationalNotes && config.educationalNotes.length > 0 && (
 						<Section>
 							<SectionTitle>
-								<FiInfo size={14} />
+								<MDIIcon icon="FiInfo" size={14} />
 								Learning Notes
 							</SectionTitle>
 							<EducationalNotesList>
@@ -625,12 +642,12 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 
 					<Section>
 						<SectionTitle>
-							<FiCode size={14} />
+							<MDIIcon icon="FiCode" size={14} />
 							cURL Command
 						</SectionTitle>
 						<CodeBlock>{generateCurlCommand()}</CodeBlock>
 						<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-							{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
+							{copiedCurl ? <MDIIcon icon="FiCheck" size={12} /> : <MDIIcon icon="FiCopy" size={12} />}
 							{copiedCurl ? 'Copied!' : 'Copy cURL'}
 						</CopyButton>
 					</Section>
@@ -641,7 +658,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 						Cancel
 					</ActionButton>
 					<ActionButton $variant="primary" onClick={handleProceed}>
-						<FiSend size={14} />
+						<MDIIcon icon="FiSend" size={14} />
 						Send Request
 					</ActionButton>
 				</ModalActions>

@@ -18,7 +18,7 @@ import styled from 'styled-components';
 import { logger } from '../../utils/logger';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
-import { useTheme } from '../contexts/ThemeContext';
+import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { User, UserRole, UserStatus, userService } from '../services/UserService';
 
 // ============================================================================
@@ -38,19 +38,19 @@ const PageHeader = styled.div`
 	gap: 1rem;
 `;
 
-const PageTitle = styled.h1<{ theme: any }>`
+const PageTitle = styled.h1<{ theme: BrandTheme }>`
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${({ theme }) => theme.colors.text};
 	margin: 0;
 `;
 
-const PageDescription = styled.p<{ theme: any }>`
+const PageDescription = styled.p<{ theme: BrandTheme }>`
 	color: ${({ theme }) => theme.colors.textSecondary};
 	margin: 0;
 `;
 
-const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{ theme: BrandTheme; variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: ${({ theme }) => theme.borderRadius.md};
 	font-weight: 600;
@@ -95,7 +95,7 @@ const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondar
 	}}
 `;
 
-const SearchSection = styled.div<{ theme: any }>`
+const SearchSection = styled.div<{ theme: BrandTheme }>`
 	background: ${({ theme }) => theme.colors.surface};
 	border: 1px solid ${({ theme }) => theme.colors.border};
 	border-radius: ${({ theme }) => theme.borderRadius.md};
@@ -111,7 +111,7 @@ const SearchField = styled.div`
 	min-width: 200px;
 `;
 
-const SearchLabel = styled.label<{ theme: any }>`
+const SearchLabel = styled.label<{ theme: BrandTheme }>`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -119,7 +119,7 @@ const SearchLabel = styled.label<{ theme: any }>`
 	margin-bottom: 0.5rem;
 `;
 
-const SearchSelect = styled.select<{ theme: any }>`
+const SearchSelect = styled.select<{ theme: BrandTheme }>`
 	width: 100%;
 	padding: 0.75rem;
 	background: ${({ theme }) => theme.colors.background};
@@ -134,14 +134,14 @@ const SearchSelect = styled.select<{ theme: any }>`
 	}
 `;
 
-const UserTable = styled.div<{ theme: any }>`
+const UserTable = styled.div<{ theme: BrandTheme }>`
 	background: ${({ theme }) => theme.colors.surface};
 	border: 1px solid ${({ theme }) => theme.colors.border};
 	border-radius: ${({ theme }) => theme.borderRadius.md};
 	overflow: hidden;
 `;
 
-const TableHeader = styled.div<{ theme: any }>`
+const TableHeader = styled.div<{ theme: BrandTheme }>`
 	background: ${({ theme }) => theme.colors.primaryLight};
 	padding: 1rem;
 	display: grid;
@@ -152,7 +152,7 @@ const TableHeader = styled.div<{ theme: any }>`
 	border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
-const TableRow = styled.div<{ theme: any }>`
+const TableRow = styled.div<{ theme: BrandTheme }>`
 	padding: 1rem;
 	display: grid;
 	grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
@@ -170,13 +170,13 @@ const TableRow = styled.div<{ theme: any }>`
 	}
 `;
 
-const UserCell = styled.div<{ theme: any }>`
+const UserCell = styled.div<{ theme: BrandTheme }>`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 `;
 
-const UserAvatar = styled.div<{ theme: any }>`
+const UserAvatar = styled.div<{ theme: BrandTheme }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
@@ -195,7 +195,7 @@ const UserInfo = styled.div`
 	min-width: 0;
 `;
 
-const UserName = styled.div<{ theme: any }>`
+const UserName = styled.div<{ theme: BrandTheme }>`
 	font-weight: 600;
 	color: ${({ theme }) => theme.colors.text};
 	white-space: nowrap;
@@ -203,7 +203,7 @@ const UserName = styled.div<{ theme: any }>`
 	text-overflow: ellipsis;
 `;
 
-const UserEmail = styled.div<{ theme: any }>`
+const UserEmail = styled.div<{ theme: BrandTheme }>`
 	font-size: 0.75rem;
 	color: ${({ theme }) => theme.colors.textSecondary};
 	white-space: nowrap;
@@ -211,7 +211,7 @@ const UserEmail = styled.div<{ theme: any }>`
 	text-overflow: ellipsis;
 `;
 
-const StatusBadge = styled.span<{ theme: any; status: string }>`
+const StatusBadge = styled.span<{ theme: BrandTheme; status: string }>`
 	padding: 0.25rem 0.75rem;
 	border-radius: ${({ theme }) => theme.borderRadius.pill};
 	font-size: 0.75rem;
@@ -254,7 +254,7 @@ const ActionButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
+const IconButton = styled.button<{ theme: BrandTheme; variant?: 'edit' | 'delete' }>`
 	padding: 0.5rem;
 	border-radius: ${({ theme }) => theme.borderRadius.sm};
 	border: none;
@@ -290,7 +290,7 @@ const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
 	}}
 `;
 
-const Modal = styled.div<{ theme: any }>`
+const Modal = styled.div<{ theme: BrandTheme }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -303,7 +303,7 @@ const Modal = styled.div<{ theme: any }>`
 	z-index: 1000;
 `;
 
-const ModalContent = styled.div<{ theme: any }>`
+const ModalContent = styled.div<{ theme: BrandTheme }>`
 	background: ${({ theme }) => theme.colors.surface};
 	border-radius: ${({ theme }) => theme.borderRadius.lg};
 	padding: 2rem;
@@ -313,21 +313,21 @@ const ModalContent = styled.div<{ theme: any }>`
 	overflow-y: auto;
 `;
 
-const ModalHeader = styled.div<{ theme: any }>`
+const ModalHeader = styled.div<{ theme: BrandTheme }>`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 1.5rem;
 `;
 
-const ModalTitle = styled.h2<{ theme: any }>`
+const ModalTitle = styled.h2<{ theme: BrandTheme }>`
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: ${({ theme }) => theme.colors.text};
 	margin: 0;
 `;
 
-const ModalClose = styled.button<{ theme: any }>`
+const ModalClose = styled.button<{ theme: BrandTheme }>`
 	background: transparent;
 	border: none;
 	cursor: pointer;
@@ -354,13 +354,13 @@ const FormField = styled.div`
 	gap: 0.5rem;
 `;
 
-const FormLabel = styled.label<{ theme: any }>`
+const FormLabel = styled.label<{ theme: BrandTheme }>`
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: ${({ theme }) => theme.colors.text};
 `;
 
-const FormInput = styled.input<{ theme: any }>`
+const FormInput = styled.input<{ theme: BrandTheme }>`
 	padding: 0.75rem;
 	background: ${({ theme }) => theme.colors.background};
 	border: 1px solid ${({ theme }) => theme.colors.border};
@@ -374,7 +374,7 @@ const FormInput = styled.input<{ theme: any }>`
 	}
 `;
 
-const FormSelect = styled.select<{ theme: any }>`
+const FormSelect = styled.select<{ theme: BrandTheme }>`
 	padding: 0.75rem;
 	background: ${({ theme }) => theme.colors.background};
 	border: 1px solid ${({ theme }) => theme.colors.border};
@@ -395,13 +395,13 @@ const FormActions = styled.div`
 	margin-top: 1rem;
 `;
 
-const EmptyState = styled.div<{ theme: any }>`
+const EmptyState = styled.div<{ theme: BrandTheme }>`
 	text-align: center;
 	padding: 3rem;
 	color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-const LoadingState = styled.div<{ theme: any }>`
+const LoadingState = styled.div<{ theme: BrandTheme }>`
 	text-align: center;
 	padding: 3rem;
 	color: ${({ theme }) => theme.colors.textSecondary};
@@ -423,13 +423,12 @@ interface UserFormData {
 	department: string;
 }
 
-type UserManagementPageProps = {};
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
-export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
+export const UserManagementPage: React.FC = () => {
 	const { currentTheme } = useTheme();
 	const [users, setUsers] = useState<User[]>([]);
 	const [roles, setRoles] = useState<UserRole[]>([]);

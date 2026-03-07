@@ -6,13 +6,34 @@
  * Used in callback pages and major error states.
  */
 
-import * as Icons from '@icons';
-import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { ErrorTemplate } from '../constants/errorMessages';
 import type { FlowType } from '../services/flowStepDefinitions';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiHome': 'mdi-home',
+		'FiRefreshCw': 'mdi-refresh',
+		'FiSettings': 'mdi-cog',
+		'FiXCircle': 'mdi-close-circle',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
 
@@ -216,7 +237,7 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 	const navigate = useNavigate();
 
 	// Get icon component
-	const IconComponent = (Icons as any)[errorTemplate.icon] || FiXCircle;
+	const IconComponent = () => <MDIIcon icon="FiXCircle" size={48} />;
 
 	// Default handlers
 	const handleStartOver = () => {
@@ -305,19 +326,19 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 
 					<ActionButtons>
 						<ActionButton $variant="primary" onClick={handleStartOver}>
-							<FiHome size={18} />
+							<MDIIcon icon="FiHome" size={18} />
 							Start Over
 						</ActionButton>
 
 						{onRetry && (
 							<ActionButton $variant="secondary" onClick={handleRetry}>
-								<FiRefreshCw size={18} />
+								<MDIIcon icon="FiRefreshCw" size={18} />
 								Try Again
 							</ActionButton>
 						)}
 
 						<ActionButton $variant="ghost" onClick={handleGoToConfig}>
-							<FiSettings size={18} />
+							<MDIIcon icon="FiSettings" size={18} />
 							Configuration
 						</ActionButton>
 					</ActionButtons>

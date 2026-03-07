@@ -1,20 +1,6 @@
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCopy,
-	FiDownload,
-	FiExternalLink,
-	FiGithub,
-	FiInfo,
-	FiKey,
-	FiPackage,
-	FiPlay,
-	FiSave,
-	FiSettings,
-	FiTerminal,
-} from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {
@@ -44,7 +30,7 @@ const styles = {
 		padding: '2rem',
 		boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 		marginBottom: '2rem',
-		border: '1px solid #e5e7eb',
+		border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 	} as React.CSSProperties,
 	stepCard: {
 		background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
@@ -558,7 +544,7 @@ const Configuration: React.FC = () => {
 				style={styles.copyButton}
 				onClick={() => copyToClipboard(children, label)}
 			>
-				<FiCopy />
+				<MDIIcon icon="FiCopy" />
 				{copiedText === label ? 'Copied!' : 'Copy'}
 			</button>
 			{children}
@@ -591,7 +577,7 @@ const Configuration: React.FC = () => {
 						gap: '0.75rem',
 					}}
 				>
-					<FiSettings />
+					<MDIIcon icon="FiSettings" />
 					Setup & Config
 				</h1>
 				<p
@@ -611,7 +597,7 @@ const Configuration: React.FC = () => {
 			<CollapsibleHeader
 				title="Worker Token Credentials"
 				subtitle="Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows"
-				icon={<FiKey />}
+				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={false}
 			>
 				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
@@ -621,7 +607,7 @@ const Configuration: React.FC = () => {
 			<CollapsibleHeader
 				title="PingOne Redirect & Logout URIs"
 				subtitle="Authoritative URIs to register in PingOne for each Playground flow"
-				icon={<FiInfo />}
+				icon={<MDIIcon icon="FiInfo" />}
 				defaultCollapsed={false}
 				theme="orange"
 				id="redirect-uri-catalog"
@@ -787,7 +773,7 @@ const Configuration: React.FC = () => {
 			<CollapsibleHeader
 				title="Application Information"
 				subtitle="Current version and system requirements for the OAuth Playground"
-				icon={<FiPackage />}
+				icon={<MDIIcon icon="FiPackage" />}
 				defaultCollapsed={false}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
@@ -842,27 +828,27 @@ const Configuration: React.FC = () => {
 
 					<FeatureGrid>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Interactive OAuth Flows</span>
 						</FeatureItem>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Real PingOne Integration</span>
 						</FeatureItem>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Token Management</span>
 						</FeatureItem>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Educational Content</span>
 						</FeatureItem>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Flow Comparison Tools</span>
 						</FeatureItem>
 						<FeatureItem>
-							<FiCheckCircle className="feature-icon" />
+							<MDIIcon icon="FiCheckCircle" className="feature-icon" />
 							<span className="feature-text">Interactive Diagrams</span>
 						</FeatureItem>
 					</FeatureGrid>
@@ -872,7 +858,7 @@ const Configuration: React.FC = () => {
 			<CollapsibleHeader
 				title="Quick Start Setup"
 				subtitle="Get the OAuth Playground running in minutes with these simple steps"
-				icon={<FiTerminal />}
+				icon={<MDIIcon icon="FiTerminal" />}
 				defaultCollapsed={false}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
@@ -911,7 +897,7 @@ cd oauthPlayground`}
 							<h3>Configure PingOne Credentials</h3>
 						</StepHeader>
 						<InfoBox $type="info">
-							<FiCheckCircle size={16} />
+							<MDIIcon icon="FiCheckCircle" size={16} />
 							<div>
 								<strong>Credentials are configured in individual OAuth flows!</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -935,7 +921,7 @@ cd oauthPlayground`}
 
 						{pingOneConfigSaved && (
 							<InfoBox $type="success">
-								<FiCheckCircle size={16} />
+								<MDIIcon icon="FiCheckCircle" size={16} />
 								<strong>PAR Configuration saved!</strong> Your PingOne PAR settings are now
 								configured.
 							</InfoBox>
@@ -982,7 +968,7 @@ cd oauthPlayground`}
 									e.currentTarget.style.borderColor = '#ffffff';
 								}}
 							>
-								<FiSave size={16} />
+								<MDIIcon icon="FiSave" size={16} />
 								Save PAR Configuration
 							</button>
 						</div>
@@ -1009,7 +995,7 @@ cd oauthPlayground`}
 			<CollapsibleHeader
 				title="Alternative Startup Options"
 				subtitle="Different ways to start the application depending on your needs"
-				icon={<FiPlay />}
+				icon={<MDIIcon icon="FiPlay" />}
 				defaultCollapsed={true}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
@@ -1130,7 +1116,7 @@ cd oauthPlayground`}
 			<CollapsibleHeader
 				title="Troubleshooting"
 				subtitle="Common issues and their solutions"
-				icon={<FiAlertCircle />}
+				icon={<MDIIcon icon="FiAlertCircle" />}
 				defaultCollapsed={true}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
@@ -1165,7 +1151,7 @@ cd oauthPlayground`}
 			<CollapsibleHeader
 				title="Additional Resources"
 				subtitle="Explore more resources to get the most out of the OAuth Playground"
-				icon={<FiExternalLink />}
+				icon={<MDIIcon icon="FiExternalLink" />}
 				defaultCollapsed={true}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
@@ -1197,7 +1183,7 @@ cd oauthPlayground`}
 								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 						>
-							<FiGithub />
+							<MDIIcon icon="FiGithub" />
 							View on GitHub
 						</a>
 
@@ -1228,7 +1214,7 @@ cd oauthPlayground`}
 								e.currentTarget.style.borderColor = '#3b82f6';
 							}}
 						>
-							<FiExternalLink />
+							<MDIIcon icon="FiExternalLink" />
 							PingOne API Docs
 						</a>
 
@@ -1259,7 +1245,7 @@ cd oauthPlayground`}
 								e.currentTarget.style.borderColor = '#3b82f6';
 							}}
 						>
-							<FiDownload />
+							<MDIIcon icon="FiDownload" />
 							PingOne SDKs
 						</a>
 					</div>

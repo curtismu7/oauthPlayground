@@ -1,11 +1,34 @@
 // src/services/pkceGenerationService.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 import { UISettingsService } from './uiSettingsService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertCircle': 'mdi-alert-circle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiCopy': 'mdi-content-copy',
+		'FiKey': 'mdi-key',
+		'FiRefreshCw': 'mdi-refresh',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Styled components
 const PKCESection = styled.div`
@@ -173,7 +196,7 @@ const CopyButton = styled.button`
 	}
 `;
 
-const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
+const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' | 'idle' | 'generating' }>`
 	background: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
@@ -215,22 +238,18 @@ const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 
 // PKCE Generation Component
 export interface PKCEGenerationProps {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	controller: any;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	credentials: any;
-	flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless';
 	onPKCEGenerated?: () => void;
 }
 
 export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 	controller,
 	credentials,
-	flowType,
 	onPKCEGenerated,
 }) => {
-	const [isGenerating, _setIsGenerating] = useState(false);
-	const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [status, setStatus] = useState<'idle' | 'generating' | 'success' | 'error'>('idle');
 	const [statusMessage, setStatusMessage] = useState('');
 
 	// Check if auto-generation is enabled
@@ -272,6 +291,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		}
 
 		logger.debug('PKCEGenerationService', '[PKCEGenerationService] Starting PKCE generation...');
+		setIsGenerating(true);
 		setStatus('generating');
 		setStatusMessage('Generating PKCE codes...');
 		modernMessaging.showFooterMessage({
@@ -291,6 +311,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				'[PKCEGenerationService] PKCE generation completed successfully'
 			);
 
+			setIsGenerating(false);
 			setStatus('success');
 			setStatusMessage('PKCE codes generated successfully!');
 			modernMessaging.showFooterMessage({
@@ -304,8 +325,9 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				'PKCEGenerationService',
 				'[PKCEGenerationService] PKCE generation failed:',
 				undefined,
-				error
+				error as Error
 			);
+			setIsGenerating(false);
 			setStatus('error');
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setStatusMessage(`Failed to generate PKCE codes: ${errorMessage}`);
@@ -335,8 +357,6 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		}
 	}, [isAutoGenerateEnabled, controller?.pkceCodes?.codeVerifier, handleGeneratePKCE]);
 
-	const _hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge);
-
 	const handleCopyToClipboard = async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
@@ -346,7 +366,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error('PKCEGenerationService', 'Failed to copy to clipboard:', undefined, error);
+			logger.error('PKCEGenerationService', 'Failed to copy to clipboard:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -358,10 +378,10 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 
 	// Determine status icon
 	const getStatusIcon = () => {
-		if (isGenerating) return <FiRefreshCw size={16} className="animate-spin" />;
-		if (status === 'success') return <FiCheckCircle size={16} />;
-		if (status === 'error') return <FiAlertCircle size={16} />;
-		return <FiKey size={16} />;
+		if (isGenerating) return <MDIIcon icon="FiRefreshCw" size={16} className="animate-spin" />;
+		if (status === 'success') return <MDIIcon icon="FiCheckCircle" size={16} />;
+		if (status === 'error') return <MDIIcon icon="FiAlertCircle" size={16} />;
+		return <MDIIcon icon="FiKey" size={16} />;
 	};
 
 	// Determine if PKCE codes are available
@@ -386,12 +406,12 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				>
 					{isGenerating ? (
 						<>
-							<FiRefreshCw size={14} className="animate-spin" />
+							<MDIIcon icon="FiRefreshCw" size={14} className="animate-spin" />
 							Generating...
 						</>
 					) : (
 						<>
-							<FiKey size={14} />
+							<MDIIcon icon="FiKey" size={14} />
 							{hasPKCECodes ? 'Regenerate' : 'Generate PKCE'}
 						</>
 					)}
@@ -402,7 +422,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				<PKCEDisplay>
 					<PKCEItem>
 						<PKCELabel>
-							<FiKey size={12} />
+							<MDIIcon icon="FiKey" size={12} />
 							Code Verifier
 						</PKCELabel>
 						<PKCEValue>
@@ -413,14 +433,14 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 								}
 								title="Copy Code Verifier"
 							>
-								<FiCopy size={12} />
+								<MDIIcon icon="FiCopy" size={12} />
 							</CopyButton>
 						</PKCEValue>
 					</PKCEItem>
 
 					<PKCEItem>
 						<PKCELabel>
-							<FiKey size={12} />
+							<MDIIcon icon="FiKey" size={12} />
 							Code Challenge
 						</PKCELabel>
 						<PKCEValue>
@@ -431,7 +451,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 								}
 								title="Copy Code Challenge"
 							>
-								<FiCopy size={12} />
+								<MDIIcon icon="FiCopy" size={12} />
 							</CopyButton>
 						</PKCEValue>
 					</PKCEItem>
@@ -440,9 +460,9 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 
 			{statusMessage && (
 				<StatusMessage $type={status}>
-					{status === 'success' && <FiCheckCircle size={16} />}
-					{status === 'error' && <FiAlertCircle size={16} />}
-					{status === 'idle' && <FiKey size={16} />}
+					{status === 'success' && <MDIIcon icon="FiCheckCircle" size={16} />}
+					{status === 'error' && <MDIIcon icon="FiAlertCircle" size={16} />}
+					{status === 'idle' && <MDIIcon icon="FiKey" size={16} />}
 					{statusMessage}
 				</StatusMessage>
 			)}
@@ -462,12 +482,11 @@ export class PKCEGenerationService {
 	/**
 	 * Generate PKCE codes programmatically
 	 */
-	static async generatePKCE(
+	static async generatePKCECodes(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		controller: any,
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		credentials: any,
-		_flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless'
+		credentials: any
 	): Promise<boolean> {
 		try {
 			if (!credentials.clientId || !credentials.environmentId) {
@@ -485,7 +504,7 @@ export class PKCEGenerationService {
 				'PKCEGenerationService',
 				'[PKCEGenerationService] Generation failed:',
 				undefined,
-				error
+				error as Error
 			);
 			return false;
 		}

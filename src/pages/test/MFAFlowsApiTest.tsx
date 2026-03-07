@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
-import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
 // Test Configuration for MFA flows
@@ -961,9 +961,12 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
+				<WorkerTokenModalV9
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
+					onTokenGenerated={(token) => {
+						console.log('Worker token generated for MFA test:', token);
+					}}
 				/>
 			)}
 		</Container>
