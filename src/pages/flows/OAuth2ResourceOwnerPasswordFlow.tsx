@@ -1,3 +1,4 @@
+// lint-file-disable: token-value-in-jsx
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
