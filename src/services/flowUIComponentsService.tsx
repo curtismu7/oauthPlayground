@@ -1,10 +1,31 @@
 // src/services/flowUIComponentsService.tsx
 // Service for centralized common UI components used across all flows
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 export interface FlowUIComponentsConfig {
 	theme?: 'blue' | 'green' | 'purple' | 'gray';
@@ -288,13 +309,13 @@ export const InfoBoxComponent: React.FC<InfoBoxProps> = ({
 		if (icon) return icon;
 		switch (variant) {
 			case 'warning':
-				return <FiAlertTriangle size={20} />;
+				return <MDIIcon icon="FiAlertTriangle" size={20} />;
 			case 'success':
-				return <FiCheckCircle size={20} />;
+				return <MDIIcon icon="FiCheckCircle" size={20} />;
 			case 'error':
-				return <FiAlertTriangle size={20} />;
+				return <MDIIcon icon="FiAlertTriangle" size={20} />;
 			default:
-				return <FiInfo size={20} />;
+				return <MDIIcon icon="FiInfo" size={20} />;
 		}
 	};
 

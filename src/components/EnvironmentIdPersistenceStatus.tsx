@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
+import { logger } from '../utils/logger';
 
 const StatusContent = styled.div`
   color: #075985;
@@ -35,23 +36,12 @@ const ActionButton = styled.button`
   }
 `;
 
-const _CopyButton = styled.button`
-  background: #10b981;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-left: 0.5rem;
-
-  &:hover {
-    background: #059669;
-  }
-`;
+interface EnvironmentStatus {
+	hasStoredId: boolean;
+	hasEnvVar: boolean;
+	lastUpdated: string | null;
+	source: string | null;
+}
 
 interface EnvironmentIdPersistenceStatusProps {
 	environmentId: string;
@@ -59,24 +49,23 @@ interface EnvironmentIdPersistenceStatusProps {
 }
 
 export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceStatusProps> = ({
-	environmentId,
 	onRefresh,
 }) => {
-	const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+	const [status, setStatus] = useState<EnvironmentStatus | null>(null);
 	const [showEnvContent, setShowEnvContent] = useState(false);
 
 	useEffect(() => {
 		const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
-		console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
+		logger.debug('EnvironmentIdPersistenceStatus', 'Updated status', persistenceStatus);
 		setStatus(persistenceStatus);
 	}, []);
 
 	const handleCopyEnvContent = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
+		logger.debug('EnvironmentIdPersistenceStatus', 'Copy .env content clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContent();
-		console.log('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
+		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content', { contentLength: envContent.length });
 		navigator.clipboard.writeText(envContent).then(() => {
-			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard');
+			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard');
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Environment content copied to clipboard!',
@@ -86,11 +75,11 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleUpdateEnv = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Update .env clicked');
+		logger.debug('EnvironmentIdPersistenceStatus', 'Update .env clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
-		console.log('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
+		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content with newline', { contentLength: envContent.length });
 		navigator.clipboard.writeText(envContent).then(() => {
-			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
+			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard with newline');
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Environment content copied! Paste into your .env file on a new line.',
@@ -100,9 +89,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleClearPersistence = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
+		logger.debug('EnvironmentIdPersistenceStatus', 'Clear persistence clicked');
 		environmentIdPersistenceService.clearEnvironmentId();
-		console.log('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
+		logger.info('EnvironmentIdPersistenceStatus', 'Cleared from localStorage');
 		if (onRefresh) onRefresh();
 	};
 

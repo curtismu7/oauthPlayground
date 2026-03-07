@@ -4,7 +4,7 @@
 import { useCallback, useEffect } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials } from '../types/flowTypes';
-import { saveFlowCredentials } from '../../../../services/flowCredentialService';
+import { saveFlowCredentialsIsolated } from '../../../../services/flowCredentialService';
 import { logger } from '../../../../utils/logger';
 
 interface UseCredentialPersistenceProps {
@@ -69,10 +69,12 @@ export const useCredentialPersistence = ({
 			};
 
 			// Save to V7 FlowCredentialService (isolated storage)
-			await saveFlowCredentials(
+			await saveFlowCredentialsIsolated(
 				FLOW_CONSTANTS.FLOW_KEY,
 				updatedCredentials,
-				{ useSharedFallback: false } // Important: Don't share with other flows
+				undefined, // flowConfig
+				undefined, // additionalState
+				{ showToast: false, useSharedFallback: false } // Important: Don't share with other flows
 			);
 
 			// Also save to NewAuthContext compatible storage

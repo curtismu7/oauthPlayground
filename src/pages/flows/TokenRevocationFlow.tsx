@@ -4,7 +4,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
@@ -916,9 +916,13 @@ cleanupAfterRevocation(revocationResult);`,
 					{activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
 				</Button>
 			</FormContainer>
-			<WorkerTokenModalV8
+			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
+				onTokenGenerated={(token) => {
+					// Handle token generation if needed
+					console.log('Worker token generated:', token);
+				}}
 			/>
 		</FlowContainer>
 	);

@@ -1,6 +1,26 @@
-import { FiAlertTriangle, FiX } from '@icons';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 interface ModalActionDescriptor {
 	label: string;
@@ -329,7 +349,7 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 									color: 'white',
 								}}
 							>
-								<FiAlertTriangle size={20} />
+								<MDIIcon icon="FiAlertTriangle" size={20} />
 							</WarningIcon>
 							<HeaderTitleText id="modal-title">{title}</HeaderTitleText>
 						</HeaderTitle>
@@ -345,7 +365,7 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<MDIIcon icon="FiX" size={18} />
 							</CloseButton>
 						)}
 					</ModalHeader>
@@ -353,7 +373,7 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 
 				{!draggable && showCloseButton && (
 					<CloseButton onClick={onClose} title="Close modal">
-						<FiX size={16} />
+						<MDIIcon icon="FiX" size={16} />
 					</CloseButton>
 				)}
 
@@ -361,7 +381,7 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 					{!draggable && (
 						<>
 							<WarningIcon>
-								<FiAlertTriangle size={28} />
+								<MDIIcon icon="FiAlertTriangle" size={28} />
 							</WarningIcon>
 							<Title id="modal-title">{title}</Title>
 						</>

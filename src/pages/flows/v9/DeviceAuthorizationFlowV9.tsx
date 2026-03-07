@@ -3454,20 +3454,21 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	);
 
 	return (
-		<FlowContainer>
-			<FlowContent>
-				<StandardFlowHeader flowId="device-authorization-v9" />
-				
-				{/* Educational URI Guide Button */}
-				<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-					<RedirectUriEducationButton 
-						flowKey="DeviceAuthorizationFlowV9"
-						variant="outline"
-						size="sm"
-					>
-						📚 URI Guide
-					</RedirectUriEducationButton>
-				</div>
+		<>
+			<FlowContainer>
+				<FlowContent>
+					<StandardFlowHeader flowId="device-authorization-v9" />
+					
+					{/* Educational URI Guide Button */}
+					<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+						<RedirectUriEducationButton 
+							flowKey="DeviceAuthorizationFlowV9"
+							variant="outline"
+							size="sm"
+						>
+							📚 URI Guide
+						</RedirectUriEducationButton>
+					</div>
 
 				<EnhancedFlowInfoCard
 					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
@@ -3607,12 +3608,14 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				</ModalContent>
 			</ModalOverlay>
 		</FlowContainer>
+		
 		{/* Redirect URI Educational Modal */}
 		<RedirectUriEducationalModal
 			flowKey="DeviceAuthorizationFlowV9"
 			isOpen={redirectUriEducation.showEducationalModal}
 			onClose={redirectUriEducation.closeEducationalModal}
 		/>
+		</>
 	);
 };
 

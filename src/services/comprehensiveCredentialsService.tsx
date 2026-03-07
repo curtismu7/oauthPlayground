@@ -10,7 +10,6 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-import { FiCheckCircle, FiKey, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -18,12 +17,34 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiKey': 'mdi-key',
+		'FiSettings': 'mdi-cog',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import { CredentialsInput } from '../components/CredentialsInput';
 import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
@@ -1466,20 +1487,18 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	return (
 		<>
 			{/* Worker Token Modal - moved above main content */}
-			<WorkerTokenModal
+			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
 					setShowWorkerTokenModal(false);
 					// Re-check worker token when modal closes
 					checkWorkerToken();
 				}}
-				onContinue={() => {
+				onTokenGenerated={(token) => {
 					// Re-check worker token immediately after generation
 					checkWorkerToken();
 					setShowWorkerTokenModal(false);
 				}}
-				flowType={flowType || 'flow'}
-				environmentId={resolvedCredentials.environmentId || ''}
 			/>
 
 			<ServiceContainer>
@@ -1489,7 +1508,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						title="PingOne Application Picker"
 						subtitle="Auto-fill configuration from your PingOne environment"
 						defaultCollapsed={true}
-						icon={<FiSettings />}
+						icon={<MDIIcon icon="FiSettings" />}
 						theme="orange"
 					>
 						{!effectiveWorkerToken && (
@@ -1543,7 +1562,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									gap: '0.75rem',
 								}}
 							>
-								<FiCheckCircle style={{ color: '#28a745', fontSize: '1.25rem', flexShrink: 0 }} />
+								<MDIIcon icon="FiCheckCircle" style={{ color: '#28a745', fontSize: '1.25rem', flexShrink: 0 }} />
 								<p style={{ margin: '0', fontSize: '0.9rem', color: '#155724', fontWeight: '500' }}>
 									Worker token obtained! Select an application below to auto-fill credentials.
 								</p>
@@ -1570,7 +1589,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				<CollapsibleHeader
 					title={title}
 					subtitle={subtitle}
-					icon={<FiSettings />}
+					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={defaultCollapsed}
 					theme="orange"
 				>
@@ -1621,7 +1640,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				<CollapsibleHeader
 					title="Advanced Configuration"
 					subtitle="Advanced OIDC and OAuth configuration options"
-					icon={<FiSettings />}
+					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={true}
 					theme="orange"
 				>
@@ -1817,7 +1836,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					<CollapsibleHeader
 						title="ℹ️ Why No Redirect/Logout URIs?"
 						subtitle="Machine-to-Machine & Backchannel Flows"
-						icon={<FiKey />}
+						icon={<MDIIcon icon="FiKey" />}
 						defaultCollapsed={true}
 						variant="compact"
 					>
@@ -2175,7 +2194,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								fontSize: '0.875rem',
 							}}
 						>
-							<FiKey />
+							<MDIIcon icon="FiKey" />
 							Generate Worker Token
 						</ButtonSpinner>
 					</div>
@@ -2649,7 +2668,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					<CollapsibleHeader
 						title="JSON Web Key Set (JWKS) Configuration"
 						subtitle="Configure JWKS endpoint or provide a private key for JWT-based client authentication"
-						icon={<FiKey />}
+						icon={<MDIIcon icon="FiKey" />}
 						defaultCollapsed={false}
 					>
 						<JwksKeySourceSelector

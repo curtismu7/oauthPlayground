@@ -13,16 +13,33 @@
  */
 
 import React from 'react';
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiInfo,
-	FiLoader,
-	FiPhone,
-	FiX,
-} from 'react-icons/fi';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertCircle': 'mdi-alert-circle',
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+		'FiLoader': 'mdi-loading',
+		'FiPhone': 'mdi-phone',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import {
 	type BannerConfig,
 	type CriticalErrorConfig,
@@ -356,7 +373,7 @@ export const WaitScreen: React.FC<{ config: WaitScreenConfig }> = ({ config }) =
 		<WaitScreenOverlay>
 			<WaitScreenContent>
 				<WaitScreenIcon>
-					<FiLoader size={48} className="animate-spin" color={V9_COLORS.PRIMARY_BLUE} />
+					<MDIIcon icon="FiLoader" size={48} className="animate-spin" style={{ color: V9_COLORS.PRIMARY_BLUE }} />
 				</WaitScreenIcon>
 				<WaitScreenTitle>{config.message}</WaitScreenTitle>
 				{config.detail && <WaitScreenMessage>{config.detail}</WaitScreenMessage>}
@@ -372,13 +389,13 @@ export const Banner: React.FC<{ config: BannerConfig }> = ({ config }) => {
 	const getIcon = () => {
 		switch (config.type) {
 			case 'error':
-				return <FiAlertCircle size={16} />;
+				return <MDIIcon icon="FiAlertCircle" size={16} />;
 			case 'warning':
-				return <FiAlertTriangle size={16} />;
+				return <MDIIcon icon="FiAlertTriangle" size={16} />;
 			case 'success':
-				return <FiCheckCircle size={16} />;
+				return <MDIIcon icon="FiCheckCircle" size={16} />;
 			default:
-				return <FiInfo size={16} />;
+				return <MDIIcon icon="FiInfo" size={16} />;
 		}
 	};
 
@@ -390,7 +407,7 @@ export const Banner: React.FC<{ config: BannerConfig }> = ({ config }) => {
 					{config.title}
 				</BannerTitle>
 				{config.dismissible && (
-					<FiX size={16} style={{ cursor: 'pointer' }} onClick={config.onDismiss} />
+					<MDIIcon icon="FiX" size={16} style={{ cursor: 'pointer' }} onClick={config.onDismiss} />
 				)}
 			</BannerHeader>
 			<BannerMessage>{config.message}</BannerMessage>
@@ -411,7 +428,7 @@ export const CriticalError: React.FC<{ config: CriticalErrorConfig }> = ({ confi
 	return (
 		<CriticalErrorContainer>
 			<CriticalErrorHeader>
-				<FiAlertCircle size={32} color={V9_COLORS.RED} />
+				<MDIIcon icon="FiAlertCircle" size={32} style={{ color: V9_COLORS.RED }} />
 				<CriticalErrorTitle>{config.title}</CriticalErrorTitle>
 			</CriticalErrorHeader>
 			<CriticalErrorMessage>{config.message}</CriticalErrorMessage>
@@ -445,7 +462,7 @@ export const CriticalError: React.FC<{ config: CriticalErrorConfig }> = ({ confi
 
 			{config.contactSupport && (
 				<SupportSection>
-					<FiPhone size={16} />
+					<MDIIcon icon="FiPhone" size={16} />
 					<span>If this problem persists, contact support for assistance.</span>
 				</SupportSection>
 			)}
@@ -457,11 +474,11 @@ export const FooterMessage: React.FC<{ config: FooterMessageConfig }> = ({ confi
 	const getIcon = () => {
 		switch (config.type) {
 			case 'progress':
-				return <FiLoader size={14} className="animate-spin" />;
+				return <MDIIcon icon="FiLoader" size={14} className="animate-spin" />;
 			case 'status':
-				return <FiCheckCircle size={14} />;
+				return <MDIIcon icon="FiCheckCircle" size={14} />;
 			default:
-				return <FiInfo size={14} />;
+				return <MDIIcon icon="FiInfo" size={14} />;
 		}
 	};
 
