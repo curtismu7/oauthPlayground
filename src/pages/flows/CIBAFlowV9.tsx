@@ -47,6 +47,17 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -1045,7 +1056,7 @@ const CIBAFlowV9: React.FC = () => {
 					<TokenDisplay>
 						<TokenTitle>Access Token</TokenTitle>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-							<TokenContent>{cibaFlow.tokens.access_token}</TokenContent>
+							<TokenContent>{maskToken(cibaFlow.tokens.access_token)}</TokenContent>
 							<CopyButton onClick={() => copyToken(cibaFlow.tokens.access_token)}>
 								{copiedToken ? 'Copied!' : <FiCopy />}
 							</CopyButton>
@@ -1058,7 +1069,7 @@ const CIBAFlowV9: React.FC = () => {
 							<div
 								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
 							>
-								<TokenContent>{cibaFlow.tokens.refresh_token}</TokenContent>
+								<TokenContent>{maskToken(cibaFlow.tokens.refresh_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.refresh_token)}>
 									<FiCopy />
 								</CopyButton>
@@ -1072,7 +1083,7 @@ const CIBAFlowV9: React.FC = () => {
 							<div
 								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
 							>
-								<TokenContent>{cibaFlow.tokens.id_token}</TokenContent>
+								<TokenContent>{maskToken(cibaFlow.tokens.id_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.id_token)}>
 									<FiCopy />
 								</CopyButton>

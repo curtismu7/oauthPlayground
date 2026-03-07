@@ -1,8 +1,8 @@
 {
   "group_id": "oauth-flows",
   "label": "OAuth 2.0 Flows",
-  "scanned_at": "2026-03-07T14:07:23.288249+00:00",
-  "scanned_by": null,
+  "scanned_at": "2026-03-07T15:45:00.000000+00:00",
+  "scanned_by": "cascade",
   "files_scanned": [
     "src/components/AIAgentDeviceFlow.tsx",
     "src/components/AirportKioskDeviceFlow.tsx",

@@ -355,8 +355,8 @@ export const useARIALabel = (label: string, description?: string) => {
 
 // Hook for keyboard navigation
 export const useKeyboardNavigation = (
-	items: any[],
-	onSelect: (item: any, index: number) => void
+	items: unknown[],
+	onSelect: (item: unknown, index: number) => void
 ) => {
 	const [selectedIndex, setSelectedIndex] = useState(-1);
 	const [isOpen, setIsOpen] = useState(false);
