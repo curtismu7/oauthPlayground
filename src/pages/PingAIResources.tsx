@@ -127,21 +127,6 @@ const {
 const PingAIResources: React.FC = () => {
 	usePageScroll({ pageName: 'Ping AI Resources', force: true });
 
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'purple' as const,
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'ping-ai-resources',
-	};
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
-
 	return (
 		<PageContainer>
 			<ContentWrapper>
