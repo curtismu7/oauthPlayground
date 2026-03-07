@@ -22,7 +22,7 @@ export class ComprehensiveFlowDataServiceTest {
 		testName: string;
 		passed: boolean;
 		error?: string;
-		details?: any;
+		details?: unknown;
 	}> = [];
 
 	/**
@@ -407,7 +407,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 
 			// Test with null flow key
 			const nullKeyResult = comprehensiveFlowDataService.saveFlowCredentialsIsolated(
-				null as any,
+				null as unknown,
 				credentials
 			);
 			if (nullKeyResult) {
@@ -524,7 +524,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	/**
 	 * Run a single test
 	 */
-	private async runTest(testName: string, testFn: () => Promise<any>): Promise<void> {
+	private async runTest(testName: string, testFn: () => Promise<unknown>): Promise<void> {
 		try {
 			console.log(`🧪 Running: ${testName}`);
 			const result = await testFn();
@@ -581,6 +581,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 		console.groupEnd();
 
 		// Return results for programmatic access
+		// biome-ignore lint/correctness/noVoidTypeReturn: returns data for programmatic callers despite void signature
 		return {
 			total,
 			passed,
@@ -596,7 +597,8 @@ export const comprehensiveFlowDataServiceTest = new ComprehensiveFlowDataService
 
 // Make it available globally for testing
 if (typeof window !== 'undefined') {
-	(window as any).ComprehensiveFlowDataServiceTest = comprehensiveFlowDataServiceTest;
+	(window as Record<string, unknown>).ComprehensiveFlowDataServiceTest =
+		comprehensiveFlowDataServiceTest;
 }
 
 export default comprehensiveFlowDataServiceTest;
