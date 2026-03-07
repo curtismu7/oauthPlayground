@@ -1035,8 +1035,7 @@ export const comprehensiveFlowDataService = new ComprehensiveFlowDataService();
 
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
-	// biome-ignore lint/suspicious/noExplicitAny: window global for debug access
-	(window as any).ComprehensiveFlowDataService = comprehensiveFlowDataService;
+	(window as Record<string, unknown>).ComprehensiveFlowDataService = comprehensiveFlowDataService;
 }
 
 export default comprehensiveFlowDataService;
