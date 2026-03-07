@@ -329,7 +329,11 @@ export const useV9CredentialValidation = ({
 
 			// Validation successful
 			if (config.showToastOnSuccess) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `${config.flowName} credentials validated successfully`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `${config.flowName} credentials validated successfully`,
+					duration: 4000,
+				});
 			}
 			onValidationSuccess?.();
 			onProceed();

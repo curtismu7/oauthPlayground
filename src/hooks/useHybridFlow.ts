@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // logging handled via logger utility
 
@@ -235,7 +235,11 @@ export const useHybridFlow = (): HybridFlowState => {
 					...tokenData,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code exchanged successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Authorization code exchanged successfully!',
+					duration: 4000,
+				});
 			} catch (err: any) {
 				const errorMsg = err.message || 'Failed to exchange authorization code';
 				logger.error(
@@ -245,7 +249,12 @@ export const useHybridFlow = (): HybridFlowState => {
 					err instanceof Error ? err : undefined
 				);
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				throw err;
 			} finally {
 				setIsExchangingCode(false);

@@ -675,7 +675,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									<li>✅ RFC 8693 token exchange implemented</li>
 								</ul>
 							</div>
-							
+
 							{/* Validation Insights */}
 							<div
 								style={{
@@ -685,9 +685,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									marginBottom: '1rem',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-									Validation Insights:
-								</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Validation Insights:</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
 									<p>
 										<strong>Security Status:</strong> ✅ Token exchange completed securely
@@ -703,7 +701,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									</p>
 								</div>
 							</div>
-							
+
 							<div
 								style={{
 									background: 'white',

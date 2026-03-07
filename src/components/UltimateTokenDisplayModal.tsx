@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -13,7 +14,6 @@ import {
 	FiZap,
 } from '../services/commonImportsService';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 
 interface TokenSet {
@@ -386,13 +386,22 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
-			modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} copied to clipboard`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${getTokenLabel(tokenType)} copied to clipboard`,
+				duration: 4000,
+			});
 
 			setTimeout(() => {
 				setCopiedStates((prev) => ({ ...prev, [tokenType]: false }));
 			}, 2000);
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy token',
+				dismissible: true,
+			});
 		}
 	};
 

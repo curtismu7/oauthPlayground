@@ -15,6 +15,7 @@ import {
 } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import {
 	analyzeSecurityConfiguration,
@@ -26,7 +27,6 @@ import {
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 import type { PingOneApplicationState } from './PingOneApplicationConfig';
 
@@ -721,7 +721,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 				terminateSessionService();
 				onTerminateSession?.();
 				setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Session terminated successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Session terminated successfully',
+					duration: 4000,
+				});
 			},
 		});
 	}, [onTerminateSession]);
@@ -734,7 +738,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			onConfirm: () => {
 				onRevokeTokens?.();
 				setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens revoked successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Tokens revoked successfully',
+					duration: 4000,
+				});
 			},
 		});
 	}, [onRevokeTokens]);
@@ -849,7 +857,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 										const logoutUrl =
 											calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
 										navigator.clipboard.writeText(logoutUrl);
-										modernMessaging.showFooterMessage({ type: 'status', message: '📋 Logout URL copied to clipboard!', duration: 4000 });
+										modernMessaging.showFooterMessage({
+											type: 'status',
+											message: '📋 Logout URL copied to clipboard!',
+											duration: 4000,
+										});
 									}}
 								>
 									<FiDownload /> Copy URL

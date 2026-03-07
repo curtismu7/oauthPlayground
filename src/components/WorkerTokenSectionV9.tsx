@@ -8,7 +8,7 @@
  * Migration notes:
  * - WorkerTokenModalV8 → WorkerTokenModalV9Styled
  * - WorkerTokenStatusServiceV8 → V9checkWorkerTokenStatus
- * - toastV8 → modernMessaging.showFooterMessage
+ * - toastV8 → modernMessaging (migration complete)
  * - Inline styles → styled-components with V9 blue palette
  * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
  */

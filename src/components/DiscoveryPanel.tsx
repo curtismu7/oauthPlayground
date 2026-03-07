@@ -13,11 +13,11 @@ import {
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
@@ -422,7 +422,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const handleDiscover = async () => {
 		if (!environmentId.trim()) {
 			setStatus({ type: 'error', message: 'Please enter an Environment ID' });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid PingOne Environment ID to discover endpoints', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter a valid PingOne Environment ID to discover endpoints',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -431,7 +436,13 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				type: 'error',
 				message: 'Invalid Environment ID format. Please enter a valid UUID.',
 			});
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -455,7 +466,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message:
 						'Configuration discovered successfully. Switch between Formatted and JSON views to see the response.',
 				});
-				modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'saveConfigurationSuccess',
+					duration: 4000,
+				});
 				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
 					environmentId,
 					issuer: result.configuration.issuer,
@@ -465,7 +480,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					type: 'error',
 					message: result.error || 'Failed to discover configuration',
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'networkError', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'networkError',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -474,7 +494,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'networkError', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'networkError',
+				dismissible: true,
+			});
 			setStatus({
 				type: 'error',
 				message:
@@ -493,14 +518,28 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				setRawJsonResponse(null);
 				setViewMode('formatted');
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'saveConfigurationSuccess',
+					duration: 4000,
+				});
 				onClose();
 			} catch (error) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'stepError', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'stepError',
+					dismissible: true,
+				});
 				logger.error('DiscoveryPanel', 'Failed to apply configuration', error);
 			}
 		} else {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'stepError', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'stepError',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -508,11 +547,20 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedField(field);
-			modernMessaging.showFooterMessage({ type: 'status', message: `${field} copied to clipboard`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${field} copied to clipboard`,
+				duration: 4000,
+			});
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
 			logger.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${field}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to copy ${field}`,
+				dismissible: true,
+			});
 		}
 	};
 
@@ -739,7 +787,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 											setDiscoveredConfig(null);
 											setRawJsonResponse(null);
 											setViewMode('formatted');
-											modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
+											modernMessaging.showFooterMessage({
+												type: 'status',
+												message: 'saveConfigurationSuccess',
+												duration: 4000,
+											});
 										}}
 									>
 										<FiRefreshCw />
@@ -749,7 +801,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 								<Button
 									variant="secondary"
 									onClick={() => {
-										modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
+										modernMessaging.showFooterMessage({
+											type: 'status',
+											message: 'saveConfigurationSuccess',
+											duration: 4000,
+										});
 										onClose();
 									}}
 								>

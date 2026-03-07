@@ -3,8 +3,8 @@
 import { FiChevronDown, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;
@@ -301,21 +301,39 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 			if (!config.redirectUri.trim()) requiredFields.push('Redirect URI');
 
 			if (requiredFields.length > 0) {
-				modernMessaging.showBanner({ type: 'error', title: 'Validation Error', message: `Please fill in required fields: ${requiredFields.join(', ')}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Validation Error',
+					message: `Please fill in required fields: ${requiredFields.join(', ')}`,
+					dismissible: true,
+				});
 				return;
 			}
 
 			// Show saving toast
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Saving configuration...', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Saving configuration...',
+				duration: 3000,
+			});
 
 			// Save to localStorage
 			localStorage.setItem(storageKey, JSON.stringify(config));
 
 			// Show success toast
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration saved successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Configuration saved successfully',
+				duration: 4000,
+			});
 		} catch (error) {
 			// Show error toast
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to save configuration: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to save configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				dismissible: true,
+			});
 		}
 	}, [config, storageKey]);
 

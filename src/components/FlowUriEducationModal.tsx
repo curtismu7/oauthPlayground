@@ -9,9 +9,9 @@ import {
 } from '@icons';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { FlowUriEducationEntry } from '../services/flowUriEducationService';
 import { flowUriEducationService } from '../services/flowUriEducationService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 
 const Content = styled.div`
@@ -221,7 +221,11 @@ const openSpec = (spec: string) => {
 	if (url) {
 		window.open(url, '_blank', 'noopener,noreferrer');
 	} else {
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Specification link not available for this entry.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Specification link not available for this entry.',
+			duration: 4000,
+		});
 	}
 };
 
@@ -245,7 +249,11 @@ const FlowUriEducationModal: React.FC<{
 
 	const handleCopy = (uri: string, label: string) => {
 		navigator.clipboard.writeText(uri);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard`,
+			duration: 4000,
+		});
 	};
 
 	const handleSelect = (uri: string, type: 'redirect' | 'logout') => {

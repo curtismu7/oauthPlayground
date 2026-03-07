@@ -14,6 +14,7 @@ import {
 	FiTerminal,
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {
@@ -29,7 +30,6 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
@@ -324,7 +324,11 @@ const Configuration: React.FC = () => {
 			callbackUriService.applyFlowOverrides({});
 			const updatedCatalog = callbackUriService.getRedirectUriCatalog();
 			setUriCatalog(updatedCatalog);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Callback URIs reset to default values.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Callback URIs reset to default values.',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'Configuration',
@@ -332,7 +336,12 @@ const Configuration: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to reset callback URIs. Check the console for details.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Unable to reset callback URIs. Check the console for details.',
+				dismissible: true,
+			});
 		} finally {
 			setUriSaving(false);
 		}
@@ -375,9 +384,13 @@ const Configuration: React.FC = () => {
 			setUriCatalog(updatedCatalog);
 
 			const hasOverrides = Object.keys(overrides).length > 0;
-			modernMessaging.showFooterMessage({ type: 'status', message: hasOverrides
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: hasOverrides
 					? 'Callback URIs updated successfully.'
-					: 'Callback URIs now using default values.', duration: 4000 });
+					: 'Callback URIs now using default values.',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'Configuration',
@@ -385,7 +398,12 @@ const Configuration: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to update callback URIs. Check the console for details.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Unable to update callback URIs. Check the console for details.',
+				dismissible: true,
+			});
 		} finally {
 			setUriSaving(false);
 		}

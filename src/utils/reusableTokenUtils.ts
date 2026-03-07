@@ -104,8 +104,21 @@ export const getTokenType = (
 export const copyTokenToClipboard = (token: string, tokenType: string = 'Token'): void => {
 	navigator.clipboard
 		.writeText(token)
-		.then(() => modernMessaging.showFooterMessage({ type: 'status', message: `${tokenType} copied to clipboard!`, duration: 4000 }))
-		.catch(() => modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${tokenType}: Unable to copy to clipboard.`, dismissible: true }));
+		.then(() =>
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${tokenType} copied to clipboard!`,
+				duration: 4000,
+			})
+		)
+		.catch(() =>
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to copy ${tokenType}: Unable to copy to clipboard.`,
+				dismissible: true,
+			})
+		);
 };
 
 /**

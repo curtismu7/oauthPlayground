@@ -4,10 +4,10 @@
 import { FiCheckCircle, FiCopy, FiInfo, FiKey, FiRefreshCw, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
@@ -268,7 +268,12 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			if (!effectiveWorkerToken) {
 				setShowWorkerTokenModal(true);
 			} else {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Environment ID is required to check URIs', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Environment ID is required to check URIs',
+					dismissible: true,
+				});
 			}
 			return;
 		}
@@ -313,9 +318,18 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			}
 
 			if (matchedApp) {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'URI check completed', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'URI check completed',
+					duration: 4000,
+				});
 			} else if (clientId) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Application with Client ID ${clientId.substring(0, 8)}... not found in PingOne`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: `Application with Client ID ${clientId.substring(0, 8)}... not found in PingOne`,
+					dismissible: true,
+				});
 			}
 		} catch (err) {
 			logger.error(
@@ -327,13 +341,22 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			setError(err instanceof Error ? err.message : 'Failed to check URIs');
 			setRedirectURIStatus((prev) => ({ ...prev, isChecking: false }));
 			setLogoutURIStatus((prev) => ({ ...prev, isChecking: false }));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to check URIs against PingOne', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to check URIs against PingOne',
+				dismissible: true,
+			});
 		}
 	}, [effectiveWorkerToken, environmentId, clientId, redirectUri, postLogoutRedirectUri, region]);
 
 	const handleCopy = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard`,
+			duration: 4000,
+		});
 	};
 
 	// Get the flow type for display

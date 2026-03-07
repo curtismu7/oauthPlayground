@@ -360,7 +360,7 @@ export class UnifiedFlowErrorHandler {
 					message: parsedError.userFriendlyMessage,
 					dismissible: true,
 				});
-				// Note: Toast action buttons would need to be added to toastV8 service
+				// Note: Toast action buttons would need to be added to modernMessaging service
 			} else {
 				modernMessaging.showBanner({
 					type: 'error',

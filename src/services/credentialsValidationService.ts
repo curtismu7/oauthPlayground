@@ -116,7 +116,12 @@ export function validateAndNotify(
 
 	if (!result.isValid) {
 		const message = customMessage || result.errorMessage || 'Please complete all required fields';
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: message,
+			dismissible: true,
+		});
 		return false;
 	}
 
@@ -205,7 +210,12 @@ export function canNavigateToNextStep(
 	if (!result.isValid) {
 		const stepInfo = stepName ? ` to ${stepName}` : '';
 		const message = `Cannot proceed${stepInfo}. ${result.errorMessage}`;
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: message,
+			dismissible: true,
+		});
 		return false;
 	}
 

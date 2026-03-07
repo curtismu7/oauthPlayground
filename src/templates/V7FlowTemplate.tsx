@@ -7,15 +7,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 import type { V7FlowName } from '../services/v7SharedService';
-
 // Import V7 Shared Service
 import { V7SharedService } from '../services/v7SharedService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Get shared UI components
 const {
@@ -121,11 +120,20 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 					operation: 'validation',
 					timestamp: Date.now(),
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Parameter validation failed: ${validation.errors.join(', ')}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Parameter validation failed: ${validation.errors.join(', ')}`,
+					dismissible: true,
+				});
 				return { success: false, error: errorResponse };
 			}
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Parameter validation successful', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Parameter validation successful',
+				duration: 4000,
+			});
 			return { success: true, validation };
 		},
 		[flowName]
@@ -155,11 +163,20 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 						operation: 'token_validation',
 						timestamp: Date.now(),
 					});
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `ID token validation failed: ${validation.errors.join(', ')}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `ID token validation failed: ${validation.errors.join(', ')}`,
+						dismissible: true,
+					});
 					return { success: false, error: errorResponse, validation };
 				}
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'ID token validation successful', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'ID token validation successful',
+					duration: 4000,
+				});
 				return { success: true, validation };
 			} catch (error) {
 				const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
@@ -168,7 +185,12 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 					operation: 'token_validation',
 					timestamp: Date.now(),
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `ID token validation error: ${errorResponse.error_description}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `ID token validation error: ${errorResponse.error_description}`,
+					dismissible: true,
+				});
 				return { success: false, error: errorResponse };
 			}
 		},
@@ -183,7 +205,12 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 				operation: context?.operation || 'unknown',
 				timestamp: Date.now(),
 			});
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Error: ${errorResponse.error_description}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Error: ${errorResponse.error_description}`,
+				dismissible: true,
+			});
 			return errorResponse;
 		},
 		[flowName]

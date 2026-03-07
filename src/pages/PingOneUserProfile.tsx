@@ -18,6 +18,7 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -25,7 +26,6 @@ import PageLayoutService from '../services/pageLayoutService';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
@@ -1170,12 +1170,23 @@ const PingOneUserProfile: React.FC = () => {
 				const status = (err as { status?: number })?.status;
 				const message = err instanceof Error ? err.message : 'Failed to load user profile';
 				if (status === 401 || message === 'Worker token unauthorized') {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token expired or missing permissions. Please generate a new worker token.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Worker token expired or missing permissions. Please generate a new worker token.',
+						dismissible: true,
+					});
 					// Clear worker token through unified service
 					setShowUserSelector(true);
 					return;
 				}
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 				setError(message);
 			} finally {
 				setLoading(false);
@@ -1306,24 +1317,44 @@ const PingOneUserProfile: React.FC = () => {
 
 	const handleLoadUserProfile = useCallback(async () => {
 		if (!accessToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Generate a worker token before loading a profile.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Generate a worker token before loading a profile.',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!globalTokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token expired. Generate a new worker token to continue.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token expired. Generate a new worker token to continue.',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!environmentId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide an Environment ID', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide an Environment ID',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!userIdentifier.trim()) {
 			const message = 'User identifier is required (user ID, username, or email).';
 			setIdentifierError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1342,7 +1373,12 @@ const PingOneUserProfile: React.FC = () => {
 			if (!trimmedIdentifier) missing.push('User Identifier');
 			const message = `Missing required fields: ${missing.join(', ')}`;
 			setIdentifierError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 			setIsResolvingUser(false);
 			return;
 		}
@@ -1386,9 +1422,17 @@ const PingOneUserProfile: React.FC = () => {
 			setShowUserSelector(false);
 			await fetchUserProfile(resolvedId);
 			if (lookupResult.matchType) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `User matched by ${lookupResult.matchType}.`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `User matched by ${lookupResult.matchType}.`,
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'User resolved successfully.', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'User resolved successfully.',
+					duration: 4000,
+				});
 			}
 		} catch (err) {
 			// Check if this is a server error (500)
@@ -1398,7 +1442,12 @@ const PingOneUserProfile: React.FC = () => {
 			} else {
 				const message = err instanceof Error ? err.message : 'Unable to resolve user identifier.';
 				setIdentifierError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsResolvingUser(false);
@@ -1407,24 +1456,44 @@ const PingOneUserProfile: React.FC = () => {
 
 	const handleLoadComparisonUser = useCallback(async () => {
 		if (!accessToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Generate a worker token before comparing access.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Generate a worker token before comparing access.',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!globalTokenStatus?.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token expired. Generate a new worker token to compare access.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token expired. Generate a new worker token to compare access.',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!environmentId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide an Environment ID', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide an Environment ID',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!compareIdentifier.trim()) {
 			const message = 'Comparison user identifier is required (user ID, username, or email).';
 			setComparisonError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1462,9 +1531,17 @@ const PingOneUserProfile: React.FC = () => {
 				);
 			}
 			if (lookupResult.matchType) {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Comparison user matched by ${lookupResult.matchType}.`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Comparison user matched by ${lookupResult.matchType}.`,
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Comparison user resolved successfully.', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Comparison user resolved successfully.',
+					duration: 4000,
+				});
 			}
 		} catch (err) {
 			// Check if this is a server error (500)
@@ -1474,7 +1551,12 @@ const PingOneUserProfile: React.FC = () => {
 			} else {
 				const message = err instanceof Error ? err.message : 'Unable to resolve comparison user.';
 				setComparisonError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsComparisonLoading(false);
@@ -1514,7 +1596,11 @@ const PingOneUserProfile: React.FC = () => {
 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Copied to clipboard!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Copied to clipboard!',
+			duration: 4000,
+		});
 	};
 
 	const getInitials = (nameInput: unknown): string => {

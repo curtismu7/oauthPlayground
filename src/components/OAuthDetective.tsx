@@ -7,8 +7,8 @@
 import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -469,7 +469,12 @@ const OAuthDetective: React.FC = () => {
 	// Main analysis function
 	const analyzeURL = useCallback(() => {
 		if (!url.trim()) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please paste an OAuth URL to analyze', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Please paste an OAuth URL to analyze',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -500,7 +505,11 @@ const OAuthDetective: React.FC = () => {
 				parameters,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'status', message: `Analyzed ${parameters.length} parameters from ${provider}`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Analyzed ${parameters.length} parameters from ${provider}`,
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'OAuthDetective',
@@ -508,7 +517,12 @@ const OAuthDetective: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid URL. Please paste a complete OAuth authorization URL.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Invalid URL. Please paste a complete OAuth authorization URL.',
+				dismissible: true,
+			});
 		} finally {
 			setIsAnalyzing(false);
 		}
@@ -523,7 +537,11 @@ const OAuthDetective: React.FC = () => {
 	// Copy parameter to clipboard
 	const copyParameter = useCallback((name: string, value: string) => {
 		navigator.clipboard.writeText(`${name}=${value}`);
-		modernMessaging.showFooterMessage({ type: 'status', message: `Copied ${name} parameter`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `Copied ${name} parameter`,
+			duration: 4000,
+		});
 	}, []);
 
 	return (

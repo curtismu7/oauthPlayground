@@ -4,6 +4,7 @@
 import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { FlowConfiguration } from './components/FlowConfiguration';
@@ -17,8 +18,6 @@ import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
-
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Mock services - these would be imported from actual services in real implementation
 const v4ToastManager = {
@@ -289,7 +288,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 				setIsLoading(false);
 				performanceMonitoring.endRender();
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Flow initialized successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Flow initialized successfully',
+					duration: 4000,
+				});
 			} catch (error) {
 				console.error('Failed to initialize flow:', error);
 				onFlowError?.(error as Error);
@@ -321,7 +324,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 			}
 			flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
 			onFlowComplete?.(tokens, userInfo);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Flow completed successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Flow completed successfully!',
+				duration: 4000,
+			});
 		},
 		[flowState, onFlowComplete]
 	);
@@ -331,7 +338,12 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		(error: Error) => {
 			performanceMonitoring.recordError(error);
 			onFlowError?.(error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Flow error: ${error.message}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Flow error: ${error.message}`,
+				dismissible: true,
+			});
 		},
 		[performanceMonitoring, onFlowError]
 	);
@@ -341,7 +353,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		(step: number) => {
 			if (flowState.canGoToStep(step)) {
 				flowState.goToStep(step);
-				modernMessaging.showFooterMessage({ type: 'info', message: `Navigated to step ${step + 1}`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Navigated to step ${step + 1}`,
+					duration: 4000,
+				});
 			}
 		},
 		[flowState]
@@ -351,7 +367,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	const handleFlowReset = useCallback(() => {
 		flowState.resetFlow();
 		authCodeManagement.clearAuthCode();
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Flow reset successfully',
+			duration: 4000,
+		});
 	}, [flowState, authCodeManagement]);
 
 	// Handle variant change
@@ -393,7 +413,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	// Handle token refresh
 	const handleRefreshTokens = useCallback(() => {
 		// This would implement token refresh logic
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Token refresh not implemented yet', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Token refresh not implemented yet',
+			duration: 4000,
+		});
 	}, []);
 
 	// Handle clear results

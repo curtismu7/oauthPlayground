@@ -2,6 +2,7 @@
 // LDAP Gateway Password Set Tab Component
 
 import React from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -9,7 +10,6 @@ import {
 	FiKey,
 } from '../../../services/commonImportsService';
 import { setPasswordLdapGateway } from '../../../services/passwordResetService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordOptions } from '../shared/PasswordOptions';
@@ -53,10 +53,20 @@ export const LdapGatewayTab: React.FC<LdapGatewayTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: info.message,
+					dismissible: true,
+				});
 				return;
 			}
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: info.message,
+				dismissible: true,
+			});
 		},
 		[onError]
 	);

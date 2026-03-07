@@ -254,7 +254,10 @@ export async function reloadCredentialsAfterReset(
 			const loaded = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
 			flowSpecific = loaded as Record<string, unknown>;
 		} catch (error) {
-			logger.warn('CredentialReloadServiceV8U', `Async load failed, using sync fallback`, { flowKey, error });
+			logger.warn('CredentialReloadServiceV8U', `Async load failed, using sync fallback`, {
+				flowKey,
+				error,
+			});
 			// Fall back to sync version
 			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<
 				string,

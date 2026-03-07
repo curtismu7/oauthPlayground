@@ -1,8 +1,8 @@
 // src/services/samlAssertionService.tsx
 // SAML Assertion Service for OAuth 2.0 SAML Bearer Assertion Flow
 
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export interface SAMLAssertionData {
 	issuer: string;
@@ -114,7 +114,11 @@ export class SAMLAssertionService {
 					timestamp: new Date().toISOString(),
 				};
 				localStorage.setItem(SAMLAssertionService.STORAGE_KEY, JSON.stringify(configWithTimestamp));
-				modernMessaging.showFooterMessage({ type: 'status', message: 'SAML configuration saved successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'SAML configuration saved successfully!',
+					duration: 4000,
+				});
 				resolve();
 			} catch (error) {
 				logger.error(
@@ -123,7 +127,12 @@ export class SAMLAssertionService {
 					undefined,
 					error
 				);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save SAML configuration', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to save SAML configuration',
+					dismissible: true,
+				});
 				reject(error);
 			}
 		});
@@ -158,7 +167,11 @@ export class SAMLAssertionService {
 	static clearConfiguration(): void {
 		try {
 			localStorage.removeItem(SAMLAssertionService.STORAGE_KEY);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'SAML configuration cleared', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'SAML configuration cleared',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'SAMLAssertionService',
@@ -166,7 +179,12 @@ export class SAMLAssertionService {
 				undefined,
 				error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear SAML configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear SAML configuration',
+				dismissible: true,
+			});
 		}
 	}
 

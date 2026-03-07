@@ -9,10 +9,10 @@
  */
 
 import { useCallback, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { validateForStep } from './credentialsValidationService';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
@@ -86,14 +86,22 @@ export class AuthzFlowToastManager {
 	 * Show success toast for PingOne config save
 	 */
 	static showPingOneConfigSaved(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'PingOne configuration saved successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'PingOne configuration saved successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
 	 * Show success toast for credentials save
 	 */
 	static showCredentialsSaved(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials saved successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Credentials saved successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
@@ -106,14 +114,23 @@ export class AuthzFlowToastManager {
 			undefined,
 			error as Error
 		);
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Failed to save credentials',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show success toast for redirect URI save
 	 */
 	static showRedirectUriSaved(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Redirect URI saved successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Redirect URI saved successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
@@ -126,14 +143,23 @@ export class AuthzFlowToastManager {
 			undefined,
 			error as Error
 		);
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save redirect URI', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Failed to save redirect URI',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show success toast for PKCE generation
 	 */
 	static showPKCEGenerated(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'PKCE parameters generated successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'PKCE parameters generated successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
@@ -146,14 +172,23 @@ export class AuthzFlowToastManager {
 			undefined,
 			error as Error
 		);
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE parameters', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Failed to generate PKCE parameters',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show success toast for authorization URL generation
 	 */
 	static showAuthUrlGenerated(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization URL generated successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Authorization URL generated successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
@@ -161,21 +196,34 @@ export class AuthzFlowToastManager {
 	 */
 	static showAuthUrlGenerationFailed(error: Error | unknown): void {
 		const message = error instanceof Error ? error.message : 'Failed to generate authorization URL';
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: message,
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show success toast for authorization code received
 	 */
 	static showAuthCodeReceived(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code received successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Authorization code received successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
 	 * Show success toast for token exchange
 	 */
 	static showTokenExchangeSuccess(): void {
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens exchanged successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Tokens exchanged successfully!',
+			duration: 4000,
+		});
 	}
 
 	/**
@@ -188,35 +236,60 @@ export class AuthzFlowToastManager {
 			undefined,
 			error as Error
 		);
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to exchange authorization code for tokens', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Failed to exchange authorization code for tokens',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show error toast for missing credentials
 	 */
 	static showMissingCredentials(): void {
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Fill in Client ID and Environment ID first.', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Complete above action: Fill in Client ID and Environment ID first.',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show error toast for missing PKCE
 	 */
 	static showMissingPKCE(): void {
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Generate PKCE parameters first.', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Complete above action: Generate PKCE parameters first.',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show error toast for missing auth URL
 	 */
 	static showMissingAuthUrl(): void {
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Generate the authorization URL first.', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Complete above action: Generate the authorization URL first.',
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show error toast for missing auth code
 	 */
 	static showMissingAuthCode(): void {
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Complete authorization to receive the code.', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Complete above action: Complete authorization to receive the code.',
+			dismissible: true,
+		});
 	}
 
 	/**
@@ -224,14 +297,24 @@ export class AuthzFlowToastManager {
 	 */
 	static showValidationError(missingFields: string[]): void {
 		const fieldNames = missingFields.join(', ');
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Please fill in required fields: ${fieldNames}`, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: `Please fill in required fields: ${fieldNames}`,
+			dismissible: true,
+		});
 	}
 
 	/**
 	 * Show step completion error
 	 */
 	static showStepIncomplete(): void {
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete the action above to continue.', dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: 'Complete the action above to continue.',
+			dismissible: true,
+		});
 	}
 }
 
@@ -672,7 +755,12 @@ export class AuthzFlowCodeProcessor {
 				{ errorDescription },
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization failed: ${errorDescription || error}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Authorization failed: ${errorDescription || error}`,
+				dismissible: true,
+			});
 			return { code: null, state: null, error };
 		}
 

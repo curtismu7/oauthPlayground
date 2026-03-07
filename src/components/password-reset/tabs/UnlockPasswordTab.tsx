@@ -2,6 +2,7 @@
 // Unlock Password Tab Component
 
 import React from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -13,7 +14,6 @@ import { readPasswordState, unlockPassword } from '../../../services/passwordRes
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
 import { logger } from '../../../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
@@ -52,10 +52,20 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: info.message,
+					dismissible: true,
+				});
 				return;
 			}
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: info.message,
+				dismissible: true,
+			});
 		},
 		[onError]
 	);
@@ -107,7 +117,11 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 
 				setSuccess(true);
 				setShowSuccessModal(true);
-				modernMessaging.showFooterMessage({ type: 'status', message: `Password unlocked successfully for ${user.name?.given || user.username || user.email || 'user'}!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Password unlocked successfully for ${user.name?.given || user.username || user.email || 'user'}!`,
+					duration: 4000,
+				});
 				return;
 			}
 

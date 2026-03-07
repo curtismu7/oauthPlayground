@@ -4,9 +4,9 @@
 import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;
@@ -62,7 +62,12 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate TOTP configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate TOTP configuration',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -81,7 +86,11 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 		try {
 			await navigator.clipboard.writeText(totpConfig.secret);
 			setCopied(true);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Secret key copied to clipboard', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Secret key copied to clipboard',
+				duration: 4000,
+			});
 
 			// Reset copied state after 2 seconds
 			setTimeout(() => setCopied(false), 2000);
@@ -92,7 +101,12 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy secret key', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy secret key',
+				dismissible: true,
+			});
 		}
 	};
 

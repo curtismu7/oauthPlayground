@@ -2,9 +2,9 @@
 // JWT Bearer Token Flow state management and logic
 
 import { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface JWTBearerConfig {
 	environmentId: string;
@@ -154,7 +154,11 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 			console.log(`${LOG_PREFIX} [MOCK INFO] Simulated JWT assertion:`, mockJWT);
 
 			// Show success message
-			modernMessaging.showFooterMessage({ type: 'status', message: 'JWT Bearer Token flow completed successfully (Mock Implementation)', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'JWT Bearer Token flow completed successfully (Mock Implementation)',
+				duration: 4000,
+			});
 
 			return mockTokenResult;
 		} catch (err) {

@@ -1,9 +1,9 @@
 import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiShield } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { themeService } from '../services/themeService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const CollapsibleSection = styled.div`
@@ -260,7 +260,11 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard`,
+			duration: 4000,
+		});
 	}, []);
 
 	const getFlowSpecificText = () => {
