@@ -75,7 +75,7 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 								}}
@@ -94,7 +94,7 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 								}}
@@ -113,7 +113,7 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 								}}
@@ -132,7 +132,7 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 								}}
@@ -151,7 +151,7 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 								}}
@@ -501,15 +501,17 @@ grant_type=refresh_token
 						<div
 							style={{
 								padding: '1rem',
-								background: '#fef2f2',
+								background: 'V9_COLORS.BG.ERROR',
 								borderRadius: '0.5rem',
-								border: '1px solid #fecaca',
+								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 								Security Risks Demonstrated
 							</h4>
-							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#991b1b' }}>
+							<ul
+								style={{ margin: 0, paddingLeft: '1.25rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}
+							>
 								<li>Application handles user passwords directly</li>
 								<li>Credentials transmitted over network</li>
 								<li>No delegation to authorization server</li>
@@ -523,10 +525,12 @@ grant_type=refresh_token
 								padding: '1rem',
 								background: '#f0fdf4',
 								borderRadius: '0.5rem',
-								border: '1px solid #bbf7d0',
+								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>OIDC Extensions Shown</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+								OIDC Extensions Shown
+							</h4>
 							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#047857' }}>
 								<li>ID tokens with user identity claims</li>
 								<li>UserInfo endpoint for additional profile data</li>
@@ -538,13 +542,17 @@ grant_type=refresh_token
 						<div
 							style={{
 								padding: '1rem',
-								background: '#eff6ff',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
-								border: '1px solid #bfdbfe',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1d4ed8' }}>Recommended Alternatives</h4>
-							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#1e40af' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+								Recommended Alternatives
+							</h4>
+							<ul
+								style={{ margin: 0, paddingLeft: '1.25rem', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
+							>
 								<li>OIDC Authorization Code Flow with PKCE</li>
 								<li>OIDC Device Code Flow for limited input devices</li>
 								<li>OIDC Client Credentials for server-to-server</li>
@@ -557,7 +565,7 @@ grant_type=refresh_token
 						onClick={resetFlow}
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: '#6b7280',
+							background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.5rem',

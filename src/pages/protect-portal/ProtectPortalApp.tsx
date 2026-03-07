@@ -31,6 +31,7 @@ import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
 // Import types and config
 import type {
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 	LoginContext,
 	PortalError,
 	PortalState,
@@ -75,8 +76,8 @@ const styles = {
 		justifyContent: 'flex-start',
 	},
 	errorContainer: {
-		background: '#fef2f2',
-		border: '1px solid #fecaca',
+		background: 'V9_COLORS.BG.ERROR',
+		border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 		borderRadius: '0.5rem',
 		padding: '1.5rem',
 		maxWidth: '500px',
@@ -84,7 +85,7 @@ const styles = {
 		textAlign: 'center' as const,
 	},
 	errorTitle: {
-		color: '#dc2626',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 		fontSize: '1.25rem',
 		fontWeight: 600,
 		margin: '0 0 0.75rem 0',
@@ -107,12 +108,12 @@ const styles = {
 	},
 	resourceSection: {
 		background: 'var(--brand-surface, #f9fafb)',
-		borderTop: '1px solid var(--brand-border, #e5e7eb)',
+		borderTop: '1px solid var(--brand-border, V9_COLORS.TEXT.GRAY_LIGHTER)',
 		padding: '2rem 1.5rem',
 		textAlign: 'center' as const,
 	},
 	resourceTitle: {
-		color: 'var(--brand-text, #1f2937)',
+		color: 'var(--brand-text, V9_COLORS.TEXT.GRAY_DARK)',
 		fontSize: '1.5rem',
 		fontWeight: 600,
 		margin: '0 0 0.5rem 0',
@@ -122,7 +123,7 @@ const styles = {
 		gap: '0.5rem',
 	},
 	resourceDescription: {
-		color: 'var(--brand-text-secondary, #6b7280)',
+		color: 'var(--brand-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM)',
 		fontSize: '1rem',
 		margin: '0 0 1.5rem 0',
 		lineHeight: 1.5,
@@ -132,7 +133,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.875rem 1.75rem',
-		background: '#2563eb',
+		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 		color: 'white',
 		borderRadius: '0.5rem',
 		fontWeight: 600,
@@ -152,13 +153,13 @@ const styles = {
 		gap: '0.5rem',
 	},
 	btnPrimary: {
-		background: '#2563eb',
+		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 		color: 'white',
 	},
 	btnSecondary: {
 		background: 'var(--brand-surface, #f9fafb)',
-		color: 'var(--brand-text, #1f2937)',
-		border: '2px solid #2563eb',
+		color: 'var(--brand-text, V9_COLORS.TEXT.GRAY_DARK)',
+		border: '2px solid V9_COLORS.PRIMARY.BLUE_DARK',
 	},
 	loadingContainer: {
 		display: 'flex',
@@ -169,13 +170,13 @@ const styles = {
 		padding: '2rem',
 	},
 	loadingText: {
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		fontSize: '1rem',
 		margin: 0,
 	},
 	workerTokenWrapper: {
 		padding: '1.5rem',
-		borderTop: '1px solid #e5e7eb',
+		borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		background: '#f9fafb',
 	},
 } as const;
@@ -399,7 +400,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						style={{
 							animation: 'spin 1s linear infinite',
 							fontSize: '2rem',
-							color: '#3b82f6',
+							color: 'V9_COLORS.PRIMARY.BLUE',
 						}}
 					/>
 					<p style={styles.loadingText}>Processing your request...</p>
@@ -416,7 +417,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					</h3>
 					<p style={styles.errorMessage}>{error.message}</p>
 					{error.suggestedAction && (
-						<p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem', marginBottom: '1rem' }}>
 							{error.suggestedAction}
 						</p>
 					)}

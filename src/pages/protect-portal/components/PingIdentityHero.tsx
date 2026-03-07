@@ -12,13 +12,14 @@
 import { FiArrowRight, FiDatabase, FiKey, FiLock, FiSettings, FiShield, FiUsers } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
 
 const HeroContainer = styled.section`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   padding: 4rem 2rem;
   text-align: center;
   color: #1e293b;
@@ -62,7 +63,7 @@ const HeroTitle = styled.h1`
 
 const HeroSubtitle = styled.p`
   font-size: 1.25rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 3rem;
   line-height: 1.6;
   max-width: 600px;
@@ -87,8 +88,8 @@ const QuickAction = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -104,7 +105,7 @@ const ActionIcon = styled.div`
   width: 48px;
   height: 48px;
   background: #e6f2ff;
-  border: 1px solid #bfdbfe;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -160,9 +161,9 @@ const LoginButton = styled.button`
 const FeaturesSection = styled.div`
   margin-top: 4rem;
   padding: 3rem 2rem;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FeaturesTitle = styled.h2`
@@ -186,7 +187,7 @@ const FeatureCard = styled.div`
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   text-align: left;
   transition: all 0.2s ease;
   
@@ -217,7 +218,7 @@ const FeatureTitle = styled.h3`
 `;
 
 const FeatureDescription = styled.p`
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
 `;
 

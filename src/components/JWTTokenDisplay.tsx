@@ -18,8 +18,8 @@ interface JWTTokenDisplayProps {
 }
 
 const TokenContainer = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 0.5rem 0;
@@ -34,7 +34,7 @@ const TokenHeader = styled.div`
 
 const TokenTitle = styled.h4`
 	margin: 0;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.9rem;
 	font-weight: 600;
 	display: flex;
@@ -52,7 +52,7 @@ const ToggleButton = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -63,11 +63,11 @@ const ToggleButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
-		background: #9ca3af;
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 	}
 `;
@@ -77,7 +77,7 @@ const TokenValue = styled.div`
 	font-size: 0.75rem;
 	word-break: break-all;
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 4px;
 	padding: 0.75rem;
 	margin-bottom: 0.5rem;
@@ -91,7 +91,7 @@ const TokenInfo = styled.div`
 	gap: 0.5rem;
 	margin-top: 0.5rem;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const InfoItem = styled.div`
@@ -104,18 +104,18 @@ const InfoLabel = styled.span`
 `;
 
 const InfoValue = styled.span`
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DecodedSection = styled.div`
 	margin-top: 1rem;
 	padding-top: 1rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DecodedTitle = styled.h5`
 	margin: 0 0 0.5rem 0;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.8rem;
 	font-weight: 600;
 	display: flex;
@@ -125,7 +125,7 @@ const DecodedTitle = styled.h5`
 
 const DecodedContent = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 4px;
 	padding: 0.75rem;
 	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
@@ -137,7 +137,7 @@ const DecodedContent = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 0.75rem;
 	font-style: italic;
 	margin-top: 0.5rem;

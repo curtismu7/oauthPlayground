@@ -8,6 +8,7 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -22,7 +23,7 @@ const PageHeader = styled.div`
 const PageTitle = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -30,7 +31,7 @@ const PageTitle = styled.h1`
 `;
 
 const PageDescription = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.125rem;
 	margin-bottom: 1rem;
 `;
@@ -47,7 +48,7 @@ const StatusCard = styled.div`
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CardHeader = styled.div`
@@ -60,7 +61,7 @@ const CardHeader = styled.div`
 const CardTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -82,13 +83,13 @@ const StatRow = styled.div`
 `;
 
 const StatLabel = styled.span`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 `;
 
 const StatValue = styled.span`
 	font-weight: 500;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
@@ -96,15 +97,15 @@ const StatusBadge = styled.span<{ status: 'online' | 'offline' | 'warning' | 'ch
 	background: ${(props) => {
 		switch (props.status) {
 			case 'online':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'offline':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'checking':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 	color: white;
@@ -119,7 +120,7 @@ const RefreshButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -128,21 +129,21 @@ const RefreshButton = styled.button`
 	transition: background-color 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 
 	&:disabled {
-		background: #9ca3af;
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 	}
 `;
 
 const _ErrorMessage = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	color: #991b1b;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	margin-bottom: 1.5rem;
 `;
 
@@ -192,7 +193,7 @@ const ApiStatusPage: React.FC = () => {
 				<PageDescription>
 					Server health monitoring and status information
 					{lastRefresh && (
-						<span style={{ marginLeft: '1rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+						<span style={{ marginLeft: '1rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem' }}>
 							Last updated: {lastRefresh.toLocaleTimeString()}
 						</span>
 					)}
@@ -210,10 +211,10 @@ const ApiStatusPage: React.FC = () => {
 							<CardIcon
 								color={
 									server.status === 'online'
-										? '#10b981'
+										? 'V9_COLORS.PRIMARY.GREEN'
 										: server.status === 'offline'
-											? '#ef4444'
-											: '#f59e0b'
+											? 'V9_COLORS.PRIMARY.RED'
+											: 'V9_COLORS.PRIMARY.YELLOW'
 								}
 							>
 								<FiServer />
@@ -233,10 +234,10 @@ const ApiStatusPage: React.FC = () => {
 								style={{
 									marginBottom: '1rem',
 									padding: '0.5rem',
-									backgroundColor: '#fef2f2',
-									border: '1px solid #fecaca',
+									backgroundColor: 'V9_COLORS.BG.ERROR',
+									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 									borderRadius: '0.25rem',
-									color: '#991b1b',
+									color: 'V9_COLORS.PRIMARY.RED_DARK',
 									fontSize: '0.875rem',
 								}}
 							>

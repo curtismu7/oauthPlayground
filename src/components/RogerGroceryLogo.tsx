@@ -49,7 +49,7 @@ const Wordmark = styled.span`
 	text-transform: uppercase;
 	letter-spacing: 0.22em;
 	font-weight: 800;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	font-size: 1.4rem;
 	position: relative;
 	z-index: 1;

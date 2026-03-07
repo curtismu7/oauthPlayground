@@ -19,7 +19,7 @@ const DashboardHeader = styled.div`
 
 const DashboardTitle = styled.h2`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.5rem;
 `;
 
@@ -35,15 +35,15 @@ const SecurityScore = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 90) {
 			return `
-        background-color: #dcfce7;
-        color: #166534;
-        border: 2px solid #22c55e;
+        background-color: V9_COLORS.BG.SUCCESS;
+        color: V9_COLORS.PRIMARY.GREEN;
+        border: 2px solid V9_COLORS.PRIMARY.GREEN;
       `;
 		} else if (score >= 70) {
 			return `
-        background-color: #fef3c7;
-        color: #92400e;
-        border: 2px solid #f59e0b;
+        background-color: V9_COLORS.BG.WARNING;
+        color: V9_COLORS.PRIMARY.YELLOW_DARK;
+        border: 2px solid V9_COLORS.PRIMARY.YELLOW;
       `;
 		} else if (score >= 50) {
 			return `
@@ -53,9 +53,9 @@ const SecurityScore = styled.div<{ score: number }>`
       `;
 		} else {
 			return `
-        background-color: #fecaca;
-        color: #991b1b;
-        border: 2px solid #ef4444;
+        background-color: V9_COLORS.BG.ERROR_BORDER;
+        color: V9_COLORS.PRIMARY.RED_DARK;
+        border: 2px solid V9_COLORS.PRIMARY.RED;
       `;
 		}
 	}}
@@ -74,12 +74,12 @@ const ScoreCircle = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 90) {
 			return `
-        background-color: #22c55e;
+        background-color: V9_COLORS.PRIMARY.GREEN;
         color: white;
       `;
 		} else if (score >= 70) {
 			return `
-        background-color: #f59e0b;
+        background-color: V9_COLORS.PRIMARY.YELLOW;
         color: white;
       `;
 		} else if (score >= 50) {
@@ -89,7 +89,7 @@ const ScoreCircle = styled.div<{ score: number }>`
       `;
 		} else {
 			return `
-        background-color: #ef4444;
+        background-color: V9_COLORS.PRIMARY.RED;
         color: white;
       `;
 		}
@@ -111,27 +111,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background-color: #ef4444;
+          background-color: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background-color: #dc2626; }
+          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
@@ -148,13 +148,13 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
   background: ${({ $severity }) => {
 		switch ($severity) {
 			case 'critical':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'high':
 				return '#fed7aa';
 			case 'medium':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'low':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			default:
 				return '#f9fafb';
 		}
@@ -168,11 +168,11 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
 			case 'high':
 				return '#fdba74';
 			case 'medium':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'low':
 				return '#86efac';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 `;
@@ -180,13 +180,13 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
 const StatValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
 `;
 
@@ -196,7 +196,7 @@ const Section = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
@@ -214,7 +214,7 @@ const VulnerabilityItem = styled.div<{ $severity: 'critical' | 'high' | 'medium'
 			case 'high':
 				return '#fdba74';
 			case 'medium':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'low':
 				return '#86efac';
 		}
@@ -225,11 +225,11 @@ const VulnerabilityItem = styled.div<{ $severity: 'critical' | 'high' | 'medium'
   background: ${({ $severity }) => {
 		switch ($severity) {
 			case 'critical':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'high':
-				return '#fff7ed';
+				return 'V9_COLORS.TEXT.WHITE7ed';
 			case 'medium':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'low':
 				return '#f0fdf4';
 		}
@@ -245,7 +245,7 @@ const VulnerabilityHeader = styled.div`
 
 const VulnerabilityTitle = styled.h4`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -261,8 +261,8 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
 		switch ($severity) {
 			case 'critical':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'high':
 				return `
@@ -271,13 +271,13 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
         `;
 			case 'medium':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'low':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 		}
 	}}
@@ -285,14 +285,14 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
 
 const VulnerabilityDescription = styled.p`
   margin: 0 0 0.5rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const VulnerabilityRecommendation = styled.p`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   font-weight: 500;
   background: #f3f4f6;
@@ -309,7 +309,7 @@ const RecommendationsList = styled.ul`
 const RecommendationItem = styled.li`
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   
   &::before {
     content: '';
@@ -322,12 +322,12 @@ const LoadingSpinner = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorMessage = styled.div`
-  background: #fecaca;
-  color: #991b1b;
+  background: V9_COLORS.BG.ERROR_BORDER;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   padding: 1rem;
   border-radius: 0.375rem;
   border: 1px solid #fca5a5;
@@ -469,7 +469,13 @@ const SecurityAuditDashboard: React.FC = () => {
 						<SectionTitle>Vulnerabilities</SectionTitle>
 						<VulnerabilityList>
 							{currentReport.vulnerabilities.length === 0 ? (
-								<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+								<div
+									style={{
+										textAlign: 'center',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										padding: '2rem',
+									}}
+								>
 									No vulnerabilities found!
 								</div>
 							) : (
@@ -500,7 +506,7 @@ const SecurityAuditDashboard: React.FC = () => {
 					</div>
 				</>
 			) : (
-				<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+				<div style={{ textAlign: 'center', padding: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 					No security audit has been run yet. Click "Run New Audit" to get started.
 				</div>
 			)}

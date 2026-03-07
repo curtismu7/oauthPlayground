@@ -69,7 +69,7 @@ const StepIndicator = styled.div<{ $compact?: boolean }>`
 	align-items: center;
 	gap: 0.75rem;
 	padding-right: 2rem;
-	border-right: 2px solid #e5e7eb;
+	border-right: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
 	@media (max-width: 768px) {
 		padding-right: 1rem;
@@ -80,7 +80,7 @@ const StepDot = styled.div<{ $active: boolean }>`
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
-	background: ${({ $active }) => ($active ? '#22c55e' : '#d1d5db')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	transition: all 0.2s ease;
 `;
 
@@ -94,14 +94,14 @@ const DragHandle = styled.div`
 	border-radius: 4px;
 	margin-right: 1rem;
 	cursor: default;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	flex-shrink: 0;
 	transition: all 0.2s ease;
 	pointer-events: none;
 
 	&:hover {
-		background: #e5e7eb;
-		color: #374151;
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		transform: scale(1.05);
 	}
 
@@ -129,16 +129,16 @@ const NavButton = styled.button<{
 	cursor: pointer;
 	transition: all 0.2s ease;
 	border: none;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	white-space: nowrap;
 
 	${({ $variant }) =>
 		$variant === 'primary' &&
 		`
-		background-color: #22c55e;
+		background-color: V9_COLORS.PRIMARY.GREEN;
 		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 		&:hover:not(:disabled) {
-			background-color: #16a34a;
+			background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 			box-shadow: 0 6px 16px rgba(34, 197, 94, 0.35);
 			transform: translateY(-1px);
 		}
@@ -147,7 +147,7 @@ const NavButton = styled.button<{
 	${({ $variant }) =>
 		$variant === 'success' &&
 		`
-		background-color: #16a34a;
+		background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 		box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
 		&:hover:not(:disabled) {
 			background-color: #15803d;
@@ -160,10 +160,10 @@ const NavButton = styled.button<{
 		$variant === 'outline' &&
 		`
 		background-color: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 		&:hover:not(:disabled) {
-			background-color: #e5e7eb;
+			background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 		}
 	`}
@@ -171,10 +171,10 @@ const NavButton = styled.button<{
 	${({ $variant }) =>
 		$variant === 'danger' &&
 		`
-		background-color: #ef4444;
+		background-color: V9_COLORS.PRIMARY.RED;
 		box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 		&:hover:not(:disabled) {
-			background-color: #dc2626;
+			background-color: V9_COLORS.PRIMARY.RED_DARK;
 			box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
 			transform: translateY(-1px);
 		}
@@ -183,10 +183,10 @@ const NavButton = styled.button<{
 	${({ $variant }) =>
 		$variant === 'warning' &&
 		`
-		background-color: #f59e0b;
+		background-color: V9_COLORS.PRIMARY.YELLOW;
 		box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
 		&:hover:not(:disabled) {
-			background-color: #d97706;
+			background-color: V9_COLORS.PRIMARY.YELLOW_DARK;
 			box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
 			transform: translateY(-1px);
 		}
@@ -222,7 +222,7 @@ const CompactToggle = styled.button`
 	justify-content: center;
 	width: 32px;
 	height: 32px;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	border: none;
 	border-radius: 0.5rem;
 	color: white;
@@ -232,7 +232,7 @@ const CompactToggle = styled.button`
 	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 		transform: scale(1.05);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
 	}

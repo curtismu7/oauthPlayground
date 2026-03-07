@@ -26,6 +26,7 @@ import CorporateFooter from './Shared/CorporateFooter';
 import CorporateNavigation from './Shared/CorporateNavigation';
 import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -33,7 +34,7 @@ import HeroSection from './Shared/HeroSection';
 
 const CorporateContainer = styled.div<{ theme: BrandTheme }>`
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.background || '#ffffff'};
+  background: ${({ theme }) => theme.colors.background || 'V9_COLORS.TEXT.WHITE'};
   font-family: ${({ theme }) => theme.typography?.bodyFont || 'Inter, sans-serif'};
   color: ${({ theme }) => theme.colors.text || '#1F2937'};
 `;

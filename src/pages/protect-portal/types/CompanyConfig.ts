@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 /**
  * @file CompanyConfig.ts
  * @module protect-portal/types
@@ -76,10 +77,10 @@ export const INDUSTRIES = [
 export type Industry = (typeof INDUSTRIES)[number];
 
 export const DEFAULT_COMPANY_COLORS: CompanyColors = {
-	button: '#3b82f6',
-	headers: '#1f2937',
-	text: '#374151',
-	background: '#ffffff',
+	button: 'V9_COLORS.PRIMARY.BLUE',
+	headers: 'V9_COLORS.TEXT.GRAY_DARK',
+	text: 'V9_COLORS.TEXT.GRAY_DARK',
+	background: 'V9_COLORS.TEXT.WHITE',
 };
 
 export const COMPANY_CONFIG_STORAGE_KEY = 'companyDraft';

@@ -20,8 +20,8 @@ import { logger } from '../utils/logger';
 import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 2px solid #e2e8f0;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -36,7 +36,7 @@ const StatusPanel = styled.div`
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+    background: linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_LIGHT, #6ee7b7);
   }
 `;
 
@@ -50,7 +50,7 @@ const StatusHeader = styled.div`
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -64,9 +64,9 @@ const RefreshButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  color: #374151;
-  border: 2px solid #d1d5db;
+  background: linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -75,15 +75,15 @@ const RefreshButton = styled.button`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   
   &:hover {
-    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-    border-color: #9ca3af;
+    background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   &:disabled {
     background: #f9fafb;
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -95,8 +95,8 @@ const StatusButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af;
+  background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   border: 2px solid #93c5fd;
   border-radius: 0.75rem;
   font-size: 0.875rem;
@@ -106,8 +106,8 @@ const StatusButton = styled.button`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   
   &:hover {
-    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-    border-color: #60a5fa;
+    background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%);
+    border-color: V9_COLORS.PRIMARY.BLUE_LIGHT;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
@@ -132,25 +132,25 @@ const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
   background: ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
-				return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%)';
 			case 'environment':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'environment':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'environment':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 		}
 	}};
   transition: all 0.2s ease;
@@ -173,21 +173,21 @@ const FlowStatusCard = styled.div<{
   background: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 			case 'partial':
-				return 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, #fed7aa 100%)';
 			case 'missing':
-				return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'partial':
 				return '#fed7aa';
 			case 'missing':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -207,11 +207,11 @@ const FlowStatusCard = styled.div<{
     background: ${(props) => {
 			switch (props.$status) {
 				case 'configured':
-					return 'linear-gradient(90deg, #10b981, #34d399)';
+					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_LIGHT)';
 				case 'partial':
-					return 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_LIGHT)';
 				case 'missing':
-					return 'linear-gradient(90deg, #ef4444, #f87171)';
+					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.RED, V9_COLORS.PRIMARY.RED_LIGHT)';
 			}
 		}};
   }
@@ -236,7 +236,7 @@ const FlowName = styled.h4`
   margin: 0 0 0.75rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -256,21 +256,21 @@ const StatusBadge = styled.div<{
   background: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)';
 			case 'partial':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, #fed7aa 100%)';
 			case 'missing':
-				return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'partial':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'missing':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
   border: 1px solid ${(props) => {
@@ -293,7 +293,7 @@ const StatusBadge = styled.div<{
 
 const FlowDetails = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-top: 0.75rem;
   
   .detail-row {
@@ -322,7 +322,7 @@ const FlowDetails = styled.div`
 const EmptyState = styled.div`
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   
   .icon {
     font-size: 2rem;
@@ -430,11 +430,11 @@ const CredentialStatusPanel: React.FC = () => {
 	const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
 		switch (status) {
 			case 'configured':
-				return <FiCheckCircle size={16} color="#10b981" />;
+				return <FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN" />;
 			case 'partial':
-				return <FiAlertTriangle size={16} color="#f59e0b" />;
+				return <FiAlertTriangle size={16} color="V9_COLORS.PRIMARY.YELLOW" />;
 			case 'missing':
-				return <FiXCircle size={16} color="#ef4444" />;
+				return <FiXCircle size={16} color="V9_COLORS.PRIMARY.RED" />;
 		}
 	};
 

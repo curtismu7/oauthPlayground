@@ -31,6 +31,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { credentialManager } from '../../../utils/credentialManager';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -38,7 +39,7 @@ const ContentWrapper = FlowUIService.getContentWrapper();
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+	background: linear-gradient(90deg, transparent, V9_COLORS.TEXT.GRAY_LIGHTER, transparent);
 	margin: 2rem 0;
 `;
 
@@ -49,25 +50,25 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'success':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return '#fbbf24';
+				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 			case 'success':
 				return '#93c5fd';
 			case 'error':
 				return '#fca5a5';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -79,11 +80,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#78350f';
 			case 'success':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 `;
@@ -111,21 +112,21 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s ease-in-out;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -133,7 +134,7 @@ const Input = styled.input`
 // Helper text component for form guidance
 const Helper = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.5rem;
 	line-height: 1.4;
 `;
@@ -153,33 +154,33 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	${(props) => {
 		if (props.$variant === 'primary') {
 			return `
-				background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+				background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 					transform: translateY(-1px);
 					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 				}
 			`;
 		} else if (props.$variant === 'success') {
 			return `
-				background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+				background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%);
 				}
 			`;
 		} else {
 			return `
 				background: white;
-				color: #374151;
-				border: 1px solid #d1d5db;
+				color: V9_COLORS.TEXT.GRAY_DARK;
+				border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 				
 				&:hover {
 					background: #f9fafb;
-					border-color: #9ca3af;
+					border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 				}
 			`;
 		}
@@ -192,8 +193,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 `;
 
 const GeneratedContentBox = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -209,7 +210,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterValue = styled.div`
@@ -217,7 +218,7 @@ const ParameterValue = styled.div`
 	font-size: 0.875rem;
 	color: #1e3a8a;
 	word-break: break-all;
-	background-color: #eff6ff;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
 	border: 1px solid #93c5fd;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
@@ -903,7 +904,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<div
 							style={{
 								fontSize: '0.875rem',
-								color: '#f59e0b',
+								color: 'V9_COLORS.PRIMARY.YELLOW',
 								display: 'flex',
 								flexDirection: 'column',
 								gap: '0.5rem',
@@ -939,8 +940,8 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<ParameterLabel>SAML Assertion (XML)</ParameterLabel>
 							<div
 								style={{
-									background: '#f8fafc',
-									border: '1px solid #e2e8f0',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginTop: '0.5rem',
@@ -949,7 +950,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							>
 								<pre
 									style={{
-										color: '#111827',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 										fontSize: '0.875rem',
 										lineHeight: '1.5',
@@ -988,8 +989,8 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<ParameterLabel>SAML Assertion (Base64 Encoded)</ParameterLabel>
 							<div
 								style={{
-									background: '#f8fafc',
-									border: '1px solid #e2e8f0',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
 									marginTop: '0.5rem',
@@ -998,7 +999,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							>
 								<pre
 									style={{
-										color: '#475569',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 										fontSize: '0.75rem',
 										lineHeight: '1.4',
@@ -1032,7 +1033,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								<div
 									style={{
 										marginTop: '1rem',
-										background: '#fff7ed',
+										background: 'V9_COLORS.TEXT.WHITE7ed',
 										border: '1px solid #fed7aa',
 										borderRadius: '0.5rem',
 										padding: '1rem',
@@ -1122,12 +1123,12 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<InfoText
 							style={{
 								marginTop: '0.5rem',
-								color: '#dc2626',
+								color: 'V9_COLORS.PRIMARY.RED_DARK',
 								fontWeight: '600',
-								backgroundColor: '#fee2e2',
+								backgroundColor: 'V9_COLORS.BG.ERROR',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
-								border: '2px solid #ef4444',
+								border: '2px solid V9_COLORS.PRIMARY.RED',
 							}}
 						>
 							<strong>⚠️ SIMULATION WARNING:</strong> PingOne does not support SAML Bearer
@@ -1170,7 +1171,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<div
 							style={{
 								fontSize: '0.875rem',
-								color: '#f59e0b',
+								color: 'V9_COLORS.PRIMARY.YELLOW',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.25rem',
@@ -1202,7 +1203,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								The SAML Bearer Assertion flow has completed successfully. You now have an access
 								token that can be used to access protected resources.
 							</InfoText>
-							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#1e40af' }}>
+							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
 								<strong>💡 Real-World Behavior:</strong> In production systems, the authorization
 								server extracts user attributes from the SAML assertion (email, name, roles, etc.)
 								and includes them in the access token claims. This allows APIs to identify the user

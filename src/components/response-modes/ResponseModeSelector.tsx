@@ -134,7 +134,7 @@ const COMPATIBILITY_MATRIX: Record<
 // Styled Components
 const Container = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
@@ -142,7 +142,7 @@ const Container = styled.div`
 
 const Header = styled.div`
   padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -158,7 +158,7 @@ const HeaderTitle = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -167,7 +167,7 @@ const HeaderTitle = styled.h3`
 const CollapseIcon = styled.div<{ $collapsed: boolean }>`
   transition: transform 0.2s ease;
   transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Content = styled.div<{ $collapsed: boolean }>`
@@ -180,7 +180,7 @@ const Content = styled.div<{ $collapsed: boolean }>`
 const Description = styled.p`
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.5;
 `;
 
@@ -196,15 +196,15 @@ const CheckboxItem = styled.label<{ $selected: boolean }>`
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.$selected ? '#3b82f6' : '#d1d5db')};
+  border: 1px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? '#eff6ff' : 'white')};
+  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
   
   &:hover {
-    border-color: #3b82f6;
-    background: ${(props) => (props.$selected ? '#eff6ff' : '#f9fafb')};
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
   }
 `;
 
@@ -226,11 +226,11 @@ const CheckboxHeader = styled.div`
 
 const CheckboxTitle = styled.span<{ $selected: boolean }>`
   font-weight: ${(props) => (props.$selected ? '600' : '500')};
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RecommendedBadge = styled.span`
-  background: #10b981;
+  background: V9_COLORS.PRIMARY.GREEN;
   color: white;
   font-size: 0.625rem;
   font-weight: 600;
@@ -242,20 +242,20 @@ const RecommendedBadge = styled.span`
 
 const CheckboxDescription = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
   margin-bottom: 0.25rem;
 `;
 
 const BestFor = styled.div`
   font-size: 0.75rem;
-  color: #059669;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-weight: 500;
 `;
 
 const PreviewSection = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
 `;
@@ -264,7 +264,7 @@ const PreviewTitle = styled.h4`
   margin: 0 0 0.75rem 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const PreviewContent = styled.div`
@@ -275,7 +275,7 @@ const PreviewContent = styled.div`
 
 const PreviewBlock = styled.div`
   background: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 0.75rem;
 `;
@@ -283,7 +283,7 @@ const PreviewBlock = styled.div`
 const PreviewLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
@@ -292,10 +292,10 @@ const PreviewText = styled.code`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   color: #1e293b;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   padding: 0.375rem;
   border-radius: 0.25rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   word-break: break-all;
   white-space: pre-wrap;
   line-height: 1.2;
@@ -325,11 +325,11 @@ const WarningChip = styled.div<{ $level: 'info' | 'warn' | 'error' }>`
   ${(props) => {
 		switch (props.$level) {
 			case 'info':
-				return 'background: #dbeafe; color: #1e40af;';
+				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
 			case 'warn':
-				return 'background: #fef3c7; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			case 'error':
-				return 'background: #fee2e2; color: #991b1b;';
+				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
 			default:
 				return '';
 		}
@@ -338,7 +338,7 @@ const WarningChip = styled.div<{ $level: 'info' | 'warn' | 'error' }>`
 
 const SummaryText = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-style: italic;
 `;
 

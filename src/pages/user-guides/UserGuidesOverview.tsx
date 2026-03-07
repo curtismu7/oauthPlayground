@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import PageLayoutService from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const CardGrid = styled.div`
   display: grid;
@@ -39,7 +40,7 @@ const GuideCard = styled(Link)`
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
     color: white;
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
   }
   
   h3 {
@@ -71,7 +72,7 @@ const GuideCard = styled(Link)`
 `;
 
 const IntroSection = styled.div`
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
   color: white;
   padding: 2.5rem;
   border-radius: 1rem;

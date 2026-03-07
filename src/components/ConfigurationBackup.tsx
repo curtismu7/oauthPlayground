@@ -8,8 +8,14 @@ import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from '@ico
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import configurationBackupService, {
-	FlowConfiguration,
-} from '../services/configurationBackupService';
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+FlowConfiguration,
+} from '../services/configurationBackupService'
 
 interface ConfigurationBackupProps {
 	flowType: string;
@@ -23,8 +29,8 @@ interface ConfigurationBackupProps {
 }
 
 const Container = styled.div`
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-	border: 1px solid #bae6fd;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.25rem;
 	margin: 1rem 0;
@@ -38,7 +44,7 @@ const Header = styled.div`
 `;
 
 const HeaderIcon = styled.div`
-	color: #0284c7;
+	color: V9_COLORS.PRIMARY.BLUE;
 	display: flex;
 	align-items: center;
 `;
@@ -47,13 +53,13 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Description = styled.p`
 	margin: 0 0 1rem 0;
 	font-size: 0.875rem;
-	color: #0369a1;
+	color: V9_COLORS.PRIMARY.BLUE;
 	line-height: 1.5;
 `;
 
@@ -69,17 +75,17 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	padding: 0.625rem 1rem;
 	border-radius: 0.5rem;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#0284c7' : '#7dd3fc')};
-	background: ${({ $variant }) => ($variant === 'primary' ? '#0284c7' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#0369a1')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#7dd3fc')};
+	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.PRIMARY.BLUE')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? '#0369a1' : '#f0f9ff')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? '#0369a1' : '#0284c7')};
+		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.BG.GRAY_LIGHT')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.BLUE')};
 		transform: translateY(-1px);
 	}
 
@@ -111,29 +117,29 @@ const Message = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'info':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'info':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'info':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 `;

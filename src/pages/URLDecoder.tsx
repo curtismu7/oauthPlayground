@@ -16,11 +16,12 @@ import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccess
 import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
   min-height: 100vh;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   padding-top: 100px; /* Account for fixed Navbar (80px height + 20px spacing) */
   padding-bottom: 4rem;
   padding-left: 1rem;
@@ -48,7 +49,7 @@ const _Header = styled.div`
   text-align: center;
   margin: 0 auto 3rem auto;
   max-width: 90rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   
   @media (min-width: 768px) {
     width: calc(100% - 2rem);
@@ -59,7 +60,7 @@ const _Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +69,7 @@ const _Title = styled.h1`
 
 const _Subtitle = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
   max-width: 600px;
   margin-left: auto;
@@ -83,7 +84,7 @@ const ContentCard = styled.div`
   padding: 2rem;
   margin: 0 auto 2rem auto;
   max-width: 90rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   
   /* Ensure content is visible even when sidebar is open */
   @media (min-width: 768px) {
@@ -100,7 +101,7 @@ const CardHeader = styled.div`
 const CardTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -108,7 +109,7 @@ const CardTitle = styled.h2`
 `;
 
 const CardDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0;
   font-size: 0.875rem;
 `;
@@ -120,7 +121,7 @@ const FormField = styled.div`
 const FormLabel = styled.label`
   display: block;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
 `;
@@ -129,7 +130,7 @@ const TextArea = styled.textarea`
   width: 100%;
   min-height: 120px;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -138,7 +139,7 @@ const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -161,29 +162,29 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background: #2563eb; }
-          &:disabled { background: #9ca3af; cursor: not-allowed; }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
+          &:disabled { background: V9_COLORS.TEXT.GRAY_LIGHT; cursor: not-allowed; }
         `;
 			case 'secondary':
 				return `
           background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
-          &:hover { background: #e5e7eb; }
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: #059669; }
+          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background: #dc2626; }
+          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
@@ -197,8 +198,8 @@ const ButtonGroup = styled.div`
 `;
 
 const ResultCard = styled.div`
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -207,7 +208,7 @@ const ResultCard = styled.div`
 const ResultTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -215,12 +216,12 @@ const ResultTitle = styled.h3`
 `;
 
 const ResultContent = styled.pre`
-  background: #e0f2fe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border: 1px solid #90cdf4;
   border-radius: 0.375rem;
   padding: 0.75rem;
   font-size: 0.75rem;
-  color: #0c4a6e;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   white-space: pre-wrap;
   word-break: break-all;
   margin: 0;
@@ -238,27 +239,27 @@ const InfoBox = styled.div<{ type?: 'info' | 'warning' | 'error' | 'success' }>`
 		switch (type) {
 			case 'info':
 				return `
-          background: #f0f9ff;
-          border: 1px solid #bae6fd;
-          color: #0369a1;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: V9_COLORS.PRIMARY.BLUE;
         `;
 			case 'warning':
 				return `
-          background: #fef3c7;
+          background: V9_COLORS.BG.WARNING;
           border: 1px solid #fde047;
-          color: #92400e;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'error':
 				return `
-          background: #fee2e2;
-          border: 1px solid #fecaca;
-          color: #dc2626;
+          background: V9_COLORS.BG.ERROR;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #166534;
+          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 		}
 	}}
@@ -513,24 +514,24 @@ const URLDecoder: React.FC = () => {
 					}}
 				>
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>OAuth URLs</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>OAuth URLs</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Perfect for analyzing OAuth authorization URLs, callback URLs, and token exchange
 							requests. Helps debug parameter issues and understand URL structure.
 						</p>
 					</div>
 
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>Parameter Analysis</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Parameter Analysis</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Breaks down query parameters and hash fragments into readable key-value pairs. Useful
 							for debugging redirect URI mismatches and parameter validation.
 						</p>
 					</div>
 
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>URL Structure</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>URL Structure</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							Shows the complete URL structure including protocol, host, path, and all components.
 							Helps understand the full context of the URL.
 						</p>

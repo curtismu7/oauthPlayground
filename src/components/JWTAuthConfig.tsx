@@ -10,8 +10,8 @@ interface JWTAuthConfigProps {
 }
 
 const Container = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -31,7 +31,7 @@ const Header = styled.div`
   }
   
   .badge {
-    background: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
@@ -47,27 +47,27 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-size: 0.875rem;
   }
   
   input, textarea, select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     border-radius: 0.375rem;
     font-size: 0.875rem;
     transition: border-color 0.2s;
     
     &:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: V9_COLORS.PRIMARY.BLUE;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
     &:disabled {
       background: #f9fafb;
-      color: #6b7280;
+      color: V9_COLORS.TEXT.GRAY_MEDIUM;
     }
   }
   
@@ -80,13 +80,13 @@ const FormGroup = styled.div`
   .help-text {
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
   }
   
   .error-text {
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #dc2626;
+    color: V9_COLORS.PRIMARY.RED_DARK;
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -101,16 +101,16 @@ const AuthMethodSelector = styled.div`
 `;
 
 const MethodCard = styled.div<{ $selected: boolean; $disabled?: boolean }>`
-  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e2e8f0')};
+  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   padding: 1rem;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   transition: all 0.2s;
-  background: ${({ $selected }) => ($selected ? '#eff6ff' : 'white')};
+  background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   
   &:hover:not([disabled]) {
-    border-color: ${({ $selected }) => ($selected ? '#3b82f6' : '#94a3b8')};
+    border-color: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : '#94a3b8')};
   }
   
   .method-header {
@@ -125,7 +125,7 @@ const MethodCard = styled.div<{ $selected: boolean; $disabled?: boolean }>`
     }
     
     .method-badge {
-      background: ${({ $selected }) => ($selected ? '#3b82f6' : '#6b7280')};
+      background: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
       color: white;
       padding: 0.125rem 0.5rem;
       border-radius: 0.25rem;
@@ -136,7 +136,7 @@ const MethodCard = styled.div<{ $selected: boolean; $disabled?: boolean }>`
   
   .method-description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.4;
   }
 `;
@@ -156,21 +156,21 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${({ variant = 'primary' }) =>
 		variant === 'primary'
 			? `
-    background: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover:not(:disabled) {
-      background: #2563eb;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background: transparent;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     
     &:hover:not(:disabled) {
       background: #f9fafb;
-      color: #374151;
+      color: V9_COLORS.TEXT.GRAY_DARK;
     }
   `}
   
@@ -194,27 +194,27 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #166534;
+          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #dc2626;
+          background: V9_COLORS.BG.ERROR;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'info':
 				return `
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          color: #1d4ed8;
+          background: V9_COLORS.BG.GRAY_LIGHT;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
         `;
 		}
 	}}
 `;
 
 const TestSection = styled.div`
-  background: #f1f5f9;
+  background: V9_COLORS.BG.GRAY_MEDIUM;
   border: 1px solid #cbd5e1;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -233,7 +233,7 @@ const TestSection = styled.div`
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.75rem;
     background: white;
-    border: 1px solid #e2e8f0;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     border-radius: 0.25rem;
     padding: 0.75rem;
     max-height: 200px;
@@ -509,7 +509,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 								background: 'none',
 								border: 'none',
 								cursor: 'pointer',
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
 							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
@@ -547,7 +547,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 									background: 'none',
 									border: 'none',
 									cursor: 'pointer',
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								{showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}

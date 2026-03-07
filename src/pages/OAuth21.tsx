@@ -422,8 +422,8 @@ redirect_uri=https://app.example.com/callback
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
+										<FiX style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: 'V9_COLORS.PRIMARY.YELLOW' }}>DEPRECATED</span>
 									</div>
 									<p>
 										The Implicit grant (`response_type=token`) is omitted from OAuth 2.1
@@ -479,8 +479,8 @@ response_type=code
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
+										<FiX style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: 'V9_COLORS.PRIMARY.YELLOW' }}>DEPRECATED</span>
 									</div>
 									<p>
 										The Password grant is omitted from OAuth 2.1 specification. Use Authorization
@@ -600,8 +600,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 // 3. Or no refresh tokens at all`}</pre>
 									<div
 										style={{
-											background: '#fef2f2',
-											border: '1px solid #fecaca',
+											background: 'V9_COLORS.BG.ERROR',
+											border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -610,11 +610,11 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											gap: '0.75rem',
 										}}
 									>
-										<FiX style={{ color: '#dc2626', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiX style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#dc2626',
+													color: 'V9_COLORS.PRIMARY.RED_DARK',
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -622,7 +622,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											>
 												PingOne Support - Partial
 											</h4>
-											<p style={{ margin: '0', color: '#dc2626', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: 'V9_COLORS.PRIMARY.RED_DARK', fontSize: '0.9rem' }}>
 												PingOne supports one-time use refresh tokens. Sender-constrained refresh
 												tokens (mTLS, DPoP) are not currently supported.
 											</p>

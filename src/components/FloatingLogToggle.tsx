@@ -15,7 +15,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   right: 20px;
   width: 50px;
   height: 50px;
-  background: ${(props) => (props.$isOpen ? '#ef4444' : '#3b82f6')};
+  background: ${(props) => (props.$isOpen ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
   color: white;
   border: none;
   border-radius: 50%;
@@ -29,7 +29,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   font-size: 18px;
 
   &:hover {
-    background: ${(props) => (props.$isOpen ? '#dc2626' : '#2563eb')};
+    background: ${(props) => (props.$isOpen ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
     transform: scale(1.05);
   }
 

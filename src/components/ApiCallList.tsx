@@ -19,7 +19,7 @@ const Header = styled.div`
 	margin-bottom: 16px;
 	padding: 16px;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
@@ -28,14 +28,14 @@ const Title = styled.h3`
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 `;
 
 const CallCount = styled.span`
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	padding: 4px 12px;
 	border-radius: 12px;
@@ -44,7 +44,7 @@ const CallCount = styled.span`
 `;
 
 const ClearButton = styled.button`
-	background: #ef4444;
+	background: V9_COLORS.PRIMARY.RED;
 	color: white;
 	border: none;
 	padding: 8px 16px;
@@ -58,7 +58,7 @@ const ClearButton = styled.button`
 	gap: 6px;
 
 	&:hover {
-		background: #dc2626;
+		background: V9_COLORS.PRIMARY.RED_DARK;
 		transform: translateY(-1px);
 	}
 
@@ -67,7 +67,7 @@ const ClearButton = styled.button`
 	}
 
 	&:disabled {
-		background: #9ca3af;
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
 		cursor: not-allowed;
 		transform: none;
 	}
@@ -77,9 +77,9 @@ const EmptyState = styled.div`
 	text-align: center;
 	padding: 48px 32px;
 	background: white;
-	border: 2px dashed #e5e7eb;
+	border: 2px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
-	color: #9ca3af;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
 	font-size: 14px;
 `;
 
@@ -150,7 +150,14 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 			{apiCalls.length === 0 ? (
 				<EmptyState>
 					<div style={{ fontSize: '48px', marginBottom: '16px' }}>📡</div>
-					<div style={{ fontSize: '16px', fontWeight: 600, color: '#6b7280', marginBottom: '8px' }}>
+					<div
+						style={{
+							fontSize: '16px',
+							fontWeight: 600,
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							marginBottom: '8px',
+						}}
+					>
 						No API calls recorded yet
 					</div>
 					<div style={{ fontSize: '14px' }}>API calls will appear here as they are made</div>

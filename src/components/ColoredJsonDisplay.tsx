@@ -21,7 +21,7 @@ interface ColoredJsonDisplayProps {
 
 const JsonContainer = styled.div`
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -72,7 +72,7 @@ const JsonContentWrapper = styled.div<{ $isExpanded: boolean; $maxHeight?: strin
 
 const StyledHighlighter = styled(JSONHighlighter)`
 	background: ${VSCODE_COLORS.background};
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
@@ -94,9 +94,9 @@ const CollapseButton = styled.button`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	background: white;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -104,7 +104,7 @@ const CollapseButton = styled.button`
 	
 	&:hover {
 		background: #f9fafb;
-		border-color: #9ca3af;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 

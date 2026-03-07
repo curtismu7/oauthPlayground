@@ -19,13 +19,13 @@ const Badge = styled.span<{ $flow?: string; $variant?: string }>`
 		if (props.$variant === 'sidebar') {
 			return '#6366f1';
 		}
-		return props.$flow === 'Implicit' ? '#60a5fa' : '#4ade80';
+		return props.$flow === 'Implicit' ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#4ade80';
 	}};
   color: ${(props) => {
 		if (props.$variant === 'sidebar') {
 			return '#4f46e5';
 		}
-		return props.$flow === 'Implicit' ? '#dbeafe' : '#bbf7d0';
+		return props.$flow === 'Implicit' ? '#dbeafe' : 'V9_COLORS.BG.SUCCESS_BORDER';
 	}};
   font-size: ${(props) => (props.$variant === 'sidebar' ? '0.7rem' : '0.75rem')};
   font-weight: 600;

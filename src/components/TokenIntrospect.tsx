@@ -10,10 +10,10 @@ import NextSteps from './NextSteps';
 
 // Styled components (reused from AuthorizationCodeFlowV5)
 const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
@@ -33,7 +33,7 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	transition: background 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+		background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #ecfdf3 100%);
 	}
 `;
 
@@ -68,8 +68,8 @@ const CollapsibleContent = styled.div`
 `;
 
 const GeneratedContentBox = styled.div`
-	background-color: #dcfce7;
-	border: 1px solid #22c55e;
+	background-color: V9_COLORS.BG.SUCCESS;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -80,7 +80,7 @@ const GeneratedLabel = styled.div`
 	position: absolute;
 	top: -10px;
 	left: 16px;
-	background-color: #16a34a;
+	background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
@@ -110,13 +110,13 @@ const UserInfoRow = styled.div`
 	padding: 0.75rem;
 	background: #f0fdf4;
 	border-radius: 0.5rem;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 `;
 
 const ParameterLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #16a34a;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -129,7 +129,7 @@ const ParameterValue = styled.div`
 	background-color: #f0fdf4;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 `;
 
 const ActionRow = styled.div`
@@ -159,18 +159,18 @@ const Button = styled.button<{
 	${({ $variant }) =>
 		$variant === 'primary' &&
 		`
-		background-color: #22c55e;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.GREEN;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #16a34a;
+			background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'success' &&
 		`
-		background-color: #16a34a;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
 			background-color: #15803d;
 		}
@@ -180,19 +180,19 @@ const Button = styled.button<{
 		$variant === 'secondary' &&
 		`
 		background-color: #0ea5e9;
-		color: #ffffff;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #0284c7;
+			background-color: V9_COLORS.PRIMARY.BLUE;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'danger' &&
 		`
-		background-color: #ef4444;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.RED;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #dc2626;
+			background-color: V9_COLORS.PRIMARY.RED_DARK;
 		}
 	`}
 
@@ -201,10 +201,10 @@ const Button = styled.button<{
 		`
 		background-color: transparent;
 		color: #14532d;
-		border-color: #bbf7d0;
+		border-color: V9_COLORS.BG.SUCCESS_BORDER;
 		&:hover:not(:disabled) {
 			background-color: #f0fdf4;
-			border-color: #22c55e;
+			border-color: V9_COLORS.PRIMARY.GREEN;
 		}
 	`}
 `;
@@ -214,14 +214,14 @@ const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success
 	background:
 		${({ $priority }) =>
 			$priority === 'primary'
-				? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-				: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
+				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'
+				: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
 	box-shadow:
 		${({ $priority }) =>
 			$priority === 'primary'
 				? '0 6px 18px rgba(34, 197, 94, 0.35)'
 				: '0 6px 18px rgba(16, 185, 129, 0.35)'};
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	padding-right: 2.5rem;
 
 	&:hover {
@@ -241,7 +241,7 @@ const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success
 const InfoTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -268,7 +268,7 @@ const ResultsHeading = styled.h3`
 
 const HelperText = styled.p`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 	margin: 0 0 1rem;
 `;
@@ -287,21 +287,21 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'success':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
 	margin: 1rem 0;
@@ -558,7 +558,9 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 													<ParameterLabel>Token Status</ParameterLabel>
 													<ParameterValue
 														style={{
-															color: introspectionResults.active ? '#16a34a' : '#dc2626',
+															color: introspectionResults.active
+																? 'V9_COLORS.PRIMARY.GREEN_DARK'
+																: 'V9_COLORS.PRIMARY.RED_DARK',
 															fontWeight: 'bold',
 														}}
 													>
@@ -675,14 +677,14 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																style={{
 																	margin: 0,
 																	padding: '1rem',
-																	background: '#f8fafc',
+																	background: 'V9_COLORS.BG.GRAY_LIGHT',
 																	borderRadius: '0.5rem',
-																	border: '1px solid #e2e8f0',
+																	border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 																	fontSize: '0.875rem',
 																	lineHeight: '1.5',
 																	overflow: 'auto',
 																	maxHeight: '400px',
-																	color: '#1f2937',
+																	color: 'V9_COLORS.TEXT.GRAY_DARK',
 																}}
 															>
 																{JSON.stringify(introspectionResults, null, 2)}
@@ -743,7 +745,8 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										$priority="primary"
 										disabled={!tokens?.access_token || isFetchingUserInfo}
 										style={{
-											background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+											background:
+												'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 											color: 'white',
 											border: 'none',
 											padding: '1rem 2rem',

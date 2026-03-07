@@ -26,11 +26,11 @@ const TooltipTrigger = styled.span`
   display: inline-flex;
   align-items: center;
   cursor: help;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-left: 0.25rem;
   
   &:hover {
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -39,7 +39,7 @@ const TooltipContent = styled.div<{ $visible: boolean }>`
   bottom: calc(100% + 0.5rem);
   left: 50%;
   transform: translateX(-50%);
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: white;
   padding: 0.625rem 0.875rem;
   border-radius: 0.375rem;
@@ -62,7 +62,7 @@ const TooltipContent = styled.div<{ $visible: boolean }>`
     left: 50%;
     transform: translateX(-50%);
     border: 6px solid transparent;
-    border-top-color: #1f2937;
+    border-top-color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -75,7 +75,7 @@ const TooltipLink = styled.a`
   
   &:hover {
     text-decoration: underline;
-    color: #bfdbfe;
+    color: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 

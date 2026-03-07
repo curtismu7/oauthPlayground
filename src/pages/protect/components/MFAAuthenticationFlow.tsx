@@ -33,6 +33,7 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

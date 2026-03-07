@@ -20,7 +20,7 @@ const CallbackContainer = styled.div`
 
 const SuccessCard = styled.div`
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.75rem;
 	padding: 2rem;
 	max-width: 500px;
@@ -29,7 +29,7 @@ const SuccessCard = styled.div`
 
 const SuccessIcon = styled.div`
 	font-size: 3rem;
-	color: #22c55e;
+	color: V9_COLORS.PRIMARY.GREEN;
 	margin-bottom: 1rem;
 `;
 
@@ -42,12 +42,12 @@ const SuccessTitle = styled.h1`
 
 const SuccessMessage = styled.p`
 	margin: 0 0 1.5rem 0;
-	color: #166534;
+	color: V9_COLORS.PRIMARY.GREEN;
 	line-height: 1.6;
 `;
 
 const LoginButton = styled.button`
-	background: linear-gradient(135deg, #22c55e, #16a34a);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_DARK);
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -60,7 +60,7 @@ const LoginButton = styled.button`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #16a34a, #15803d);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK, #15803d);
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 	}

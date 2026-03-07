@@ -11,6 +11,7 @@
 
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const pingidentityConfig: CorporatePortalConfig = {
 	company: {
@@ -71,12 +72,12 @@ export const pingidentityConfig: CorporatePortalConfig = {
 			accent: '#003366', // PingIdentity Dark Blue
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: '#6b7280',
-			border: '#d1d5db',
+			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#DC2626',
-			success: '#059669',
+			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
 			warning: '#F59E0B',
 			info: '#0066CC',
 			primaryLight: '#3385FF',
@@ -119,16 +120,16 @@ export const pingidentityTheme: BrandTheme = {
 	colors: {
 		primary: '#0066CC', // PingIdentity Blue (official primary color)
 		primaryDark: '#0052A3', // Darker blue for hover states
-		secondary: '#111827', // Updated to match mockup secondary
+		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
 		accent: '#0066CC', // PingIdentity Blue (accent)
-		background: '#ffffff', // Updated to match mockup bg
-		surface: '#ffffff', // Updated to match mockup surface
-		muted: '#6b7280', // Updated to match mockup muted
-		border: '#d1d5db', // Updated to match mockup border
+		background: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup bg
+		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
+		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
+		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
-		success: '#059669',
+		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
 		warning: '#F59E0B', // Amber for warnings
 		info: '#0066CC', // Use PingIdentity Blue for info
 		// Additional theme colors with PingIdentity palette

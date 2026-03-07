@@ -28,6 +28,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -282,7 +283,7 @@ const FlightSearch = styled.div<{ $brandColor: string }>`
     .form-group {
       label {
         display: block;
-        color: #374151;
+        color: V9_COLORS.TEXT.GRAY_DARK;
         font-size: 0.875rem;
         font-weight: 500;
         margin-bottom: 0.5rem;
@@ -291,7 +292,7 @@ const FlightSearch = styled.div<{ $brandColor: string }>`
       input {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
         border-radius: 8px;
         font-size: 1rem;
         
@@ -405,7 +406,7 @@ const TrackingInterface = styled.div<{ $brandColor: string }>`
       
       label {
         display: block;
-        color: #374151;
+        color: V9_COLORS.TEXT.GRAY_DARK;
         font-size: 0.875rem;
         font-weight: 500;
         margin-bottom: 0.5rem;
@@ -414,7 +415,7 @@ const TrackingInterface = styled.div<{ $brandColor: string }>`
       input {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid #d1d5db;
+        border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
         border-radius: 8px;
         font-size: 1rem;
         

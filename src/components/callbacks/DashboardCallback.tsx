@@ -28,15 +28,15 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 		switch ($status) {
 			case 'success':
 				return `
-          border-left: 4px solid #10b981;
+          border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          border-left: 4px solid #ef4444;
+          border-left: 4px solid V9_COLORS.PRIMARY.RED;
         `;
 			default:
 				return `
-          border-left: 4px solid #3b82f6;
+          border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
         `;
 		}
 	}}
@@ -53,17 +53,17 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 			switch ($status) {
 				case 'success':
 					return `
-            color: #10b981;
+            color: V9_COLORS.PRIMARY.GREEN;
             font-size: 3rem;
           `;
 				case 'error':
 					return `
-            color: #ef4444;
+            color: V9_COLORS.PRIMARY.RED;
             font-size: 3rem;
           `;
 				default:
 					return `
-            color: #3b82f6;
+            color: V9_COLORS.PRIMARY.BLUE;
             font-size: 3rem;
             animation: spin 1s linear infinite;
           `;
@@ -80,12 +80,12 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 const StatusTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatusMessage = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1rem;
   margin-bottom: 1.5rem;
   line-height: 1.5;
@@ -93,8 +93,8 @@ const StatusMessage = styled.p`
 
 const ErrorDetails = styled.pre`
   background: #f3f4f6;
-  color: #1f2937;
-  border: 1px solid #d1d5db;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   font-size: 0.875rem;

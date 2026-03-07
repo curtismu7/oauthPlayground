@@ -28,19 +28,19 @@ const fadeOut = keyframes`
 // Theme configurations
 const themeConfig: Record<SpinnerTheme, { primary: string; secondary: string; text: string }> = {
 	blue: {
-		primary: '#3b82f6',
+		primary: 'V9_COLORS.PRIMARY.BLUE',
 		secondary: '#dbeafe',
-		text: '#1e40af',
+		text: 'V9_COLORS.PRIMARY.BLUE_DARK',
 	},
 	green: {
-		primary: '#10b981',
-		secondary: '#d1fae5',
-		text: '#065f46',
+		primary: 'V9_COLORS.PRIMARY.GREEN',
+		secondary: 'V9_COLORS.BG.SUCCESS',
+		text: 'V9_COLORS.PRIMARY.GREEN_DARK',
 	},
 	orange: {
-		primary: '#f59e0b',
+		primary: 'V9_COLORS.PRIMARY.YELLOW',
 		secondary: '#fed7aa',
-		text: '#92400e',
+		text: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 	},
 	purple: {
 		primary: '#8b5cf6',

@@ -14,6 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import TextLogo from './TextLogo';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -63,7 +64,7 @@ const DropdownButton = styled.button`
 `;
 
 const CurrentBrandText = styled.span`
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -149,7 +150,7 @@ const MenuItemText = styled.div`
   text-align: left;
   font-weight: 600;
   font-size: 0.85rem;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

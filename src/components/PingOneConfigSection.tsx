@@ -6,8 +6,8 @@ import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  background: #fef3c7;
-  border: 2px solid #f59e0b;
+  background: V9_COLORS.BG.WARNING;
+  border: 2px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 12px;
   margin: 2rem auto;
   max-width: 1200px;
@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div<{ $hasCredentials: boolean }>`
-  background: ${({ $hasCredentials }) => ($hasCredentials ? '#10b981' : '#fbbf24')};
+  background: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
   padding: 1rem 1.5rem;
   cursor: pointer;
   display: flex;
@@ -24,12 +24,12 @@ const Header = styled.div<{ $hasCredentials: boolean }>`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: ${({ $hasCredentials }) => ($hasCredentials ? '#059669' : '#f59e0b')};
+    background: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW')};
   }
 `;
 
 const HeaderTitle = styled.h3<{ $hasCredentials: boolean }>`
-  color: ${({ $hasCredentials }) => ($hasCredentials ? '#065f46' : '#92400e')};
+  color: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
   margin: 0;
   margin-left: 0.75rem;
   font-size: 1.1rem;
@@ -48,8 +48,8 @@ const ChevronIcon = styled.div<{ $hasCredentials: boolean }>`
   height: 2rem;
   border-radius: 6px;
   background: ${({ $hasCredentials }) => ($hasCredentials ? 'rgba(6, 95, 70, 0.1)' : 'rgba(146, 64, 14, 0.1)')};
-  border: 1px solid ${({ $hasCredentials }) => ($hasCredentials ? '#065f46' : '#92400e')};
-  color: ${({ $hasCredentials }) => ($hasCredentials ? '#065f46' : '#92400e')};
+  border: 1px solid ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  color: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
   font-size: 1.2rem;
   transition: all 0.2s ease;
   
@@ -83,14 +83,14 @@ const WarningText = styled.p`
 
 const UrlContainer = styled.div`
   background: #f9fafb;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   word-break: break-all;
   display: flex;
   align-items: center;
@@ -114,17 +114,17 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? '#10b981' : '#3b82f6')};
+  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
   border-radius: 6px;
-  background: ${({ $variant }) => ($variant === 'copy' ? '#ecfdf5' : '#eff6ff')};
-  color: ${({ $variant }) => ($variant === 'copy' ? '#059669' : '#2563eb')};
+  background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.GRAY_LIGHT')};
+  color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${({ $variant }) => ($variant === 'copy' ? '#d1fae5' : '#dbeafe')};
+    background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.BG.SUCCESS' : '#dbeafe')};
     transform: translateY(-1px);
   }
   
@@ -141,13 +141,13 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
 const Instructions = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background: #fef3c7;
+  background: V9_COLORS.BG.WARNING;
   border-radius: 8px;
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
 `;
 
 const InstructionsTitle = styled.h4`
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0 0 0.5rem 0;
   font-size: 0.95rem;
   font-weight: 600;
@@ -383,14 +383,20 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 							<div
 								style={{
 									padding: '1rem',
-									backgroundColor: '#fef3c7',
+									backgroundColor: 'V9_COLORS.BG.WARNING',
 									borderRadius: '0.5rem',
-									border: '1px solid #f59e0b',
+									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 									marginTop: '1rem',
 								}}
 							>
-								<strong style={{ color: '#92400e' }}> Important:</strong>
-								<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#92400e' }}>
+								<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}> Important:</strong>
+								<ul
+									style={{
+										marginTop: '0.5rem',
+										paddingLeft: '1.5rem',
+										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									}}
+								>
 									<li>Save all changes in PingOne console before testing</li>
 									<li>
 										Application must be <strong>enabled</strong> in PingOne
@@ -402,7 +408,13 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 								</ul>
 							</div>
 
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<div
+								style={{
+									marginTop: '1rem',
+									fontSize: '0.9rem',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								}}
+							>
 								<strong>Quick Path:</strong> PingOne Console Applications Your App Configuration
 							</div>
 						</InstructionsText>

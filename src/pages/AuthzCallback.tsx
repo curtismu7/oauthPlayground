@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 800px;
@@ -18,7 +19,7 @@ const Card = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #1a202c;
+  color: V9_COLORS.TEXT.BLACK;
   margin-bottom: 20px;
 `;
 
@@ -33,8 +34,8 @@ const Label = styled.div`
 `;
 
 const CodeBox = styled.div`
-  background: #2d3748;
-  color: #e2e8f0;
+  background: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 15px;
   border-radius: 4px;
   font-family: 'Courier New', monospace;

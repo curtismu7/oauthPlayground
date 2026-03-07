@@ -6,6 +6,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 import { logger } from '../../../../utils/logger';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // Mock services - these would be imported from actual services in real implementation
 const FlowCredentialService = {
@@ -136,7 +137,7 @@ export const useFlowVariantSwitching = (
 				requiredScopes: ['openid'], // PingOne requires openid
 				optionalScopes: ['profile', 'email'],
 				icon: '🔑',
-				color: '#16a34a',
+				color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 			},
 			oidc: {
 				name: 'OpenID Connect',
@@ -145,7 +146,7 @@ export const useFlowVariantSwitching = (
 				requiredScopes: ['openid'],
 				optionalScopes: ['profile', 'email'],
 				icon: '🆔',
-				color: '#3b82f6',
+				color: 'V9_COLORS.PRIMARY.BLUE',
 			},
 		};
 

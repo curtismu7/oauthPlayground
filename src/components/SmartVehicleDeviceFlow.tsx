@@ -34,7 +34,7 @@ const SmartVehicleContainer = styled.div`
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   
   /* Tesla screen bezel */
   &::before {
@@ -57,7 +57,7 @@ const SmartVehicleContainer = styled.div`
     left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     letter-spacing: 1px;
     z-index: 2;
   }
@@ -72,7 +72,7 @@ const VehicleHeader = styled.div`
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   font-size: 0.875rem;
@@ -82,7 +82,7 @@ const VehicleHeader = styled.div`
 const VehicleTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -92,7 +92,7 @@ const VehicleTitle = styled.div`
 
 const VehicleSubtitle = styled.div`
   font-size: 1rem;
-  color: #fecaca;
+  color: V9_COLORS.BG.ERROR_BORDER;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -109,7 +109,7 @@ const DashboardIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#374151')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
   box-shadow: ${(props) => (props.$active ? `0 0 20px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'dashboardPulse 2s infinite' : 'none')};
   position: relative;
@@ -123,7 +123,7 @@ const DashboardIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerPulse 1.5s infinite' : 'none')};
   }
   
@@ -146,8 +146,8 @@ const DashboardIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Vehicle Display Screen
 const VehicleDisplayScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1e293b 100%);
-  border: 3px solid #f87171;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
+  border: 3px solid V9_COLORS.PRIMARY.RED_LIGHT;
   border-radius: 0.75rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -159,7 +159,7 @@ const VehicleDisplayScreen = styled.div`
 `;
 
 const ScreenLabel = styled.div`
-  color: #f87171;
+  color: V9_COLORS.PRIMARY.RED_LIGHT;
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -168,8 +168,8 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
-  color: #22c55e;
+  background: V9_COLORS.TEXT.BLACK;
+  color: V9_COLORS.PRIMARY.GREEN;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 1.5rem;
   font-weight: 700;
@@ -177,8 +177,8 @@ const UserCodeDisplay = styled.div`
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
   letter-spacing: 0.2em;
-  text-shadow: 0 0 10px #22c55e;
-  border: 2px solid #22c55e;
+  text-shadow: 0 0 10px V9_COLORS.PRIMARY.GREEN;
+  border: 2px solid V9_COLORS.PRIMARY.GREEN;
   box-shadow: 
     inset 0 0 20px rgba(34, 197, 94, 0.2),
     0 0 20px rgba(34, 197, 94, 0.3);
@@ -187,7 +187,7 @@ const UserCodeDisplay = styled.div`
 // QR Code Section
 const QRCodeSection = styled.div`
   background: #1e293b;
-  border: 2px solid #f87171;
+  border: 2px solid V9_COLORS.PRIMARY.RED_LIGHT;
   border-radius: 0.75rem;
   padding: 0.75rem;
   text-align: center;
@@ -197,7 +197,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 0.75rem;
   font-weight: 600;
-  color: #f87171;
+  color: V9_COLORS.PRIMARY.RED_LIGHT;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -223,28 +223,28 @@ const VehicleControlButton = styled.button<{
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return '#f87171';
+				return 'V9_COLORS.PRIMARY.RED_LIGHT';
 			case 'secondary':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			case 'success':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   color: white;
   border: 2px solid ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'danger':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
 				return '#4b5563';
 		}
@@ -278,25 +278,25 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorized':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'denied':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -317,7 +317,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -325,16 +325,16 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Vehicle Base
 const VehicleBase = styled.div`
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED 100%);
   height: 1.5rem;
   border-radius: 0 0 0.75rem 0.75rem;
   margin: 0 -2rem -2rem -2rem;
-  border-top: 2px solid #f87171;
+  border-top: 2px solid V9_COLORS.PRIMARY.RED_LIGHT;
 `;
 
 interface SmartVehicleDeviceFlowProps {
@@ -414,10 +414,19 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 
 				{/* Dashboard Indicators */}
 				<DashboardIndicators>
-					<DashboardIndicator $active={state.status === 'pending'} $color="#f59e0b" />
-					<DashboardIndicator $active={state.status === 'authorized'} $color="#22c55e" />
-					<DashboardIndicator $active={state.status === 'denied'} $color="#ef4444" />
-					<DashboardIndicator $active={state.status === 'expired'} $color="#6b7280" />
+					<DashboardIndicator
+						$active={state.status === 'pending'}
+						$color="V9_COLORS.PRIMARY.YELLOW"
+					/>
+					<DashboardIndicator
+						$active={state.status === 'authorized'}
+						$color="V9_COLORS.PRIMARY.GREEN"
+					/>
+					<DashboardIndicator $active={state.status === 'denied'} $color="V9_COLORS.PRIMARY.RED" />
+					<DashboardIndicator
+						$active={state.status === 'expired'}
+						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+					/>
 				</DashboardIndicators>
 
 				{/* Vehicle Display Screen */}
@@ -437,8 +446,8 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							<QRCodeSVG
 								value={state.verificationUriComplete}
 								size={120}
-								bgColor="#ffffff"
-								fgColor="#000000"
+								bgColor="V9_COLORS.TEXT.WHITE"
+								fgColor="V9_COLORS.TEXT.BLACK"
 								level="M"
 								includeMargin={true}
 							/>
@@ -470,7 +479,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 				{state.status === 'authorized' && state.tokens && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+							background: 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%)',
 							border: '3px solid #f97316',
 							borderRadius: '1rem',
 							padding: '1.5rem',
@@ -487,7 +496,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								justifyContent: 'space-between',
 								marginBottom: '1.5rem',
 								paddingBottom: '1rem',
-								borderBottom: '2px solid #374151',
+								borderBottom: '2px solid V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -517,7 +526,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							</div>
 							<div
 								style={{
-									background: '#10b981',
+									background: 'V9_COLORS.PRIMARY.GREEN',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -545,11 +554,19 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									padding: '1.5rem',
 									borderRadius: '0.75rem',
 									textAlign: 'center',
-									border: '1px solid #374151',
+									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔋</div>
-								<div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>85%</div>
+								<div
+									style={{
+										fontSize: '1.5rem',
+										fontWeight: '700',
+										color: 'V9_COLORS.PRIMARY.GREEN',
+									}}
+								>
+									85%
+								</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Battery</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
 									280 mi range
@@ -563,7 +580,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									padding: '1.5rem',
 									borderRadius: '0.75rem',
 									textAlign: 'center',
-									border: '1px solid #374151',
+									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 									position: 'relative',
 								}}
 							>
@@ -571,21 +588,21 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									style={{
 										width: '120px',
 										height: '120px',
-										border: '8px solid #374151',
+										border: '8px solid V9_COLORS.TEXT.GRAY_DARK',
 										borderRadius: '50%',
 										margin: '0 auto 1rem',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
 										background:
-											'conic-gradient(from 0deg, #f97316 0deg, #f97316 72deg, #374151 72deg)',
+											'conic-gradient(from 0deg, #f97316 0deg, #f97316 72deg, V9_COLORS.TEXT.GRAY_DARK 72deg)',
 									}}
 								>
 									<div
 										style={{
 											width: '80px',
 											height: '80px',
-											background: '#0f172a',
+											background: 'V9_COLORS.TEXT.GRAY_DARK',
 											borderRadius: '50%',
 											display: 'flex',
 											alignItems: 'center',
@@ -608,11 +625,15 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									padding: '1.5rem',
 									borderRadius: '0.75rem',
 									textAlign: 'center',
-									border: '1px solid #374151',
+									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌡️</div>
-								<div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>72°F</div>
+								<div
+									style={{ fontSize: '1.5rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.BLUE' }}
+								>
+									72°F
+								</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Outside</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
 									AC: Auto
@@ -634,7 +655,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid #374151',
+									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div
@@ -651,7 +672,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
 									Destination: Downtown Office
 								</div>
-								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 									ETA: 12 minutes • 3.2 miles
 								</div>
 							</div>
@@ -661,7 +682,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									background: 'rgba(255, 255, 255, 0.1)',
 									padding: '1rem',
 									borderRadius: '0.75rem',
-									border: '1px solid #374151',
+									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								<div
@@ -678,7 +699,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
 									Now Playing: Spotify
 								</div>
-								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>
+								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 									"Electric Dreams" - Synthwave Mix
 								</div>
 							</div>
@@ -712,7 +733,8 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							</button>
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -730,7 +752,8 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							</button>
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -758,8 +781,8 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="#374151"
-				headerTextColor="#ffffff"
+				borderColor="V9_COLORS.TEXT.GRAY_DARK"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

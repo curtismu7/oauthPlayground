@@ -7,10 +7,18 @@ import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import {
-	type DiscoveryData,
-	type DiscoveryResult,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+type DiscoveryData
+,
+type DiscoveryResult
+,
 	oidcDiscoveryService,
-} from '../services/oidcDiscoveryService';
+} from '../services/oidcDiscoveryService'
 
 const Container = styled.div`
   padding: 2rem;
@@ -22,15 +30,15 @@ const Container = styled.div`
 const Section = styled.section`
   margin-bottom: 2rem;
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const SectionTitle = styled.h2`
   margin: 0 0 1rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
@@ -48,15 +56,23 @@ const StateGrid = styled.div`
 const StateCard = styled.div<{ color: string }>`
   padding: 1rem;
   background: ${(props) =>
-		props.color === 'yellow' ? '#fef3c7' : props.color === 'blue' ? '#dbeafe' : '#dcfce7'};
+		props.color === 'yellow'
+			? 'V9_COLORS.BG.WARNING'
+			: props.color === 'blue'
+				? '#dbeafe'
+				: 'V9_COLORS.BG.SUCCESS'};
   border: 1px solid ${(props) =>
-		props.color === 'yellow' ? '#f59e0b' : props.color === 'blue' ? '#3b82f6' : '#22c55e'};
+		props.color === 'yellow'
+			? 'V9_COLORS.PRIMARY.YELLOW'
+			: props.color === 'blue'
+				? 'V9_COLORS.PRIMARY.BLUE'
+				: 'V9_COLORS.PRIMARY.GREEN'};
   border-radius: 8px;
 `;
 
 const StateTitle = styled.h4`
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -80,14 +96,14 @@ const StatusText = styled.p`
 const DiscoveryResultBox = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background: #f0f9ff;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border: 1px solid #0ea5e9;
   border-radius: 8px;
 `;
 
 const FlowDiagram = styled.div`
   background: #f9fafb;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin-top: 1rem;

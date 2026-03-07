@@ -12,10 +12,10 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 
 const SettingsPanel = styled(Card)`
   margin-bottom: 2rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
   &.expanded {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -61,7 +61,7 @@ const SettingGroup = styled.div`
   h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -75,20 +75,20 @@ const SettingItem = styled.div`
   justify-content: space-between;
   padding: 0.75rem;
   background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   transition: all 0.2s;
 
   &:hover {
     background-color: #f3f4f6;
-    border-color: #d1d5db;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 
   &.disabled {
     opacity: 0.6;
-    background-color: #fef2f2;
-    border-color: #fecaca;
+    background-color: V9_COLORS.BG.ERROR;
+    border-color: V9_COLORS.BG.ERROR_BORDER;
   }
 `;
 
@@ -97,18 +97,18 @@ const SettingInfo = styled.div`
 
   .label {
     font-weight: 500;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.25rem;
   }
 
   .description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.4;
   }
 
   .warning {
-    color: #d97706;
+    color: V9_COLORS.PRIMARY.YELLOW_DARK;
     font-size: 0.75rem;
     margin-top: 0.25rem;
     display: flex;
@@ -122,7 +122,7 @@ const ToggleButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   background: white;
   cursor: pointer;
@@ -131,20 +131,20 @@ const ToggleButton = styled.button`
   font-weight: 500;
 
   &:hover {
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
     background-color: #f9fafb;
   }
 
   &.enabled {
     background-color: #dbeafe;
-    border-color: #3b82f6;
-    color: #1e40af;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   &.disabled {
-    background-color: #fef2f2;
-    border-color: #ef4444;
-    color: #dc2626;
+    background-color: V9_COLORS.BG.ERROR;
+    border-color: V9_COLORS.PRIMARY.RED;
+    color: V9_COLORS.PRIMARY.RED_DARK;
   }
 
   svg {
@@ -155,7 +155,7 @@ const ToggleButton = styled.button`
 
 const InputField = styled.input`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-family: monospace;
   font-size: 0.875rem;
@@ -164,18 +164,18 @@ const InputField = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   &.error {
-    border-color: #ef4444;
+    border-color: V9_COLORS.PRIMARY.RED;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.75rem;
   margin-top: 0.25rem;
   display: flex;
@@ -360,7 +360,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 						style={{
 							fontSize: '0.75rem',
 							fontWeight: 'normal',
-							color: '#6b7280',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							marginLeft: '0.5rem',
 						}}
 					>
@@ -380,7 +380,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					style={{
 						marginBottom: '1rem',
 						padding: '1rem',
-						backgroundColor: '#eff6ff',
+						backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 						borderRadius: '0.5rem',
 						border: '1px solid #dbeafe',
 					}}
@@ -388,8 +388,8 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<FiAlertTriangle style={{ color: '#3b82f6' }} size={16} />
-						<strong style={{ color: '#1e40af' }}>Experiment Mode</strong>
+						<FiAlertTriangle style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} size={16} />
+						<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>Experiment Mode</strong>
 					</div>
 					<p style={{ margin: 0, fontSize: '0.875rem', color: '#3730a3' }}>
 						Toggle settings on/off to see how they affect the OAuth flow. Some combinations may
@@ -399,7 +399,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 
 				<SettingGroup>
 					<h4>
-						<FiToggleRight style={{ color: '#059669' }} />
+						<FiToggleRight style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 						Core OAuth Settings
 					</h4>
 
@@ -412,7 +412,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 								<div className="label">
 									{setting.label}
 									{setting.required && (
-										<span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
+										<span style={{ color: 'V9_COLORS.PRIMARY.RED', marginLeft: '0.25rem' }}>*</span>
 									)}
 								</div>
 								<div className="description">{setting.description}</div>
@@ -438,16 +438,16 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 
 				<SettingGroup>
 					<h4>
-						<FiCheckCircle style={{ color: '#059669' }} />
+						<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 						Current Configuration Summary
 					</h4>
 
 					<div
 						style={{
 							padding: '1rem',
-							backgroundColor: '#f8fafc',
+							backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 							borderRadius: '0.5rem',
-							border: '1px solid #e2e8f0',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontFamily: 'monospace',
 							fontSize: '0.875rem',
 						}}

@@ -484,7 +484,7 @@ describe('Phase 2: Accessibility', () => {
 
 		// Should have visible focus styles
 		expect(menuItem).toHaveStyle({
-			border: '2px solid #3b82f6',
+			border: '2px solid V9_COLORS.PRIMARY.BLUE',
 			boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)',
 		});
 	});
@@ -521,9 +521,10 @@ describe('Phase 2: Visual Feedback', () => {
 
 		// Should have active styles (based on current route)
 		expect(activeItem).toHaveStyle({
-			background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-			borderLeft: '3px solid #3b82f6',
-			color: '#ffffff',
+			background:
+				'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+			borderLeft: '3px solid V9_COLORS.PRIMARY.BLUE',
+			color: 'V9_COLORS.TEXT.WHITE',
 		});
 	});
 

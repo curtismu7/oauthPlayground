@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1400px;
@@ -84,32 +85,32 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
 		switch ($status) {
 			case 'supported':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
           &:hover {
-            background-color: #bbf7d0;
+            background-color: V9_COLORS.BG.SUCCESS_BORDER;
             transform: scale(1.02);
             box-shadow: 0 2px 8px rgba(22, 101, 52, 0.2);
           }
         `;
 			case 'not-supported':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
           &:hover {
-            background-color: #fecaca;
+            background-color: V9_COLORS.BG.ERROR_BORDER;
             transform: scale(1.02);
             box-shadow: 0 2px 8px rgba(153, 27, 27, 0.2);
           }
         `;
 			case 'partial':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 2px solid #d97706;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 2px solid V9_COLORS.PRIMARY.YELLOW_DARK;
           box-shadow: 0 2px 4px rgba(217, 119, 6, 0.1);
           &:hover {
-            background-color: #fde68a;
+            background-color: V9_COLORS.BG.WARNING_BORDER;
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
             border-color: #b45309;
@@ -124,7 +125,7 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
   }
 
   &:focus {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid V9_COLORS.PRIMARY.BLUE;
     outline-offset: 2px;
   }
 `;
@@ -157,7 +158,7 @@ const PopupContent = styled.div`
     margin: 0 0 1rem 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   p {
@@ -185,11 +186,11 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   padding: 0.25rem;
 
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -350,15 +351,15 @@ const CollapsibleHeader = styled.button`
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-bottom: 0.5rem;
   
   &:hover {
-    background: #f1f5f9;
+    background: V9_COLORS.BG.GRAY_MEDIUM;
     border-color: #cbd5e1;
   }
   
@@ -371,14 +372,14 @@ const CollapsibleHeader = styled.button`
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
   
   svg {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     transition: transform 0.2s ease;
   }
 `;
@@ -821,7 +822,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Critical Security Considerations for AI Agents:
@@ -928,7 +929,7 @@ const AIAgentOverview = () => {
 									onClick={() => toggleSection('comparisonTable')}
 									style={{
 										padding: '1rem',
-										background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+										background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 										borderRadius: '0.5rem',
 										border: '1px solid #cbd5e1',
 										marginBottom: expandedSections.comparisonTable ? '1rem' : '0',
@@ -951,7 +952,7 @@ const AIAgentOverview = () => {
 								</CollapsibleHeader>
 
 								{/* Description - always visible */}
-								<p style={{ color: '#475569', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
+								<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
 									Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity
 									products, Okta, and Microsoft for AI agent authentication and authorization.
 								</p>
@@ -978,7 +979,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>PAR</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Pushed Authorization Requests</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Pushed Authorization Requests</small>
 											</td>
 											<td>RFC 9126</td>
 											<td>
@@ -1023,7 +1024,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>RAR</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Rich Authorization Requests</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Rich Authorization Requests</small>
 											</td>
 											<td>RFC 9396</td>
 											<td>
@@ -1077,7 +1078,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>DPoP</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													Demonstrating Proof of Possession
 												</small>
 											</td>
@@ -1133,7 +1134,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>mTLS</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Mutual TLS Authentication</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Mutual TLS Authentication</small>
 											</td>
 											<td>RFC 8705</td>
 											<td>
@@ -1181,7 +1182,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>JAR</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													JWT-Secured Authorization Request
 												</small>
 											</td>
@@ -1228,7 +1229,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Client Credentials</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Machine-to-Machine Grant</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Machine-to-Machine Grant</small>
 											</td>
 											<td>RFC 6749</td>
 											<td>
@@ -1273,7 +1274,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Token Exchange</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>RFC 8693 Token Exchange</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>RFC 8693 Token Exchange</small>
 											</td>
 											<td>RFC 8693</td>
 											<td>
@@ -1327,7 +1328,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Device Code</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Device Authorization Grant</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Device Authorization Grant</small>
 											</td>
 											<td>RFC 8628</td>
 											<td>
@@ -1372,7 +1373,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>OpenID Connect</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Full OIDC Support</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Full OIDC Support</small>
 											</td>
 											<td>OpenID Core</td>
 											<td>
@@ -1417,7 +1418,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>FAPI Compliance</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Financial-grade API</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Financial-grade API</small>
 											</td>
 											<td>FAPI 1.0/2.0</td>
 											<td>
@@ -1465,7 +1466,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Custom Token Types</strong>
 												<br />
-												<small style={{ color: '#64748b' }}>Extensible Token Support</small>
+												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Extensible Token Support</small>
 											</td>
 											<td>Various</td>
 											<td>
@@ -1590,7 +1591,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								MCP Server Architecture:
@@ -1622,7 +1623,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								OAuth/OIDC Integration with MCP Servers:
@@ -1655,7 +1656,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Security Benefits for AI Agents:

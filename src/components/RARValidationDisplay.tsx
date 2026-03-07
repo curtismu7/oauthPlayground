@@ -23,7 +23,7 @@ interface ValidationMessage {
 }
 
 const Container = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   background: white;
   overflow: hidden;
@@ -39,35 +39,35 @@ const Header = styled.div<{ level: ValidationLevel }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
   border-bottom: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'warning':
 				return '#fed7aa';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   color: ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 `;
@@ -110,7 +110,7 @@ const ValidationSection = styled.div`
 const SectionTitle = styled.h4`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -135,35 +135,35 @@ const ValidationMessage = styled.div<{ level: ValidationLevel }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'warning':
 				return '#fed7aa';
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   color: ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 `;
@@ -202,25 +202,25 @@ const StatItem = styled.div`
   padding: 0.75rem;
   background: #f9fafb;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatValue = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-top: 0.25rem;
 `;
 
 const _EmptyState = styled.div`
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
 `;
 
