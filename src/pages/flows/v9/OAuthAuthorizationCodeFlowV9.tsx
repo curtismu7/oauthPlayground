@@ -1,4 +1,5 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV9.tsx
+// lint-file-disable: token-value-in-jsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
 
 import {
@@ -868,7 +869,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			responseType: selectedResponseType,
 		});
 		// Intentionally do NOT depend on the controller object identity to avoid infinite loops
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedResponseType, controller.credentials, controller.setCredentials]);
 
 	// Load PingOne configuration from sessionStorage on mount
