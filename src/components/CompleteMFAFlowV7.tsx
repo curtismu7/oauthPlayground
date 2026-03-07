@@ -317,11 +317,15 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 `;
 
 export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	requireMFA: _requireMFA = true,
 	maxRetries = 3,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onFlowComplete: _onFlowComplete,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onFlowError: _onFlowError,
 	onStepChange,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	showNetworkStatus: _showNetworkStatus = true,
 }) => {
 	const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
@@ -330,14 +334,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const [retryCount, setRetryCount] = useState(0);
-	const [_isSaving, setIsSaving] = useState(false);
-	const [_hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const [, setIsSaving] = useState(false);
+	const [, setHasUnsavedChanges] = useState(false);
 	const [hasUnsavedWorkerTokenChanges, setHasUnsavedWorkerTokenChanges] = useState(false);
-	const [hasUnsavedAuthCodeChanges, setHasUnsavedAuthCodeChanges] = useState(false);
 
 	// These are used in ComprehensiveCredentialsService callbacks
 	void hasUnsavedWorkerTokenChanges;
-	void hasUnsavedAuthCodeChanges;
 
 	// Device registration state
 	const [selectedDeviceType, setSelectedDeviceType] = useState<string>('');
@@ -496,7 +498,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		password: '',
 		tokenEndpointAuthMethod: 'client_secret_post',
 	});
-	const [_showPassword, _setShowPassword] = useState(false);
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [authUrl, setAuthUrl] = useState<string>('');
@@ -1114,182 +1115,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		}
 	}, [workerTokenCredentials]);
 
-	// Save Authorization Code credentials using credential manager
-	const _handleSaveAuthCodeCredentials = useCallback(async () => {
-		setIsSaving(true);
-		try {
-			console.log(
-				'[CompleteMFAFlowV7] Saving authorization code credentials:',
-				authCodeCredentials
-			);
 
-			// Save to authz flow credentials (same pattern as other authorization code flows)
-			credentialManager.saveAuthzFlowCredentials({
-				environmentId: authCodeCredentials.environmentId,
-				clientId: authCodeCredentials.clientId,
-				clientSecret: authCodeCredentials.clientSecret,
-				redirectUri: authCodeCredentials.redirectUri || 'https://localhost:3000/authz-callback',
-				scopes: ['openid', 'profile', 'email'],
-				authEndpoint: `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize`,
-				tokenEndpoint: `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/token`,
-				userInfoEndpoint: `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/userinfo`,
-			});
 
-			console.log(
-				'✅ [CompleteMFAFlowV7] Authorization Code credentials saved to authz flow storage'
-			);
 
-			// Also save to permanent credentials for dashboard
-			credentialManager.savePermanentCredentials({
-				environmentId: authCodeCredentials.environmentId,
-				clientId: authCodeCredentials.clientId,
-				clientSecret: authCodeCredentials.clientSecret,
-				redirectUri: authCodeCredentials.redirectUri || 'https://localhost:3000/authz-callback',
-				scopes: ['openid', 'profile', 'email'],
-			});
 
-			console.log(
-				'✅ [CompleteMFAFlowV7] Authorization Code credentials saved to permanent storage'
-			);
-
-			// Clear cache to ensure fresh data is loaded
-			credentialManager.clearCache();
-
-			// Dispatch events to notify dashboard and other components
-			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
-			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-			console.log('📢 [CompleteMFAFlowV7] Configuration change events dispatched');
-
-			setHasUnsavedChanges(false);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Authorization Code credentials saved successfully',
-				duration: 4000,
-			});
-			console.log('[CompleteMFAFlowV7] Authorization Code credentials saved successfully');
-		} catch (error) {
-			logger.error('[CompleteMFAFlowV7] Failed to save authorization code credentials:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save authorization code credentials',
-				dismissible: true,
-			});
-		} finally {
-			setIsSaving(false);
-		}
-	}, [authCodeCredentials]);
-
-	// Legacy save function for backward compatibility (username/password)
-	const _handleSaveCredentials = useCallback(async () => {
-		setIsSaving(true);
-		try {
-			console.log('[CompleteMFAFlowV7] Saving legacy credentials:', credentials);
-
-			// Save to credential manager
-			const saveSuccess = credentialManager.saveCustomData(MFA_CREDENTIALS_STORAGE_KEY, {
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				scopes: ['openid', 'profile', 'email'],
-			});
-
-			if (!saveSuccess) {
-				throw new Error('Failed to save credentials to credential manager');
-			}
-
-			setHasUnsavedChanges(false);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Credentials saved successfully',
-				duration: 4000,
-			});
-			console.log('[CompleteMFAFlowV7] Credentials saved successfully');
-		} catch (error) {
-			logger.error('[CompleteMFAFlowV7] Failed to save credentials:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save credentials',
-				dismissible: true,
-			});
-		} finally {
-			setIsSaving(false);
-		}
-	}, [credentials]);
-
-	// Handle credential changes and track unsaved changes
-	// Worker Token Credentials Handlers
-	const _handleWorkerTokenCredentialsChange = useCallback(
-		(newCredentials: WorkerTokenCredentials) => {
-			setWorkerTokenCredentials(newCredentials);
-			setHasUnsavedWorkerTokenChanges(true);
-		},
-		[]
-	);
-
-	// Authorization Code Credentials Handlers
-	const _handleAuthCodeEnvironmentIdChange = useCallback((value: string) => {
-		setAuthCodeCredentials((prev) => ({ ...prev, environmentId: value }));
-		setHasUnsavedAuthCodeChanges(true);
-	}, []);
-
-	const _handleAuthCodeClientIdChange = useCallback((value: string) => {
-		setAuthCodeCredentials((prev) => ({ ...prev, clientId: value }));
-		setHasUnsavedAuthCodeChanges(true);
-	}, []);
-
-	const _handleAuthCodeClientSecretChange = useCallback((value: string) => {
-		setAuthCodeCredentials((prev) => ({ ...prev, clientSecret: value }));
-		setHasUnsavedAuthCodeChanges(true);
-	}, []);
-
-	const _handleAuthCodeRegionChange = useCallback((value: 'us' | 'eu' | 'ap' | 'ca') => {
-		setAuthCodeCredentials((prev) => ({ ...prev, region: value }));
-		setHasUnsavedAuthCodeChanges(true);
-	}, []);
-
-	const _handleAuthCodeRedirectUriChange = useCallback((value: string) => {
-		setAuthCodeCredentials((prev) => ({ ...prev, redirectUri: value }));
-		setHasUnsavedAuthCodeChanges(true);
-	}, []);
-
-	const _handleAuthCodeTokenEndpointAuthMethodChange = useCallback(
-		(
-			value:
-				| 'none'
-				| 'client_secret_basic'
-				| 'client_secret_post'
-				| 'client_secret_jwt'
-				| 'private_key_jwt'
-		) => {
-			setAuthCodeCredentials((prev) => ({ ...prev, tokenEndpointAuthMethod: value }));
-			setHasUnsavedAuthCodeChanges(true);
-		},
-		[]
-	);
-
-	// Legacy handlers for backward compatibility (will be removed)
-	const _handleEnvironmentIdChange = useCallback((value: string) => {
-		setCredentials((prev) => ({ ...prev, environmentId: value }));
-		setHasUnsavedChanges(true);
-	}, []);
-
-	const _handleClientIdChange = useCallback((value: string) => {
-		setCredentials((prev) => ({ ...prev, clientId: value }));
-		setHasUnsavedChanges(true);
-	}, []);
-
-	const _handleClientSecretChange = useCallback((value: string) => {
-		setCredentials((prev) => ({ ...prev, clientSecret: value }));
-		setHasUnsavedChanges(true);
-	}, []);
-
-	const _handleRedirectUriChange = useCallback((value: string) => {
-		setCredentials((prev) => ({ ...prev, redirectUri: value }));
-		setHasUnsavedChanges(true);
-	}, []);
 
 	const handleUsernameLogin = useCallback(
 		async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
@@ -2147,9 +1976,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		console.log('🔄 [MFA Flow V7] Flow retried');
 	}, []);
 
-	const _handleRestart = useCallback(() => {
-		handleResetFlow();
-	}, [handleResetFlow]);
 
 	// Device registration validation
 	const isDeviceInfoValid = useCallback(() => {
