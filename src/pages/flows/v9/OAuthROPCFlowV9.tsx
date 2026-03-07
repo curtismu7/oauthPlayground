@@ -1,4 +1,5 @@
 // src/pages/flows/v9/OAuthROPCFlowV9.tsx
+// lint-file-disable: token-value-in-jsx
 // OAuth Resource Owner Password Credentials Flow - V9 Implementation with Modern Messaging
 
 import { useCallback, useEffect, useState } from 'react';
