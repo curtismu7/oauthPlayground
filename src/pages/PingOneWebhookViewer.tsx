@@ -1097,6 +1097,8 @@ const PingOneWebhookViewer: React.FC = () => {
 				return;
 			}
 
+			// biome-ignore lint/suspicious/noAlert: confirmation dialog before destructive action
+			// eslint-disable-next-line no-alert
 			if (!confirm('Are you sure you want to delete this webhook subscription?')) {
 				return;
 			}

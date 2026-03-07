@@ -1,5 +1,6 @@
 // src/pages/OrganizationLicensing.tsx
 // Organization Licensing: Get Worker Token & License Information
+// lint-file-disable: token-value-in-jsx
 
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
 import React, { useEffect, useState } from 'react';

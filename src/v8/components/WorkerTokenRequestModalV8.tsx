@@ -76,6 +76,14 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 		return () => window.removeEventListener('keydown', handleEscape);
 	}, [isOpen, onClose]);
 
+	// Reset state when modal closes
+	React.useEffect(() => {
+		if (!isOpen) {
+			setGeneratedToken(null);
+			setIsTokenStep(false);
+		}
+	}, [isOpen]);
+
 	if (!isOpen) return null;
 
 	const handleCopy = (text: string, field: string) => {
@@ -186,15 +194,6 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 		onClose();
 	};
 
-	// Reset state when modal closes
-	React.useEffect(() => {
-		if (!isOpen) {
-			setGeneratedToken(null);
-			setIsTokenStep(false);
-		}
-	}, [isOpen]);
-
-	// Color code the URL parts
 	const renderColoredUrl = (url: string) => {
 		const parts = url.match(/(https:\/\/)([^/]+)(\/[^/]+)(\/as\/token)/);
 		if (!parts) return url;
@@ -212,6 +211,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 	return (
 		<>
 			{/* Backdrop */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 			<div
 				style={{
 					position: 'fixed',
@@ -227,8 +228,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 				}}
 				onClick={onClose}
 			/>
-
 			{/* Modal */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 			<div
 				style={{
 					position: 'fixed',
@@ -273,6 +275,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 							</p>
 						</div>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'none',
@@ -324,6 +327,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 							{/* Actions */}
 							<div style={{ display: 'flex', gap: '8px' }}>
 								<button
+									type="button"
 									onClick={async () => {
 										if (generatedToken) {
 											try {
@@ -366,6 +370,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									💾 Save Token
 								</button>
 								<button
+									type="button"
 									onClick={onClose}
 									style={{
 										flex: 1,
@@ -416,6 +421,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										🌐 Token Endpoint
 									</h3>
 									<button
+										type="button"
 										onClick={() => handleCopy(requestDetails.tokenEndpoint, 'endpoint')}
 										style={{
 											padding: '4px 8px',
@@ -537,6 +543,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 												{requestDetails.requestParams.client_id}
 											</span>
 											<button
+												type="button"
 												onClick={() =>
 													handleCopy(requestDetails.requestParams.client_id, 'clientId')
 												}
@@ -590,6 +597,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 											</span>
 											<div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
 												<button
+													type="button"
 													onClick={() => setShowSecret(!showSecret)}
 													style={{
 														padding: '4px 8px',
@@ -603,6 +611,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													{showSecret ? '👁️' : '👁️‍🗨️'}
 												</button>
 												<button
+													type="button"
 													onClick={() =>
 														handleCopy(requestDetails.requestParams.client_secret, 'clientSecret')
 													}
@@ -659,6 +668,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 												{requestDetails.requestParams.scope}
 											</span>
 											<button
+												type="button"
 												onClick={() => handleCopy(requestDetails.requestParams.scope, 'scope')}
 												style={{
 													padding: '4px 8px',
@@ -801,6 +811,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 							{/* Actions */}
 							<div style={{ display: 'flex', gap: '8px' }}>
 								<button
+									type="button"
 									onClick={onClose}
 									style={{
 										flex: 1,
@@ -817,6 +828,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									Cancel
 								</button>
 								<button
+									type="button"
 									onClick={handleExecute}
 									disabled={isExecuting}
 									style={{
@@ -841,6 +853,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 					{showPreflightModal && preflightResult && (
 						<>
 							{/* Backdrop */}
+							{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
+							{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 							<div
 								style={{
 									position: 'fixed',
@@ -853,8 +867,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 								}}
 								onClick={() => setShowPreflightModal(false)}
 							/>
-
 							{/* Modal */}
+							{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
+							{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 							<div
 								style={{
 									position: 'fixed',
@@ -917,6 +932,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 											</p>
 										</div>
 										<button
+											type="button"
 											onClick={() => setShowPreflightModal(false)}
 											style={{
 												background: 'none',
@@ -952,6 +968,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									{/* Actions */}
 									<div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
 										<button
+											type="button"
 											onClick={() => setShowPreflightModal(false)}
 											style={{
 												flex: 1,
@@ -969,6 +986,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										</button>
 										{preflightResult.success && (
 											<button
+												type="button"
 												onClick={async () => {
 													setShowPreflightModal(false);
 													// Execute the actual request
