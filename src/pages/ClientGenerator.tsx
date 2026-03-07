@@ -37,10 +37,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
@@ -71,13 +71,6 @@ const Subtitle = styled.p`
 	max-width: 800px;
 	margin: 0 auto;
 	line-height: 1.6;
-`;
-
-const _CardGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 2rem;
-	margin-bottom: 3rem;
 `;
 
 const _AppTypeCard = styled.div<{ selected: boolean }>`
@@ -135,16 +128,6 @@ const FormTitle = styled.h2`
 	gap: 0.75rem;
 `;
 
-const _FormGrid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 1.5rem;
-
-	@media (max-width: 768px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
 const FormGroup = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -156,34 +139,6 @@ const Label = styled.label`
 	font-weight: 500;
 	color: #374151;
 	margin-bottom: 0.5rem;
-`;
-
-const _Input = styled.input`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 6px;
-	font-size: 0.875rem;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-`;
-
-const _TextArea = styled.textarea`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 6px;
-	font-size: 0.875rem;
-	min-height: 80px;
-	resize: vertical;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
 `;
 
 const Select = styled.select`
@@ -199,34 +154,6 @@ const Select = styled.select`
 		border-color: ${({ theme }) => theme.colors.primary};
 		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 	}
-`;
-
-const _CheckboxGroup = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const _CheckboxLabel = styled.label`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-size: 0.875rem;
-	color: #374151;
-	cursor: pointer;
-`;
-
-const _Checkbox = styled.input`
-	width: 16px;
-	height: 16px;
-	accent-color: ${({ theme }) => theme.colors.primary};
-`;
-
-const _ButtonGroup = styled.div`
-	display: flex;
-	justify-content: flex-end;
-	gap: 1rem;
-	margin-top: 2rem;
 `;
 
 const Button = styled.button.withConfig({
@@ -306,39 +233,6 @@ const ActionButton = styled.button`
 	}
 `;
 
-const _ResultCard = styled.div<{ type: 'success' | 'error' }>`
-	background: ${({ type }) => (type === 'success' ? '#f0fdf4' : '#fef2f2')};
-	border: 1px solid ${({ type }) => (type === 'success' ? '#22c55e' : '#ef4444')};
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-top: 2rem;
-`;
-
-const _ResultTitle = styled.h3<{ $type: 'success' | 'error' }>`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: ${({ $type }) => ($type === 'success' ? '#166534' : '#dc2626')};
-	margin-bottom: 1rem;
-`;
-
-const _ResultContent = styled.div`
-	margin-bottom: 1rem;
-`;
-
-const _ResultDetails = styled.div`
-	background: white;
-	border: 1px solid #e5e7eb;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	font-family: monospace;
-	font-size: 0.875rem;
-	white-space: pre-wrap;
-	word-break: break-word;
-`;
-
 const LoadingSpinner = styled.div`
 	display: inline-block;
 	width: 20px;
@@ -350,29 +244,6 @@ const LoadingSpinner = styled.div`
 
 	@keyframes spin {
 		to { transform: rotate(360deg); }
-	}
-`;
-
-const _SuccessMessage = styled.div`
-	background: #d1fae5;
-	border: 1px solid #6ee7b7;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 2rem;
-	border-radius: 8px;
-	padding: 1rem 1.5rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	color: #065f46;
-	font-weight: 500;
-	margin-bottom: 2rem;
-	flex-wrap: wrap;
-	
-	svg {
-		color: #10b981;
-		font-size: 1.25rem;
 	}
 `;
 
@@ -401,61 +272,9 @@ const ClientGenerator: React.FC = () => {
 	const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, boolean>>({});
 
 	// Use unified global worker token hook for token management
-	const globalTokenStatus = useGlobalWorkerToken();
-	const _hasWorkerToken = globalTokenStatus.isValid;
-	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
-
-	// Load saved worker credentials and silently get token on mount
-	useEffect(() => {
-		const loadAndGetToken = async () => {
-			try {
-				// Try to load saved worker credentials from global service
-				const saved = await workerTokenServiceV8.loadCredentials();
-				if (saved) {
-					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
-					const credentials = {
-						environmentId: saved.environmentId,
-						clientId: saved.clientId,
-						clientSecret: saved.clientSecret,
-						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
-						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
-						authMethod === 'client_secret_post'
-							? authMethod
-							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
-					};
-					setWorkerCredentials(credentials);
-
-					// Check if we have a valid token already
-					const existingToken = await workerTokenServiceV8.getToken();
-					if (existingToken) {
-						console.log('[App Generator] Using existing worker token from service');
-						setWorkerToken(existingToken);
-					} else if (
-						credentials.clientId &&
-						credentials.clientSecret &&
-						credentials.environmentId
-					) {
-						// Silently get token if we have credentials but no token
-						console.log('[App Generator] Silently requesting worker token...');
-						await getWorkerTokenSilently(credentials);
-					}
-				}
-			} catch (error) {
-				logger.error(
-					'ClientGenerator',
-					'[App Generator] Failed to load credentials:',
-					undefined,
-					error as Error
-				);
-			}
-		};
-
-		loadAndGetToken();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
-	}, [getWorkerTokenSilently, workerCredentials.scopes]);
 
 	// Silently get worker token
-	const getWorkerTokenSilently = async (credentials: typeof workerCredentials) => {
+	const getWorkerTokenSilently = useCallback(async (credentials: typeof workerCredentials) => {
 		try {
 			setIsGettingToken(true);
 			setTokenError(null);
@@ -525,11 +344,6 @@ const ClientGenerator: React.FC = () => {
 				);
 			}
 
-			const tokenData = await response.json();
-			const _accessToken = tokenData.access_token;
-			const expiresIn = tokenData.expires_in ? parseInt(tokenData.expires_in, 10) : undefined;
-			const _expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
-
 			// Token is now managed by unified service
 			console.log('[App Generator] Worker token managed by unified service');
 			return workerToken;
@@ -544,7 +358,56 @@ const ClientGenerator: React.FC = () => {
 		} finally {
 			setIsGettingToken(false);
 		}
-	};
+	}, []);
+
+	// Load saved worker credentials and silently get token on mount
+	useEffect(() => {
+		const loadAndGetToken = async () => {
+			try {
+				// Try to load saved worker credentials from global service
+				const saved = await workerTokenServiceV8.loadCredentials();
+				if (saved) {
+					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
+					const credentials = {
+						environmentId: saved.environmentId,
+						clientId: saved.clientId,
+						clientSecret: saved.clientSecret,
+						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
+						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
+						authMethod === 'client_secret_post'
+							? authMethod
+							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
+					};
+					setWorkerCredentials(credentials);
+
+					// Check if we have a valid token already
+					const existingToken = await workerTokenServiceV8.getToken();
+					if (existingToken) {
+						console.log('[App Generator] Using existing worker token from service');
+						setWorkerToken(existingToken);
+					} else if (
+						credentials.clientId &&
+						credentials.clientSecret &&
+						credentials.environmentId
+					) {
+						// Silently get token if we have credentials but no token
+						console.log('[App Generator] Silently requesting worker token...');
+						await getWorkerTokenSilently(credentials);
+					}
+				}
+			} catch (error) {
+				logger.error(
+					'ClientGenerator',
+					'[App Generator] Failed to load credentials:',
+					undefined,
+					error as Error
+				);
+			}
+		};
+
+		loadAndGetToken();
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
+	}, [getWorkerTokenSilently, workerCredentials.scopes]);
 
 	// Handle worker credential changes
 	const handleWorkerCredentialChange = useCallback((field: string, value: string) => {
