@@ -28,18 +28,6 @@ const Title = styled.h1`
   gap: 0.75rem;
 `;
 
-const _StatusBadge = styled.div<{ $status: 'active' | 'inactive' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: ${({ $status }) => ($status === 'active' ? '#dcfce7' : '#fee2e2')};
-  color: ${({ $status }) => ($status === 'active' ? '#166534' : '#991b1b')};
-`;
-
 const WebhookInfo = styled.div`
   background: #f8fafc;
   border: 2px solid #e2e8f0;
@@ -117,12 +105,11 @@ interface WebhookEvent {
 	id: string;
 	timestamp: Date;
 	method: string;
-	headers: any;
-	body: any;
+	headers: Record<string, string>;
+	body: unknown;
 }
 
 const WebhookReceiver: React.FC = () => {
-	const [_isActive, _setIsActive] = useState(false);
 	const [webhookUrl, setWebhookUrl] = useState('');
 	const [events, setEvents] = useState<WebhookEvent[]>([]);
 

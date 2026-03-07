@@ -8,14 +8,13 @@
 
 import { FiDownload, FiUpload } from '@icons';
 import React, { useRef } from 'react';
-import { logger } from '../utils/logger';
 import {
 	credentialsImportExportService,
 	type ImportExportOptions,
 } from '@/services/credentialsImportExportService';
 
 export interface CredentialsImportExportProps {
-	credentials: Record<string, any>;
+	credentials: Record<string, unknown>;
 	options: ImportExportOptions;
 	style?: React.CSSProperties;
 	className?: string;
