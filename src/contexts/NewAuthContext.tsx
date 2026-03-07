@@ -325,6 +325,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			hasConfigError: true,
 		};
 	} finally {
+		// eslint-disable-next-line require-atomic-updates
 		isLoadingConfiguration = false;
 	}
 }
@@ -485,6 +486,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			} catch (error) {
 				logger.error('NewAuthContext', 'Error updating configuration', error);
 			} finally {
+				// eslint-disable-next-line require-atomic-updates
 				isHandlingChange = false;
 			}
 		};
@@ -1962,8 +1964,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	// Context value
 	const contextValue = useMemo(() => {
 		// Handle both config structures: config.pingone.* and config.*
-		// biome-ignore lint/suspicious/noExplicitAny: legacy config shape, types not exported
-		const pingoneConfig = (config?.pingone as any) || (config as any) || {};
+		const pingoneConfig = (config?.pingone as Record<string, unknown>) || (config as Record<string, unknown>) || {};
 
 		// Debug logging for config issues
 		if (!config) {
@@ -2062,18 +2063,15 @@ export const useAuth = (): AuthContextType => {
 		// In development, suppress the error to prevent console spam during HMR
 		if (process.env.NODE_ENV === 'development') {
 			// Only log once per session to avoid spam
-			// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
-			if (!(window as any).__useAuthErrorLogged) {
+			if (!(window as unknown as Record<string, unknown>).__useAuthErrorLogged) {
 				logger.warn(
 					'useAuth',
 					'Context is undefined - likely due to HMR, returning default context'
 				);
-				// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
-				(window as any).__useAuthErrorLogged = true;
+				(window as unknown as Record<string, unknown>).__useAuthErrorLogged = true;
 				// Reset the flag after a delay to allow for recovery
 				setTimeout(() => {
-					// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
-					(window as any).__useAuthErrorLogged = false;
+					(window as unknown as Record<string, unknown>).__useAuthErrorLogged = false;
 				}, 5000);
 			}
 		} else {
