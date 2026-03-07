@@ -334,7 +334,10 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 					{apps.map((app) => (
 						<div
 							key={app.id}
+							role="button"
+							tabIndex={0}
 							onClick={() => handleSelectApp(app)}
+							onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelectApp(app); }}
 							style={{
 								padding: '12px 16px',
 								borderBottom: '1px solid #e5e7eb',
