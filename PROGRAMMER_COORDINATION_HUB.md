@@ -1,8 +1,8 @@
 # 🤝 **PROGRAMMER COORDINATION HUB**
 
 **Real-time Standardization Work Coordination**  
-**Last Updated**: March 6, 2026  
-**Status**: ✅ **ALL TASKS COMPLETE — 0 errors, 1 acceptable warning**
+**Last Updated**: March 7, 2026  
+**Status**: ✅ **Lint 0 errors | v4toast migration complete in non-locked code**
 
 ---
 
@@ -13,7 +13,38 @@
 - **Warning Count**: 12 → 1 (92% improvement) ✅
 - **Remaining Warning**: `UserInfoFlow.tsx` — 1 intentional `console.log` inside code-example template string (do not remove)
 - **console.*/logger migration**: 100% complete across all src/ files
-- **Coordination Status**: Complete — no further work needed
+- **Lint audit (all 17 groups)**: 100% complete — 0 errors ✅ (commits `8f71f8d64` → `900a9bfd1`)
+- **v4toast → modernMessaging migration**: Complete for all non-locked `src/` files ✅ (commit `169ba5c6e`)
+
+---
+
+## 🚧 **OPEN WORK FOR NEXT PROGRAMMER**
+
+### **1. v4toast cleanup: delete `src/utils/v4ToastMessages.ts` (future task)**
+- All non-locked code now imports `modernMessaging` directly from `@/services/v9/V9ModernMessagingService`
+- `src/utils/v4ToastMessages.ts` is kept as a **compat shim only** because `src/locked/` still has ~244 references
+- **When `src/locked/` files are eventually unlocked and migrated**, this shim file can be deleted
+- Do NOT delete it now — locked files will break at runtime
+
+### **2. `src/locked/` v4toast migration (future task, ~244 references)**
+- Locked files cannot be edited directly — they must be unlocked and reviewed first
+- Migration pattern is already established:
+  ```ts
+  // OLD
+  import { v4ToastManager } from '@/utils/v4ToastMessages';
+  v4ToastManager.showSuccess(msg);          // → showFooterMessage
+  v4ToastManager.showError(msg);            // → showBanner type:'error'
+  v4ToastManager.showWarning(msg);          // → showBanner type:'warning'
+  v4ToastManager.showInfo(msg);             // → showFooterMessage
+  
+  // NEW
+  import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+  modernMessaging.showFooterMessage({ type: 'info', message: msg, duration: 3000 });
+  modernMessaging.showBanner({ type: 'error', title: 'Error', message: msg, dismissible: true });
+  modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: msg, dismissible: true });
+  modernMessaging.showFooterMessage({ type: 'info', message: msg, duration: 3000 });
+  ```
+- See `src/v8/utils/toastNotificationsV8.ts` and `src/v8/services/uiNotificationServiceV8.ts` as reference implementations
 
 ---
 
@@ -50,10 +81,23 @@
 
 ## 🎯 **NEXT ACTIONS**
 
-### **All standardization work is complete** 🏆
-- Run `node manual_linter.cjs` to verify: **0 errors, 1 acceptable warning**
-- The 1 remaining warning is intentional: `UserInfoFlow.tsx` line ~890 — a `console.log` inside a JSX code-example template string (do not remove)
-- HEAD: `ed22ccf67` — see `A-Migration/STANDARDIZATION_HANDOFF.md` for full history
+### **Immediate: nothing blocking** ✅
+- All lint groups at 0 errors — run `python3 scripts/lint_per_group.py --all` to confirm
+- Non-locked v4toast migration done — HEAD: `169ba5c6e`
+
+### **When ready to tackle locked files**
+1. Unlock a file from `src/locked/` (coordinate here before starting)
+2. Follow migration pattern documented in the **Open Work** section above
+3. After all locked references removed, delete `src/utils/v4ToastMessages.ts`
+
+### **Reference commits**
+| What | Commit |
+|------|--------|
+| v4toast → modernMessaging (non-locked) | `169ba5c6e` |
+| Lint group 05 oauth-flows 11→0 | `900a9bfd1` |
+| Lint group 06 oidc-flows 61→0 | `4761e0baa` |
+| Lint group 07 pingone-flows 41→0 | `8f71f8d64` |
+| Prior standardization HEAD | `ed22ccf67` |
 
 ---
 
