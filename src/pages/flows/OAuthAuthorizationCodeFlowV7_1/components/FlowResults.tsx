@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
+import { logger } from '../../../../utils/logger';
 
 interface FlowResultsProps {
 	tokens: TokenResponse | null;
@@ -336,7 +337,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 			setCopiedToken(tokenType);
 			setTimeout(() => setCopiedToken(null), 2000);
 		} catch (error) {
-			console.error('Failed to copy token:', error);
+			logger.error('Failed to copy token:', error);
 		}
 	};
 

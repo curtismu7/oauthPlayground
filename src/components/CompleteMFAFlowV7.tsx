@@ -77,6 +77,7 @@ import {
 } from '../services/workerTokenCredentialsService';
 import credentialManager from '../utils/credentialManager';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
+import { logger } from '../utils/logger';
 
 export interface CompleteMFAFlowProps {
 	requireMFA?: boolean;
@@ -799,7 +800,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			// Clear any previous error details on success
 			setErrorDetails(null);
 		} catch (error: unknown) {
-			console.error('❌ [MFA Flow V7] Failed to get worker token:', error);
+			logger.error('❌ [MFA Flow V7] Failed to get worker token:', error);
 
 			// Use the new OAuth Error Handling Service
 			const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
@@ -830,7 +831,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Log detailed troubleshooting info to console for developers
 			console.group('🔧 Worker Token Error - Troubleshooting Guide');
-			console.error('Original Error:', error);
+			logger.error('Original Error:', error);
 			console.log('Error Details:', errorDetails);
 			console.groupEnd();
 		} finally {
@@ -905,7 +906,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						console.log('🔐 [MFA Flow V7] Generated new PKCE codes');
 					}
 				} catch (error) {
-					console.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -977,12 +978,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					if (validationErrors.length > 0) {
 						isSuccess = false;
 						errorMessage = validationErrors.join('; ');
-						console.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
+						logger.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
 					} else {
 						console.log(`✅ [MFA Flow V7] Authorization URL validation passed`);
 					}
 				} catch (error) {
-					console.error(`❌ [MFA Flow V7] URL validation error:`, error);
+					logger.error(`❌ [MFA Flow V7] URL validation error:`, error);
 					isSuccess = false;
 					errorMessage = `URL validation error: ${error instanceof Error ? error.message : 'Unknown error'}`;
 				}
@@ -1055,7 +1056,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 			} catch (error: unknown) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				console.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
+				logger.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1101,7 +1102,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 			console.log('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
 		} catch (error) {
-			console.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
+			logger.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1167,7 +1168,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 			console.log('[CompleteMFAFlowV7] Authorization Code credentials saved successfully');
 		} catch (error) {
-			console.error('[CompleteMFAFlowV7] Failed to save authorization code credentials:', error);
+			logger.error('[CompleteMFAFlowV7] Failed to save authorization code credentials:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1206,7 +1207,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 			console.log('[CompleteMFAFlowV7] Credentials saved successfully');
 		} catch (error) {
-			console.error('[CompleteMFAFlowV7] Failed to save credentials:', error);
+			logger.error('[CompleteMFAFlowV7] Failed to save credentials:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1359,7 +1360,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth');
 						}
 					} catch (error) {
-						console.error(
+						logger.error(
 							'🔐 [MFA Flow V7] Failed to generate PKCE codes for redirectless auth:',
 							error
 						);
@@ -1514,7 +1515,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					if (!response.ok) {
-						console.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
+						logger.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
@@ -1602,7 +1603,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									console.log(`🔐 [MFA Flow V7] Extracted userId from id_token:`, extractedUserId);
 								}
 							} catch (error) {
-								console.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+								logger.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 							}
 						}
 
@@ -1623,7 +1624,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								return newContext;
 							});
 						} else {
-							console.warn(
+							logger.warn(
 								`⚠️ [MFA Flow V7] No userId found in flow response. User must complete authentication first.`
 							);
 							// Don't set userId - it will be extracted after flow completes
@@ -1855,7 +1856,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							duration: 4000,
 						});
 					} else {
-						console.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
+						logger.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
 						modernMessaging.showBanner({
 							type: 'warning',
 							title: 'Warning',
@@ -1865,7 +1866,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				} catch (authError: unknown) {
 					const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
-					console.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
+					logger.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1925,7 +1926,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth');
 					}
 				} catch (error) {
-					console.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1945,7 +1946,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				// Validate PKCE codes before building URL
 				if (!codeChallenge || codeChallenge.length === 0) {
-					console.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
+					logger.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1956,7 +1957,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				if (!codeVerifier || codeVerifier.length === 0) {
-					console.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
+					logger.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -2120,7 +2121,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-			console.error('Authentication Error:', error);
+			logger.error('Authentication Error:', error);
 			setError(errorMessage);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -2217,12 +2218,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					setFlowContext((prev) => ({ ...prev, userId: effectiveUserId! }));
 				}
 			} catch (error) {
-				console.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+				logger.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 			}
 		}
 
 		if (!effectiveUserId) {
-			console.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
+			logger.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2298,7 +2299,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			if (!deviceRegistrationResponse.ok) {
 				const errorData = await deviceRegistrationResponse.json();
-				console.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
+				logger.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
 				throw new Error(
 					`Device registration failed: ${errorData.message || errorData.error || 'Unknown error'}`
 				);
@@ -2383,7 +2384,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			console.log(`✅ [MFA Flow V7] Device registered:`, newDevice);
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`❌ [MFA Flow V7] Device registration failed:`, error);
+			logger.error(`❌ [MFA Flow V7] Device registration failed:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2496,7 +2497,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 				}, 1000);
 			} catch (error) {
-				console.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
+				logger.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2615,7 +2616,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				console.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
+				logger.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2750,7 +2751,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				console.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
+				logger.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2847,7 +2848,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					userId = payload.sub || payload.user_id || payload.id || '';
 					console.log(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`);
 				} catch (error) {
-					console.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
 				}
 			}
 
@@ -2906,7 +2907,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			onStepChange?.('success');
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('❌ [MFA Flow V7] Token exchange failed:', error);
+			logger.error('❌ [MFA Flow V7] Token exchange failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

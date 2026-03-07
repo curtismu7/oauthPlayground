@@ -543,11 +543,11 @@ async function startOIDCLogin() {
         user: result.user
       };
     } else {
-      console.error('Login failed:', result.error);
+      logger.error('Login failed:', result.error);
       return { success: false, error: result.error };
     }
   } catch (error) {
-    console.error('OIDC login error:', error);
+    logger.error('OIDC login error:', error);
     throw error;
   }
 }
@@ -558,7 +558,7 @@ async function logout() {
     await pingOne.logout();
     console.log('Logout successful');
   } catch (error) {
-    console.error('Logout failed:', error);
+    logger.error('Logout failed:', error);
     throw error;
   }
 }
@@ -577,7 +577,7 @@ async function getCurrentUser() {
     }
     return null;
   } catch (error) {
-    console.error('Failed to get user info:', error);
+    logger.error('Failed to get user info:', error);
     throw error;
   }
 }
@@ -596,7 +596,7 @@ async function completeOIDCLogin() {
     const result = await startOIDCLogin();
     return result;
   } catch (error) {
-    console.error('OIDC login flow failed:', error);
+    logger.error('OIDC login flow failed:', error);
     throw error;
   }
 }`,
@@ -631,11 +631,11 @@ async function startAuthJourney() {
       
       return journey;
     } else {
-      console.error('Failed to start journey:', journey.error);
+      logger.error('Failed to start journey:', journey.error);
       return { success: false, error: journey.error };
     }
   } catch (error) {
-    console.error('Auth journey error:', error);
+    logger.error('Auth journey error:', error);
     throw error;
   }
 }
@@ -652,11 +652,11 @@ async function handleJourneyStep(stepData: any) {
       
       return result;
     } else {
-      console.error('Step failed:', result.error);
+      logger.error('Step failed:', result.error);
       return { success: false, error: result.error };
     }
   } catch (error) {
-    console.error('Journey step error:', error);
+    logger.error('Journey step error:', error);
     throw error;
   }
 }
@@ -679,7 +679,7 @@ async function completeAuthJourney() {
     
     return journey;
   } catch (error) {
-    console.error('Auth journey failed:', error);
+    logger.error('Auth journey failed:', error);
     throw error;
   }
 }
@@ -691,7 +691,7 @@ async function getJourneyStatus(journeyId: string) {
     console.log('Journey Status:', status);
     return status;
   } catch (error) {
-    console.error('Failed to get journey status:', error);
+    logger.error('Failed to get journey status:', error);
     throw error;
   }
 }`,
@@ -752,11 +752,11 @@ async function startJourney(widget: any) {
       console.log('Journey ID:', result.journeyId);
       return result;
     } else {
-      console.error('Failed to start journey:', result.error);
+      logger.error('Failed to start journey:', result.error);
       return { success: false, error: result.error };
     }
   } catch (error) {
-    console.error('Journey start error:', error);
+    logger.error('Journey start error:', error);
     throw error;
   }
 }
@@ -779,7 +779,7 @@ function subscribeToEvents(widget: any) {
   });
   
   widget.on('journey:error', (error: any) => {
-    console.error('Journey error:', error);
+    logger.error('Journey error:', error);
   });
 }
 
@@ -800,7 +800,7 @@ function setupLoginWidget(containerId: string) {
     
     return widget;
   } catch (error) {
-    console.error('Login Widget setup failed:', error);
+    logger.error('Login Widget setup failed:', error);
     throw error;
   }
 }
@@ -1164,7 +1164,7 @@ async function pushAuthorizationRequest() {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    console.error('PAR error:', error);
+    logger.error('PAR error:', error);
     throw error;
   }
 }
@@ -1196,7 +1196,7 @@ async function completePARFlow() {
       expiresIn: parResult.expires_in
     };
   } catch (error) {
-    console.error('PAR flow failed:', error);
+    logger.error('PAR flow failed:', error);
     throw error;
   }
 }`,
@@ -1275,7 +1275,7 @@ async function pushAuthorizationRequest(config: PARConfig): Promise<PARResult> {
       throw new Error(\`PAR failed: \${(result as any).error} - \${(result as any).error_description}\`);
     }
   } catch (error) {
-    console.error('PAR error:', error);
+    logger.error('PAR error:', error);
     throw error;
   }
 }
@@ -1308,7 +1308,7 @@ async function completePARFlow() {
     console.log('Authorization URL:', authUrl);
     return { authUrl, codeVerifier: parResult.code_verifier };
   } catch (error) {
-    console.error('PAR flow failed:', error);
+    logger.error('PAR flow failed:', error);
     throw error;
   }
 }`,
@@ -1855,7 +1855,7 @@ async function getUserProfile() {
     console.log('User Info:', userInfo);
     return userInfo;
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    logger.error('Error fetching user profile:', error);
   }
 }
 
@@ -1874,7 +1874,7 @@ async function callProtectedAPI() {
     console.log('Protected Resource Data:', data);
     return data;
   } catch (error) {
-    console.error('Error calling protected API:', error);
+    logger.error('Error calling protected API:', error);
   }
 }
 
@@ -1922,7 +1922,7 @@ async function getUserProfile(): Promise<UserInfo | null> {
     console.log('User Info:', userInfo);
     return userInfo;
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    logger.error('Error fetching user profile:', error);
     return null;
   }
 }
@@ -1945,7 +1945,7 @@ async function callProtectedAPI<T>(url: string): Promise<ApiResponse<T> | null> 
       message: response.ok ? 'Success' : 'Error'
     };
   } catch (error) {
-    console.error('Error calling protected API:', error);
+    logger.error('Error calling protected API:', error);
     return null;
   }
 }
