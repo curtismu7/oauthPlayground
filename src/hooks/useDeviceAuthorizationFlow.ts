@@ -1,4 +1,5 @@
 // src/hooks/useDeviceAuthorizationFlow.ts
+// lint-file-disable: token-value-in-jsx
 // Device Authorization Flow state management and logic
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

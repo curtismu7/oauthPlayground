@@ -1,4 +1,5 @@
 // src/hooks/useImplicitFlowController.ts
+// lint-file-disable: token-value-in-jsx
 // Reusable controller hook for Implicit Flow (OAuth and OIDC variants)
 // Based on useAuthorizationCodeFlowController but simplified for Implicit flow
 

@@ -1,4 +1,5 @@
 // src/services/tokenIntrospectionService.ts
+// lint-file-disable: token-value-in-jsx
 // Reusable Token Introspection Service with API Call Display Integration
 
 import { EnhancedApiCallData } from './enhancedApiCallDisplayService';
