@@ -17,7 +17,7 @@ export interface FlowStep {
 	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
 	startedAt?: Date;
 	completedAt?: Date;
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 	error?: string;
 	retryCount?: number;
 }
@@ -31,9 +31,9 @@ export interface FlowState {
 	steps: FlowStep[];
 	startedAt: Date;
 	completedAt?: Date;
-	metadata: Record<string, any>;
-	configuration: Record<string, any>;
-	results: Record<string, any>;
+	metadata: Record<string, unknown>;
+	configuration: Record<string, unknown>;
+	results: Record<string, unknown>;
 }
 
 class FlowStateService {
@@ -73,7 +73,7 @@ class FlowStateService {
 	static initializeFlow(
 		userId: string,
 		flowType: string,
-		configuration: Record<string, any> = {}
+		configuration: Record<string, unknown> = {}
 	): FlowState {
 		const flow: FlowState = {
 			flowId: FlowStateService.generateFlowId(),
@@ -115,7 +115,7 @@ class FlowStateService {
 		flow.status = 'in_progress';
 	}
 
-	static completeStep(flowId: string, stepId: string, data?: Record<string, any>): void {
+	static completeStep(flowId: string, stepId: string, data?: Record<string, unknown>): void {
 		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return;
