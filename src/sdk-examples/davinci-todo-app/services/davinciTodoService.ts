@@ -461,6 +461,7 @@ export class DavinciTodoService {
 				if (newAccessToken) {
 					// Atomic assignment to prevent race conditions
 					// Direct assignment for singleton service pattern
+					// eslint-disable-next-line require-atomic-updates
 					DavinciTodoService.accessToken = newAccessToken;
 				}
 
