@@ -56,7 +56,7 @@ All V9 flows on the menu have credentials management via `ComprehensiveCredentia
 | `/flows/dpop` | `DPoPFlow` | N/A | Pure crypto demo — no credential fields |
 | `/flows/token-revocation` | `TokenRevocationFlow` | ✅ Complete | Added March 6, 2026 |
 | `/flows/mock-oidc-ropc` | `V7RMOIDCResourceOwnerPasswordFlow` | N/A | Controller-based; uses V9CredentialStorageService directly |
-| `/flows/saml-sp-dynamic-acs-v1` | `SAMLServiceProviderFlowV1` | ⚠️ Out of scope | Legacy v4Toast-based — needs broader migration before CredentialsImportExport |
+| `/flows/saml-sp-dynamic-acs-v1` | `SAMLServiceProviderFlowV1` | ✅ Complete | Added March 6, 2026 |
 
 ### 🔄 V7 Mock Flows (active on menu at `/v7/...`)
 These are educational mock simulations using hardcoded `mock-env` / `v7m-mock` environment IDs. They do **not** connect to real PingOne and have no real credentials to import/export.
@@ -180,4 +180,4 @@ const handleImport = credentialsImportExportService.createImportHandler(options)
 
 **Last Updated**: 2026-03-06  
 **Version**: 9.0.0  
-**Status**: In Progress - 10/26 flows standardized
+**Status**: ✅ Complete — all active-menu flows with real credentials have standardized import/export
