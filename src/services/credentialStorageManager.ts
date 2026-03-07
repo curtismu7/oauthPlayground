@@ -286,7 +286,9 @@ export class CredentialStorageManager {
 		const keys = new Set<string>();
 
 		// Get from memory cache
-		this.memoryCache.forEach((_, key) => keys.add(key));
+		this.memoryCache.forEach((_, key) => {
+			keys.add(key);
+		});
 
 		// Get from browser storage
 		try {
@@ -870,7 +872,10 @@ export class CredentialStorageManager {
 	/**
 	 * Subscribe to credential changes for a specific flow
 	 */
-	onCredentialChange(flowKey: string, callback: (data: Record<string, unknown>) => void): () => void {
+	onCredentialChange(
+		flowKey: string,
+		callback: (data: Record<string, unknown>) => void
+	): () => void {
 		if (!this.syncListeners.has(flowKey)) {
 			this.syncListeners.set(flowKey, new Set());
 		}
