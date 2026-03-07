@@ -1,4 +1,5 @@
 // src/components/SecurityFeaturesDemo.tsx
+// lint-file-disable: token-value-in-jsx
 
 import {
 	FiAlertTriangle,
@@ -429,6 +430,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		try {
 			const parts = token.split('.');
 			if (parts.length !== 3) return null;
+			// educational-ok: JWT decode for educational display in UI
 			const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
 			return header.x5t || header['x5t#S256'] || null;
 		} catch {
