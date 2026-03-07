@@ -12,8 +12,8 @@
  */
 
 interface DecodedJWT {
-	header: Record<string, any>;
-	payload: Record<string, any>;
+	header: Record<string, unknown>;
+	payload: Record<string, unknown>;
 	signature?: string;
 }
 
@@ -48,10 +48,18 @@ class TokenDisplayService {
 			const parts = token.split('.');
 
 			// Decode header
-			const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+			// educational-ok: intentional base64 decode for JWT inspection in OAuth playground
+			const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'))) as Record<
+				string,
+				unknown
+			>;
 
 			// Decode payload
-			const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+			// educational-ok: intentional base64 decode for JWT inspection in OAuth playground
+			const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<
+				string,
+				unknown
+			>;
 
 			return {
 				header,

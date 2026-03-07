@@ -226,7 +226,7 @@ class Logger {
 
 	exportLogs(): string {
 		// Safe JSON stringify that handles circular references and DOM elements
-		const safeStringify = (obj: any, space?: number): string => {
+		const safeStringify = (obj: unknown, space?: number): string => {
 			const seen = new WeakSet();
 			return JSON.stringify(
 				obj,
