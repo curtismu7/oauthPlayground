@@ -25,7 +25,7 @@ export interface UseAnalyticsConfig {
 	enabled?: boolean;
 	debug?: boolean;
 	userId?: string;
-	customProperties?: Record<string, any>;
+	customProperties?: Record<string, unknown>;
 	trackPageViews?: boolean;
 	trackUserActions?: boolean;
 	trackPerformance?: boolean;
@@ -105,7 +105,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track user actions
 	const handleUserAction = useCallback(
-		(action: string, element?: string, properties?: Record<string, any>) => {
+		(action: string, element?: string, properties?: Record<string, unknown>) => {
 			if (trackUserActions && enabled) {
 				trackUserAction(action, element, properties);
 
@@ -119,7 +119,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track performance metrics
 	const handlePerformanceMetric = useCallback(
-		(metric: string, value: number, properties?: Record<string, any>) => {
+		(metric: string, value: number, properties?: Record<string, unknown>) => {
 			if (trackPerformance && enabled) {
 				trackPerformanceMetric(metric, value, properties);
 
@@ -133,7 +133,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track errors
 	const handleError = useCallback(
-		(error: Error, context?: string, properties?: Record<string, any>) => {
+		(error: Error, context?: string, properties?: Record<string, unknown>) => {
 			if (trackErrors && enabled) {
 				trackError(error, context, properties);
 
@@ -151,7 +151,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track custom events
 	const handleCustomEvent = useCallback(
-		(eventName: string, properties?: Record<string, any>) => {
+		(eventName: string, properties?: Record<string, unknown>) => {
 			if (enabled) {
 				trackCustom(eventName, properties);
 
@@ -165,7 +165,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track flow events
 	const trackFlow = useCallback(
-		(flowType: string, event: 'start' | 'complete' | 'error', properties?: Record<string, any>) => {
+		(flowType: string, event: 'start' | 'complete' | 'error', properties?: Record<string, unknown>) => {
 			if (!enabled) return;
 
 			switch (event) {
@@ -192,7 +192,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 		(
 			event: string,
 			severity: 'low' | 'medium' | 'high' | 'critical',
-			properties?: Record<string, any>
+			properties?: Record<string, unknown>
 		) => {
 			if (enabled) {
 				trackSecurityEvent(event, severity, properties);
@@ -235,7 +235,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Set custom properties
 	const updateCustomProperties = useCallback(
-		(properties: Record<string, any>) => {
+		(properties: Record<string, unknown>) => {
 			setCustomProperties(properties);
 
 			if (debug) {
@@ -264,12 +264,12 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 		sessionId: analyticsManager.getAnalyticsData().events[0]?.sessionId || '',
 
 		// Actions
-		trackEvent: (eventType: AnalyticsEventType, properties?: Record<string, any>) => {
+		trackEvent: (eventType: AnalyticsEventType, properties?: Record<string, unknown>) => {
 			if (enabled) {
 				trackEvent(eventType, properties);
 			}
 		},
-		trackPageView: (page: string, properties?: Record<string, any>) => {
+		trackPageView: (page: string, properties?: Record<string, unknown>) => {
 			if (enabled) {
 				trackPageView(page, properties);
 			}
@@ -295,28 +295,28 @@ export const useUserActionTracking = (enabled: boolean = true) => {
 	const { trackUserAction } = useAnalytics({ enabled, trackUserActions: true });
 
 	const trackClick = useCallback(
-		(element: string, properties?: Record<string, any>) => {
+		(element: string, properties?: Record<string, unknown>) => {
 			trackUserAction('click', element, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackFormSubmit = useCallback(
-		(formName: string, properties?: Record<string, any>) => {
+		(formName: string, properties?: Record<string, unknown>) => {
 			trackUserAction('form_submit', formName, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackButtonClick = useCallback(
-		(buttonName: string, properties?: Record<string, any>) => {
+		(buttonName: string, properties?: Record<string, unknown>) => {
 			trackUserAction('button_click', buttonName, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackNavigation = useCallback(
-		(from: string, to: string, properties?: Record<string, any>) => {
+		(from: string, to: string, properties?: Record<string, unknown>) => {
 			trackUserAction('navigation', 'route', { from, to, ...properties });
 		},
 		[trackUserAction]
@@ -335,35 +335,35 @@ export const usePerformanceTracking = (enabled: boolean = true) => {
 	const { trackPerformanceMetric } = useAnalytics({ enabled, trackPerformance: true });
 
 	const trackLoadTime = useCallback(
-		(loadTime: number, properties?: Record<string, any>) => {
+		(loadTime: number, properties?: Record<string, unknown>) => {
 			trackPerformanceMetric('load_time', loadTime, properties);
 		},
 		[trackPerformanceMetric]
 	);
 
 	const trackRenderTime = useCallback(
-		(renderTime: number, properties?: Record<string, any>) => {
+		(renderTime: number, properties?: Record<string, unknown>) => {
 			trackPerformanceMetric('render_time', renderTime, properties);
 		},
 		[trackPerformanceMetric]
 	);
 
 	const trackMemoryUsage = useCallback(
-		(memoryUsage: number, properties?: Record<string, any>) => {
+		(memoryUsage: number, properties?: Record<string, unknown>) => {
 			trackPerformanceMetric('memory_usage', memoryUsage, properties);
 		},
 		[trackPerformanceMetric]
 	);
 
 	const trackNetworkLatency = useCallback(
-		(latency: number, properties?: Record<string, any>) => {
+		(latency: number, properties?: Record<string, unknown>) => {
 			trackPerformanceMetric('network_latency', latency, properties);
 		},
 		[trackPerformanceMetric]
 	);
 
 	const trackErrorRate = useCallback(
-		(errorRate: number, properties?: Record<string, any>) => {
+		(errorRate: number, properties?: Record<string, unknown>) => {
 			trackPerformanceMetric('error_rate', errorRate, properties);
 		},
 		[trackPerformanceMetric]
@@ -383,21 +383,21 @@ export const useFlowTracking = (enabled: boolean = true) => {
 	const { trackFlow } = useAnalytics({ enabled });
 
 	const startFlow = useCallback(
-		(flowType: string, properties?: Record<string, any>) => {
+		(flowType: string, properties?: Record<string, unknown>) => {
 			trackFlow(flowType, 'start', properties);
 		},
 		[trackFlow]
 	);
 
 	const completeFlow = useCallback(
-		(flowType: string, success: boolean, properties?: Record<string, any>) => {
+		(flowType: string, success: boolean, properties?: Record<string, unknown>) => {
 			trackFlow(flowType, 'complete', { success, ...properties });
 		},
 		[trackFlow]
 	);
 
 	const errorFlow = useCallback(
-		(flowType: string, error: string, properties?: Record<string, any>) => {
+		(flowType: string, error: string, properties?: Record<string, unknown>) => {
 			trackFlow(flowType, 'error', { error, ...properties });
 		},
 		[trackFlow]
@@ -418,7 +418,7 @@ export const useSecurityTracking = (enabled: boolean = true) => {
 		(
 			threat: string,
 			severity: 'low' | 'medium' | 'high' | 'critical',
-			properties?: Record<string, any>
+			properties?: Record<string, unknown>
 		) => {
 			trackSecurity(`threat_${threat}`, severity, properties);
 		},
@@ -429,7 +429,7 @@ export const useSecurityTracking = (enabled: boolean = true) => {
 		(
 			violation: string,
 			severity: 'low' | 'medium' | 'high' | 'critical',
-			properties?: Record<string, any>
+			properties?: Record<string, unknown>
 		) => {
 			trackSecurity(`violation_${violation}`, severity, properties);
 		},
@@ -437,7 +437,7 @@ export const useSecurityTracking = (enabled: boolean = true) => {
 	);
 
 	const trackSecurityCompliance = useCallback(
-		(compliance: string, status: 'pass' | 'fail', properties?: Record<string, any>) => {
+		(compliance: string, status: 'pass' | 'fail', properties?: Record<string, unknown>) => {
 			trackSecurity(`compliance_${compliance}`, status === 'fail' ? 'high' : 'low', {
 				status,
 				...properties,

@@ -322,6 +322,7 @@ const ClientGenerator: React.FC = () => {
 		} finally {
 			setIsGettingToken(false);
 		}
+		return;
 	}, []);
 
 	// Load saved worker credentials and silently get token on mount
@@ -367,6 +368,7 @@ const ClientGenerator: React.FC = () => {
 					error as Error
 				);
 			}
+			return;
 		};
 
 		loadAndGetToken();

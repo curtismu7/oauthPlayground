@@ -12,6 +12,7 @@ import { useCallback, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import type { AuthorizationCodeFlowController, AuthorizationTokens } from '../hooks/useAuthorizationCodeFlowController';
 import { logger } from '../utils/logger';
 import { validateForStep } from './credentialsValidationService';
 
@@ -329,7 +330,7 @@ export class AuthzFlowPKCEManager {
 	static async generatePKCE(
 		variant: AuthzFlowVariant,
 		credentials: StepCredentials,
-		controller: any
+		controller: AuthorizationCodeFlowController
 	): Promise<boolean> {
 		console.log('[PKCEManager] Starting PKCE generation...', {
 			variant,
@@ -386,7 +387,7 @@ export class AuthzFlowPKCEManager {
 	/**
 	 * Validate PKCE parameters are present
 	 */
-	static validatePKCE(controller: any): boolean {
+	static validatePKCE(controller: AuthorizationCodeFlowController): boolean {
 		// Enhanced validation - checks both controller state and session storage for PKCE codes
 		const hasPkceCodes =
 			!!(controller.pkceCodes?.codeVerifier && controller.pkceCodes?.codeChallenge) ||
@@ -402,7 +403,7 @@ export class AuthzFlowPKCEManager {
 	/**
 	 * Check if PKCE is generated
 	 */
-	static hasPKCE(controller: any): boolean {
+	static hasPKCE(controller: AuthorizationCodeFlowController): boolean {
 		// Enhanced validation - checks both controller state and session storage for PKCE codes
 		return (
 			!!(controller.pkceCodes?.codeVerifier && controller.pkceCodes?.codeChallenge) ||
@@ -455,14 +456,14 @@ export class AuthzFlowValidationManager {
 	/**
 	 * Validate step 1 to step 2 (PKCE must be generated)
 	 */
-	static validateStep1ToStep2(controller: any): boolean {
+	static validateStep1ToStep2(controller: AuthorizationCodeFlowController): boolean {
 		return AuthzFlowPKCEManager.validatePKCE(controller);
 	}
 
 	/**
 	 * Check if credentials are valid for generating auth URL
 	 */
-	static canGenerateAuthUrl(credentials: StepCredentials, controller: any): boolean {
+	static canGenerateAuthUrl(credentials: StepCredentials, controller: AuthorizationCodeFlowController): boolean {
 		if (!credentials.clientId || !credentials.environmentId) {
 			AuthzFlowToastManager.showMissingCredentials();
 			return false;
@@ -508,7 +509,7 @@ export class AuthzFlowCredentialsHandlers {
 	 */
 	static createEnvironmentIdHandler(
 		variant: AuthzFlowVariant,
-		controller: any,
+		controller: AuthorizationCodeFlowController,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -524,7 +525,7 @@ export class AuthzFlowCredentialsHandlers {
 	 */
 	static createClientIdHandler(
 		variant: AuthzFlowVariant,
-		controller: any,
+		controller: AuthorizationCodeFlowController,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -539,7 +540,7 @@ export class AuthzFlowCredentialsHandlers {
 	 * Create client secret change handler
 	 */
 	static createClientSecretHandler(
-		controller: any,
+		controller: AuthorizationCodeFlowController,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -554,7 +555,7 @@ export class AuthzFlowCredentialsHandlers {
 	 */
 	static createRedirectUriHandler(
 		variant: AuthzFlowVariant,
-		controller: any,
+		controller: AuthorizationCodeFlowController,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -578,7 +579,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
+	static createScopesHandler(controller: AuthorizationCodeFlowController, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -589,7 +590,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
+	static createLoginHintHandler(controller: AuthorizationCodeFlowController, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -600,7 +601,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(_variant: AuthzFlowVariant, controller: any) {
+	static createSaveHandler(_variant: AuthzFlowVariant, controller: AuthorizationCodeFlowController) {
 		return async () => {
 			try {
 				await controller.saveCredentials();
@@ -621,7 +622,7 @@ export class AuthzFlowCredentialsHandlers {
 	 * Create OIDC discovery complete handler
 	 */
 	static createDiscoveryHandler(variant: AuthzFlowVariant) {
-		return (result: any) => {
+		return (result: unknown) => {
 			console.log(`[${variant.toUpperCase()} Authz V5] OIDC Discovery completed:`, result);
 			// Service already handles environment ID extraction
 		};
@@ -653,7 +654,7 @@ export class AuthzFlowAuthorizationManager {
 	static async generateAuthUrl(
 		variant: AuthzFlowVariant,
 		credentials: StepCredentials,
-		controller: any
+		controller: AuthorizationCodeFlowController
 	): Promise<boolean> {
 		console.log(`[${variant.toUpperCase()} Authz V5] Generate URL - Checking credentials:`, {
 			local_clientId: credentials.clientId,
@@ -781,7 +782,7 @@ export class AuthzFlowTokenExchangeManager {
 		_credentials: StepCredentials,
 		authCode: string,
 		codeVerifier: string,
-		controller: any
+		controller: AuthorizationCodeFlowController
 	): Promise<boolean> {
 		if (!AuthzFlowValidationManager.canExchangeTokens(authCode)) {
 			return false;
@@ -822,7 +823,7 @@ export class AuthzFlowNavigationManager {
 		currentStep: number,
 		credentials: StepCredentials,
 		variant: AuthzFlowVariant,
-		controller: any,
+		controller: AuthorizationCodeFlowController,
 		isStepValid: (step: number) => boolean,
 		handleNext: () => void
 	): void {
@@ -974,7 +975,7 @@ export class AuthzFlowTokenManagement {
 	 */
 	static async navigateToTokenManagement(
 		variant: AuthzFlowVariant,
-		tokens: any,
+		tokens: AuthorizationTokens | null,
 		credentials: StepCredentials,
 		currentStep: number
 	): Promise<void> {
@@ -1236,7 +1237,7 @@ export class AuthzFlowCredentialsSync {
 	 */
 	static syncCredentials(
 		variant: AuthzFlowVariant,
-		controllerCredentials: any,
+		controllerCredentials: StepCredentials | null,
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
@@ -1257,7 +1258,7 @@ export class AuthzFlowModalManager {
 	/**
 	 * Create modal handlers
 	 */
-	static createHandlers(controller: any) {
+	static createHandlers(controller: AuthorizationCodeFlowController) {
 		const [showSuccessModal, setShowSuccessModal] = useState(false);
 		const [showRedirectModal, setShowRedirectModal] = useState(false);
 		const [showCodeReceivedModal, setShowCodeReceivedModal] = useState(false);
