@@ -1960,7 +1960,19 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<div className="collapsible-header" 
+				role="button"
+				tabIndex={0}
+				onClick={() => setIsExpanded(!isExpanded)}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						setIsExpanded(!isExpanded);
+					}
+				}}
+				aria-expanded={isExpanded}
+				aria-controls="collapsible-content"
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
@@ -1970,7 +1982,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 			{isExpanded && (
 				<>
-					<form id="credentials-form-v8u" className="form-sections">
+					<form id="collapsible-content" className="form-sections">
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
 							<div
@@ -2127,10 +2139,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Environment ID */}
 									<div className="form-group">
-										<label>
+										<label htmlFor="environment-id">
 											Environment ID <span className="required">*</span>
 										</label>
 										<input
+											id="environment-id"
 											type="text"
 											placeholder="12345678-1234-1234-1234-123456789012"
 											value={credentials.environmentId}
@@ -2143,7 +2156,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Worker Token Status */}
 									<div className="form-group">
-										<label>Worker Token Status</label>
+										<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Worker Token Status</div>
 										<div
 											style={{
 												padding: '10px 14px',
@@ -2380,10 +2393,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Client ID */}
 									<div className="form-group">
-										<label>
+										<label htmlFor="client-id">
 											Client ID <span className="required">*</span>
 										</label>
 										<input
+											id="client-id"
 											type="text"
 											placeholder="abc123def456..."
 											value={credentials.clientId}
@@ -4671,10 +4685,27 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 						{/* Advanced Options Section - Collapsible */}
 						<div className="form-section" data-section="advanced">
-							<div
+							<button
+								type="button"
 								className="section-header"
 								onClick={() => setShowAdvancedSection(!showAdvancedSection)}
-								style={{ cursor: 'pointer' }}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										setShowAdvancedSection(!showAdvancedSection);
+									}
+								}}
+								aria-expanded={showAdvancedSection}
+								style={{ 
+									cursor: 'pointer',
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									font: 'inherit',
+									color: 'inherit',
+									textAlign: 'left',
+									width: '100%'
+								}}
 							>
 								<div
 									style={{
@@ -4695,7 +4726,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										›
 									</span>
 								</div>
-							</div>
+							</button>
 							{showAdvancedSection && (
 								<div className="section-content">
 									<div
@@ -5072,9 +5103,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 												marginBottom: '4px',
 											}}
 										>
-											<label style={{ marginBottom: 0, flex: 1 }}>
+											<div style={{ marginBottom: 0, flex: 1 }}>
 												Prompt <span className="optional">(optional)</span>
-											</label>
+											</div>
 											<button
 												type="button"
 												onClick={() => setShowPromptInfoModal(true)}
@@ -5314,6 +5345,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -5677,6 +5709,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -6150,6 +6183,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowJARInfoModal(false)}
 								style={{
 									marginTop: '24px',
