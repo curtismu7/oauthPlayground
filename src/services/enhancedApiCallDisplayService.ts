@@ -17,11 +17,12 @@ export interface EnhancedApiCallData {
 	};
 	timestamp?: Date;
 	duration?: number;
-	/** Actual values for token/code fields masked with ***REDACTED*** in headers/body.
+	/** Actual values for token/code fields masked with ***REDACTED*** in headers/body/queryParams.
 	 * Enables show/hide toggles in the UI for educational token inspection. */
 	revealableFields?: {
 		headers?: Record<string, string>;
 		bodyParams?: Record<string, string>;
+		queryParams?: Record<string, string>;
 	};
 	// OAuth-specific fields
 	flowType?:
