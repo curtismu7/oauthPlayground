@@ -105,8 +105,15 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 	return (
 		<>
 			{/* Backdrop */}
-			<div
+			<button
+				type="button"
+				aria-label="Close modal"
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -119,11 +126,22 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 					alignItems: 'center',
 					justifyContent: 'center',
 					animation: 'fadeIn 0.2s ease',
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					cursor: 'pointer',
 				}}
 			>
 				{/* Modal */}
 				<div
+					role="dialog"
+					aria-modal="true"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							onClose();
+						}
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '12px',
@@ -185,6 +203,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 							</div>
 						</div>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'rgba(255, 255, 255, 0.2)',
@@ -419,6 +438,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 
 						{/* Close Button */}
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								width: '100%',
@@ -446,7 +466,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 						</button>
 					</div>
 				</div>
-			</div>
+			</button>
 
 			<style>{`
 				@keyframes fadeIn {
