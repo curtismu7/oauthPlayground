@@ -209,7 +209,10 @@ export class DPoPService {
 	/**
 	 * Sign a JWT using the private key
 	 */
-	private static async signJWT(header: Record<string, unknown>, payload: Record<string, unknown>): Promise<string> {
+	private static async signJWT(
+		header: Record<string, unknown>,
+		payload: Record<string, unknown>
+	): Promise<string> {
 		const encoder = new TextEncoder();
 
 		// Base64url encode header and payload
