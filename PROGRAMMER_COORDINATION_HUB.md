@@ -194,8 +194,9 @@ npx eslint src --format compact 2>/dev/null | grep "Warning" | grep -v "locked\|
 | Sidebar width 260→520px default, max 700px | `9e5613bd0` |
 | v4toast → modernMessaging (non-locked) | `169ba5c6e` |
 | Lint group 05 oauth-flows 11→0 | `900a9bfd1` |
-| Lint group 06 oidc-flows 61→0 | `4761e0baa` |
+| Lint group 09 oidc-flows 61→0 | `4761e0baa` |
 | Lint group 07 pingone-flows 41→0 | `8f71f8d64` |
+| Session 7: tsconfig ignoreDeprecations + TokenIntrospect type fixes + STANDARDIZATION_HANDOFF markdown lint | `13ace1773` |
 
 ---
 
