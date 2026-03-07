@@ -140,7 +140,7 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 
 	// Handle login form submission
 	const handleLoginSubmit = useCallback(
-		(_credentials: any) => {
+		(_credentials: unknown) => {
 			onLoginStart?.();
 			setLoginState((prev) => ({ ...prev, isOpen: false }));
 		},

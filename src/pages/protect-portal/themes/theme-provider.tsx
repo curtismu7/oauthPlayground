@@ -184,7 +184,7 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 	};
 
 	return (
-		<StyledThemeProvider theme={activeTheme as any}>
+		<StyledThemeProvider theme={activeTheme as object}>
 			<ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>
 		</StyledThemeProvider>
 	);

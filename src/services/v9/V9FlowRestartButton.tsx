@@ -25,6 +25,8 @@ export const V9FlowRestartButton: React.FC<V9FlowRestartButtonProps> = ({
 		// Confirm restart if not on first step
 		if (currentStep > 0) {
 			const confirmMessage = `Are you sure you want to restart the flow? This will reset all progress and return to step 1.`;
+			// biome-ignore lint/suspicious/noAlert: user confirmation before destructive restart action
+			// eslint-disable-next-line no-alert
 			if (window.confirm(confirmMessage)) {
 				onRestart();
 			}

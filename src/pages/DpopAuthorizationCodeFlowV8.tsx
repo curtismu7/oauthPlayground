@@ -34,6 +34,18 @@ import styled from 'styled-components';
 import { logger } from '../utils/logger';
 
 // Styled components
+
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -822,7 +834,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 				{authorizationCode && (
 					<div>
 						<h4>Authorization Code:</h4>
-						<TokenDisplay>{authorizationCode}</TokenDisplay>
+						<TokenDisplay>{maskToken(authorizationCode)}</TokenDisplay>
 
 						<InfoBox>
 							This code would normally be exchanged for an access token at the token endpoint. In
@@ -849,7 +861,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 				{accessToken && (
 					<div>
 						<h4>Access Token:</h4>
-						<TokenDisplay>{accessToken}</TokenDisplay>
+						<TokenDisplay>{maskToken(accessToken)}</TokenDisplay>
 
 						<Grid>
 							<Column>
