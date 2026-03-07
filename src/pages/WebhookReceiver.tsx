@@ -5,6 +5,7 @@ import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -29,8 +30,8 @@ const Title = styled.h1`
 `;
 
 const WebhookInfo = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -55,7 +56,7 @@ const CopyButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -65,7 +66,7 @@ const CopyButton = styled.button`
   transition: all 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -77,7 +78,7 @@ const EventsList = styled.div`
 
 const EventCard = styled.div`
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -91,8 +92,8 @@ const EventHeader = styled.div`
 `;
 
 const EventData = styled.pre`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   overflow-x: auto;
@@ -155,7 +156,7 @@ const WebhookReceiver: React.FC = () => {
 				<h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>
 					Webhook Endpoint
 				</h2>
-				<p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1rem' }}>
+				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', marginBottom: '1rem' }}>
 					Use this URL in your PingOne webhook configuration:
 				</p>
 
@@ -171,18 +172,18 @@ const WebhookReceiver: React.FC = () => {
 					style={{
 						marginTop: '1.5rem',
 						padding: '1rem',
-						background: '#fef3c7',
-						border: '1px solid #fbbf24',
+						background: 'V9_COLORS.BG.WARNING',
+						border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 						borderRadius: '0.5rem',
 					}}
 				>
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<FiAlertTriangle color="#f59e0b" />
-						<strong style={{ color: '#92400e' }}>Note:</strong>
+						<FiAlertTriangle color="V9_COLORS.PRIMARY.YELLOW" />
+						<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>Note:</strong>
 					</div>
-					<p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
+					<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', margin: 0 }}>
 						This endpoint is for demonstration purposes. To receive real webhooks from PingOne,
 						you'll need to deploy this application to a publicly accessible server or use a webhook
 						tunnel service.
@@ -196,7 +197,7 @@ const WebhookReceiver: React.FC = () => {
 					<ol
 						style={{
 							fontSize: '0.875rem',
-							color: '#475569',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							paddingLeft: '1.5rem',
 							lineHeight: '1.8',
 						}}
@@ -231,7 +232,7 @@ const WebhookReceiver: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.5rem 1rem',
-								background: '#ef4444',
+								background: 'V9_COLORS.PRIMARY.RED',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -247,7 +248,7 @@ const WebhookReceiver: React.FC = () => {
 							<EventHeader>
 								<div>
 									<strong>{event.method}</strong>
-									<span style={{ marginLeft: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+									<span style={{ marginLeft: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 										{event.timestamp.toLocaleString()}
 									</span>
 								</div>

@@ -32,7 +32,7 @@ const ActionButton = styled.button`
   margin-top: 0.5rem;
 
   &:hover {
-    background: #0284c7;
+    background: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -63,7 +63,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	const handleCopyEnvContent = () => {
 		logger.debug('EnvironmentIdPersistenceStatus', 'Copy .env content clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContent();
-		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content', { contentLength: envContent.length });
+		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content', {
+			contentLength: envContent.length,
+		});
 		navigator.clipboard.writeText(envContent).then(() => {
 			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard');
 			modernMessaging.showFooterMessage({
@@ -77,7 +79,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	const handleUpdateEnv = () => {
 		logger.debug('EnvironmentIdPersistenceStatus', 'Update .env clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
-		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content with newline', { contentLength: envContent.length });
+		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content with newline', {
+			contentLength: envContent.length,
+		});
 		navigator.clipboard.writeText(envContent).then(() => {
 			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard with newline');
 			modernMessaging.showFooterMessage({
@@ -108,18 +112,18 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 			<StatusContent>
 				<StatusItem>
 					{status.hasStoredId ? (
-						<FiCheckCircle size={14} color="#10b981" />
+						<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
 					) : (
-						<FiAlertCircle size={14} color="#f59e0b" />
+						<FiAlertCircle size={14} color="V9_COLORS.PRIMARY.YELLOW" />
 					)}
 					<span>{status.hasStoredId ? 'Stored in localStorage' : 'Not stored locally'}</span>
 				</StatusItem>
 
 				<StatusItem>
 					{status.hasEnvVar ? (
-						<FiCheckCircle size={14} color="#10b981" />
+						<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
 					) : (
-						<FiAlertCircle size={14} color="#f59e0b" />
+						<FiAlertCircle size={14} color="V9_COLORS.PRIMARY.YELLOW" />
 					)}
 					<span>{status.hasEnvVar ? 'Available in .env' : 'Not in .env file'}</span>
 				</StatusItem>
@@ -165,7 +169,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 						style={{
 							marginTop: '0.75rem',
 							background: '#1e293b',
-							color: '#f1f5f9',
+							color: 'V9_COLORS.BG.GRAY_MEDIUM',
 							padding: '0.75rem',
 							borderRadius: '0.25rem',
 							fontFamily: 'monospace',

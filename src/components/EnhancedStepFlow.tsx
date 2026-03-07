@@ -118,9 +118,9 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
@@ -765,7 +765,10 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 						{/* Step Result */}
 						{stepResults[currentStep.id] && (
 							<StepResult>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}> Result:</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+									{' '}
+									Result:
+								</h4>
 								<pre style={{ margin: 0, fontSize: '0.875rem' }}>
 									{typeof stepResults[currentStep.id] === 'string'
 										? stepResults[currentStep.id]
@@ -848,7 +851,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			{/* Flow Complete Message */}
 			{isFlowComplete && (
 				<StepResult>
-					<h3 style={{ margin: '0 0 1rem 0', color: '#059669' }}>Flow Complete!</h3>
+					<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+						Flow Complete!
+					</h3>
 					<p>
 						All steps have been successfully executed. You can review the results above or start
 						over.

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/constants/stepMetadata.ts
 // V7.1 Step Metadata Constants - Extracted from OAuthAuthzCodeFlowV6.config.ts
 
@@ -167,13 +168,13 @@ export const STEP_ICONS = {
 
 // Step colors mapping
 export const STEP_COLORS = {
-	OVERVIEW: '#3b82f6',
-	SETUP: '#16a34a',
-	PKCE: '#f59e0b',
+	OVERVIEW: 'V9_COLORS.PRIMARY.BLUE',
+	SETUP: 'V9_COLORS.PRIMARY.GREEN_DARK',
+	PKCE: 'V9_COLORS.PRIMARY.YELLOW',
 	AUTHORIZATION: '#8b5cf6',
 	RESPONSE: '#06b6d4',
-	TOKEN_EXCHANGE: '#ef4444',
-	VALIDATION: '#10b981',
+	TOKEN_EXCHANGE: 'V9_COLORS.PRIMARY.RED',
+	VALIDATION: 'V9_COLORS.PRIMARY.GREEN',
 	USER_INFO: '#f97316',
 	COMPLETE: '#84cc16',
 } as const;

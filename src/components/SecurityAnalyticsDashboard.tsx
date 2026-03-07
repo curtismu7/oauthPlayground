@@ -49,7 +49,7 @@ const DashboardIcon = styled.div`
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
   border-radius: 12px;
   color: white;
   font-size: 24px;
@@ -92,7 +92,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 			case 'danger':
 				return 'white';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   font-weight: 600;
@@ -726,7 +726,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiTrendingUp style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Security events trend chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -741,7 +741,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiShield style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Threat intelligence chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -796,7 +796,10 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'left', width: '100%' }}>
 							<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 								{recommendations.map((recommendation, index) => (
-									<li key={index} style={{ marginBottom: '0.5rem', color: '#374151' }}>
+									<li
+										key={index}
+										style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+									>
 										{recommendation}
 									</li>
 								))}

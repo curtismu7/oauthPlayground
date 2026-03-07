@@ -13,6 +13,7 @@ import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 export const PasskeyManager: React.FC = () => {
 	usePageScroll({ pageName: 'Passkey Manager', force: true });
@@ -99,7 +100,7 @@ export const PasskeyManager: React.FC = () => {
 								marginBottom: '0.5rem',
 								fontSize: '0.875rem',
 								fontWeight: '500',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							Environment ID *
@@ -113,7 +114,7 @@ export const PasskeyManager: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '1px solid #d1d5db',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '6px',
 								fontSize: '0.95rem',
 							}}
@@ -127,7 +128,7 @@ export const PasskeyManager: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							User ID *
@@ -151,7 +152,7 @@ export const PasskeyManager: React.FC = () => {
 								marginBottom: '0.5rem',
 								fontSize: '0.875rem',
 								fontWeight: '500',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							Worker Token
@@ -166,10 +167,10 @@ export const PasskeyManager: React.FC = () => {
 								style={{
 									flex: 1,
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '6px',
 									fontSize: '0.95rem',
-									background: workerToken ? '#f9fafb' : '#ffffff',
+									background: workerToken ? '#f9fafb' : 'V9_COLORS.TEXT.WHITE',
 								}}
 							/>
 							<button
@@ -178,7 +179,7 @@ export const PasskeyManager: React.FC = () => {
 								disabled={loadingToken || !environmentId}
 								style={{
 									padding: '0.75rem 1.5rem',
-									background: loadingToken || !environmentId ? '#9ca3af' : '#3b82f6',
+									background: loadingToken || !environmentId ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE',
 									color: 'white',
 									border: 'none',
 									borderRadius: '6px',
@@ -212,11 +213,11 @@ export const PasskeyManager: React.FC = () => {
 						maxWidth: '1200px',
 						margin: '0 auto',
 						padding: '2rem',
-						background: '#fef3c7',
-						border: '1px solid #f59e0b',
+						background: 'V9_COLORS.BG.WARNING',
+						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 						borderRadius: '12px',
 						textAlign: 'center',
-						color: '#92400e',
+						color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 					}}
 				>
 					<p style={{ margin: 0, fontSize: '1rem' }}>

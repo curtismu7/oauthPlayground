@@ -44,6 +44,7 @@ import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
@@ -66,12 +67,12 @@ const StepSection = styled.div`
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 1.5rem 0;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const HighlightBadge = styled.span`
-	background: #f59e0b;
+	background: V9_COLORS.PRIMARY.YELLOW;
 	color: white;
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
@@ -105,7 +106,7 @@ const LoginFormModal = styled.div`
 
 const LoginFormTitle = styled.h3`
 	margin: 0 0 1.5rem 0;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	text-align: center;
 	font-size: 1.5rem;
 	font-weight: 600;
@@ -118,7 +119,7 @@ const LoginFormField = styled.div`
 const LoginFormLabel = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-weight: 500;
 	font-size: 0.875rem;
 `;
@@ -126,14 +127,14 @@ const LoginFormLabel = styled.label`
 const LoginFormInput = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 1rem;
 	transition: border-color 0.2s ease;
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -160,19 +161,19 @@ const LoginFormButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	${(props) =>
 		props.$variant === 'primary'
 			? `
-		background: #3b82f6;
+		background: V9_COLORS.PRIMARY.BLUE;
 		color: white;
 		
 		&:hover:not(:disabled) {
-			background: #2563eb;
+			background: V9_COLORS.PRIMARY.BLUE_DARK;
 		}
 	`
 			: `
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		
 		&:hover:not(:disabled) {
-			background: #e5e7eb;
+			background: V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 	`}
 	
@@ -183,7 +184,7 @@ const LoginFormButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const SignInButton = styled.button`
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	border: none;
 	padding: 1rem 2rem;
@@ -1053,7 +1054,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						{/* V9 Redirectless Education - Enhanced with V9 features */}
 						<div
 							style={{
-								background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+								background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 								color: 'white',
 								padding: '2rem',
 								borderRadius: '1rem',
@@ -1086,8 +1087,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						{/* URL Example */}
 						<div
 							style={{
-								background: '#f8fafc',
-								border: '1px solid #e2e8f0',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '2rem',
@@ -1096,7 +1097,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							<h3
 								style={{
 									margin: '0 0 1rem 0',
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
@@ -1107,7 +1108,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							</h3>
 							<div
 								style={{
-									background: '#1f2937',
+									background: 'V9_COLORS.TEXT.GRAY_DARK',
 									color: '#f9fafb',
 									padding: '1rem',
 									borderRadius: '0.5rem',
@@ -1116,19 +1117,19 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									overflow: 'auto',
 								}}
 							>
-								<div style={{ color: '#60a5fa', marginBottom: '0.5rem' }}>POST</div>
+								<div style={{ color: 'V9_COLORS.PRIMARY.BLUE_LIGHT', marginBottom: '0.5rem' }}>POST</div>
 								<div style={{ marginBottom: '1rem' }}>
 									https://auth.pingone.com/
 									{controller.credentials?.environmentId || '{environmentId}'}/as/authorize
 								</div>
-								<div style={{ color: '#34d399', marginBottom: '0.5rem' }}>Headers:</div>
+								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN_LIGHT', marginBottom: '0.5rem' }}>Headers:</div>
 								<div style={{ marginLeft: '1rem', marginBottom: '1rem' }}>
 									Content-Type: application/x-www-form-urlencoded
 								</div>
-								<div style={{ color: '#fbbf24', marginBottom: '0.5rem' }}>Body Parameters:</div>
+								<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT', marginBottom: '0.5rem' }}>Body Parameters:</div>
 								<div style={{ marginLeft: '1rem' }}>
 									<div>client_id={controller.credentials?.clientId || '{clientId}'}</div>
-									<div style={{ color: '#f87171', fontWeight: 'bold' }}>response_mode=pi.flow</div>
+									<div style={{ color: 'V9_COLORS.PRIMARY.RED_LIGHT', fontWeight: 'bold' }}>response_mode=pi.flow</div>
 									<div>response_type=code</div>
 									<div>scope=openid profile email</div>
 									<div>username={'{username}'}</div>
@@ -1141,8 +1142,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								style={{
 									marginTop: '1rem',
 									padding: '1rem',
-									background: '#fef3c7',
-									border: '1px solid #f59e0b',
+									background: 'V9_COLORS.BG.WARNING',
+									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 									borderRadius: '0.5rem',
 									fontSize: '0.875rem',
 								}}
@@ -1158,7 +1159,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						<div
 							style={{
 								background: 'white',
-								border: '2px solid #10b981',
+								border: '2px solid V9_COLORS.PRIMARY.GREEN',
 								borderRadius: '1rem',
 								padding: '2rem',
 								marginBottom: '2rem',
@@ -1168,7 +1169,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							<h3
 								style={{
 									margin: '0 0 1rem 0',
-									color: '#059669',
+									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
@@ -1177,7 +1178,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								<FiEye />
 								Mock Custom Login UI (What Your Users Would See) - V9
 							</h3>
-							<p style={{ margin: '0 0 1.5rem 0', color: '#6b7280' }}>
+							<p style={{ margin: '0 0 1.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								This is what your custom authentication UI might look like. Instead of redirecting
 								to PingOne's hosted login page, you collect credentials in your own UI and make the
 								API call behind the scenes. V9 ensures fresh PKCE codes for every authentication
@@ -1188,7 +1189,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							<div
 								style={{
 									background: '#f9fafb',
-									border: '1px solid #e5e7eb',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.75rem',
 									padding: '2rem',
 									maxWidth: '400px',
@@ -1196,10 +1197,10 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								}}
 							>
 								<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-									<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', color: '#1f2937' }}>
+									<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Sign In to Your App
 									</h4>
-									<p style={{ margin: '0', color: '#6b7280', fontSize: '0.875rem' }}>
+									<p style={{ margin: '0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 										Custom UI powered by PingOne V9
 									</p>
 								</div>
@@ -1211,7 +1212,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 											display: 'block',
 											marginBottom: '0.5rem',
 											fontWeight: '600',
-											color: '#374151',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 										}}
 									>
 										Username or Email
@@ -1238,7 +1239,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												display: 'block',
 												marginBottom: '0.5rem',
 												fontWeight: '600',
-												color: '#374151',
+												color: 'V9_COLORS.TEXT.GRAY_DARK',
 											}}
 										>
 											Password
@@ -1250,7 +1251,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 											style={{
 												width: '100%',
 												padding: '0.75rem',
-												border: '1px solid #d1d5db',
+												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.5rem',
 												fontSize: '1rem',
 											}}
@@ -1266,7 +1267,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 										width: '100%',
 										opacity: '0.7',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '1rem',
 										backgroundColor: '#f3f4f6',
@@ -1281,7 +1282,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 										marginTop: '1rem',
 										padding: '1rem',
 										background: '#dbeafe',
-										border: '1px solid #3b82f6',
+										border: '1px solid V9_COLORS.PRIMARY.BLUE',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 										textAlign: 'center',
@@ -1300,7 +1301,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						<div
 							style={{
 								background: '#f0fdf4',
-								border: '1px solid #16a34a',
+								border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '2rem',
@@ -1318,12 +1319,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								<FiCheckCircle />
 								Direct Token Response (No Redirect!) - V9
 							</h3>
-							<p style={{ margin: '0 0 1rem 0', color: '#166534' }}>
+							<p style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 								Instead of a redirect, PingOne returns tokens directly in the API response:
 							</p>
 							<div
 								style={{
-									background: '#1f2937',
+									background: 'V9_COLORS.TEXT.GRAY_DARK',
 									color: '#f9fafb',
 									padding: '1rem',
 									borderRadius: '0.5rem',
@@ -1332,8 +1333,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									overflow: 'auto',
 								}}
 							>
-								<div style={{ color: '#34d399', marginBottom: '0.5rem' }}>HTTP 200 OK</div>
-								<div style={{ color: '#60a5fa', marginBottom: '0.5rem' }}>
+								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN_LIGHT', marginBottom: '0.5rem' }}>HTTP 200 OK</div>
+								<div style={{ color: 'V9_COLORS.PRIMARY.BLUE_LIGHT', marginBottom: '0.5rem' }}>
 									Content-Type: application/json
 								</div>
 								<div style={{ marginTop: '1rem' }}>
@@ -1400,11 +1401,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								}
 								style={{
 									padding: '0.75rem 1rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
-									backgroundColor: controller.pkceCodes.codeVerifier ? '#f3f4f6' : '#3b82f6',
-									color: controller.pkceCodes.codeVerifier ? '#6b7280' : 'white',
+									backgroundColor: controller.pkceCodes.codeVerifier ? '#f3f4f6' : 'V9_COLORS.PRIMARY.BLUE',
+									color: controller.pkceCodes.codeVerifier ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white',
 									cursor: controller.pkceCodes.codeVerifier ? 'not-allowed' : 'pointer',
 									display: 'flex',
 									alignItems: 'center',
@@ -1487,12 +1488,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								}
 								style={{
 									padding: '0.75rem 1rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
 									backgroundColor:
-										controller.authUrl || !checkHasPkceCodes() ? '#f3f4f6' : '#3b82f6',
-									color: controller.authUrl || !checkHasPkceCodes() ? '#6b7280' : 'white',
+										controller.authUrl || !checkHasPkceCodes() ? '#f3f4f6' : 'V9_COLORS.PRIMARY.BLUE',
+									color: controller.authUrl || !checkHasPkceCodes() ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white',
 									cursor: controller.authUrl || !checkHasPkceCodes() ? 'not-allowed' : 'pointer',
 									display: 'flex',
 									alignItems: 'center',
@@ -1529,10 +1530,10 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 											title="Open authorization URL in new tab"
 											style={{
 												padding: '0.5rem 1rem',
-												border: '1px solid #3b82f6',
+												border: '1px solid V9_COLORS.PRIMARY.BLUE',
 												borderRadius: '0.5rem',
 												fontSize: '0.875rem',
-												backgroundColor: '#3b82f6',
+												backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
 												color: 'white',
 												cursor: 'pointer',
 												display: 'flex',
@@ -1594,11 +1595,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								style={{
 									marginTop: '1rem',
 									padding: '1rem',
-									background: '#eff6ff',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									borderRadius: '0.5rem',
-									border: '1px solid #bfdbfe',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									fontSize: '0.875rem',
-									color: '#1e40af',
+									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 								}}
 							>
 								<strong>🚀 Behind the Scenes:</strong>
@@ -1616,10 +1617,10 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									padding: '1rem',
 									background: '#f0fdf4',
 									borderRadius: '0.5rem',
-									border: '1px solid #bbf7d0',
+									border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 								}}
 							>
-								<p style={{ color: '#166534', margin: 0, fontWeight: '600' }}>
+								<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', margin: 0, fontWeight: '600' }}>
 									✅ Tokens received successfully! The redirectless flow V9 is complete.
 								</p>
 							</div>
@@ -1668,11 +1669,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							}
 							style={{
 								padding: '0.75rem 1rem',
-								border: '1px solid #d1d5db',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.5rem',
 								fontSize: '1rem',
-								backgroundColor: !controller.tokens?.accessToken ? '#f3f4f6' : '#3b82f6',
-								color: !controller.tokens?.accessToken ? '#6b7280' : 'white',
+								backgroundColor: !controller.tokens?.accessToken ? '#f3f4f6' : 'V9_COLORS.PRIMARY.BLUE',
+								color: !controller.tokens?.accessToken ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white',
 								cursor: !controller.tokens?.accessToken ? 'not-allowed' : 'pointer',
 								display: 'flex',
 								alignItems: 'center',
@@ -1692,7 +1693,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									borderRadius: '0.5rem',
 								}}
 							>
-								<p style={{ color: '#059669', margin: 0 }}>
+								<p style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', margin: 0 }}>
 									✓ Tokens available. Click the button above to navigate to Token Management page.
 								</p>
 							</div>
@@ -1810,14 +1811,14 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 						<div
 							style={{
-								background: '#f0f9ff',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
 								padding: '1rem',
 								borderRadius: '0.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid #bae6fd',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<div style={{ fontSize: '0.875rem', color: '#0c4a6e' }}>
+							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 								<strong>🔒 Redirectless Flow Demo</strong>
 								<br />
 								Enter your credentials below. Behind the scenes, we'll make a POST request to
@@ -1857,9 +1858,9 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						{_error && (
 							<div
 								style={{
-									background: '#fef2f2',
-									border: '1px solid #fecaca',
-									color: '#991b1b',
+									background: 'V9_COLORS.BG.ERROR',
+									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+									color: 'V9_COLORS.PRIMARY.RED_DARK',
 									padding: '0.75rem',
 									borderRadius: '0.375rem',
 									marginBottom: '1rem',
@@ -1876,12 +1877,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 						<div
 							style={{
-								background: '#fef3c7',
+								background: 'V9_COLORS.BG.WARNING',
 								padding: '0.75rem',
 								borderRadius: '0.375rem',
 								marginBottom: '1rem',
 								fontSize: '0.75rem',
-								color: '#92400e',
+								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 							}}
 						>
 							💡 <strong>Demo Note:</strong> These are demo credentials for testing. The flow will

@@ -42,11 +42,11 @@ const IconContainer = styled.div`
 	width: 48px;
 	height: 48px;
 	border-radius: 50%;
-	background: #fef3c7;
+	background: V9_COLORS.BG.WARNING;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #d97706;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	font-size: 24px;
 `;
 
@@ -54,7 +54,7 @@ const Title = styled.h2`
 	margin: 0;
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	flex: 1;
 `;
 
@@ -62,7 +62,7 @@ const CloseButton = styled.button`
 	background: none;
 	border: none;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.5rem;
 	padding: 0.25rem;
 	display: flex;
@@ -71,7 +71,7 @@ const CloseButton = styled.button`
 	transition: color 0.2s;
 
 	&:hover {
-		color: #1f2937;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -88,7 +88,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	display: block;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -101,7 +101,7 @@ const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
 	padding-right: 2.5rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	transition: border-color 0.2s, box-shadow 0.2s;
@@ -113,7 +113,7 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 `;
 
@@ -125,7 +125,7 @@ const PasswordToggle = styled.button`
 	background: none;
 	border: none;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 	display: flex;
 	align-items: center;
@@ -133,14 +133,14 @@ const PasswordToggle = styled.button`
 	transition: color 0.2s;
 
 	&:hover {
-		color: #1f2937;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
 const ErrorMessage = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
-	color: #991b1b;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	padding: 0.75rem;
 	border-radius: 6px;
 	margin-bottom: 1rem;
@@ -179,15 +179,15 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 			background: #4f46e5;
 		}
 		&:disabled {
-			background: #9ca3af;
+			background: V9_COLORS.TEXT.GRAY_LIGHT;
 			cursor: not-allowed;
 		}
 	`
 			: `
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		&:hover {
-			background: #e5e7eb;
+			background: V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 	`}
 `;

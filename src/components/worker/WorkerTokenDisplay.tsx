@@ -50,7 +50,7 @@ const Header = styled.div`
   
   h3 {
     margin: 0;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-size: 1.125rem;
     font-weight: 600;
     display: flex;
@@ -66,7 +66,7 @@ const TokenSection = styled.div`
 const TokenLabel = styled.label`
   display: block;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 `;
@@ -74,7 +74,7 @@ const TokenLabel = styled.label`
 const TokenContainer = styled.div`
   position: relative;
   background: #f0fdf4; /* Light green for generated content */
-  border: 1px solid #16a34a;
+  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
   border-radius: 8px;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -84,14 +84,14 @@ const TokenContainer = styled.div`
 `;
 
 const TokenText = styled.span<{ showFull: boolean }>`
-  color: ${(props) => (props.showFull ? '#1f2937' : '#6b7280')};
+  color: ${(props) => (props.showFull ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 `;
 
 const CopyButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 4px;
@@ -104,7 +104,7 @@ const CopyButton = styled.button`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -116,22 +116,22 @@ const InfoGrid = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
 `;
 
 const InfoLabel = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   margin-bottom: 0.25rem;
 `;
 
 const InfoValue = styled.div`
   font-size: 0.875rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 600;
 `;
 
@@ -144,7 +144,7 @@ const ScopeList = styled.div`
 
 const ScopeTag = styled.span`
   background: #dbeafe;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -172,19 +172,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background-color: #3b82f6;
+    background-color: V9_COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover:not(:disabled) {
-      background-color: #2563eb;
+      background-color: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background-color: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     
     &:hover:not(:disabled) {
-      background-color: #e5e7eb;
+      background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
   
@@ -225,7 +225,7 @@ const ModalHeader = styled.div`
   
   h4 {
     margin: 0;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-size: 1.125rem;
     font-weight: 600;
   }
@@ -235,17 +235,17 @@ const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const JsonDisplay = styled.pre`
   background: #f0fdf4; /* Light green for generated content */
-  border: 1px solid #16a34a;
+  border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
   border-radius: 8px;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -268,13 +268,13 @@ const StatusIndicator = styled.div<{ status: 'active' | 'expired' | 'invalid' }>
   ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return 'background: #d1fae5; color: #065f46;';
+				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN_DARK;';
 			case 'expired':
-				return 'background: #fee2e2; color: #991b1b;';
+				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
 			case 'invalid':
-				return 'background: #fef3c7; color: #92400e;';
+				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
 			default:
-				return 'background: #f3f4f6; color: #374151;';
+				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK;';
 		}
 	}}
 `;
@@ -402,7 +402,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		<Container>
 			<Header>
 				<h3>
-					<FiShield size={20} color="#3b82f6" />
+					<FiShield size={20} color="V9_COLORS.PRIMARY.BLUE" />
 					Worker Token
 					<StatusIndicator status={tokenStatus}>
 						{tokenStatus === 'active' && <FiCheck size={12} />}

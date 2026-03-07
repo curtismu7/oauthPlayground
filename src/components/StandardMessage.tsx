@@ -74,41 +74,41 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
 			case 'success':
 				return `
           background-color: #f0fdf4;
-          border-color: #bbf7d0;
-          color: #166534;
+          border-color: V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
 
           svg {
-            color: #22c55e;
+            color: V9_COLORS.PRIMARY.GREEN;
           }
         `;
 			case 'error':
 				return `
-          background-color: #fef2f2;
-          border-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          border-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
 
           svg {
-            color: #ef4444;
+            color: V9_COLORS.PRIMARY.RED;
           }
         `;
 			case 'warning':
 				return `
-          background-color: #fffbeb;
+          background-color: V9_COLORS.BG.WARNING;
           border-color: #fed7aa;
-          color: #92400e;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
 
           svg {
-            color: #f59e0b;
+            color: V9_COLORS.PRIMARY.YELLOW;
           }
         `;
 			default:
 				return `
-          background-color: #eff6ff;
-          border-color: #bfdbfe;
-          color: #1e40af;
+          background-color: V9_COLORS.BG.GRAY_LIGHT;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
 
           svg {
-            color: #3b82f6;
+            color: V9_COLORS.PRIMARY.BLUE;
           }
         `;
 		}

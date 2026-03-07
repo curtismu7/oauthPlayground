@@ -13,6 +13,7 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   padding: 2rem;
@@ -71,7 +72,7 @@ const ExampleLink = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   background: #007bff;
-  color: #ffffff !important;
+  color: V9_COLORS.TEXT.WHITE !important;
   padding: 0.875rem 1.75rem;
   border-radius: 6px;
   text-decoration: none;
@@ -83,7 +84,7 @@ const ExampleLink = styled(Link)`
 
   &:hover {
     background: #0056b3;
-    color: #ffffff !important;
+    color: V9_COLORS.TEXT.WHITE !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
   }
@@ -108,7 +109,7 @@ const StatusBadge = styled.span<{ status: 'implemented' | 'planned' }>`
     color: #155724;
   `
 			: `
-    background: #fff3cd;
+    background: V9_COLORS.TEXT.WHITE3cd;
     color: #856404;
   `}
 `;
@@ -172,7 +173,7 @@ const SDKExamplesHome: React.FC = () => {
 						type="button"
 						onClick={() => setShowWorkerTokenModal(true)}
 						style={{
-							background: '#3b82f6',
+							background: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -189,7 +190,7 @@ const SDKExamplesHome: React.FC = () => {
 				{hasValidToken && (
 					<div
 						style={{
-							background: '#10b981',
+							background: 'V9_COLORS.PRIMARY.GREEN',
 							color: 'white',
 							padding: '0.75rem 1rem',
 							borderRadius: '0.5rem',

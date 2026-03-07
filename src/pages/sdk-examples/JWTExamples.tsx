@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { jwtAuthServiceV8 } from '../../services/jwtAuthServiceV8';
 import { PingOneJWTService } from '../../services/pingOneJWTService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   padding: 2rem;
@@ -52,7 +53,7 @@ const ExampleDescription = styled.p`
 
 const Button = styled.button`
   background: #007bff;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
@@ -64,12 +65,12 @@ const Button = styled.button`
 
   &:hover {
     background: #0056b3;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
   }
 
   &:disabled {
     background: #6c757d;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     cursor: not-allowed;
   }
 `;
@@ -79,7 +80,7 @@ const SecondaryButton = styled(Button)`
 
   &:hover {
     background: #545b62;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
   }
 `;
 
@@ -88,7 +89,7 @@ const BackButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   background: #6c757d;
-  color: #ffffff !important;
+  color: V9_COLORS.TEXT.WHITE !important;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
   text-decoration: none;
@@ -98,7 +99,7 @@ const BackButton = styled(Link)`
 
   &:hover {
     background: #545b62;
-    color: #ffffff !important;
+    color: V9_COLORS.TEXT.WHITE !important;
   }
 `;
 
@@ -215,7 +216,7 @@ const APILogDetails = styled.div`
 `;
 
 const APILogCode = styled.pre`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   padding: 0.5rem;

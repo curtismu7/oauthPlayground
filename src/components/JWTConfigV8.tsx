@@ -63,7 +63,7 @@ const Field = styled.div`
 
 const FieldLabel = styled.label`
   font-size: 0.75rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
@@ -73,14 +73,14 @@ const FieldLabel = styled.label`
 const FieldInput = styled.input`
   border-radius: 0.5rem;
   border: 1px solid rgba(148, 163, 184, 0.5);
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   padding: 0.5rem 0.75rem;
   font-size: 0.78rem;
   color: #1e293b;
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 `;
@@ -88,7 +88,7 @@ const FieldInput = styled.input`
 const TextArea = styled.textarea`
   border-radius: 0.5rem;
   border: 1px solid rgba(148, 163, 184, 0.5);
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   padding: 0.5rem 0.75rem;
   font-size: 0.78rem;
   color: #1e293b;
@@ -98,7 +98,7 @@ const TextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 `;
@@ -117,7 +117,7 @@ const PasswordInputWrapper = styled.div`
     right: 0.5rem;
     background: none;
     border: none;
-    color: #64748b;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     cursor: pointer;
     padding: 0.25rem;
     display: flex;
@@ -137,17 +137,17 @@ const Button = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid #2563eb;
-  background: #3b82f6;
-  color: #ffffff;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
+  background: V9_COLORS.PRIMARY.BLUE;
+  color: V9_COLORS.TEXT.WHITE;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   align-self: flex-start;
 
   &:hover:not(:disabled) {
-    background: #2563eb;
-    border-color: #1d4ed8;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   &:disabled {
@@ -163,7 +163,7 @@ const ButtonGroup = styled.div`
 `;
 
 const JWTDisplay = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 0.375rem;
   padding: 0.75rem;
@@ -179,7 +179,7 @@ const JWTDisplay = styled.div`
 const ClaimsDisplay = styled.details`
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 0.375rem;
   font-size: 0.75rem;
@@ -187,7 +187,7 @@ const ClaimsDisplay = styled.details`
   summary {
     cursor: pointer;
     font-weight: 600;
-    color: #475569;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     margin-bottom: 0.5rem;
   }
 
@@ -209,15 +209,15 @@ const CopyButton = styled.button`
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 0.5rem;
-  border: 1px solid #2563eb;
-  background: #3b82f6;
-  color: #ffffff;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
+  background: V9_COLORS.PRIMARY.BLUE;
+  color: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: #2563eb;
-    border-color: #1d4ed8;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -482,8 +482,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							onClick={handleGenerateSecret}
 							disabled={isGeneratingKey}
 							style={{
-								background: '#10b981',
-								borderColor: '#059669',
+								background: 'V9_COLORS.PRIMARY.GREEN',
+								borderColor: 'V9_COLORS.PRIMARY.GREEN_DARK',
 								fontSize: '0.75rem',
 								padding: '0.5rem 0.75rem',
 							}}
@@ -509,8 +509,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								onClick={handleGenerateKeyPair}
 								disabled={isGeneratingKey}
 								style={{
-									background: '#10b981',
-									borderColor: '#059669',
+									background: 'V9_COLORS.PRIMARY.GREEN',
+									borderColor: 'V9_COLORS.PRIMARY.GREEN_DARK',
 									fontSize: '0.75rem',
 									padding: '0.5rem 0.75rem',
 								}}
@@ -578,8 +578,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 						marginTop: '1rem',
 						padding: '1rem',
 						borderRadius: '0.5rem',
-						background: result.success ? '#f0fdf4' : '#fef2f2',
-						border: `1px solid ${result.success ? '#86efac' : '#fecaca'}`,
+						background: result.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR',
+						border: `1px solid ${result.success ? '#86efac' : 'V9_COLORS.BG.ERROR_BORDER'}`,
 					}}
 				>
 					{result.success && result.jwt ? (
@@ -592,7 +592,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 									marginBottom: '0.75rem',
 									fontWeight: '600',
 									fontSize: '0.875rem',
-									color: '#166534',
+									color: 'V9_COLORS.PRIMARY.GREEN',
 								}}
 							>
 								<FiCheckCircle size={16} />
@@ -633,7 +633,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								marginBottom: '0.75rem',
 								fontWeight: '600',
 								fontSize: '0.875rem',
-								color: '#991b1b',
+								color: 'V9_COLORS.PRIMARY.RED_DARK',
 							}}
 						>
 							<FiAlertCircle size={16} />

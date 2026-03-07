@@ -1,9 +1,10 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 const OIDCOverviewTest = () => {
 	return (
 		<div
 			style={{
 				padding: '2rem',
-				background: '#f0f9ff',
+				background: 'V9_COLORS.BG.GRAY_LIGHT',
 				minHeight: '100vh',
 				textAlign: 'center',
 			}}
@@ -11,7 +12,7 @@ const OIDCOverviewTest = () => {
 			<h1
 				style={{
 					fontSize: '3rem',
-					color: '#1e40af',
+					color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 					marginBottom: '2rem',
 					fontWeight: 'bold',
 				}}
@@ -20,8 +21,8 @@ const OIDCOverviewTest = () => {
 			</h1>
 			<div
 				style={{
-					background: '#dcfce7',
-					border: '3px solid #10b981',
+					background: 'V9_COLORS.BG.SUCCESS',
+					border: '3px solid V9_COLORS.PRIMARY.GREEN',
 					borderRadius: '1rem',
 					padding: '2rem',
 					margin: '2rem auto',
@@ -29,14 +30,14 @@ const OIDCOverviewTest = () => {
 					boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
 				}}
 			>
-				<h2 style={{ color: '#166534', marginBottom: '1rem' }}>✅ Route is Working! ✅</h2>
-				<p style={{ color: '#166534', fontSize: '1.25rem', marginBottom: '1rem' }}>
+				<h2 style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>✅ Route is Working! ✅</h2>
+				<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.25rem', marginBottom: '1rem' }}>
 					This test page confirms that the /documentation/oidc-overview route is functioning
 					correctly.
 				</p>
 				<div
 					style={{
-						background: '#10b981',
+						background: 'V9_COLORS.PRIMARY.GREEN',
 						color: 'white',
 						padding: '1rem',
 						borderRadius: '0.5rem',

@@ -2,12 +2,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-	FiAlertCircle,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+FiAlertCircle,
 	FiCheckCircle,
 	FiKey,
 	FiShield,
 	FiXCircle,
-} from '../services/commonImportsService';
+} from '../services/commonImportsService'
 
 /**
  * Props for WorkerTokenEducationalPanel component

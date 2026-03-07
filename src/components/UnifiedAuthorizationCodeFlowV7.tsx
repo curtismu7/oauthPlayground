@@ -1,35 +1,30 @@
 // src/components/UnifiedAuthorizationCodeFlowV7.tsx
 
-import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { logger } from '../utils/logger';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiShield': 'mdi-shield-check',
-		'FiKey': 'mdi-key',
-		'FiSettings': 'mdi-cog',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiCheck': 'mdi-check',
-		'FiInfo': 'mdi-information',
+		FiShield: 'mdi-shield-check',
+		FiKey: 'mdi-key',
+		FiSettings: 'mdi-cog',
+		FiExternalLink: 'mdi-open-in-new',
+		FiCheck: 'mdi-check',
+		FiInfo: 'mdi-information',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // Styled Components
@@ -37,7 +32,7 @@ const FlowContainer = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 12px;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
@@ -46,13 +41,13 @@ const FlowHeader = styled.div`
 	text-align: center;
 	margin-bottom: 2rem;
 	padding-bottom: 1rem;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FlowTitle = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -62,7 +57,7 @@ const FlowTitle = styled.h1`
 
 const FlowSubtitle = styled.p`
 	font-size: 1.1rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.6;
 `;
@@ -74,22 +69,22 @@ const ModeSelector = styled.div`
 	padding: 1.5rem;
 	background: #f9fafb;
 	border-radius: 8px;
-	border: 2px solid #e5e7eb;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModeButton = styled.button<{ $active: boolean }>`
 	flex: 1;
 	padding: 1rem;
-	border: 2px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
-	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
+	border: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	border-radius: 8px;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -98,23 +93,23 @@ const ModeButton = styled.button<{ $active: boolean }>`
 const ModeDescription = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
-	background: #eff6ff;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const ConfigurationSection = styled.div`
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	background: #ffffff;
-	border: 2px solid #e5e7eb;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 `;
 
 const SectionTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
@@ -127,13 +122,13 @@ const ActionButtons = styled.div`
 	justify-content: center;
 	margin-top: 2rem;
 	padding-top: 2rem;
-	border-top: 2px solid #e5e7eb;
+	border-top: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const InfoBox = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
-	background: #f0f9ff;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 6px;
 	border-left: 4px solid #0ea5e9;
 `;
@@ -141,7 +136,7 @@ const InfoBox = styled.div`
 const InfoTitle = styled.h4`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -168,8 +163,8 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 	onComplete,
 	className = '',
 }) => {
-	const navigate = useNavigate();
-	const authContext = useAuth();
+	const _navigate = useNavigate();
+	const _authContext = useAuth();
 	const [mode, setMode] = useState<FlowMode>('oauth');
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [authUrl, setAuthUrl] = useState<string>('');
@@ -179,7 +174,8 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 	const modeDescriptions = {
 		oauth: {
 			title: 'OAuth 2.0 Authorization Code Flow',
-			description: 'Standard OAuth 2.0 flow for authorization code grant. Provides access tokens for API access.',
+			description:
+				'Standard OAuth 2.0 flow for authorization code grant. Provides access tokens for API access.',
 			features: [
 				'Access token for API access',
 				'Refresh token for long-term access',
@@ -189,7 +185,8 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 		},
 		oidc: {
 			title: 'OpenID Connect (OIDC) Authorization Code Flow',
-			description: 'OAuth 2.0 + OpenID Connect. Provides both access tokens and user identity information.',
+			description:
+				'OAuth 2.0 + OpenID Connect. Provides both access tokens and user identity information.',
 			features: [
 				'Access token for API access',
 				'ID token for user identity',
@@ -212,22 +209,28 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 			// Simulate URL generation (in real implementation, this would call your auth service)
 			const baseUrl = 'https://auth.pingone.com';
 			const clientId = 'your-client-id';
-			const redirectUri = encodeURIComponent(window.location.origin + '/callback');
-			const scopes = mode === 'oidc' 
-				? 'openid profile email' 
-				: 'read write';
-			
+			const redirectUri = encodeURIComponent(`${window.location.origin}/callback`);
+			const scopes = mode === 'oidc' ? 'openid profile email' : 'read write';
+
 			const state = Math.random().toString(36).substring(7);
 			const generatedUrl = `${baseUrl}/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
 
 			setAuthUrl(generatedUrl);
-			
-			logger.info('UnifiedAuthFlowV7', 'Authorization URL generated successfully', { mode, urlLength: generatedUrl.length });
 
+			logger.info('UnifiedAuthFlowV7', 'Authorization URL generated successfully', {
+				mode,
+				urlLength: generatedUrl.length,
+			});
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			setError(errorMessage);
-			logger.error('UnifiedAuthFlowV7', 'Failed to generate authorization URL', undefined, err as Error);
+			logger.error(
+				'UnifiedAuthFlowV7',
+				'Failed to generate authorization URL',
+				undefined,
+				err as Error
+			);
 		} finally {
 			setIsGenerating(false);
 		}
@@ -241,10 +244,10 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 		}
 
 		logger.info('UnifiedAuthFlowV7', 'Redirecting to authorization', { mode, url: authUrl });
-		
+
 		// Store mode in session for callback handling
 		sessionStorage.setItem('unified_auth_mode', mode);
-		
+
 		// Redirect to authorization server
 		window.location.href = authUrl;
 	}, [authUrl, mode]);
@@ -259,17 +262,17 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 		if (code && state) {
 			// Handle successful callback
 			const storedMode = sessionStorage.getItem('unified_auth_mode') as FlowMode;
-			
-			logger.info('UnifiedAuthFlowV7', 'Authorization callback received', { 
-				code: code.substring(0, 10) + '...', 
-				mode: storedMode 
+
+			logger.info('UnifiedAuthFlowV7', 'Authorization callback received', {
+				code: `${code.substring(0, 10)}...`,
+				mode: storedMode,
 			});
 
 			// In real implementation, exchange code for tokens
 			onComplete?.({
 				success: true,
 				mode: storedMode || 'oauth',
-				data: { authorizationCode: code, state }
+				data: { authorizationCode: code, state },
 			});
 
 			// Clean up
@@ -280,7 +283,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 			onComplete?.({
 				success: false,
 				mode,
-				data: { error: errorParam }
+				data: { error: errorParam },
 			});
 		}
 	}, [mode, onComplete]);
@@ -298,17 +301,11 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 			</FlowHeader>
 
 			<ModeSelector>
-				<ModeButton
-					$active={mode === 'oauth'}
-					onClick={() => setMode('oauth')}
-				>
+				<ModeButton $active={mode === 'oauth'} onClick={() => setMode('oauth')}>
 					<MDIIcon icon="FiKey" size={20} />
 					OAuth 2.0
 				</ModeButton>
-				<ModeButton
-					$active={mode === 'oidc'}
-					onClick={() => setMode('oidc')}
-				>
+				<ModeButton $active={mode === 'oidc'} onClick={() => setMode('oidc')}>
 					<MDIIcon icon="FiShield" size={20} />
 					OpenID Connect
 				</ModeButton>
@@ -334,15 +331,15 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 					<MDIIcon icon="FiSettings" size={20} />
 					Authorization Configuration
 				</SectionTitle>
-				
+
 				<div style={{ marginBottom: '1rem' }}>
 					<strong>Selected Mode:</strong> {mode.toUpperCase()}
 				</div>
-				
+
 				<div style={{ marginBottom: '1rem' }}>
 					<strong>Flow Type:</strong> Authorization Code Grant
 				</div>
-				
+
 				<div style={{ marginBottom: '1rem' }}>
 					<strong>Scopes:</strong> {mode === 'oidc' ? 'openid profile email' : 'read write'}
 				</div>
@@ -353,8 +350,8 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						Configuration Notes
 					</InfoTitle>
 					<InfoText>
-						This unified flow automatically handles the differences between OAuth 2.0 and OIDC. 
-						When OIDC mode is selected, an ID token will be requested in addition to the access token.
+						This unified flow automatically handles the differences between OAuth 2.0 and OIDC. When
+						OIDC mode is selected, an ID token will be requested in addition to the access token.
 					</InfoText>
 				</InfoBox>
 			</ConfigurationSection>
@@ -365,15 +362,17 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						<MDIIcon icon="FiExternalLink" size={20} />
 						Generated Authorization URL
 					</SectionTitle>
-					<div style={{ 
-						padding: '1rem', 
-						background: '#f8fafc', 
-						borderRadius: '6px', 
-						border: '1px solid #e2e8f0',
-						wordBreak: 'break-all',
-						fontFamily: 'monospace',
-						fontSize: '0.9rem'
-					}}>
+					<div
+						style={{
+							padding: '1rem',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							borderRadius: '6px',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							wordBreak: 'break-all',
+							fontFamily: 'monospace',
+							fontSize: '0.9rem',
+						}}
+					>
 						{authUrl}
 					</div>
 				</ConfigurationSection>
@@ -381,13 +380,15 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 
 			{error && (
 				<ConfigurationSection>
-					<div style={{ 
-						padding: '1rem', 
-						background: '#fef2f2', 
-						borderRadius: '6px', 
-						border: '1px solid #fecaca',
-						color: '#dc2626'
-					}}>
+					<div
+						style={{
+							padding: '1rem',
+							background: 'V9_COLORS.BG.ERROR',
+							borderRadius: '6px',
+							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+							color: 'V9_COLORS.PRIMARY.RED_DARK',
+						}}
+					>
 						<strong>Error:</strong> {error}
 					</div>
 				</ConfigurationSection>
@@ -405,7 +406,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						padding: '12px 24px',
 						border: 'none',
 						borderRadius: '8px',
-						background: '#3b82f6',
+						background: 'V9_COLORS.PRIMARY.BLUE',
 						color: 'white',
 						fontWeight: '600',
 						cursor: 'pointer',
@@ -425,7 +426,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						padding: '12px 24px',
 						border: 'none',
 						borderRadius: '8px',
-						background: '#10b981',
+						background: 'V9_COLORS.PRIMARY.GREEN',
 						color: 'white',
 						fontWeight: '600',
 						cursor: 'pointer',

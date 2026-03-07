@@ -33,21 +33,21 @@ const Spinner = styled.div`
   width: 40px;
   height: 40px;
   border: 3px solid #f3f4f6;
-  border-top: 3px solid #3b82f6;
+  border-top: 3px solid V9_COLORS.PRIMARY.BLUE;
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
   margin-bottom: 1rem;
 `;
 
 const LoadingText = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   font-weight: 500;
   text-align: center;
 `;
 
 const LoadingSubtext = styled.div`
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   font-size: 0.75rem;
   margin-top: 0.5rem;
   text-align: center;

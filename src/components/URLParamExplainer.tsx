@@ -34,8 +34,8 @@ const ParamItem = styled.li`
     border-radius: 0.25rem;
   }
 
-  .name { color: #16a34a; }
-  .value { color: #16a34a; }
+  .name { color: V9_COLORS.PRIMARY.GREEN_DARK; }
+  .value { color: V9_COLORS.PRIMARY.GREEN_DARK; }
 `;
 
 const Small = styled.small`

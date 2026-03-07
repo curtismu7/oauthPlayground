@@ -70,13 +70,13 @@ const Modal = styled.div`
 
 const Header = styled.div`
 	padding: 1.5rem 1.5rem 0;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h2`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -85,7 +85,7 @@ const Title = styled.h2`
 
 const Subtitle = styled.p`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0 0 1.5rem 0;
 	line-height: 1.5;
 `;
@@ -95,7 +95,7 @@ const Content = styled.div`
 `;
 
 const InfoBox = styled.div`
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border: 1px solid #0ea5e9;
 	border-radius: 8px;
 	padding: 1rem;
@@ -117,13 +117,13 @@ const InfoContent = styled.div`
 const InfoTitle = styled.h4`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 `;
 
 const InfoText = styled.p`
 	font-size: 0.8rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	line-height: 1.5;
 `;
@@ -143,7 +143,7 @@ const Field = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -151,7 +151,7 @@ const Label = styled.label`
 
 const Input = styled.input`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -159,14 +159,14 @@ const Input = styled.input`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const _TextArea = styled.textarea`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -176,14 +176,14 @@ const _TextArea = styled.textarea`
 	
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
 const Helper = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 `;
 
@@ -192,7 +192,7 @@ const Actions = styled.div`
 	gap: 0.75rem;
 	justify-content: flex-end;
 	padding: 1.5rem;
-	border-top: 1px solid #e5e7eb;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'warning' }>`
@@ -210,20 +210,20 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
-					border: 1px solid #3b82f6;
+					border: 1px solid V9_COLORS.PRIMARY.BLUE;
 					
 					&:hover {
-						background: #2563eb;
-						border-color: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
+						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'success':
 				return `
-					background: #16a34a;
+					background: V9_COLORS.PRIMARY.GREEN_DARK;
 					color: white;
-					border: 1px solid #16a34a;
+					border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 					
 					&:hover {
 						background: #15803d;
@@ -232,24 +232,24 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 				`;
 			case 'warning':
 				return `
-					background: #f59e0b;
+					background: V9_COLORS.PRIMARY.YELLOW;
 					color: white;
-					border: 1px solid #f59e0b;
+					border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 					
 					&:hover {
-						background: #d97706;
-						border-color: #d97706;
+						background: V9_COLORS.PRIMARY.YELLOW_DARK;
+						border-color: V9_COLORS.PRIMARY.YELLOW_DARK;
 					}
 				`;
 			default:
 				return `
 					background: white;
-					color: #374151;
-					border: 1px solid #d1d5db;
+					color: V9_COLORS.TEXT.GRAY_DARK;
+					border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 					
 					&:hover {
 						background: #f9fafb;
-						border-color: #9ca3af;
+						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 					}
 				`;
 		}
@@ -258,7 +258,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 
 const TabContainer = styled.div`
 	display: flex;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 1.5rem;
 `;
 
@@ -270,16 +270,16 @@ const Tab = styled.button<{ $active: boolean }>`
 	font-weight: 500;
 	cursor: pointer;
 	border-bottom: 2px solid transparent;
-	color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
-	border-bottom-color: ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+	color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	border-bottom-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
 	
 	&:hover {
-		color: #3b82f6;
+		color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
 const CodeBlock = styled.pre`
-	background: #1f2937;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: #f9fafb;
 	padding: 1rem;
 	border-radius: 6px;
@@ -315,13 +315,13 @@ const StepContainer = styled.div`
 	gap: 1rem;
 	margin-bottom: 1.5rem;
 	padding: 1rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 8px;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepNumber = styled.div`
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	width: 24px;
 	height: 24px;
@@ -341,13 +341,13 @@ const StepContent = styled.div`
 const StepTitle = styled.h4`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.5rem 0;
 `;
 
 const StepDescription = styled.p`
 	font-size: 0.8rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
 	line-height: 1.4;
 `;
@@ -363,17 +363,17 @@ const ExampleBox = styled.div<{ $variant?: 'success' | 'warning' | 'info' }>`
 			case 'success':
 				return `
 					background: #f0fdf4;
-					border-left-color: #16a34a;
+					border-left-color: V9_COLORS.PRIMARY.GREEN_DARK;
 				`;
 			case 'warning':
 				return `
-					background: #fffbeb;
-					border-left-color: #f59e0b;
+					background: V9_COLORS.BG.WARNING;
+					border-left-color: V9_COLORS.PRIMARY.YELLOW;
 				`;
 			default:
 				return `
-					background: #eff6ff;
-					border-left-color: #3b82f6;
+					background: V9_COLORS.BG.GRAY_LIGHT;
+					border-left-color: V9_COLORS.PRIMARY.BLUE;
 				`;
 		}
 	}}
@@ -388,7 +388,7 @@ const QuickFillGrid = styled.div`
 
 const QuickFillCard = styled.button`
 	padding: 1rem;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	background: white;
 	cursor: pointer;
@@ -396,7 +396,7 @@ const QuickFillCard = styled.button`
 	transition: all 0.2s;
 	
 	&:hover {
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -404,7 +404,7 @@ const QuickFillCard = styled.button`
 const QuickFillTitle = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	display: flex;
 	align-items: center;
@@ -413,7 +413,7 @@ const QuickFillTitle = styled.div`
 
 const QuickFillDesc = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.3;
 `;
 
@@ -802,7 +802,13 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 											{copiedText === 'Authorization URL' ? 'Copied!' : 'Copy'}
 										</CopyButton>
 									</CodeBlock>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem', color: '#16a34a' }}>
+									<p
+										style={{
+											margin: '0.5rem 0 0 0',
+											fontSize: '0.75rem',
+											color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+										}}
+									>
 										This is the final authorization URL that users will visit to authenticate.
 										Notice how it only contains the client_id and request_uri - all other parameters
 										are securely stored server-side.
@@ -998,7 +1004,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 										borderRadius: '6px',
 									}}
 								>
-									<strong style={{ fontSize: '0.875rem', color: '#16a34a' }}>
+									<strong style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
 										Expected Response:
 									</strong>
 									<CodeBlock style={{ marginTop: '0.5rem' }}>

@@ -43,7 +43,7 @@ const Button = styled.button`
 	gap: 4px;
 	padding: 6px 12px;
 	background: #333;
-	color: #fff;
+	color: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #555;
 	border-radius: 4px;
 	cursor: pointer;
@@ -62,7 +62,7 @@ const Button = styled.button`
 
 const Select = styled.select`
 	background: #333;
-	color: #fff;
+	color: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #555;
 	border-radius: 4px;
 	padding: 4px 8px;
@@ -71,7 +71,7 @@ const Select = styled.select`
 
 const Input = styled.input`
 	background: #333;
-	color: #fff;
+	color: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #555;
 	border-radius: 4px;
 	padding: 4px 8px;
@@ -228,7 +228,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({ visible = true, onClose })
 		<Container>
 			<Header>
 				<div>
-					<h3 style={{ margin: 0, color: '#fff' }}>Log Viewer</h3>
+					<h3 style={{ margin: 0, color: 'V9_COLORS.TEXT.WHITE' }}>Log Viewer</h3>
 					<span style={{ fontSize: '11px', color: '#888' }}>
 						{filteredLogs.length} / {logs.length} entries
 					</span>
