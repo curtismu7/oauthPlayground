@@ -1218,6 +1218,7 @@ export class TokenMonitoringService {
 	): Promise<void> {
 		const flowContext = this.getTokenManagementFlowContext();
 		if (flowContext) {
+			// educational-ok: parsing our own token management flow context from storage
 			const context = JSON.parse(flowContext);
 			const credentials = context.credentials;
 
