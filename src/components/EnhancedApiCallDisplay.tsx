@@ -629,14 +629,23 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								Query Parameters
 							</h5>
 							<ParameterList>
-								{Object.entries(apiCall.queryParams).map(([key, value]) => (
-									<ParameterItem key={key}>
-										<span>
-											<strong>{key}:</strong>
-										</span>
-										<ParameterValue>{value}</ParameterValue>
-									</ParameterItem>
-								))}
+								{Object.entries(apiCall.queryParams).map(([key, value]) => {
+									const revealVal = apiCall.revealableFields?.queryParams?.[key];
+									return (
+										<ParameterItem key={key}>
+											<span><strong>{key}:</strong></span>
+											{isRedacted(value) ? (
+												revealVal
+													? <MaskedRevealValue value={revealVal} fieldKey={key} />
+													: isCredentialField(key)
+														? <CredentialMaskedValue />
+														: <TokenMaskedNoReveal />
+											) : (
+												<ParameterValue>{value}</ParameterValue>
+											)}
+										</ParameterItem>
+									);
+								})}
 							</ParameterList>
 						</div>
 					)}
