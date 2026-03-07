@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-03-07T00:00:00+00:00",
+  "tool": "scripts/lint_per_group.py",
+  "groups": [
+    { "num": "01",  "id": "dashboard",                "label": "Dashboard",                     "status": "not_run" },
+    { "num": "02",  "id": "admin-configuration",      "label": "Admin & Configuration",          "status": "not_run" },
+    { "num": "03",  "id": "pingone-platform",          "label": "PingOne Platform",               "status": "not_run" },
+    { "num": "04",  "id": "unified-production-flows", "label": "Unified & Production Flows",     "status": "not_run" },
+    { "num": "05",  "id": "oauth-flows",              "label": "OAuth 2.0 Flows",                "status": "not_run" },
+    { "num": "06",  "id": "oidc-flows",               "label": "OpenID Connect",                 "status": "not_run" },
+    { "num": "07",  "id": "pingone-flows",            "label": "PingOne Flows",                  "status": "not_run" },
+    { "num": "08",  "id": "tokens-session",           "label": "Tokens & Session",               "status": "not_run" },
+    { "num": "09",  "id": "developer-tools",          "label": "Developer & Tools",              "status": "not_run" },
+    { "num": "10",  "id": "education-tutorials",      "label": "Education & Tutorials",          "status": "not_run" },
+    { "num": "11a", "id": "oauth-mock-flows",         "label": "OAuth Mock Flows",               "status": "not_run" },
+    { "num": "11b", "id": "advanced-mock-flows",      "label": "Advanced Mock Flows",            "status": "not_run" },
+    { "num": "11c", "id": "v7m-mock-server-flows",    "label": "V7 Mock Server Flows",           "status": "not_run" },
+    { "num": "12",  "id": "ai-ping",                  "label": "AI - Ping",                      "status": "not_run" },
+    { "num": "13",  "id": "ai-prompts",               "label": "AI Prompts & Development",       "status": "not_run" },
+    { "num": "14",  "id": "documentation-reference",  "label": "Documentation & Reference",      "status": "not_run" },
+    { "num": "15",  "id": "review",                   "label": "Review - New Apps",              "status": "not_run" }
+  ]
+}
