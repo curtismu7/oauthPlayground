@@ -2,6 +2,16 @@
 """
 lint_per_group.py — Per-sidebar-group linter + runtime-analysis + test runner.
 
+Analysis layers (run with --fix or --report):
+  1. Biome           — formatting + fast lint rules (auto-fixable)
+  2. ESLint          — React hook rules, import order
+  3. tsc             — full TypeScript type checking
+  4. runtime-analysis — runtime bug patterns (JSON.parse, null-deref, etc.)
+  5. a11y-keyboard   — keyboard accessibility (missing roles, no onKeyDown, tabIndex > 0)
+  6. a11y-color      — color/visual accessibility (hardcoded colors, color-only state)
+  7. migration-check — V8→V9 migration gate regressions (toast stragglers, fetch-in-component, etc.)
+  8. Tests           — vitest unit + Playwright e2e (optional, --tests flag)
+
 Usage:
     python3 scripts/lint_per_group.py --list
     python3 scripts/lint_per_group.py --fix --group oauth-flows
@@ -416,6 +426,184 @@ RUNTIME_PATTERNS = [
 ]
 
 # ---------------------------------------------------------------------------
+# Keyboard accessibility patterns
+# Detects interactive elements that are not reachable or operable via keyboard.
+# Severity guidance:
+#   warning — WCAG 2.1 SC 2.1.1 (Level A) violation — cannot be deferred
+#   info    — advisory / easy to audit manually
+# ---------------------------------------------------------------------------
+KEYBOARD_A11Y_PATTERNS = [
+    {
+        "name": "div-click-no-role",
+        "severity": "warning",
+        "message": "<div onClick> without role= — not keyboard-reachable; use <button> or add role+tabIndex+onKeyDown",
+        "pattern": r"<div\b[^>]*onClick=",
+        "check": "direct",
+    },
+    {
+        "name": "span-click-no-role",
+        "severity": "warning",
+        "message": "<span onClick> without role= — not keyboard-reachable; use <button> or add role+tabIndex+onKeyDown",
+        "pattern": r"<span\b[^>]*onClick=",
+        "check": "direct",
+    },
+    {
+        "name": "li-click-no-role",
+        "severity": "info",
+        "message": "<li onClick> without role=option/menuitem — keyboard users cannot activate this item",
+        "pattern": r"<li\b[^>]*onClick=",
+        "check": "direct",
+    },
+    {
+        "name": "tabindex-positive",
+        "severity": "warning",
+        "message": "tabIndex > 0 disrupts natural tab order — use tabIndex={0} or tabIndex={-1} only",
+        "pattern": r"tabIndex=\{[1-9]\d*\}",
+        "check": "direct",
+    },
+    {
+        "name": "onclick-no-keydown",
+        "severity": "warning",
+        "message": "onClick handler without a paired onKeyDown/onKeyPress — keyboard users cannot trigger this action",
+        "pattern": r"onClick=\{[^}]+\}(?![^>]*onKey(?:Down|Press|Up))",
+        "check": "a11y_onclick",
+    },
+    {
+        "name": "missing-aria-label-icon-btn",
+        "severity": "warning",
+        "message": "Button with icon child but no aria-label/aria-labelledby — screen reader sees no label",
+        "pattern": r"<button\b(?![^>]*aria-label)[^>]*>\s*<[A-Z][A-Za-z]+\s*/?>",
+        "check": "direct",
+    },
+    {
+        "name": "autofocus-without-aria",
+        "severity": "info",
+        "message": "autofocus= set — verify focus management is intentional and modal/page context is communicated via aria-label",
+        "pattern": r"\bautofocus\b|autoFocus=\{true\}|autoFocus\b",
+        "check": "direct",
+    },
+]
+
+# ---------------------------------------------------------------------------
+# Color / visual accessibility patterns
+# Detects hardcoded colors and color-only state communication that may
+# fail WCAG 1.4.1 (Use of Color) and 1.4.3 (Contrast).
+# ---------------------------------------------------------------------------
+COLOR_A11Y_PATTERNS = [
+    {
+        "name": "hardcoded-hex-color",
+        "severity": "info",
+        "message": "Hardcoded hex color in style prop — use a design token or CSS variable for consistency and theming",
+        "pattern": r'(?:color|background|borderColor|fill|stroke)\s*:\s*[\'"]#[0-9a-fA-F]{3,8}[\'"]',
+        "check": "direct",
+    },
+    {
+        "name": "hardcoded-rgb-color",
+        "severity": "info",
+        "message": "Hardcoded rgb/rgba color in style prop — use a design token or CSS variable instead",
+        "pattern": r'(?:color|background|borderColor|fill|stroke)\s*:\s*rgba?\(',
+        "check": "direct",
+    },
+    {
+        "name": "color-only-error-state",
+        "severity": "warning",
+        "message": "Error/success state may be communicated by color alone — add an icon, text label, or aria-label (WCAG 1.4.1)",
+        "pattern": r'(?:color|backgroundColor)\s*:\s*[\'"](?:red|green|orange|#[a-fA-F0-9]{3,6})[\'"]',
+        "check": "direct",
+    },
+    {
+        "name": "inline-color-style",
+        "severity": "info",
+        "message": "Inline color style= on JSX element — extract to CSS module or design token to support high-contrast mode",
+        "pattern": r'style=\{\{[^}]*color\s*:',
+        "check": "direct",
+    },
+]
+
+# ---------------------------------------------------------------------------
+# Migration guide quick-fix patterns
+# These are checks derived from the V9 Engineering Quality Gates in
+# A-Migration/V9_MIGRATION_TODOS_CONSISTENT_QG.md and STANDARDIZATION_HANDOFF.md.
+# They catch regressions and leftover patterns from the V8→V9 migration.
+# ---------------------------------------------------------------------------
+MIGRATION_PATTERNS = [
+    {
+        "name": "fetch-in-component",
+        "severity": "warning",
+        "message": "Direct fetch() call inside a component/hook — move network calls to a service (services-first migration gate)",
+        "pattern": r"await\s+fetch\(|fetch\(['\"]https?://",
+        "check": "non_service",
+    },
+    {
+        "name": "fetch-no-abort-signal",
+        "severity": "info",
+        "message": "fetch() call without AbortController signal — request cannot be cancelled on component unmount (async cleanup gate)",
+        "pattern": r"await\s+fetch\((?![^)]*signal)",
+        "check": "direct",
+    },
+    {
+        "name": "useeffect-async-no-cleanup",
+        "severity": "warning",
+        "message": "useEffect with async inner function — verify AbortController cleanup is returned (prevents memory leaks)",
+        "pattern": r"useEffect\(\s*\(\s*\)\s*=>\s*\{\s*(?:const\s+\w+\s*=\s*)?async\s+(?:function|\()",
+        "check": "direct",
+    },
+    {
+        "name": "v4toast-straggler",
+        "severity": "error",
+        "message": "v4ToastManager/toastV4 still referenced — must be migrated to modernMessaging (migration gate: DONE per STANDARDIZATION_HANDOFF.md, verify no new usages)",
+        "pattern": r"v4ToastManager|toastV4|showToastV4",
+        "check": "direct",
+    },
+    {
+        "name": "toastv8-straggler",
+        "severity": "error",
+        "message": "toastV8/showToastV8 still referenced — must be migrated to modernMessaging (migration gate: DONE per STANDARDIZATION_HANDOFF.md)",
+        "pattern": r"\btoastV8\b|showToastV8\b",
+        "check": "direct",
+    },
+    {
+        "name": "raw-console-in-src",
+        "severity": "warning",
+        "message": "console.error/warn in source — use logger.* instead (migration gate; see intentional-exception list in STANDARDIZATION_HANDOFF.md)",
+        "pattern": r"console\.(error|warn)\(",
+        "check": "direct",
+    },
+    {
+        "name": "token-value-in-jsx",
+        "severity": "error",
+        "message": "Raw token field name in JSX output — sanitize/truncate before rendering (migration guide security gate)",
+        "pattern": r"\{(?:.*\b(?:access_token|id_token|refresh_token|client_secret)\b.*)\}",
+        "check": "direct",
+    },
+    {
+        "name": "throw-in-service",
+        "severity": "info",
+        "message": "throw statement in service file — prefer ServiceResult<T> error return pattern (migration gate: Gate B)",
+        "pattern": r"\bthrow\s+new\s+Error\(",
+        "check": "service_only",
+    },
+    {
+        "name": "no-flow-loading-state",
+        "severity": "info",
+        "message": "Async service call without a visible isLoading/loading state guard — flow state gate: idle→loading→success→error",
+        "pattern": r"await\s+\w+Service\.\w+\(",
+        "check": "direct",
+    },
+]
+
+# ---------------------------------------------------------------------------
+# All pattern sets — iterated in run_runtime_analysis
+# Each entry: (list, tool-tag)
+# ---------------------------------------------------------------------------
+ALL_PATTERN_SETS = [
+    (RUNTIME_PATTERNS, "runtime-analysis"),
+    (KEYBOARD_A11Y_PATTERNS, "a11y-keyboard"),
+    (COLOR_A11Y_PATTERNS, "a11y-color"),
+    (MIGRATION_PATTERNS, "migration-check"),
+]
+
+# ---------------------------------------------------------------------------
 # Import tracing helpers
 # ---------------------------------------------------------------------------
 IMPORT_RE = re.compile(
@@ -780,7 +968,11 @@ def run_tsc_check(files: list[str]) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
     """
-    Python regex-based pattern check for common runtime bugs that tsc/biome miss.
+    Python regex-based pattern checks across four categories:
+      1. runtime-analysis  — runtime bug patterns (null-deref, bad JSON.parse, etc.)
+      2. a11y-keyboard     — keyboard accessibility issues (missing roles, no onKeyDown, etc.)
+      3. a11y-color        — color/visual accessibility (hardcoded colors, color-only state)
+      4. migration-check   — V8→V9 migration gate regressions (toast stragglers, fetch-in-component, etc.)
     """
     issues = []
     file_set = [f for f in files if f.endswith((".ts", ".tsx", ".js", ".jsx"))]
@@ -795,43 +987,60 @@ def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
             continue
 
         lines = content.splitlines()
+        is_service_file = "/services/" in rel_file.lower()
 
-        for pattern_def in RUNTIME_PATTERNS:
-            pat = re.compile(pattern_def["pattern"])
-            check = pattern_def["check"]
+        for pattern_list, tool_tag in ALL_PATTERN_SETS:
+            for pattern_def in pattern_list:
+                pat = re.compile(pattern_def["pattern"])
+                check = pattern_def["check"]
 
-            for lineno, line_text in enumerate(lines, start=1):
-                if not pat.search(line_text):
+                # service_only patterns only apply to service files
+                if check == "service_only" and not is_service_file:
                     continue
 
-                # Skip comment lines
-                stripped = line_text.strip()
-                if stripped.startswith("//") or stripped.startswith("*"):
+                # non_service patterns skip service files (services may use fetch directly)
+                if check == "non_service" and is_service_file:
                     continue
 
-                # Additional heuristic checks
-                if check == "json_parse":
-                    # Rough check: is this line inside a try block?
-                    # Look backwards for 'try {' within 10 lines
-                    start = max(0, lineno - 10)
-                    context_lines = lines[start : lineno - 1]
-                    in_try = any("try {" in cl or "try{" in cl for cl in context_lines)
-                    if in_try:
+                for lineno, line_text in enumerate(lines, start=1):
+                    if not pat.search(line_text):
                         continue
 
-                issues.append(
-                    {
-                        "_tool": "runtime-analysis",
-                        "_file": rel_file,
-                        "_line": lineno,
-                        "_col": 1,
-                        "_severity": pattern_def["severity"],
-                        "_rule": f"runtime/{pattern_def['name']}",
-                        "_message": pattern_def["message"],
-                        "_can_autofix": False,
-                        "_fix_type": "manual",
-                    }
-                )
+                    # Skip comment lines
+                    stripped = line_text.strip()
+                    if stripped.startswith("//") or stripped.startswith("*"):
+                        continue
+
+                    # --- heuristic: json_parse — skip if inside a try block ---
+                    if check == "json_parse":
+                        start = max(0, lineno - 10)
+                        context_lines = lines[start : lineno - 1]
+                        in_try = any("try {" in cl or "try{" in cl for cl in context_lines)
+                        if in_try:
+                            continue
+
+                    # --- heuristic: a11y_onclick — only flag non-button/non-anchor elements ---
+                    # Skip if the line already contains onKeyDown/onKeyPress/onKeyUp after onClick,
+                    # or if the element is a native <button> or <a> (already keyboard-accessible).
+                    if check == "a11y_onclick":
+                        if re.search(r"<(?:button|a)\b", line_text):
+                            continue
+                        if re.search(r"onKey(?:Down|Press|Up)", line_text):
+                            continue
+
+                    issues.append(
+                        {
+                            "_tool": tool_tag,
+                            "_file": rel_file,
+                            "_line": lineno,
+                            "_col": 1,
+                            "_severity": pattern_def["severity"],
+                            "_rule": f"{tool_tag}/{pattern_def['name']}",
+                            "_message": pattern_def["message"],
+                            "_can_autofix": False,
+                            "_fix_type": "manual",
+                        }
+                    )
 
     return issues
 
@@ -1220,7 +1429,7 @@ def regenerate_status_md() -> None:
 
     lines = [
         "# Linter Audit — STATUS",
-        f"> Updated: {now} | Tools: Biome + ESLint + tsc + runtime-analysis",
+        f"> Updated: {now} | Tools: Biome + ESLint + tsc + runtime-analysis + a11y-keyboard + a11y-color + migration-check",
         "> Run: `python3 scripts/lint_per_group.py --help` for full CLI reference",
         "",
         "| # | Group | Files | Total | Errors | Warns | Auto-fixed | Manual | Open | Done | Assignee | Status |",
@@ -1370,7 +1579,7 @@ def cmd_list() -> None:
 # ---------------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Per-sidebar-group linter + runtime-analysis + test runner",
+        description="Per-sidebar-group linter + runtime-analysis + a11y + migration-check + test runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
