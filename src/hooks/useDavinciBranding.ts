@@ -48,7 +48,7 @@ const getInitialBranding = (): DavinciBranding | null => {
 		if (parsed && typeof parsed === 'object') {
 			return parsed;
 		}
-	} catch (error) {
+	} catch (_error) {
 		logger.warn('useDavinciBranding', 'Failed to parse stored branding payload');
 	}
 
@@ -87,7 +87,7 @@ export const useDavinciBranding = () => {
 		try {
 			window.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify(enrichedPayload));
 			setBranding(enrichedPayload);
-		} catch (error) {
+		} catch (_error) {
 			logger.warn('useDavinciBranding', 'Failed to persist branding payload');
 			setBranding(enrichedPayload);
 		}

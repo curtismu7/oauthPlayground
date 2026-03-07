@@ -600,7 +600,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(variant: AuthzFlowVariant, controller: any) {
+	static createSaveHandler(_variant: AuthzFlowVariant, controller: any) {
 		return async () => {
 			try {
 				await controller.saveCredentials();

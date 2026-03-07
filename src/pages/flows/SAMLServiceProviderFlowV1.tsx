@@ -404,7 +404,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				message: `${label} copied to clipboard.`,
 				duration: 4000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -457,7 +457,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					dismissible: true,
 				});
 			}
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -505,7 +505,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					pingOneApplicationName: app.name,
 				}));
 			}
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -563,7 +563,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					dismissible: true,
 				});
 			}
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -684,7 +684,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				message: 'SAML Response generated successfully!',
 				duration: 4000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

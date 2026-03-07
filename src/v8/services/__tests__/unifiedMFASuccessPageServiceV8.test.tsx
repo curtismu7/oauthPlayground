@@ -8,7 +8,6 @@
 
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import type { UnifiedMFASuccessPageProps } from '../unifiedMFASuccessPageServiceV8';
-import { UnifiedMFASuccessPageV8 } from '../unifiedMFASuccessPageServiceV8';
 
 // Mock dependencies
 jest.mock('../../utils/logger', () => ({

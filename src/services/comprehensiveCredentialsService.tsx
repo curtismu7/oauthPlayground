@@ -27,7 +27,6 @@ import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { callbackUriService } from './callbackUriService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,

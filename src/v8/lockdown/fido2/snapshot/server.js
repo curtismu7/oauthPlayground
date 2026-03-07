@@ -15290,7 +15290,8 @@ app.post('/api/pingone/mfa/oath-tokens', async (req, res) =>
 )
 
 // Resync OATH Token
-app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) => {
+app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) =>
+{
 	try {
 		const { tokenId } = req.params;
 		const { environmentId, workerToken, region, resyncData } = req.body;
@@ -15353,7 +15354,8 @@ app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) => {
 		console.error('[OATH Tokens] Error:', error);
 		res.status(500).json({ error: 'Failed to resync OATH token', message: error.message });
 	}
-});
+}
+)
 
 // Delete/Revoke OATH Token
 app.delete('/api/pingone/mfa/oath-tokens/:tokenId', async (req, res) => {

@@ -644,7 +644,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					// Use sync version for immediate browser storage, async disk save happens in background
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
 						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
@@ -1843,7 +1843,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					// Use sync version for immediate browser storage, async disk save happens in background
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
 						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
@@ -4562,7 +4562,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 															if (sharedCreds.environmentId || sharedCreds.clientId) {
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
-																	(err) => {
+																	(_err) => {
 																		logger.warn(
 																			'CredentialsFormV8U',
 																			`Background disk save failed (non-critical):`

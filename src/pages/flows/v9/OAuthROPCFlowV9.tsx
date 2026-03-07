@@ -4,18 +4,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { usePageScroll } from '../../../hooks/usePageScroll';
-import {
-	getBannerStyles,
-	getButtonStyles,
-	getStepStyles,
-	V9_COLORS,
-} from '../../../services/v9/V9ColorStandards';
+import { getButtonStyles, getStepStyles, V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
-import {
-	type MessageState,
-	V9ModernMessagingService,
-} from '../../../services/v9/V9ModernMessagingService';
+import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
