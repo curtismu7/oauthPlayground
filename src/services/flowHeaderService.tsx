@@ -765,7 +765,7 @@ export const getFlowConfigsByType = (
 
 // Utility function to create security features config from PingOne application state
 export const createSecurityFeaturesConfig = (
-	pingOneConfig: any
+	pingOneConfig: Record<string, unknown> | null | undefined
 ): FlowHeaderConfig['securityFeatures'] => {
 	if (!pingOneConfig) return undefined;
 
@@ -785,7 +785,7 @@ export const createSecurityFeaturesConfig = (
 // Utility function to create a flow header with security features
 export const createFlowHeaderWithSecurity = (
 	flowId: string,
-	pingOneConfig?: any
+	pingOneConfig?: Record<string, unknown>
 ): React.ReactElement => {
 	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig);
 	return <FlowHeader flowId={flowId} customConfig={{ securityFeatures }} />;

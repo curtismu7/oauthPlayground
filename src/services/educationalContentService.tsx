@@ -712,27 +712,27 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 		<EducationalContainer>
 			<CollapsibleHeader {...headerConfig}>
 				<InfoBox>
-					<InfoDescription dangerouslySetInnerHTML={{ __html: content.description }} />
+					<InfoDescription>{content.description}</InfoDescription>
 
 					<CharacteristicsList>
 						{content.characteristics.positive.map((item, index) => (
 							<CharacteristicItem key={`positive-${index}`}>
 								<PositiveIcon>{item.icon}</PositiveIcon>
-								<span dangerouslySetInnerHTML={{ __html: item.text }} />
+								<span>{item.text}</span>
 							</CharacteristicItem>
 						))}
 
 						{content.characteristics.negative.map((item, index) => (
 							<CharacteristicItem key={`negative-${index}`}>
 								<NegativeIcon>{item.icon}</NegativeIcon>
-								<span dangerouslySetInnerHTML={{ __html: item.text }} />
+								<span>{item.text}</span>
 							</CharacteristicItem>
 						))}
 
 						{content.characteristics.warning?.map((item, index) => (
 							<CharacteristicItem key={`warning-${index}`}>
 								<WarningIcon>{item.icon}</WarningIcon>
-								<span dangerouslySetInnerHTML={{ __html: item.text }} />
+								<span>{item.text}</span>
 							</CharacteristicItem>
 						))}
 					</CharacteristicsList>
@@ -749,7 +749,7 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 						<AlternativeBox>
 							<AlternativeContent>
 								<AlternativeIcon>{content.alternative.icon}</AlternativeIcon>
-								<span dangerouslySetInnerHTML={{ __html: content.alternative.text }} />
+								<span>{content.alternative.text}</span>
 							</AlternativeContent>
 						</AlternativeBox>
 					)}

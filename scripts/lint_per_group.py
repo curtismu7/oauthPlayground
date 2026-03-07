@@ -1024,6 +1024,10 @@ def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
                     if stripped.startswith("//") or stripped.startswith("*"):
                         continue
 
+                    # Skip if preceded by an educational-ok suppression comment
+                    if lineno >= 2 and lines[lineno - 2].strip().startswith("// educational-ok:"):
+                        continue
+
                     # --- heuristic: json_parse — skip if inside a try block ---
                     if check == "json_parse":
                         start = max(0, lineno - 10)
