@@ -68,7 +68,7 @@ import {
 	TokenIntrospectionService,
 } from '../../../services/tokenIntrospectionService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-// V9 credential validation is not used in this flow yet
+import { useV7CredentialValidation } from '../../../services/v7CredentialValidationService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { logger } from '../../../utils/logger';
