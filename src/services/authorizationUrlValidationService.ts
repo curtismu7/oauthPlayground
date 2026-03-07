@@ -571,9 +571,13 @@ export { AuthorizationUrlValidationService };
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as any).authorizationUrlValidationService = authorizationUrlValidationService;
-	(window as any).validateAuthUrl = (url: string, flowType: string) =>
-		authorizationUrlValidationService.validateAuthorizationUrl(url, { flowType: flowType as any });
-	(window as any).quickValidateAuthUrl = (url: string) =>
+	(window as Record<string, unknown>).authorizationUrlValidationService = authorizationUrlValidationService;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(window as Record<string, unknown>).validateAuthUrl = (url: string, flowType: string) =>
+		authorizationUrlValidationService.validateAuthorizationUrl(url, {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			flowType: flowType as any,
+		});
+	(window as Record<string, unknown>).quickValidateAuthUrl = (url: string) =>
 		authorizationUrlValidationService.quickValidate(url);
 }

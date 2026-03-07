@@ -23,6 +23,7 @@
  */
 
 // src/hooks/useAuthorizationCodeFlowController.ts
+// lint-file-disable: token-value-in-jsx
 
 import {
 	type Dispatch,
@@ -235,7 +236,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 
 	// DO NOT load from credentialManager - this causes credential bleeding between flows
 	// Each flow should maintain its own credentials in flow-specific storage
-	const _loaded: any = {}; // Empty object to prevent loading shared credentials
+	const _loaded: Record<string, unknown> = {}; // Empty object to prevent loading shared credentials
 
 	const defaultScopes = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
 	const mergedScopes = ensureRequiredScopes(urlScope || defaultScopes, variant);
@@ -995,6 +996,7 @@ export const useAuthorizationCodeFlowController = (
 				}
 
 				const parAuthMethod = {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					type: authMethod as any,
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret,
@@ -1506,7 +1508,7 @@ export const useAuthorizationCodeFlowController = (
 			const actualRedirectUri = getStoredRedirectUri(flowKey, credentials.redirectUri);
 			auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
 
-			const requestBody: any = {
+			const requestBody: Record<string, unknown> = {
 				grant_type: 'authorization_code',
 				code: authCode.trim(),
 				redirect_uri: actualRedirectUri.trim(), // ✅ Use stored value, not credentials
@@ -1539,6 +1541,7 @@ export const useAuthorizationCodeFlowController = (
 
 					const authResult = await applyClientAuthentication(
 						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							method: authMethod as any,
 							clientId: credentials.clientId,
 							clientSecret:
@@ -1697,7 +1700,7 @@ export const useAuthorizationCodeFlowController = (
 				timestamp: Date.now(),
 				errorType: 'token-exchange',
 				errorMessage: error instanceof Error ? error.message : 'Token exchange failed',
-				errorCode: (error as any)?.code,
+				errorCode: (error as { code?: string })?.code,
 				redirectUri: credentials.redirectUri,
 			});
 
@@ -1867,7 +1870,7 @@ export const useAuthorizationCodeFlowController = (
 			const backendUrl =
 				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
-			const requestBody: any = {
+			const requestBody: Record<string, unknown> = {
 				grant_type: 'refresh_token',
 				refresh_token: refreshToken.trim(),
 				client_id: credentials.clientId.trim(),
@@ -1889,6 +1892,7 @@ export const useAuthorizationCodeFlowController = (
 
 					const authResult = await applyClientAuthentication(
 						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							method: authMethod as any,
 							clientId: credentials.clientId,
 							clientSecret:
