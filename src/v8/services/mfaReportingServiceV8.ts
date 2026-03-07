@@ -179,6 +179,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get User Authentication Reports',
 			});
 
@@ -302,6 +303,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get Device Authentication Reports',
 			});
 
@@ -392,6 +394,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get FIDO2 Device Reports',
 			});
 
@@ -514,6 +517,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Create SMS Devices Report',
 			});
 
@@ -611,6 +615,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get Report Results',
 			});
 
@@ -740,6 +745,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Create MFA-Enabled Devices Report',
 			});
 
@@ -908,6 +914,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: `Get ${deviceType} Devices Report`,
 			});
 
@@ -1007,6 +1014,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Create Data Exploration',
 			});
 
@@ -1098,6 +1106,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Create Async Data Exploration',
 			});
 
@@ -1190,6 +1199,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get Data Exploration Status',
 			});
 
@@ -1279,6 +1289,7 @@ export class MFAReportingServiceV8 {
 					...requestBody,
 					workerToken: '***REDACTED***',
 				},
+				revealableFields: { bodyParams: { workerToken: accessToken } },
 				step: 'Get Data Exploration Entries',
 			});
 

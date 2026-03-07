@@ -22,12 +22,13 @@ export interface ApiCall {
 	duration?: number; // milliseconds
 	step?: string; // Optional step identifier
 	flowType?: string; // Optional flow type identifier
-	/** Actual values for token/code fields that were masked with ***REDACTED*** in headers/body.
+	/** Actual values for token/code fields that were masked with ***REDACTED*** in headers/body/queryParams.
 	 * These are revealable in the UI so users can inspect tokens for educational purposes.
 	 * NEVER put client_secret or passwords here — only OAuth tokens, codes, and JWTs. */
 	revealableFields?: {
 		headers?: Record<string, string>;
 		bodyParams?: Record<string, string>;
+		queryParams?: Record<string, string>;
 	};
 }
 
