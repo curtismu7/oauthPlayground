@@ -38,7 +38,7 @@ export interface OAuthErrorContext {
 		hasRedirectUri?: boolean;
 		hasScope?: boolean;
 	};
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export class OAuthErrorHandlingService {
@@ -49,7 +49,7 @@ export class OAuthErrorHandlingService {
 	/**
 	 * Parse OAuth error and return user-friendly details
 	 */
-	static parseOAuthError(error: any, context: OAuthErrorContext): OAuthErrorDetails {
+	static parseOAuthError(error: unknown, context: OAuthErrorContext): OAuthErrorDetails {
 		const correlationId = OAuthErrorHandlingService.generateCorrelationId();
 		const errorMessage = OAuthErrorHandlingService.extractErrorMessage(error);
 		const errorType = OAuthErrorHandlingService.classifyError(errorMessage, error);
@@ -66,7 +66,7 @@ export class OAuthErrorHandlingService {
 	/**
 	 * Extract error message from various error formats
 	 */
-	private static extractErrorMessage(error: any): string {
+	private static extractErrorMessage(error: unknown): string {
 		if (typeof error === 'string') return error;
 		if (error?.message) return error.message;
 		if (error?.error_description) return error.error_description;
@@ -80,7 +80,7 @@ export class OAuthErrorHandlingService {
 	 */
 	private static classifyError(
 		errorMessage: string,
-		originalError: any
+		originalError: unknown
 	): OAuthErrorDetails['errorType'] {
 		const message = errorMessage.toLowerCase();
 

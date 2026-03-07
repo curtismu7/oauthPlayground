@@ -194,7 +194,7 @@ export const saveSharedCredentials = async (
 			credentialsForStorage.scopes = scopesForStorage;
 		}
 		credentialsForStorage.tokenAuthMethod =
-			(credentials as any).tokenAuthMethod ?? credentials.clientAuthMethod ?? 'client_secret_post';
+			(credentials as Record<string, unknown>).tokenAuthMethod ?? credentials.clientAuthMethod ?? 'client_secret_post';
 		if (credentials.authorizationEndpoint) {
 			credentialsForStorage.authEndpoint = credentials.authorizationEndpoint;
 		}

@@ -334,7 +334,7 @@ export class DiscoveryPersistenceService {
 			// Validate each entry
 			let count = 0;
 			for (const [envId, data] of Object.entries(imported)) {
-				if (this.isValidDiscoveryData(data as any)) {
+				if (this.isValidDiscoveryData(data)) {
 					const cache = this.getCache();
 					cache[envId] = data as PersistedDiscoveryData;
 					count++;
@@ -366,7 +366,7 @@ export class DiscoveryPersistenceService {
 	/**
 	 * Validate discovery data structure
 	 */
-	private isValidDiscoveryData(data: any): boolean {
+	private isValidDiscoveryData(data: unknown): boolean {
 		return (
 			data &&
 			typeof data === 'object' &&

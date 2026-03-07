@@ -62,7 +62,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	environmentId,
 	onRefresh,
 }) => {
-	const [status, setStatus] = useState<any>(null);
+	const [status, setStatus] = useState<Record<string, unknown> | null>(null);
 	const [showEnvContent, setShowEnvContent] = useState(false);
 
 	useEffect(() => {

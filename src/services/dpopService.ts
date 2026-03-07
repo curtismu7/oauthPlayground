@@ -86,6 +86,7 @@ export class DPoPService {
 				jwk,
 			};
 
+			// eslint-disable-next-line require-atomic-updates -- static service state, benign race in key rotation
 			DPoPService.keyPair = keyPair;
 			logger.info('DPoPService', 'Generated new key pair', {
 				algorithm: finalConfig.algorithm,
@@ -125,7 +126,7 @@ export class DPoPService {
 			};
 
 			// DPoP JWT Payload
-			const payload: any = {
+			const payload: Record<string, unknown> = {
 				jti,
 				htm: httpMethod.toUpperCase(),
 				htu: httpUri,
@@ -208,7 +209,7 @@ export class DPoPService {
 	/**
 	 * Sign a JWT using the private key
 	 */
-	private static async signJWT(header: any, payload: any): Promise<string> {
+	private static async signJWT(header: Record<string, unknown>, payload: Record<string, unknown>): Promise<string> {
 		const encoder = new TextEncoder();
 
 		// Base64url encode header and payload

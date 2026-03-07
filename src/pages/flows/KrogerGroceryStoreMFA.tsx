@@ -30,6 +30,17 @@ const KROGER_LIGHT = '#F5F7FA';
 const _KROGER_RED = '#E31837'; // For accent colors
 const KROGER_GREEN = '#00A651'; // For success states
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Styled Components
 const PageContainer = styled.div`
 	min-height: 100vh;

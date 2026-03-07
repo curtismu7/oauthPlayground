@@ -4,6 +4,17 @@ import type { V7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7R
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { InfoBox } from '../steps/CommonSteps';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 interface CreateV7RMOIDCResourceOwnerPasswordStepsParams {
 	controller: V7RMOIDCResourceOwnerPasswordController;
 }
@@ -374,7 +385,7 @@ grant_type=password
 							>
 								{`GET /as/userinfo HTTP/1.1
 Host: auth.pingone.com
-Authorization: Bearer ${tokens?.access_token?.substring(0, 20)}...`}
+Authorization: Bearer ${maskToken(tokens?.access_token || '')}`}
 							</pre>
 						</div>
 					)}

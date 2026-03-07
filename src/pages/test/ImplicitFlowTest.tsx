@@ -13,6 +13,17 @@ import {
 	generateState,
 } from '../../utils/pingone-url-builders';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Test Configuration
 interface ImplicitTestConfig {
 	environmentId: string;
@@ -740,14 +751,14 @@ const ImplicitFlowTest: React.FC = () => {
 					{parsedTokens.access_token && (
 						<TokenCard>
 							<TokenLabel>Access Token</TokenLabel>
-							<TokenValue>{parsedTokens.access_token}</TokenValue>
+							<TokenValue>{maskToken(parsedTokens.access_token)}</TokenValue>
 						</TokenCard>
 					)}
 
 					{parsedTokens.id_token && (
 						<TokenCard>
 							<TokenLabel>ID Token</TokenLabel>
-							<TokenValue>{parsedTokens.id_token}</TokenValue>
+							<TokenValue>{maskToken(parsedTokens.id_token)}</TokenValue>
 						</TokenCard>
 					)}
 
