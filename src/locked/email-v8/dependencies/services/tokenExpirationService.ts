@@ -3,7 +3,7 @@
 
 // Simple console fallback for locked components
 const modernMessaging = {
-	showBanner: (options: any) => {
+	showBanner: (options: { type: string; title: string; message: string; dismissible: boolean }) => {
 		console.log(`[TokenExpirationService] ${options.type.toUpperCase()}: ${options.message}`);
 	}
 };

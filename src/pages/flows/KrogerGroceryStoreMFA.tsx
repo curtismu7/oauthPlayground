@@ -474,6 +474,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const [deviceId, setDeviceId] = useState('');
 	const [flowId, setFlowId] = useState('');
 	const [_authorizationCode, setAuthorizationCode] = useState('');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [tokens, setTokens] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [_loginStep, setLoginStep] = useState<'login' | 'device-setup' | 'mfa' | 'success'>(
