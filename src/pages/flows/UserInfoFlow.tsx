@@ -17,6 +17,17 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -537,7 +548,7 @@ const UserInfoFlow: React.FC = () => {
 		});
 	};
 
-	const maskedToken = accessToken ? `${accessToken.slice(0, 16)}...${accessToken.slice(-8)}` : '';
+	const maskedToken = accessToken ? maskToken(accessToken) : '';
 
 	const steps: FlowStep[] = [
 		...(useAuthentication
@@ -1061,7 +1072,7 @@ console.log('Welcome, ' + user.name + '!');`,
 										{localTokens ? ' Available' : ' Not available'}
 										<br />
 										<strong> Active Access Token:</strong>{' '}
-										{accessToken ? `${accessToken.substring(0, 20)}...` : 'None'}
+										{accessToken ? maskToken(accessToken) : 'None'}
 										<br />
 										<strong> Token Source:</strong>{' '}
 										{tokens?.access_token

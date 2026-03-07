@@ -37,6 +37,17 @@ import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2Co
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
@@ -805,13 +816,13 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 														<div>
 															<TokenDisplay>
 																<TokenLabel>Access Token</TokenLabel>
-																<TokenValue>{flowState.tokens.access_token}</TokenValue>
+																<TokenValue>{maskToken(flowState.tokens.access_token)}</TokenValue>
 															</TokenDisplay>
 
 															{flowState.tokens.refresh_token && (
 																<TokenDisplay>
 																	<TokenLabel>Refresh Token</TokenLabel>
-																	<TokenValue>{flowState.tokens.refresh_token}</TokenValue>
+																	<TokenValue>{maskToken(flowState.tokens.refresh_token)}</TokenValue>
 																</TokenDisplay>
 															)}
 
