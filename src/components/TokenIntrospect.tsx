@@ -252,14 +252,6 @@ const InfoText = styled.p`
 	margin: 0;
 `;
 
-const _InfoList = styled.ul`
-	font-size: 0.875rem;
-	color: #334155;
-	line-height: 1.5;
-	margin: 0.5rem 0 0;
-	padding-left: 1.5rem;
-`;
-
 const ResultsSection = styled.div`
 	margin: 1.5rem 0;
 `;
@@ -279,12 +271,6 @@ const HelperText = styled.p`
 	color: #6b7280;
 	line-height: 1.5;
 	margin: 0 0 1rem;
-`;
-
-const _SectionDivider = styled.hr`
-	border: none;
-	border-top: 1px solid #e5e7eb;
-	margin: 2rem 0;
 `;
 
 const RawJsonContainer = styled.div`
@@ -350,7 +336,17 @@ interface TokenIntrospectProps {
 	// Callbacks
 	onResetFlow: () => void;
 	onNavigateToTokenManagement?: () => void;
-	onIntrospectToken?: (token: string) => Promise<unknown>;
+	onIntrospectToken?: (token: string) => Promise<{
+		active?: boolean;
+		scope?: string;
+		client_id?: string;
+		sub?: string;
+		token_type?: string;
+		aud?: string;
+		iss?: string;
+		exp?: number;
+		iat?: number;
+	} | null>;
 
 	// UI state
 	collapsedSections?: {
@@ -371,14 +367,10 @@ interface TokenIntrospectProps {
 
 const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 	flowName,
-	flowVersion = 'V5',
 	tokens,
-	credentials,
 	userInfo,
 	onFetchUserInfo,
 	isFetchingUserInfo,
-	onResetFlow,
-	onNavigateToTokenManagement,
 	onIntrospectToken,
 	collapsedSections = {
 		completionOverview: false,
@@ -484,7 +476,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					<CollapsibleTitle>
 						<FiCheckCircle /> Flow Completion Overview
 					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview}>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview ?? false}>
 						<FiChevronDown />
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
@@ -506,7 +498,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					<CollapsibleTitle>
 						<FiShield /> Next Steps & Resources
 					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.completionDetails}>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.completionDetails ?? false}>
 						<FiChevronDown />
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
@@ -532,7 +524,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						<CollapsibleTitle>
 							<FiEye /> Token Introspection
 						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionDetails}>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionDetails ?? false}>
 							<FiChevronDown />
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
@@ -659,7 +651,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												<CollapsibleTitle>
 													<FiKey /> Raw JSON Response
 												</CollapsibleTitle>
-												<CollapsibleToggleIcon $collapsed={collapsedSections.rawJson}>
+												<CollapsibleToggleIcon $collapsed={collapsedSections.rawJson ?? false}>
 													<FiChevronDown />
 												</CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
@@ -731,7 +723,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						<CollapsibleTitle>
 							<FiUser /> User Information
 						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={collapsedSections.userInfo}>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.userInfo ?? false}>
 							<FiChevronDown />
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
@@ -748,6 +740,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 								<ActionRow>
 									<HighlightedActionButton
 										onClick={onFetchUserInfo}
+										$priority="primary"
 										disabled={!tokens?.access_token || isFetchingUserInfo}
 										style={{
 											background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
