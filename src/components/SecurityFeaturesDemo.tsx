@@ -29,7 +29,6 @@ import {
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfirmationModal from './ConfirmationModal';
 
 // Styled Components
@@ -403,7 +402,6 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	// Scroll to top when component mounts
 	useEffect(() => {
 		console.log('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top');
-		console.log('🔔 [SecurityFeaturesDemo] v4ToastManager available:', !!v4ToastManager);
 		console.log('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 

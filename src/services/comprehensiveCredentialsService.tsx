@@ -2338,12 +2338,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								}
 
 								// Show success message
-								import('../utils/v4ToastMessages').then(({ v4ToastManager }) => {
-									modernMessaging.showFooterMessage({
-										type: 'status',
-										message: 'Configuration imported from PingOne!',
-										duration: 4000,
-									});
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message: 'Configuration imported from PingOne!',
+									duration: 4000,
 								});
 							}}
 							onCreateApplication={async (appData?: {
