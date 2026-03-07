@@ -102,7 +102,7 @@ const SecondaryLink = styled(Link)`
 `;
 
 const PerformanceInfo = styled.div`
-  background: ${({ theme }) => theme.colors.gray50};
+  background: ${({ theme }) => theme.colors.gray100};
   border: 1px solid ${({ theme }) => theme.colors.gray200};
   border-radius: 8px;
   padding: 1rem;
@@ -170,18 +170,18 @@ const FlowsLazy: React.FC = () => {
 	const currentFlowType = getCurrentFlowType();
 
 	// Lazy load current flow if needed
-	const { isLoading, error, progress, component, loadTime, retry } = useLazyLoading({
+	const { isLoading, error, progress, component: _component, loadTime, retry } = useLazyLoading({
 		flowType: currentFlowType || 'authorization-code',
 		preload: false,
 		retryOnError: true,
 		onLoadStart: () => {
-			logger.info(`[FlowsLazy] Starting to load flow: ${currentFlowType}`);
+			logger.info('FlowsLazy', `Starting to load flow: ${currentFlowType}`);
 		},
-		onLoadComplete: (_loadedComponent) => {
-			logger.info(`[FlowsLazy] Successfully loaded flow: ${currentFlowType}`);
+		onLoadComplete: () => {
+			logger.info('FlowsLazy', `Successfully loaded flow: ${currentFlowType}`);
 		},
 		onLoadError: (error) => {
-			logger.error(`[FlowsLazy] Failed to load flow: ${currentFlowType}`, error);
+			logger.error('FlowsLazy', `Failed to load flow: ${currentFlowType}`, error);
 		},
 	});
 
