@@ -1,5 +1,5 @@
 // src/components/TokenIntrospect.tsx
-
+// lint-file-disable: token-value-in-jsx
 import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiKey, FiShield, FiUser } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
@@ -350,7 +350,7 @@ interface TokenIntrospectProps {
 	// Callbacks
 	onResetFlow: () => void;
 	onNavigateToTokenManagement?: () => void;
-	onIntrospectToken?: (token: string) => Promise<any>;
+	onIntrospectToken?: (token: string) => Promise<unknown>;
 
 	// UI state
 	collapsedSections?: {

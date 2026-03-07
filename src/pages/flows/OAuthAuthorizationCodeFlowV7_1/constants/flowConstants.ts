@@ -15,9 +15,9 @@ export const FLOW_CONSTANTS = {
 
 	// Default values
 	DEFAULT_REDIRECT_URI: 'https://localhost:3000/authz-callback',
-	DEFAULT_SCOPE: 'openid',
+	DEFAULT_SCOPE: 'openid profile email consents',
 	DEFAULT_RESPONSE_TYPE: 'code id_token',
-	DEFAULT_PROFILE_SCOPE: 'openid profile',
+	DEFAULT_PROFILE_SCOPE: 'openid profile email consents',
 
 	// Storage keys
 	STORAGE_KEYS: {

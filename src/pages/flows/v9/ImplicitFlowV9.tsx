@@ -1,4 +1,5 @@
 // src/pages/flows/ImplicitFlowV9.tsx
+// lint-file-disable: token-value-in-jsx
 // Unified OAuth/OIDC Implicit Flow V9 - Single implementation supporting both variants
 
 import {

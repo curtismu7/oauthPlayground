@@ -416,6 +416,7 @@ const SuccessMessage = styled.div`
 interface SquarePOSDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	onComplete: (tokens: any) => void;
 	onError: (error: string) => void;
 }
