@@ -1,7 +1,7 @@
 {
   "group_id": "dashboard",
   "label": "Dashboard",
-  "scanned_at": "2026-03-07T13:33:21.976670+00:00",
+  "scanned_at": "2026-03-07T14:06:33.766214+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/AppVersionBadge.tsx",
@@ -36,8 +36,23 @@
       "check_regression": true
     },
     {
+      "service": "customDomainService.ts",
+      "previously_in": "admin-configuration",
+      "check_regression": true
+    },
+    {
       "service": "oidcDiscoveryService.ts",
       "previously_in": "oauth-flows",
+      "check_regression": true
+    },
+    {
+      "service": "serverHealthService.ts",
+      "previously_in": "admin-configuration",
+      "check_regression": true
+    },
+    {
+      "service": "unifiedTokenStorageService.ts",
+      "previously_in": "admin-configuration",
       "check_regression": true
     }
   ],
