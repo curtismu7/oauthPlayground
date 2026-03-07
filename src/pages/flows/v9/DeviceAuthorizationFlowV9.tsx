@@ -77,6 +77,7 @@ import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -96,9 +97,9 @@ const FlowContent = FlowUIService.getContentWrapper();
 const FlowHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
 	background: ${(props) =>
 		props.$variant === 'oidc'
-			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
-	color: #ffffff;
+			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
+			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%)'};
+	color: V9_COLORS.TEXT.WHITE;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
@@ -116,7 +117,7 @@ const FlowTitle = styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	margin: 0;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 `;
 
 const FlowSubtitle = styled.p`
@@ -128,8 +129,8 @@ const FlowSubtitle = styled.p`
 const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	background: ${(props) =>
 		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
-	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
-	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : 'V9_COLORS.BG.SUCCESS_BORDER')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -141,10 +142,10 @@ const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 `;
 
 const CollapsibleSection = styled.section`
-	border: 1px solid var(--color-border, #e2e8f0);
+	border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
-	background-color: var(--color-surface, #ffffff);
+	background-color: var(--color-surface, V9_COLORS.TEXT.WHITE);
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
@@ -154,20 +155,20 @@ const CollapsibleHeaderButton = styled.button`
 	justify-content: space-between;
 	width: 100%;
 	padding: 1.5rem 1.75rem;
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border: none;
 	border-radius: 0.75rem;
 	cursor: pointer;
 	font-size: 1.1rem;
 	font-weight: 600;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	transition: background 0.2s ease;
 	line-height: 1.4;
 	min-height: 72px;
 	gap: 0.75rem;
 
 	&:hover {
-		background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	}
 `;
 
@@ -221,16 +222,16 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	align-items: flex-start;
 	border: 1px solid
 		${({ $variant }) => {
-			if ($variant === 'warning') return '#f59e0b';
-			if ($variant === 'success') return '#22c55e';
-			if ($variant === 'error') return '#ef4444';
-			return '#3b82f6';
+			if ($variant === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
+			if ($variant === 'success') return 'V9_COLORS.PRIMARY.GREEN';
+			if ($variant === 'error') return 'V9_COLORS.PRIMARY.RED';
+			return 'V9_COLORS.PRIMARY.BLUE';
 		}};
 	background-color:
 		${({ $variant }) => {
-			if ($variant === 'warning') return '#fef3c7';
-			if ($variant === 'success') return '#dcfce7';
-			if ($variant === 'error') return '#fee2e2';
+			if ($variant === 'warning') return 'V9_COLORS.BG.WARNING';
+			if ($variant === 'success') return 'V9_COLORS.BG.SUCCESS';
+			if ($variant === 'error') return 'V9_COLORS.BG.ERROR';
 			return '#dbeafe';
 		}};
 `;
@@ -238,7 +239,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 const InfoTitle = styled.h3`
 	font-size: var(--font-size-base, 1rem);
 	font-weight: 600;
-	color: var(--color-text-primary, #0f172a);
+	color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
 	margin: 0 0 0.5rem 0;
 `;
 
@@ -251,7 +252,7 @@ const InfoText = styled.p`
 
 const GeneratedContentBox = styled.div`
 	background-color: #dbeafe;
-	border: 1px solid #3b82f6;
+	border: 1px solid V9_COLORS.PRIMARY.BLUE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -262,7 +263,7 @@ const GeneratedLabel = styled.div`
 	position: absolute;
 	top: -10px;
 	left: 16px;
-	background-color: #3b82f6;
+	background-color: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
@@ -280,7 +281,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	margin-bottom: 0.5rem;
@@ -291,10 +292,10 @@ const ParameterValue = styled.div`
 	font-size: 0.875rem;
 	color: #1e3a8a;
 	word-break: break-all;
-	background-color: #eff6ff;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
-	border: 1px solid #bfdbfe;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ActionRow = styled.div`
@@ -324,20 +325,20 @@ const Button = styled.button<{
 	${({ $variant }) =>
 		$variant === 'primary' &&
 		`
-		background-color: #3b82f6;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #2563eb;
+			background-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'success' &&
 		`
-		background-color: #22c55e;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.GREEN;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #16a34a;
+			background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 		}
 	`}
 
@@ -345,19 +346,19 @@ const Button = styled.button<{
 		$variant === 'secondary' &&
 		`
 		background-color: #0ea5e9;
-		color: #ffffff;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #0284c7;
+			background-color: V9_COLORS.PRIMARY.BLUE;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'danger' &&
 		`
-		background-color: #ef4444;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.RED;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #dc2626;
+			background-color: V9_COLORS.PRIMARY.RED_DARK;
 		}
 	`}
 
@@ -365,21 +366,21 @@ const Button = styled.button<{
 		$variant === 'outline' &&
 		`
 		background-color: transparent;
-		color: #1e40af;
-		border-color: #bfdbfe;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 		&:hover:not(:disabled) {
-			background-color: #eff6ff;
-			border-color: #3b82f6;
+			background-color: V9_COLORS.BG.GRAY_LIGHT;
+			border-color: V9_COLORS.PRIMARY.BLUE;
 		}
 	`}
 
 	${({ $variant }) =>
 		!$variant &&
 		`
-		background-color: #3b82f6;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #2563eb;
+			background-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		}
 	`}
 `;
@@ -427,13 +428,13 @@ type SectionKey =
 const CountdownTimer = styled.div`
 	font-size: 2rem;
 	font-weight: 700;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-align: center;
 	padding: 1.5rem;
 	font-family: 'Courier New', monospace;
-	background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	border-radius: 0.5rem;
-	border: 2px solid #3b82f6;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE;
 	margin: 1rem 0;
 `;
 
@@ -490,7 +491,7 @@ const ModalHeader = styled.div`
 	gap: 0.75rem;
 	margin: 0;
 	padding: 1.25rem 2rem;
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	border-radius: 1rem 1rem 0 0;
 	cursor: grab;
@@ -508,7 +509,7 @@ const ModalTitle = styled.h3`
 `;
 
 const ModalBody = styled.div`
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1rem;
 	line-height: 1.6;
 	margin: 0;
@@ -528,7 +529,7 @@ const VariantSelector = styled.div`
 	gap: 1rem;
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 0.75rem;
 	border: 1px solid #cbd5e1;
 `;
@@ -537,15 +538,15 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
 	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
 	&:hover {
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		background: #dbeafe;
 	}
 `;
@@ -1536,7 +1537,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														style={{
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
-															backgroundColor: '#f0f9ff',
+															backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 														}}
 													>
 														{maskToken(deviceFlow.tokens.id_token)}
@@ -1594,7 +1595,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												<Button
 													onClick={() => handleCopy(deviceFlow.tokens!.id_token!, 'ID Token')}
 													$variant="outline"
-													style={{ backgroundColor: '#f0f9ff', borderColor: '#0ea5e9' }}
+													style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', borderColor: '#0ea5e9' }}
 												>
 													<FiCopy /> Copy ID Token
 												</Button>
@@ -1667,9 +1668,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														fontSize: '0.9rem',
 														fontWeight: '600',
 														padding: '0.75rem 1rem',
-														backgroundColor: '#f59e0b',
-														borderColor: '#f59e0b',
-														color: '#ffffff',
+														backgroundColor: 'V9_COLORS.PRIMARY.YELLOW',
+														borderColor: 'V9_COLORS.PRIMARY.YELLOW',
+														color: 'V9_COLORS.TEXT.WHITE',
 													}}
 												>
 													<FiRefreshCw /> Decode Refresh Token
@@ -2245,10 +2246,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						<ExplanationSection>
 							<div
 								style={{
-									backgroundColor: '#f8fafc',
+									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '2rem',
 									borderRadius: '0.75rem',
-									border: '2px solid #e2e8f0',
+									border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<ExplanationHeading style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
@@ -2307,7 +2308,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										<br />
 										<code
 											style={{
-												background: '#e2e8f0',
+												background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 												padding: '0.25rem 0.5rem',
 												borderRadius: '0.25rem',
 												fontSize: '0.85em',
@@ -2324,7 +2325,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 											</LearningTooltip>
 										</code>
 										<br />
-										<small style={{ color: '#64748b' }}>
+										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Server responds with:{' '}
 											<LearningTooltip
 												variant="learning"
@@ -2404,7 +2405,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										</LearningTooltip>{' '}
 										to user on screen (e.g., "Visit example.com and enter code: ABCD-1234")
 										<br />
-										<small style={{ color: '#64748b' }}>
+										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Example display: "Go to https://auth.pingone.com/activate and enter:
 											WDJB-MJHT"
 										</small>
@@ -2458,7 +2459,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 											application
 										</LearningTooltip>
 										<br />
-										<small style={{ color: '#64748b' }}>
+										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											User sees: "Authorize 'Smart TV App' to access your account?"
 										</small>
 									</li>
@@ -2748,7 +2749,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 			{/* Info about Device Flow Requirements */}
 			<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-				<FiInfo style={{ flexShrink: 0, color: '#3b82f6' }} />
+				<FiInfo style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE' }} />
 				<div>
 					<InfoTitle>Device Flow Requirements</InfoTitle>
 					<InfoText>
@@ -2810,7 +2811,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
 								<div
 									style={{
-										background: '#3b82f6',
+										background: 'V9_COLORS.PRIMARY.BLUE',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2893,7 +2894,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<div
 									style={{
-										background: '#3b82f6',
+										background: 'V9_COLORS.PRIMARY.BLUE',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2928,7 +2929,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="success" style={{ marginTop: '1.5rem' }}>
 								<div
 									style={{
-										background: '#22c55e',
+										background: 'V9_COLORS.PRIMARY.GREEN',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2995,14 +2996,14 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.75rem 1rem',
-												background: '#fef3c7',
-												border: '1px solid #fbbf24',
+												background: 'V9_COLORS.BG.WARNING',
+												border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 												borderRadius: '0.5rem',
 												fontSize: '0.875rem',
-												color: '#92400e',
+												color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 											}}
 										>
-											<FiAlertTriangle style={{ flexShrink: 0, color: '#f59e0b' }} />
+											<FiAlertTriangle style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.YELLOW' }} />
 											<span>
 												<strong>Button disabled:</strong> Please configure your{' '}
 												{!deviceFlow.credentials?.environmentId && !deviceFlow.credentials?.clientId
@@ -3055,7 +3056,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												style={{
 													fontFamily: 'monospace',
 													fontSize: '0.75rem',
-													color: '#64748b',
+													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 												}}
 											>
 												{deviceFlow.deviceCodeData.device_code.substring(0, 20)}...
@@ -3104,7 +3105,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								<div>
 									<InfoTitle>Real-World Scenario: {deviceConfig.name}</InfoTitle>
 									<InfoText>{deviceConfig.description}</InfoText>
-									<InfoText style={{ marginTop: '0.5rem', color: '#64748b' }}>
+									<InfoText style={{ marginTop: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										💡 {deviceConfig.useCase}
 									</InfoText>
 								</div>
@@ -3411,10 +3412,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</ExplanationHeading>
 							<div
 								style={{
-									backgroundColor: '#f8fafc',
+									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<ul style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
@@ -3494,7 +3495,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								: 'API Authorization with Access token only'}
 						</FlowSubtitle>
 					</div>
-					<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
+					<div style={{ fontSize: '2rem', fontWeight: '700', color: 'V9_COLORS.TEXT.WHITE' }}>
 						{String(currentStep + 1).padStart(2, '0')}
 						<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
 							{' '}
@@ -3525,12 +3526,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{!collapsedSections.deviceSelection && (
 						<CollapsibleContent>
 							<InfoBox $variant="info">
-								<FiMonitor style={{ flexShrink: 0, color: '#3b82f6' }} />
+								<FiMonitor style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE' }} />
 								<div>
-									<InfoTitle style={{ fontSize: '1rem', fontWeight: 600, color: '#0369a1' }}>
+									<InfoTitle style={{ fontSize: '1rem', fontWeight: 600, color: 'V9_COLORS.PRIMARY.BLUE' }}>
 										🎮 Device Selection
 									</InfoTitle>
-									<InfoText style={{ marginTop: '0.75rem', color: '#0c4a6e' }}>
+									<InfoText style={{ marginTop: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Device selection is available in the main flow area above. Choose your device
 										type to see the appropriate authorization interface.
 									</InfoText>
@@ -3566,9 +3567,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							style={{
 								marginTop: '1rem',
 								padding: '0.75rem',
-								backgroundColor: '#eff6ff',
+								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
-								border: '1px solid #bfdbfe',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<div style={{ marginBottom: '0.75rem' }}>

@@ -11,17 +11,17 @@ const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {
 		switch ($colorScheme) {
 			case 'blue':
-				return 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%)';
 			case 'green':
-				return 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_LIGHT 100%)';
 			case 'purple':
 				return 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
 			case 'orange':
 				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
 			case 'red':
-				return 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_LIGHT 100%)';
 			default:
-				return 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%)';
 		}
 	}};
 	border-radius: 12px;
@@ -67,7 +67,7 @@ const CardHeader = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	background: white;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	padding: 0.5rem 1rem;
 	border-radius: 20px;
 	font-weight: 600;
@@ -82,15 +82,15 @@ const Badge = styled.span<{ $category: string }>`
 	background: ${({ $category }) => {
 		switch ($category) {
 			case 'Standard':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'Experimental':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'Deprecated':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'PingOne':
 				return '#8b5cf6';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 	color: white;
@@ -139,7 +139,7 @@ const SectionTitle = styled.div`
 	font-weight: 600;
 	font-size: 0.75rem;
 	text-transform: uppercase;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	margin-bottom: 0.5rem;
 	letter-spacing: 0.05em;
 	display: flex;
@@ -148,7 +148,7 @@ const SectionTitle = styled.div`
 `;
 
 const SectionContent = styled.div`
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
@@ -172,14 +172,14 @@ const AdditionalInfoItem = styled.div`
 const AdditionalInfoLabel = styled.span`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
 
 const AdditionalInfoValue = styled.span`
 	font-size: 0.875rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-weight: 500;
 `;
 
@@ -190,7 +190,7 @@ const List = styled.ul`
 
 const ListItem = styled.li`
 	margin-bottom: 0.25rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SecurityNote = styled.div<{ $type: 'success' | 'warning' | 'error' | 'info' }>`
@@ -236,7 +236,7 @@ const DocumentationLink = styled.a`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	text-decoration: none;
 	font-size: 0.875rem;
 	
@@ -462,10 +462,18 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 							<SectionContent>
 								{FlowInfoService.getCommonIssues(flowType).map((issue, index) => (
 									<div key={index} style={{ marginBottom: '1rem' }}>
-										<div style={{ fontWeight: '600', color: '#ef4444', marginBottom: '0.25rem' }}>
+										<div
+											style={{
+												fontWeight: '600',
+												color: 'V9_COLORS.PRIMARY.RED',
+												marginBottom: '0.25rem',
+											}}
+										>
 											Issue: {issue.issue}
 										</div>
-										<div style={{ color: '#10b981' }}>Solution: {issue.solution}</div>
+										<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
+											Solution: {issue.solution}
+										</div>
 									</div>
 								))}
 							</SectionContent>

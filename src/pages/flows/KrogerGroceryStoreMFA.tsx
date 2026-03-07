@@ -21,6 +21,7 @@ import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
@@ -1020,7 +1021,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							Username
@@ -1034,7 +1035,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '2px solid #e5e7eb',
+								border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								fontSize: '1rem',
 								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},
@@ -1048,7 +1049,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: '#374151',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 							}}
 						>
 							Password
@@ -1062,7 +1063,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '0.75rem',
-								border: '2px solid #e5e7eb',
+								border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								fontSize: '1rem',
 								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},
@@ -1171,12 +1172,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							configured. Please configure your PingOne authorization code client credentials to
 							continue.
 						</p>
-						<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
 							You'll need:
 						</p>
 						<ul
 							style={{
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								fontSize: '0.875rem',
 								lineHeight: '1.8',
 								marginLeft: '1.5rem',

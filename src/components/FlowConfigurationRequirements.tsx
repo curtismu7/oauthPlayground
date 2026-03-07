@@ -134,7 +134,7 @@ const FLOW_REQUIREMENTS: Record<string, FlowConfigRequirement> = {
 
 const Container = styled.div`
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -147,7 +147,7 @@ const Header = styled.div`
 	gap: 0.75rem;
 	padding: 1rem 1.5rem;
 	background: white;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	cursor: pointer;
 	user-select: none;
 	
@@ -167,14 +167,14 @@ const CollapseIcon = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	border-radius: 50%;
 	width: 32px;
 	height: 32px;
 	transition: all 0.2s;
 	
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -187,14 +187,14 @@ const Content = styled.div<{ $isCollapsed: boolean }>`
 
 const IconWrapper = styled.div`
 	flex-shrink: 0;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const Title = styled.h3`
 	margin: 0;
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -204,7 +204,7 @@ const Explanation = styled.p`
 	margin: 0 0 1.25rem 0;
 	font-size: 0.9375rem;
 	line-height: 1.6;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RequirementsGrid = styled.div`
@@ -217,7 +217,11 @@ const RequirementCard = styled.div<{ $status: 'required' | 'optional' | 'not-use
 	background: white;
 	border: 1px solid
 		${({ $status }) =>
-			$status === 'required' ? '#f59e0b' : $status === 'not-used' ? '#10b981' : '#6b7280'};
+			$status === 'required'
+				? 'V9_COLORS.PRIMARY.YELLOW'
+				: $status === 'not-used'
+					? 'V9_COLORS.PRIMARY.GREEN'
+					: 'V9_COLORS.TEXT.GRAY_MEDIUM'};
 	border-radius: 0.5rem;
 	padding: 1rem;
 `;
@@ -232,7 +236,7 @@ const RequirementHeader = styled.div`
 const RequirementLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }>`
@@ -246,14 +250,22 @@ const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }
 	text-transform: uppercase;
 	letter-spacing: 0.025em;
 	background: ${({ $status }) =>
-		$status === 'required' ? '#fef3c7' : $status === 'not-used' ? '#d1fae5' : '#f3f4f6'};
+		$status === 'required'
+			? 'V9_COLORS.BG.WARNING'
+			: $status === 'not-used'
+				? 'V9_COLORS.BG.SUCCESS'
+				: '#f3f4f6'};
 	color: ${({ $status }) =>
-		$status === 'required' ? '#92400e' : $status === 'not-used' ? '#065f46' : '#374151'};
+		$status === 'required'
+			? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+			: $status === 'not-used'
+				? 'V9_COLORS.PRIMARY.GREEN_DARK'
+				: 'V9_COLORS.TEXT.GRAY_DARK'};
 `;
 
 const RequirementValue = styled.div`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	background: #f9fafb;
 	padding: 0.5rem;
@@ -308,7 +320,9 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 					<Title>
 						PingOne Application Configuration Requirements
 						{variant === 'oidc' && (
-							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>(OIDC)</span>
+							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								(OIDC)
+							</span>
 						)}
 					</Title>
 				</HeaderLeft>

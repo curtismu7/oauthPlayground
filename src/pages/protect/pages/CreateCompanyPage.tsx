@@ -14,12 +14,13 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	min-height: 100vh;
 `;
 
@@ -37,7 +38,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
 	font-size: 1.1rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FormContainer = styled.div`
@@ -60,7 +61,7 @@ const SectionTitle = styled.h2`
 	color: #1e293b;
 	margin-bottom: 1rem;
 	padding-bottom: 0.5rem;
-	border-bottom: 2px solid #e2e8f0;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FormGroup = styled.div`
@@ -70,33 +71,33 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	display: block;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&.error {
-		border-color: #ef4444;
+		border-color: V9_COLORS.PRIMARY.RED;
 	}
 `;
 
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	font-size: 1rem;
 	background: white;
@@ -104,7 +105,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -124,7 +125,7 @@ const ColorInputWrapper = styled.div`
 const ColorInput = styled.input`
 	width: 60px;
 	height: 40px;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	cursor: pointer;
 	padding: 2px;
@@ -132,12 +133,12 @@ const ColorInput = styled.input`
 
 const ColorLabel = styled.span`
 	font-size: 0.875rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FileUploadWrapper = styled.div`
 	position: relative;
-	border: 2px dashed #d1d5db;
+	border: 2px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 2rem;
 	text-align: center;
@@ -145,11 +146,11 @@ const FileUploadWrapper = styled.div`
 	cursor: pointer;
 
 	&:hover {
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
 
 	&.has-file {
-		border-color: #10b981;
+		border-color: V9_COLORS.PRIMARY.GREEN;
 		border-style: solid;
 	}
 `;
@@ -170,7 +171,7 @@ const PreviewContainer = styled.div`
 `;
 
 const PreviewHeader = styled.div`
-	background: var(--company-headers, #1f2937);
+	background: var(--company-headers, V9_COLORS.TEXT.GRAY_DARK);
 	color: white;
 	padding: 1rem;
 	border-radius: 8px 8px 0 0;
@@ -181,13 +182,13 @@ const PreviewHeader = styled.div`
 
 const PreviewContent = styled.div`
 	padding: 1.5rem;
-	background: var(--company-background, #ffffff);
-	color: var(--company-text, #374151);
+	background: var(--company-background, V9_COLORS.TEXT.WHITE);
+	color: var(--company-text, V9_COLORS.TEXT.GRAY_DARK);
 	min-height: 200px;
 `;
 
 const PreviewButton = styled.button`
-	background: var(--company-button, #3b82f6);
+	background: var(--company-button, V9_COLORS.PRIMARY.BLUE);
 	color: white;
 	border: none;
 	padding: 0.75rem 1.5rem;
@@ -202,7 +203,7 @@ const PreviewButton = styled.button`
 `;
 
 const PreviewFooter = styled.div`
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 1rem;
 	border-radius: 0 0 8px 8px;
 `;
@@ -252,21 +253,21 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
 		switch (variant) {
 			case 'secondary':
 				return `
-					background: #6b7280;
+					background: V9_COLORS.TEXT.GRAY_MEDIUM;
 					color: white;
 					&:hover { background: #4b5563; }
 				`;
 			case 'success':
 				return `
-					background: #10b981;
+					background: V9_COLORS.PRIMARY.GREEN;
 					color: white;
-					&:hover { background: #059669; }
+					&:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
 				`;
 			default:
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
-					&:hover { background: #2563eb; }
+					&:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
 				`;
 		}
 	}}
@@ -281,7 +282,7 @@ const ErrorMessage = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #ef4444;
+	color: V9_COLORS.PRIMARY.RED;
 	font-size: 0.875rem;
 	margin-top: 0.25rem;
 `;
@@ -299,14 +300,14 @@ const StatusAlert = styled.div<{ type: 'success' | 'error' }>`
 			case 'success':
 				return `
 					background: #f0fdf4;
-					border: 1px solid #bbf7d0;
-					color: #166534;
+					border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+					color: V9_COLORS.PRIMARY.GREEN;
 				`;
 			case 'error':
 				return `
-					background: #fef2f2;
-					border: 1px solid #fecaca;
-					color: #991b1b;
+					background: V9_COLORS.BG.ERROR;
+					border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+					color: V9_COLORS.PRIMARY.RED_DARK;
 				`;
 		}
 	}}

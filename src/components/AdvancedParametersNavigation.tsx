@@ -10,9 +10,9 @@ const NavigationButton = styled.button`
 	padding: 0.75rem 1rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #0284c7;
-	background: #ffffff;
-	border: 1px solid #bae6fd;
+	color: V9_COLORS.PRIMARY.BLUE;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -20,8 +20,8 @@ const NavigationButton = styled.button`
 	width: 100%;
 
 	&:hover {
-		background: #f0f9ff;
-		border-color: #0284c7;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		transform: translateY(-1px);
 	}
 

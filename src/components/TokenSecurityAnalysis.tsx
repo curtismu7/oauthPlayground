@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-	TokenLifecycleInfo,
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+TokenLifecycleInfo,
 	TokenSecurityAnalysis,
 	tokenLifecycleManager,
-} from '../utils/tokenLifecycle';
+} from '../utils/tokenLifecycle'
 
 const SecurityContainer = styled.div`
   background: white;
@@ -23,7 +29,7 @@ const SecurityHeader = styled.div`
 
 const SecurityTitle = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
 `;
 
@@ -39,21 +45,21 @@ const SecurityScore = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 80) {
 			return `
-        background-color: #dcfce7;
-        color: #166534;
-        border: 2px solid #22c55e;
+        background-color: V9_COLORS.BG.SUCCESS;
+        color: V9_COLORS.PRIMARY.GREEN;
+        border: 2px solid V9_COLORS.PRIMARY.GREEN;
       `;
 		} else if (score >= 60) {
 			return `
-        background-color: #fef3c7;
-        color: #92400e;
-        border: 2px solid #f59e0b;
+        background-color: V9_COLORS.BG.WARNING;
+        color: V9_COLORS.PRIMARY.YELLOW_DARK;
+        border: 2px solid V9_COLORS.PRIMARY.YELLOW;
       `;
 		} else {
 			return `
-        background-color: #fecaca;
-        color: #991b1b;
-        border: 2px solid #ef4444;
+        background-color: V9_COLORS.BG.ERROR_BORDER;
+        color: V9_COLORS.PRIMARY.RED_DARK;
+        border: 2px solid V9_COLORS.PRIMARY.RED;
       `;
 		}
 	}}
@@ -72,17 +78,17 @@ const ScoreCircle = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 80) {
 			return `
-        background-color: #22c55e;
+        background-color: V9_COLORS.PRIMARY.GREEN;
         color: white;
       `;
 		} else if (score >= 60) {
 			return `
-        background-color: #f59e0b;
+        background-color: V9_COLORS.PRIMARY.YELLOW;
         color: white;
       `;
 		} else {
 			return `
-        background-color: #ef4444;
+        background-color: V9_COLORS.PRIMARY.RED;
         color: white;
       `;
 		}
@@ -95,7 +101,7 @@ const Section = styled.div`
 
 const SectionTitle = styled.h4`
   margin: 0 0 0.75rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -116,27 +122,27 @@ const ListItem = styled.li<{ type: 'strength' | 'warning' | 'vulnerability' | 'r
 		switch (type) {
 			case 'strength':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
-          border-left: 4px solid #22c55e;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
+          border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border-left: 4px solid #f59e0b;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
         `;
 			case 'vulnerability':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
-          border-left: 4px solid #ef4444;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
+          border-left: 4px solid V9_COLORS.PRIMARY.RED;
         `;
 			case 'recommendation':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
-          border-left: 4px solid #3b82f6;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
         `;
 		}
 	}}
@@ -178,15 +184,15 @@ const InfoRow = styled.div`
 
 const InfoLabel = styled.span`
   font-weight: 500;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const InfoValue = styled.span`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RefreshButton = styled.button`
-  background-color: #3b82f6;
+  background-color: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -197,11 +203,11 @@ const RefreshButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: #2563eb;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:disabled {
-    background-color: #9ca3af;
+    background-color: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
 `;
@@ -291,7 +297,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 	if (error) {
 		return (
 			<SecurityContainer>
-				<div style={{ color: '#ef4444' }}>Error: {error}</div>
+				<div style={{ color: 'V9_COLORS.PRIMARY.RED' }}>Error: {error}</div>
 			</SecurityContainer>
 		);
 	}
@@ -341,7 +347,11 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 				</InfoRow>
 				<InfoRow>
 					<InfoLabel>Status:</InfoLabel>
-					<InfoValue style={{ color: tokenInfo.isExpired ? '#ef4444' : '#22c55e' }}>
+					<InfoValue
+						style={{
+							color: tokenInfo.isExpired ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.GREEN',
+						}}
+					>
 						{tokenInfo.isExpired ? 'Expired' : 'Active'}
 					</InfoValue>
 				</InfoRow>

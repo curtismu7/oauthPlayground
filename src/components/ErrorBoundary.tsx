@@ -15,7 +15,7 @@ const ErrorContainer = styled.div`
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%);
 `;
 
 const ErrorCard = styled.div`
@@ -29,7 +29,7 @@ const ErrorCard = styled.div`
 `;
 
 const ErrorIcon = styled.div`
-  color: #ef4444;
+  color: V9_COLORS.PRIMARY.RED;
   font-size: 4rem;
   margin-bottom: 1.5rem;
 `;
@@ -37,20 +37,20 @@ const ErrorIcon = styled.div`
 const ErrorTitle = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 1rem 0;
 `;
 
 const ErrorMessage = styled.p`
   font-size: 1.125rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 `;
 
 const ErrorDetails = styled.details`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1.5rem 0;
@@ -59,13 +59,13 @@ const ErrorDetails = styled.details`
 
 const ErrorSummary = styled.summary`
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   margin-bottom: 0.5rem;
 `;
 
 const ErrorStack = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -83,7 +83,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button`
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -97,11 +97,11 @@ const ActionButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:nth-child(2) {
-    background: #6b7280;
+    background: V9_COLORS.TEXT.GRAY_MEDIUM;
     
     &:hover {
       background: #4b5563;
@@ -267,7 +267,9 @@ class ErrorBoundary extends Component<Props, State> {
 										key={option.id}
 										onClick={() => this.handleRecovery(option)}
 										style={{
-											background: option.primary ? '#dc2626' : '#6b7280',
+											background: option.primary
+												? 'V9_COLORS.PRIMARY.RED_DARK'
+												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											marginRight: '0.5rem',
 											marginBottom: '0.5rem',
 										}}

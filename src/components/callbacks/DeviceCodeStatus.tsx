@@ -15,8 +15,8 @@ const StatusContainer = styled.div`
 `;
 
 const StatusCard = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 2rem;
   max-width: 600px;
@@ -25,7 +25,7 @@ const StatusCard = styled.div`
 
 const StatusIcon = styled.div`
   font-size: 3rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
@@ -33,17 +33,17 @@ const StatusTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const InfoBox = styled.div`
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -53,12 +53,12 @@ const InfoBox = styled.div`
 const InfoTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const InfoText = styled.p`
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   font-size: 0.875rem;
   margin: 0;
 `;

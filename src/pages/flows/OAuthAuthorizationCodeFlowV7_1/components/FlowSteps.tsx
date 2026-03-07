@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant, StepCompletionState } from '../types/flowTypes';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowStepsProps {
 	currentStep: number;
@@ -68,17 +69,17 @@ const StepItem = styled.div<{
   background: ${(props) => {
 		if (props.$isActive) {
 			return props.$variant === 'oidc'
-				? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
-				: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+				? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)'
+				: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 		}
 		return UI_CONSTANTS.COLORS.WHITE;
 	}};
   border: 2px solid ${(props) => {
 		if (props.$isActive) {
-			return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
+			return props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN_DARK';
 		}
 		if (props.$isCompleted) {
-			return '#10b981';
+			return 'V9_COLORS.PRIMARY.GREEN';
 		}
 		return UI_CONSTANTS.COLORS.GRAY_200;
 	}};
@@ -109,10 +110,10 @@ const StepIcon = styled.div<{
   border-radius: 50%;
   background: ${(props) => {
 		if (props.$isCompleted) {
-			return '#10b981';
+			return 'V9_COLORS.PRIMARY.GREEN';
 		}
 		if (props.$isActive) {
-			return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
+			return props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN_DARK';
 		}
 		return UI_CONSTANTS.COLORS.GRAY_300;
 	}};
@@ -177,11 +178,11 @@ const StepStatus = styled.div<{ $status: 'pending' | 'active' | 'completed' }>`
 		switch ($status) {
 			case 'completed':
 				return `
-          color: #10b981;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'active':
 				return `
-          color: #3b82f6;
+          color: V9_COLORS.PRIMARY.BLUE;
         `;
 			case 'pending':
 				return `
@@ -252,8 +253,8 @@ const ProgressFill = styled.div<{ $progress: number; $variant: FlowVariant }>`
   height: 100%;
   background: ${(props) =>
 		props.$variant === 'oidc'
-			? 'linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%)'
-			: 'linear-gradient(90deg, #16a34a 0%, #15803d 100%)'};
+			? 'linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
+			: 'linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%)'};
   width: ${(props) => props.$progress}%;
   transition: width ${UI_CONSTANTS.ANIMATION.DURATION_SLOW} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
 `;

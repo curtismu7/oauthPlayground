@@ -22,11 +22,12 @@ import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const WhiteContainer = styled.div`
 	background-color: white;
 	min-height: 100vh;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 	padding-top: 100px;
 	padding-bottom: 4rem;
@@ -38,11 +39,11 @@ const WhiteContainer = styled.div`
 	h4,
 	h5,
 	h6 {
-		color: #111827;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 
 	p {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -124,15 +125,15 @@ const EndpointBadge = styled.span<{ method: string }>`
 	background-color: ${({ method }) => {
 		switch (method) {
 			case 'GET':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'POST':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'DELETE':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'PUT':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 	color: white;
@@ -146,21 +147,21 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -168,7 +169,7 @@ const Input = styled.input`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background-color: white;
@@ -177,7 +178,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -198,15 +199,15 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (variant) {
 			case 'primary':
 				return `
-					background-color: #3b82f6;
+					background-color: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover:not(:disabled) {
-						background-color: #2563eb;
+						background-color: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'secondary':
 				return `
-					background-color: #6b7280;
+					background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
 					color: white;
 					&:hover:not(:disabled) {
 						background-color: #4b5563;
@@ -214,10 +215,10 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 				`;
 			case 'danger':
 				return `
-					background-color: #ef4444;
+					background-color: V9_COLORS.PRIMARY.RED;
 					color: white;
 					&:hover:not(:disabled) {
-						background-color: #dc2626;
+						background-color: V9_COLORS.PRIMARY.RED_DARK;
 					}
 				`;
 		}
@@ -231,7 +232,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 
 const RequestDetailsBox = styled.div`
 	background-color: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -246,10 +247,10 @@ const StatusBadge = styled.span<{ status: number }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	background-color: ${({ status }) => {
-		if (status >= 200 && status < 300) return '#10b981';
-		if (status >= 400 && status < 500) return '#f59e0b';
-		if (status >= 500) return '#ef4444';
-		return '#6b7280';
+		if (status >= 200 && status < 300) return 'V9_COLORS.PRIMARY.GREEN';
+		if (status >= 400 && status < 500) return 'V9_COLORS.PRIMARY.YELLOW';
+		if (status >= 500) return 'V9_COLORS.PRIMARY.RED';
+		return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 	}};
 	color: white;
 `;
@@ -398,7 +399,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					marginBottom: '0.5rem',
 				}}
 			>
-				<h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: '#1f2937' }}>
+				<h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 					{title}
 				</h4>
 				<button
@@ -407,7 +408,7 @@ const PingOneSessionsAPI: React.FC = () => {
 						background: 'none',
 						border: 'none',
 						cursor: 'pointer',
-						color: copiedCode === id ? '#10b981' : '#6b7280',
+						color: copiedCode === id ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.25rem',
@@ -500,10 +501,10 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiShield size={24} color="#3b82f6" />
+													<FiShield size={24} color="V9_COLORS.PRIMARY.BLUE" />
 													<h4 style={{ margin: 0 }}>Security Management</h4>
 												</div>
-												<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													Force logout users when suspicious activity is detected or when security
 													policies require immediate session termination
 												</p>
@@ -520,10 +521,10 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiMonitor size={24} color="#3b82f6" />
+													<FiMonitor size={24} color="V9_COLORS.PRIMARY.BLUE" />
 													<h4 style={{ margin: 0 }}>Session Monitoring</h4>
 												</div>
-												<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													Track active sessions, monitor login patterns, and audit user access
 													across multiple applications and devices
 												</p>
@@ -540,10 +541,10 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiLogOut size={24} color="#3b82f6" />
+													<FiLogOut size={24} color="V9_COLORS.PRIMARY.BLUE" />
 													<h4 style={{ margin: 0 }}>Admin Controls</h4>
 												</div>
-												<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													Provide administrators with tools to manage user sessions, enforce
 													policies, and maintain compliance requirements
 												</p>
@@ -558,7 +559,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					{/* API Endpoints Section */}
 					<CollapsibleSection title="📡 API Endpoints" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								The Sessions API provides four main endpoints for managing user sessions. All
 								endpoints require proper authentication and authorization.
 							</p>
@@ -810,7 +811,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					{/* Authentication & Authorization */}
 					<CollapsibleSection title="🔐 Authentication & Authorization" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								The Sessions API requires proper authentication using OAuth 2.0 access tokens with
 								appropriate scopes.
 							</p>
@@ -826,34 +827,34 @@ const PingOneSessionsAPI: React.FC = () => {
 
 									<div
 										style={{
-											background: '#f8fafc',
-											border: '1px solid #e2e8f0',
+											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											marginTop: '1rem',
 										}}
 									>
-										<code style={{ fontSize: '1rem', fontWeight: '600', color: '#3b82f6' }}>
+										<code style={{ fontSize: '1rem', fontWeight: '600', color: 'V9_COLORS.PRIMARY.BLUE' }}>
 											p1:read:sessions
 										</code>
-										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#64748b' }}>
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Grants read access to user session information
 										</p>
 									</div>
 
 									<div
 										style={{
-											background: '#f8fafc',
-											border: '1px solid #e2e8f0',
+											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											marginTop: '1rem',
 										}}
 									>
-										<code style={{ fontSize: '1rem', fontWeight: '600', color: '#ef4444' }}>
+										<code style={{ fontSize: '1rem', fontWeight: '600', color: 'V9_COLORS.PRIMARY.RED' }}>
 											p1:delete:sessions
 										</code>
-										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#64748b' }}>
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Grants permission to revoke/delete user sessions
 										</p>
 									</div>
@@ -890,7 +891,7 @@ grant_type=client_credentials
 					{/* Interactive API Testing */}
 					<CollapsibleSection title="🧪 Interactive API Testing" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								Test the Sessions API directly from this page. Enter your credentials and make live
 								API calls to see request/response details.
 							</p>
@@ -1112,7 +1113,7 @@ grant_type=client_credentials
 					{/* Implementation Examples */}
 					<CollapsibleSection title="💻 Implementation Examples" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
 								Practical examples for implementing common session management scenarios.
 							</p>
 
@@ -1233,7 +1234,7 @@ try {
 									<h3>Example 3: Force Logout (Delete All Sessions)</h3>
 								</CardHeader>
 								<CardBody>
-									<p style={{ marginBottom: '1rem', color: '#64748b' }}>
+									<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										Use this when you need to immediately log out a user from all devices and
 										applications, such as after a password reset or security incident.
 									</p>
@@ -1292,7 +1293,7 @@ async function handlePasswordReset(userId) {
 									<h3>Example 4: Session Monitoring Dashboard</h3>
 								</CardHeader>
 								<CardBody>
-									<p style={{ marginBottom: '1rem', color: '#64748b' }}>
+									<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										Build an admin dashboard to monitor and manage user sessions across your
 										organization.
 									</p>
@@ -1363,10 +1364,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiShield size={24} color="#10b981" />
+											<FiShield size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>Secure Token Storage</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Store access tokens securely on the backend. Never expose worker app
 											credentials or tokens to client-side code. Use environment variables and
 											secure vaults.
@@ -1384,10 +1385,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiClock size={24} color="#10b981" />
+											<FiClock size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>Rate Limiting</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Implement rate limiting when polling for session status. Avoid excessive API
 											calls that could impact performance or trigger rate limits.
 										</p>
@@ -1404,10 +1405,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiRefreshCw size={24} color="#10b981" />
+											<FiRefreshCw size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>Error Handling</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Implement robust error handling for API failures. Handle 401 (unauthorized),
 											403 (forbidden), 404 (not found), and 429 (rate limit) responses
 											appropriately.
@@ -1425,10 +1426,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiMonitor size={24} color="#10b981" />
+											<FiMonitor size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>Audit Logging</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Log all session management operations (especially deletions) for security
 											auditing and compliance. Include who performed the action and why.
 										</p>
@@ -1445,10 +1446,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiUsers size={24} color="#10b981" />
+											<FiUsers size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>User Notifications</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Notify users when their sessions are revoked, especially for security-related
 											actions. Provide clear instructions on what they need to do next.
 										</p>
@@ -1465,10 +1466,10 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiDatabase size={24} color="#10b981" />
+											<FiDatabase size={24} color="V9_COLORS.PRIMARY.GREEN" />
 											<h4 style={{ margin: 0 }}>Caching Strategy</h4>
 										</div>
-										<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
+										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 											Cache session data appropriately but with short TTLs. Session state can change
 											quickly, so balance performance with data freshness.
 										</p>
@@ -1493,7 +1494,7 @@ function isExpiringSoon(session) {
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
-												color: '#3b82f6',
+												color: 'V9_COLORS.PRIMARY.BLUE',
 												textDecoration: 'none',
 												fontSize: '1rem',
 											}}
@@ -1509,7 +1510,7 @@ function isExpiringSoon(session) {
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
-												color: '#3b82f6',
+												color: 'V9_COLORS.PRIMARY.BLUE',
 												textDecoration: 'none',
 												fontSize: '1rem',
 											}}
@@ -1525,7 +1526,7 @@ function isExpiringSoon(session) {
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
-												color: '#3b82f6',
+												color: 'V9_COLORS.PRIMARY.BLUE',
 												textDecoration: 'none',
 												fontSize: '1rem',
 											}}
@@ -1536,11 +1537,11 @@ function isExpiringSoon(session) {
 									</div>
 
 									<h3 style={{ marginTop: '2rem' }}>Related Topics</h3>
-									<ul style={{ paddingLeft: '1.5rem', color: '#6b7280' }}>
+									<ul style={{ paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										<li style={{ marginBottom: '0.5rem' }}>
 											<a
 												href="/oidc-session-management"
-												style={{ color: '#3b82f6', textDecoration: 'none' }}
+												style={{ color: 'V9_COLORS.PRIMARY.BLUE', textDecoration: 'none' }}
 											>
 												OpenID Connect Session Management
 											</a>

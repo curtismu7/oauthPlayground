@@ -6,6 +6,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import { logger } from '../../../../utils/logger';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface Props {
 	children: ReactNode;

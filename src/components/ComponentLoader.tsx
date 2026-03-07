@@ -18,21 +18,21 @@ const LoadingContainer = styled.div`
 const Spinner = styled.div`
   width: 40px;
   height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #3b82f6;
+  border: 4px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border-top: 4px solid V9_COLORS.PRIMARY.BLUE;
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
   margin-bottom: 1rem;
 `;
 
 const LoadingText = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 14px;
   font-weight: 500;
 `;
 
 const LoadingSubtext = styled.div`
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   font-size: 12px;
   margin-top: 0.5rem;
 `;

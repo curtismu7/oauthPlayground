@@ -24,6 +24,7 @@ import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 type CredentialsState = {
 	environmentId: string;
@@ -58,7 +59,7 @@ const styles = {
 		padding: '1.5rem',
 		background: 'white',
 		borderRadius: '0.75rem',
-		border: '1px solid #e5e7eb',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	stepDescription: {
 		marginBottom: '1.5rem',
@@ -70,7 +71,7 @@ const styles = {
 	scopeItem: {
 		marginBottom: '0.5rem',
 		lineHeight: 1.6,
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	scopeCode: {
 		background: '#f3f4f6',
@@ -78,7 +79,7 @@ const styles = {
 		borderRadius: '0.25rem',
 		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 		fontSize: '0.875rem',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	button: (isPrimary: boolean, isDisabled?: boolean): React.CSSProperties => ({
 		padding: '0.75rem 1.5rem',
@@ -89,15 +90,15 @@ const styles = {
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
-		background: isDisabled ? '#9ca3af' : isPrimary ? '#3b82f6' : '#6b7280',
-		color: isDisabled ? '#f8fafc' : 'white',
+		background: isDisabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : isPrimary ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: isDisabled ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 	}),
 	errorMessage: {
-		background: '#fef2f2',
-		border: '1px solid #fecaca',
+		background: 'V9_COLORS.BG.ERROR',
+		border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 		borderRadius: '8px',
 		padding: '1rem',
-		color: '#991b1b',
+		color: 'V9_COLORS.PRIMARY.RED_DARK',
 		margin: '1rem 0',
 	} as React.CSSProperties,
 	licenseGrid: {
@@ -108,7 +109,7 @@ const styles = {
 	} as React.CSSProperties,
 	licenseCard: (borderColor?: string): React.CSSProperties => ({
 		background: 'white',
-		border: `2px solid ${borderColor || '#e5e7eb'}`,
+		border: `2px solid ${borderColor || 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 		borderRadius: '8px',
 		padding: '1.5rem',
 		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
@@ -119,13 +120,13 @@ const styles = {
 		padding: '0.35rem 0.75rem',
 		margin: '0.25rem',
 		borderRadius: '9999px',
-		background: '#e0f2fe',
-		color: '#0369a1',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		color: 'V9_COLORS.PRIMARY.BLUE',
 		fontSize: '0.75rem',
 		fontWeight: 600,
 	} as React.CSSProperties,
 	environmentTable: {
-		border: '1px solid #e2e8f0',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.75rem',
 		overflow: 'hidden',
 		marginTop: '1rem',
@@ -135,17 +136,17 @@ const styles = {
 		gridTemplateColumns: '2fr 1fr 2fr 1.5fr',
 		gap: '0.75rem',
 		padding: '0.75rem 1rem',
-		background: '#f1f5f9',
+		background: 'V9_COLORS.BG.GRAY_MEDIUM',
 		fontWeight: 600,
 		fontSize: '0.85rem',
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	environmentRow: {
 		display: 'grid',
 		gridTemplateColumns: '2fr 1fr 2fr 1.5fr',
 		gap: '0.75rem',
 		padding: '0.75rem 1rem',
-		borderTop: '1px solid #e2e8f0',
+		borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		fontSize: '0.85rem',
 	} as React.CSSProperties,
 	environmentName: {
@@ -158,13 +159,13 @@ const styles = {
 		justifyContent: 'flex-start',
 		gap: '0.35rem',
 		fontWeight: 600,
-		color: '#0f172a',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	environmentId: {
 		fontFamily:
 			"'SFMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
 		fontSize: '0.75rem',
-		color: '#475569',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		wordBreak: 'break-all',
 	} as React.CSSProperties,
 	environmentLicense: {
@@ -172,32 +173,32 @@ const styles = {
 		flexDirection: 'column',
 		gap: '0.35rem',
 		fontSize: '0.8rem',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	environmentLicenseMeta: {
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '0.25rem',
 		fontSize: '0.75rem',
-		color: '#64748b',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	infoRow: {
 		display: 'flex',
 		justifyContent: 'space-between',
 		padding: '0.5rem 0',
-		borderBottom: '1px solid #e5e7eb',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	infoLabel: {
 		fontWeight: 600,
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	infoValue: {
-		color: '#111827',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	input: {
 		width: '100%',
 		padding: '0.75rem',
-		border: '1px solid #d1d5db',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 		fontSize: '1rem',
 		marginBottom: '1rem',
@@ -205,7 +206,7 @@ const styles = {
 	inputLabel: {
 		display: 'block',
 		fontWeight: 600,
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '0.5rem',
 		fontSize: '0.875rem',
 	} as React.CSSProperties,
@@ -604,7 +605,7 @@ const OrganizationLicensingV2: React.FC = () => {
 									alignItems: 'center',
 									gap: '0.5rem',
 									padding: '0.625rem 1.25rem',
-									background: '#ef4444',
+									background: 'V9_COLORS.PRIMARY.RED',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -634,7 +635,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					>
 						<FiShield /> Get License Information
 					</h3>
-					<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
+					<p style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 						Enter your Organization ID to fetch organization information including region and number
 						of environments.
 					</p>
@@ -675,7 +676,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				{orgInfo && (
 					<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
 						<div style={styles.licenseGrid}>
-							<div style={styles.licenseCard('#3b82f6')}>
+							<div style={styles.licenseCard('V9_COLORS.PRIMARY.BLUE')}>
 								<div style={styles.infoRow}>
 									<span style={styles.infoLabel}>Name:</span>
 									<span style={styles.infoValue}>{orgInfo.name}</span>
@@ -706,7 +707,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				)}
 				{orgInfo && (
 					<CollapsibleHeader title="Applied License" icon={<FiShield />} theme="green">
-						<div style={styles.licenseCard('#10b981')}>
+						<div style={styles.licenseCard('V9_COLORS.PRIMARY.GREEN')}>
 							<div style={styles.infoRow}>
 								<span style={styles.infoLabel}>License Name:</span>
 								<span style={styles.infoValue}>{orgInfo.license.name}</span>
@@ -759,7 +760,7 @@ const OrganizationLicensingV2: React.FC = () => {
 							)}
 							{orgInfo.license.features && orgInfo.license.features.length > 0 && (
 								<div style={{ marginTop: '1rem' }}>
-									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#1f2937' }}>
+									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Included Features
 									</p>
 									<div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -781,7 +782,7 @@ const OrganizationLicensingV2: React.FC = () => {
 						theme="highlight"
 					>
 						{orgInfo.environments.length === 0 ? (
-							<p style={{ margin: 0, color: '#64748b' }}>
+							<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								No environments were returned for this organization.
 							</p>
 						) : (
@@ -814,8 +815,8 @@ const OrganizationLicensingV2: React.FC = () => {
 															style={{
 																...styles.featureBadge,
 																background:
-																	appliedLicenseStatus === 'active' ? '#dcfce7' : '#fee2e2',
-																color: appliedLicenseStatus === 'active' ? '#166534' : '#b91c1c',
+																	appliedLicenseStatus === 'active' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR',
+																color: appliedLicenseStatus === 'active' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK',
 															}}
 														>
 															{appliedLicenseStatus.toUpperCase()}
@@ -853,12 +854,12 @@ const OrganizationLicensingV2: React.FC = () => {
 									key={license.id}
 									style={styles.licenseCard(
 										license.status === 'active'
-											? '#10b981'
+											? 'V9_COLORS.PRIMARY.GREEN'
 											: license.status === 'expired'
-												? '#ef4444'
+												? 'V9_COLORS.PRIMARY.RED'
 												: license.status === 'trial'
-													? '#f59e0b'
-													: '#e5e7eb'
+													? 'V9_COLORS.PRIMARY.YELLOW'
+													: 'V9_COLORS.TEXT.GRAY_LIGHTER'
 									)}
 								>
 									<div
@@ -875,8 +876,8 @@ const OrganizationLicensingV2: React.FC = () => {
 												borderRadius: '9999px',
 												fontSize: '0.75rem',
 												fontWeight: 600,
-												background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
-												color: license.status === 'active' ? '#065f46' : '#991b1b',
+												background: license.status === 'active' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR',
+												color: license.status === 'active' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK',
 											}}
 										>
 											{license.status.toUpperCase()}
@@ -925,7 +926,7 @@ const OrganizationLicensingV2: React.FC = () => {
 			<ContentWrapper>
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+						background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 						color: 'white',
 						padding: '1rem 1.5rem',
 						borderRadius: '12px',

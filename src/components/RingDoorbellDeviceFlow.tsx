@@ -20,14 +20,14 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Ring Doorbell Physical Housing
 const RingDoorbellContainer = styled.div`
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 1.5rem;
   padding: 2rem;
   margin: 2rem 0;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 8px solid #0f172a;
+  border: 8px solid V9_COLORS.TEXT.GRAY_DARK;
   position: relative;
   max-width: 400px;
   margin-left: auto;
@@ -42,7 +42,7 @@ const RingDoorbellContainer = styled.div`
     right: -8px;
     bottom: -8px;
     border-radius: 1.5rem;
-    background: linear-gradient(135deg, #374151 0%, #1f2937 50%, #111827 100%);
+    background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 50%, V9_COLORS.TEXT.GRAY_DARK 100%);
     z-index: -1;
     box-shadow: 
       0 0 30px rgba(0, 0, 0, 0.4),
@@ -54,9 +54,9 @@ const RingDoorbellContainer = styled.div`
 const RingCameraLens = styled.div`
   width: 120px;
   height: 120px;
-  background: radial-gradient(circle, #000000 0%, #1f2937 60%, #374151 100%);
+  background: radial-gradient(circle, V9_COLORS.TEXT.BLACK 0%, V9_COLORS.TEXT.GRAY_DARK 60%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 50%;
-  border: 6px solid #0f172a;
+  border: 6px solid V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 auto 1.5rem;
   display: flex;
   align-items: center;
@@ -75,7 +75,7 @@ const RingCameraLens = styled.div`
     right: -3px;
     bottom: -3px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, transparent 0deg, #ef4444 45deg, transparent 90deg, transparent 270deg, #ef4444 315deg, transparent 360deg);
+    background: conic-gradient(from 0deg, transparent 0deg, V9_COLORS.PRIMARY.RED 45deg, transparent 90deg, transparent 270deg, V9_COLORS.PRIMARY.RED 315deg, transparent 360deg);
     opacity: 0.3;
     animation: pulse 3s ease-in-out infinite;
   }
@@ -88,7 +88,7 @@ const RingCameraLens = styled.div`
 
 const CameraIcon = styled.div`
   font-size: 3rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 `;
 
@@ -99,19 +99,19 @@ const RingButton = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 		}
 	}};
   border-radius: 50%;
-  border: 4px solid #0f172a;
+  border: 4px solid V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 auto 1rem;
   display: flex;
   align-items: center;
@@ -136,17 +136,17 @@ const RingButton = styled.div<{ $status: string }>`
 
 const RingButtonIcon = styled.div`
   font-size: 2rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 `;
 
 // Ring Status Display
 const RingStatusDisplay = styled.div`
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 1rem 0;
-  border: 2px solid #374151;
+  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -155,7 +155,7 @@ const StatusRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   
   &:last-child {
     border-bottom: none;
@@ -165,7 +165,7 @@ const StatusRow = styled.div`
 const StatusLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -176,13 +176,13 @@ const StatusValue = styled.div<{ $status?: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'online':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'offline':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#ffffff';
+				return 'V9_COLORS.TEXT.WHITE';
 		}
 	}};
   display: flex;
@@ -194,7 +194,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -213,45 +213,45 @@ const RingBranding = styled.div`
 const RingLogo = styled.div`
   font-size: 2rem;
   font-weight: 900;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
 const RingModel = styled.div`
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 `;
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin: 1rem 0;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -266,8 +266,8 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: #ffffff;
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.25rem;
@@ -293,12 +293,12 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 1rem;
   text-align: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -399,14 +399,14 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 					<StatusRow>
 						<StatusLabel>WiFi</StatusLabel>
 						<StatusValue $status="online">
-							<StatusDot $active={true} $color="#10b981" />
+							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
 							Connected
 						</StatusValue>
 					</StatusRow>
 					<StatusRow>
 						<StatusLabel>Battery</StatusLabel>
 						<StatusValue>
-							<StatusDot $active={true} $color="#10b981" />
+							<StatusDot $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
 							87% - Good
 						</StatusValue>
 					</StatusRow>
@@ -435,8 +435,8 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={160}
-							bgColor="#ffffff"
-							fgColor="#1f2937"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.GRAY_DARK"
 							level="H"
 							includeMargin={true}
 						/>
@@ -469,8 +469,8 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
-				borderColor="#374151"
-				headerTextColor="#ffffff"
+				borderColor="V9_COLORS.TEXT.GRAY_DARK"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

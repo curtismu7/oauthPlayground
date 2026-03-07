@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -46,7 +47,7 @@ const IconContainer = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 	font-size: 4rem;
 	margin-bottom: 1.5rem;
 	color: ${({ $status }) =>
-		$status === 'success' ? '#10b981' : $status === 'error' ? '#ef4444' : '#3b82f6'};
+		$status === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : $status === 'error' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE'};
 	
 	${({ $status }) =>
 		$status === 'loading' &&
@@ -68,14 +69,14 @@ const Title = styled.h1`
 
 const Message = styled.p`
 	font-size: 1.125rem;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 2rem;
 	line-height: 1.6;
 `;
 
 const ErrorDetails = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -83,7 +84,7 @@ const ErrorDetails = styled.div`
 `;
 
 const ErrorText = styled.pre`
-	color: #991b1b;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-size: 0.875rem;
 	margin: 0;
 	white-space: pre-wrap;

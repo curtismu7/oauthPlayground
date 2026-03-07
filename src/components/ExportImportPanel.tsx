@@ -33,12 +33,12 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const Description = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin: 0.5rem 0 1.5rem 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -56,7 +56,7 @@ const ActionGrid = styled.div`
 
 const ActionSection = styled.div`
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   background: white;
 `;
@@ -64,7 +64,7 @@ const ActionSection = styled.div`
 const ActionTitle = styled.h4`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -72,7 +72,7 @@ const ActionTitle = styled.h4`
 `;
 
 const ActionDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.4;
@@ -106,19 +106,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
         `;
 			case 'success':
 				return `
-          background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+          background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #15803d 100%);
           color: white;
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, #16a34a 0%, #166534 100%);
+            background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
             transform: translateY(-1px);
           }
         `;
 			case 'danger':
 				return `
-          background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+          background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
           color: white;
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
             transform: translateY(-1px);
           }
         `;
@@ -126,7 +126,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 				return `
           background: white;
           color: ${theme.colors.gray700};
-          border-color: #d1d5db;
+          border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
           &:hover:not(:disabled) {
             background: #f9fafb;
             border-color: ${theme.colors.primary};
@@ -147,24 +147,28 @@ const DropZone = styled.div.withConfig({
 	shouldForwardProp: (prop) => !['isDragOver', 'hasError'].includes(prop),
 })<{ isDragOver: boolean; hasError: boolean }>`
   border: 2px dashed ${({ isDragOver, hasError }) =>
-		hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#d1d5db'};
+		hasError
+			? 'V9_COLORS.PRIMARY.RED'
+			: isDragOver
+				? 'V9_COLORS.PRIMARY.BLUE'
+				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
   background: ${({ isDragOver, hasError }) =>
-		hasError ? '#fef2f2' : isDragOver ? '#eff6ff' : '#f9fafb'};
+		hasError ? 'V9_COLORS.BG.ERROR' : isDragOver ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb'};
   transition: all 0.2s;
   cursor: pointer;
   margin-bottom: 1rem;
 
   &:hover {
-    border-color: ${({ hasError }) => (hasError ? '#ef4444' : '#3b82f6')};
-    background: ${({ hasError }) => (hasError ? '#fef2f2' : '#eff6ff')};
+    border-color: ${({ hasError }) => (hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
+    background: ${({ hasError }) => (hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
   }
 
   &.drag-over {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: V9_COLORS.BG.GRAY_LIGHT;
     transform: scale(1.02);
   }
 `;
@@ -173,18 +177,18 @@ const DropZoneIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'hasError',
 })<{ hasError: boolean }>`
   font-size: 2rem;
-  color: ${({ hasError }) => (hasError ? '#ef4444' : '#6b7280')};
+  color: ${({ hasError }) => (hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   margin-bottom: 1rem;
 `;
 
 const DropZoneText = styled.div`
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 500;
   margin-bottom: 0.5rem;
 `;
 
 const DropZoneSubtext = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
 `;
 
@@ -198,20 +202,20 @@ const ValidationResult = styled.div<{ type: 'success' | 'error' | 'warning' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #166534;
+          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'error':
 				return `
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #991b1b;
+          background: V9_COLORS.BG.ERROR;
+          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'warning':
 				return `
-          background: #fffbeb;
+          background: V9_COLORS.BG.WARNING;
           border: 1px solid #fed7aa;
-          color: #92400e;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 		}
 	}}
@@ -237,7 +241,7 @@ const ValidationList = styled.ul`
 
 const FileInfo = styled.div`
   background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -435,7 +439,13 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 					</Button>
 
 					{!canExport && (
-						<div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
+						<div
+							style={{
+								marginTop: '0.75rem',
+								fontSize: '0.875rem',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							}}
+						>
 							{!appType && 'Select an application type to enable export'}
 							{appType &&
 								!formData.name?.trim() &&

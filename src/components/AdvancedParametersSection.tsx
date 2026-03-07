@@ -36,19 +36,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'warning':
 				return '#fed7aa';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -56,11 +56,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	color: ${(props) => {
 		switch (props.$variant) {
 			case 'success':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			default:
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 	line-height: 1.5;

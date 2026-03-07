@@ -12,6 +12,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { logger } from '../../utils/logger';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -68,25 +69,25 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.1rem;
 `;
 
 const TestSection = styled.div`
   margin-bottom: 2rem;
   padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
 `;
 
 const SectionTitle = styled.h2`
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1rem;
   font-size: 1.25rem;
 `;
@@ -112,32 +113,32 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 600;
-  color: #111827;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const Input = styled.input`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -157,35 +158,35 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch (props.variant) {
 			case 'primary':
 				return `
-          background: #3b82f6;
+          background: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          border: 1px solid #3b82f6;
+          border: 1px solid V9_COLORS.PRIMARY.BLUE;
 
           &:hover:not(:disabled) {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: V9_COLORS.PRIMARY.BLUE_DARK;
+            border-color: V9_COLORS.PRIMARY.BLUE_DARK;
           }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          border: 1px solid #ef4444;
+          border: 1px solid V9_COLORS.PRIMARY.RED;
 
           &:hover:not(:disabled) {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: V9_COLORS.PRIMARY.RED_DARK;
+            border-color: V9_COLORS.PRIMARY.RED_DARK;
           }
         `;
 			default:
 				return `
           background: white;
-          color: #374151;
-          border: 1px solid #d1d5db;
+          color: V9_COLORS.TEXT.GRAY_DARK;
+          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
           &:hover:not(:disabled) {
             background: #f9fafb;
-            border-color: #9ca3af;
+            border-color: V9_COLORS.TEXT.GRAY_LIGHT;
           }
         `;
 		}
@@ -209,12 +210,12 @@ const ResultsContainer = styled.div`
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
-  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
+  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
+  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
 `;
 
 const ResultHeader = styled.div`
@@ -226,16 +227,16 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3<{ success: boolean }>`
   margin: 0;
-  color: ${(props) => (props.success ? '#065f46' : '#991b1b')};
+  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
 `;
 
 const ResultTime = styled.span`
   font-size: 0.75rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.25rem;
@@ -252,11 +253,11 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 			case 'authorization_code':
 				return '#dbeafe';
 			case 'implicit':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'hybrid':
 				return '#fce7f3';
 			case 'device_code':
-				return '#ecfdf5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'client_credentials':
 				return '#f3f4f6';
 			default:
@@ -266,17 +267,17 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
   color: ${(props) => {
 		switch (props.flowtype) {
 			case 'authorization_code':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'implicit':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'hybrid':
 				return '#be185d';
 			case 'device_code':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'client_credentials':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   padding: 0.25rem 0.5rem;
@@ -1044,7 +1045,7 @@ const AllFlowsApiTest: React.FC = () => {
 								<Label>
 									Environment ID:
 									{config.environmentId && hasWorkerToken && (
-										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 											✓ Auto-populated from worker token
 										</span>
 									)}
@@ -1056,7 +1057,7 @@ const AllFlowsApiTest: React.FC = () => {
 									placeholder="e.g. f9d1e21a-54dc-4b3d-990e-fa36191730d4"
 									style={{
 										backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
-										borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#d1d5db',
+										borderColor: config.environmentId && hasWorkerToken ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								/>
 							</FormGroup>
@@ -1065,7 +1066,7 @@ const AllFlowsApiTest: React.FC = () => {
 								<Label>
 									Client ID:
 									{config.clientId && selectedAppId && (
-										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 											✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 										</span>
 									)}
@@ -1077,7 +1078,7 @@ const AllFlowsApiTest: React.FC = () => {
 									placeholder="e.g. a1b2c3d4..."
 									style={{
 										backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
-										borderColor: config.clientId && selectedAppId ? '#10b981' : '#d1d5db',
+										borderColor: config.clientId && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								/>
 							</FormGroup>
@@ -1092,7 +1093,7 @@ const AllFlowsApiTest: React.FC = () => {
 										Client Secret:
 										{config.clientSecret && selectedAppId && (
 											<span
-												style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}
+												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}
 											>
 												✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 											</span>
@@ -1105,7 +1106,7 @@ const AllFlowsApiTest: React.FC = () => {
 										placeholder="Required for confidential clients"
 										style={{
 											backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
-											borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#d1d5db',
+											borderColor: config.clientSecret && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 										}}
 									/>
 								</FormGroup>
@@ -1188,7 +1189,7 @@ const AllFlowsApiTest: React.FC = () => {
 										/>
 										Use PKCE
 									</Label>
-									<span style={{ fontSize: '0.8rem', color: '#1f2937' }}>
+									<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										{config.flowType === 'implicit'
 											? 'Not used in implicit flow'
 											: config.flowType === 'client_credentials'
@@ -1347,7 +1348,7 @@ const AllFlowsApiTest: React.FC = () => {
 					))}
 
 					{results.length === 0 && (
-						<div style={{ textAlign: 'center', color: '#1f2937', padding: '2rem' }}>
+						<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_DARK', padding: '2rem' }}>
 							No test results yet. Configure your settings and run the tests.
 						</div>
 					)}

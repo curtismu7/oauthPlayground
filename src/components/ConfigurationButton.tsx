@@ -4,23 +4,18 @@ import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { type FlowConfig, FlowConfiguration } from './FlowConfiguration';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiSettings': 'mdi-cog',
+		FiSettings: 'mdi-cog',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 interface ConfigurationButtonProps {
@@ -31,7 +26,7 @@ interface ConfigurationButtonProps {
 }
 
 const Button = styled.button`
-  background: #6b7280;
+  background: V9_COLORS.TEXT.GRAY_MEDIUM;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -81,14 +76,14 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
 `;
 
 const CloseButton = styled.button`
@@ -96,13 +91,13 @@ const CloseButton = styled.button`
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   padding: 0.25rem;
   border-radius: 0.25rem;
 
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 

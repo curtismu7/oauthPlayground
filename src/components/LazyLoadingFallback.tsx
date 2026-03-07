@@ -26,9 +26,9 @@ const LoadingContainer = styled.div`
   justify-content: center;
   min-height: 400px;
   padding: 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   animation: ${slideIn} 0.3s ease-out;
 `;
 
@@ -39,7 +39,7 @@ const LoadingSpinner = styled.div`
   width: 60px;
   height: 60px;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   animation: ${spin} 1s linear infinite;
@@ -62,7 +62,7 @@ const LoadingTitle = styled.h3`
 const LoadingSubtitle = styled.p`
   margin: 0 0 1.5rem 0;
   font-size: 0.875rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
   max-width: 300px;
   line-height: 1.5;
@@ -81,8 +81,8 @@ const LoadingStep = styled.div<{ completed?: boolean; active?: boolean }>`
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: ${(props) => (props.active ? '#dbeafe' : props.completed ? '#dcfce7' : '#f8fafc')};
-  border: 1px solid ${(props) => (props.active ? '#93c5fd' : props.completed ? '#86efac' : '#e2e8f0')};
+  background: ${(props) => (props.active ? '#dbeafe' : props.completed ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.GRAY_LIGHT')};
+  border: 1px solid ${(props) => (props.active ? '#93c5fd' : props.completed ? '#86efac' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 8px;
   transition: all 0.3s ease;
   animation: ${(props) => (props.active ? css`${pulse} 1.5s ease-in-out infinite` : 'none')};
@@ -95,7 +95,7 @@ const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: ${(props) => (props.completed ? '#10b981' : props.active ? '#3b82f6' : '#e2e8f0')};
+  background: ${(props) => (props.completed ? 'V9_COLORS.PRIMARY.GREEN' : props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   color: ${(props) => (props.completed || props.active ? 'white' : '#94a3b8')};
   font-size: 12px;
   font-weight: 600;
@@ -105,14 +105,14 @@ const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
 const StepText = styled.span<{ completed?: boolean; active?: boolean }>`
   font-size: 0.875rem;
   font-weight: ${(props) => (props.active ? '600' : '500')};
-  color: ${(props) => (props.completed ? '#059669' : props.active ? '#1d4ed8' : '#64748b')};
+  color: ${(props) => (props.completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : props.active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   transition: all 0.3s ease;
 `;
 
 const LoadingProgress = styled.div`
   width: 100%;
   height: 4px;
-  background: #e2e8f0;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 2px;
   overflow: hidden;
   margin-top: 1rem;
@@ -120,7 +120,7 @@ const LoadingProgress = styled.div`
 
 const ProgressBar = styled.div<{ progress: number }>`
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 2px;
   width: ${(props) => props.progress}%;
   transition: width 0.3s ease;
@@ -245,7 +245,7 @@ export const CompactLoadingFallback: React.FC<{ message?: string }> = ({
 					style={{
 						margin: 0,
 						fontSize: '0.875rem',
-						color: '#64748b',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						textAlign: 'center',
 					}}
 				>
@@ -278,16 +278,18 @@ export const LazyLoadingErrorFallback: React.FC<{
 						width: '60px',
 						height: '60px',
 						borderRadius: '50%',
-						background: '#fee2e2',
+						background: 'V9_COLORS.BG.ERROR',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'center',
-						color: '#dc2626',
+						color: 'V9_COLORS.PRIMARY.RED_DARK',
 						fontSize: '24px',
 					}}
 				></div>
 
-				<LoadingTitle style={{ color: '#dc2626' }}>Failed to Load {flowType}</LoadingTitle>
+				<LoadingTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+					Failed to Load {flowType}
+				</LoadingTitle>
 
 				<LoadingSubtitle>
 					{error.message || 'An error occurred while loading the OAuth flow component.'}
@@ -297,7 +299,7 @@ export const LazyLoadingErrorFallback: React.FC<{
 					onClick={onRetry}
 					style={{
 						padding: '0.75rem 1.5rem',
-						background: '#3b82f6',
+						background: 'V9_COLORS.PRIMARY.BLUE',
 						color: 'white',
 						border: 'none',
 						borderRadius: '8px',
@@ -306,8 +308,8 @@ export const LazyLoadingErrorFallback: React.FC<{
 						cursor: 'pointer',
 						transition: 'background 0.2s ease',
 					}}
-					onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
-					onMouseOut={(e) => (e.currentTarget.style.background = '#3b82f6')}
+					onMouseOver={(e) => (e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE_DARK')}
+					onMouseOut={(e) => (e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE')}
 				>
 					Try Again
 				</button>

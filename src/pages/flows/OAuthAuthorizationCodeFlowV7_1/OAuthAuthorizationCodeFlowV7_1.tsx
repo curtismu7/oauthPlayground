@@ -23,6 +23,7 @@ import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 import { logger } from '../../../utils/logger';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const _FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
@@ -79,19 +80,19 @@ const LoadingSpinner = styled.div`
 
 // Original V7 styled components for compatibility
 const MainCard = styled.div`
-  background-color: #ffffff;
+  background-color: V9_COLORS.TEXT.WHITE;
   border-radius: 1rem;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   overflow: hidden;
 `;
 
 const StepHeader = styled.div<{ $variant: FlowVariant }>`
   background: ${(props) =>
 		props.$variant === 'oidc'
-			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
 			: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   padding: 2rem;
   display: flex;
   align-items: center;
@@ -108,7 +109,7 @@ const VersionBadge = styled.span<{ $variant: FlowVariant }>`
   align-self: flex-start;
   background: ${(props) =>
 		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'};
-  border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#fb923c')};
+  border: 1px solid ${(props) => (props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#fb923c')};
   color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fed7aa')};
   font-size: 0.75rem;
   font-weight: 600;
@@ -144,7 +145,7 @@ const VariantButton = styled.button<{ $active: boolean }>`
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.5rem;
   background: ${(props) => (props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent')};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -169,14 +170,14 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed: boolean }>`
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f1f5f9;
+    background: V9_COLORS.BG.GRAY_MEDIUM;
   }
 `;
 
@@ -185,7 +186,7 @@ const CollapsibleTitle = styled.div`
   align-items: center;
   gap: 0.5rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
@@ -195,9 +196,9 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
-  box-shadow: 0 6px 16px #3b82f633;
+  box-shadow: 0 6px 16px V9_COLORS.PRIMARY.BLUE33;
   transition: all 0.2s ease;
   transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 
@@ -212,10 +213,10 @@ const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
   overflow: hidden;
   transition: max-height 0.3s ease;
   padding: ${(props) => (props.$collapsed ? '0' : '1rem')};
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-top: none;
   border-radius: 0 0 0.5rem 0.5rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
 `;
 
 interface OAuthAuthorizationCodeFlowV7_1Props {

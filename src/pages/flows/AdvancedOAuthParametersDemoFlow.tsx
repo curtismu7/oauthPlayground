@@ -38,6 +38,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const Container = styled.div`
@@ -47,8 +48,8 @@ const Container = styled.div`
 `;
 
 const DemoNotice = styled.div`
-	background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-	border: 3px solid #3b82f6;
+	background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border: 3px solid V9_COLORS.PRIMARY.BLUE;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -65,28 +66,28 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'success':
-				return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)';
 			case 'warning':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
 			default:
-				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
 		}
 	}};
 	border-left: 4px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			default:
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 		}
 	}};
 `;
 
 const UrlDisplay = styled.div`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -102,7 +103,7 @@ const CopyButton = styled.button`
 	top: 1rem;
 	right: 1rem;
 	padding: 0.5rem 1rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -113,7 +114,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #2563eb;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 		transform: translateY(-2px);
 	}
 `;
@@ -127,7 +128,7 @@ const MockButton = styled.button`
 	font-size: 1rem;
 	font-weight: 600;
 	color: white;
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	border: none;
 	border-radius: 0.75rem;
 	cursor: pointer;
@@ -271,9 +272,9 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 			{/* Demo Notice */}
 			<DemoNotice>
-				<FiAlertCircle size={32} style={{ color: '#3b82f6', flexShrink: 0 }} />
+				<FiAlertCircle size={32} style={{ color: 'V9_COLORS.PRIMARY.BLUE', flexShrink: 0 }} />
 				<div>
-					<h3 style={{ margin: '0 0 1rem 0', color: '#1e40af', fontSize: '1.25rem' }}>
+					<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '1.25rem' }}>
 						🎭 Educational Demo Flow
 					</h3>
 					<p style={{ margin: '0 0 0.5rem 0', lineHeight: '1.6' }}>
@@ -344,7 +345,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid #e5e7eb',
+							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -365,7 +366,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid #e5e7eb',
+							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -386,7 +387,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid #e5e7eb',
+							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -406,7 +407,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid #e5e7eb',
+							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 						}}
 					/>
@@ -426,7 +427,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							width: '100%',
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
-							border: '2px solid #e5e7eb',
+							border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '1rem',
 							fontFamily: 'Monaco, monospace',
 						}}

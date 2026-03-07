@@ -14,7 +14,7 @@ const KROGER_COLORS = {
 	white: '#FFFFFF',
 	lightGray: '#F5F5F5',
 	darkGray: '#333333',
-	black: '#000000',
+	black: 'V9_COLORS.TEXT.BLACK',
 };
 
 const clampChannel = (value: number) => Math.min(255, Math.max(0, value));
@@ -158,7 +158,7 @@ const LogoMark = styled.div<{
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: ${({ $backgroundColor }) => $backgroundColor ?? '#ffffff'};
+  background: ${({ $backgroundColor }) => $backgroundColor ?? 'V9_COLORS.TEXT.WHITE'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,8 +191,8 @@ const Content = styled.div<{
 	$contentTextColor?: string | undefined;
 }>`
   padding: 32px 28px;
-  background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
-  color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
+  background: ${({ $contentBackground }) => $contentBackground ?? 'V9_COLORS.TEXT.WHITE'};
+  color: ${({ $contentTextColor }) => $contentTextColor ?? 'V9_COLORS.TEXT.GRAY_DARK'};
 `;
 
 const Form = styled.form`
@@ -210,7 +210,7 @@ const InputGroup = styled.div`
 const Label = styled.label`
   font-size: 12px;
   font-weight: 700;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -224,7 +224,7 @@ const InputWrapper = styled.div`
 const Input = styled.input<{ $accentColor?: string | undefined }>`
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -240,7 +240,7 @@ const Input = styled.input<{ $accentColor?: string | undefined }>`
   }
 
   &::placeholder {
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -255,7 +255,7 @@ const PasswordToggleButton = styled.button`
   border: none;
   cursor: pointer;
   padding: 6px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -298,22 +298,22 @@ const LoginButton = styled.button<{ $accentColor?: string | undefined }>`
 const Footer = styled.div`
   padding: 20px 28px;
   text-align: center;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   background: #f9fafb;
 `;
 
 const FooterText = styled.div`
   font-size: 11px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.6;
   font-weight: 500;
 `;
 
 const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 6px;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   padding: 12px 14px;
   font-size: 13px;
   margin-bottom: 16px;
@@ -638,7 +638,7 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 									/>
 									<path
 										d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
-										fill="#ffffff"
+										fill="V9_COLORS.TEXT.WHITE"
 									/>
 								</svg>
 							)}

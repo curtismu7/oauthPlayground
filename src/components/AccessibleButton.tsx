@@ -142,8 +142,8 @@ const StyledButton = styled.button<{
           border-color: ${theme.colors.danger};
           
           &:hover:not(:disabled) {
-            background: #dc2626;
-            border-color: #dc2626;
+            background: V9_COLORS.PRIMARY.RED_DARK;
+            border-color: V9_COLORS.PRIMARY.RED_DARK;
             transform: translateY(-1px);
           }
           
@@ -158,8 +158,8 @@ const StyledButton = styled.button<{
           border-color: ${theme.colors.success};
           
           &:hover:not(:disabled) {
-            background: #059669;
-            border-color: #059669;
+            background: V9_COLORS.PRIMARY.GREEN_DARK;
+            border-color: V9_COLORS.PRIMARY.GREEN_DARK;
             transform: translateY(-1px);
           }
           
@@ -174,8 +174,8 @@ const StyledButton = styled.button<{
           border-color: ${theme.colors.warning};
           
           &:hover:not(:disabled) {
-            background: #d97706;
-            border-color: #d97706;
+            background: V9_COLORS.PRIMARY.YELLOW_DARK;
+            border-color: V9_COLORS.PRIMARY.YELLOW_DARK;
             transform: translateY(-1px);
           }
           

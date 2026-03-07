@@ -14,10 +14,10 @@ interface JsonEditorProps {
 
 const EditorContainer = styled.div`
   position: relative;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const EditorHeader = styled.div`
@@ -25,14 +25,14 @@ const EditorHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #374151;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   border-bottom: 1px solid #4b5563;
 `;
 
 const EditorTitle = styled.div`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #d1d5db;
+  color: V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CopyButton = styled.button.withConfig({
@@ -42,7 +42,7 @@ const CopyButton = styled.button.withConfig({
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: ${(props) => (props.copied ? '#059669' : '#374151')};
+  background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -91,15 +91,15 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 
 	// Default scope colors
 	const defaultScopeColors = {
-		openid: '#3b82f6',
-		profile: '#10b981',
-		email: '#f59e0b',
-		address: '#ef4444',
+		openid: 'V9_COLORS.PRIMARY.BLUE',
+		profile: 'V9_COLORS.PRIMARY.GREEN',
+		email: 'V9_COLORS.PRIMARY.YELLOW',
+		address: 'V9_COLORS.PRIMARY.RED',
 		phone: '#8b5cf6',
 		offline_access: '#06b6d4',
 		read: '#84cc16',
 		write: '#f97316',
-		admin: '#dc2626',
+		admin: 'V9_COLORS.PRIMARY.RED_DARK',
 	};
 
 	const colors = { ...defaultScopeColors, ...scopeColors };
@@ -169,7 +169,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 				const scopes = match[2].split(' ');
 				scopes.forEach((scope, index) => {
 					if (index > 0) parts.push(' ');
-					const color = colors[scope] || '#6b7280';
+					const color = colors[scope] || 'V9_COLORS.TEXT.GRAY_MEDIUM';
 					parts.push(
 						<ScopeHighlight key={`${match.index}-${index}`} color={color}>
 							{scope}
@@ -206,7 +206,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleSave}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: '#10b981',
+								background: 'V9_COLORS.PRIMARY.GREEN',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -221,7 +221,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleCancel}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: '#6b7280',
+								background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -241,7 +241,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 						height: height,
 						border: 'none',
 						outline: 'none',
-						background: '#1f2937',
+						background: 'V9_COLORS.TEXT.GRAY_DARK',
 						color: '#f9fafb',
 						fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 						fontSize: '0.875rem',
@@ -266,7 +266,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleEdit}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: '#3b82f6',
+								background: 'V9_COLORS.PRIMARY.BLUE',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',

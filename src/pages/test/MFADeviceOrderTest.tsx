@@ -1,5 +1,6 @@
 import React from 'react';
 import MFADeviceOrderManager from '../../components/mfa/MFADeviceOrderManager';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const MFADeviceOrderTest: React.FC = () => {
 	// These would normally come from your app state or props

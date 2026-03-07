@@ -11,7 +11,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Fitbit Main Container - Authentic Fitbit Design
 const FitnessTrackerContainer = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 2rem 0;
@@ -25,7 +25,7 @@ const FitnessTrackerContainer = styled.div`
   max-width: 350px;
   margin-left: auto;
   margin-right: auto;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   
   /* Fitbit branding */
   &::before {
@@ -56,7 +56,7 @@ const FitnessTrackerContainer = styled.div`
 
 // Watch Face
 const WatchFace = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
   border: 3px solid #00ff96;
   border-radius: 50%;
   width: 200px;
@@ -98,7 +98,7 @@ const WatchDate = styled.div`
 
 // User Code Display
 const UserCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff96;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 1.5rem;
@@ -189,7 +189,7 @@ const ControlButtons = styled.div`
 
 const ControlButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? '#00ff96' : '#404040')};
-  color: ${(props) => (props.$variant === 'primary' ? '#000000' : '#ffffff')};
+  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
   border: none;
   border-radius: 1rem;
   padding: 0.75rem 1rem;
@@ -249,7 +249,7 @@ const StatusDisplay = styled.div<{ $status: string }>`
 const StatusText = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -257,7 +257,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.75rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Watch Band
@@ -350,8 +350,8 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={120}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -410,7 +410,7 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="#374151"
+				borderColor="V9_COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#00ff96"
 			/>
 		</>

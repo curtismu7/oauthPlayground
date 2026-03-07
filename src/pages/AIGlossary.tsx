@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.main`
 	min-height: 100vh;
@@ -27,9 +28,9 @@ const SearchInput = styled.input`
 	width: 100%;
 	padding: 1.1rem 3.25rem 1.1rem 3.5rem;
 	border-radius: 18px;
-	border: 2px solid var(--border-subtle, #e5e7eb);
+	border: 2px solid var(--border-subtle, V9_COLORS.TEXT.GRAY_LIGHTER);
 	font-size: 1rem;
-	background: var(--surface-color, #ffffff);
+	background: var(--surface-color, V9_COLORS.TEXT.WHITE);
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -45,7 +46,7 @@ const SearchIcon = styled(FiSearch)`
 	left: 1.25rem;
 	width: 1.25rem;
 	height: 1.25rem;
-	color: #9ca3af;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
 `;
 
 const ClearButton = styled.button<{ $inactive?: boolean }>`
@@ -53,7 +54,7 @@ const ClearButton = styled.button<{ $inactive?: boolean }>`
 	right: 1rem;
 	background: transparent;
 	border: none;
-	color: #9ca3af;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -66,7 +67,7 @@ const ClearButton = styled.button<{ $inactive?: boolean }>`
 	transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		background: rgba(156, 163, 175, 0.12);
 	}
 
@@ -107,7 +108,7 @@ const TermExample = styled.div`
 	display: grid;
 	gap: 0.4rem;
 	font-size: 0.95rem;
-	color: var(--color-text-secondary, #475569);
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
 
 	strong {
 		font-size: 0.8rem;
@@ -126,12 +127,12 @@ const TermTitle = styled.h3`
 	margin: 0;
 	font-size: clamp(1.05rem, 2.4vw, 1.2rem);
 	font-weight: 600;
-	color: var(--color-text-primary, #111827);
+	color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
 `;
 
 const TermDefinition = styled.p`
 	margin: 0;
-	color: var(--color-text-secondary, #475569);
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
 	line-height: 1.7;
 	font-size: clamp(0.95rem, 2.2vw, 1.05rem);
 `;
@@ -162,19 +163,19 @@ const NoResults = styled.div`
 	h3 {
 		margin: 0;
 		size: 1.2rem;
-		color: var(--color-text-primary, #111827);
+		color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
 	}
 
 	p {
 		margin: 0;
-		color: var(--color-text-secondary, #475569);
+		color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
 		font-size: 0.98rem;
 	}
 `;
 
 const Footer = styled.footer`
 	text-align: center;
-	color: var(--color-text-muted, #6b7280);
+	color: var(--color-text-muted, V9_COLORS.TEXT.GRAY_MEDIUM);
 	font-size: 0.95rem;
 	padding: 0.5rem 0 1rem;
 `;

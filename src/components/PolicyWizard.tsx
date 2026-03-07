@@ -148,10 +148,10 @@ const QUESTIONS: Question[] = [
 ];
 
 const WizardContainer = styled.div`
-	background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 1rem;
 	padding: 2rem;
-	border: 2px solid #1e40af;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 12px 30px rgba(30, 64, 175, 0.18);
 `;
 
@@ -172,7 +172,7 @@ const Title = styled.h2`
 `;
 
 const Intro = styled.p`
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	line-height: 1.6;
 	font-size: 1.05rem;
@@ -189,7 +189,7 @@ const Stepper = styled.div`
 `;
 
 const QuestionCard = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.75rem;
 	border: 1px solid #c7d2fe;
@@ -202,14 +202,14 @@ const QuestionHeader = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	color: #1d4ed8;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 700;
 	font-size: 1.1rem;
 `;
 
 const QuestionDescription = styled.p`
 	margin: 0;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
@@ -223,11 +223,11 @@ const OptionButton = styled.button<{ $selected: boolean }>`
 	text-align: left;
 	padding: 1.25rem;
 	border-radius: 0.75rem;
-	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#cbd5f5')};
+	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	background: ${({ $selected }) =>
 		$selected
 			? 'linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.18))'
-			: '#ffffff'};
+			: 'V9_COLORS.TEXT.WHITE'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 22px rgba(37, 99, 235, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -243,11 +243,11 @@ const OptionButton = styled.button<{ $selected: boolean }>`
 
 const OptionLabel = styled.div`
 	font-weight: 700;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const OptionDescription = styled.div`
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 	line-height: 1.5;
 `;
@@ -262,7 +262,7 @@ const NavigationBar = styled.div`
 `;
 
 const StepIndicator = styled.div`
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 600;
 	font-size: 0.95rem;
 `;
@@ -279,10 +279,12 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
-	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid #2563eb' : 'none')};
+	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.BLUE_DARK' : 'none')};
 	background: ${({ $variant }) =>
-		$variant === 'secondary' ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'};
-	color: ${({ $variant }) => ($variant === 'secondary' ? '#1d4ed8' : '#ffffff')};
+		$variant === 'secondary'
+			? 'V9_COLORS.TEXT.WHITE'
+			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'};
+	color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.WHITE')};
 	font-weight: 600;
 	cursor: pointer;
 	box-shadow: ${({ $variant }) =>
@@ -300,10 +302,10 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const RecommendationsPanel = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	border: 1px solid #cbd5f5;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -322,9 +324,9 @@ const RecommendationCard = styled.div<{ $category: Recommendation['category'] }>
 				case 'security':
 					return '#0ea5e9';
 				case 'usability':
-					return '#10b981';
+					return 'V9_COLORS.PRIMARY.GREEN';
 				default:
-					return '#f59e0b';
+					return 'V9_COLORS.PRIMARY.YELLOW';
 			}
 		}};
 	background: ${({ $category }) => {
@@ -342,7 +344,7 @@ const RecommendationCard = styled.div<{ $category: Recommendation['category'] }>
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RecommendationTitle = styled.div`
@@ -364,7 +366,7 @@ const RecommendationActions = styled.ul`
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusBanner = styled.div`
@@ -374,7 +376,7 @@ const StatusBanner = styled.div`
 	padding: 1rem 1.25rem;
 	border-radius: 0.75rem;
 	background: rgba(16, 185, 129, 0.12);
-	border: 1px solid #34d399;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
 	color: #047857;
 	font-weight: 600;
 `;
@@ -386,8 +388,8 @@ const WarningBanner = styled.div`
 	padding: 1rem 1.25rem;
 	border-radius: 0.75rem;
 	background: rgba(239, 68, 68, 0.12);
-	border: 1px solid #ef4444;
-	color: #b91c1c;
+	border: 1px solid V9_COLORS.PRIMARY.RED;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-weight: 600;
 `;
 

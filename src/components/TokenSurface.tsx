@@ -4,9 +4,11 @@ import JSONHighlighter from './JSONHighlighter';
 
 const TokenSurfaceContainer = styled.div<{ $hasToken?: boolean }>`
   background: ${({ $hasToken }) =>
-		$hasToken ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'var(--card-bg)'} !important;
+		$hasToken
+			? 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)'
+			: 'var(--card-bg)'} !important;
   color: var(--card-fg) !important;
-  border: 1px solid ${({ $hasToken }) => ($hasToken ? '#bbf7d0' : 'var(--card-border)')};
+  border: 1px solid ${({ $hasToken }) => ($hasToken ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'var(--card-border)')};
   border-radius: var(--card-radius);
   padding: var(--card-padding);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;

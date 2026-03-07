@@ -4,8 +4,8 @@ import { FiChevronDown, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { logger } from '../utils/logger';
 
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;
@@ -156,7 +156,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
     }
   `
 			: props.variant === 'success'
-			? `
+				? `
     background: ${V9_COLORS.PRIMARY.GREEN};
     color: ${V9_COLORS.TEXT.WHITE};
     
@@ -164,7 +164,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
       background: ${V9_COLORS.PRIMARY.GREEN_DARK};
     }
   `
-			: `
+				: `
     background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
     color: ${V9_COLORS.TEXT.GRAY_DARK};
     border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
@@ -209,11 +209,7 @@ export interface PingOneConfig {
 }
 
 // Type for configuration values to avoid 'any' type
-type ConfigValue = 
-  | string 
-  | number 
-  | boolean 
-  | null;
+type ConfigValue = string | number | boolean | null;
 
 interface PingOneAppConfigProps {
 	onConfigChange?: (config: PingOneConfig) => void;
@@ -442,7 +438,13 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 				{/* OIDC Settings */}
 				<SubSection>
 					<SubSectionTitle>OIDC Settings</SubSectionTitle>
-					<p style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: '1rem' }}>
+					<p
+						style={{
+							fontSize: '0.875rem',
+							color: V9_COLORS.TEXT.GRAY_MEDIUM,
+							marginBottom: '1rem',
+						}}
+					>
 						Configure OIDC settings for the application.
 					</p>
 
@@ -629,7 +631,9 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 										}
 										style={{ width: '100px' }}
 									/>
-									<span style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>Seconds</span>
+									<span style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
+										Seconds
+									</span>
 								</div>
 							</ConfigField>
 						</div>

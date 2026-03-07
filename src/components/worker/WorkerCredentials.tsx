@@ -23,7 +23,7 @@ const Header = styled.div`
   
   h3 {
     margin: 0 0 0 0.5rem;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     font-size: 1.125rem;
     font-weight: 600;
   }
@@ -43,26 +43,26 @@ const FieldGroup = styled.div`
 
 const Label = styled.label`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
 const Input = styled.input<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#d1d5db')};
+  border: 1px solid ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 8px;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
-    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#eff6ff')};
+    border-color: ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
   }
   
   &:disabled {
     background-color: #f9fafb;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
   }
 `;
 
@@ -81,18 +81,18 @@ const ToggleButton = styled.button`
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.25rem;
   
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
 const _Textarea = styled.textarea<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#d1d5db')};
+  border: 1px solid ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 8px;
   font-size: 0.875rem;
   min-height: 80px;
@@ -102,8 +102,8 @@ const _Textarea = styled.textarea<{ hasError?: boolean }>`
   
   &:focus {
     outline: none;
-    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
-    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#eff6ff')};
+    border-color: ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
   }
 `;
 
@@ -111,7 +111,7 @@ const ErrorMessage = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #ef4444;
+  color: V9_COLORS.PRIMARY.RED;
   font-size: 0.75rem;
   margin-top: 0.25rem;
 `;
@@ -120,7 +120,7 @@ const SuccessMessage = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #059669;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-size: 0.75rem;
   margin-top: 0.25rem;
 `;
@@ -137,7 +137,7 @@ const ScopeList = styled.div`
   gap: 0.5rem;
   max-height: 200px;
   overflow-y: auto;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 0.75rem;
 `;
@@ -172,19 +172,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background-color: #3b82f6;
+    background-color: V9_COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover:not(:disabled) {
-      background-color: #2563eb;
+      background-color: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background-color: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     
     &:hover:not(:disabled) {
-      background-color: #e5e7eb;
+      background-color: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
   
@@ -340,7 +340,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 	return (
 		<Container>
 			<Header>
-				<FiSettings size={20} color="#3b82f6" />
+				<FiSettings size={20} color="V9_COLORS.PRIMARY.BLUE" />
 				<h3>Worker Application Credentials</h3>
 			</Header>
 

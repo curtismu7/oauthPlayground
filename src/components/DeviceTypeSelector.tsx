@@ -5,29 +5,24 @@ import React from 'react';
 import styled from 'styled-components';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FaTv': 'mdi-television',
-		'FaCar': 'mdi-car',
-		'Speaker': 'mdi-speaker',
+		FaTv: 'mdi-television',
+		FaCar: 'mdi-car',
+		Speaker: 'mdi-speaker',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
-  background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)')};
+  background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)')};
   border-radius: 0.75rem;
   padding: ${(props) => (props.$isCompact ? '0' : '1.5rem')};
   margin-bottom: ${(props) => (props.$isCompact ? '0' : '2rem')};
@@ -53,17 +48,17 @@ const DeviceDropdown = styled.select`
   background: white;
   font-size: 1rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
   }
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;

@@ -21,8 +21,8 @@ const InfoPanel = styled.div`
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
@@ -36,7 +36,7 @@ const InfoIcon = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -44,7 +44,7 @@ const InfoIcon = styled.div`
 
 const InfoContent = styled.div`
   flex: 1;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   
   strong {
     font-weight: 600;
@@ -53,14 +53,14 @@ const InfoContent = styled.div`
 `;
 
 const SpecLink = styled.a`
-  color: #2563eb;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   text-decoration: none;
   font-weight: 500;
   margin-left: 0.25rem;
   
   &:hover {
     text-decoration: underline;
-    color: #1d4ed8;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 

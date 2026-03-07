@@ -15,7 +15,7 @@ const ConfigContainer = styled.div`
 `;
 
 const SaveButton = styled.button`
-  background: #059669;
+  background: V9_COLORS.PRIMARY.GREEN_DARK;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -44,7 +44,7 @@ const SaveButton = styled.button`
   }
   
   &:disabled {
-    background: #9ca3af;
+    background: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -881,7 +881,13 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												</option>
 											))}
 										</select>
-										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+										<div
+											style={{
+												fontSize: '0.75rem',
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												marginTop: '0.25rem',
+											}}
+										>
 											Select valid ACR values. Invalid values like '1', '2', '3' will be
 											automatically filtered out.
 										</div>
@@ -893,7 +899,13 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 						{/* Client Authentication Methods (OIDC Section 9) */}
 						<ConfigSection>
 							<h4>Client Authentication Method</h4>
-							<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.5rem 0 1rem 0' }}>
+							<p
+								style={{
+									fontSize: '0.875rem',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									margin: '0.5rem 0 1rem 0',
+								}}
+							>
 								Choose how the client authenticates with the authorization server during token
 								exchange.
 							</p>
@@ -924,7 +936,13 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										none (Public client, PKCE required) - For SPAs/Mobile
 									</option>
 								</select>
-								<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
+								<div
+									style={{
+										fontSize: '0.75rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.5rem',
+									}}
+								>
 									{normalizedConfig.clientAuthMethod === 'client_secret_post' &&
 										' Client secret sent in request body (current implementation)'}
 									{normalizedConfig.clientAuthMethod === 'client_secret_basic' &&
@@ -1013,7 +1031,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</label>
 								<div
 									id="credentials-modal-help"
-									style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
 								>
 									Display the credentials setup modal when the application starts
 								</div>
@@ -1038,7 +1060,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</label>
 								<div
 									id="success-modal-help"
-									style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
 								>
 									Display a modal with authorization success details when returning from PingOne
 								</div>
@@ -1063,7 +1089,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</label>
 								<div
 									id="error-recovery-help"
-									style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
 								>
 									Show detailed error recovery suggestions and troubleshooting steps when OAuth
 									errors occur
@@ -1089,7 +1119,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</label>
 								<div
 									id="auth-code-display-help"
-									style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
 								>
 									Display the raw authorization code in the success modal (disable for production
 									security)
@@ -1115,7 +1149,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</label>
 								<div
 									id="auth-request-modal-help"
-									style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										marginTop: '0.25rem',
+									}}
 								>
 									Display a debugging modal showing all OAuth parameters before redirecting to
 									PingOne (useful for debugging redirect URI issues)
@@ -1128,7 +1166,8 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							<h4>Configuration Summary</h4>
 							<div
 								style={{
-									background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 									border: '1px solid #cbd5e1',
 									borderRadius: '8px',
 									padding: '1.5rem',
@@ -1225,10 +1264,10 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										paddingTop: '1rem',
 										borderTop: '1px solid #cbd5e1',
 										fontSize: '0.85rem',
-										color: '#6b7280',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									}}
 								>
-									<strong style={{ color: '#374151' }}>UI Settings:</strong>
+									<strong style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>UI Settings:</strong>
 									{normalizedConfig.showSuccessModal && ' Success Modal'}
 									{normalizedConfig.showAuthCodeInModal && '  Auth Code in Modal'}
 									{normalizedConfig.showCredentialsModal && '  Credentials Modal'}

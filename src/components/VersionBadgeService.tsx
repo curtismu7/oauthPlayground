@@ -37,19 +37,19 @@ export interface VersionedMenuItem extends SidebarMenuItem {
 // Version badge styling and configuration
 const VERSION_BADGE_CONFIG = {
 	v9: {
-		color: '#22c55e', // Green - modern, production-ready
+		color: 'V9_COLORS.PRIMARY.GREEN', // Green - modern, production-ready
 		bgColor: 'rgba(34, 197, 94, 0.9)',
 		label: 'V9',
 		description: 'V9 Modern Messaging + Ping UI',
 	},
 	v8: {
-		color: '#3b82f6', // Blue - stable V8
+		color: 'V9_COLORS.PRIMARY.BLUE', // Blue - stable V8
 		bgColor: 'rgba(59, 130, 246, 0.9)',
 		label: 'V8',
 		description: 'V8 Era Applications',
 	},
 	v8u: {
-		color: '#10b981', // Green - unified V8
+		color: 'V9_COLORS.PRIMARY.GREEN', // Green - unified V8
 		bgColor: 'rgba(16, 185, 129, 0.9)',
 		label: 'V8U',
 		description: 'V8 Unified Applications',
@@ -61,13 +61,13 @@ const VERSION_BADGE_CONFIG = {
 		description: 'V7 Era Applications',
 	},
 	legacy: {
-		color: '#6b7280', // Gray - legacy
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Gray - legacy
 		bgColor: 'rgba(107, 114, 128, 0.9)',
 		label: 'LEGACY',
 		description: 'Legacy Applications',
 	},
 	production: {
-		color: '#059669', // Dark green - production
+		color: 'V9_COLORS.PRIMARY.GREEN_DARK', // Dark green - production
 		bgColor: 'rgba(5, 150, 105, 0.9)',
 		label: 'PROD',
 		description: 'Production Ready',
@@ -79,13 +79,13 @@ const VERSION_BADGE_CONFIG = {
 		description: 'Newly Added',
 	},
 	migrated: {
-		color: '#f59e0b', // Amber - recently migrated
+		color: 'V9_COLORS.PRIMARY.YELLOW', // Amber - recently migrated
 		bgColor: 'rgba(245, 158, 11, 0.9)',
 		label: 'MIGRATED',
 		description: 'Recently Migrated',
 	},
 	updated: {
-		color: '#10b981', // Green - updated with latest standards
+		color: 'V9_COLORS.PRIMARY.GREEN', // Green - updated with latest standards
 		bgColor: 'rgba(16, 185, 129, 0.9)',
 		label: '✓ UPDATED',
 		description: 'Updated with Latest Standards',
@@ -133,7 +133,7 @@ export const createVersionBadge = (config: VersionBadgeConfig): React.ReactEleme
 			style={{
 				background: badgeConfig.bgColor,
 				border: `1px solid ${badgeConfig.color}`,
-				color: '#ffffff',
+				color: 'V9_COLORS.TEXT.WHITE',
 				padding: '0.125rem 0.375rem',
 				borderRadius: '0.375rem',
 				fontSize: '0.75rem',
@@ -297,17 +297,17 @@ export const VERSION_BADGE_CSS = `
 
 /* Version badge variations */
 .version-badge--v9 {
-  --badge-color: #22c55e;
+  --badge-color: V9_COLORS.PRIMARY.GREEN;
   --badge-bg-color: rgba(34, 197, 94, 0.9);
 }
 
 .version-badge--migrated {
-  --badge-color: #f59e0b;
+  --badge-color: V9_COLORS.PRIMARY.YELLOW;
   --badge-bg-color: rgba(245, 158, 11, 0.9);
 }
 
 .version-badge--legacy {
-  --badge-color: #6b7280;
+  --badge-color: V9_COLORS.TEXT.GRAY_MEDIUM;
   --badge-bg-color: rgba(107, 114, 128, 0.9);
 }
 `;

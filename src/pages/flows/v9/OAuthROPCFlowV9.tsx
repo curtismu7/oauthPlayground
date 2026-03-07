@@ -355,8 +355,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 			case 0:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🔐 ROPC Configuration</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🔐 ROPC Configuration</h3>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
 							Configure the OAuth Resource Owner Password Credentials parameters.
 						</p>
 
@@ -373,7 +373,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Environment ID
@@ -389,7 +389,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -403,7 +403,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Client ID
@@ -417,7 +417,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -431,7 +431,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Client Secret
@@ -447,7 +447,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -461,7 +461,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Username
@@ -475,7 +475,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -489,7 +489,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Password
@@ -503,7 +503,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -517,7 +517,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Scope (Optional)
@@ -531,7 +531,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
@@ -544,8 +544,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 			case 1:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🎫 Access Token Request</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🎫 Access Token Request</h3>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
 							Request an access token using the Resource Owner Password Credentials flow.
 						</p>
 
@@ -567,11 +567,11 @@ const OAuthROPCFlowV9: React.FC = () => {
 						{tokenResponse && (
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									marginBottom: '1rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<div style={{ marginBottom: '0.5rem' }}>
@@ -582,7 +582,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										style={{
 											marginLeft: '0.5rem',
 											padding: '0.25rem 0.5rem',
-											background: '#3b82f6',
+											background: 'V9_COLORS.PRIMARY.BLUE',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.25rem',
@@ -593,7 +593,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										Copy
 									</button>
 								</div>
-								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
+								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									{maskToken(tokenResponse.access_token)}
 								</div>
 
@@ -616,7 +616,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 												style={{
 													marginLeft: '0.5rem',
 													padding: '0.25rem 0.5rem',
-													background: '#3b82f6',
+													background: 'V9_COLORS.PRIMARY.BLUE',
 													color: 'white',
 													border: 'none',
 													borderRadius: '0.25rem',
@@ -627,7 +627,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 												Copy
 											</button>
 											<div
-												style={{ wordBreak: 'break-all', color: '#6b7280', marginTop: '0.25rem' }}
+												style={{ wordBreak: 'break-all', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.25rem' }}
 											>
 												{maskToken(tokenResponse.refresh_token)}
 											</div>
@@ -642,8 +642,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 			case 2:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>👤 User Information</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>👤 User Information</h3>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
 							Fetch user information using the access token.
 						</p>
 
@@ -665,15 +665,15 @@ const OAuthROPCFlowV9: React.FC = () => {
 						{userInfo && (
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									marginBottom: '1rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
-								<h4 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>User Profile</h4>
-								<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151' }}>
+								<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>User Profile</h4>
+								<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 									<li>
 										<strong>Subject:</strong> {userInfo.sub}
 									</li>
@@ -700,8 +700,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 			case 3:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🔄 Token Refresh</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🔄 Token Refresh</h3>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
 							Refresh the access token using the refresh token.
 						</p>
 
@@ -723,11 +723,11 @@ const OAuthROPCFlowV9: React.FC = () => {
 						{refreshedToken && (
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									marginBottom: '1rem',
-									border: '1px solid #e2e8f0',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<div style={{ marginBottom: '0.5rem' }}>
@@ -740,7 +740,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										style={{
 											marginLeft: '0.5rem',
 											padding: '0.25rem 0.5rem',
-											background: '#3b82f6',
+											background: 'V9_COLORS.PRIMARY.BLUE',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.25rem',
@@ -751,7 +751,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 										Copy
 									</button>
 								</div>
-								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
+								<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									{maskToken(refreshedToken.access_token)}
 								</div>
 
@@ -774,8 +774,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 			case 4:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🎉 ROPC Flow Complete</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🎉 ROPC Flow Complete</h3>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
 							Successfully completed the OAuth Resource Owner Password Credentials flow.
 						</p>
 
@@ -785,18 +785,18 @@ const OAuthROPCFlowV9: React.FC = () => {
 								padding: '1rem',
 								borderRadius: '0.5rem',
 								marginBottom: '1rem',
-								border: '1px solid #bbf7d0',
+								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 1rem 0', color: '#166534' }}>✅ Completed Steps</h4>
-							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
+							<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>✅ Completed Steps</h4>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 								<li>✅ Configured ROPC credentials</li>
 								<li>✅ Obtained access token with username/password</li>
 								<li>✅ Fetched user information</li>
 								<li>✅ Refreshed access token</li>
 								<li>✅ Completed OAuth 2.0 ROPC Flow</li>
 							</ul>
-							<p style={{ color: '#166534', margin: '1rem 0 0 0' }}>
+							<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', margin: '1rem 0 0 0' }}>
 								<strong>Next Steps:</strong> Use the access token to authenticate with protected
 								resources.
 							</p>
@@ -861,7 +861,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 								>
 									{index + 1}
 								</div>
-								<div style={{ fontSize: '0.75rem', textAlign: 'center', color: '#6b7280' }}>
+								<div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									{step.title.split(' ')[0]}
 								</div>
 							</div>
@@ -869,7 +869,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 					</div>
 					<div
 						style={{
-							background: '#e5e7eb',
+							background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 							height: '4px',
 							borderRadius: '2px',
 							overflow: 'hidden',
@@ -897,7 +897,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 						disabled={currentStep === 0}
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+							background: currentStep === 0 ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -968,7 +968,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: '#16a34a',
+								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 								fontSize: '1.25rem',
 								fontWeight: 600,
 							}}
@@ -983,7 +983,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ Resource Owner credentials configured</li>
 								<li>✅ OAuth ROPC request completed</li>
@@ -999,7 +999,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									padding: '1rem',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Details:</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Token Details:</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
 									<p>
 										<strong>Token Type:</strong> {tokenResponse.token_type}

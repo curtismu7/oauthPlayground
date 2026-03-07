@@ -138,7 +138,7 @@ const ResultsHeading = styled.h3`
 const AnimatedBadge = styled.span`
 	margin-left: 0.75rem;
 	padding: 0.375rem 1rem;
-	background: #10b981;
+	background: V9_COLORS.PRIMARY.GREEN;
 	color: white;
 	font-size: 0.75rem;
 	border-radius: 9999px;
@@ -174,7 +174,7 @@ const GeneratedLabel = styled.div`
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	margin: 0;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -405,14 +405,14 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 							{userInfo ? (
 								<GeneratedContentBox
 									style={{
-										border: justFetched ? '2px solid #10b981' : undefined,
+										border: justFetched ? '2px solid V9_COLORS.PRIMARY.GREEN' : undefined,
 										boxShadow: justFetched ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : undefined,
 										transition: 'all 0.3s ease',
 									}}
 								>
 									<GeneratedLabel
 										style={{
-											backgroundColor: justFetched ? '#10b981' : primaryColor,
+											backgroundColor: justFetched ? 'V9_COLORS.PRIMARY.GREEN' : primaryColor,
 											transition: 'background-color 0.3s ease',
 										}}
 									>
@@ -424,9 +424,9 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 											onClick={() => handleCopy(JSON.stringify(userInfo, null, 2), 'User Info')}
 											$variant="primary"
 											style={{
-												backgroundColor: '#3b82f6',
-												borderColor: '#3b82f6',
-												color: '#ffffff',
+												backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
+												borderColor: 'V9_COLORS.PRIMARY.BLUE',
+												color: 'V9_COLORS.TEXT.WHITE',
 												fontWeight: '600',
 											}}
 										>

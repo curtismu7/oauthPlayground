@@ -48,9 +48,9 @@ const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }
 			case 'ready':
 				return '#f0fdf4';
 			case 'partial':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'missing':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f9fafb';
 		}
@@ -58,13 +58,13 @@ const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'partial':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'missing':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.5rem;
@@ -88,13 +88,13 @@ const StatusIcon = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'partial':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'missing':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -344,7 +344,10 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
 	const getRefreshAction = () => {
 		return (
-			<CompactButton onClick={handleRefresh} style={{ backgroundColor: '#6b7280' }}>
+			<CompactButton
+				onClick={handleRefresh}
+				style={{ backgroundColor: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
+			>
 				<FiRefreshCw />
 				Refresh
 			</CompactButton>
@@ -370,7 +373,13 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 			<ExpandableContent $expanded={isExpanded}>
 				<ExpandedContent>
 					<div className="details-title">Configuration Details:</div>
-					<div style={{ marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+					<div
+						style={{
+							marginBottom: '1rem',
+							fontSize: '0.875rem',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						}}
+					>
 						{message}
 					</div>
 

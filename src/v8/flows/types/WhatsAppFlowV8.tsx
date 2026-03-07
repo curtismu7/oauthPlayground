@@ -9,7 +9,7 @@
  * This component reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import { FiShield, FiX } from '@icons';
+import { FiX } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -235,7 +235,7 @@ const WhatsAppDeviceSelectionStep: React.FC<
 			UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa',
 					deviceType: 'WHATSAPP',
 					operation: 'authenticateExistingDevice',
 				},
@@ -358,7 +358,7 @@ const createRenderStep0 = (
 	prevTokenTypeRef: React.MutableRefObject<string | undefined>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
-		const { nav, credentials, setCredentials } = props;
+		const { credentials, setCredentials } = props;
 		const locationState = location.state as {
 			configured?: boolean;
 			deviceAuthenticationPolicyId?: string;
@@ -665,11 +665,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		deviceSelection,
 		setDeviceSelection,
 		otpState,
-		setOtpState,
 		updateOtpState,
 		validationState,
 		setValidationState,
-		updateValidationState,
 		showModal,
 		setShowModal,
 		showValidationModal,
@@ -682,19 +680,16 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		setDeviceRegisteredActive,
 		isApiDisplayVisible,
 		apiDisplayHeight,
-		isCheckingCredentials,
 		controller,
 		navigate,
 		location,
 		isConfigured,
 		getContactDisplay,
-		getContactLabel,
-		getDeviceTypeDisplay,
 		MODULE_TAG,
 	} = flow;
 
 	// Load credentials from storage for use in modals/components outside of MFAFlowBaseV8
-	const [credentialsForModal, _setCredentialsForModal] = useState<MFACredentials>(() => {
+	const [credentialsForModal] = useState<MFACredentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 			flowKey: 'mfa-flow-v8',
 			flowType: 'oidc',
@@ -732,7 +727,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	const [userClosedValidationModal, setUserClosedValidationModal] = useState(false);
 
 	// State to track tokenType changes (for triggering effects)
-	const [_lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
+	const [, setLastTokenType] = useState<string | undefined>(undefined);
 
 	// Ref to track previous tokenType to avoid unnecessary updates
 	const prevTokenTypeRef = React.useRef<string | undefined>(undefined);
@@ -803,7 +798,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [registrationFlowType, MODULE_TAG]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
@@ -846,7 +840,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [registrationFlowType, setRegistrationFlowType, MODULE_TAG]);
 
 	// Device loading is now handled inside WhatsAppDeviceSelectionStep component (like SMS)
@@ -873,7 +866,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// Reset the ref when we leave step 1
 			previousStepRef.current = currentStep;
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [deviceRegisteredActive, setDeviceRegisteredActive]);
 
 	// Step 1: Device Selection (using separate component like SMS)
@@ -939,7 +931,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	}, [MODULE_TAG]);
 
 	// Draggable modal hooks
-	const _step2ModalDrag = useDraggableModal(showModal);
 	const step4ModalDrag = useDraggableModal(showValidationModal);
 
 	// Ref to store nav object for ESC key handler
@@ -1033,9 +1024,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					};
 				}
 			}
-
-			// Ensure deviceType is set correctly - default to WHATSAPP for WhatsApp flow
-			const _currentDeviceType = credentials.deviceType || 'WHATSAPP';
 
 			// Handle device registration
 			const handleRegisterDevice = async () => {
@@ -1224,9 +1212,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
-					const hasDeviceActivateUri = !!deviceActivateUri;
-					const _deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
-
 					if (actualDeviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
 						// No need to manually call sendOTP - PingOne handles it automatically
@@ -1368,12 +1353,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					setIsLoading(false);
 				}
 			};
-
-			// Check if device was successfully registered with ACTIVE status
-			// We'll hide the register button and show Next button instead
-			const _isDeviceRegisteredActive =
-				(deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') ||
-				(mfaState.deviceId && mfaState.deviceStatus === 'ACTIVE' && !showModal);
 
 			// Use phone validation utility for format checking
 			const isValidPhone =
@@ -1653,306 +1632,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		]
 	);
 
-	// Step 3: Send OTP (using controller) - Renumbered from Step 2
-	const _createRenderStep3 = (
-		otpSent: boolean,
-		setOtpSent: (value: boolean) => void,
-		sendError: string | null,
-		setSendError: (value: string | null) => void,
-		sendRetryCount: number,
-		setSendRetryCount: (value: number | ((prev: number) => number)) => void
-	) => {
-		return (props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, nav, setIsLoading, isLoading } = props;
-			// navigate is now available from component level
-
-			// If device is ACTIVE and we just came from step 2, show success page
-			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 3) {
-				// Check if we have deviceRegisteredActive (just registered) or deviceId (device exists)
-				if (deviceRegisteredActive || mfaState.deviceId) {
-					const activeDevice = deviceRegisteredActive || {
-						deviceId: mfaState.deviceId,
-						deviceName: mfaState.nickname || credentials.deviceName || 'WHATSAPP',
-						deviceType: 'WHATSAPP' as const,
-						status: 'ACTIVE' as const,
-						username: credentials.username,
-						userId: mfaState.userId,
-						environmentId: credentials.environmentId,
-						createdAt: mfaState.createdAt,
-						updatedAt: mfaState.updatedAt,
-					};
-
-					// Build success data
-					const tempMfaState = {
-						deviceId: activeDevice.deviceId,
-						deviceStatus: activeDevice.status,
-						nickname: activeDevice.deviceName,
-						userId: activeDevice.userId,
-						environmentId: activeDevice.environmentId,
-						createdAt: activeDevice.createdAt,
-						updatedAt: activeDevice.updatedAt,
-					} as MFAFlowBaseRenderProps['mfaState'];
-					const successData = buildSuccessPageData(
-						credentials,
-						tempMfaState,
-						registrationFlowType,
-						adminDeviceStatus,
-						credentials.tokenType
-					);
-					// Ensure deviceType is set for documentation button
-					successData.deviceType = 'WHATSAPP' as DeviceType;
-
-					// Store in state if not already stored
-					if (!deviceRegisteredActive) {
-						setDeviceRegisteredActive(activeDevice);
-					}
-
-					return (
-						<MFASuccessPageV8
-							{...props}
-							credentials={{ ...credentials, deviceType: 'WHATSAPP' as DeviceType }}
-							successData={successData}
-							onStartAgain={() => {
-								setDeviceRegisteredActive(null);
-								nav.goToStep(0);
-							}}
-						/>
-					);
-				}
-			}
-
-			// Skip step 3 (Send OTP) for ACTIVATION_REQUIRED devices - OTP is sent automatically by PingOne
-			// Redirect to step 4 (Validate) instead
-			if (
-				(mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || mfaState.authenticationId) &&
-				nav.currentStep === 3
-			) {
-				console.log(
-					`${MODULE_TAG} Device is ACTIVATION_REQUIRED - skipping Send OTP step, going to Validate step`
-				);
-				setTimeout(() => {
-					setShowValidationModal(true);
-					nav.goToStep(4);
-				}, 0);
-				return (
-					<div className="step-content">
-						<p>Redirecting to validation step...</p>
-					</div>
-				);
-			}
-
-			const handleSendOTP = async () => {
-				await controller.sendOTP(
-					credentials,
-					mfaState.deviceId,
-					{ otpSent, sendError, sendRetryCount },
-					(state) => {
-						if (typeof state === 'function') {
-							const current = { otpSent, sendError, sendRetryCount };
-							const updated = state(current);
-							setOtpSent(updated.otpSent ?? current.otpSent);
-							setSendError(updated.sendError ?? current.sendError);
-							setSendRetryCount(updated.sendRetryCount ?? current.sendRetryCount);
-						} else {
-							if (state.otpSent !== undefined) setOtpSent(state.otpSent);
-							if (state.sendError !== undefined) setSendError(state.sendError);
-							if (state.sendRetryCount !== undefined) setSendRetryCount(state.sendRetryCount);
-						}
-					},
-					nav,
-					setIsLoading
-				);
-			};
-
-			const handleViewDeviceAuthentication = () => {
-				if (!mfaState.authenticationId) {
-					return;
-				}
-
-				const params = new URLSearchParams({
-					environmentId: credentials.environmentId?.trim() || '',
-					authenticationId: mfaState.authenticationId,
-				});
-
-				if (credentials.deviceAuthenticationPolicyId?.trim()) {
-					params.set('policyId', credentials.deviceAuthenticationPolicyId.trim());
-				}
-
-				if (credentials.username?.trim()) {
-					params.set('username', credentials.username.trim());
-				}
-
-				if (mfaState.deviceId) {
-					params.set('deviceId', mfaState.deviceId);
-				}
-
-				navigate(`/v8/mfa/device-authentication-details?${params.toString()}`, {
-					state: { autoFetch: true },
-				});
-			};
-
-			return (
-				<div className="step-content">
-					<h2>
-						Send OTP Code
-						<MFAInfoButtonV8 contentKey="factor.whatsapp" displayMode="modal" />
-					</h2>
-					<p>Send a one-time password to the registered WhatsApp number</p>
-
-					<div className="info-box">
-						<p>
-							<strong>Device ID:</strong> {mfaState.deviceId}
-						</p>
-						<p>
-							<strong>Phone Number:</strong> {getContactDisplay(credentials)}
-						</p>
-						{sendRetryCount > 0 && (
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#92400e' }}>
-								⚠️ Attempt {sendRetryCount + 1} - If you continue to have issues, check your phone
-								number and try again.
-							</p>
-						)}
-					</div>
-
-					{mfaState.authenticationId && (
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '14px 16px',
-								background: '#f0f9ff',
-								border: '1px solid #bae6fd',
-								borderRadius: '10px',
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '8px',
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									flexWrap: 'wrap',
-									gap: '8px',
-								}}
-							>
-								<div>
-									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>
-										Device Authentication ID
-									</p>
-									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>
-										{mfaState.authenticationId}
-									</p>
-								</div>
-								<button
-									type="button"
-									onClick={handleViewDeviceAuthentication}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '6px',
-										padding: '8px 12px',
-										borderRadius: '8px',
-										border: '1px solid #3b82f6',
-										background: '#ffffff',
-										color: '#1d4ed8',
-										fontWeight: 600,
-										cursor: 'pointer',
-									}}
-								>
-									<FiShield />
-									View Session Details
-								</button>
-							</div>
-							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
-								Track PingOne&apos;s real-time status for this authentication by opening the Device
-								Authentication Details page.
-							</p>
-						</div>
-					)}
-
-					<div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-						<button
-							type="button"
-							className="btn btn-primary"
-							onClick={handleSendOTP}
-							disabled={isLoading}
-						>
-							{isLoading ? '🔄 Sending...' : otpSent ? '🔄 Resend OTP Code' : 'Send OTP Code'}
-						</button>
-
-						{otpSent && (
-							<button
-								type="button"
-								className="btn"
-								onClick={() => {
-									setOtpSent(false);
-									setSendRetryCount(0);
-									setSendError(null);
-								}}
-								style={{
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-								}}
-							>
-								Clear Status
-							</button>
-						)}
-					</div>
-
-					{sendError && (
-						<div
-							className="info-box"
-							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
-								color: '#991b1b',
-								marginTop: '16px',
-							}}
-						>
-							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>⚠️ Error Sending OTP</h4>
-							<p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{sendError}</p>
-							<div style={{ marginTop: '12px', fontSize: '13px' }}>
-								<strong>Recovery Options:</strong>
-								<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-									<li>Verify your phone number is correct</li>
-									<li>Check that your worker token is valid</li>
-									<li>Wait a few minutes and try again (rate limiting)</li>
-									<li>Go back and select a different device</li>
-								</ul>
-							</div>
-						</div>
-					)}
-
-					{otpSent && !sendError && (
-						<div className="success-box" style={{ marginTop: '20px' }}>
-							<h3>✅ OTP Sent</h3>
-							<p>Check your email for the verification code</p>
-							<p style={{ marginTop: '12px', fontSize: '14px' }}>
-								After receiving the code, proceed to the next step to validate it.
-							</p>
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-								💡 <strong>Tip:</strong> OTP codes typically expire after 5-10 minutes. If you don't
-								receive the code, click "Resend OTP Code" above.
-							</p>
-						</div>
-					)}
-				</div>
-			);
-		};
-	};
-
-	// Step 4: Validate OTP (using controller) - Renumbered from Step 3
+	// Step 3 (Send OTP) removed - handled inline. Step 4: Validate OTP (using controller)
 	const createRenderStep4 = (
 		validationAttempts: number,
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
-		setLastValidationError: (value: string | null) => void,
-		_otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
-		_setOtpState: (
-			state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
-		) => void
+		setLastValidationError: (value: string | null) => void
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
@@ -2718,9 +2403,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								typeof v === 'function' ? v(validationState.validationAttempts) : v,
 						}),
 					validationState.validationError,
-					(v) => setValidationState({ ...validationState, validationError: v }),
-					validationState.showValidationModal,
-					setShowValidationModal
+					(v) => setValidationState({ ...validationState, validationError: v })
 				)}
 				renderStep4={createRenderStep4(
 					validationState.validationAttempts,
@@ -2731,16 +2414,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								typeof v === 'function' ? v(validationState.validationAttempts) : v,
 						}),
 					validationState.lastValidationError,
-					(v) => setValidationState({ ...validationState, lastValidationError: v }),
-					otpState,
-					(
-						update: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
-					) => {
-						setOtpState((prev) => {
-							const patch = typeof update === 'function' ? update(prev) : update;
-							return { ...prev, ...patch };
-						});
-					}
+					(v) => setValidationState({ ...validationState, lastValidationError: v })
 				)}
 				validateStep0={validateStep0}
 				stepLabels={

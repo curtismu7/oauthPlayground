@@ -5,6 +5,7 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { logger } from '../../utils/logger';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -13,14 +14,14 @@ const FlowContainer = styled.div`
 `;
 
 const FlowTitle = styled.h1`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 `;
 
 const FlowDescription = styled.p`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.125rem;
   margin-bottom: 2rem;
   line-height: 1.6;
@@ -28,7 +29,7 @@ const FlowDescription = styled.p`
 
 const FormContainer = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -42,19 +43,19 @@ const Label = styled.label`
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -62,7 +63,7 @@ const Input = styled.input`
 const TextArea = styled.textarea`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -71,7 +72,7 @@ const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -79,14 +80,14 @@ const TextArea = styled.textarea`
 const _Select = styled.select`
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   background: white;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -108,34 +109,34 @@ const Button = styled.button<{
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background-color: #ef4444;
+          background-color: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background-color: #dc2626; }
+          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
@@ -153,12 +154,12 @@ const ResponseContainer = styled.div`
 `;
 
 const ErrorContainer = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
-  color: #991b1b;
+  color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const InfoContainer = styled.div`
@@ -167,12 +168,12 @@ const InfoContainer = styled.div`
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const UserInfoContainer = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -180,7 +181,7 @@ const UserInfoContainer = styled.div`
 
 const UserInfoTitle = styled.h4`
   margin: 0 0 1rem 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
@@ -199,7 +200,7 @@ const UserInfoDetail = styled.div`
 
 const UserInfoLabel = styled.span`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-weight: 500;
   text-transform: uppercase;
   margin-bottom: 0.25rem;
@@ -207,7 +208,7 @@ const UserInfoLabel = styled.span`
 
 const UserInfoValue = styled.span`
   font-size: 0.875rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 500;
   word-break: break-all;
 `;

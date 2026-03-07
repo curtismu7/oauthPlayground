@@ -68,8 +68,8 @@ const ColoredIcon = styled.div<{ $color: string }>`
 
 const MigrationBadge = styled.span`
 	background: rgba(34, 197, 94, 0.9);
-	border: 1px solid #22c55e;
-	color: #ffffff;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
+	color: V9_COLORS.TEXT.WHITE;
 	padding: 0.125rem 0.375rem;
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
@@ -402,7 +402,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/mfa-feature-flags',
 						label: '🚦 MFA Feature Flags',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiSettings />
 							</ColoredIcon>
 						),
@@ -417,7 +417,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/api-status',
 						label: '🔍 API Status',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiActivity />
 							</ColoredIcon>
 						),
@@ -433,7 +433,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/flow-comparison',
 						label: 'Flow Comparison Tool',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiBarChart2 />
 							</ColoredIcon>
 						),
@@ -448,7 +448,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/resources-api',
 						label: 'Resources API Tutorial',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiBook />
 							</ColoredIcon>
 						),
@@ -463,7 +463,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/spiffe-spire',
 						label: 'SPIFFE/SPIRE Mock',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -480,14 +480,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/postman-collection-generator',
 						label: 'Postman Collection Generator',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiPackage />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge
 								title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows"
-								style={{ background: '#3b82f6', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -498,14 +498,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/unified-mfa',
 						label: '🔥 New Unified MFA',
 						icon: (
-							<ColoredIcon $color="#ef4444">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<FiLayers />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge
 								title="New Unified MFA flow with all fixes and improvements"
-								style={{ background: '#ef4444', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.RED', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -516,14 +516,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/unified',
 						label: 'Unified OAuth & OIDC',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiZap />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge
 								title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
-								style={{ background: '#3b82f6', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -535,7 +535,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/delete-all-devices',
 						label: 'Delete All Devices',
 						icon: (
-							<ColoredIcon $color="#ef4444">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<FiTrash2 />
 							</ColoredIcon>
 						),
@@ -550,7 +550,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/enhanced-state-management',
 						label: 'Enhanced State Management (V2)',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiDatabase />
 							</ColoredIcon>
 						),
@@ -565,7 +565,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8u/token-monitoring',
 						label: 'Token Monitoring Dashboard',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiEye />
 							</ColoredIcon>
 						),
@@ -578,14 +578,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/protect-portal',
 						label: 'Protect Portal App',
 						icon: (
-							<ColoredIcon $color="#dc2626">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge
 								title="Complete risk-based authentication portal with MFA integration"
-								style={{ background: '#dc2626', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.RED_DARK', color: 'white' }}
 							>
 								PROTECT
 							</MigrationBadge>
@@ -596,7 +596,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/environments',
 						label: 'Environment Management',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiServer />
 							</ColoredIcon>
 						),
@@ -611,7 +611,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/admin/create-company',
 						label: '🏢 Create Company',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiSettings />
 							</ColoredIcon>
 						),
@@ -626,7 +626,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/sdk-examples',
 						label: 'SDK Examples',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiCode />
 							</ColoredIcon>
 						),
@@ -679,12 +679,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/unified-mfa',
 						label: '🔥 New Unified MFA',
 						icon: (
-							<ColoredIcon $color="#ef4444">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<FiLayers />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
+							<MigrationBadge style={{ background: 'V9_COLORS.PRIMARY.RED', color: 'white' }}>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -769,14 +769,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/ciba-v9',
 						label: 'CIBA Flow (V9)',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiShield />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge
 								title="V9: OpenID Connect Core 1.0 Compliant CIBA with Enhanced Features"
-								style={{ background: '#10b981', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.GREEN', color: 'white' }}
 							>
 								NEW
 							</MigrationBadge>
@@ -799,7 +799,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/ping-ai-resources',
 						label: 'Ping AI Resources',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiCpu />
 							</ColoredIcon>
 						),
@@ -815,7 +815,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oauth-flows',
 				label: 'OAuth 2.0 Flows',
 				icon: (
-					<ColoredIcon $color="#ef4444">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 						<FiShield />
 					</ColoredIcon>
 				),
@@ -856,7 +856,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/device-authorization-v7',
 						label: 'Device Authorization (V7)',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiSmartphone />
 							</ColoredIcon>
 						),
@@ -871,7 +871,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/client-credentials-v7',
 						label: 'Client Credentials (V7)',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiKey />
 							</ColoredIcon>
 						),
@@ -887,7 +887,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oidc-flows',
 				label: 'OpenID Connect',
 				icon: (
-					<ColoredIcon $color="#10b981">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 						<FiUser />
 					</ColoredIcon>
 				),
@@ -928,7 +928,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/device-authorization-v7?variant=oidc',
 						label: 'Device Authorization (V7 – OIDC)',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiSmartphone />
 							</ColoredIcon>
 						),
@@ -943,7 +943,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/oidc-hybrid-v7',
 						label: 'Hybrid Flow (V7)',
 						icon: (
-							<ColoredIcon $color="#22c55e">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiGitBranch />
 							</ColoredIcon>
 						),
@@ -985,7 +985,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-complete-mfa-v7',
 						label: 'PingOne MFA (V7)',
 						icon: (
-							<ColoredIcon $color="#16a34a">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -1000,7 +1000,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-mfa-workflow-library-v7',
 						label: 'PingOne MFA Workflow Library (V7)',
 						icon: (
-							<ColoredIcon $color="#059669">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -1030,7 +1030,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-authentication',
 						label: 'PingOne Authentication',
 						icon: (
-							<ColoredIcon $color="#16a34a">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -1060,7 +1060,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/par',
 						label: 'PAR Flow',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiLock />
 							</ColoredIcon>
 						),
@@ -1102,7 +1102,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/worker-token-tester',
 						label: 'Worker Token Check',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiKey />
 							</ColoredIcon>
 						),
@@ -1132,7 +1132,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/token-introspection',
 						label: 'Token Introspection',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiEye />
 							</ColoredIcon>
 						),
@@ -1147,7 +1147,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/token-revocation',
 						label: 'Token Revocation',
 						icon: (
-							<ColoredIcon $color="#ef4444">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<FiX />
 							</ColoredIcon>
 						),
@@ -1162,7 +1162,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/userinfo',
 						label: 'UserInfo Flow',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiUsers />
 							</ColoredIcon>
 						),
@@ -1177,7 +1177,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/flows/pingone-logout',
 						label: 'PingOne Logout',
 						icon: (
-							<ColoredIcon $color="#ef4444">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<FiLogOut />
 							</ColoredIcon>
 						),
@@ -1193,7 +1193,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'mock-educational-flows',
 				label: 'Mock & Educational Flows',
 				icon: (
-					<ColoredIcon $color="#f59e0b">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 						<FiAlertTriangle />
 					</ColoredIcon>
 				),
@@ -1336,7 +1336,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'oauth-mock-flows',
 						label: 'OAuth Mock Flows',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiAlertTriangle />
 							</ColoredIcon>
 						),
@@ -1347,7 +1347,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/jwt-bearer-token-v7',
 								label: 'JWT Bearer Token (V7)',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiKey />
 									</ColoredIcon>
 								),
@@ -1392,7 +1392,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/oauth2-resource-owner-password',
 								label: 'OAuth2 ROPC (Legacy)',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiLock />
 									</ColoredIcon>
 								),
@@ -1407,7 +1407,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/advanced-oauth-params-demo',
 								label: 'Advanced OAuth Parameters Demo',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiSettings />
 									</ColoredIcon>
 								),
@@ -1422,7 +1422,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/mock-oidc-ropc',
 								label: 'Mock OIDC ROPC',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiLock />
 									</ColoredIcon>
 								),
@@ -1437,7 +1437,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/oauth-authorization-code-v7-condensed-mock',
 								label: 'Auth Code Condensed (Mock)',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiKey />
 									</ColoredIcon>
 								),
@@ -1452,7 +1452,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/v7-condensed-mock',
 								label: 'V7 Condensed (Prototype)',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiLayers />
 									</ColoredIcon>
 								),
@@ -1479,7 +1479,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/flows/dpop',
 								label: 'DPoP (Educational/Mock)',
 								icon: (
-									<ColoredIcon $color="#16a34a">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 										<FiShield />
 									</ColoredIcon>
 								),
@@ -1527,7 +1527,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'pingone-tools',
 				label: 'PingOne Tools',
 				icon: (
-					<ColoredIcon $color="#3b82f6">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 						<FiTool />
 					</ColoredIcon>
 				),
@@ -1564,7 +1564,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/pingone-identity-metrics',
 								label: 'Identity Metrics',
 								icon: (
-									<ColoredIcon $color="#10b981">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 										<FiBarChart2 />
 									</ColoredIcon>
 								),
@@ -1579,7 +1579,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/security/password-reset',
 								label: 'Password Reset',
 								icon: (
-									<ColoredIcon $color="#dc2626">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
 										<FiLock />
 									</ColoredIcon>
 								),
@@ -1595,7 +1595,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'pingone-monitoring',
 						label: 'PingOne Monitoring',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiBarChart2 />
 							</ColoredIcon>
 						),
@@ -1636,7 +1636,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/organization-licensing',
 								label: 'Organization Licensing',
 								icon: (
-									<ColoredIcon $color="#22c55e">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 										<FiShield />
 									</ColoredIcon>
 								),
@@ -1707,7 +1707,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'developer-utilities',
 						label: 'Developer Utilities',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiTool />
 							</ColoredIcon>
 						),
@@ -1718,7 +1718,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/jwks-troubleshooting',
 								label: 'JWKS Troubleshooting',
 								icon: (
-									<ColoredIcon $color="#f59e0b">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<FiTool />
 									</ColoredIcon>
 								),
@@ -1748,7 +1748,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/oauth-code-generator-hub',
 								label: 'OAuth Code Generator Hub',
 								icon: (
-									<ColoredIcon $color="#10b981">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 										<FiCode />
 									</ColoredIcon>
 								),
@@ -1763,7 +1763,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								path: '/application-generator',
 								label: 'Application Generator',
 								icon: (
-									<ColoredIcon $color="#3b82f6">
+									<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 										<FiSettings />
 									</ColoredIcon>
 								),
@@ -1826,7 +1826,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'security-guides',
 				label: 'Security Guides',
 				icon: (
-					<ColoredIcon $color="#3b82f6">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 						<FiShield />
 					</ColoredIcon>
 				),
@@ -1837,7 +1837,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/oauth-2-1',
 						label: 'OAuth 2.1',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -1852,7 +1852,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/oidc-session-management',
 						label: 'OIDC Session Management',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiUser />
 							</ColoredIcon>
 						),
@@ -1867,7 +1867,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-sessions-api',
 						label: 'PingOne Sessions API',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiDatabase />
 							</ColoredIcon>
 						),
@@ -1883,7 +1883,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'reference-materials-docs',
 				label: 'Reference Materials',
 				icon: (
-					<ColoredIcon $color="#16a34a">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 						<FiBook />
 					</ColoredIcon>
 				),
@@ -1894,7 +1894,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/par-vs-rar',
 						label: 'RAR vs PAR and DPoP Guide',
 						icon: (
-							<ColoredIcon $color="#16a34a">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 								<FiBook />
 							</ColoredIcon>
 						),
@@ -1924,7 +1924,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/pingone-mock-features',
 						label: 'Mock & Educational Features',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 								<FiBookOpen />
 							</ColoredIcon>
 						),
@@ -1954,7 +1954,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/ping-ai-resources',
 						label: 'Ping AI Resources',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiCpu />
 							</ColoredIcon>
 						),
@@ -1970,7 +1970,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'oauth-oidc-docs',
 				label: 'OAuth/OIDC Documentation',
 				icon: (
-					<ColoredIcon $color="#3b82f6">
+					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 						<FiFileText />
 					</ColoredIcon>
 				),
@@ -1981,7 +1981,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/documentation/oidc-overview',
 						label: 'OIDC Overview',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiBook />
 							</ColoredIcon>
 						),
@@ -1996,7 +1996,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/oidc-specs',
 						label: 'OIDC Specifications',
 						icon: (
-							<ColoredIcon $color="#3b82f6">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<FiBookOpen />
 							</ColoredIcon>
 						),
@@ -2011,7 +2011,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/oauth2-security-best-practices',
 						label: 'OAuth 2.0 Security Best Practices',
 						icon: (
-							<ColoredIcon $color="#dc2626">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -2098,7 +2098,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/docs/ping-view-on-ai',
 						label: 'PingOne AI Perspective',
 						icon: (
-							<ColoredIcon $color="#16a34a">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
 								<FiShield />
 							</ColoredIcon>
 						),
@@ -2136,7 +2136,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/sdk-sample-app',
 						label: 'SDK Sample App',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<FiCode />
 							</ColoredIcon>
 						),
@@ -2729,10 +2729,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				<div
 					style={{
 						padding: '0.5rem 1rem',
-						background: '#f0f9ff',
-						borderBottom: '1px solid #e0f2fe',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						borderBottom: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 						fontSize: '0.875rem',
-						color: '#0369a1',
+						color: 'V9_COLORS.PRIMARY.BLUE',
 					}}
 				>
 					{(() => {
@@ -2785,20 +2785,34 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					style={{
 						marginBottom: '1rem',
 						padding: '1rem',
-						backgroundColor: '#dcfce7',
+						backgroundColor: 'V9_COLORS.BG.SUCCESS',
 						borderRadius: '0.5rem',
-						border: '2px solid #22c55e',
+						border: '2px solid V9_COLORS.PRIMARY.GREEN',
 						boxShadow: '0 4px 12px rgba(34, 197, 94, 0.15)',
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
-							<strong style={{ color: '#166534' }}>🎯 Drag & Drop Mode Active:</strong>
-							<div style={{ fontSize: '0.875rem', color: '#166534', marginTop: '0.25rem' }}>
+							<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
+								🎯 Drag & Drop Mode Active:
+							</strong>
+							<div
+								style={{
+									fontSize: '0.875rem',
+									color: 'V9_COLORS.PRIMARY.GREEN',
+									marginTop: '0.25rem',
+								}}
+							>
 								Drag items to reorder • Green zones show drop areas
 							</div>
 							{localStorage.getItem('simpleDragDropSidebar.menuOrder') && (
-								<div style={{ fontSize: '0.875rem', color: '#059669', marginTop: '0.25rem' }}>
+								<div
+									style={{
+										fontSize: '0.875rem',
+										color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+										marginTop: '0.25rem',
+									}}
+								>
 									✅ Custom layout loaded from storage
 								</div>
 							)}
@@ -2811,10 +2825,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									padding: '0.5rem 1rem',
 									backgroundColor:
 										saveButtonState === 'saved'
-											? '#22c55e'
+											? 'V9_COLORS.PRIMARY.GREEN'
 											: saveButtonState === 'saving'
-												? '#f59e0b'
-												: '#f59e0b', // Default yellow
+												? 'V9_COLORS.PRIMARY.YELLOW'
+												: 'V9_COLORS.PRIMARY.YELLOW', // Default yellow
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -2845,7 +2859,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								}}
 								style={{
 									padding: '0.5rem 1rem',
-									backgroundColor: '#ef4444',
+									backgroundColor: 'V9_COLORS.PRIMARY.RED',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -2893,7 +2907,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							alignItems: 'center',
 							gap: '0.5rem',
 							padding: '0.75rem 1rem',
-							background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+							background:
+								'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 							borderRadius: '0.5rem',
 							marginBottom: '0.25rem',
 							cursor: dragMode ? 'grab' : 'pointer',
@@ -2910,7 +2925,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						onMouseEnter={(e) => {
 							if (!dragMode) {
 								e.currentTarget.style.background =
-									'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)';
+									'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 								e.currentTarget.style.transform = 'translateY(-1px)';
 								e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
 							}
@@ -2918,7 +2933,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						onMouseLeave={(e) => {
 							if (!dragMode) {
 								e.currentTarget.style.background =
-									'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+									'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 								e.currentTarget.style.transform = 'translateY(0px)';
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
 							}
@@ -2978,7 +2993,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						<div
 							style={{
 								paddingLeft: '1rem',
-								backgroundColor: '#f8fafc',
+								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
 								padding: '0.5rem',
 								minHeight: '2rem',
@@ -2999,7 +3014,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.5rem 0.75rem',
-												background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+												background:
+													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_LIGHT 0%, V9_COLORS.PRIMARY.BLUE 100%)',
 												borderRadius: '0.375rem',
 												marginBottom: '0.25rem',
 												cursor: 'pointer',
@@ -3009,13 +3025,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background =
-													'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 												e.currentTarget.style.transform = 'translateY(-1px)';
 												e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
 											}}
 											onMouseLeave={(e) => {
 												e.currentTarget.style.background =
-													'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)';
+													'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_LIGHT 0%, V9_COLORS.PRIMARY.BLUE 100%)';
 												e.currentTarget.style.transform = 'translateY(0px)';
 												e.currentTarget.style.boxShadow = '0 1px 3px rgba(59, 130, 246, 0.2)';
 											}}
@@ -3038,7 +3054,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											<div
 												style={{
 													paddingLeft: '0.75rem',
-													backgroundColor: '#f1f5f9',
+													backgroundColor: 'V9_COLORS.BG.GRAY_MEDIUM',
 													borderRadius: '0.375rem',
 													padding: '0.5rem',
 												}}
@@ -3062,8 +3078,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																	e.preventDefault();
 																	e.stopPropagation();
 																	setDropTarget({ groupId: group.id, index: itemIndex });
-																	e.currentTarget.style.backgroundColor = '#fef2f2';
-																	e.currentTarget.style.borderColor = '#ef4444';
+																	e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
+																	e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
 																	e.currentTarget.style.borderStyle = 'solid';
 																	e.currentTarget.style.borderWidth = '2px';
 																	e.currentTarget.style.boxShadow =
@@ -3151,17 +3167,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																alignItems: 'center',
 																gap: '0.5rem',
 																padding: '0.5rem 0.75rem',
-																backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
-																color: isActive(item.path) ? '#d97706' : '#64748b',
+																backgroundColor: isActive(item.path)
+																	? 'V9_COLORS.BG.WARNING'
+																	: 'white',
+																color: isActive(item.path)
+																	? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+																	: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 																borderRadius: '0.375rem',
 																border:
 																	dropTarget &&
 																	dropTarget.groupId === group.id &&
 																	dropTarget.index === itemIndex + 1
-																		? '3px solid #ef4444'
+																		? '3px solid V9_COLORS.PRIMARY.RED'
 																		: isActive(item.path)
-																			? '3px solid #f59e0b'
-																			: '1px solid #e2e8f0',
+																			? '3px solid V9_COLORS.PRIMARY.YELLOW'
+																			: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 																fontWeight: isActive(item.path) ? '700' : '400',
 																boxShadow:
 																	dropTarget &&
@@ -3235,8 +3255,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																		groupId: group.id,
 																		index: subGroup.items.length,
 																	});
-																	e.currentTarget.style.backgroundColor = '#fef2f2';
-																	e.currentTarget.style.borderColor = '#ef4444';
+																	e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
+																	e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
 																	e.currentTarget.style.borderStyle = 'solid';
 																	e.currentTarget.style.borderWidth = '2px';
 																	e.currentTarget.style.boxShadow =
@@ -3316,8 +3336,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											e.preventDefault();
 											e.stopPropagation();
 											setDropTarget({ groupId: group.id, index: 0 });
-											e.currentTarget.style.backgroundColor = '#fef2f2';
-											e.currentTarget.style.borderColor = '#ef4444';
+											e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
+											e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
 											e.currentTarget.style.borderStyle = 'solid';
 											e.currentTarget.style.borderWidth = '3px';
 											e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3373,8 +3393,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: itemIndex });
-												e.currentTarget.style.backgroundColor = '#fef2f2';
-												e.currentTarget.style.borderColor = '#ef4444';
+												e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
+												e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
 												e.currentTarget.style.borderStyle = 'solid';
 												e.currentTarget.style.borderWidth = '3px';
 												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3448,17 +3468,19 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.5rem 0.75rem',
-											backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
-											color: isActive(item.path) ? '#d97706' : '#64748b',
+											backgroundColor: isActive(item.path) ? 'V9_COLORS.BG.WARNING' : 'white',
+											color: isActive(item.path)
+												? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											borderRadius: '0.375rem',
 											border:
 												dropTarget &&
 												dropTarget.groupId === group.id &&
 												dropTarget.index === itemIndex + 1
-													? '3px solid #ef4444'
+													? '3px solid V9_COLORS.PRIMARY.RED'
 													: isActive(item.path)
-														? '3px solid #f59e0b'
-														: '1px solid #e2e8f0',
+														? '3px solid V9_COLORS.PRIMARY.YELLOW'
+														: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											fontWeight: isActive(item.path) ? '700' : '400',
 											boxShadow:
 												dropTarget &&
@@ -3575,8 +3597,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: group.items.length });
-												e.currentTarget.style.backgroundColor = '#fef2f2';
-												e.currentTarget.style.borderColor = '#ef4444';
+												e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
+												e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
 												e.currentTarget.style.borderStyle = 'solid';
 												e.currentTarget.style.borderWidth = '3px';
 												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3625,7 +3647,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									style={{
 										padding: '2rem 1rem',
 										textAlign: 'center',
-										color: '#9ca3af',
+										color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 										fontStyle: 'italic',
 										border: '3px dashed rgba(34, 197, 94, 0.4)',
 										borderRadius: '12px',
@@ -3635,15 +3657,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									}}
 									onDragOver={(e) => {
 										e.preventDefault();
-										e.currentTarget.style.borderColor = '#22c55e';
-										e.currentTarget.style.backgroundColor = '#dcfce7';
+										e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.GREEN';
+										e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.SUCCESS';
 										e.currentTarget.style.borderStyle = 'solid';
 										e.currentTarget.style.borderWidth = '2px';
 										e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.3)';
 										e.currentTarget.style.transform = 'scale(1.02)';
 									}}
 									onDragLeave={(e) => {
-										e.currentTarget.style.borderColor = '#d1d5db';
+										e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 										e.currentTarget.style.backgroundColor = 'transparent';
 										e.currentTarget.style.borderStyle = 'dashed';
 										e.currentTarget.style.borderWidth = '2px';
@@ -3651,7 +3673,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										e.currentTarget.style.transform = 'scale(1)';
 									}}
 									onDrop={(e) => {
-										e.currentTarget.style.borderColor = '#d1d5db';
+										e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 										e.currentTarget.style.backgroundColor = 'transparent';
 										e.currentTarget.style.borderStyle = 'dashed';
 										e.currentTarget.style.borderWidth = '2px';

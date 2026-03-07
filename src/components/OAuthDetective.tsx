@@ -11,7 +11,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 const DetectiveContainer = styled.div`
-	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
@@ -19,7 +19,7 @@ const DetectiveContainer = styled.div`
 `;
 
 const Title = styled.h2`
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
@@ -28,7 +28,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin: 0 0 1.5rem 0;
 	line-height: 1.6;
 `;
@@ -43,9 +43,9 @@ const URLInput = styled.textarea`
 	padding: 1rem;
 	padding-right: 4rem;
 	border-radius: 0.75rem;
-	border: 2px solid #475569;
-	background: #0f172a;
-	color: #f1f5f9;
+	border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-size: 0.9rem;
 	resize: vertical;
@@ -54,12 +54,12 @@ const URLInput = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&::placeholder {
-		color: #64748b;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	}
 `;
 
@@ -68,7 +68,7 @@ const AnalyzeButton = styled.button`
 	right: 1rem;
 	bottom: 1rem;
 	padding: 0.75rem 1.5rem;
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -101,8 +101,8 @@ const QuickExamples = styled.div`
 const ExampleButton = styled.button`
 	padding: 0.5rem 1rem;
 	background: rgba(51, 65, 85, 0.6);
-	color: #f8fafc;
-	border: 1px solid #475569;
+	color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_MEDIUM;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	cursor: pointer;
@@ -115,7 +115,7 @@ const ExampleButton = styled.button`
 `;
 
 const AnalysisResult = styled.div`
-	background: #0f172a;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-top: 1.5rem;
@@ -138,14 +138,14 @@ const ProviderBadge = styled.div<{ provider: string }>`
 			case 'microsoft':
 				return 'linear-gradient(135deg, #00a4ef 0%, #0078d4 100%)';
 			case 'github':
-				return 'linear-gradient(135deg, #333 0%, #000 100%)';
+				return 'linear-gradient(135deg, #333 0%, V9_COLORS.TEXT.BLACK 100%)';
 			case 'okta':
 				return 'linear-gradient(135deg, #007dc1 0%, #005a8c 100%)';
 			case 'pingone':
 			case 'ping':
 				return 'linear-gradient(135deg, #e94b35 0%, #c93524 100%)';
 			default:
-				return 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_MEDIUM 100%)';
 		}
 	}};
 	color: white;
@@ -177,15 +177,15 @@ const ParameterCard = styled.div<{
 	border-left: 4px solid ${({ status }) => {
 		switch (status) {
 			case 'standard':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'provider-specific':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'advanced':
-				return '#2563eb';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'security':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#64748b';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 	padding: 1rem;
@@ -202,7 +202,7 @@ const ParameterHeader = styled.div`
 const ParameterName = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-weight: 600;
-	color: #60a5fa;
+	color: V9_COLORS.PRIMARY.BLUE_LIGHT;
 	font-size: 1rem;
 `;
 
@@ -214,15 +214,15 @@ const StatusBadge = styled.span<{ status: string }>`
 	background: ${({ status }) => {
 		switch (status) {
 			case 'standard':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'provider-specific':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'advanced':
 				return '#1e3a8a';
 			case 'security':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
 	color: white;
@@ -231,7 +231,7 @@ const StatusBadge = styled.span<{ status: string }>`
 const ParameterValue = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	color: #a5f3fc;
-	background: #0f172a;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	padding: 0.5rem;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
@@ -240,7 +240,7 @@ const ParameterValue = styled.div`
 `;
 
 const ParameterExplanation = styled.div`
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	line-height: 1.6;
 	font-size: 0.9rem;
 `;
@@ -251,7 +251,7 @@ const PingOneEquivalent = styled.div`
 	background: rgba(233, 75, 53, 0.1);
 	border-left: 3px solid #e94b35;
 	border-radius: 0.375rem;
-	color: #fbbf24;
+	color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
 	font-size: 0.875rem;
 	display: flex;
 	align-items: flex-start;
@@ -593,7 +593,7 @@ const OAuthDetective: React.FC = () => {
 						</div>
 						<div
 							style={{
-								color: '#60a5fa',
+								color: 'V9_COLORS.PRIMARY.BLUE_LIGHT',
 								fontFamily: 'Monaco, monospace',
 								fontSize: '0.9rem',
 								wordBreak: 'break-all',
@@ -604,7 +604,12 @@ const OAuthDetective: React.FC = () => {
 					</div>
 
 					<div
-						style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}
+						style={{
+							color: 'V9_COLORS.BG.GRAY_MEDIUM',
+							fontSize: '1.1rem',
+							fontWeight: 600,
+							marginBottom: '1rem',
+						}}
 					>
 						📊 Found {analysis.parameters.length} Parameters:
 					</div>
@@ -630,7 +635,7 @@ const OAuthDetective: React.FC = () => {
 											float: 'right',
 											background: 'transparent',
 											border: 'none',
-											color: '#60a5fa',
+											color: 'V9_COLORS.PRIMARY.BLUE_LIGHT',
 											cursor: 'pointer',
 											padding: '0.25rem',
 										}}

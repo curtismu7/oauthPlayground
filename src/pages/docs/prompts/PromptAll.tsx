@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../../services/pageLayoutService';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Create layout components at module level
 const _promptsLayout = PageLayoutService.createPageLayout({
@@ -18,12 +19,12 @@ const ContentContainer = styled.div`
 const Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
 `;
 
 const Description = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1.125rem;
 	margin-bottom: 2rem;
 	line-height: 1.6;
@@ -36,15 +37,15 @@ const Section = styled.section`
 const SectionTitle = styled.h2`
 	font-size: 1.875rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1rem;
-	border-bottom: 2px solid #ef4444;
+	border-bottom: 2px solid V9_COLORS.PRIMARY.RED;
 	padding-bottom: 0.5rem;
 `;
 
 const PromptCard = styled.div`
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -54,19 +55,19 @@ const PromptCard = styled.div`
 const PromptTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 `;
 
 const PromptDescription = styled.p`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 1rem;
 	line-height: 1.6;
 `;
 
 const CodeBlock = styled.pre`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	overflow-x: auto;
@@ -78,7 +79,7 @@ const CodeBlock = styled.pre`
 const Tag = styled.span`
 	display: inline-block;
 	background: #dbeafe;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	font-size: 0.75rem;

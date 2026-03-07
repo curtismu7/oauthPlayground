@@ -24,27 +24,27 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	cursor: pointer;
 	transition: all 0.2s ease-in-out;
 
 	&:hover:not(:disabled) {
-		border-color: #9ca3af;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
@@ -61,13 +61,13 @@ const Description = styled.div<{ $level: string }>`
 	background-color: ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return '#ecfdf5';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'High':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'Medium':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'Low':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f3f4f6';
 		}
@@ -75,15 +75,15 @@ const Description = styled.div<{ $level: string }>`
 	border-left: 3px solid ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'High':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'Medium':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'Low':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 		}
 	}};
 	border-radius: 0.375rem;
@@ -103,24 +103,24 @@ const SecurityBadge = styled.span<{ $level: string }>`
 	background-color: ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'High':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'Medium':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'Low':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 		}
 	}};
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 `;
 
 const HelperText = styled.div`
 	margin-top: 0.375rem;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	display: flex;
 	align-items: start;
 	gap: 0.375rem;
