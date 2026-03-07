@@ -215,7 +215,9 @@ const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 
 // PKCE Generation Component
 export interface PKCEGenerationProps {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	controller: any;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	credentials: any;
 	flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless';
 	onPKCEGenerated?: () => void;
@@ -461,7 +463,9 @@ export class PKCEGenerationService {
 	 * Generate PKCE codes programmatically
 	 */
 	static async generatePKCE(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		controller: any,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		credentials: any,
 		_flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless'
 	): Promise<boolean> {
@@ -490,6 +494,7 @@ export class PKCEGenerationService {
 	/**
 	 * Check if PKCE codes are available
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	static hasPKCECodes(controller: any): boolean {
 		return !!(controller?.pkceCodes?.codeVerifier && controller?.pkceCodes?.codeChallenge);
 	}
