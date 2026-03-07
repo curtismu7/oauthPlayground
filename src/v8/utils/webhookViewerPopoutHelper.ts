@@ -25,6 +25,8 @@ export function openWebhookViewerPopout(): void {
 
 	if (!popup) {
 		// Popup blocked — notify user
+		// biome-ignore lint/suspicious/noAlert: user notification when popup is blocked
+		// eslint-disable-next-line no-alert
 		alert('Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.');
 		return;
 	}

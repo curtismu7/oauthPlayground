@@ -6,7 +6,7 @@
  * @param data - The data to sanitize
  * @returns Sanitized data with sensitive fields masked
  */
-export const sanitizeSensitiveData = (data: any): any => {
+export const sanitizeSensitiveData = (data: unknown): unknown => {
 	if (typeof data === 'object' && data !== null) {
 		const sanitized = { ...data };
 
@@ -51,7 +51,7 @@ export const sanitizeSensitiveData = (data: any): any => {
  * @param message - The log message
  * @param data - Optional data to log (will be sanitized)
  */
-export const secureLog = (message: string, data?: any): void => {
+export const secureLog = (message: string, data?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedData = data ? sanitizeSensitiveData(data) : undefined;
 		console.log(message, sanitizedData);
@@ -63,7 +63,7 @@ export const secureLog = (message: string, data?: any): void => {
  * @param message - The error message
  * @param error - The error object (will be sanitized)
  */
-export const secureErrorLog = (message: string, error?: any): void => {
+export const secureErrorLog = (message: string, error?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedError = error ? sanitizeSensitiveData(error) : undefined;
 		console.error(message, sanitizedError);
@@ -75,7 +75,7 @@ export const secureErrorLog = (message: string, error?: any): void => {
  * @param message - The warning message
  * @param data - Optional data to log (will be sanitized)
  */
-export const secureWarnLog = (message: string, data?: any): void => {
+export const secureWarnLog = (message: string, data?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedData = data ? sanitizeSensitiveData(data) : undefined;
 		console.warn(message, sanitizedData);

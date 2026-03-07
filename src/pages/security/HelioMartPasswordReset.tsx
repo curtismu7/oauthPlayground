@@ -942,6 +942,7 @@ const HelioMartPasswordReset: React.FC = () => {
 						// Get user info
 						if (tokenData.id_token) {
 							try {
+								// educational-ok: JWT payload decode for user info display in educational UI
 								const payload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
 								setUserId(payload.sub);
 								setUserInfo({

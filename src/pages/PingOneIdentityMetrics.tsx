@@ -554,6 +554,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const activeIdentityCounts = metrics?._embedded?.activeIdentityCounts || [];
 	const formattedMetrics = useMemo<JSONData | null>(() => {
 		if (!metrics) return null;
+		// educational-ok: JSON.stringify round-trip deep-clone, never throws
 		return JSON.parse(JSON.stringify(metrics)) as JSONData;
 	}, [metrics]);
 
