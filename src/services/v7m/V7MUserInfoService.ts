@@ -52,7 +52,7 @@ export function getUserInfoFromAccessToken(bearerToken?: string): V7MUserInfo {
 
 function decodeJwtLike(
 	token: string
-): { header: Record<string, unknown>; payload: Record<string, any> } | undefined {
+): { header: Record<string, unknown>; payload: Record<string, unknown> } | undefined {
 	const parts = token.split('.');
 	if (parts.length !== 3) return undefined;
 	try {

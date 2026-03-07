@@ -322,6 +322,7 @@ export class UnifiedFlowLoggerService {
 }
 
 // Export singleton instance for convenience
+// biome-ignore lint/suspicious/noRedeclare: intentional re-export alias for this module's consumers
 export const logger = UnifiedFlowLoggerService;
 
 // Make available globally for debugging
