@@ -452,7 +452,136 @@ for i in errs:
 
 ---
 
-## 16. FAQ
+## 16. False Positives & Waiver Guidance
+
+Not every flagged issue requires a code change. Some patterns have well-known false-positive cases. Before filing a waiver, confirm the issue is genuinely a false positive using the criteria below.
+
+---
+
+### `migration-check/token-value-in-jsx` (334 hits)
+
+**What it catches:** JSX output that interpolates `access_token`, `id_token`, `refresh_token`, or `client_secret` — a security gate (tokens must be masked/truncated before display).
+
+**Genuine false positives:** The pattern fires on *field names used as object keys or JSX prop names*, not just rendered values. It also fires inside code-generation template strings (Postman scripts, code examples).
+
+| False-positive pattern | Example | Waiver? |
+|---|---|---|
+| Object key / prop name, not a rendered value | `{ access_token: response.access_token }` assignment | ✅ Waive if value is not rendered to DOM |
+| `<pre>` or `<code>` display intentionally showing a token for demo purposes | `<pre>{tokenData.access_token}</pre>` in a demo flow | ✅ Waive with note: "demo display — intentional" |
+| Template literal in code-generation service | `postmanCollectionGeneratorV9.ts` template strings | ✅ Waive — these generate code examples, not UI |
+| **Actual rendered raw token** in a user-visible string | `<p>Your token: {token}</p>` | ❌ Must fix — truncate/mask |
+
+**Hot files:** `src/components/steps/CommonSteps.tsx` (120 hits) — most are display components for demo flows that intentionally show token fields. Review each hit: if it is inside a `<TokenDisplay>`, `<pre>`, or similar intentional display component, waive with a note. If it is in user-facing UI output with no masking, fix it.
+
+---
+
+### `migration-check/raw-console-in-src` (264 hits)
+
+**What it catches:** `console.error()` or `console.warn()` calls that should have been replaced with `logger.*` during the console migration (completed 2026-03-07 per STANDARDIZATION_HANDOFF.md).
+
+**Known intentional exceptions** — **always waive these, never migrate:**
+
+| File | Reason |
+|---|---|
+| `src/utils/logger.ts` | IS the logger itself |
+| `src/services/loggingService.ts` | Logger output sink — console calls are intentional |
+| `src/utils/errorMonitoring.ts` | `console.error = override` monkey-patch lines |
+| `src/hooks/useErrorDiagnosis.ts` | Intentionally patches `console.error` as diagnostic tool |
+| `src/main.tsx` | `console.warn = override` to filter noisy third-party lib warnings |
+| `src/pages/HybridCallback.tsx` L16 | Local logger function that dispatches to `console.error` |
+| `src/services/codeGeneration/**` | All calls are inside template literal strings (generated code examples) |
+| `src/services/postmanCollectionGeneratorV8.ts` / `V9.ts` | All calls are embedded Postman test script strings |
+| `src/v8/` files | V8 codebase — out of migration scope |
+
+**Hot file:** `src/v8/components/WorkerTokenModalV8.tsx` (110 hits) — V8 file, out of scope. Waive all.
+
+---
+
+### `migration-check/fetch-in-component` (191 hits)
+
+**What it catches:** `await fetch(` in a non-service file — the services-first migration rule says network calls belong in service files, not components, hooks, or utils.
+
+**False positives / waivers:**
+
+| Pattern | Action |
+|---|---|
+| `src/utils/` files (`oauth.ts`, `jwks.ts`, `credentialManager.ts`, `workerToken.ts`) | These are utility modules, not UI components. If they were deliberately placed in `utils/` as shared helpers (not as a migration leftover), waive with note: "utility module — services-first rule does not apply" |
+| Low-level framework wrappers (`trackedFetch.ts`) | Waive — these ARE the fetch abstraction |
+| Hook files (`src/hooks/`) that own a self-contained network call for good reason | Waive with note explaining why it cannot be in a service |
+| Component that directly fetches (e.g. `EnhancedApiCallDisplay.tsx`) | **Fix** — extract to a service |
+
+---
+
+### `migration-check/throw-in-service` (632 hits)
+
+**What it catches:** `throw new Error(` in a service file — Gate B of the migration says services should return `ServiceResult<T>` instead of throwing.
+
+**Context:** Gate B migration is **partially complete** (5 services migrated per STANDARDIZATION_HANDOFF.md). The majority of `throw` hits are in services that have **not yet been migrated to Gate B**. These are **not false positives** — they are real work items — but they are low priority compared to `error`-severity issues.
+
+**Waiver guideline:** Only waive if the `throw` is in a constructor, a guard that is always caught by the caller, or an intentional re-throw in an error boundary. Otherwise mark `in_progress` and track it.
+
+---
+
+### `migration-check/fetch-no-abort-signal` (381 hits)
+
+**What it catches:** `await fetch(` without an `AbortController` signal — the async cleanup gate requires cancellable requests.
+
+**False positives:**
+
+| Pattern | Action |
+|---|---|
+| One-shot fire-and-forget calls (e.g. analytics pings, token revocation) where cancellation is meaningless | Waive with note: "fire-and-forget — abort not applicable" |
+| Server-side / Node.js scripts (`configurationManagerCLI.js`, etc.) | Waive — no component unmount lifecycle |
+| Calls already wrapped in a retry/timeout utility that handles abort internally | Waive with note pointing to the wrapper |
+| All others | Fix — add `AbortController` and pass `signal` |
+
+---
+
+### `a11y-keyboard/onclick-no-keydown` (2,409 hits)
+
+**What it catches:** `onClick` on a non-`<button>`/`<a>` element without a paired `onKeyDown`/`onKeyPress` handler.
+
+**High-volume false positives:** Many hits are on library component wrappers (FluentUI `<Button>`, PingOne `<PButton>`, custom `<StepButton>`) that render as native `<button>` elements internally and are already keyboard-accessible. The regex cannot see through the component abstraction.
+
+| Pattern | Action |
+|---|---|
+| `onClick` on a custom component that renders as `<button>` internally (e.g. `<StepButton>`, `<PButton>`, `<IconButton>`) | Waive with note: "component renders as native button — keyboard accessible" |
+| `onClick` on a `<div>` or `<span>` that IS the interactive surface (not a wrapper) | **Fix** — add `role`, `tabIndex={0}`, and `onKeyDown` |
+| `onClick` on a drag handle, resize handle, or other non-button visual affordance with custom keyboard handling elsewhere | Waive with note explaining the keyboard alternative |
+
+**Hot files:** `src/components/steps/CommonSteps.tsx`, `src/components/ConfigCheckerButtons.tsx` — review case by case.
+
+---
+
+### `a11y-color/hardcoded-hex-color` (6,147 hits)
+
+**What it catches:** Hardcoded hex/rgb values in JSX `style=` props instead of design tokens or CSS variables.
+
+**This is an `info`-severity pattern** — it will never block a release. Work it after all `error` and `warning` issues are resolved.
+
+**Common false positives:**
+- Dynamic color calculations (e.g. `hsl(${hue}, 100%, 50%)`) — these are intentional
+- SVG `fill=` or `stroke=` attributes with brand colors — waive if the color is defined in the design system and cannot use a CSS var
+- Chart/graph libraries that require numeric color values — waive with note
+
+**Fix strategy:** Replace all `#xxxxxx` values in `style=` props with a CSS variable reference (`var(--color-something)`) or a token constant from the design system. Do this in bulk per file rather than issue by issue.
+
+---
+
+### General waiver command
+
+```bash
+python3 scripts/lint_per_group.py \
+  --update-issue <issue-id> \
+  --status waived \
+  --notes "reason: <explanation>"
+```
+
+Waivers are visible to reviewers in `STATUS.md`. Every waiver **must** have a `notes` value — empty-note waivers will be rejected in code review.
+
+---
+
+## 17. FAQ
 
 **Q: The script says "biome: 0 issues" but I can see linter errors in VS Code.**
 A: VS Code uses the workspace biome extension, which may use a different config scope. Run with `--fix` to apply all safe fixes first, then re-scan.
