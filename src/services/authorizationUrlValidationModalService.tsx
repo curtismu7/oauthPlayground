@@ -1,10 +1,32 @@
 // src/services/authorizationUrlValidationModalService.tsx
 // Modal service for displaying authorization URL validation results
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiXCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import type { UrlValidationResult } from './authorizationUrlValidationService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+		'FiXCircle': 'mdi-close-circle',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Styled Components
 const ModalOverlay = styled.div`
@@ -236,13 +258,13 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 	const getIcon = () => {
 		switch (severity) {
 			case 'error':
-				return <FiXCircle size={24} />;
+				return <MDIIcon icon="FiXCircle" size={24} />;
 			case 'warning':
-				return <FiAlertTriangle size={24} />;
+				return <MDIIcon icon="FiAlertTriangle" size={24} />;
 			case 'info':
-				return <FiCheckCircle size={24} />;
+				return <MDIIcon icon="FiCheckCircle" size={24} />;
 			default:
-				return <FiInfo size={24} />;
+				return <MDIIcon icon="FiInfo" size={24} />;
 		}
 	};
 
@@ -282,7 +304,7 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 						{errors.map((error, index) => (
 							<DetailItem key={`error-${index}`} type="error">
 								<DetailIcon type="error">
-									<FiXCircle size={16} />
+									<MDIIcon icon="FiXCircle" size={16} />
 								</DetailIcon>
 								<DetailText>{error}</DetailText>
 							</DetailItem>
@@ -291,7 +313,7 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 						{warnings.map((warning, index) => (
 							<DetailItem key={`warning-${index}`} type="warning">
 								<DetailIcon type="warning">
-									<FiAlertTriangle size={16} />
+									<MDIIcon icon="FiAlertTriangle" size={16} />
 								</DetailIcon>
 								<DetailText>{warning}</DetailText>
 							</DetailItem>
@@ -300,7 +322,7 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 						{suggestions.map((suggestion, index) => (
 							<DetailItem key={`suggestion-${index}`} type="suggestion">
 								<DetailIcon type="suggestion">
-									<FiInfo size={16} />
+									<MDIIcon icon="FiInfo" size={16} />
 								</DetailIcon>
 								<DetailText>{suggestion}</DetailText>
 							</DetailItem>

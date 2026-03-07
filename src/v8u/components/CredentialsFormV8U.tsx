@@ -51,7 +51,7 @@ import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
 import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
@@ -5209,16 +5209,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 
 								return (
-									<WorkerTokenModalV8
+									<WorkerTokenModalV9
 										isOpen={showWorkerTokenModal}
 										onClose={() => {
 											setShowWorkerTokenModal(false);
-											// Refresh token status when modal closes (matches MFA pattern)
-											setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 										}}
-										onTokenGenerated={() => {
-											// Match MFA pattern exactly
-											window.dispatchEvent(new Event('workerTokenUpdated'));
+										onTokenGenerated={(token) => {
+											console.log('Worker token generated for credentials form:', token);
 											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											setTokenStatus(newStatus);
 											modernMessaging.showFooterMessage({
@@ -5233,7 +5230,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								);
 							} catch {
 								return (
-									<WorkerTokenModalV8
+									<WorkerTokenModalV9
 										isOpen={showWorkerTokenModal}
 										onClose={() => {
 											setShowWorkerTokenModal(false);
