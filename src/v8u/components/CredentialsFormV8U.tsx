@@ -1987,7 +1987,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 						<div className="form-section" data-section="general">
 							<div
 								className="section-header"
+								role="button"
+								tabIndex={0}
 								onClick={() => setShowGeneralSection(!showGeneralSection)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										setShowGeneralSection(!showGeneralSection);
+									}
+								}}
+								aria-expanded={showGeneralSection}
 								style={{ cursor: 'pointer' }}
 							>
 								<div
@@ -2031,7 +2040,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Application Type */}
 									<div className="form-group">
-										<label>
+										<label htmlFor="application-type">
 											Application Type
 											<TooltipV8
 												title={`${TooltipContentServiceV8.APPLICATION_TYPE.title} - ${getAppTypeLabel(appType)}`}
@@ -2042,6 +2051,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											{/* Dropdown - Half Width */}
 											<div style={{ flex: '0 0 50%' }}>
 												<select
+													id="application-type"
 													value={appType}
 													onChange={(e) => {
 														const newAppType = e.target.value as AppType;
@@ -2106,10 +2116,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 															>
 																{helperText.title}
 															</div>
+															{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Helper text content from trusted source */}
 															<div
 																style={{
-																	fontSize: '12px',
-																	color: '#4b5563',
+																	fontSize: '13px',
+																	color: '#374151',
 																	lineHeight: '1.5',
 																	marginBottom: '6px',
 																}}
@@ -2412,7 +2423,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{flowOptions.requiresClientSecret ||
 									(!flowOptions.requiresClientSecret && config.includeClientSecret) ? (
 										<div className="form-group">
-											<label>
+											<label htmlFor="client-secret">
 												Client Secret
 												{flowOptions.requiresClientSecret && pkceEnforcement === 'OPTIONAL' ? (
 													<span className="required">*</span>
@@ -2425,6 +2436,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											</label>
 											<div style={{ position: 'relative' }}>
 												<input
+													id="client-secret"
 													type={showClientSecret ? 'text' : 'password'}
 													placeholder="••••••••••••••••"
 													value={credentials.clientSecret || ''}
@@ -3130,9 +3142,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 								<div className="form-group">
-									<label>Issuer URL or Environment ID</label>
+									<label htmlFor="issuer-url">Issuer URL or Environment ID</label>
 									<div style={{ display: 'flex', gap: '8px' }}>
 										<input
+											id="issuer-url"
 											type="text"
 											placeholder={
 												credentials.environmentId
@@ -3365,7 +3378,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 								{/* Grant Type (read-only, informational) */}
 								<div className="form-group">
-									<label>Grant Type</label>
+									<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Grant Type</div>
 									<div
 										style={{
 											padding: '10px 12px',
@@ -3386,7 +3399,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Redirect URIs */}
 								{flowOptions.requiresRedirectUri && (
 									<div className="form-group">
-										<label>
+										<label htmlFor="redirect-uris">
 											Redirect URIs <span className="required">*</span>
 											<TooltipV8
 												title={TooltipContentServiceV8.REDIRECT_URI.title}
@@ -3394,6 +3407,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											/>
 										</label>
 										<input
+											id="redirect-uris"
 											type="text"
 											placeholder={RedirectUriServiceV8.getRedirectUriPlaceholder(
 												getRedirectFlowKey()
@@ -3472,7 +3486,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Sign Off URLs (Post-Logout Redirect URIs) */}
 								{flowOptions.supportsPostLogoutRedirectUri && (
 									<div className="form-group">
-										<label>
+										<label htmlFor="sign-off-urls">
 											Sign Off URLs (Post-Logout Redirect URIs){' '}
 											<span className="optional">(optional)</span>
 											<TooltipV8
@@ -3481,6 +3495,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											/>
 										</label>
 										<input
+											id="sign-off-urls"
 											type="text"
 											placeholder={RedirectUriServiceV8.getPostLogoutRedirectUriPlaceholder(
 												getRedirectFlowKey()
