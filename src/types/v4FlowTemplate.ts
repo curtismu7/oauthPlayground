@@ -59,15 +59,15 @@ export interface StepProps {
 	setAuthUrl?: (url: string) => void;
 	authCode?: string;
 	setAuthCode?: (code: string) => void;
-	tokens?: any;
-	setTokens?: (tokens: any) => void;
-	userInfo?: any;
-	setUserInfo?: (info: any) => void;
+	tokens?: unknown;
+	setTokens?: (tokens: unknown) => void;
+	userInfo?: unknown;
+	setUserInfo?: (info: unknown) => void;
 	isLoading?: boolean;
 	setIsLoading?: (loading: boolean) => void;
-	onAction?: (action: string, data?: any) => void;
-	quizAnswers?: { [key: string]: any };
-	handleQuizAnswer?: (stepId: string, answer: any, isCorrect: boolean) => void;
+	onAction?: (action: string, data?: unknown) => void;
+	quizAnswers?: { [key: string]: unknown };
+	handleQuizAnswer?: (stepId: string, answer: unknown, isCorrect: boolean) => void;
 }
 
 export interface ValidationResult {
@@ -139,7 +139,7 @@ export interface ButtonStates {
 export interface ApiCallHandler {
 	endpoint: string;
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-	body?: any;
+	body?: unknown;
 	headers?: Record<string, string>;
 	showLoadingToast?: boolean;
 	successMessage?: string;
@@ -161,14 +161,14 @@ export interface V4SaveConfigurationHandler {
 export interface SaveResult {
 	success: boolean;
 	message: string;
-	data?: any;
+	data?: unknown;
 }
 
 export interface FlowResult {
 	flowType: string;
 	success: boolean;
-	tokens?: any;
-	userInfo?: any;
+	tokens?: unknown;
+	userInfo?: unknown;
 	error?: string;
 	duration?: number;
 }
