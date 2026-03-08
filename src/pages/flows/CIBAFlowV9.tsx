@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 /**
  * @file CIBAFlowV9.tsx
  * @module pages/flows
@@ -44,7 +45,6 @@ import {
 	CibaServiceV8Enhanced,
 } from '@/v8/services/cibaServiceV8Enhanced';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';

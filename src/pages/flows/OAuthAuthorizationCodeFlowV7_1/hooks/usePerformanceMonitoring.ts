@@ -3,7 +3,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '../../../../utils/logger';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface PerformanceMetrics {
 	componentName: string;

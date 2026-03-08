@@ -23,7 +23,6 @@ import { logger } from '../services/loggingService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1200px;

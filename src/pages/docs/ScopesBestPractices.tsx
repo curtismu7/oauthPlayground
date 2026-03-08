@@ -13,7 +13,6 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1200px;

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/sdk-examples/SDKExamplesHome.tsx
 // SDK Examples Home Page - Main landing page for SDK examples
 // Cache bust: 2025-02-17-12:45 - Fixed API Display with SuperSimpleApiDisplayV8
@@ -13,7 +14,6 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   padding: 2rem;

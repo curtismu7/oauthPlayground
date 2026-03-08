@@ -23,7 +23,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security

@@ -5,7 +5,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 import { PKCEStorageServiceV8U } from '../v8u/services/pkceStorageServiceV8U';
 import {
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 	DEFAULT_CONFIG,
 	FLOW_CONTEXT_KEY,
 	type PlaygroundResult,

@@ -4,7 +4,6 @@ import { FiAlertCircle, FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Animation for loading spinner
 const spin = keyframes`
