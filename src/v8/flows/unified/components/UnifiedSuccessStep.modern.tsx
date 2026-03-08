@@ -22,7 +22,7 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { FiCheck, FiExternalLink, FiPlusCircle } from '@icons';
+import { FiCheck, FiExternalLink, FiPlus } from '@icons';
 
 const MODULE_TAG = '[✅ UNIFIED-SUCCESS-MODERN]';
 
@@ -331,7 +331,7 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 						variant="secondary"
 						size="md"
 						onClick={handleRegisterAnother}
-						leftIcon={<FiPlusCircle size={16} />}
+						leftIcon={<FiPlus size={16} />}
 					>
 						Register Another Device
 					</Button>
