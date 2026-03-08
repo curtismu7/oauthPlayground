@@ -1,10 +1,9 @@
-import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -26,27 +25,47 @@ const Card = styled.div`
   max-width: 500px;
 `;
 
-const Spinner = styled(FiLoader)`
+const Spinner = styled.span`
   animation: spin 1s linear infinite;
   font-size: 3rem;
   color: ${({ theme }) => theme.colors.primary};
   margin-bottom: 1.5rem;
-  
+  display: inline-block;
+
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  &::before {
+    content: '⏳';
   }
 `;
 
-const SuccessIcon = styled(FiCheckCircle)`
+const SuccessIcon = styled.span`
   font-size: 3rem;
   color: ${({ theme }) => theme.colors.success};
   margin-bottom: 1.5rem;
+  display: inline-block;
+
+  &::before {
+    content: '✅';
+  }
 `;
 
-const ErrorIcon = styled(FiAlertCircle)`
+const ErrorIcon = styled.span`
   font-size: 3rem;
   color: ${({ theme }) => theme.colors.danger};
   margin-bottom: 1.5rem;
+  display: inline-block;
+
+  &::before {
+    content: '⚠️';
+  }
 `;
 
 const Title = styled.h1`
@@ -82,6 +101,8 @@ const Button = styled.button`
     text-decoration: none;
   }
 `;
+
+const log = createModuleLogger('src/pages/Callback.tsx');
 
 const Callback = () => {
 	const [searchParams] = useSearchParams();
@@ -136,7 +157,7 @@ const Callback = () => {
 
 				// Check for error in the URL (e.g., user denied permission)
 				if (urlParams.error) {
-					logger.error('Callback', ' [Callback] OAuth error in URL:', {
+					log.error('Callback', ' [Callback] OAuth error in URL:', {
 						error: urlParams.error,
 						errorDescription: urlParams.error_description,
 					});
@@ -199,8 +220,8 @@ const Callback = () => {
 
 				// Check if we have the required parameters
 				if (!urlParams.code) {
-					logger.error('Callback', ' [Callback] No authorization code in URL parameters');
-					logger.error('Callback', ' [Callback] Available parameters:', {
+					log.error('Callback', ' [Callback] No authorization code in URL parameters');
+					log.error('Callback', ' [Callback] Available parameters:', {
 						params: Object.keys(urlParams),
 					});
 
@@ -269,7 +290,7 @@ const Callback = () => {
 					navigate(redirectUrl, { replace: true });
 				}, 1500);
 			} catch (err) {
-				logger.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
+				log.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
 				setStatus('error');
 				const errorMessage =
 					err instanceof Error ? err.message : 'An error occurred during authentication';

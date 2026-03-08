@@ -32,7 +32,7 @@ import FlowUIService from '../../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 

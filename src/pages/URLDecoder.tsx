@@ -1,22 +1,12 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/URLDecoder.tsx - URL Decoder Utility
 
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiCode,
-	FiCopy,
-	FiInfo,
-	FiLink,
-	FiRefreshCw,
-	FiSearch,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
@@ -397,7 +387,7 @@ const URLDecoder: React.FC = () => {
 			<ContentCard>
 				<CardHeader>
 					<CardTitle>
-						<FiCode />
+						📝
 						URL Input
 					</CardTitle>
 					<CardDescription>
@@ -410,7 +400,7 @@ const URLDecoder: React.FC = () => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<FiInfo />
+						ℹ️
 						<strong>Supported Formats:</strong>
 					</div>
 					<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
@@ -466,7 +456,7 @@ const URLDecoder: React.FC = () => {
 
 					<ResultCard>
 						<ResultTitle>
-							<FiCode />
+							📝
 							Decoded URL Details
 						</ResultTitle>
 						<ResultContent>{decodedResult}</ResultContent>

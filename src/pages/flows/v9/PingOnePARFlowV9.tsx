@@ -10,7 +10,7 @@ import ColoredTokenDisplay from '../../../components/ColoredTokenDisplay';
 import { useAuthorizationCodeFlowController } from '../../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import {
 	type PARConfiguration,
 	PARConfigurationServiceUtils,
