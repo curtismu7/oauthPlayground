@@ -57,7 +57,7 @@ import FlowCredentialService from '../../../services/flowCredentialService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import FlowStorageService from '../../../services/flowStorageService';
 import FlowUIService from '../../../services/flowUIService';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../../services/pkceGenerationService';
 import { themeService } from '../../../services/themeService';

@@ -24,7 +24,7 @@ import {
 } from '../types/oauthErrors';
 import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
-import { createModuleLogger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { oauthStorage } from '../utils/storage';
 
 /**
