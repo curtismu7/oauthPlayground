@@ -1,4 +1,4 @@
-import { FiCode } from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { CodeGenerationService } from '../services/codeGeneration';
@@ -131,7 +131,7 @@ export const MfaFlowCodeGenerator: React.FC<MfaFlowCodeGeneratorProps> = ({
 		<CollapsibleHeader
 			title={
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<FiCode size={20} />
+					<span style={{ fontSize: '20px' }}>❓</span>
 					Code Examples - Production Ready
 				</div>
 			}

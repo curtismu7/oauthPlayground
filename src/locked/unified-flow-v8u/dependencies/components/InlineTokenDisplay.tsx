@@ -1,7 +1,7 @@
 // src/components/InlineTokenDisplay.tsx
 // Inline Token Display Component with In-Place Decoding
 
-import { FiCopy, FiExternalLink, FiKey, FiShield } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
@@ -234,13 +234,13 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	const getTokenIcon = () => {
 		switch (tokenType) {
 			case 'access':
-				return <FiKey size={16} />;
+				return <span style={{ fontSize: '16px' }}>🔑</span>;
 			case 'id':
-				return <FiShield size={16} />;
+				return <span style={{ fontSize: '16px' }}>🛡️</span>;
 			case 'refresh':
-				return <FiShield size={16} />;
+				return <span style={{ fontSize: '16px' }}>🛡️</span>;
 			default:
-				return <FiShield size={16} />;
+				return <span style={{ fontSize: '16px' }}>🛡️</span>;
 		}
 	};
 
@@ -312,7 +312,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						onClick={handleToggleDecode}
 						title={showDecoded ? 'Hide decoded content' : 'Show decoded content'}
 					>
-						<FiKey size={14} />
+						<span style={{ fontSize: '14px' }}>🔑</span>
 						{showDecoded ? 'Hide Decode' : 'Decode'}
 					</ActionButton>
 					<ActionButton
@@ -321,7 +321,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						$variant="primary"
 						disabled={!token}
 					>
-						<FiCopy size={14} />
+						<span style={{ fontSize: '14px' }}>📋</span>
 						Copy
 					</ActionButton>
 					<ActionButton
@@ -330,7 +330,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						$variant="management"
 						disabled={!token}
 					>
-						<FiExternalLink size={14} />
+						<span style={{ fontSize: '14px' }}>🔗</span>
 						Token Management
 					</ActionButton>
 				</ActionButtons>
@@ -342,7 +342,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 					<div>
 						{isOpaque ? (
 							<OpaqueMessage>
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								{TokenDisplayService.getOpaqueTokenMessage(tokenType)}
 							</OpaqueMessage>
 						) : decodedContent ? (
@@ -366,7 +366,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 							</div>
 						) : (
 							<OpaqueMessage>
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								Unable to decode token content.
 							</OpaqueMessage>
 						)}

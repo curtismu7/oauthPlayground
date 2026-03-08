@@ -9,7 +9,7 @@
  * and services for better consistency and maintainability.
  */
 
-import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

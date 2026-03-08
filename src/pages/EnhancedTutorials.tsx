@@ -1,4 +1,4 @@
-import { FiCode, FiPlay } from '@icons';
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -328,11 +328,11 @@ const decodedPayload = JSON.parse(atob(payload));`,
 
 			<TabNavigation>
 				<TabButton $active={activeTab === 'tutorials'} onClick={() => setActiveTab('tutorials')}>
-					<FiPlay size={16} />
+					<span style={{ fontSize: '16px' }}>❓</span>
 					Interactive Tutorials
 				</TabButton>
 				<TabButton $active={activeTab === 'utilities'} onClick={() => setActiveTab('utilities')}>
-					<FiCode size={16} />
+					<span style={{ fontSize: '16px' }}>❓</span>
 					Developer Utilities
 				</TabButton>
 			</TabNavigation>

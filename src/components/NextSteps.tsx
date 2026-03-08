@@ -1,4 +1,4 @@
-import { FiCheckCircle } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -49,7 +49,7 @@ const NextSteps: React.FC<NextStepsProps> = ({ steps }) => {
 			{steps.map((step, index) => (
 				<NextStepItem key={index}>
 					<NextStepIcon>
-						<FiCheckCircle />
+						<span>✅</span>
 					</NextStepIcon>
 					<NextStepText>{step}</NextStepText>
 				</NextStepItem>

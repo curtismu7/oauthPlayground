@@ -229,11 +229,16 @@ const SupportBadge = styled.div<{ $type: 'full' | 'partial' | 'none' | 'plugin' 
 	}};
 `;
 
-const InfoIcon = styled(FiInfo)`
+const InfoIcon = styled.span<{ $size?: number }>`
 	cursor: help;
 	opacity: 0.6;
 	transition: opacity 0.2s;
-
+	font-size: ${({ $size = 14 }) => $size}px;
+	
+	&::before {
+		content: 'ℹ️';
+	}
+	
 	&:hover {
 		opacity: 1;
 	}
@@ -1198,7 +1203,7 @@ const PingProductComparison: React.FC = () => {
 										{getSupportLabel(feature.support.pf)}
 									</SupportBadge>
 									{feature.support.notes?.pf && (
-										<InfoIcon size={14} title={feature.support.notes.pf} />
+										<InfoIcon $size={14} title={feature.support.notes.pf} />
 									)}
 								</SupportCell>
 								<SupportCell>
@@ -1207,7 +1212,7 @@ const PingProductComparison: React.FC = () => {
 										{getSupportLabel(feature.support.aic)}
 									</SupportBadge>
 									{feature.support.notes?.aic && (
-										<InfoIcon size={14} title={feature.support.notes.aic} />
+										<InfoIcon $size={14} title={feature.support.notes.aic} />
 									)}
 								</SupportCell>
 								<SupportCell>
@@ -1216,7 +1221,7 @@ const PingProductComparison: React.FC = () => {
 										{getSupportLabel(feature.support.pingone)}
 									</SupportBadge>
 									{feature.support.notes?.pingone && (
-										<InfoIcon size={14} title={feature.support.notes.pingone} />
+										<InfoIcon $size={14} title={feature.support.notes.pingone} />
 									)}
 								</SupportCell>
 							</FeatureRow>

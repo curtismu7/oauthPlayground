@@ -1,9 +1,9 @@
 // src/components/CentralizedSuccessMessage.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 /**
  * Centralized success and error message system
@@ -272,7 +272,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
 
 	useEffect(() => {
 		if (hasPrimaryToastInstance) {
-			logger.warn(
+			log.warn(
 				'CentralizedSuccessMessage',
 				'Multiple CentralizedSuccessMessage instances detected. Additional instances will be inactive.'
 			);
@@ -317,7 +317,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
 							$isError={message.isError}
 							onClick={() => removeMessage(message.id)}
 						>
-							{message.isError ? <FiAlertCircle /> : <FiCheckCircle />}
+							{message.isError ? <span>⚠️</span> : <span>✅</span>}
 							<span>{message.text}</span>
 						</ToastMessage>
 					))}
@@ -333,7 +333,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
 					>
 						<ErrorHeader>
 							<ErrorIcon>
-								<FiAlertCircle size={24} />
+								<span style={{ fontSize: '24px' }}>⚠️</span>
 							</ErrorIcon>
 							<div>
 								<ErrorTitle id={`error-modal-${modalContent.id}`}>We hit an issue</ErrorTitle>
@@ -362,7 +362,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
 
 						<ModalActions>
 							<CloseButton type="button" onClick={handleCloseModal}>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 								Dismiss
 							</CloseButton>
 						</ModalActions>

@@ -9,7 +9,7 @@
  * Replaces the old UserCacheProgressV8 component that used IndexedDB.
  */
 
-import { FiDatabase, FiRefreshCw } from '@icons';
+
 import React from 'react';
 import { useSQLiteStats } from '@/v8/hooks/useSQLiteStats';
 
@@ -98,7 +98,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 					gap: '6px',
 				}}
 			>
-				<FiDatabase size={14} />
+				<span style={{ fontSize: '14px' }}>🗄️</span>
 				<span>{stats.totalUsers.toLocaleString()} users in SQLite</span>
 				{metadata?.lastSyncedAt && (
 					<span style={{ color: '#6b7280', fontSize: '11px' }}>
@@ -137,7 +137,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 						gap: '6px',
 					}}
 				>
-					<FiDatabase size={16} />
+					<span style={{ fontSize: '16px' }}>🗄️</span>
 					SQLite Database
 				</div>
 				{showRefreshButton && (
@@ -159,7 +159,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 							gap: '4px',
 						}}
 					>
-						<FiRefreshCw size={12} />
+						<span style={{ fontSize: '12px' }}>🔄</span>
 						Refresh
 					</button>
 				)}

@@ -1,12 +1,12 @@
 // src/components/LogoutCallback.tsx
 // Component to handle OIDC logout callback redirects
 
-import { FiCheckCircle, FiLogIn } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CallbackContainer = styled.div`
 	display: flex;
@@ -77,7 +77,7 @@ const LogoutCallback: React.FC = () => {
 	useEffect(() => {
 		const processLogoutCallback = async () => {
 			try {
-				logger.auth('LogoutCallback', 'Processing logout callback');
+				log.auth('LogoutCallback', 'Processing logout callback');
 
 				// Clear any remaining session data
 				const keysToRemove = [
@@ -108,7 +108,7 @@ const LogoutCallback: React.FC = () => {
 				});
 
 				// Log successful logout
-				logger.auth('LogoutCallback', 'Logout completed successfully');
+				log.auth('LogoutCallback', 'Logout completed successfully');
 
 				// Show success message
 				modernMessaging.showFooterMessage({
@@ -122,7 +122,7 @@ const LogoutCallback: React.FC = () => {
 					setIsProcessing(false);
 				}, 1000);
 			} catch (error) {
-				logger.error('LogoutCallback', 'Error during logout processing', error);
+				log.error('LogoutCallback', 'Error during logout processing', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -145,7 +145,7 @@ const LogoutCallback: React.FC = () => {
 			<CallbackContainer>
 				<SuccessCard>
 					<SuccessIcon>
-						<FiCheckCircle />
+						<span>✅</span>
 					</SuccessIcon>
 					<SuccessTitle>Logging Out...</SuccessTitle>
 					<SuccessMessage>
@@ -160,7 +160,7 @@ const LogoutCallback: React.FC = () => {
 		<CallbackContainer>
 			<SuccessCard>
 				<SuccessIcon>
-					<FiCheckCircle />
+					<span>✅</span>
 				</SuccessIcon>
 				<SuccessTitle>Logout Successful</SuccessTitle>
 				<SuccessMessage>
@@ -168,7 +168,7 @@ const LogoutCallback: React.FC = () => {
 					terminated and all tokens have been cleared.
 				</SuccessMessage>
 				<LoginButton onClick={handleReturnToLogin}>
-					<FiLogIn />
+					<span>❓</span>
 					Return to Login
 				</LoginButton>
 			</SuccessCard>

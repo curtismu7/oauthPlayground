@@ -1,21 +1,7 @@
 // src/pages/docs/OIDCOverviewV7.tsx
 // V7 OIDC Overview with Enhanced Architecture
 
-import {
-	FiArrowRight,
-	FiCheckCircle,
-	FiCode,
-	FiGitBranch,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiSettings,
-	FiSmartphone,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -436,7 +422,7 @@ const OIDCOverviewV7: React.FC = () => {
 			<ResponsiveContentWrapper>
 				{/* OIDC Overview Introduction */}
 				<InfoBox $variant="info" style={{ marginBottom: '2rem' }}>
-					<FiInfo size={24} />
+					<span style={{ fontSize: '24px' }}>ℹ️</span>
 					<div>
 						<InfoTitle>OpenID Connect (OIDC) Overview</InfoTitle>
 						<p style={{ marginBottom: '1rem' }}>
@@ -629,7 +615,7 @@ const OIDCOverviewV7: React.FC = () => {
 
 				{/* Implementation Guidelines */}
 				<InfoBox $variant="success" style={{ marginTop: '2rem' }}>
-					<FiCheckCircle size={24} />
+					<span style={{ fontSize: '24px' }}>✅</span>
 					<div>
 						<InfoTitle>Implementation Best Practices</InfoTitle>
 						<ul style={{ margin: '1rem 0', paddingLeft: '1rem' }}>

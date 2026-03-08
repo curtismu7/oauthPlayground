@@ -1,7 +1,7 @@
 // src/components/QRCodeServiceDemo.tsx
 // Demo component showcasing QRCodeService functionality
 
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw, FiSettings } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult, type TOTPConfig } from '../services/qrCodeService';
@@ -303,9 +303,9 @@ export const QRCodeServiceDemo: React.FC = () => {
 
 			{status && (
 				<StatusDisplay status={status.type}>
-					{status.type === 'success' && <FiCheckCircle size={16} />}
-					{status.type === 'error' && <FiAlertCircle size={16} />}
-					{status.type === 'info' && <FiSettings size={16} />}
+					{status.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
+					{status.type === 'error' && <span style={{ fontSize: '16px' }}>⚠️</span>}
+					{status.type === 'info' && <span style={{ fontSize: '16px' }}>⚙️</span>}
 					{status.message}
 				</StatusDisplay>
 			)}
@@ -314,7 +314,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 				<div>
 					<Section>
 						<SectionTitle>
-							<FiSettings size={20} />
+							<span style={{ fontSize: '20px' }}>⚙️</span>
 							TOTP Configuration
 						</SectionTitle>
 
@@ -326,7 +326,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 								placeholder="Base32 encoded secret"
 							/>
 							<Button onClick={handleGenerateSecret}>
-								<FiRefreshCw size={14} />
+								<span style={{ fontSize: '14px' }}>🔄</span>
 								Generate New Secret
 							</Button>
 						</FormGroup>
@@ -390,14 +390,14 @@ export const QRCodeServiceDemo: React.FC = () => {
 						</FormGroup>
 
 						<Button variant="primary" onClick={handleGenerateQRCode}>
-							<FiKey size={14} />
+							<span style={{ fontSize: '14px' }}>🔑</span>
 							Generate QR Code
 						</Button>
 					</Section>
 
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							TOTP Code Validation
 						</SectionTitle>
 
@@ -412,7 +412,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 						</FormGroup>
 
 						<Button variant="success" onClick={handleValidateCode}>
-							<FiCheckCircle size={14} />
+							<span style={{ fontSize: '14px' }}>✅</span>
 							Validate Code
 						</Button>
 
@@ -447,7 +447,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 								<Label>TOTP URI:</Label>
 								<CodeBlock>{qrResult.totpUri}</CodeBlock>
 								<Button onClick={() => copyToClipboard(qrResult.totpUri)}>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy URI
 								</Button>
 							</div>
@@ -456,7 +456,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 								<Label>Manual Entry Key:</Label>
 								<CodeBlock>{qrResult.manualEntryKey}</CodeBlock>
 								<Button onClick={() => copyToClipboard(qrResult.manualEntryKey)}>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy Key
 								</Button>
 							</div>

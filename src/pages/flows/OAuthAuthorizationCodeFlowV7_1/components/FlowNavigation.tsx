@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowNavigation.tsx
 // V7.1 Flow Navigation - Step navigation and flow control
 
-import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
@@ -246,7 +246,7 @@ export const FlowNavigation: React.FC<FlowNavigationProps> = ({
 				)}
 
 				<NavButton $variant="secondary" onClick={handleGoBack} disabled={!canGoBack}>
-					<FiChevronLeft />
+					<span>⬅️</span>
 					Back
 				</NavButton>
 			</NavigationLeft>
@@ -265,19 +265,19 @@ export const FlowNavigation: React.FC<FlowNavigationProps> = ({
 			<NavigationRight>
 				<NavButton $variant="primary" onClick={handleGoForward} disabled={!canGoForward}>
 					Next
-					<FiChevronRight />
+					<span>➡️</span>
 				</NavButton>
 
 				{showResetButton && (
 					<NavButton $variant="secondary" onClick={onReset} title="Reset Flow">
-						<FiRefreshCw />
+						<span>🔄</span>
 						Reset
 					</NavButton>
 				)}
 
 				{showHomeButton && (
 					<NavButton $variant="secondary" onClick={handleGoHome} title="Go Home">
-						<FiHome />
+						<span>🏠</span>
 						Home
 					</NavButton>
 				)}

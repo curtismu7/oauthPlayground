@@ -1,13 +1,13 @@
 // src/components/password-reset/PasswordSetValueTab.tsx
 // Update Password (Set Value) Tab Component
 
-import { FiBook, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiSearch } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -273,7 +273,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'PasswordSetValueTab',
 				'[PasswordSetValueTab] Lookup error:',
 				undefined,
@@ -381,10 +381,10 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<FiBook />
+					<span>📖</span>
 					PingOne API: Update Password (Set Value) - Content-Type:
 					application/vnd.pingidentity.password.setValue+json
-					<FiExternalLink size={14} />
+					<span style={{ fontSize: '14px' }}>🔗</span>
 				</DocumentationLink>
 			</DocumentationSection>
 
@@ -411,7 +411,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 						onChange={(e) => setIdentifier(e.target.value)}
 					/>
 					<Button onClick={handleLookup} disabled={lookupLoading || loading || !identifier}>
-						{lookupLoading ? <SpinningIcon /> : <FiSearch />}
+						{lookupLoading ? <SpinningIcon /> : <span>🔍</span>}
 						{lookupLoading ? 'Looking up...' : 'Lookup'}
 					</Button>
 				</div>
@@ -460,7 +460,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 									padding: '0.25rem',
 								}}
 							>
-								{showPassword ? <FiEyeOff /> : <FiEye />}
+								{showPassword ? <span>🙈</span> : <span>👁️</span>}
 							</button>
 						</div>
 					</FormGroup>
@@ -517,7 +517,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 					</FormGroup>
 
 					<Button $variant="success" onClick={handleSetPassword} disabled={loading || !password}>
-						{loading ? <SpinningIcon /> : <FiCheckCircle />}
+						{loading ? <SpinningIcon /> : <span>✅</span>}
 						{loading ? 'Setting...' : 'Set Password (Recommended)'}
 					</Button>
 				</>

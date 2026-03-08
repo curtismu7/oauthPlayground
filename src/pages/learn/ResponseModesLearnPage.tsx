@@ -1,7 +1,7 @@
 // src/pages/learn/ResponseModesLearnPage.tsx
 // Standalone learn page for Response Modes with editable inputs and presets
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import ResponseModeExamples, {
@@ -218,7 +218,7 @@ const ResponseModesLearnPage: React.FC = () => {
 				<MainCard>
 					<Section>
 						<SectionTitle>
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							Understanding Response Modes
 						</SectionTitle>
 						<SectionDescription>
@@ -227,7 +227,7 @@ const ResponseModesLearnPage: React.FC = () => {
 						</SectionDescription>
 
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<InfoContent>
 								<InfoTitle>What are Response Modes?</InfoTitle>
 								<InfoText>
@@ -239,7 +239,7 @@ const ResponseModesLearnPage: React.FC = () => {
 						</InfoBox>
 
 						<InfoBox $variant="warning">
-							<FiAlertTriangle size={20} />
+							<span style={{ fontSize: '20px' }}>⚠️</span>
 							<InfoContent>
 								<InfoTitle>Security Considerations</InfoTitle>
 								<InfoText>
@@ -253,7 +253,7 @@ const ResponseModesLearnPage: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							Interactive Examples
 						</SectionTitle>
 						<SectionDescription>
@@ -364,7 +364,7 @@ const ResponseModesLearnPage: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 							Compatibility Matrix
 						</SectionTitle>
 						<SectionDescription>

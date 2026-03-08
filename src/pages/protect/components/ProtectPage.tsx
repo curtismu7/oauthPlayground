@@ -9,7 +9,7 @@
  * risk scores before allowing access to the protected resource.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiShield } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type {
@@ -231,11 +231,11 @@ const ProtectPage: React.FC<ProtectPageProps> = ({
 	const getRiskIcon = () => {
 		switch (riskEvaluation.result.level) {
 			case 'MEDIUM':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'HIGH':
-				return <FiShield />;
+				return <span>🛡️</span>;
 			default:
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 		}
 	};
 
@@ -316,7 +316,7 @@ const ProtectPage: React.FC<ProtectPageProps> = ({
 				{verificationComplete && (
 					<div style={{ textAlign: 'center' }}>
 						<ActionButton onClick={onSuccess} variant="primary">
-							<FiCheckCircle />
+							<span>✅</span>
 							Continue to Protected Resource
 						</ActionButton>
 					</div>

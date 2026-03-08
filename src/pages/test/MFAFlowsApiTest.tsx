@@ -2,11 +2,11 @@
 // Comprehensive test page for MFA flows: OTP, TOTP, FIDO registration
 // Tests PingOne MFA API implementations and Admin Authentication scenarios
 
-import { FiKey, FiRefreshCw, FiSmartphone, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
@@ -714,7 +714,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			console.log('✅ MFA Flow tests completed!');
 		} catch (error) {
-			logger.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
+			log.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
 		} finally {
 			setIsRunning(false);
 		}
@@ -739,7 +739,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			console.log('✅ Admin Authentication tests completed!');
 		} catch (error) {
-			logger.error(
+			log.error(
 				'MFAFlowsApiTest',
 				'❌ Admin Authentication test suite failed:',
 				undefined,
@@ -763,7 +763,7 @@ const MFAFlowsApiTest: React.FC = () => {
 						variant={hasWorkerToken ? 'secondary' : 'primary'}
 						onClick={() => setShowWorkerTokenModal(true)}
 					>
-						<FiKey />
+						<span>🔑</span>
 						{hasWorkerToken ? '✓ Worker Token Set' : 'Get Worker Token'}
 					</Button>
 					<Button
@@ -772,7 +772,7 @@ const MFAFlowsApiTest: React.FC = () => {
 							window.location.reload();
 						}}
 					>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Refresh Apps
 					</Button>
 				</ButtonGroup>
@@ -864,11 +864,11 @@ const MFAFlowsApiTest: React.FC = () => {
 
 					<ButtonGroup>
 						<Button variant="primary" onClick={runMFATests} disabled={isRunning}>
-							<FiSmartphone />
+							<span>📱</span>
 							{isRunning ? 'Running MFA Tests...' : 'Run MFA Tests'}
 						</Button>
 						<Button variant="secondary" onClick={() => setResults([])}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Clear Results
 						</Button>
 					</ButtonGroup>
@@ -903,11 +903,11 @@ const MFAFlowsApiTest: React.FC = () => {
 
 					<ButtonGroup>
 						<Button variant="primary" onClick={runAdminAuthTests} disabled={isRunning}>
-							<FiUser />
+							<span>👤</span>
 							{isRunning ? 'Running Admin Tests...' : 'Run Admin Tests'}
 						</Button>
 						<Button variant="secondary" onClick={() => setResults([])}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Clear Results
 						</Button>
 					</ButtonGroup>

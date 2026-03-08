@@ -1,7 +1,7 @@
 // src/components/ResponseModeSelector.tsx
 // Reusable response mode selector component for OAuth/OIDC flows
 
-import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ResponseMode, ResponseModeService } from '../services/responseModeService';
@@ -70,7 +70,7 @@ const ModeName = styled.span`
 	font-weight: 600;
 `;
 
-const ChevronIcon = styled(FiChevronDown)<{ $isOpen: boolean }>`
+const ChevronIcon = styled.span<{ $isOpen: boolean }>`
 	transition: transform 0.2s ease;
 	transform: ${(props) => (props.$isOpen ? 'rotate(0deg)' : 'rotate(-90deg)')};
 	color: V9_COLORS.TEXT.GRAY_MEDIUM;
@@ -451,7 +451,7 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 									<OptionUseCase>Best for: {modeInfo.useCase}</OptionUseCase>
 									{hasIssues && (
 										<CompatibilityWarning>
-											<FiAlertTriangle size={12} />
+											<span style={{ fontSize: '12px' }}>⚠️</span>
 											{validation.issues[0]}
 										</CompatibilityWarning>
 									)}
@@ -465,7 +465,7 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 			{selectedModeInfo && (
 				<InfoSection>
 					<InfoTitle>
-						<FiInfo size={16} />
+						<span style={{ fontSize: '16px' }}>ℹ️</span>
 						{selectedModeInfo.name} Details
 					</InfoTitle>
 					<InfoText>{selectedModeInfo.description}</InfoText>
@@ -482,7 +482,7 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 
 			{hasCompatibilityIssues && (
 				<CompatibilityWarning>
-					<FiAlertTriangle size={16} />
+					<span style={{ fontSize: '16px' }}>⚠️</span>
 					<div>
 						<strong>Compatibility Issues:</strong>
 						<ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
@@ -497,7 +497,7 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 			{showUrlExamples && selectedModeInfo && (
 				<UrlExampleSection>
 					<UrlExampleTitle>
-						<FiInfo size={16} />
+						<span style={{ fontSize: '16px' }}>ℹ️</span>
 						Live Examples for {selectedModeInfo.name}
 					</UrlExampleTitle>
 

@@ -1,8 +1,8 @@
-import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
@@ -347,7 +347,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 			await onLogin(username.trim(), password);
 		} catch (err) {
 			// Error will be handled by parent component
-			logger.error('RedirectlessLoginModal', 'Login failed:', undefined, err as Error);
+			log.error('RedirectlessLoginModal', 'Login failed:', undefined, err as Error);
 		}
 	};
 
@@ -374,10 +374,10 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 						loadingText="Closing..."
 						className="close-button"
 					>
-						<FiX />
+						<span>❌</span>
 					</ButtonSpinner>
 					<IconBadge>
-						<FiShield />
+						<span>🛡️</span>
 					</IconBadge>
 					<h2>{title}</h2>
 					<p>{subtitle}</p>
@@ -387,7 +387,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 					<ModalBody>
 						<FormGroup>
 							<label htmlFor="username">
-								<FiUser size={14} />
+								<span style={{ fontSize: '14px' }}>👤</span>
 								Username
 							</label>
 							<InputContainer>
@@ -409,7 +409,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 
 						<FormGroup>
 							<label htmlFor="password">
-								<FiLock size={14} />
+								<span style={{ fontSize: '14px' }}>🔒</span>
 								Password
 							</label>
 							<InputContainer>
@@ -435,20 +435,20 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 									loadingText="Toggling..."
 									className="toggle-password"
 								>
-									{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 								</ButtonSpinner>
 							</InputContainer>
 						</FormGroup>
 
 						{displayError && (
 							<ErrorMessage>
-								<FiX size={16} />
+								<span style={{ fontSize: '16px' }}>❌</span>
 								<span>{displayError}</span>
 							</ErrorMessage>
 						)}
 
 						<SecurityNote>
-							<FiShield size={14} />
+							<span style={{ fontSize: '14px' }}>🛡️</span>
 							<span>
 								Your credentials are sent securely to PingOne via HTTPS. This app does not store
 								your password.
@@ -468,7 +468,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 								</>
 							) : (
 								<>
-									<FiShield />
+									<span>🛡️</span>
 									Sign In
 								</>
 							)}

@@ -1,15 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCpu,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiServer,
-	FiShield,
-	FiX,
-	FiZap,
-} from '@icons';
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
@@ -773,7 +762,7 @@ const AIAgentOverview = () => {
 				<V6CollapsibleHeader
 					title="Why AI Agents Need Advanced OAuth/OIDC Features"
 					subtitle="Understanding the security requirements for AI agent authentication and authorization"
-					icon={<FiInfo />}
+					icon={<span>ℹ️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -856,7 +845,7 @@ const AIAgentOverview = () => {
 				<V6CollapsibleHeader
 					title="Key OAuth/OIDC Features for AI Agents"
 					subtitle="Advanced features required for secure AI agent authentication and authorization"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<FeatureGrid>
@@ -878,9 +867,9 @@ const AIAgentOverview = () => {
 											<h3>{feature.title}</h3>
 										</FeatureTitle>
 										<StatusBadge $status={feature.status}>
-											{feature.status === 'supported' && <FiCheckCircle />}
-											{feature.status === 'not-supported' && <FiX />}
-											{feature.status === 'partial' && <FiAlertTriangle />}
+											{feature.status === 'supported' && <span>✅</span>}
+											{feature.status === 'not-supported' && <span>❌</span>}
+											{feature.status === 'partial' && <span>⚠️</span>}
 											{feature.status === 'supported'
 												? 'Supported'
 												: feature.status === 'not-supported'
@@ -901,7 +890,7 @@ const AIAgentOverview = () => {
 									</TechnicalDetails>
 
 									<PingOneNote $type={feature.pingoneSupport.type}>
-										<FiInfo />
+										<span>ℹ️</span>
 										<div>
 											<h4>{feature.pingoneSupport.title}</h4>
 											<p>{feature.pingoneSupport.message}</p>
@@ -917,7 +906,7 @@ const AIAgentOverview = () => {
 				<V6CollapsibleHeader
 					title="Identity Provider Comparison for AI Agents"
 					subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
-					icon={<FiServer />}
+					icon={<span>🖥️</span>}
 					defaultCollapsed={false}
 				>
 					<ComparisonSection>
@@ -945,7 +934,7 @@ const AIAgentOverview = () => {
 											gap: '0.75rem',
 										}}
 									>
-										<FiServer />
+										<span>🖥️</span>
 										Ping Identity Product Comparison
 									</h3>
 								</CollapsibleHeader>
@@ -983,37 +972,37 @@ const AIAgentOverview = () => {
 											<td>RFC 9126</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1031,7 +1020,7 @@ const AIAgentOverview = () => {
 													$status="not-supported"
 													onClick={() => showExplanation('rar-pingone')}
 												>
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1040,7 +1029,7 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('rar-pingfederate')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Limited
 												</StatusBadge>
 											</td>
@@ -1049,25 +1038,25 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('rar-pingone-advanced')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Partial
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1087,7 +1076,7 @@ const AIAgentOverview = () => {
 													$status="not-supported"
 													onClick={() => showExplanation('dpop-pingone')}
 												>
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1096,7 +1085,7 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('dpop-pingfederate')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Client Auth Only
 												</StatusBadge>
 											</td>
@@ -1105,25 +1094,25 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('dpop-pingone-advanced')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Client Auth Only
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1141,37 +1130,37 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('mtls-pingone')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Client Auth Only
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1188,37 +1177,37 @@ const AIAgentOverview = () => {
 											<td>RFC 9101</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1233,37 +1222,37 @@ const AIAgentOverview = () => {
 											<td>RFC 6749</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1281,7 +1270,7 @@ const AIAgentOverview = () => {
 													$status="not-supported"
 													onClick={() => showExplanation('token-exchange-pingone')}
 												>
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1290,7 +1279,7 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('token-exchange-pingfederate')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Limited
 												</StatusBadge>
 											</td>
@@ -1299,25 +1288,25 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('token-exchange-pingone-advanced')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Limited
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="not-supported">
-													<FiX />
+													<span>❌</span>
 													Not Available
 												</StatusBadge>
 											</td>
@@ -1332,37 +1321,37 @@ const AIAgentOverview = () => {
 											<td>RFC 8628</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1377,37 +1366,37 @@ const AIAgentOverview = () => {
 											<td>OpenID Core</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1425,37 +1414,37 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('fapi-pingone')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Read-Only
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1473,37 +1462,37 @@ const AIAgentOverview = () => {
 													$status="partial"
 													onClick={() => showExplanation('custom-tokens-pingone')}
 												>
-													<FiAlertTriangle />
+													<span>⚠️</span>
 													Limited
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Extensible
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Extensible
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Full Support
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
 											<td>
 												<StatusBadge $status="supported">
-													<FiCheckCircle />
+													<span>✅</span>
 													Supported
 												</StatusBadge>
 											</td>
@@ -1520,7 +1509,7 @@ const AIAgentOverview = () => {
 				<V6CollapsibleHeader
 					title="Product Selection & Best Practices for AI Agents"
 					subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
-					icon={<FiCheckCircle />}
+					icon={<span>✅</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -1569,7 +1558,7 @@ const AIAgentOverview = () => {
 				<V6CollapsibleHeader
 					title="MCP Servers: The Future of AI Agent Integration"
 					subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
-					icon={<FiServer />}
+					icon={<span>🖥️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>

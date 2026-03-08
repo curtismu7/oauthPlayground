@@ -1,6 +1,6 @@
 // src/components/RedirectModal.tsx
 
-import { FiCheck, FiClock, FiExternalLink, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from './ColoredUrlDisplay';
@@ -321,11 +321,11 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 			<ModalContainer>
 				<ModalHeader>
 					<ModalTitle>
-						<FiExternalLink />
+						<span>🔗</span>
 						{title}
 					</ModalTitle>
 					<CloseButton onClick={handleCancel} title="Cancel redirect">
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -334,7 +334,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 
 					<URLSection>
 						<URLTitle>
-							<FiExternalLink />
+							<span>🔗</span>
 							Authorization URL
 						</URLTitle>
 						<ColoredUrlDisplay
@@ -347,7 +347,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 
 					<StatusSection>
 						<StatusTitle>
-							<FiCheck />
+							<span>✅</span>
 							{isRedirecting ? 'Redirecting...' : 'Ready to Redirect'}
 						</StatusTitle>
 						<StatusText>
@@ -359,7 +359,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 
 					<TimerSection>
 						<TimerTitle>
-							<FiClock />
+							<span>🕐</span>
 							Auto-redirect Timer
 						</TimerTitle>
 						<TimerDisplay>{timeLeft}</TimerDisplay>
@@ -381,7 +381,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 							onClick={handleManualRedirect}
 							disabled={isRedirecting}
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							{isRedirecting ? 'Redirecting...' : 'GO'}
 						</ActionButton>
 					</ModalActions>

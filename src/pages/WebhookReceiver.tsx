@@ -2,7 +2,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/WebhookReceiver.tsx
 // Webhook Receiver - Receives and processes PingOne webhook events
 
-import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -147,7 +147,7 @@ const WebhookReceiver: React.FC = () => {
 		<Container>
 			<Header>
 				<Title>
-					<FiServer />
+					<span>🖥️</span>
 					Webhook Receiver
 				</Title>
 			</Header>
@@ -163,7 +163,7 @@ const WebhookReceiver: React.FC = () => {
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 					<WebhookURL>{webhookUrl}</WebhookURL>
 					<CopyButton onClick={handleCopyUrl}>
-						<FiCopy />
+						<span>📋</span>
 						Copy URL
 					</CopyButton>
 				</div>
@@ -239,7 +239,7 @@ const WebhookReceiver: React.FC = () => {
 								cursor: 'pointer',
 							}}
 						>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Clear Events
 						</button>
 					</div>

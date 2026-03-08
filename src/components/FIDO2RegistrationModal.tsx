@@ -1,11 +1,11 @@
 // src/components/FIDO2RegistrationModal.tsx
 // FIDO2/WebAuthn Passkey Registration Modal
 
-import { FiAlertCircle, FiCheckCircle, FiKey, FiMonitor, FiShield, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface FIDO2RegistrationModalProps {
 	isOpen: boolean;
@@ -106,7 +106,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				throw new Error(result.error || 'Registration failed');
 			}
 		} catch (error: any) {
-			logger.error(
+			log.error(
 				'FIDO2RegistrationModal',
 				'❌ [FIDO2 Registration] Registration failed:',
 				undefined,
@@ -182,7 +182,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 								color: 'white',
 							}}
 						>
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 						</div>
 						<div>
 							<h2
@@ -221,7 +221,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 							justifyContent: 'center',
 						}}
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 
@@ -244,7 +244,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 								color: 'V9_COLORS.PRIMARY.RED_DARK',
 							}}
 						>
-							<FiAlertCircle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 							<span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Error</span>
 						</div>
 						<p
@@ -280,9 +280,9 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									}}
 								>
 									{capabilities.webAuthnSupported ? (
-										<FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+										<span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 									) : (
-										<FiAlertCircle size={16} color="V9_COLORS.PRIMARY.RED_DARK" />
+										<span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>⚠️</span>
 									)}
 									<span
 										style={{
@@ -373,7 +373,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													gap: '0.75rem',
 												}}
 											>
-												<FiMonitor size={20} color="V9_COLORS.PRIMARY.BLUE" />
+												<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE' }}>🖥️</span>
 												<div>
 													<div
 														style={{
@@ -433,7 +433,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													gap: '0.75rem',
 												}}
 											>
-												<FiKey size={20} color="V9_COLORS.PRIMARY.GREEN" />
+												<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>🔑</span>
 												<div>
 													<div
 														style={{
@@ -492,7 +492,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												gap: '0.75rem',
 											}}
 										>
-											<FiShield size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" />
+											<span style={{ fontSize: 20, color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>🛡️</span>
 											<div>
 												<div
 													style={{
@@ -670,7 +670,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 							</>
 						) : (
 							<>
-								<FiShield size={16} />
+								<span style={{ fontSize: '16px' }}>🛡️</span>
 								Register Passkey
 							</>
 						)}

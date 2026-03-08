@@ -1,6 +1,6 @@
 // src/components/InlineFlowError.tsx
 
-import { FiAlertTriangle, FiInfo, FiSettings } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { ERROR_MESSAGES, ErrorCategory } from '../constants/errorMessages';
@@ -72,7 +72,7 @@ export const InlineFlowError: React.FC<InlineFlowErrorProps> = ({
 		<ErrorContainer severity={severity}>
 			<ErrorHeader>
 				<ErrorIcon severity={severity}>
-					<FiAlertTriangle size={20} />
+					<span style={{ fontSize: '20px' }}>⚠️</span>
 				</ErrorIcon>
 				<ErrorTitle>{displayTitle}</ErrorTitle>
 			</ErrorHeader>
@@ -84,7 +84,7 @@ export const InlineFlowError: React.FC<InlineFlowErrorProps> = ({
 				{suggestions.length > 0 && (
 					<SuggestionsSection>
 						<SuggestionsTitle>
-							<FiInfo size={14} />
+							<span style={{ fontSize: '14px' }}>ℹ️</span>
 							Suggestions:
 						</SuggestionsTitle>
 						<SuggestionsList>
@@ -110,7 +110,7 @@ export const InlineFlowError: React.FC<InlineFlowErrorProps> = ({
 				{details && (
 					<DetailsSection>
 						<DetailsToggle onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}>
-							<FiSettings size={14} />
+							<span style={{ fontSize: '14px' }}>⚙️</span>
 							{isDetailsExpanded ? 'Hide' : 'Show'} Technical Details
 						</DetailsToggle>
 						{isDetailsExpanded && <DetailsContent>{details}</DetailsContent>}
@@ -135,7 +135,7 @@ export const InlineFlowError: React.FC<InlineFlowErrorProps> = ({
 					)}
 					{onGoToConfig && (
 						<ActionButton onClick={onGoToConfig} variant="secondary">
-							<FiSettings size={16} />
+							<span style={{ fontSize: '16px' }}>⚙️</span>
 							Go to Configuration
 						</ActionButton>
 					)}

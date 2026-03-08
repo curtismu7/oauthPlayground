@@ -13,7 +13,7 @@
  * - Shows device count before deletion
  */
 
-import { FiAlertCircle, FiLoader, FiTrash2, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
@@ -560,7 +560,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-					<FiTrash2 size={32} color="white" />
+					<span style={{ fontSize: 32, color: 'white' }}>🗑️</span>
 					<div>
 						<h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: 'white' }}>
 							Delete All Devices Utility
@@ -1057,7 +1057,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							padding: '4px',
 						}}
 					>
-						<FiX />
+						<span>❌</span>
 					</button>
 				</div>
 			)}
@@ -1147,7 +1147,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									</>
 								) : (
 									<>
-										<FiTrash2 />
+										<span>🗑️</span>
 										Delete Selected ({selectedCount})
 									</>
 								)}

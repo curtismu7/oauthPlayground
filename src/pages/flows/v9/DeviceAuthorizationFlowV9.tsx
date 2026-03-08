@@ -3,23 +3,7 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiClock,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiMonitor,
-	FiRefreshCw,
-	FiShield,
-	FiSmartphone,
-	FiX,
-	FiZap,
-} from '@icons';
+
 import { BarChart3, Play } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -1396,16 +1380,16 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.tokensOverview}
 				>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Tokens Received
+						<span>✅</span> Tokens Received
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.tokensOverview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.tokensOverview && (
 					<CollapsibleContent>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>Authorization Complete!</InfoTitle>
 								<InfoText>
@@ -1513,7 +1497,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>
-										<FiKey size={18} />{' '}
+										<span style={{ fontSize: '18px' }}>🔑</span>{' '}
 										{selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
 									</ResultsHeading>
 									<GeneratedContentBox>
@@ -1585,13 +1569,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 											style={{ justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}
 										>
 											<Button onClick={navigateToTokenManagement} $variant="primary">
-												<FiExternalLink /> Open Token Management
+												<span>🔗</span> Open Token Management
 											</Button>
 											<Button
 												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
 												$variant="outline"
 											>
-												<FiCopy /> Copy Access Token
+												<span>📋</span> Copy Access Token
 											</Button>
 											{selectedVariant === 'oidc' && deviceFlow.tokens.id_token && (
 												<Button
@@ -1599,7 +1583,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 													$variant="outline"
 													style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', borderColor: '#0ea5e9' }}
 												>
-													<FiCopy /> Copy ID Token
+													<span>📋</span> Copy ID Token
 												</Button>
 											)}
 											{deviceFlow.tokens.refresh_token && (
@@ -1609,7 +1593,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 													}
 													$variant="outline"
 												>
-													<FiCopy /> Copy Refresh Token
+													<span>📋</span> Copy Refresh Token
 												</Button>
 											)}
 										</ActionRow>
@@ -1617,7 +1601,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								</ResultsSection>
 
 								<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-									<FiInfo size={20} />
+									<span style={{ fontSize: '20px' }}>ℹ️</span>
 									<div>
 										<InfoTitle>
 											{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response
@@ -1646,7 +1630,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								{deviceFlow.tokens.refresh_token && (
 									<ResultsSection>
 										<ResultsHeading>
-											<FiRefreshCw size={18} /> Refresh Token
+											<span style={{ fontSize: '18px' }}>🔄</span> Refresh Token
 										</ResultsHeading>
 										<GeneratedContentBox>
 											<ParameterGrid>
@@ -1675,7 +1659,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														color: 'V9_COLORS.TEXT.WHITE',
 													}}
 												>
-													<FiRefreshCw /> Decode Refresh Token
+													<span>🔄</span> Decode Refresh Token
 												</Button>
 												<Button
 													onClick={() =>
@@ -1683,7 +1667,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 													}
 													$variant="outline"
 												>
-													<FiCopy /> Copy Refresh Token
+													<span>📋</span> Copy Refresh Token
 												</Button>
 											</ActionRow>
 										</GeneratedContentBox>
@@ -1708,17 +1692,17 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.overview}
 				>
 					<CollapsibleTitle>
-						<FiMonitor /> Device Authorization Flow Overview
+						<span>🖥️</span> Device Authorization Flow Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.overview && (
 					<CollapsibleContent>
 						<ExplanationSection>
 							<ExplanationHeading>
-								<FiInfo /> What is{' '}
+								<span>ℹ️</span> What is{' '}
 								<LearningTooltip
 									variant="learning"
 									title="Device Authorization Flow"
@@ -1806,7 +1790,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</InfoText>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-								<FiSmartphone size={20} />
+								<span style={{ fontSize: '20px' }}>📱</span>
 								<div>
 									<InfoTitle>Perfect for:</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
@@ -1820,7 +1804,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								<div>
 									<InfoTitle>
 										<LearningTooltip
@@ -1964,7 +1948,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
-								<FiAlertCircle size={20} />
+								<span style={{ fontSize: '20px' }}>⚠️</span>
 								<div>
 									<InfoTitle>Security Considerations:</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
@@ -1986,7 +1970,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								<div>
 									<InfoTitle>
 										<LearningTooltip
@@ -2237,10 +2221,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.flowDiagram}
 				>
 					<CollapsibleTitle>
-						<FiZap /> How It Works
+						<span>⚡</span> How It Works
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.flowDiagram && (
@@ -2255,7 +2239,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								}}
 							>
 								<ExplanationHeading style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
-									<FiZap /> Complete Flow Sequence
+									<span>⚡</span> Complete Flow Sequence
 								</ExplanationHeading>
 
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
@@ -2554,7 +2538,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								</ol>
 							</div>
 							<InfoBox $variant="success" style={{ marginTop: '1.5rem' }}>
-								<FiCheckCircle size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 								<div>
 									<InfoTitle>Key Benefits</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
@@ -2782,24 +2766,24 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.deviceCodeOverview}
 				>
 					<CollapsibleTitle>
-						<FiKey /> Request Device Code
+						<span>🔑</span> Request Device Code
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.deviceCodeOverview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.deviceCodeOverview && (
 					<CollapsibleContent>
 						<ExplanationSection>
 							<ExplanationHeading>
-								<FiKey /> Initiate Device Authorization
+								<span>🔑</span> Initiate Device Authorization
 							</ExplanationHeading>
 							<InfoText>
 								Request a device code and user code from PingOne's device authorization endpoint.
 								This is the first step in the device authorization flow.
 							</InfoText>
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>What happens:</InfoTitle>
 									<InfoText>
@@ -2981,11 +2965,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										}
 										$variant="primary"
 									>
-										<FiKey /> Request Device Code
+										<span>🔑</span> Request Device Code
 									</Button>
 									{deviceFlow.deviceCodeData && (
 										<Button onClick={handleReset} $variant="danger">
-											<FiRefreshCw /> Start Over
+											<span>🔄</span> Start Over
 										</Button>
 									)}
 								</div>
@@ -3030,16 +3014,16 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.deviceCodeDetails}
 					>
 						<CollapsibleTitle>
-							<FiCheckCircle /> Device Code Received
+							<span>✅</span> Device Code Received
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.deviceCodeDetails}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.deviceCodeDetails && (
 						<CollapsibleContent>
 							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 								<div>
 									<InfoTitle>Success!</InfoTitle>
 									<InfoText>
@@ -3094,16 +3078,16 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.userAuthOverview}
 					>
 						<CollapsibleTitle>
-							<FiSmartphone /> User Authorization Required
+							<span>📱</span> User Authorization Required
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.userAuthOverview}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.userAuthOverview && (
 						<CollapsibleContent>
 							<InfoBox $variant="info">
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>Real-World Scenario: {deviceConfig.name}</InfoTitle>
 									<InfoText>{deviceConfig.description}</InfoText>
@@ -3167,11 +3151,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								>
 									{deviceFlow.pollingStatus.isPolling ? (
 										<Button onClick={deviceFlow.stopPolling} $variant="danger">
-											<FiX /> Cancel Polling
+											<span>❌</span> Cancel Polling
 										</Button>
 									) : (
 										<Button onClick={deviceFlow.refreshAuthorizationStatus} $variant="primary">
-											<FiRefreshCw /> Check Authorization Status
+											<span>🔄</span> Check Authorization Status
 										</Button>
 									)}
 								</ActionRow>
@@ -3300,7 +3284,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						<BarChart3 size={16} /> Analytics & Monitoring
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.analytics}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.analytics && (
@@ -3330,7 +3314,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</div>
 
 							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>Analytics Features:</InfoTitle>
 									<InfoText>
@@ -3357,7 +3341,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						<Play size={16} /> Interactive Tutorial
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.tutorial}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.tutorial && (
@@ -3389,16 +3373,16 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.completionOverview}
 				>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Flow Complete
+						<span>✅</span> Flow Complete
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.completionOverview && (
 					<CollapsibleContent>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={24} />
+							<span style={{ fontSize: '24px' }}>✅</span>
 							<div>
 								<InfoTitle>Device Authorization Flow Complete!</InfoTitle>
 								<InfoText>
@@ -3410,7 +3394,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 						<ExplanationSection style={{ marginTop: '1.5rem' }}>
 							<ExplanationHeading>
-								<FiInfo /> Summary
+								<span>ℹ️</span> Summary
 							</ExplanationHeading>
 							<div
 								style={{
@@ -3433,7 +3417,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 						<ExplanationSection style={{ marginTop: '1.5rem' }}>
 							<ExplanationHeading>
-								<FiZap /> Next Steps
+								<span>⚡</span> Next Steps
 							</ExplanationHeading>
 							<InfoText>In a production application, you would:</InfoText>
 							<ul style={{ marginTop: '0.75rem', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
@@ -3447,7 +3431,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 						<ActionRow style={{ marginTop: '1.5rem' }}>
 							<Button onClick={handleReset} $variant="danger">
-								<FiRefreshCw /> Start New Flow
+								<span>🔄</span> Start New Flow
 							</Button>
 						</ActionRow>
 					</CollapsibleContent>
@@ -3519,10 +3503,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.deviceSelection}
 					>
 						<CollapsibleTitle>
-							<FiMonitor /> Device Simulator
+							<span>🖥️</span> Device Simulator
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.deviceSelection}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.deviceSelection && (
@@ -3552,7 +3536,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					$isDragging={isDragging}
 				>
 					<ModalHeader onMouseDown={handleModalMouseDown}>
-						<FiClock size={32} color="white" />
+						<span style={{ fontSize: 32, color: 'white' }}>🕐</span>
 						<ModalTitle style={{ color: 'white' }}>Ready to Start Polling?</ModalTitle>
 					</ModalHeader>
 					<ModalBody>
@@ -3591,7 +3575,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</p>
 						</div>
 						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-							<FiInfo size={18} />
+							<span style={{ fontSize: '18px' }}>ℹ️</span>
 							<div>
 								<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
 									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer
@@ -3605,7 +3589,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							Cancel
 						</Button>
 						<Button onClick={handleStartPolling} $variant="primary">
-							<FiRefreshCw /> Start Polling Now
+							<span>🔄</span> Start Polling Now
 						</Button>
 					</ModalActions>
 				</ModalContent>

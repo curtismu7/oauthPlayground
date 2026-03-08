@@ -1,4 +1,4 @@
-import { FiBookOpen, FiCode, FiCpu, FiExternalLink, FiShield } from '@icons';
+
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -178,7 +178,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="Key OAuth Specs for AI"
 					subtitle="Essential OAuth specifications relevant to AI and agentic systems"
-					icon={<FiCpu />}
+					icon={<span>🖥️</span>}
 					defaultCollapsed={false}
 				>
 					<CompatibilityTable>
@@ -318,7 +318,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="PingOne Compatibility Matrix"
 					subtitle="Publicly verified PingOne support status for AI-relevant OAuth features"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<CompatibilityTable>
@@ -452,7 +452,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="PingOne Components for AI"
 					subtitle="Relevant PingOne components and their OAuth capabilities for AI use cases"
-					icon={<FiCode />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<CompatibilityTable>
@@ -513,7 +513,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="Summary & Recommendations"
 					subtitle="Key takeaways and implementation guidance for AI-ready OAuth orchestration"
-					icon={<FiBookOpen />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<SpecCard title="PingOne AI-Ready Features">
@@ -547,7 +547,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="RFC References"
 					subtitle="Complete list of OAuth specifications and drafts relevant to AI systems"
-					icon={<FiExternalLink />}
+					icon={<span>🔗</span>}
 					defaultCollapsed={true}
 				>
 					<div style={{ margin: '2rem 0' }}>

@@ -1,7 +1,7 @@
 // src/components/FlowConfigurationRequirements.tsx
 // Displays PingOne application configuration requirements for each OAuth/OIDC flow
 
-import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -287,13 +287,13 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 	const getStatusIcon = (status: string) => {
 		switch (status) {
 			case 'required':
-				return <FiAlertTriangle size={14} />;
+				return <span style={{ fontSize: '14px' }}>⚠️</span>;
 			case 'not-used':
-				return <FiCheck size={14} />;
+				return <span style={{ fontSize: '14px' }}>✅</span>;
 			case 'optional':
-				return <FiInfo size={14} />;
+				return <span style={{ fontSize: '14px' }}>ℹ️</span>;
 			default:
-				return <FiX size={14} />;
+				return <span style={{ fontSize: '14px' }}>❌</span>;
 		}
 	};
 
@@ -315,7 +315,7 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 			<Header onClick={() => setIsCollapsed(!isCollapsed)}>
 				<HeaderLeft>
 					<IconWrapper>
-						<FiInfo size={24} />
+						<span style={{ fontSize: '24px' }}>ℹ️</span>
 					</IconWrapper>
 					<Title>
 						PingOne Application Configuration Requirements
@@ -377,7 +377,7 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 						<RequirementHeader>
 							<RequirementLabel>Token Endpoint Auth Method</RequirementLabel>
 							<StatusBadge $status="required">
-								<FiAlertTriangle size={14} />
+								<span style={{ fontSize: '14px' }}>⚠️</span>
 								Required
 							</StatusBadge>
 						</RequirementHeader>

@@ -8,7 +8,7 @@
  * This modal informs users and provides options to regenerate or go back.
  */
 
-import { FiAlertCircle, FiRefreshCw, FiX } from '@icons';
+
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
@@ -226,12 +226,12 @@ export const TOTPExpiredModalV8: React.FC<TOTPExpiredModalV8Props> = ({
 					aria-label="Close modal"
 					onMouseDown={(e) => e.stopPropagation()}
 				>
-					<FiX size={18} />
+					<span style={{ fontSize: '18px' }}>❌</span>
 				</CloseButton>
 
 				<ModalHeader onMouseDown={handleMouseDown}>
 					<ModalTitle id={modalTitleId}>
-						<FiAlertCircle size={24} />
+						<span style={{ fontSize: '24px' }}>⚠️</span>
 						QR Code & Secret Expired
 					</ModalTitle>
 				</ModalHeader>
@@ -275,7 +275,7 @@ export const TOTPExpiredModalV8: React.FC<TOTPExpiredModalV8Props> = ({
 						Go Back
 					</SecondaryButton>
 					<PrimaryButton type="button" onClick={onRegenerate}>
-						<FiRefreshCw size={18} />
+						<span style={{ fontSize: '18px' }}>🔄</span>
 						Regenerate QR Code
 					</PrimaryButton>
 				</ModalFooter>

@@ -1,25 +1,12 @@
 // src/components/SmartPrinterDeviceFlow.tsx
 // Smart Printer Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiFileText,
-	FiMaximize2,
-	FiMove,
-	FiPrinter,
-	FiTrash2,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // HP Smart App Interface - Authentic HP Design with Green Theme
@@ -423,31 +410,31 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SmartPrinterDeviceFlow', 'User code copied to clipboard');
+		log.info('SmartPrinterDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('SmartPrinterDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('SmartPrinterDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SmartPrinterDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SmartPrinterDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -504,19 +491,19 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{/* HP Floating Toolbar */}
 				<HPFloatingToolbar>
 					<ToolbarButton $variant="move" title="Move">
-						<FiMove />
+						<span>❓</span>
 					</ToolbarButton>
 					<ToolbarButton $variant="expand" title="Expand">
-						<FiMaximize2 />
+						<span>❓</span>
 					</ToolbarButton>
 					<ToolbarButton $variant="back" title="Back">
-						<FiArrowLeft />
+						<span>⬅️</span>
 					</ToolbarButton>
 					<ToolbarButton $variant="delete" title="Delete">
-						<FiTrash2 />
+						<span>🗑️</span>
 					</ToolbarButton>
 					<ToolbarButton $variant="forward" title="Forward">
-						<FiArrowRight />
+						<span>➡️</span>
 					</ToolbarButton>
 				</HPFloatingToolbar>
 
@@ -574,7 +561,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
 							}}
 						>
-							<FiExternalLink size={18} /> Open in Browser
+							<span style={{ fontSize: '18px' }}>🔗</span> Open in Browser
 						</PrinterControlButton>
 					</div>
 				)}
@@ -582,10 +569,10 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{/* Printer Control Panel */}
 				<PrinterControlPanel>
 					<PrinterControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</PrinterControlButton>
 					<PrinterControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</PrinterControlButton>
 				</PrinterControlPanel>
 
@@ -847,7 +834,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiFileText /> Scan Document
+								<span>📄</span> Scan Document
 							</button>
 							<button
 								style={{
@@ -865,7 +852,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiPrinter /> Print Test Page
+								<span>🖨️</span> Print Test Page
 							</button>
 						</div>
 					</div>

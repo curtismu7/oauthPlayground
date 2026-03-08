@@ -1,7 +1,7 @@
 // src/components/OAuthErrorDisplay.tsx
 // Reusable OAuth Error Display Component for consistent error presentation across all flows
 
-import { FiAlertTriangle, FiExternalLink, FiRefreshCw, FiX } from '@icons';
+
 import React from 'react';
 import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
 
@@ -219,7 +219,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 						e.currentTarget.style.opacity = '1';
 					}}
 				>
-					<FiX size={16} />
+					<span style={{ fontSize: '16px' }}>❌</span>
 					Dismiss
 				</button>
 
@@ -246,7 +246,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							e.currentTarget.style.background = 'V9_COLORS.PRIMARY.GREEN_DARK';
 						}}
 					>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Retry
 					</button>
 				)}
@@ -274,7 +274,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 							e.currentTarget.style.background = 'V9_COLORS.TEXT.GRAY_MEDIUM';
 						}}
 					>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Clear & Retry
 					</button>
 				)}
@@ -307,7 +307,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 						e.currentTarget.style.background = 'V9_COLORS.PRIMARY.BLUE';
 					}}
 				>
-					<FiExternalLink size={16} />
+					<span style={{ fontSize: '16px' }}>🔗</span>
 					PingOne Docs
 				</button>
 			</div>

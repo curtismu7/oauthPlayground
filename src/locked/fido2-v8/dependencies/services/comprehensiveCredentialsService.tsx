@@ -10,7 +10,7 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-import { FiCheckCircle, FiKey, FiSettings } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
@@ -1360,7 +1360,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						title="PingOne Application Picker"
 						subtitle="Auto-fill configuration from your PingOne environment"
 						defaultCollapsed={true}
-						icon={<FiSettings />}
+						icon={<span>⚙️</span>}
 						theme="orange"
 					>
 						{!effectiveWorkerToken && (
@@ -1437,7 +1437,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				<CollapsibleHeader
 					title={title}
 					subtitle={subtitle}
-					icon={<FiSettings />}
+					icon={<span>⚙️</span>}
 					defaultCollapsed={defaultCollapsed}
 					theme="orange"
 				>
@@ -1488,7 +1488,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				<CollapsibleHeader
 					title="Advanced Configuration"
 					subtitle="Advanced OIDC and OAuth configuration options"
-					icon={<FiSettings />}
+					icon={<span>⚙️</span>}
 					defaultCollapsed={true}
 					theme="orange"
 				>
@@ -1668,7 +1668,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					<CollapsibleHeader
 						title="ℹ️ Why No Redirect/Logout URIs?"
 						subtitle="Machine-to-Machine & Backchannel Flows"
-						icon={<FiKey />}
+						icon={<span>🔑</span>}
 						defaultCollapsed={true}
 						variant="compact"
 					>
@@ -2024,7 +2024,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							onMouseOver={(e) => (e.currentTarget.style.background = '#1e40af')}
 							onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
 						>
-							<FiKey />
+							<span>🔑</span>
 							Generate Worker Token
 						</button>
 					</div>
@@ -2466,7 +2466,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					<CollapsibleHeader
 						title="JSON Web Key Set (JWKS) Configuration"
 						subtitle="Configure JWKS endpoint or provide a private key for JWT-based client authentication"
-						icon={<FiKey />}
+						icon={<span>🔑</span>}
 						defaultCollapsed={false}
 					>
 						<JwksKeySourceSelector

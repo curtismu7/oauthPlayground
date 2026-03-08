@@ -1,7 +1,7 @@
 // src/features/flows/Device/ResponseModes.tsx
 // Device flow doesn't use browser redirect response modes - show learn-only notice
 
-import { FiExternalLink, FiInfo } from '@icons';
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -122,7 +122,7 @@ const DeviceResponseModes: React.FC<DeviceResponseModesProps> = ({ className }) 
 		<Container className={className}>
 			<Header>
 				<HeaderTitle>
-					<FiInfo size={16} />
+					<span style={{ fontSize: '16px' }}>ℹ️</span>
 					Response Mode
 				</HeaderTitle>
 			</Header>
@@ -130,7 +130,7 @@ const DeviceResponseModes: React.FC<DeviceResponseModesProps> = ({ className }) 
 			<Content>
 				<InfoBox>
 					<InfoContent>
-						<FiInfo size={20} color="#0369a1" />
+						<span style={{ fontSize: 20, color: '#0369a1' }}>ℹ️</span>
 						<InfoText>
 							<InfoTitle>Not Applicable to Device Code Flow</InfoTitle>
 							<InfoDescription>
@@ -138,7 +138,7 @@ const DeviceResponseModes: React.FC<DeviceResponseModesProps> = ({ className }) 
 								responses. Instead, it uses polling-based token exchange.
 							</InfoDescription>
 							<LearnButton onClick={handleLearnMore}>
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								Learn About Response Modes
 							</LearnButton>
 						</InfoText>

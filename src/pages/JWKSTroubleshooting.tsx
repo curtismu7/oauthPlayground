@@ -561,7 +561,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 
 			<Section>
 				<SectionTitle>
-					<FiPlay />
+					<span>▶️</span>
 					PingOne JWKS Commands
 				</SectionTitle>
 
@@ -598,11 +598,11 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 										onClick={() => executeRequest(fullUrl, req.description)}
 										disabled={!environmentId || runningCommands.has(fullUrl)}
 									>
-										<FiPlay />
+										<span>▶️</span>
 										{runningCommands.has(fullUrl) ? 'Loading...' : 'Execute'}
 									</Button>
 									<Button $variant="secondary" onClick={() => copyToClipboard(fullUrl, 'URL')}>
-										<FiCopy />
+										<span>📋</span>
 										Copy URL
 									</Button>
 								</ButtonGroup>
@@ -671,7 +671,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 											}}
 											style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
 										>
-											<FiCopy />
+											<span>📋</span>
 											Copy
 										</Button>
 									</OutputHeader>
@@ -706,7 +706,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 
 			<Section>
 				<SectionTitle>
-					<FiExternalLink />
+					<span>🔗</span>
 					Additional Resources
 				</SectionTitle>
 

@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
@@ -1520,7 +1520,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									zIndex: 1,
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3
@@ -2411,7 +2411,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3

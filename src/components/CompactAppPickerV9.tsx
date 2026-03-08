@@ -14,7 +14,7 @@
  * - Improved accessibility and user experience
  */
 
-import { FiSearch, FiX } from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
@@ -24,7 +24,7 @@ import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
 
@@ -188,7 +188,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			logger.error(_MODULE_TAG, 'Discovery error:', undefined, error as Error);
+			log.error(_MODULE_TAG, 'Discovery error:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -335,7 +335,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 						title="Search and select PingOne application to auto-fill credentials"
 						aria-label="Search and select PingOne application to auto-fill credentials"
 					>
-						{isLoading ? '🔄' : <FiSearch size={compact ? 14 : 16} />}
+						{isLoading ? '🔄' : <span style={{ fontSize: compact ? 14 : 16 }}>🔍</span>}
 					</button>
 
 					{/* Tooltip on hover */}
@@ -424,7 +424,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 							}}
 							aria-label="Close search"
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 

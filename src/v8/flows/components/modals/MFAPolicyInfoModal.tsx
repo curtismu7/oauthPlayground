@@ -9,7 +9,7 @@
  * Extracted from MFAAuthenticationMainPageV8.tsx lines 6296-6450
  */
 
-import { FiX } from '@icons';
+
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
@@ -87,7 +87,7 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 							padding: 0,
 						}}
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</ButtonSpinner>
 				</div>
 

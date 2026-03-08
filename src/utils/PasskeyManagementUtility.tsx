@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { FiCheckCircle, FiCopy, FiExternalLink, FiInfo, FiTrash2 } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { logger } from './logger';
 
@@ -85,7 +85,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			setDevices(enrichedDevices);
 		} catch (err) {
-			logger.error('PasskeyManagement', 'Failed to load devices:', undefined, err as Error);
+			log.error('PasskeyManagement', 'Failed to load devices:', undefined, err as Error);
 			setError(err instanceof Error ? err.message : 'Failed to load devices');
 		} finally {
 			setLoading(false);
@@ -104,7 +104,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (err) {
-			logger.error('PasskeyManagement', 'Failed to copy:', undefined, err as Error);
+			log.error('PasskeyManagement', 'Failed to copy:', undefined, err as Error);
 		}
 	};
 
@@ -149,7 +149,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					rpId,
 				});
 			} catch (signalError) {
-				logger.warn(
+				log.warn(
 					'PasskeyManagement',
 					'Failed to signal Chrome about deleted credential:',
 					undefined,
@@ -200,7 +200,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					rpId,
 				});
 			} catch (signalError) {
-				logger.warn(
+				log.warn(
 					'PasskeyManagement',
 					'Failed to signal Chrome with accepted credentials:',
 					undefined,
@@ -268,7 +268,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			onDeviceDeleted?.();
 		} catch (err) {
-			logger.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
+			log.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
 			alert(`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`);
 		}
 	};
@@ -325,7 +325,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 							gap: '0.5rem',
 						}}
 					>
-						<FiInfo /> How to Access Chrome Passkey Manager
+						<span>ℹ️</span> How to Access Chrome Passkey Manager
 					</h3>
 					<ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', color: '#1e40af' }}>
 						<li>
@@ -353,7 +353,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 							fontSize: '0.875rem',
 						}}
 					>
-						<FiExternalLink /> Open Chrome Passkey Manager
+						<span>🔗</span> Open Chrome Passkey Manager
 					</button>
 				</div>
 
@@ -484,7 +484,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 											{copiedField === `device-${device.id}` ? (
 												<FiCheckCircle style={{ color: '#10b981' }} />
 											) : (
-												<FiCopy />
+												<span>📋</span>
 											)}
 										</button>
 									</div>
@@ -521,7 +521,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 													{copiedField === `cred-${device.id}` ? (
 														<FiCheckCircle style={{ color: '#10b981' }} />
 													) : (
-														<FiCopy />
+														<span>📋</span>
 													)}
 												</button>
 											</div>
@@ -597,7 +597,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 								}}
 								title="Delete this device (will also remove from PingOne)"
 							>
-								<FiTrash2 /> Delete
+								<span>🗑️</span> Delete
 							</button>
 						</div>
 					</div>

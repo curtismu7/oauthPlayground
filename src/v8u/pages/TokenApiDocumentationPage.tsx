@@ -1,4 +1,4 @@
-import { FiCheck, FiClock, FiCode, FiCopy, FiExternalLink, FiRefreshCw, FiSearch } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
@@ -539,7 +539,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 			<ControlsContainer>
 				<SearchBox>
 					<SearchIcon>
-						<FiSearch />
+						<span>🔍</span>
 					</SearchIcon>
 					<SearchInput
 						placeholder="Search by URL, method, or type..."
@@ -565,7 +565,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 				</FilterSelect>
 
 				<ActionButton onClick={() => window.location.reload()}>
-					<FiRefreshCw />
+					<span>🔄</span>
 					Refresh
 				</ActionButton>
 			</ControlsContainer>
@@ -585,7 +585,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							Front-Channel Redirects (Browser Navigation)
 						</h3>
 						<p style={{ color: '#64748b', marginBottom: '1rem' }}>
@@ -612,7 +612,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								<RedirectCard key={`redirect-${index}`}>
 									<RedirectHeader>
 										<RedirectTitle>
-											<FiExternalLink /> {redirectTitle}
+											<span>🔗</span> {redirectTitle}
 										</RedirectTitle>
 										<RedirectInteractionType>Front-Channel</RedirectInteractionType>
 									</RedirectHeader>
@@ -631,7 +631,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 										This happens in the user's browser (front-channel).
 									</RedirectDescription>
 									<Timestamp>
-										<FiClock />
+										<span>🕐</span>
 										{redirect.timestamp
 											? new Date(redirect.timestamp).toLocaleString()
 											: 'Unknown time'}
@@ -693,7 +693,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								</div>
 							</div>
 							<Timestamp>
-								<FiClock />
+								<span>🕐</span>
 								{formatTimestamp(call.timestamp)}
 							</Timestamp>
 						</ApiCallHeader>
@@ -749,7 +749,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 												)
 											}
 										>
-											{copiedId === `${call.id}-response-headers` ? <FiCheck /> : <FiCopy />}
+											{copiedId === `${call.id}-response-headers` ? <span>✅</span> : <span>📋</span>}
 										</CopyButton>
 									</div>
 									<CodeBlock>
@@ -767,7 +767,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 														copyToClipboard(call.response.body || '', `${call.id}-response-body`)
 													}
 												>
-													{copiedId === `${call.id}-response-body` ? <FiCheck /> : <FiCopy />}
+													{copiedId === `${call.id}-response-body` ? <span>✅</span> : <span>📋</span>}
 												</CopyButton>
 											</div>
 											<CodeBlock $expanded={expandedCalls.has(`${call.id}-response`)}>

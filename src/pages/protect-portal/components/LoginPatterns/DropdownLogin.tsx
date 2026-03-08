@@ -8,7 +8,7 @@
  * Header dropdown login form for Southwest Airlines pattern.
  */
 
-import { FiLock, FiX } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
@@ -190,11 +190,11 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({
 		<LoginDropdown $isOpen={isOpen} ref={dropdownRef}>
 			<DropdownHeader $brandColor={brandColor}>
 				<DropdownTitle>
-					<FiLock />
+					<span>🔒</span>
 					{config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
 				</DropdownTitle>
 				<CloseButton onClick={onClose}>
-					<FiX />
+					<span>❌</span>
 				</CloseButton>
 			</DropdownHeader>
 
@@ -233,7 +233,7 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({
 					</InputGroup>
 
 					<LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-						<FiLock />
+						<span>🔒</span>
 						Sign In
 					</LoginButton>
 				</LoginForm>

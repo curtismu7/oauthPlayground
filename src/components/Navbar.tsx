@@ -1,16 +1,4 @@
-import {
-	FiActivity,
-	FiDownload,
-	FiFileText,
-	FiHelpCircle,
-	FiLogIn,
-	FiLogOut,
-	FiMenu,
-	FiSearch,
-	FiServer,
-	FiSettings,
-	FiX,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -505,11 +493,11 @@ const Navbar: React.FC<NavbarProps> = ({
 				<ModalContent onClick={(e) => e.stopPropagation()}>
 					<ModalHeader>
 						<ModalTitle>
-							<FiDownload />
+							<span>📥</span>
 							Export All Unified Flow Use Cases
 						</ModalTitle>
 						<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
-							<FiX size={20} />
+							<span style={{ fontSize: '20px' }}>❌</span>
 						</CloseButton>
 					</ModalHeader>
 					<ModalBody>
@@ -519,11 +507,11 @@ const Navbar: React.FC<NavbarProps> = ({
 						</ModalMessage>
 						<ButtonGroup>
 							<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
-								<FiFileText />
+								<span>📄</span>
 								Export as Markdown
 							</ExportButton>
 							<ExportButton $variant="pdf" onClick={handleExportPDF}>
-								<FiDownload />
+								<span>📥</span>
 								Export as PDF
 							</ExportButton>
 						</ButtonGroup>

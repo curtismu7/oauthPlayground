@@ -1,6 +1,6 @@
 // src/contexts/NotificationSystem.tsx
 
-import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from '@icons';
+
 import type { ReactNode } from 'react';
 import {
 	createContext,
@@ -12,7 +12,8 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { logger } from '../utils/logger';
+import { FiCheckCircle, FiAlertOctagon, FiAlertTriangle, FiInfo, FiX } from 'react-icons/fi';
+// import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Not used in this file
 
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
 export type NotificationActionVariant = 'primary' | 'secondary';
@@ -426,7 +427,7 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 
 const warnMissingProvider = () => {
 	if (!globalBridge && typeof console !== 'undefined') {
-		logger.warn('NotificationSystem', 'NotificationProvider is not mounted. Notification skipped.');
+		log.warn('NotificationSystem', 'NotificationProvider is not mounted. Notification skipped.');
 	}
 };
 

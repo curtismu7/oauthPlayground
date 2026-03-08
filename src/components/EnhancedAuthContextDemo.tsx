@@ -1,7 +1,7 @@
 // src/components/EnhancedAuthContextDemo.tsx
 // Demo showing how flows can use the enhanced NewAuthContext
 
-import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSettings } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -354,23 +354,23 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 
 			{status && (
 				<StatusDisplay status={status.type}>
-					{status.type === 'success' && <FiCheckCircle size={16} />}
-					{status.type === 'error' && <FiAlertCircle size={16} />}
-					{status.type === 'info' && <FiSettings size={16} />}
+					{status.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
+					{status.type === 'error' && <span style={{ fontSize: '16px' }}>⚠️</span>}
+					{status.type === 'info' && <span style={{ fontSize: '16px' }}>⚙️</span>}
 					{status.message}
 				</StatusDisplay>
 			)}
 
 			<Section>
 				<SectionTitle>
-					<FiSettings size={20} />
+					<span style={{ fontSize: '20px' }}>⚙️</span>
 					Flow Simulation Steps
 				</SectionTitle>
 
 				{steps.map((step, index) => (
 					<FlowStep key={index} active={currentStep === index + 1}>
 						<StepNumber active={currentStep >= index + 1}>
-							{currentStep > index + 1 ? <FiCheckCircle size={16} /> : index + 1}
+							{currentStep > index + 1 ? <span style={{ fontSize: '16px' }}>✅</span> : index + 1}
 						</StepNumber>
 						<StepContent>
 							<StepTitle>{step.title}</StepTitle>
@@ -381,22 +381,22 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 
 				<div style={{ marginTop: '1.5rem' }}>
 					<Button variant="primary" onClick={handleInitializeFlow} disabled={currentStep > 0}>
-						<FiSettings size={14} />
+						<span style={{ fontSize: '14px' }}>⚙️</span>
 						Initialize Flow
 					</Button>
 
 					<Button onClick={handleSimulateRedirect} disabled={currentStep !== 1}>
-						<FiArrowRight size={14} />
+						<span style={{ fontSize: '14px' }}>➡️</span>
 						Simulate Redirect
 					</Button>
 
 					<Button onClick={handleUpdateStep} disabled={currentStep !== 2}>
-						<FiRefreshCw size={14} />
+						<span style={{ fontSize: '14px' }}>🔄</span>
 						Update Step
 					</Button>
 
 					<Button variant="success" onClick={handleCompleteFlow} disabled={currentStep !== 3}>
-						<FiCheckCircle size={14} />
+						<span style={{ fontSize: '14px' }}>✅</span>
 						Complete Flow
 					</Button>
 

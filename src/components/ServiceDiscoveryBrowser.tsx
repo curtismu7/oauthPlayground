@@ -2,7 +2,7 @@
 // Interactive service discovery and browsing component
 // Helps developers find and understand available services
 
-import { FiBook, FiCode, FiGitBranch, FiInfo, FiSearch } from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -433,7 +433,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 						onChange={(e) => setSearchQuery(e.target.value)}
 					/>
 					<SearchButton onClick={() => {}}>
-						<FiSearch />
+						<span>🔍</span>
 						Search
 					</SearchButton>
 				</SearchBar>
@@ -557,7 +557,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 
 							<DetailSection>
 								<SectionTitle>
-									<FiInfo />
+									<span>ℹ️</span>
 									Key Features
 								</SectionTitle>
 								<FeatureList>
@@ -570,7 +570,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 							{selectedService.usageExamples.length > 0 && (
 								<DetailSection>
 									<SectionTitle>
-										<FiCode />
+										<span>❓</span>
 										Usage Examples
 									</SectionTitle>
 									{selectedService.usageExamples.map((example, index) => (
@@ -595,7 +595,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 
 							<DetailSection>
 								<SectionTitle>
-									<FiBook />
+									<span>📖</span>
 									Best Practices
 								</SectionTitle>
 								<ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
@@ -613,7 +613,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 							{selectedService.relatedServices.length > 0 && (
 								<DetailSection>
 									<SectionTitle>
-										<FiGitBranch />
+										<span>❓</span>
 										Related Services
 									</SectionTitle>
 									<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

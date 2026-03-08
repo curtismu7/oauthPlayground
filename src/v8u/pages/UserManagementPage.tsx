@@ -6,9 +6,9 @@
  * @since 2026-02-12
  */
 
-import { FiEdit2, FiPlus, FiTrash2 } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
@@ -53,7 +53,7 @@ const UserManagementPage: React.FC = () => {
 			// setUsers(response.data);
 			setUsers([]);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Failed to load users:', undefined, error);
+			log.error('UserManagementPage', 'Failed to load users:', undefined, error);
 		} finally {
 			setLoading(false);
 		}
@@ -160,7 +160,7 @@ const UserManagementPage: React.FC = () => {
 						color: 'white',
 					}}
 				>
-					<FiPlus />
+					<span>➕</span>
 					Add User
 				</button>
 			</div>
@@ -405,7 +405,7 @@ const UserManagementPage: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<FiEdit2 />
+									<span>❓</span>
 								</button>
 								<button
 									type="button"
@@ -423,7 +423,7 @@ const UserManagementPage: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<FiTrash2 />
+									<span>🗑️</span>
 								</button>
 							</div>
 						</div>

@@ -1,4 +1,4 @@
-import { FiDownload, FiEye, FiEyeOff, FiLoader, FiLock, FiUpload } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -9,7 +9,7 @@ import {
 } from '../services/credentialExportImportService';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
@@ -305,7 +305,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			);
 			setFormData(newFormData);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialSetupModal',
 				' [CredentialSetupModal] Failed to load from environment variables:',
 				undefined,
@@ -448,7 +448,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						setHasBeenSaved(false);
 					}
 				} catch (error) {
-					logger.error(
+					log.error(
 						'CredentialSetupModal',
 						' [CredentialSetupModal] Error loading existing credentials:',
 						undefined,
@@ -644,7 +644,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				onClose();
 			}, 1500);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialSetupModal',
 				'Failed to save configuration:',
 				undefined,
@@ -692,7 +692,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				message: 'Your credentials have been exported to a JSON file.',
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialSetupModal',
 				'[CredentialSetupModal] Export error:',
 				undefined,
@@ -741,7 +741,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					});
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'CredentialSetupModal',
 					'[CredentialSetupModal] Import error:',
 					undefined,
@@ -765,7 +765,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			<ModalContent>
 				<ModalHeader>
 					<h2>
-						<FiLock />
+						<span>🔒</span>
 						Setup PingOne Credentials
 					</h2>
 					<p>Configure your PingOne environment to get started with the OAuth Playground</p>
@@ -899,7 +899,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 									title={showSecret ? 'Hide client secret' : 'Show client secret'}
 								>
-									{showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+									{showSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 								</button>
 							</SecretInputContainer>
 							<div className="form-text">Only required for confidential clients</div>
@@ -1096,7 +1096,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									}}
 									title="Export credentials to JSON file"
 								>
-									<FiDownload />
+									<span>📥</span>
 									Export
 								</button>
 								<button
@@ -1120,7 +1120,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									}}
 									title="Import credentials from JSON file"
 								>
-									<FiUpload />
+									<span>📤</span>
 									Import
 								</button>
 							</div>

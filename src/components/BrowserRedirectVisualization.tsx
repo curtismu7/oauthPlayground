@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle, FiClock, FiExternalLink } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 
 interface BrowserRedirectVisualizationProps {
@@ -27,28 +27,28 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 			title: 'Prepare Authorization Request',
 			description: 'Building authorization URL with required parameters',
 			status: 'pending',
-			icon: <FiClock />,
+			icon: <span>🕐</span>,
 		},
 		{
 			id: 'redirect',
 			title: 'Browser Redirect to PingOne',
 			description: 'Redirecting user to PingOne authorization server',
 			status: 'pending',
-			icon: <FiExternalLink />,
+			icon: <span>🔗</span>,
 		},
 		{
 			id: 'authenticate',
 			title: 'User Authentication',
 			description: 'User authenticates with PingOne (login, consent, etc.)',
 			status: 'pending',
-			icon: <FiCheckCircle />,
+			icon: <span>✅</span>,
 		},
 		{
 			id: 'callback',
 			title: 'Return to Application',
 			description: 'PingOne redirects back with authorization code',
 			status: 'pending',
-			icon: <FiCheckCircle />,
+			icon: <span>✅</span>,
 		},
 	]);
 
@@ -344,7 +344,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 						}}
 					>
-						<FiClock />
+						<span>🕐</span>
 						<span>
 							Redirect in progress... Please complete authentication in the opened window.
 						</span>

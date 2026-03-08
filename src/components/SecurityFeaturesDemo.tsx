@@ -1,24 +1,7 @@
 // src/components/SecurityFeaturesDemo.tsx
 // lint-file-disable: token-value-in-jsx
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiClock,
-	FiDownload,
-	FiExternalLink,
-	FiEye,
-	FiGlobe,
-	FiKey,
-	FiLock,
-	FiPlay,
-	FiPlus,
-	FiRefreshCw,
-	FiShield,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -29,7 +12,7 @@ import {
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
 
 // Styled Components
@@ -576,7 +559,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					// Validate ID token before using it
 					const idToken = normalizedTokens.id_token;
 					if (idToken && !isJWT(idToken)) {
-						logger.warn(
+						log.warn(
 							'SecurityFeaturesDemo',
 							'[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call'
 						);
@@ -1301,7 +1284,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Request Parameter Signature Section */}
 				<Section>
 					<SectionHeader>
-						<FiShield size={18} />
+						<span style={{ fontSize: '18px' }}>🛡️</span>
 						Request Parameter Signature Requirements
 					</SectionHeader>
 					<SectionContent>
@@ -1324,7 +1307,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									$primaryColor={colors.primary}
 									onClick={showSignatureDemo}
 								>
-									<FiEye /> View Signature Demo
+									<span>👁️</span> View Signature Demo
 								</Button>
 								<Button
 									$variant="primary"
@@ -1332,7 +1315,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									onClick={validateSignature}
 									disabled={isValidating}
 								>
-									{isValidating ? <FiRefreshCw className="animate-spin" /> : <FiCheckCircle />}
+									{isValidating ? <FiRefreshCw className="animate-spin" /> : <span>✅</span>}
 									{isValidating ? 'Validating...' : 'Validate Current Request'}
 								</Button>
 
@@ -1401,14 +1384,14 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									)}
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={colors.primary} onClick={showX5tDemo}>
-									<FiKey /> View x5t in Tokens
+									<span>🔑</span> View x5t in Tokens
 								</Button>
 								<Button
 									$variant="primary"
 									$primaryColor={colors.primary}
 									onClick={verifyCertificate}
 								>
-									<FiShield /> Verify Certificate
+									<span>🛡️</span> Verify Certificate
 								</Button>
 
 								{/* x5t Header and Certificate Display */}
@@ -1704,7 +1687,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Token Security Features */}
 				<Section>
 					<SectionHeader>
-						<FiKey size={18} />
+						<span style={{ fontSize: '18px' }}>🔑</span>
 						Token Security Features
 					</SectionHeader>
 					<SectionContent>
@@ -1778,14 +1761,14 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									$primaryColor={colors.primary}
 									onClick={validateAllTokens}
 								>
-									<FiCheckCircle /> Validate All Tokens
+									<span>✅</span> Validate All Tokens
 								</Button>
 								<Button
 									$variant="primary"
 									$primaryColor={colors.primary}
 									onClick={checkTokenExpiry}
 								>
-									<FiClock /> Check Expiration
+									<span>🕐</span> Check Expiration
 								</Button>
 								{/* Validation Results Display */}
 								{validationResults && (
@@ -1911,7 +1894,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Session Management */}
 				<Section>
 					<SectionHeader>
-						<FiLock size={18} />
+						<span style={{ fontSize: '18px' }}>🔒</span>
 						Session Management & Termination
 					</SectionHeader>
 					<SectionContent>
@@ -1933,14 +1916,14 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									Redirect
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={colors.primary} onClick={terminateSession}>
-									<FiX /> Terminate Session
+									<span>❌</span> Terminate Session
 								</Button>
 								<Button
 									$variant="primary"
 									$primaryColor={colors.primary}
 									onClick={() => setShowLogoutUrl(!showLogoutUrl)}
 								>
-									<FiGlobe /> {showLogoutUrl ? 'Hide' : 'Show'} Logout URL
+									<span>🌐</span> {showLogoutUrl ? 'Hide' : 'Show'} Logout URL
 								</Button>
 
 								{/* Session Termination Request URL Display */}
@@ -1981,7 +1964,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													window.open(logoutUrl, '_blank');
 												}}
 											>
-												<FiExternalLink /> Execute Logout URL
+												<span>🔗</span> Execute Logout URL
 											</Button>
 											<Button
 												$variant="secondary"
@@ -1998,7 +1981,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													});
 												}}
 											>
-												<FiDownload /> Copy URL
+												<span>📥</span> Copy URL
 											</Button>
 										</div>
 									</InfoBox>
@@ -2046,14 +2029,14 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									<strong>How:</strong> Call revocation endpoint → Token becomes invalid immediately
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={colors.primary} onClick={revokeTokens}>
-									<FiX /> Revoke All Tokens
+									<span>❌</span> Revoke All Tokens
 								</Button>
 								<Button
 									$variant="danger"
 									$primaryColor={colors.primary}
 									onClick={revokeRefreshToken}
 								>
-									<FiRefreshCw /> Revoke Refresh Token
+									<span>🔄</span> Revoke Refresh Token
 								</Button>
 
 								{/* Token Revocation Request URL Display */}
@@ -2152,7 +2135,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 				{/* CORS Settings & Testing */}
 				<Section>
 					<SectionHeader>
-						<FiGlobe size={18} />
+						<span style={{ fontSize: '18px' }}>🌐</span>
 						CORS Settings & Testing
 					</SectionHeader>
 					<SectionContent>
@@ -2230,7 +2213,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 														}}
 														title="Remove origin"
 													>
-														<FiTrash2 size={16} />
+														<span style={{ fontSize: '16px' }}>🗑️</span>
 													</button>
 												</div>
 											))}
@@ -2257,7 +2240,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 												onClick={addCorsOrigin}
 												disabled={!corsSettings.newOrigin.trim()}
 											>
-												<FiPlus /> Add
+												<span>➕</span> Add
 											</Button>
 										</div>
 									</div>
@@ -2269,7 +2252,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									onClick={testCorsConfiguration}
 									disabled={isTestingCors}
 								>
-									{isTestingCors ? <FiRefreshCw className="animate-spin" /> : <FiPlay />}
+									{isTestingCors ? <FiRefreshCw className="animate-spin" /> : <span>❓</span>}
 									{isTestingCors ? 'Testing...' : 'Test CORS Configuration'}
 								</Button>
 								<Button
@@ -2277,7 +2260,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									$primaryColor={colors.primary}
 									onClick={demonstrateCorsError}
 								>
-									<FiAlertTriangle /> Demonstrate CORS Error
+									<span>⚠️</span> Demonstrate CORS Error
 								</Button>
 							</FeatureCard>
 
@@ -2364,7 +2347,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 				{/* Security Analysis */}
 				<Section>
 					<SectionHeader>
-						<FiShield size={18} />
+						<span style={{ fontSize: '18px' }}>🛡️</span>
 						Security Analysis & Recommendations
 					</SectionHeader>
 					<SectionContent>
@@ -2437,10 +2420,10 @@ token=${tokens?.access_token || '{{accessToken}}'}
 				{/* Action Buttons */}
 				<ActionRow>
 					<Button $variant="primary" $primaryColor={colors.primary} onClick={exportSecurityReport}>
-						<FiDownload /> Export Security Report
+						<span>📥</span> Export Security Report
 					</Button>
 					<Button $variant="primary" $primaryColor={colors.primary} onClick={runSecurityTest}>
-						<FiPlay /> Run Security Test Suite
+						<span>❓</span> Run Security Test Suite
 					</Button>
 					{(securityReportResults || securityTestResults) && (
 						<Button
@@ -2456,7 +2439,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 								});
 							}}
 						>
-							<FiX /> Clear Results
+							<span>❌</span> Clear Results
 						</Button>
 					)}
 				</ActionRow>

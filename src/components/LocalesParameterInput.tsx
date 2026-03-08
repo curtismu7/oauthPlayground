@@ -1,7 +1,7 @@
 // src/components/LocalesParameterInput.tsx
 // UI and Claims Locales Parameter Input - Internationalization support
 
-import { FiGlobe, FiInfo } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -157,7 +157,7 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 		<Container>
 			<Label>
 				<LabelIcon>
-					<FiGlobe />
+					<span>🌐</span>
 				</LabelIcon>
 				{isUILocales ? 'UI Locales' : 'Claims Locales'} (OIDC Internationalization)
 			</Label>
@@ -205,7 +205,7 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 
 			<InfoBox>
 				<InfoIcon>
-					<FiInfo />
+					<span>ℹ️</span>
 				</InfoIcon>
 				<div>
 					<strong>About {isUILocales ? 'UI' : 'Claims'} Locales:</strong>

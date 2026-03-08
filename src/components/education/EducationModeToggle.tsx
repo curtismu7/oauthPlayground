@@ -9,7 +9,7 @@
  * full, compact, and hidden education modes.
  */
 
-import { FiBook, FiChevronDown, FiEyeOff, FiMinimize2 } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -216,13 +216,13 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 	const getModeIcon = (mode: EducationMode) => {
 		switch (mode) {
 			case 'full':
-				return <FiBook size={16} />;
+				return <span style={{ fontSize: '16px' }}>📖</span>;
 			case 'compact':
-				return <FiMinimize2 size={16} />;
+				return <span style={{ fontSize: '16px' }}>❓</span>;
 			case 'hidden':
-				return <FiEyeOff size={16} />;
+				return <span style={{ fontSize: '16px' }}>🙈</span>;
 			default:
-				return <FiBook size={16} />;
+				return <span style={{ fontSize: '16px' }}>📖</span>;
 		}
 	};
 
@@ -248,7 +248,7 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 				<ToggleInner>
 					<div>
 						<ToggleLabel>
-							<FiBook size={16} />
+							<span style={{ fontSize: '16px' }}>📖</span>
 							Education Mode
 						</ToggleLabel>
 						{showDescription && (
@@ -279,7 +279,7 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 			<ToggleInner>
 				<div>
 					<ToggleLabel>
-						<FiBook size={16} />
+						<span style={{ fontSize: '16px' }}>📖</span>
 						Education Mode
 					</ToggleLabel>
 					{showDescription && (

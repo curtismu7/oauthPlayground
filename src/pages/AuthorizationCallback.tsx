@@ -1,9 +1,8 @@
 // src/pages/AuthorizationCallback.tsx
 
-import { FiAlertCircle, FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Animation for loading spinner
 const spin = keyframes`
@@ -97,6 +96,8 @@ const RedirectingMessage = styled.div`
   font-style: italic;
 `;
 
+const log = createModuleLogger('src/pages/AuthorizationCallback.tsx');
+
 const AuthorizationCallback: React.FC = () => {
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 	const [authCode, setAuthCode] = useState<string>('');
@@ -119,7 +120,7 @@ const AuthorizationCallback: React.FC = () => {
 				window.opener.localStorage.setItem('callback_page_loaded', JSON.stringify(testFlag));
 			}
 		} catch (err) {
-			logger.error(
+			log.error(
 				'AuthorizationCallback',
 				'Failed to set callback_page_loaded flag:',
 				undefined,
@@ -162,7 +163,7 @@ const AuthorizationCallback: React.FC = () => {
 				storageToUse.setItem('callback_debug_info', JSON.stringify(debugInfo));
 				console.log('✅ [AuthCallback] Debug info saved to localStorage');
 			} catch (err) {
-				logger.error(
+				log.error(
 					'AuthorizationCallback',
 					'❌ [AuthCallback] Failed to save debug info:',
 					undefined,
@@ -193,7 +194,7 @@ const AuthorizationCallback: React.FC = () => {
 
 			// Handle authorization error
 			if (errorParam) {
-				logger.error('AuthorizationCallback', '❌ [AuthCallback] Authorization error:', {
+				log.error('AuthorizationCallback', '❌ [AuthCallback] Authorization error:', {
 					errorParam,
 					errorDescription,
 				});
@@ -378,14 +379,14 @@ const AuthorizationCallback: React.FC = () => {
 					}, 3000);
 				}
 			} else {
-				logger.error(
+				log.error(
 					'AuthorizationCallback',
 					'❌ [AuthCallback] ===== NO AUTHORIZATION CODE FOUND ====='
 				);
-				logger.error('AuthorizationCallback', '❌ [AuthCallback] URL search params:', {
+				log.error('AuthorizationCallback', '❌ [AuthCallback] URL search params:', {
 					search: window.location.search,
 				});
-				logger.error('AuthorizationCallback', '❌ [AuthCallback] All URL params:', {
+				log.error('AuthorizationCallback', '❌ [AuthCallback] All URL params:', {
 					params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
 				});
 				setError('No authorization code received from PingOne');
@@ -404,8 +405,8 @@ const AuthorizationCallback: React.FC = () => {
 			<Card>
 				<IconContainer $success={status === 'success'} $error={status === 'error'}>
 					{status === 'loading' && <Spinner />}
-					{status === 'success' && <FiCheckCircle size={40} color="white" />}
-					{status === 'error' && <FiAlertCircle size={40} color="white" />}
+					{status === 'success' && <span style={{ fontSize: '40px', color: 'white' }}>✅</span>}
+					{status === 'error' && <span style={{ fontSize: '40px', color: 'white' }}>⚠️</span>}
 				</IconContainer>
 
 				{status === 'loading' && (

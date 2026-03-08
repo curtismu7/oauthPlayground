@@ -5,7 +5,7 @@
  * @version 9.9.6
  */
 
-import { FiDatabase, FiDownload, FiEye, FiEyeOff, FiFile, FiRefreshCw, FiTrash2 } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
@@ -126,11 +126,11 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	const sourceOptions: SourceOption[] = [
-		{ value: 'localStorage', label: 'localStorage', icon: <FiDatabase size={16} /> },
-		{ value: 'indexedDB', label: 'IndexedDB', icon: <FiDatabase size={16} /> },
-		{ value: 'sqlite', label: 'SQLite', icon: <FiDatabase size={16} /> },
-		{ value: 'file', label: 'File', icon: <FiFile size={16} /> },
-		{ value: 'callback-debug', label: 'Callback Debug', icon: <FiEye size={16} /> },
+		{ value: 'localStorage', label: 'localStorage', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
+		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
+		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
+		{ value: 'file', label: 'File', icon: <span style={{ fontSize: '16px' }}>❓</span> },
+		{ value: 'callback-debug', label: 'Callback Debug', icon: <span style={{ fontSize: '16px' }}>👁️</span> },
 	];
 
 	const normalizeToLogEntries = useCallback(
@@ -1345,7 +1345,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							cursor: isLoading ? 'not-allowed' : 'pointer',
 						}}
 					>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						{isLoading ? 'Loading...' : 'Refresh'}
 					</button>
 
@@ -1386,7 +1386,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							cursor: 'pointer',
 						}}
 					>
-						<FiTrash2 size={16} />
+						<span style={{ fontSize: '16px' }}>🗑️</span>
 						Clear
 					</button>
 
@@ -1407,7 +1407,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							cursor: 'pointer',
 						}}
 					>
-						<FiDownload size={16} />
+						<span style={{ fontSize: '16px' }}>📥</span>
 						Export
 					</button>
 
@@ -1627,7 +1627,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 													}}
 													title={isExpanded ? 'Hide details' : 'Show details'}
 												>
-													{isExpanded ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+													{isExpanded ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 												</button>
 											)}
 										</div>

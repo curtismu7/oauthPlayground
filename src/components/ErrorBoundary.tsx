@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiMail, FiRefreshCw, FiSettings } from '@icons';
+
 import { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import {
@@ -6,7 +6,7 @@ import {
 	ErrorResponse,
 	RecoveryOption,
 } from '../services/errorHandlingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -151,7 +151,7 @@ class ErrorBoundary extends Component<Props, State> {
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		// Log additional error context
-		logger.error('ErrorBoundary', '[ErrorBoundary] Caught error:', {
+		log.error('ErrorBoundary', '[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
 			componentStack: errorInfo.componentStack,
@@ -197,7 +197,7 @@ class ErrorBoundary extends Component<Props, State> {
 						this.resetError();
 					})
 					.catch((recoveryError) => {
-						logger.error(
+						log.error(
 							'ErrorBoundary',
 							'[ErrorBoundary] Recovery action failed:',
 							undefined,
@@ -210,7 +210,7 @@ class ErrorBoundary extends Component<Props, State> {
 				this.resetError();
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ErrorBoundary',
 				'[ErrorBoundary] Recovery action threw error:',
 				undefined,
@@ -247,7 +247,7 @@ class ErrorBoundary extends Component<Props, State> {
 				<ErrorContainer>
 					<ErrorCard>
 						<ErrorIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</ErrorIcon>
 
 						<ErrorTitle>
@@ -274,9 +274,9 @@ class ErrorBoundary extends Component<Props, State> {
 											marginBottom: '0.5rem',
 										}}
 									>
-										{option.id === 'retry' && <FiRefreshCw />}
-										{option.id === 'contact-support' && <FiMail />}
-										{option.id === 'check-connection' && <FiSettings />}
+										{option.id === 'retry' && <span>🔄</span>}
+										{option.id === 'contact-support' && <span>📧</span>}
+										{option.id === 'check-connection' && <span>⚙️</span>}
 										{option.label}
 									</ActionButton>
 								))}

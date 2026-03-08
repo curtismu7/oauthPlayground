@@ -7,15 +7,7 @@
  * Displays API calls, JSON bodies, and allows download as PDF/MD
  */
 
-import {
-	FiChevronDown,
-	FiChevronUp,
-	FiDownload,
-	FiFileText,
-	FiHome,
-	FiInfo,
-	FiPackage,
-} from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -635,7 +627,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<FiFileText />
+					<span>📄</span>
 					Download Markdown
 				</button>
 				<button
@@ -655,7 +647,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<FiDownload />
+					<span>📥</span>
 					Download PDF
 				</button>
 				<button
@@ -675,7 +667,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<FiPackage />
+					<span>📦</span>
 					Download Postman Collection
 				</button>
 				<button
@@ -695,7 +687,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<FiHome />
+					<span>🏠</span>
 					Back to Flows
 				</button>
 			</div>
@@ -729,7 +721,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#92400e' }}>
-								<FiInfo size={18} />
+								<span style={{ fontSize: '18px' }}>ℹ️</span>
 								<span style={{ fontWeight: '600' }}>No API calls recorded</span>
 							</div>
 							<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#78350f' }}>
@@ -925,7 +917,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-											{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+											{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
 										</div>
 									</button>
 
@@ -1053,7 +1045,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-											{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+											{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
 										</div>
 									</button>
 
@@ -1179,9 +1171,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 										</div>
 										{isExpanded ? (
-											<FiChevronUp size={20} color="#6b7280" />
+											<span style={{ fontSize: 20, color: '#6b7280' }}>⬆️</span>
 										) : (
-											<FiChevronDown size={20} color="#6b7280" />
+											<span style={{ fontSize: 20, color: '#6b7280' }}>⬇️</span>
 										)}
 									</button>
 									{isExpanded && (

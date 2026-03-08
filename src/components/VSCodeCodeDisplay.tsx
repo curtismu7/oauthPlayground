@@ -1,6 +1,6 @@
 // src/components/VSCodeCodeDisplay.tsx
 
-import { FiCheck, FiCopy, FiDownload } from '@icons';
+
 import Prism from 'prismjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -16,7 +16,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // VS Code-inspired color scheme
 const vscodeColors = {
@@ -358,7 +358,7 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			logger.error('VSCodeCodeDisplay', 'Failed to copy code:', undefined, err as Error);
+			log.error('VSCodeCodeDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 
@@ -409,7 +409,7 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 		<Container className={className}>
 			<Header>
 				<Title>
-					<FiCopy />
+					<span>📋</span>
 					{stepData.stepName} - VS Code Style Code Examples
 				</Title>
 				<LanguageSelector>
@@ -436,11 +436,11 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 					</CodeTitle>
 					<CodeActions>
 						<ActionButton onClick={() => handleCopyCode(currentExample.code)}>
-							{copiedCode === currentExample.code ? <FiCheck /> : <FiCopy />}
+							{copiedCode === currentExample.code ? <span>✅</span> : <span>📋</span>}
 							{copiedCode === currentExample.code ? 'Copied!' : 'Copy'}
 						</ActionButton>
 						<ActionButton onClick={() => handleDownloadCode(currentExample)}>
-							<FiDownload />
+							<span>📥</span>
 							Download
 						</ActionButton>
 					</CodeActions>

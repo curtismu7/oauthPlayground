@@ -8,7 +8,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-import { FiBook, FiDownload, FiFileText, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
@@ -230,7 +230,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<FiBook size={24} color="#fbbf24" />
+						<span style={{ fontSize: 24, color: '#fbbf24' }}>📖</span>
 						<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 							Download MFA Documentation
 						</h2>
@@ -248,7 +248,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							justifyContent: 'center',
 						}}
 					>
-						<FiX size={24} color="#6b7280" />
+						<span style={{ fontSize: 24, color: '#6b7280' }}>❌</span>
 					</button>
 				</div>
 
@@ -464,7 +464,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							gap: '8px',
 						}}
 					>
-						<FiDownload size={18} />
+						<span style={{ fontSize: '18px' }}>📥</span>
 						Download ({selectedUseCases.size} use case{selectedUseCases.size !== 1 ? 's' : ''})
 					</button>
 				</div>

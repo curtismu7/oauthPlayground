@@ -1,9 +1,9 @@
-import { FiAlertCircle, FiCheckCircle, FiInfo } from '@icons';
+
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import FlowCredentials from './FlowCredentials';
 import PageTitle from './PageTitle';
@@ -183,11 +183,11 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
 }) => {
 	const { user, isAuthenticated } = useAuth();
 	useEffect(() => {
-		logger.info(`[${flowType}] Flow component mounted`);
+		log.info(`[${flowType}] Flow component mounted`);
 
 		// Log flow access
 		if (isAuthenticated && user) {
-			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
+			log.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
 		}
 	}, [flowType, isAuthenticated, user]);
 
@@ -251,7 +251,7 @@ export const useOAuthFlowBase = (flowType: string) => {
 	const [error, setError] = useState<string | null>(null);
 
 	const handleError = (error: Error, context: string) => {
-		logger.error(`[${flowType}] ${context}:`, error);
+		log.error(`[${flowType}] ${context}:`, error);
 		setError(error.message);
 		setIsLoading(false);
 	};

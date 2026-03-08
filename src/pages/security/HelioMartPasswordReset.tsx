@@ -2,27 +2,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
-import {
-	FiAlertCircle,
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronUp,
-	FiCode,
-	FiCopy,
-	FiDownload,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiKey,
-	FiLock,
-	FiLogIn,
-	FiMail,
-	FiRefreshCw,
-	FiSearch,
-	FiUpload,
-	FiX,
-} from '@icons';
+
 import Prism from 'prismjs';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -69,7 +49,7 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { trackedFetch } from '../../utils/trackedFetch';
 
 // Type for PingOne user objects
@@ -340,7 +320,7 @@ const ApiCallTableContainer = styled.div`
 	padding: 0 2rem;
 `;
 
-const SpinningIcon = styled(FiRefreshCw)`
+const SpinningIcon = styled.span`
 	@keyframes spin {
 		from {
 			transform: rotate(0deg);
@@ -952,7 +932,7 @@ const HelioMartPasswordReset: React.FC = () => {
 									username: payload.preferred_username || loginUsername,
 								});
 							} catch (e) {
-								logger.error(
+								log.error(
 									'HelioMartPasswordReset',
 									'Failed to parse ID token:',
 									undefined,
@@ -983,7 +963,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				throw new Error('Login timeout - please try again');
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[PasswordReset] Login failed:',
 				undefined,
@@ -1007,7 +987,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		// Log for debugging if environment ID is missing
 		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
-			logger.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
+			log.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
 				sharedEnvId: sharedEnv?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
 				effectiveEnvId: effectiveEnvId || '(empty)',
@@ -1032,7 +1012,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1045,7 +1025,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1208,7 +1188,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1221,7 +1201,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1407,7 +1387,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1420,7 +1400,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1548,7 +1528,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1561,7 +1541,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1674,7 +1654,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1687,7 +1667,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1800,7 +1780,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1813,7 +1793,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -1941,7 +1921,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1954,7 +1934,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -2082,7 +2062,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -2095,7 +2075,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error(
+			log.error(
 				'HelioMartPasswordReset',
 				'[HelioMartPasswordReset] ❌ Missing environment ID:',
 				{
@@ -2290,7 +2270,7 @@ async function handlePasswordRecovery(userId, recoveryCode, newPassword) {
     
     return result;
   } catch (error) {
-    logger.error('HelioMartPasswordReset', 'Password recovery error:', undefined, error as Error);
+    log.error('HelioMartPasswordReset', 'Password recovery error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2356,7 +2336,7 @@ async function handleForcePasswordChange(userId) {
     console.log('Password change forced:', result);
     return result;
   } catch (error) {
-    logger.error('HelioMartPasswordReset', 'Force password change error:', undefined, error as Error);
+    log.error('HelioMartPasswordReset', 'Force password change error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2432,7 +2412,7 @@ async function handleChangePassword(userId, accessToken, oldPassword, newPasswor
     console.log('Password changed:', result);
     return result;
   } catch (error) {
-    logger.error('HelioMartPasswordReset', 'Change password error:', undefined, error as Error);
+    log.error('HelioMartPasswordReset', 'Change password error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2454,7 +2434,7 @@ export { changePassword, handleChangePassword };`;
 			});
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
+			log.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2550,7 +2530,7 @@ export { changePassword, handleChangePassword };`;
 									setLoginPassword('');
 								}}
 							>
-								<FiLogIn />
+								<span>❓</span>
 								Sign Out
 							</Button>
 						</div>
@@ -2559,7 +2539,7 @@ export { changePassword, handleChangePassword };`;
 
 				<StatusBar>
 					<StatusItem>
-						<FiKey />
+						<span>🔑</span>
 						<span>
 							Environment:{' '}
 							{environmentId ? `${environmentId.substring(0, 8)}...` : 'Not configured'}
@@ -2624,12 +2604,12 @@ export { changePassword, handleChangePassword };`;
 							$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
 							onClick={handleGetWorkerToken}
 						>
-							<FiKey />
+							<span>🔑</span>
 							{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Get Worker Token'}
 						</Button>
 						{globalTokenStatus.isValid && (
 							<Button $variant="secondary" onClick={handleClearWorkerToken}>
-								<FiX />
+								<span>❌</span>
 								Clear Token
 							</Button>
 						)}
@@ -2645,7 +2625,7 @@ export { changePassword, handleChangePassword };`;
 							}
 							onClick={() => setShowAuthzConfigModal(true)}
 						>
-							<FiKey />
+							<span>🔑</span>
 							Configure Auth Code Client
 						</Button>
 
@@ -2655,7 +2635,7 @@ export { changePassword, handleChangePassword };`;
 							onClick={handleExportConfig}
 							title="Export auth config as JSON"
 						>
-							<FiDownload />
+							<span>📥</span>
 							Export Config
 						</Button>
 						<Button
@@ -2663,7 +2643,7 @@ export { changePassword, handleChangePassword };`;
 							onClick={() => importConfigRef.current?.click()}
 							title="Import auth config from JSON file"
 						>
-							<FiUpload />
+							<span>📤</span>
 							Import Config
 						</Button>
 						<input
@@ -2724,7 +2704,7 @@ export { changePassword, handleChangePassword };`;
 						</p>
 
 						<Alert $type="info" style={{ marginBottom: '2rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>Important: Content-Type Headers</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -2766,9 +2746,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2812,9 +2792,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2847,9 +2827,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2893,9 +2873,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2928,9 +2908,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2963,9 +2943,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 
@@ -2988,9 +2968,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<FiBook />
+									<span>📖</span>
 									View API Documentation
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</DocumentationLink>
 							</div>
 						</div>
@@ -3004,7 +2984,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3034,10 +3014,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Password Recovery (Content-Type:
 								application/vnd.pingidentity.password.recover+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3056,7 +3036,7 @@ export { changePassword, handleChangePassword };`;
 						{!recoveryCodeSent && (
 							<>
 								<Alert $type="info">
-									<FiAlertCircle />
+									<span>⚠️</span>
 									<div>
 										<strong>Forgot your password?</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3080,7 +3060,7 @@ export { changePassword, handleChangePassword };`;
 											onClick={handleSendRecoveryCode}
 											disabled={recoverLoading || !recoverEmail}
 										>
-											{recoverLoading ? <SpinningIcon /> : <FiMail />}
+											{recoverLoading ? <SpinningIcon /> : <span>📧</span>}
 											{recoverLoading ? 'Sending...' : 'Send Recovery Code'}
 										</Button>
 									</div>
@@ -3091,7 +3071,7 @@ export { changePassword, handleChangePassword };`;
 						{recoveryCodeSent && (
 							<>
 								<Alert $type="success">
-									<FiCheckCircle />
+									<span>✅</span>
 									<div>
 										<strong>Recovery code sent!</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3137,7 +3117,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showNewPassword ? <FiEyeOff /> : <FiEye />}
+											{showNewPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3146,7 +3126,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleRecoverPassword}
 									disabled={recoverLoading || !recoveryCode || !newPassword}
 								>
-									{recoverLoading ? <SpinningIcon /> : <FiCheckCircle />}
+									{recoverLoading ? <SpinningIcon /> : <span>✅</span>}
 									{recoverLoading ? 'Recovering...' : 'Recover Password'}
 								</Button>
 
@@ -3169,12 +3149,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<FiCode />
+									<span>❓</span>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<FiCode />
+										<span>❓</span>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -3188,19 +3168,19 @@ export { changePassword, handleChangePassword };`;
 									</CodeContainer>
 									{!isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(true)}>
-											<FiChevronDown />
+											<span>⬇️</span>
 											Show More
 										</CodeCollapseButton>
 									)}
 									{isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(false)}>
-											<FiChevronUp />
+											<span>⬆️</span>
 											Show Less
 										</CodeCollapseButton>
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<FiCopy />
+											<span>📋</span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3252,16 +3232,16 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Force Password Change (Content-Type:
 								application/vnd.pingidentity.password.forceChange+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
 						{forceResetSuccess && (
 							<Alert $type="success">
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>Password change forced successfully!</strong>
 									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3281,7 +3261,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setForceResetIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleForceResetLookup}>
-									<FiSearch />
+									<span>🔍</span>
 									Lookup
 								</Button>
 							</div>
@@ -3302,7 +3282,7 @@ export { changePassword, handleChangePassword };`;
 								</UserCard>
 
 								<Alert $type="info">
-									<FiAlertCircle />
+									<span>⚠️</span>
 									<div>
 										<strong>Force Password Change</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3317,7 +3297,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleForcePasswordReset}
 									disabled={forceResetLoading}
 								>
-									{forceResetLoading ? <SpinningIcon /> : <FiLock />}
+									{forceResetLoading ? <SpinningIcon /> : <span>🔒</span>}
 									{forceResetLoading ? 'Processing...' : 'Force Password Change'}
 								</Button>
 							</>
@@ -3326,12 +3306,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<FiCode />
+									<span>❓</span>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<FiCode />
+										<span>❓</span>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -3345,19 +3325,19 @@ export { changePassword, handleChangePassword };`;
 									</CodeContainer>
 									{!isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(true)}>
-											<FiChevronDown />
+											<span>⬇️</span>
 											Show More
 										</CodeCollapseButton>
 									)}
 									{isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(false)}>
-											<FiChevronUp />
+											<span>⬆️</span>
 											Show Less
 										</CodeCollapseButton>
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<FiCopy />
+											<span>📋</span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3375,7 +3355,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3405,7 +3385,7 @@ export { changePassword, handleChangePassword };`;
 						{!userAccessToken && (
 							<>
 								<Alert $type="info">
-									<FiAlertCircle />
+									<span>⚠️</span>
 									<div>
 										<strong>Authentication Required</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3416,7 +3396,7 @@ export { changePassword, handleChangePassword };`;
 								</Alert>
 								<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
 									<Button onClick={() => setShowLoginModal(true)}>
-										<FiLogIn />
+										<span>❓</span>
 										Sign In to Change Password
 									</Button>
 								</div>
@@ -3443,10 +3423,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Change Password (Content-Type:
 								application/vnd.pingidentity.password.change+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3489,7 +3469,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showOldPassword ? <FiEyeOff /> : <FiEye />}
+											{showOldPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3519,7 +3499,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showChangeNewPassword ? <FiEyeOff /> : <FiEye />}
+											{showChangeNewPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3540,7 +3520,7 @@ export { changePassword, handleChangePassword };`;
 										changePasswordLoading || !oldPassword || !changeNewPassword || !confirmPassword
 									}
 								>
-									{changePasswordLoading ? <SpinningIcon /> : <FiCheckCircle />}
+									{changePasswordLoading ? <SpinningIcon /> : <span>✅</span>}
 									{changePasswordLoading ? 'Changing...' : 'Change Password'}
 								</Button>
 							</>
@@ -3549,12 +3529,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<FiCode />
+									<span>❓</span>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<FiCode />
+										<span>❓</span>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -3568,19 +3548,19 @@ export { changePassword, handleChangePassword };`;
 									</CodeContainer>
 									{!isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(true)}>
-											<FiChevronDown />
+											<span>⬇️</span>
 											Show More
 										</CodeCollapseButton>
 									)}
 									{isCodeExpanded && (
 										<CodeCollapseButton onClick={() => setIsCodeExpanded(false)}>
-											<FiChevronUp />
+											<span>⬆️</span>
 											Show Less
 										</CodeCollapseButton>
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<FiCopy />
+											<span>📋</span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3598,7 +3578,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3628,10 +3608,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Check Password (Content-Type:
 								application/vnd.pingidentity.password.check+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3648,7 +3628,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleCheckPasswordLookup}
 									disabled={checkPasswordLoading || !checkPasswordIdentifier}
 								>
-									{checkPasswordLoading ? <SpinningIcon /> : <FiSearch />}
+									{checkPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -3693,14 +3673,14 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showCheckPassword ? <FiEyeOff /> : <FiEye />}
+											{showCheckPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
 
 								{checkPasswordResult && (
 									<Alert $type={checkPasswordResult.valid ? 'success' : 'error'}>
-										{checkPasswordResult.valid ? <FiCheckCircle /> : <FiAlertCircle />}
+										{checkPasswordResult.valid ? <span>✅</span> : <span>⚠️</span>}
 										<div>
 											<strong>
 												{checkPasswordResult.valid ? 'Password is valid' : 'Password check failed'}
@@ -3718,7 +3698,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleCheckPassword}
 									disabled={checkPasswordLoading || !checkPasswordValue}
 								>
-									{checkPasswordLoading ? <SpinningIcon /> : <FiKey />}
+									{checkPasswordLoading ? <SpinningIcon /> : <span>🔑</span>}
 									{checkPasswordLoading ? 'Checking...' : 'Check Password'}
 								</Button>
 							</>
@@ -3733,7 +3713,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3763,9 +3743,9 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Unlock Password (Content-Type: application/json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3791,7 +3771,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setUnlockIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleUnlockLookup} disabled={unlockLoading || !unlockIdentifier}>
-									{unlockLoading ? <SpinningIcon /> : <FiSearch />}
+									{unlockLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -3809,7 +3789,7 @@ export { changePassword, handleChangePassword };`;
 									</div>
 								</UserInfo>
 								<Button $variant="danger" onClick={handleUnlockPassword} disabled={unlockLoading}>
-									{unlockLoading ? <SpinningIcon /> : <FiKey />}
+									{unlockLoading ? <SpinningIcon /> : <span>🔑</span>}
 									{unlockLoading ? 'Unlocking...' : 'Unlock Password'}
 								</Button>
 							</UserCard>
@@ -3824,7 +3804,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3844,9 +3824,9 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Read Password State (GET method)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3860,7 +3840,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setStateIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleStateLookup} disabled={stateLoading || !stateIdentifier}>
-									{stateLoading ? <SpinningIcon /> : <FiSearch />}
+									{stateLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -3879,7 +3859,7 @@ export { changePassword, handleChangePassword };`;
 										</div>
 									</UserInfo>
 									<Button onClick={handleReadPasswordState} disabled={stateLoading}>
-										{stateLoading ? <SpinningIcon /> : <FiRefreshCw />}
+										{stateLoading ? <SpinningIcon /> : <span>🔄</span>}
 										{stateLoading ? 'Reading...' : 'Read Password State'}
 									</Button>
 								</UserCard>
@@ -3908,7 +3888,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -3937,10 +3917,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Admin Set Password (Content-Type:
 								application/vnd.pingidentity.password.set+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3967,7 +3947,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleAdminSetLookup}
 									disabled={adminSetLoading || !adminSetIdentifier}
 								>
-									{adminSetLoading ? <SpinningIcon /> : <FiSearch />}
+									{adminSetLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -4012,7 +3992,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showAdminSetPassword ? <FiEyeOff /> : <FiEye />}
+											{showAdminSetPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4082,7 +4062,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleAdminSetPassword}
 									disabled={adminSetLoading || !adminSetPassword}
 								>
-									{adminSetLoading ? <SpinningIcon /> : <FiKey />}
+									{adminSetLoading ? <SpinningIcon /> : <span>🔑</span>}
 									{adminSetLoading ? 'Setting...' : 'Set Password'}
 								</Button>
 							</>
@@ -4097,7 +4077,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -4126,10 +4106,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Set Password (Content-Type:
 								application/vnd.pingidentity.password.set+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -4156,7 +4136,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleSetPasswordLookup}
 									disabled={setPasswordLoading || !setPasswordIdentifier}
 								>
-									{setPasswordLoading ? <SpinningIcon /> : <FiSearch />}
+									{setPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -4201,7 +4181,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showSetPassword ? <FiEyeOff /> : <FiEye />}
+											{showSetPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4271,7 +4251,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleSetPassword}
 									disabled={setPasswordLoading || !setPasswordValue}
 								>
-									{setPasswordLoading ? <SpinningIcon /> : <FiKey />}
+									{setPasswordLoading ? <SpinningIcon /> : <span>🔑</span>}
 									{setPasswordLoading ? 'Setting...' : 'Set Password'}
 								</Button>
 							</>
@@ -4293,7 +4273,7 @@ export { changePassword, handleChangePassword };`;
 						</h2>
 
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -4324,10 +4304,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<FiBook />
+								<span>📖</span>
 								PingOne API: Set Password via LDAP Gateway (Content-Type:
 								application/vnd.pingidentity.password.ldapGateway+json)
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -4353,7 +4333,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setLdapIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleLdapLookup} disabled={ldapLoading || !ldapIdentifier}>
-									{ldapLoading ? <SpinningIcon /> : <FiSearch />}
+									{ldapLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
 							</div>
@@ -4408,7 +4388,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showLdapPassword ? <FiEyeOff /> : <FiEye />}
+											{showLdapPassword ? <span>🙈</span> : <span>👁️</span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4475,7 +4455,7 @@ export { changePassword, handleChangePassword };`;
 								</FormGroup>
 
 								<Button onClick={handleSetPasswordLdap} disabled={ldapLoading || !ldapPassword}>
-									{ldapLoading ? <SpinningIcon /> : <FiKey />}
+									{ldapLoading ? <SpinningIcon /> : <span>🔑</span>}
 									{ldapLoading ? 'Setting...' : 'Set Password via LDAP Gateway'}
 								</Button>
 							</>
@@ -4674,7 +4654,7 @@ export { changePassword, handleChangePassword };`;
 											padding: '0.25rem',
 										}}
 									>
-										{showLoginPassword ? <FiEyeOff /> : <FiEye />}
+										{showLoginPassword ? <span>🙈</span> : <span>👁️</span>}
 									</button>
 								</div>
 							</FormGroup>
@@ -4691,7 +4671,7 @@ export { changePassword, handleChangePassword };`;
 									</>
 								) : (
 									<>
-										<FiLogIn />
+										<span>❓</span>
 										Sign In
 									</>
 								)}

@@ -9,17 +9,7 @@
  * including device selection and authentication methods.
  */
 
-import {
-	FiAlertTriangle,
-	FiBook,
-	FiCheckCircle,
-	FiKey,
-	FiLoader,
-	FiLock,
-	FiMail,
-	FiShield,
-	FiSmartphone,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../utils/logger';
@@ -186,7 +176,7 @@ const LoadingContainer = styled.div`
   padding: 2rem;
 `;
 
-const _LoadingSpinner = styled(FiLoader)`
+const _LoadingSpinner = styled.span`
   animation: spin 1s linear infinite;
   font-size: 2rem;
   color: var(--brand-primary);
@@ -266,7 +256,7 @@ const KeyPoint = styled.div`
   font-family: var(--brand-body-font);
 `;
 
-const KeyPointIcon = styled(FiCheckCircle)`
+const KeyPointIcon = styled.span`
   color: var(--brand-success);
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -356,7 +346,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
 			}
 		} catch (err) {
-			logger.error(
+			log.error(
 				'MFAAuthenticationFlow',
 				'[🔐 MFA-AUTHENTICATION] Failed to load devices:',
 				undefined,
@@ -481,7 +471,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				throw new Error('Authentication completed but no tokens received');
 			}
 		} catch (err) {
-			logger.error(
+			log.error(
 				'MFAAuthenticationFlow',
 				'[🔐 MFA-AUTHENTICATION] Authentication failed:',
 				undefined,
@@ -515,15 +505,15 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	const getDeviceIcon = (deviceType: string) => {
 		switch (deviceType) {
 			case 'SMS':
-				return <FiSmartphone />;
+				return <span>📱</span>;
 			case 'EMAIL':
-				return <FiMail />;
+				return <span>📧</span>;
 			case 'TOTP':
-				return <FiKey />;
+				return <span>🔑</span>;
 			case 'FIDO2':
-				return <FiLock />;
+				return <span>🔒</span>;
 			default:
-				return <FiShield />;
+				return <span>🛡️</span>;
 		}
 	};
 
@@ -560,7 +550,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				{!challengeData && (
 					<RiskWarning>
 						<WarningIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</WarningIcon>
 						<WarningContent>
 							<WarningTitle>Medium Risk Detected</WarningTitle>
@@ -576,7 +566,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				{challengeData && (
 					<RiskWarning>
 						<WarningIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</WarningIcon>
 						<WarningContent>
 							<WarningTitle>Verification Required</WarningTitle>
@@ -615,7 +605,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 								</>
 							) : (
 								<>
-									<FiCheckCircle />
+									<span>✅</span>
 									Verify Code
 								</>
 							)}
@@ -670,7 +660,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 									</>
 								) : (
 									<>
-										<FiLock />
+										<span>🔒</span>
 										Authenticate
 									</>
 								)}
@@ -706,7 +696,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 							registration page to set up your authentication method.
 						</p>
 						<ActionButton onClick={handleStartRegistration}>
-							<FiShield />
+							<span>🛡️</span>
 							Register MFA Device
 						</ActionButton>
 					</div>
@@ -759,7 +749,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 				{error && !challengeData && (
 					<ErrorMessage>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 						{error}
 					</ErrorMessage>
 				)}
@@ -769,7 +759,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 			<EducationalSection>
 				<EducationalHeader>
 					<EducationalTitle>
-						<FiBook />
+						<span>📖</span>
 						Multi-Factor Authentication
 					</EducationalTitle>
 				</EducationalHeader>

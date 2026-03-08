@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import { FiAlertTriangle, FiChevronDown, FiKey, FiSearch, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
@@ -252,7 +252,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 								whiteSpace: 'nowrap',
 							}}
 						>
-							<FiKey size={12} />
+							<span style={{ fontSize: '12px' }}>🔑</span>
 							Get Token
 						</button>
 					) : null}
@@ -315,7 +315,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 								color: '#6b7280',
 							}}
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					)}
 					<div
@@ -325,7 +325,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 							alignItems: 'center',
 						}}
 					>
-						<FiChevronDown size={16} />
+						<span style={{ fontSize: '16px' }}>⬇️</span>
 					</div>
 				</div>
 			</div>

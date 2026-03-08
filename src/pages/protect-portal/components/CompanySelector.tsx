@@ -9,7 +9,7 @@
  * to demonstrate the protect portal functionality across different brands.
  */
 
-import { FiChevronDown } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
@@ -315,7 +315,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onCompanyChange, sele
 					</div>
 				</SelectorIcon>
 				<DropdownIconContainer isOpen={isOpen}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</DropdownIconContainer>
 			</SelectorButton>
 

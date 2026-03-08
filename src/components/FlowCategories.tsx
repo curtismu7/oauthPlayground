@@ -1,16 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiClock,
-	FiCode,
-	FiShield,
-	FiStar,
-	FiTool,
-	FiUser,
-} from '@icons';
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -337,7 +325,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'essential',
 		title: 'Essential Flows',
 		description: 'The most commonly used OAuth flows for modern applications',
-		icon: <FiStar />,
+		icon: <span>⭐</span>,
 		difficulty: 'beginner',
 		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
 		color: 'V9_COLORS.PRIMARY.GREEN',
@@ -346,7 +334,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'authorization-code-v7',
 				title: 'Authorization Code Flow V7',
 				description: 'Unified OAuth/OIDC authorization code experience with enhanced features',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -383,7 +371,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'pkce',
 				title: 'PKCE Flow',
 				description: 'Authorization Code flow with enhanced security',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -395,7 +383,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'client-credentials',
 				title: 'Client Credentials',
 				description: 'Machine-to-machine authentication',
-				icon: <FiUser />,
+				icon: <span>👤</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -407,7 +395,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'device-code',
 				title: 'Device Code Flow',
 				description: 'For devices with limited input capabilities',
-				icon: <FiClock />,
+				icon: <span>🕐</span>,
 				security: 'medium',
 				recommended: true,
 				complexity: 'medium',
@@ -421,7 +409,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'advanced',
 		title: 'Advanced Flows',
 		description: 'Specialized flows for specific use cases and requirements',
-		icon: <FiTool />,
+		icon: <span>❓</span>,
 		difficulty: 'intermediate',
 		useCases: ['IoT Devices', 'Smart TVs', 'High Security Apps'],
 		color: 'V9_COLORS.PRIMARY.BLUE',
@@ -430,7 +418,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'hybrid',
 				title: 'Hybrid Flow',
 				description: 'Combines authorization code and implicit flows',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -442,7 +430,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'jwt-bearer',
 				title: 'JWT Bearer Flow',
 				description: 'Uses JWT assertions for authentication',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -454,7 +442,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'worker-token',
 				title: 'Worker Token Flow',
 				description: 'Admin-level access for machine-to-machine',
-				icon: <FiUser />,
+				icon: <span>👤</span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'medium',
@@ -468,7 +456,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'legacy',
 		title: 'Legacy Flows',
 		description: 'Deprecated flows - use only for migration or legacy support',
-		icon: <FiAlertTriangle />,
+		icon: <span>⚠️</span>,
 		difficulty: 'advanced',
 		useCases: ['Legacy Systems', 'Migration Scenarios'],
 		color: 'V9_COLORS.PRIMARY.RED',
@@ -477,7 +465,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'implicit',
 				title: 'Implicit Grant Flow',
 				description: 'Simplified flow for client-side applications (deprecated)',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				security: 'low',
 				recommended: false,
 				complexity: 'low',
@@ -491,7 +479,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'utilities',
 		title: 'Token Management',
 		description: 'Tools for managing and validating OAuth tokens',
-		icon: <FiTool />,
+		icon: <span>❓</span>,
 		difficulty: 'intermediate',
 		useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
 		color: 'V9_COLORS.PRIMARY.GREEN',
@@ -500,7 +488,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'token-management',
 				title: 'Token Management',
 				description: 'Comprehensive token lifecycle management',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -512,7 +500,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'userinfo',
 				title: 'UserInfo Flow',
 				description: 'Retrieve user information using access tokens',
-				icon: <FiUser />,
+				icon: <span>👤</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -526,7 +514,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'pingone',
 		title: 'PingOne Flows',
 		description: 'PingOne-specific authentication and authorization flows',
-		icon: <FiShield />,
+		icon: <span>🛡️</span>,
 		difficulty: 'intermediate',
 		useCases: ['PingOne Integration', 'MFA Authentication', 'Admin Operations'],
 		color: '#8b5cf6',
@@ -535,7 +523,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mfa-v7',
 				title: 'PingOne MFA V7',
 				description: 'Enhanced Multi-Factor Authentication flow with modern services',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -547,7 +535,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'worker-token-v7',
 				title: 'Worker Token Flow V7',
 				description: 'Enhanced PingOne admin access and management operations',
-				icon: <FiTool />,
+				icon: <span>❓</span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -592,7 +580,7 @@ const FlowCategories: React.FC = () => {
 				</p>
 				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
 					<Link to="/flows/authorization-code" className="quick-start-button">
-						<FiStar />
+						<span>⭐</span>
 						Start with Authorization Code Flow
 					</Link>
 					<Link
@@ -603,7 +591,7 @@ const FlowCategories: React.FC = () => {
 							border: '1px solid rgba(255, 255, 255, 0.3)',
 						}}
 					>
-						<FiCode />
+						<span>❓</span>
 						Compare Flows
 					</Link>
 					<Link
@@ -614,7 +602,7 @@ const FlowCategories: React.FC = () => {
 							border: '1px solid rgba(255, 255, 255, 0.3)',
 						}}
 					>
-						<FiArrowRight />
+						<span>➡️</span>
 						Interactive Diagrams
 					</Link>
 				</div>
@@ -630,9 +618,9 @@ const FlowCategories: React.FC = () => {
 							</CategoryHeader>
 
 							<DifficultyBadge $level={category.difficulty}>
-								{category.difficulty === 'beginner' && <FiCheckCircle />}
-								{category.difficulty === 'intermediate' && <FiClock />}
-								{category.difficulty === 'advanced' && <FiAlertTriangle />}
+								{category.difficulty === 'beginner' && <span>✅</span>}
+								{category.difficulty === 'intermediate' && <span>🕐</span>}
+								{category.difficulty === 'advanced' && <span>⚠️</span>}
 								{category.difficulty}
 							</DifficultyBadge>
 
@@ -658,7 +646,7 @@ const FlowCategories: React.FC = () => {
 									<h3>Available Flows</h3>
 									<div className="flow-count">
 										{category.flows.length} flow{category.flows.length !== 1 ? 's' : ''}
-										{expandedCategories.has(category.id) ? <FiChevronDown /> : <FiChevronRight />}
+										{expandedCategories.has(category.id) ? <span>⬇️</span> : <span>➡️</span>}
 									</div>
 								</div>
 
@@ -681,7 +669,7 @@ const FlowCategories: React.FC = () => {
 													</SecurityBadge>
 													{flow.recommended && (
 														<RecommendedBadge>
-															<FiStar />
+															<span>⭐</span>
 															Recommended
 														</RecommendedBadge>
 													)}

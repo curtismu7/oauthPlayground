@@ -1,28 +1,7 @@
 // src/v8m/pages/V8MTokenExchange.tsx
 // V8M OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiBriefcase,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
-	FiCopy,
-	FiCpu,
-	FiDollarSign,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiServer,
-	FiShield,
-	FiTerminal,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -619,7 +598,7 @@ const TroubleshootingTable = styled.table`
 // Static scenarios data - moved outside component to prevent infinite re-renders
 const scenarios = {
 	delegation: {
-		icon: <FiUsers />,
+		icon: <span>👥</span>,
 		title: 'User Delegation',
 		description: 'Exchange user token for service-specific token with reduced scope',
 		useCase: 'User authorizes app to call downstream service on their behalf',
@@ -652,7 +631,7 @@ const scenarios = {
 			'[{"type":"crm_access","actions":["read"],"resources":["contacts","opportunities"]}]',
 	},
 	impersonation: {
-		icon: <FiShield />,
+		icon: <span>🛡️</span>,
 		title: 'Service Impersonation',
 		description: 'Service acts on behalf of user with limited permissions',
 		useCase: 'Backend service needs to call API as if it were the user',
@@ -686,7 +665,7 @@ const scenarios = {
 			'[{"type":"impersonation","actor":"service_account","target":"user","permissions":["audit:read","admin:limited"]}]',
 	},
 	audienceRestriction: {
-		icon: <FiLock />,
+		icon: <span>🔒</span>,
 		title: 'Audience Restriction',
 		description: 'Exchange token for one with restricted audience (downscoped)',
 		useCase: 'Frontend needs token with limited access to specific microservice',
@@ -716,7 +695,7 @@ const scenarios = {
 			'[{"type":"access_control","audience":"payments.api.company.com","restrictions":["ip_whitelist","rate_limit"]}]',
 	},
 	domainDelegation: {
-		icon: <FiGlobe />,
+		icon: <span>🌐</span>,
 		title: 'Cross-Domain Delegation',
 		description: 'Exchange token for access to resources in another domain',
 		useCase: 'Partner application needs access to user data across organizational boundaries',
@@ -745,7 +724,7 @@ const scenarios = {
 			'[{"type":"domain_delegation","source":"my-org.com","target":"partner-org.com","access_level":"limited"}]',
 	},
 	onBehalfOfClient: {
-		icon: <FiBriefcase />,
+		icon: <span>❓</span>,
 		title: 'On-Behalf-Of Client',
 		description: 'Service exchanges user token to act as client on behalf of user',
 		useCase: 'Middleware service calls downstream API using client credentials with user context',
@@ -774,7 +753,7 @@ const scenarios = {
 			'[{"type":"client_delegation","client_id":"middleware-service","user_context":"preserved","permissions":["api:call","user:context"]}]',
 	},
 	deviceToToken: {
-		icon: <FiCpu />,
+		icon: <span>🖥️</span>,
 		title: 'Device-to-Token Exchange',
 		description: 'Exchange device grant token for access token with different permissions',
 		useCase: 'IoT device exchanges limited token for broader API access',
@@ -799,7 +778,7 @@ const scenarios = {
 			'[{"type":"device_access","device_id":"device_789","capabilities":["control","upload","telemetry"]}]',
 	},
 	bankingIntegration: {
-		icon: <FiDollarSign />,
+		icon: <span>💵</span>,
 		title: 'Banking API Integration',
 		description: 'Exchange token for banking API access with compliance requirements',
 		useCase: 'FinTech application needs secure access to banking services with audit trail',
@@ -1084,14 +1063,14 @@ const V8MTokenExchange: React.FC = () => {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('advanced')}>
 				<CollapsibleTitle>
-					<FiZap /> Advanced Token Exchange Parameters
+					<span>⚡</span> Advanced Token Exchange Parameters
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.advanced && (
 				<CollapsibleContent>
 					<EducationalBox $type="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>PingOne Token Exchange Implementation (Phase 1 - Q1 2026)</InfoTitle>
 							<InfoText>
@@ -1122,7 +1101,7 @@ const V8MTokenExchange: React.FC = () => {
 					</EducationalBox>
 
 					<EducationalBox $type="warning">
-						<FiAlertCircle size={20} />
+						<span style={{ fontSize: '20px' }}>⚠️</span>
 						<div>
 							<InfoTitle>PingOne Application Configuration Requirements</InfoTitle>
 							<InfoText>
@@ -1153,7 +1132,7 @@ const V8MTokenExchange: React.FC = () => {
 						}}
 					>
 						<EducationalBox $type="success">
-							<FiKey size={20} />
+							<span style={{ fontSize: '20px' }}>🔑</span>
 							<div>
 								<InfoTitle>Token Types Explained</InfoTitle>
 								<InfoText>
@@ -1165,7 +1144,7 @@ const V8MTokenExchange: React.FC = () => {
 							</div>
 						</EducationalBox>
 						<EducationalBox $type="warning">
-							<FiUsers size={20} />
+							<span style={{ fontSize: '20px' }}>👥</span>
 							<div>
 								<InfoTitle>Grant Types Overview</InfoTitle>
 								<InfoText>
@@ -1398,7 +1377,7 @@ const V8MTokenExchange: React.FC = () => {
 					</ParameterGrid>
 
 					<EducationalBox $type="info">
-						<FiGlobe size={20} />
+						<span style={{ fontSize: '20px' }}>🌐</span>
 						<div>
 							<InfoTitle>
 								<LearningTooltip
@@ -1443,7 +1422,7 @@ const V8MTokenExchange: React.FC = () => {
 					</EducationalBox>
 
 					<EducationalBox $type="security">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<InfoTitle>Security Best Practices</InfoTitle>
 							<InfoText>
@@ -1467,14 +1446,14 @@ const V8MTokenExchange: React.FC = () => {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('codeExamples')}>
 				<CollapsibleTitle>
-					<FiCode /> Implementation Examples
+					<span>❓</span> Implementation Examples
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.codeExamples && (
 				<CollapsibleContent>
 					<EducationalBox $type="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>Real-World Implementation Examples</InfoTitle>
 							<InfoText>
@@ -1495,7 +1474,7 @@ const V8MTokenExchange: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiTerminal size={20} /> cURL Command Example
+							<span style={{ fontSize: '20px' }}>❓</span> cURL Command Example
 						</h4>
 						<CodeBlock>{`# Token Exchange with Advanced Parameters
 AS="https://auth.pingone.com/<ENV_ID>"
@@ -1545,7 +1524,7 @@ ${
 								gap: '0.5rem',
 							}}
 						>
-							<FiServer size={20} /> Actual Backend Implementation (server.js)
+							<span style={{ fontSize: '20px' }}>🖥️</span> Actual Backend Implementation (server.js)
 						</h4>
 						<CodeBlock>{`// OAuth Playground Backend - Token Exchange Endpoint
 // This is the actual implementation running at https://localhost:3001/api/token-exchange
@@ -1642,7 +1621,7 @@ app.post('/api/token-exchange', async (req, res) => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      logger.error('V8MTokenExchange', '❌ [Server] PingOne error:', { responseData });
+      log.error('V8MTokenExchange', '❌ [Server] PingOne error:', { responseData });
       return res.status(response.status).json(responseData);
     }
 
@@ -1658,7 +1637,7 @@ app.post('/api/token-exchange', async (req, res) => {
     res.json(enrichedResponse);
 
   } catch (error) {
-    logger.error('V8MTokenExchange', '💥 [Server] Token exchange error:', undefined, error as Error);
+    log.error('V8MTokenExchange', '💥 [Server] Token exchange error:', undefined, error as Error);
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during token exchange'
@@ -1677,7 +1656,7 @@ app.post('/api/token-exchange', async (req, res) => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiServer size={20} /> Custom Implementation Example
+							<span style={{ fontSize: '20px' }}>🖥️</span> Custom Implementation Example
 						</h4>
 						<CodeBlock>{`// token.exchange.ts (TypeScript)
 import fetch from "node-fetch";
@@ -1764,11 +1743,11 @@ ${
 								gap: '0.5rem',
 							}}
 						>
-							<FiCode size={20} /> React Frontend Component
+							<span style={{ fontSize: '20px' }}>❓</span> React Frontend Component
 						</h4>
 						<CodeBlock>{`// TokenExchangeComponent.tsx (React)
 import React, { useState } from "react";
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 function TokenExchangeComponent() {
   const [exchangeState, setExchangeState] = useState({
@@ -1864,10 +1843,10 @@ function TokenExchangeComponent() {
 								gap: '0.5rem',
 							}}
 						>
-							<FiCheckCircle size={20} /> Live Backend Response Example
+							<span style={{ fontSize: '20px' }}>✅</span> Live Backend Response Example
 						</h4>
 						<EducationalBox $type="success">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>What You'll See When Testing</InfoTitle>
 								<InfoText>
@@ -1906,7 +1885,7 @@ function TokenExchangeComponent() {
 						}}
 					>
 						<EducationalBox $type="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>Backend Features</InfoTitle>
 								<InfoText>
@@ -1920,7 +1899,7 @@ function TokenExchangeComponent() {
 							</div>
 						</EducationalBox>
 						<EducationalBox $type="warning">
-							<FiAlertCircle size={20} />
+							<span style={{ fontSize: '20px' }}>⚠️</span>
 							<div>
 								<InfoTitle>Error Handling</InfoTitle>
 								<InfoText>
@@ -1942,7 +1921,7 @@ function TokenExchangeComponent() {
 	const renderScopeSelector = () => (
 		<ScopeSelector>
 			<ScopeSelectorTitle>
-				<FiLock /> Select{' '}
+				<span>🔒</span> Select{' '}
 				<LearningTooltip
 					variant="info"
 					title="Scopes"
@@ -2104,7 +2083,7 @@ function TokenExchangeComponent() {
 
 			{selectedScopes.length === 0 && (
 				<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
-					<FiAlertCircle size={20} />
+					<span style={{ fontSize: '20px' }}>⚠️</span>
 					<div>
 						<InfoTitle>No Scopes Selected</InfoTitle>
 						<InfoText>
@@ -2126,7 +2105,7 @@ function TokenExchangeComponent() {
 							gap: '0.5rem',
 						}}
 					>
-						<FiShield size={16} /> Real-time Security Metrics
+						<span style={{ fontSize: '16px' }}>🛡️</span> Real-time Security Metrics
 					</h4>
 					<div
 						style={{
@@ -2186,14 +2165,14 @@ function TokenExchangeComponent() {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('details')}>
 				<CollapsibleTitle>
-					<FiInfo /> {currentScenario.title} - Implementation Details
+					<span>ℹ️</span> {currentScenario.title} - Implementation Details
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.details && (
 				<CollapsibleContent>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>Use Case: {currentScenario.useCase}</InfoTitle>
 							<InfoText>{currentScenario.description}</InfoText>
@@ -2259,14 +2238,14 @@ function TokenExchangeComponent() {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('comparison')}>
 				<CollapsibleTitle>
-					<FiArrowRight /> Before & After Token Comparison
+					<span>➡️</span> Before & After Token Comparison
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.comparison && (
 				<CollapsibleContent>
 					<EducationalBox $type="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>Token Exchange Visualization</InfoTitle>
 							<InfoText>
@@ -2372,7 +2351,7 @@ function TokenExchangeComponent() {
 									justifyContent: 'center',
 								}}
 							>
-								<FiArrowRight size={24} />
+								<span style={{ fontSize: '24px' }}>➡️</span>
 							</div>
 							<div
 								style={{
@@ -2452,7 +2431,7 @@ function TokenExchangeComponent() {
 						}}
 					>
 						<EducationalBox $type="success">
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 							<div>
 								<InfoTitle>Security Benefits</InfoTitle>
 								<InfoText>
@@ -2466,7 +2445,7 @@ function TokenExchangeComponent() {
 							</div>
 						</EducationalBox>
 						<EducationalBox $type="info">
-							<FiLock size={20} />
+							<span style={{ fontSize: '20px' }}>🔒</span>
 							<div>
 								<InfoTitle>Use Case: {currentScenario.title}</InfoTitle>
 								<InfoText>
@@ -2490,14 +2469,14 @@ function TokenExchangeComponent() {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('authzCodeFlow')}>
 				<CollapsibleTitle>
-					<FiKey /> Step 1: App X Obtains Access Token (Authorization Code Flow)
+					<span>🔑</span> Step 1: App X Obtains Access Token (Authorization Code Flow)
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.authzCodeFlow && (
 				<CollapsibleContent>
 					<EducationalBox $type="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>
 								Complete Flow: Authorization Code → Access Token → Token Exchange
@@ -2537,7 +2516,7 @@ function TokenExchangeComponent() {
 					</StepIndicator>
 
 					<EducationalBox $type="success">
-						<FiGlobe size={20} />
+						<span style={{ fontSize: '20px' }}>🌐</span>
 						<div>
 							<InfoTitle>Authorization URL</InfoTitle>
 							<InfoText>
@@ -2577,7 +2556,7 @@ function TokenExchangeComponent() {
 						}}
 						disabled={!!authCode}
 					>
-						<FiZap /> Simulate Authorization Request
+						<span>⚡</span> Simulate Authorization Request
 					</Button>
 				</CollapsibleContent>
 			)}
@@ -2591,14 +2570,14 @@ function TokenExchangeComponent() {
 			<CollapsibleSection>
 				<CollapsibleHeaderButton onClick={() => toggleSection('authzCodeReceived')}>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Step 2: Authorization Code Received
+						<span>✅</span> Step 2: Authorization Code Received
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.authzCodeReceived && (
 					<CollapsibleContent>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>Authorization Code Received</InfoTitle>
 								<InfoText>
@@ -2614,7 +2593,7 @@ function TokenExchangeComponent() {
 						</InfoBox>
 
 						<EducationalBox $type="info">
-							<FiKey size={20} />
+							<span style={{ fontSize: '20px' }}>🔑</span>
 							<div>
 								<InfoTitle>What is an Authorization Code?</InfoTitle>
 								<InfoText>
@@ -2658,12 +2637,12 @@ function TokenExchangeComponent() {
 								}}
 								style={{ marginTop: '0.5rem' }}
 							>
-								<FiCopy /> Copy Code
+								<span>📋</span> Copy Code
 							</Button>
 						</GeneratedContentBox>
 
 						<EducationalBox $type="warning" style={{ marginTop: '1.5rem' }}>
-							<FiAlertCircle size={20} />
+							<span style={{ fontSize: '20px' }}>⚠️</span>
 							<div>
 								<InfoTitle>Security Best Practices</InfoTitle>
 								<InfoText>
@@ -2693,14 +2672,14 @@ function TokenExchangeComponent() {
 			<CollapsibleSection>
 				<CollapsibleHeaderButton onClick={() => toggleSection('exchangeAuthCode')}>
 					<CollapsibleTitle>
-						<FiRefreshCw /> Step 3: Exchange Authorization Code for Access Token
+						<span>🔄</span> Step 3: Exchange Authorization Code for Access Token
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.exchangeAuthCode && (
 					<CollapsibleContent>
 						<EducationalBox $type="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>Token Exchange: Authorization Code → Access Token</InfoTitle>
 								<InfoText>
@@ -2805,14 +2784,14 @@ function TokenExchangeComponent() {
 								</>
 							) : (
 								<>
-									<FiRefreshCw /> Exchange Authorization Code for Access Token
+									<span>🔄</span> Exchange Authorization Code for Access Token
 								</>
 							)}
 						</Button>
 
 						{initialAccessToken && (
 							<InfoBox $variant="success" style={{ marginTop: '1.5rem' }}>
-								<FiCheckCircle size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 								<div>
 									<InfoTitle>Access Token Received</InfoTitle>
 									<InfoText>
@@ -2843,7 +2822,7 @@ function TokenExchangeComponent() {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('request')}>
 				<CollapsibleTitle>
-					<FiZap />{' '}
+					<span>⚡</span>{' '}
 					<LearningTooltip
 						variant="learning"
 						title="Token Exchange Request"
@@ -2863,12 +2842,12 @@ function TokenExchangeComponent() {
 					</LearningTooltip>
 					)
 				</CollapsibleTitle>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</CollapsibleHeaderButton>
 			{!collapsedSections.request && (
 				<CollapsibleContent>
 					<InfoBox $variant="warning">
-						<FiAlertCircle size={20} />
+						<span style={{ fontSize: '20px' }}>⚠️</span>
 						<div>
 							<InfoTitle>PingOne Token Exchange: Common Use Case Example</InfoTitle>
 							<InfoText>
@@ -2912,7 +2891,7 @@ function TokenExchangeComponent() {
 					</InfoBox>
 
 					<EducationalBox $type="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<InfoTitle>
 								PingOne Token Exchange: Subject Token & Actor Token Requirements
@@ -2936,7 +2915,7 @@ function TokenExchangeComponent() {
 					</EducationalBox>
 
 					<EducationalBox $type="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<InfoTitle>PingOne Token Exchange: Attribute Mapping & Expressions</InfoTitle>
 							<InfoText>
@@ -3051,7 +3030,7 @@ function TokenExchangeComponent() {
 
 					<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
 						<Button $variant="primary" onClick={simulateTokenExchange} disabled={isLoading}>
-							{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiZap />}
+							{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>⚡</span>}
 							{isLoading ? 'Exchanging Token...' : 'Simulate Token Exchange'}
 						</Button>
 					</div>
@@ -3067,14 +3046,14 @@ function TokenExchangeComponent() {
 			<CollapsibleSection>
 				<CollapsibleHeaderButton onClick={() => toggleSection('response')}>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Token Exchange Response
+						<span>✅</span> Token Exchange Response
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.response && (
 					<CollapsibleContent>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>Token Exchange Successful</InfoTitle>
 								<InfoText>
@@ -3094,7 +3073,7 @@ function TokenExchangeComponent() {
 							}}
 						>
 							<InfoBox $variant="success">
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								<div>
 									<InfoTitle>Security Benefits</InfoTitle>
 									<InfoText>
@@ -3107,7 +3086,7 @@ function TokenExchangeComponent() {
 								</div>
 							</InfoBox>
 							<InfoBox $variant="info">
-								<FiLock size={20} />
+								<span style={{ fontSize: '20px' }}>🔒</span>
 								<div>
 									<InfoTitle>Banking Compliance</InfoTitle>
 									<InfoText>
@@ -3226,14 +3205,14 @@ function TokenExchangeComponent() {
 						<CollapsibleSection>
 							<CollapsibleHeaderButton onClick={() => toggleSection('completeFlow')}>
 								<CollapsibleTitle>
-									<FiArrowRight /> Complete Flow: From Authorization Code to Token Exchange
+									<span>➡️</span> Complete Flow: From Authorization Code to Token Exchange
 								</CollapsibleTitle>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleHeaderButton>
 							{!collapsedSections.completeFlow && (
 								<CollapsibleContent>
 									<EducationalBox $type="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Understanding the Complete Journey</InfoTitle>
 											<InfoText>
@@ -3269,14 +3248,14 @@ function TokenExchangeComponent() {
 							<CollapsibleSection>
 								<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchangeStep4')}>
 									<CollapsibleTitle>
-										<FiZap /> Step 4: Token Exchange (RFC 8693) - API A Exchanges App X's Token
+										<span>⚡</span> Step 4: Token Exchange (RFC 8693) - API A Exchanges App X's Token
 									</CollapsibleTitle>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleHeaderButton>
 								{!collapsedSections.tokenExchangeStep4 && (
 									<CollapsibleContent>
 										<EducationalBox $type="success">
-											<FiShield size={20} />
+											<span style={{ fontSize: '20px' }}>🛡️</span>
 											<div>
 												<InfoTitle>Now We're Ready for Token Exchange!</InfoTitle>
 												<InfoText>
@@ -3310,14 +3289,14 @@ function TokenExchangeComponent() {
 						<CollapsibleSection>
 							<CollapsibleHeaderButton onClick={() => toggleSection('resources')}>
 								<CollapsibleTitle>
-									<FiExternalLink /> Additional Resources & PingOne Future Phases
+									<span>🔗</span> Additional Resources & PingOne Future Phases
 								</CollapsibleTitle>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleHeaderButton>
 							{!collapsedSections.resources && (
 								<CollapsibleContent>
 									<EducationalBox $type="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>PingOne Token Exchange: Future Phases (After Q1 2026)</InfoTitle>
 											<InfoText>
@@ -3359,7 +3338,7 @@ function TokenExchangeComponent() {
 										}}
 									>
 										<InfoBox $variant="info">
-											<FiGlobe size={20} />
+											<span style={{ fontSize: '20px' }}>🌐</span>
 											<div>
 												<InfoTitle>RFC 8693 Specification</InfoTitle>
 												<InfoText>
@@ -3375,7 +3354,7 @@ function TokenExchangeComponent() {
 											</div>
 										</InfoBox>
 										<InfoBox $variant="success">
-											<FiServer size={20} />
+											<span style={{ fontSize: '20px' }}>🖥️</span>
 											<div>
 												<InfoTitle>A2A Implementation Guide</InfoTitle>
 												<InfoText>
@@ -3391,7 +3370,7 @@ function TokenExchangeComponent() {
 											</div>
 										</InfoBox>
 										<InfoBox $variant="warning">
-											<FiAlertCircle size={20} />
+											<span style={{ fontSize: '20px' }}>⚠️</span>
 											<div>
 												<InfoTitle>PingOne Documentation</InfoTitle>
 												<InfoText>
@@ -3411,14 +3390,14 @@ function TokenExchangeComponent() {
 						<CollapsibleSection>
 							<CollapsibleHeaderButton onClick={() => toggleSection('troubleshooting')}>
 								<CollapsibleTitle>
-									<FiAlertCircle /> Troubleshooting Guide
+									<span>⚠️</span> Troubleshooting Guide
 								</CollapsibleTitle>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleHeaderButton>
 							{!collapsedSections.troubleshooting && (
 								<CollapsibleContent>
 									<EducationalBox $type="warning">
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>Common Issues & Solutions</InfoTitle>
 											<InfoText>
@@ -3495,7 +3474,7 @@ function TokenExchangeComponent() {
 										}}
 									>
 										<EducationalBox $type="info">
-											<FiCheckCircle size={20} />
+											<span style={{ fontSize: '20px' }}>✅</span>
 											<div>
 												<InfoTitle>Implementation Checklist</InfoTitle>
 												<InfoText>
@@ -3509,7 +3488,7 @@ function TokenExchangeComponent() {
 											</div>
 										</EducationalBox>
 										<EducationalBox $type="success">
-											<FiLock size={20} />
+											<span style={{ fontSize: '20px' }}>🔒</span>
 											<div>
 												<InfoTitle>Security Validation</InfoTitle>
 												<InfoText>

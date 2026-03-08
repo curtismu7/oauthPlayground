@@ -12,7 +12,7 @@
  * />
  */
 
-import { FiInfo, FiLock, FiUnlock } from '@icons';
+
 import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
@@ -42,7 +42,7 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 	public: {
 		value: 'public',
 		label: 'Public Client',
-		icon: <FiUnlock size={18} />,
+		icon: <span style={{ fontSize: '18px' }}>🔓</span>,
 		shortDescription: 'Cannot securely store secrets',
 		fullDescription:
 			'Public clients run in environments where the source code or binary can be inspected (browser, mobile app, desktop app). They cannot keep secrets.',
@@ -59,7 +59,7 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 	confidential: {
 		value: 'confidential',
 		label: 'Confidential Client',
-		icon: <FiLock size={18} />,
+		icon: <span style={{ fontSize: '18px' }}>🔒</span>,
 		shortDescription: 'Can securely store secrets',
 		fullDescription:
 			'Confidential clients run on secure servers where the source code cannot be accessed by end users. They can safely store and use client secrets.',
@@ -132,7 +132,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

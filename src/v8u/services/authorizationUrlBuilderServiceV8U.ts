@@ -12,7 +12,7 @@
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
-import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
+import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 export interface AuthorizationUrlParams {
 	specVersion: SpecVersion;

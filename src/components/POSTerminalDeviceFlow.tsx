@@ -1,23 +1,12 @@
 // src/components/POSTerminalDeviceFlow.tsx
 // POS Terminal Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiCreditCard,
-	FiDollarSign,
-	FiExternalLink,
-	FiFileText,
-	FiPlus,
-	FiX,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
@@ -349,31 +338,31 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('POSTerminalDeviceFlow', 'User code copied to clipboard');
+		log.info('POSTerminalDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('POSTerminalDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('POSTerminalDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('POSTerminalDeviceFlow', 'Verification URI opened in new tab');
+		log.info('POSTerminalDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -455,13 +444,13 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				{/* POS Control Panel */}
 				<POSControlPanel>
 					<POSControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</POSControlButton>
 					<POSControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</POSControlButton>
 					<POSControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</POSControlButton>
 				</POSControlPanel>
 
@@ -749,7 +738,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiPlus /> Add Item
+								<span>➕</span> Add Item
 							</button>
 							<button
 								style={{
@@ -768,7 +757,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiX /> Void
+								<span>❌</span> Void
 							</button>
 							<button
 								style={{
@@ -787,7 +776,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiFileText /> Receipt
+								<span>📄</span> Receipt
 							</button>
 						</div>
 					</div>
