@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { FiLoader, FiX } from '@icons';
+
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import type { CommonSpinnerProps, SpinnerSize, SpinnerTheme } from '@/types/spinner';
@@ -226,12 +226,12 @@ export const CommonSpinner: React.FC<CommonSpinnerProps> = ({
 		>
 			{allowDismiss && variant === 'modal' && (
 				<DismissButton $theme={theme} onClick={handleDismiss}>
-					<FiX />
+					<span>❌</span>
 				</DismissButton>
 			)}
 
 			<SpinnerIcon $size={size} $theme={theme}>
-				<FiLoader />
+				<span>❓</span>
 			</SpinnerIcon>
 
 			{message && (

@@ -4,15 +4,7 @@
  * @description Displays PingOne MFA device authentication status after initialization
  */
 
-import {
-	FiAlertTriangle,
-	FiArrowLeft,
-	FiCheckCircle,
-	FiClock,
-	FiExternalLink,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -77,7 +69,7 @@ const getStatusBadge = (
 			label: 'Unknown',
 			color: '#374151',
 			background: '#e5e7eb',
-			icon: <FiAlertTriangle />,
+			icon: <span>⚠️</span>,
 		};
 	}
 
@@ -88,7 +80,7 @@ const getStatusBadge = (
 				label: 'Completed',
 				color: '#047857',
 				background: '#dcfce7',
-				icon: <FiCheckCircle />,
+				icon: <span>✅</span>,
 			};
 		case 'OTP_REQUIRED':
 		case 'PASSCODE_REQUIRED':
@@ -96,21 +88,21 @@ const getStatusBadge = (
 				label: 'OTP Required',
 				color: '#1d4ed8',
 				background: '#dbeafe',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 			};
 		case 'SELECTION_REQUIRED':
 			return {
 				label: 'Selection Required',
 				color: '#92400e',
 				background: '#fef3c7',
-				icon: <FiAlertTriangle />,
+				icon: <span>⚠️</span>,
 			};
 		default:
 			return {
 				label: normalized,
 				color: '#0f172a',
 				background: '#e2e8f0',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 			};
 	}
 };
@@ -300,7 +292,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 						marginBottom: '16px',
 					}}
 				>
-					<FiArrowLeft />
+					<span>⬅️</span>
 					Back
 				</button>
 
@@ -343,7 +335,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 									fontSize: '13px',
 								}}
 							>
-								<FiAlertTriangle />
+								<span>⚠️</span>
 								<span>Worker token required</span>
 							</div>
 						)}
@@ -475,7 +467,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 									</>
 								) : (
 									<>
-										<FiRefreshCw />
+										<span>🔄</span>
 										Fetch Record
 									</>
 								)}
@@ -495,7 +487,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										textDecoration: 'none',
 									}}
 								>
-									<FiExternalLink />
+									<span>🔗</span>
 									Reference: Read Device Authentication
 								</a>
 							)}
@@ -763,7 +755,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 								color: '#4b5563',
 							}}
 						>
-							<FiShield />
+							<span>🛡️</span>
 							<span>Run a lookup to view the current device authentication status.</span>
 						</div>
 					)}

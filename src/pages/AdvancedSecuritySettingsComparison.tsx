@@ -1,7 +1,7 @@
 // src/pages/AdvancedSecuritySettingsComparison.tsx
 // Comparison page showing both compact and full versions
 
-import { FiArrowLeft, FiExternalLink, FiMonitor, FiSmartphone } from '@icons';
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -168,7 +168,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 		<PageContainer>
 			<Header>
 				<BackButton to="/">
-					<FiArrowLeft size={16} />
+					<span style={{ fontSize: '16px' }}>⬅️</span>
 					Back to Dashboard
 				</BackButton>
 				<div>
@@ -179,7 +179,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 
 			<InfoCard>
 				<InfoTitle>
-					<FiExternalLink size={18} />
+					<span style={{ fontSize: '18px' }}>🔗</span>
 					Two Versions Available
 				</InfoTitle>
 				<InfoText>
@@ -194,7 +194,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 				<VersionCard>
 					<VersionHeader>
 						<VersionIcon style={{ background: 'V9_COLORS.PRIMARY.BLUE' }}>
-							<FiSmartphone size={20} />
+							<span style={{ fontSize: '20px' }}>📱</span>
 						</VersionIcon>
 						<VersionInfo>
 							<VersionTitle>Compact Version</VersionTitle>
@@ -234,7 +234,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 				<VersionCard>
 					<VersionHeader>
 						<VersionIcon style={{ background: 'V9_COLORS.PRIMARY.GREEN' }}>
-							<FiMonitor size={20} />
+							<span style={{ fontSize: '20px' }}>🖥️</span>
 						</VersionIcon>
 						<VersionInfo>
 							<VersionTitle>Full Version</VersionTitle>
@@ -281,7 +281,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 									transition: 'all 0.2s ease',
 								}}
 							>
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								View Full Version
 							</Link>
 						</div>

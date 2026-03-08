@@ -1,15 +1,7 @@
 // src/components/AdvancedSecuritySettingsMock.tsx
 // Mock component to demonstrate the Advanced Security Settings service
 
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiDownload,
-	FiGlobe,
-	FiInfo,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -379,7 +371,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 	return (
 		<Container>
 			<Header>
-				<FiGlobe size={24} />
+				<span style={{ fontSize: '24px' }}>🌐</span>
 				<div>
 					<Title>Advanced Security Settings</Title>
 					<Description>
@@ -392,7 +384,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 			{assessment && (
 				<SecurityAssessment level={assessment.overall}>
 					<AssessmentHeader>
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<AssessmentTitle>Security Assessment</AssessmentTitle>
 						<SecurityBadge level={assessment.overall}>
 							{assessment.overall.toUpperCase()}
@@ -405,7 +397,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 							<strong>Recommendations:</strong>
 							{assessment.recommendations.map((rec, index) => (
 								<RecommendationItem key={index}>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 									{rec}
 								</RecommendationItem>
 							))}
@@ -417,7 +409,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 							<strong>Warnings:</strong>
 							{assessment.warnings.map((warning, index) => (
 								<RecommendationItem key={index}>
-									<FiAlertTriangle size={14} />
+									<span style={{ fontSize: '14px' }}>⚠️</span>
 									{warning}
 								</RecommendationItem>
 							))}
@@ -453,7 +445,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 											{setting.label}
 											{setting.recommended && (
 												<SecurityBadge level="high">
-													<FiCheck size={12} />
+													<span style={{ fontSize: '12px' }}>✅</span>
 													Recommended
 												</SecurityBadge>
 											)}
@@ -500,15 +492,15 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 
 			<ActionBar>
 				<ActionButton onClick={handleReset}>
-					<FiRefreshCw size={16} />
+					<span style={{ fontSize: '16px' }}>🔄</span>
 					Reset to Defaults
 				</ActionButton>
 				<ActionButton onClick={handleExport}>
-					<FiDownload size={16} />
+					<span style={{ fontSize: '16px' }}>📥</span>
 					Export Settings
 				</ActionButton>
 				<ActionButton variant="primary">
-					<FiCheck size={16} />
+					<span style={{ fontSize: '16px' }}>✅</span>
 					Save Settings
 				</ActionButton>
 			</ActionBar>

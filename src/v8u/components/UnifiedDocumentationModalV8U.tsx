@@ -9,7 +9,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-import { FiBook, FiDownload, FiFileText, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -250,7 +250,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			logger.error('Failed to download documentation:', error);
+			log.error('Failed to download documentation:', error);
 			// biome-ignore lint/suspicious/noAlert: user-facing error alert for download failure
 			// eslint-disable-next-line no-alert
 			alert('Failed to download documentation. Please try again.');
@@ -416,7 +416,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<FiBook size={24} color="#fbbf24" />
+						<span style={{ fontSize: 24, color: '#fbbf24' }}>📖</span>
 						<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 							Download Unified Flow Documentation
 						</h2>
@@ -434,7 +434,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							justifyContent: 'center',
 						}}
 					>
-						<FiX size={24} color="#6b7280" />
+						<span style={{ fontSize: 24, color: '#6b7280' }}>❌</span>
 					</button>
 				</div>
 
@@ -651,7 +651,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							gap: '8px',
 						}}
 					>
-						<FiDownload size={18} />
+						<span style={{ fontSize: '18px' }}>📥</span>
 						Download ({selectedUseCases.size} use case{selectedUseCases.size !== 1 ? 's' : ''})
 					</button>
 				</div>

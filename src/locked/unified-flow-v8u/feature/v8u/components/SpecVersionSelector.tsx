@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiHelpCircle, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 
@@ -127,7 +127,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 					}}
 					title="Show guidance for all spec versions"
 				>
-					<FiHelpCircle size={16} />
+					<span style={{ fontSize: '16px' }}>❓</span>
 				</button>
 			</div>
 
@@ -165,7 +165,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								color: '#1e40af',
 							}}
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 					<ul style={{ margin: '0', paddingLeft: '20px', color: '#1e40af' }}>
@@ -233,7 +233,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								color: '#92400e',
 							}}
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 					<p style={{ margin: '0 0 8px 0', color: '#92400e' }}>{currentGuidance.description}</p>
@@ -305,7 +305,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								}}
 								title={`Get guidance for ${label}`}
 							>
-								<FiHelpCircle size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 							</button>
 						</div>
 					);

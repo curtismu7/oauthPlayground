@@ -18,20 +18,7 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiInfo,
-	FiKey,
-	FiLoader,
-	FiMail,
-	FiPackage,
-	FiPhone,
-	FiPlus,
-	FiShield,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -1600,7 +1587,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						}}
 						title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
 					>
-						<FiPackage size={18} />
+						<span style={{ fontSize: '18px' }}>📦</span>
 						Download All MFA Flows Postman Collection
 					</button>
 					<button
@@ -1668,7 +1655,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						}}
 						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 					>
-						<FiPackage size={18} />
+						<span style={{ fontSize: '18px' }}>📦</span>
 						Download Complete Collection (Unified + MFA)
 					</button>
 				</div>
@@ -1731,7 +1718,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							</>
 						) : (
 							<>
-								<FiShield />
+								<span>🛡️</span>
 								Start Authentication
 							</>
 						)}
@@ -1770,7 +1757,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						<FiPlus />
+						<span>➕</span>
 						Register Device
 					</button>
 
@@ -1793,7 +1780,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						<FiKey />
+						<span>🔑</span>
 						Use Passkey / FaceID (username-less)
 					</button>
 
@@ -1825,7 +1812,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							</>
 						) : (
 							<>
-								<FiTrash2 />
+								<span>🗑️</span>
 								Clear Tokens & Session
 							</>
 						)}
@@ -2205,7 +2192,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						</div>
 					) : policiesError ? (
 						<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
-							<FiAlertCircle /> {policiesError}
+							<span>⚠️</span> {policiesError}
 						</div>
 					) : (
 						<select
@@ -2284,7 +2271,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								e.currentTarget.style.background = '#eff6ff';
 							}}
 						>
-							<FiInfo size={14} />
+							<span style={{ fontSize: '14px' }}>ℹ️</span>
 							<span>What is this?</span>
 						</button>
 					</div>
@@ -2430,7 +2417,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														e.currentTarget.style.background = '#eff6ff';
 													}}
 												>
-													<FiInfo size={14} />
+													<span style={{ fontSize: '14px' }}>ℹ️</span>
 													<span>What is this?</span>
 												</button>
 											</div>
@@ -4088,7 +4075,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={48} />
 							<h3
@@ -4191,7 +4178,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												e.currentTarget.style.color = '#6b7280';
 											}}
 										>
-											<FiX size={16} />
+											<span style={{ fontSize: '16px' }}>❌</span>
 										</button>
 									)}
 								</div>
@@ -4333,7 +4320,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													e.currentTarget.style.background = '#10b981';
 												}}
 											>
-												<FiPlus />
+												<span>➕</span>
 												Register New Device
 											</button>
 										</div>
@@ -4988,9 +4975,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
-							<FiShield size={48} color="white" />
+							<span style={{ fontSize: 48, color: 'white' }}>🛡️</span>
 							<h3
 								style={{
 									margin: '16px 0 0 0',

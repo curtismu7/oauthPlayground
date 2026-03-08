@@ -1,7 +1,7 @@
 // src/components/RARValidationDisplay.tsx
 // RAR Validation Display with field-level validation feedback
 
-import { FiAlertCircle, FiCheckCircle, FiInfo, FiShield, FiXCircle } from '@icons';
+
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
@@ -328,26 +328,26 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 	const getHeaderIcon = (level: ValidationLevel) => {
 		switch (level) {
 			case 'success':
-				return <FiCheckCircle size={20} />;
+				return <span style={{ fontSize: '20px' }}>✅</span>;
 			case 'warning':
-				return <FiAlertCircle size={20} />;
+				return <span style={{ fontSize: '20px' }}>⚠️</span>;
 			case 'error':
-				return <FiXCircle size={20} />;
+				return <span style={{ fontSize: '20px' }}>❌</span>;
 			default:
-				return <FiInfo size={20} />;
+				return <span style={{ fontSize: '20px' }}>ℹ️</span>;
 		}
 	};
 
 	const getMessageIcon = (level: ValidationLevel) => {
 		switch (level) {
 			case 'success':
-				return <FiCheckCircle size={14} />;
+				return <span style={{ fontSize: '14px' }}>✅</span>;
 			case 'warning':
-				return <FiAlertCircle size={14} />;
+				return <span style={{ fontSize: '14px' }}>⚠️</span>;
 			case 'error':
-				return <FiXCircle size={14} />;
+				return <span style={{ fontSize: '14px' }}>❌</span>;
 			default:
-				return <FiInfo size={14} />;
+				return <span style={{ fontSize: '14px' }}>ℹ️</span>;
 		}
 	};
 
@@ -436,7 +436,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 				{groupedMessages.errors.length > 0 && (
 					<ValidationSection>
 						<SectionTitle>
-							<FiXCircle size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 							Errors ({groupedMessages.errors.length})
 						</SectionTitle>
 						<MessageList>
@@ -458,7 +458,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 				{groupedMessages.warnings.length > 0 && (
 					<ValidationSection>
 						<SectionTitle>
-							<FiAlertCircle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 							Warnings ({groupedMessages.warnings.length})
 						</SectionTitle>
 						<MessageList>
@@ -480,7 +480,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 				{showScopeValidation && (
 					<ValidationSection>
 						<SectionTitle>
-							<FiShield size={16} />
+							<span style={{ fontSize: '16px' }}>🛡️</span>
 							Scope Compliance
 						</SectionTitle>
 						<MessageList>
@@ -498,7 +498,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 				{groupedMessages.info.length > 0 && (
 					<ValidationSection>
 						<SectionTitle>
-							<FiInfo size={16} />
+							<span style={{ fontSize: '16px' }}>ℹ️</span>
 							Information
 						</SectionTitle>
 						<MessageList>

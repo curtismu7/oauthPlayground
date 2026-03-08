@@ -1,6 +1,6 @@
 // src/services/unifiedTokenDisplayService.tsx
 
-import { FiCopy, FiExternalLink, FiEyeOff, FiInfo, FiKey } from '@icons';
+
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -274,13 +274,13 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					<TokenActions>
 						{showDecodeButtons && (
 							<ActionButton $variant="secondary" onClick={() => handleDecodeClick(token, label)}>
-								{isDecoded ? <FiEyeOff size={14} /> : <FiKey size={14} />}
+								{isDecoded ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>🔑</span>}
 								{isDecoded ? 'Encode' : 'Decode'}
 							</ActionButton>
 						)}
 						{showCopyButtons && (
 							<ActionButton $variant="primary" onClick={() => handleCopy(token, label)}>
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 								Copy
 							</ActionButton>
 						)}
@@ -288,7 +288,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 							$variant="management"
 							onClick={() => handleSendToTokenManagement(token, tokenType, label, navigate)}
 						>
-							<FiExternalLink size={14} />
+							<span style={{ fontSize: '14px' }}>🔗</span>
 							Token Management
 						</ActionButton>
 					</TokenActions>

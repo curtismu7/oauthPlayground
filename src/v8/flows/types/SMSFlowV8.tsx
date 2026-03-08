@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail, FiX } from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
@@ -1918,7 +1918,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									zIndex: 1,
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3
@@ -2778,7 +2778,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3

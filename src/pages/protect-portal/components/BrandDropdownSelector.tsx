@@ -9,7 +9,7 @@
  * corporate brand themes in the Protect Portal with company logos.
  */
 
-import { FiCheck, FiChevronDown } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -86,7 +86,7 @@ const LogoWrapper = styled.div<{ $width: string }>`
   width: ${({ $width }) => $width};
 `;
 
-const DropdownArrow = styled(FiChevronDown)<{ $rotate: boolean }>`
+const DropdownArrow = styled.span<{ $rotate: boolean }>`
   transition: transform 0.2s ease;
   transform: ${({ $rotate }) => ($rotate ? 'rotate(180deg)' : 'rotate(0deg)')};
   flex-shrink: 0;
@@ -156,7 +156,7 @@ const MenuItemText = styled.div`
   white-space: nowrap;
 `;
 
-const CheckIcon = styled(FiCheck)`
+const CheckIcon = styled.span`
   color: var(--brand-primary);
   font-size: 0.875rem;
 `;

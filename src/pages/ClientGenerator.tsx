@@ -10,26 +10,26 @@ const WorkerActions: React.FC<{
 			onClick={onNext}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiArrowRight /> Next: Create Applications
+			<span>➡️</span> Next: Create Applications
 		</Button>
 		<Button
 			variant="danger"
 			onClick={onClearToken}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiSettings /> Clear Token Only
+			<span>⚙️</span> Clear Token Only
 		</Button>
 		<Button
 			variant="danger"
 			onClick={onClearAll}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiX /> Clear All Credentials
+			<span>❌</span> Clear All Credentials
 		</Button>
 	</div>
 );
 
-import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from '@icons';
+
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +41,7 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 const Container = styled.div`
@@ -253,7 +253,7 @@ const ClientGenerator: React.FC = () => {
 			// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
 			// Client IDs are much longer base64-like strings
 			if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
-				logger.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
+				log.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
 					envId,
 				});
 				throw new Error('Invalid Environment ID format. Please check your credentials.');
@@ -300,7 +300,7 @@ const ClientGenerator: React.FC = () => {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				logger.error('ClientGenerator', '[App Generator] Token request failed:', {
+				log.error('ClientGenerator', '[App Generator] Token request failed:', {
 					status: response.status,
 					errorText,
 				});
@@ -313,7 +313,7 @@ const ClientGenerator: React.FC = () => {
 			console.log('[App Generator] Worker token managed by unified service');
 			return workerToken;
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ClientGenerator',
 				'[App Generator] Failed to get worker token:',
 				undefined,
@@ -362,7 +362,7 @@ const ClientGenerator: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'ClientGenerator',
 					'[App Generator] Failed to load credentials:',
 					undefined,
@@ -408,7 +408,7 @@ const ClientGenerator: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ClientGenerator',
 				'[App Generator] Failed to save and get token:',
 				undefined,
@@ -460,7 +460,7 @@ const ClientGenerator: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<FiSettings />
+						<span>⚙️</span>
 						<strong>Note:</strong> Environment ID should be a UUID format (e.g.,
 						"12345678-1234-1234-1234-123456789abc"), not a Client ID.
 					</p>
@@ -516,7 +516,7 @@ const ClientGenerator: React.FC = () => {
 								gap: '0.25rem',
 							}}
 						>
-							<FiSettings size={12} />
+							<span style={{ fontSize: '12px' }}>⚙️</span>
 							<strong>Important:</strong> Check your worker app settings in PingOne to ensure this
 							matches.
 						</p>
@@ -546,7 +546,7 @@ const ClientGenerator: React.FC = () => {
 								</>
 							) : (
 								<>
-									<FiKey /> Save & Get Worker Token
+									<span>🔑</span> Save & Get Worker Token
 								</>
 							)}
 						</ActionButton>
@@ -573,7 +573,7 @@ const ClientGenerator: React.FC = () => {
 							}}
 							style={{ padding: '0.75rem 1.25rem' }}
 						>
-							<FiX /> Clear
+							<span>❌</span> Clear
 						</Button>
 
 						{tokenError && (
@@ -662,7 +662,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<FiKey size={20} />
+							<span style={{ fontSize: '20px' }}>🔑</span>
 							Worker Token Response (OAuth 2.0 Token)
 						</div>
 						<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
@@ -739,9 +739,9 @@ const ClientGenerator: React.FC = () => {
 									}
 								>
 									{tokenDecodeStates['worker-token-response'] ? (
-										<FiEyeOff size={16} />
+										<span style={{ fontSize: '16px' }}>🙈</span>
 									) : (
-										<FiEye size={16} />
+										<span style={{ fontSize: '16px' }}>👁️</span>
 									)}
 								</button>
 							</div>
@@ -798,7 +798,7 @@ const ClientGenerator: React.FC = () => {
 											: 'Show full header (not recommended)'
 									}
 								>
-									{tokenDecodeStates['auth-header'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{tokenDecodeStates['auth-header'] ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 								</button>
 							</div>
 							{tokenDecodeStates['auth-header'] && (
@@ -864,7 +864,7 @@ const ClientGenerator: React.FC = () => {
 									fontWeight: 600,
 								}}
 							>
-								<FiShield size={20} />
+								<span style={{ fontSize: '20px' }}>🛡️</span>
 								Token Analysis (TokenDisplayService)
 							</div>
 							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
@@ -1080,7 +1080,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<FiKey size={20} />
+							<span style={{ fontSize: '20px' }}>🔑</span>
 							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
 						<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
@@ -1116,7 +1116,7 @@ const ClientGenerator: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiKey size={16} />
+								<span style={{ fontSize: '16px' }}>🔑</span>
 								Authentication Method:{' '}
 								{workerTokenRequest.authMethod === 'client_secret_basic'
 									? 'Client Secret Basic'

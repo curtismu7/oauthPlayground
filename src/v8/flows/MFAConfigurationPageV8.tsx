@@ -6,7 +6,7 @@
  * @since 2025-01-XX
  */
 
-import { FiArrowLeft, FiCheck, FiInfo, FiRefreshCw } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -509,7 +509,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						e.currentTarget.style.borderColor = '#d1d5db';
 					}}
 				>
-					<FiArrowLeft size={16} />
+					<span style={{ fontSize: '16px' }}>⬅️</span>
 					<span>Back to {getFlowLabel(returnPath)}</span>
 				</button>
 			)}
@@ -931,7 +931,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								width: '100%',
 							}}
 						>
-							<FiCheck size={18} />
+							<span style={{ fontSize: '18px' }}>✅</span>
 							{isSavingPolicy ? 'Saving All Policy Settings...' : 'Save All Policy Settings'}
 						</button>
 
@@ -958,7 +958,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
 								}}
 							>
-								<FiCheck size={14} />
+								<span style={{ fontSize: '14px' }}>✅</span>
 								Save OTP Settings
 							</button>
 							<button
@@ -982,7 +982,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
 								}}
 							>
-								<FiCheck size={14} />
+								<span style={{ fontSize: '14px' }}>✅</span>
 								Save Pairing Settings
 							</button>
 							<button
@@ -1006,7 +1006,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
 								}}
 							>
-								<FiCheck size={14} />
+								<span style={{ fontSize: '14px' }}>✅</span>
 								Save Device Settings
 							</button>
 						</div>
@@ -1043,7 +1043,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										marginBottom: '8px',
 									}}
 								>
-									<FiInfo size={16} color="#3b82f6" />
+									<span style={{ fontSize: 16, color: '#3b82f6' }}>ℹ️</span>
 									<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
 										About PingOne MFA Settings
 									</span>
@@ -1287,7 +1287,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										cursor: hasPingOneSettingsChanges ? 'pointer' : 'not-allowed',
 									}}
 								>
-									<FiCheck size={16} />
+									<span style={{ fontSize: '16px' }}>✅</span>
 									{isSavingPingOneSettings ? 'Saving...' : 'Save PingOne Settings'}
 								</button>
 								<button
@@ -1307,7 +1307,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<FiRefreshCw size={16} />
+									<span style={{ fontSize: '16px' }}>🔄</span>
 									Reset to Defaults
 								</button>
 							</div>

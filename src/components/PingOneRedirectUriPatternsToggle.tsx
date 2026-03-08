@@ -1,6 +1,6 @@
 // src/components/PingOneRedirectUriPatternsToggle.tsx
 
-import { FiGlobe } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { pingOneConfigService } from '../services/pingoneConfigService';
@@ -89,7 +89,7 @@ const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggl
 	return (
 		<Container className={className}>
 			<Header>
-				<FiGlobe size={16} />
+				<span style={{ fontSize: '16px' }}>🌐</span>
 				<Title>Allow Redirect URI Patterns</Title>
 			</Header>
 

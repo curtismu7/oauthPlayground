@@ -5,7 +5,6 @@
  * @since 2024-11-19
  */
 
-import { FiPlus, FiX } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -196,7 +195,7 @@ export const AddCustomUrlModal: React.FC<AddCustomUrlModalProps> = ({ isOpen, on
 				<ModalHeader>
 					<ModalTitle>Add Custom URL</ModalTitle>
 					<CloseButton onClick={onClose} aria-label="Close modal">
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -234,7 +233,7 @@ export const AddCustomUrlModal: React.FC<AddCustomUrlModalProps> = ({ isOpen, on
 							Cancel
 						</Button>
 						<Button type="submit" $variant="primary" disabled={!label.trim() || !path.trim()}>
-							<FiPlus size={16} />
+							<span style={{ fontSize: '16px' }}>➕</span>
 							Add URL
 						</Button>
 					</ButtonGroup>

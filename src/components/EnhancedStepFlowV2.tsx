@@ -1,26 +1,9 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronLeft,
-	FiChevronRight,
-	FiCopy,
-	FiGlobe,
-	FiKey,
-	FiPlay,
-	FiSave,
-	FiSettings,
-	FiShield,
-	FiUser,
-	FiXCircle,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import '../styles/enhanced-flow.css';
 
 // Enhanced step interface with more options
@@ -704,7 +687,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					);
 				}
 			} catch (error) {
-				logger.warn('Failed to load persisted flow state', `error: ${error}`);
+				log.warn('Failed to load persisted flow state', `error: ${error}`);
 				// Fallback to initialStepIndex if provided
 				if (initialStepIndex !== undefined) {
 					setCurrentStepIndex(initialStepIndex);
@@ -747,7 +730,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				};
 				localStorage.setItem(`enhanced-flow-${persistKey}`, JSON.stringify(data));
 			} catch (error) {
-				logger.warn('Failed to save flow state', `error: ${error}`);
+				log.warn('Failed to save flow state', `error: ${error}`);
 			}
 		}
 	}, [persistKey, currentStepIndex, stepHistory]);
@@ -808,7 +791,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 
 			try {
 				console.log(' [EnhancedStepFlowV2] Starting execution of step:', step.title);
-				logger.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
+				log.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
 				const result = await step.execute();
 				const duration = Date.now() - startTime;
 				console.log(' [EnhancedStepFlowV2] Step execution completed:', { result, duration });
@@ -833,7 +816,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					}, 1000);
 				}
 
-				logger.info(
+				log.info(
 					`Step completed: ${step.title}`,
 					`duration: ${duration}ms, result: ${JSON.stringify(result)}`
 				);
@@ -851,7 +834,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
 				onStepError?.(step.id, errorMessage);
 
-				logger.error(
+				log.error(
 					`Step failed: ${step.title}`,
 					`error: ${errorMessage}, duration: ${duration}ms`
 				);
@@ -941,7 +924,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 			setCopiedText(text);
 			setTimeout(() => setCopiedText(null), 2000);
 		} catch (error) {
-			logger.error('Failed to copy to clipboard', `error: ${error}`);
+			log.error('Failed to copy to clipboard', `error: ${error}`);
 		}
 	}, []);
 
@@ -990,11 +973,11 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 										title={`Step ${index + 1}: ${step.title}`}
 									>
 										{status === 'completed' ? (
-											<FiCheckCircle />
+											<span>✅</span>
 										) : status === 'success' ? (
-											<FiCheckCircle />
+											<span>✅</span>
 										) : status === 'error' ? (
-											<FiXCircle />
+											<span>❌</span>
 										) : (
 											index + 1
 										)}
@@ -1023,7 +1006,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				{/* Step Content */}
 				<StepContent>
 					<StepHeader>
-						<StepIcon>{currentStep.icon || <FiZap />}</StepIcon>
+						<StepIcon>{currentStep.icon || <span>⚡</span>}</StepIcon>
 						<StepTitle>{currentStep.title}</StepTitle>
 					</StepHeader>
 
@@ -1040,7 +1023,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					{currentStep.code && (
 						<CodeBlock>
 							<CopyButton onClick={() => copyToClipboard(currentStep.code!)}>
-								{copiedText === currentStep.code ? <FiCheck /> : <FiCopy />}
+								{copiedText === currentStep.code ? <span>✅</span> : <span>📋</span>}
 							</CopyButton>
 							<pre>{currentStep.code}</pre>
 						</CodeBlock>
@@ -1058,7 +1041,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					{currentStep.error && (
 						<div style={{ marginBottom: '1.5rem' }}>
 							<StatusIndicator type="error">
-								<FiAlertCircle />
+								<span>⚠️</span>
 								Error: {currentStep.error}
 							</StatusIndicator>
 						</div>
@@ -1086,7 +1069,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 								</>
 							) : (
 								<>
-									<FiChevronLeft />
+									<span>⬅️</span>
 									Back
 								</>
 							)}
@@ -1139,17 +1122,17 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 								) : (
 									<>
 										{currentStep.id === 'setup-credentials' ? (
-											<FiSave />
+											<span>💾</span>
 										) : currentStep.id === 'generate-pkce' ? (
-											<FiShield />
+											<span>🛡️</span>
 										) : currentStep.id === 'build-auth-url' ? (
-											<FiGlobe />
+											<span>🌐</span>
 										) : currentStep.id === 'exchange-tokens' ? (
-											<FiKey />
+											<span>🔑</span>
 										) : currentStep.id === 'validate-tokens' ? (
-											<FiUser />
+											<span>👤</span>
 										) : (
-											<FiPlay />
+											<span>❓</span>
 										)}
 										{currentStep.buttonText ||
 											(currentStep.id === 'setup-credentials'
@@ -1228,7 +1211,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 							) : (
 								<>
 									Next
-									<FiChevronRight />
+									<span>➡️</span>
 								</>
 							)}
 						</Button>
@@ -1242,11 +1225,11 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 						<CollapsiblePanel>
 							<PanelHeader onClick={() => setShowDebug(!showDebug)}>
 								<PanelTitle>
-									<FiSettings />
+									<span>⚙️</span>
 									Debug Information
 								</PanelTitle>
 								<PanelToggle className={showDebug ? 'expanded' : ''}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</PanelToggle>
 							</PanelHeader>
 							<PanelContent $expanded={showDebug}>
@@ -1255,7 +1238,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 									{stepHistory.map((entry, index) => (
 										<div key={index} style={{ marginBottom: '0.5rem' }}>
 											<StatusIndicator type={entry.error ? 'error' : 'success'}>
-												{entry.error ? <FiXCircle /> : <FiCheckCircle />}
+												{entry.error ? <span>❌</span> : <span>✅</span>}
 												Step {steps.findIndex((s) => s.id === entry.stepId) + 1}: {entry.duration}ms
 											</StatusIndicator>
 										</div>
@@ -1302,11 +1285,11 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 										title={`Step ${index + 1}: ${step.title}`}
 									>
 										{status === 'completed' ? (
-											<FiCheckCircle />
+											<span>✅</span>
 										) : status === 'success' ? (
-											<FiCheckCircle />
+											<span>✅</span>
 										) : status === 'error' ? (
-											<FiXCircle />
+											<span>❌</span>
 										) : (
 											index + 1
 										)}

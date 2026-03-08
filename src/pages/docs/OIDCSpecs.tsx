@@ -1,4 +1,4 @@
-import { FiCode, FiExternalLink, FiShield, FiUsers } from '@icons';
+
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -97,7 +97,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Core Specifications"
 					subtitle="Essential OAuth 2.0 and OpenID Connect specifications"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -108,7 +108,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Core 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								The core OpenID Connect specification that defines how to authenticate users using
@@ -123,7 +123,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Discovery 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines how clients can dynamically discover information about OpenID Providers.
@@ -137,7 +137,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Session Management 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>Defines how to manage OpenID Connect sessions, including logout functionality.</p>
 						</ExternalLink>
@@ -147,7 +147,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Authentication & Authorization"
 					subtitle="Authentication and authorization specifications for OAuth 2.0 and OpenID Connect"
-					icon={<FiCode />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -158,7 +158,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Basic Client Implemented 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines a simple profile for OpenID Connect relying parties using the Authorization
@@ -173,7 +173,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Implicit Client Implemented 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines a profile for OpenID Connect relying parties using the Implicit flow
@@ -188,7 +188,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Messages 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines the messages used in OpenID Connect, including request and response formats.
@@ -200,7 +200,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="User Information & Identity"
 					subtitle="User information and identity management specifications"
-					icon={<FiUsers />}
+					icon={<span>👥</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -211,7 +211,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Dynamic Client Registration 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines how OpenID Connect clients can register with OpenID Providers dynamically.
@@ -225,7 +225,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Federation 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Defines how to establish trust between OpenID Providers and Relying Parties in
@@ -240,7 +240,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Identity Assurance 1.0
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>Defines extensions for identity assurance and verification in OpenID Connect.</p>
 						</ExternalLink>
@@ -250,7 +250,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Security & Best Practices"
 					subtitle="Security considerations and best practices for OpenID Connect implementation"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<SpecCard title="Security Considerations">

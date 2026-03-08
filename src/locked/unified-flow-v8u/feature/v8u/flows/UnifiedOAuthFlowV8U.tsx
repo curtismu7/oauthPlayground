@@ -11,7 +11,7 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import { FiPackage } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -1310,7 +1310,7 @@ return (
 							}}
 							title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download All Unified Flows Postman Collection
 						</button>
 						<button
@@ -1363,7 +1363,7 @@ return (
 							}}
 							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download Complete Collection (Unified + MFA)
 						</button>
 					</div>

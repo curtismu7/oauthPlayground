@@ -1,7 +1,7 @@
 // src/v7/pages/V7MClientCredentialsV9.tsx
 /* eslint-disable no-alert */
 
-import { FiBook, FiKey } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
@@ -102,7 +102,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 				</p>
 			</div>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiKey /> V7M Client Credentials
+				<span>🔑</span> V7M Client Credentials
 			</h1>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
@@ -129,7 +129,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 						gap: 8,
 					}}
 				>
-					<FiKey /> Request Access Token
+					<span>🔑</span> Request Access Token
 					<V7MInfoIcon
 						label="What is Client Credentials?"
 						title="Client Credentials Grant (RFC 6749)"

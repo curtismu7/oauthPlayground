@@ -1,14 +1,6 @@
 // src/components/CredentialStatusPanel.tsx
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiClock,
-	FiRefreshCw,
-	FiServer,
-	FiShield,
-	FiXCircle,
-} from '@icons';
+
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -16,7 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`
@@ -374,7 +366,7 @@ const CredentialStatusPanel: React.FC = () => {
 				implicit: implicitFlowCredentials,
 			});
 
-			logger.debug('CredentialStatusPanel', 'Loaded credentials', {
+			log.debug('CredentialStatusPanel', 'Loaded credentials', {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
@@ -409,13 +401,13 @@ const CredentialStatusPanel: React.FC = () => {
 			setLastRefresh(new Date());
 
 			console.log(' [CredentialStatusPanel] Statuses updated successfully');
-			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
+			log.debug('CredentialStatusPanel', 'Statuses updated', statuses);
 			showGlobalSuccess(
 				' System Status Refreshed',
 				'All credential statuses have been updated successfully'
 			);
 		} catch (error) {
-			logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
+			log.error('CredentialStatusPanel', 'Error refreshing statuses', error);
 			showGlobalError(' Refresh Failed', 'Failed to refresh system status. Please try again.');
 		} finally {
 			setIsLoading(false);
@@ -430,11 +422,11 @@ const CredentialStatusPanel: React.FC = () => {
 	const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
 		switch (status) {
 			case 'configured':
-				return <FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN" />;
+				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>;
 			case 'partial':
-				return <FiAlertTriangle size={16} color="V9_COLORS.PRIMARY.YELLOW" />;
+				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>;
 			case 'missing':
-				return <FiXCircle size={16} color="V9_COLORS.PRIMARY.RED" />;
+				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.RED' }}>❌</span>;
 		}
 	};
 
@@ -491,7 +483,7 @@ const CredentialStatusPanel: React.FC = () => {
 							});
 						}}
 					>
-						<FiServer size={16} />
+						<span style={{ fontSize: '16px' }}>🖥️</span>
 						Server Status
 					</StatusButton>
 				</ButtonGroup>
@@ -499,11 +491,11 @@ const CredentialStatusPanel: React.FC = () => {
 
 			<StatusIndicators>
 				<StatusIndicator $type="tokens">
-					<FiClock size={16} />
+					<span style={{ fontSize: '16px' }}>🕐</span>
 					{tokens && isAuthenticated ? 'Active Tokens' : 'No Active Tokens'}
 				</StatusIndicator>
 				<StatusIndicator $type="environment">
-					<FiShield size={16} />
+					<span style={{ fontSize: '16px' }}>🛡️</span>
 					Environment Configured
 				</StatusIndicator>
 			</StatusIndicators>
@@ -533,12 +525,12 @@ const CredentialStatusPanel: React.FC = () => {
 									<span className="field-status">
 										{flow.credentials.environmentId ? (
 											<>
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 												{flow.credentials.environmentId.substring(0, 8)}...
 											</>
 										) : (
 											<>
-												<FiXCircle size={12} />
+												<span style={{ fontSize: '12px' }}>❌</span>
 												Missing
 											</>
 										)}
@@ -550,12 +542,12 @@ const CredentialStatusPanel: React.FC = () => {
 									<span className="field-status">
 										{flow.credentials.clientId ? (
 											<>
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 												{flow.credentials.clientId.substring(0, 8)}...
 											</>
 										) : (
 											<>
-												<FiXCircle size={12} />
+												<span style={{ fontSize: '12px' }}>❌</span>
 												Missing
 											</>
 										)}
@@ -567,12 +559,12 @@ const CredentialStatusPanel: React.FC = () => {
 									<span className="field-status">
 										{flow.credentials.redirectUri ? (
 											<>
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 												Configured
 											</>
 										) : (
 											<>
-												<FiXCircle size={12} />
+												<span style={{ fontSize: '12px' }}>❌</span>
 												Missing
 											</>
 										)}

@@ -18,21 +18,7 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiCode,
-	FiInfo,
-	FiKey,
-	FiLoader,
-	FiMail,
-	FiPackage,
-	FiPhone,
-	FiPlus,
-	FiShield,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
@@ -2294,7 +2280,7 @@ const clearTokensAction = useActionButton();
 									</div>
 								) : policiesError ? (
 									<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
-										<FiAlertCircle /> {policiesError}
+										<span>⚠️</span> {policiesError}
 									</div>
 								) : (
 									<select
@@ -2343,7 +2329,7 @@ const clearTokensAction = useActionButton();
 						{
 							id: 'mfa-authentication-overview',
 							title: 'MFA Authentication Overview',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							summary:
 								'Authenticate users with registered MFA devices - supports all 6 device types',
 							content: (
@@ -2381,7 +2367,7 @@ const clearTokensAction = useActionButton();
 						{
 							id: 'authentication-flow',
 							title: 'Authentication Flow Steps',
-							icon: <FiKey />,
+							icon: <span>🔑</span>,
 							summary: 'Select user → Choose device → Complete challenge → Authentication success',
 							content: (
 								<div>
@@ -2483,7 +2469,7 @@ const clearTokensAction = useActionButton();
 								transition: 'all 0.2s ease',
 							}}
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download All MFA Flows Postman Collection
 						</ButtonSpinner>
 						<ButtonSpinner
@@ -2544,7 +2530,7 @@ const clearTokensAction = useActionButton();
 								transition: 'all 0.2s ease',
 							}}
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download Complete Collection (Unified + MFA)
 						</ButtonSpinner>
 
@@ -2577,7 +2563,7 @@ const clearTokensAction = useActionButton();
 								transition: 'all 0.2s ease',
 							}}
 						>
-							<FiCode size={18} />
+							<span style={{ fontSize: '18px' }}>❓</span>
 							OAuth & MFA API Test
 						</ButtonSpinner>
 					</div>
@@ -2638,7 +2624,7 @@ const clearTokensAction = useActionButton();
 								gap: '8px',
 							}}
 						>
-							<FiShield />
+							<span>🛡️</span>
 							{authState.isLoading ? '' : 'Start Authentication'}
 						</ButtonSpinner>
 
@@ -2677,7 +2663,7 @@ const clearTokensAction = useActionButton();
 								gap: '8px',
 							}}
 						>
-							<FiPlus />
+							<span>➕</span>
 							Register Device
 						</ButtonSpinner>
 
@@ -2704,7 +2690,7 @@ const clearTokensAction = useActionButton();
 								gap: '8px',
 							}}
 						>
-							<FiKey />
+							<span>🔑</span>
 							{authState.isLoading ? '' : 'Use Passkey / FaceID (username-less)'}
 						</ButtonSpinner>
 
@@ -2741,7 +2727,7 @@ const clearTokensAction = useActionButton();
 								gap: '8px',
 							}}
 						>
-							<FiCode />
+							<span>❓</span>
 							{isAuthorizing ? '' : 'Authorization API (Browser)'}
 						</ButtonSpinner>
 
@@ -2769,7 +2755,7 @@ const clearTokensAction = useActionButton();
 								transition: 'all 0.2s ease',
 							}}
 						>
-							<FiTrash2 />
+							<span>🗑️</span>
 							{isClearingTokens ? '' : 'Clear Tokens & Session'}
 						</ButtonSpinner>
 					</div>
@@ -2831,7 +2817,7 @@ const clearTokensAction = useActionButton();
 									e.currentTarget.style.background = '#eff6ff';
 								}}
 							>
-								<FiInfo size={14} />
+								<span style={{ fontSize: '14px' }}>ℹ️</span>
 								<span>What is this?</span>
 							</button>
 						</div>
@@ -2977,7 +2963,7 @@ const clearTokensAction = useActionButton();
 															e.currentTarget.style.background = '#eff6ff';
 														}}
 													>
-														<FiInfo size={14} />
+														<span style={{ fontSize: '14px' }}>ℹ️</span>
 														<span>What is this?</span>
 													</button>
 												</div>
@@ -4925,7 +4911,7 @@ const clearTokensAction = useActionButton();
 										color: 'white',
 									}}
 								>
-									<FiX size={18} />
+									<span style={{ fontSize: '18px' }}>❌</span>
 								</button>
 								<PingIdentityLogo size={48} />
 								<h3
@@ -5028,7 +5014,7 @@ const clearTokensAction = useActionButton();
 													e.currentTarget.style.color = '#6b7280';
 												}}
 											>
-												<FiX size={16} />
+												<span style={{ fontSize: '16px' }}>❌</span>
 											</button>
 										)}
 									</div>
@@ -5172,7 +5158,7 @@ const clearTokensAction = useActionButton();
 														e.currentTarget.style.background = '#10b981';
 													}}
 												>
-													<FiPlus />
+													<span>➕</span>
 													Register New Device
 												</button>
 											</div>
@@ -5829,9 +5815,9 @@ const clearTokensAction = useActionButton();
 										color: 'white',
 									}}
 								>
-									<FiX size={18} />
+									<span style={{ fontSize: '18px' }}>❌</span>
 								</button>
-								<FiShield size={48} color="white" />
+								<span style={{ fontSize: 48, color: 'white' }}>🛡️</span>
 								<h3
 									style={{
 										margin: '16px 0 0 0',

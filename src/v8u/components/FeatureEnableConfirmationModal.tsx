@@ -6,7 +6,7 @@
  * @since 2024-11-19
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiGlobe, FiSettings, FiX } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -224,7 +224,7 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 						{isEnabling ? 'Enable' : 'Disable'} Advanced OAuth Feature
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -247,7 +247,7 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 
 					<Section>
 						<SectionTitle>
-							<FiGlobe />
+							<span>🌐</span>
 							PingOne Client Changes
 						</SectionTitle>
 						<ChangeList>
@@ -275,7 +275,7 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 
 					<Section>
 						<SectionTitle>
-							<FiSettings />
+							<span>⚙️</span>
 							Application Configuration Changes
 						</SectionTitle>
 						<ChangeList>
@@ -288,7 +288,7 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 					{isEnabling && (
 						<Section>
 							<SectionTitle>
-								<FiCheckCircle />
+								<span>✅</span>
 								Benefits
 							</SectionTitle>
 							<ChangeList>

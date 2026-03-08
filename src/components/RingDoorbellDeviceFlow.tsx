@@ -2,20 +2,12 @@
 // Ring Video Doorbell Style Device Authorization Flow Interface
 // Designed to look like actual Ring doorbell hardware
 
-import {
-	FiAlertTriangle,
-	FiBell,
-	FiCamera,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Ring Doorbell Physical Housing
@@ -333,26 +325,26 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
+		log.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
+		log.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -383,14 +375,14 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 				{/* Ring Camera Lens */}
 				<RingCameraLens>
 					<CameraIcon>
-						<FiCamera />
+						<span>📷</span>
 					</CameraIcon>
 				</RingCameraLens>
 
 				{/* Ring Doorbell Button */}
 				<RingButton $status={state.status}>
 					<RingButtonIcon>
-						<FiBell />
+						<span>❓</span>
 					</RingButtonIcon>
 				</RingButton>
 
@@ -443,10 +435,10 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink /> Open App
+							<span>🔗</span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>
@@ -455,7 +447,7 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 				{state.status === 'authorized' && state.tokens && (
 					<SuccessDisplay>
 						<SuccessTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							Doorbell Connected Successfully!
 						</SuccessTitle>
 						<SuccessMessage>

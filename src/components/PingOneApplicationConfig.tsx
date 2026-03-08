@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationConfig.tsx
 
-import { FiCheck, FiGlobe, FiInfo, FiKey, FiSave, FiSettings, FiShield } from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
@@ -357,7 +357,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 			<SectionTitle
 				style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
 			>
-				<FiSettings /> PingOne Advanced Configuration
+				<span>⚙️</span> PingOne Advanced Configuration
 			</SectionTitle>
 			{/* Hide PAR for flows that don't use authorization endpoints */}
 			{!flowType?.includes('client-credentials') &&
@@ -366,7 +366,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 				!flowType?.includes('device-authorization') && (
 					<Section>
 						<SectionTitle>
-							<FiShield /> Pushed Authorization Request (PAR)
+							<span>🛡️</span> Pushed Authorization Request (PAR)
 						</SectionTitle>
 						<Grid>
 							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
@@ -609,7 +609,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 					flowType?.includes('jwt-bearer')) && ( // JWT Bearer flows are mock implementations
 					<Section>
 						<SectionTitle>
-							<FiShield /> DPoP (Demonstration of Proof of Possession)
+							<span>🛡️</span> DPoP (Demonstration of Proof of Possession)
 						</SectionTitle>
 						<Grid>
 							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
@@ -732,7 +732,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 			<Section>
 				<SectionTitle>
-					<FiSettings /> Client Authentication
+					<span>⚙️</span> Client Authentication
 				</SectionTitle>
 				<Grid>
 					<Field>
@@ -817,7 +817,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 			<Section>
 				<SectionTitle>
-					<FiKey /> JSON Web Key Set (JWKS)
+					<span>🔑</span> JSON Web Key Set (JWKS)
 				</SectionTitle>
 				<Grid>
 					<Field style={{ gridColumn: '1 / -1' }}>
@@ -905,7 +905,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 			<Section>
 				<SectionTitle>
-					<FiGlobe /> Advanced Security Settings
+					<span>🌐</span> Advanced Security Settings
 				</SectionTitle>
 				<Grid>
 					<Field>
@@ -1060,12 +1060,12 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							</>
 						) : hasActualUnsavedChanges ? (
 							<>
-								<FiSave />
+								<span>💾</span>
 								Save Configuration
 							</>
 						) : (
 							<>
-								<FiCheck />
+								<span>✅</span>
 								Saved
 							</>
 						)}

@@ -1,14 +1,7 @@
 // src/components/FlowContextDemo.tsx
 // Demo component showcasing FlowContextService functionality
 
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiRefreshCw,
-	FiSettings,
-	FiTrash2,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService, { type FlowContext } from '../services/flowContextService';
@@ -343,9 +336,9 @@ export const FlowContextDemo: React.FC = () => {
 
 			{status && (
 				<StatusDisplay status={status.type}>
-					{status.type === 'success' && <FiCheckCircle size={16} />}
-					{status.type === 'error' && <FiAlertCircle size={16} />}
-					{status.type === 'info' && <FiSettings size={16} />}
+					{status.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
+					{status.type === 'error' && <span style={{ fontSize: '16px' }}>⚠️</span>}
+					{status.type === 'info' && <span style={{ fontSize: '16px' }}>⚙️</span>}
 					{status.message}
 				</StatusDisplay>
 			)}
@@ -354,7 +347,7 @@ export const FlowContextDemo: React.FC = () => {
 				<div>
 					<Section>
 						<SectionTitle>
-							<FiSettings size={20} />
+							<span style={{ fontSize: '20px' }}>⚙️</span>
 							Flow Configuration
 						</SectionTitle>
 
@@ -397,15 +390,15 @@ export const FlowContextDemo: React.FC = () => {
 
 						<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
 							<Button variant="primary" onClick={handleSaveContext}>
-								<FiSettings size={14} />
+								<span style={{ fontSize: '14px' }}>⚙️</span>
 								Save Context
 							</Button>
 							<Button onClick={handleSimulateRedirect}>
-								<FiArrowRight size={14} />
+								<span style={{ fontSize: '14px' }}>➡️</span>
 								Simulate Redirect
 							</Button>
 							<Button onClick={handleSimulateCallback}>
-								<FiRefreshCw size={14} />
+								<span style={{ fontSize: '14px' }}>🔄</span>
 								Simulate Callback
 							</Button>
 						</div>
@@ -413,17 +406,17 @@ export const FlowContextDemo: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<FiTrash2 size={20} />
+							<span style={{ fontSize: '20px' }}>🗑️</span>
 							Cleanup Actions
 						</SectionTitle>
 
 						<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
 							<Button onClick={handleClearContext}>
-								<FiTrash2 size={14} />
+								<span style={{ fontSize: '14px' }}>🗑️</span>
 								Clear Context
 							</Button>
 							<Button variant="danger" onClick={handleEmergencyCleanup}>
-								<FiAlertCircle size={14} />
+								<span style={{ fontSize: '14px' }}>⚠️</span>
 								Emergency Cleanup
 							</Button>
 						</div>
@@ -447,7 +440,7 @@ export const FlowContextDemo: React.FC = () => {
 						{flowIntegrity ? (
 							<div>
 								<StatusDisplay status={flowIntegrity.valid ? 'success' : 'error'}>
-									{flowIntegrity.valid ? <FiCheckCircle size={16} /> : <FiAlertCircle size={16} />}
+									{flowIntegrity.valid ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>⚠️</span>}
 									{flowIntegrity.valid
 										? 'Flow integrity is valid'
 										: 'Flow integrity issues detected'}

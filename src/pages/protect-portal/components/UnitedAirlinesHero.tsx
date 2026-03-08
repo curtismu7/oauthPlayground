@@ -9,7 +9,7 @@
  * with proper navigation, branding, and customer portal access.
  */
 
-import { FiLock, FiMail, FiMenu, FiSearch, FiUser, FiX } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -496,10 +496,10 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 						</NavLinks>
 						<RightNav>
 							<SearchButton>
-								<FiSearch size={20} />
+								<span style={{ fontSize: '20px' }}>🔍</span>
 							</SearchButton>
 							<MobileMenuButton>
-								<FiMenu size={20} />
+								<span style={{ fontSize: '20px' }}>❓</span>
 							</MobileMenuButton>
 						</RightNav>
 					</NavContainer>
@@ -521,7 +521,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 							<EmployeePortalCard>
 								<CardHeader>
 									<CardIcon>
-										<FiLock />
+										<span>🔒</span>
 									</CardIcon>
 									<CardTitle>{isCustomer ? 'Customer Login' : 'Employee Login'}</CardTitle>
 								</CardHeader>
@@ -556,7 +556,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 										/>
 									</InputGroup>
 									<LoginButton type="submit">
-										<FiLock />
+										<span>🔒</span>
 										{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 									</LoginButton>
 								</LoginForm>
@@ -565,7 +565,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 							<EmployeePortalCard>
 								<CardHeader>
 									<CardIcon>
-										<FiLock />
+										<span>🔒</span>
 									</CardIcon>
 									<CardTitle>Authentication in Progress</CardTitle>
 								</CardHeader>
@@ -587,7 +587,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 						<FeaturesGrid>
 							<FeatureCard>
 								<FeatureIcon>
-									<FiMail />
+									<span>📧</span>
 								</FeatureIcon>
 								<FeatureTitle>
 									{isCustomer ? 'Travel Communications' : 'Employee Communications'}
@@ -600,7 +600,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 							</FeatureCard>
 							<FeatureCard>
 								<FeatureIcon>
-									<FiUser />
+									<span>👤</span>
 								</FeatureIcon>
 								<FeatureTitle>{isCustomer ? 'Account Services' : 'HR Services'}</FeatureTitle>
 								<FeatureDescription>
@@ -611,7 +611,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 							</FeatureCard>
 							<FeatureCard>
 								<FeatureIcon>
-									<FiLock />
+									<span>🔒</span>
 								</FeatureIcon>
 								<FeatureTitle>Secure Access</FeatureTitle>
 								<FeatureDescription>
@@ -626,11 +626,11 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 			<LoginDropdown $isOpen={isDropdownOpen} ref={dropdownRef}>
 				<DropdownHeader>
 					<DropdownTitle>
-						<FiLock />
+						<span>🔒</span>
 						{isCustomer ? 'Customer Login' : 'Employee Login'}
 					</DropdownTitle>
 					<CloseButton onClick={handleCloseDropdown}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</DropdownHeader>
 				<DropdownContent>

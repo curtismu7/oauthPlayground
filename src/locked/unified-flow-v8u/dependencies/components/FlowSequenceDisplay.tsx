@@ -1,7 +1,7 @@
 // src/components/FlowSequenceDisplay.tsx
 // Reusable component for displaying flow sequences
 
-import { FiCheckCircle, FiChevronDown, FiZap } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { getFlowSequence } from '../services/flowSequenceService';
@@ -228,11 +228,11 @@ export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowTy
 				$collapsed={isCollapsed}
 			>
 				<CollapsibleTitle>
-					<FiZap />
+					<span>⚡</span>
 					{sequence.title}
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 			{!isCollapsed && (
@@ -257,7 +257,7 @@ export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowTy
 						{sequence.keyBenefits && sequence.keyBenefits.length > 0 && (
 							<BenefitsSection>
 								<BenefitsTitle>
-									<FiCheckCircle />
+									<span>✅</span>
 									Key Benefits
 								</BenefitsTitle>
 								<BenefitsList>

@@ -1,9 +1,9 @@
-import { FiCheckCircle, FiLoader, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -94,14 +94,14 @@ const WorkerTokenCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('WorkerTokenCallback');
-				logger.info('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
+				log.info('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
 
 				const result = await handleCallback(currentUrl);
 
 				if (result.success) {
 					setStatus('success');
 					setMessage('Worker token flow successful! Redirecting...');
-					logger.success('WorkerTokenCallback', 'Worker token flow successful', {
+					log.success('WorkerTokenCallback', 'Worker token flow successful', {
 						redirectUrl: result.redirectUrl,
 					});
 
@@ -113,13 +113,13 @@ const WorkerTokenCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Worker token flow failed');
 					setError(result.error || 'Unknown error occurred');
-					logger.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
+					log.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
 				}
 			} catch (err) {
 				setStatus('error');
 				setMessage('Worker token flow failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error('WorkerTokenCallback', 'Error processing worker token callback', err);
+				log.error('WorkerTokenCallback', 'Error processing worker token callback', err);
 			}
 		};
 
@@ -129,9 +129,9 @@ const WorkerTokenCallback: React.FC = () => {
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			default:
 				return <FiLoader className="animate-spin" />;
 		}

@@ -2,32 +2,14 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
 
-import {
-	FiActivity,
-	FiAlertCircle,
-	FiCalendar,
-	FiCheckCircle,
-	FiClock,
-	FiCopy,
-	FiDownload,
-	FiEdit,
-	FiExternalLink,
-	FiFilter,
-	FiGlobe,
-	FiPlus,
-	FiRefreshCw,
-	FiServer,
-	FiTag,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
@@ -650,7 +632,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			if (!response.ok) {
 				// Provide helpful error message for 404 (server might need restart)
 				if (response.status === 404) {
-					logger.warn(
+					log.warn(
 						'PingOneWebhookViewer',
 						'[Webhook Viewer] Subscriptions endpoint not found (404). Backend server may need restart.'
 					);
@@ -660,7 +642,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				}
 				// Provide helpful error message for 403 (permissions issue)
 				if (response.status === 403) {
-					logger.warn(
+					log.warn(
 						'PingOneWebhookViewer',
 						'[Webhook Viewer] Permission denied (403). Worker token may lack required scopes.'
 					);
@@ -670,7 +652,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				}
 				// Check for HTML response (indicates auth error)
 				if (typeof responseData === 'string' && responseData.includes('<html>')) {
-					logger.warn(
+					log.warn(
 						'PingOneWebhookViewer',
 						'[Webhook Viewer] Received HTML response - likely authentication error'
 					);
@@ -701,7 +683,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'PingOneWebhookViewer',
 				'[Webhook Viewer] Error fetching subscriptions:',
 				undefined,
@@ -725,7 +707,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			if (!response.ok) {
 				// Don't show error for 404 if endpoint doesn't exist yet (server might need restart)
 				if (response.status === 404) {
-					logger.warn(
+					log.warn(
 						'PingOneWebhookViewer',
 						'[Webhook Viewer] Events endpoint not found (404). Server may need restart.'
 					);
@@ -761,11 +743,11 @@ const PingOneWebhookViewer: React.FC = () => {
 		} catch (error) {
 			// Only log error, don't show toast for 404s (endpoint might not be available)
 			if (error instanceof Error && error.message.includes('404')) {
-				logger.warn('PingOneWebhookViewer', '[Webhook Viewer] Events endpoint not available:', {
+				log.warn('PingOneWebhookViewer', '[Webhook Viewer] Events endpoint not available:', {
 					message: error.message,
 				});
 			} else {
-				logger.error(
+				log.error(
 					'PingOneWebhookViewer',
 					'[Webhook Viewer] Error fetching events:',
 					undefined,
@@ -844,7 +826,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			});
 			secureLog('PingOneWebhookViewer', 'Cleared webhook history');
 		} catch (error) {
-			logger.error(
+			log.error(
 				'PingOneWebhookViewer',
 				'[Webhook Viewer] Error clearing events:',
 				undefined,
@@ -961,7 +943,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			});
 			await fetchSubscriptions();
 		} catch (error) {
-			logger.error(
+			log.error(
 				'PingOneWebhookViewer',
 				'[Webhook Viewer] Error creating subscription:',
 				undefined,
@@ -1066,7 +1048,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				});
 				await fetchSubscriptions();
 			} catch (error) {
-				logger.error(
+				log.error(
 					'PingOneWebhookViewer',
 					'[Webhook Viewer] Error updating subscription:',
 					undefined,
@@ -1144,7 +1126,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				});
 				await fetchSubscriptions();
 			} catch (error) {
-				logger.error(
+				log.error(
 					'PingOneWebhookViewer',
 					'[Webhook Viewer] Error deleting subscription:',
 					undefined,
@@ -1263,7 +1245,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				<div style={styles.headerCard}>
 					<div style={styles.titleRow}>
 						<div style={styles.titleLeft}>
-							<FiServer size={28} />
+							<span style={{ fontSize: '28px' }}>🖥️</span>
 							<h1 style={styles.title}>PingOne Webhook Management</h1>
 						</div>
 						{!isPopoutWindow() && (
@@ -1296,7 +1278,7 @@ const PingOneWebhookViewer: React.FC = () => {
 								}}
 								title="Open in popout window to monitor while using the app"
 							>
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								Popout
 							</button>
 						)}
@@ -1386,7 +1368,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 				<div style={styles.header}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-						<FiServer size={24} />
+						<span style={{ fontSize: '24px' }}>🖥️</span>
 						<h1 style={{ ...styles.title, fontSize: '1.5rem', margin: 0 }}>Webhook Management</h1>
 					</div>
 					<div style={styles.actionButtons}>
@@ -1409,7 +1391,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									}}
 									disabled={!hasWorkerToken || !environmentId}
 								>
-									<FiPlus />
+									<span>➕</span>
 									Create Subscription
 								</button>
 								<button
@@ -1418,7 +1400,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									onClick={fetchSubscriptions}
 									disabled={!hasWorkerToken || !environmentId || isLoadingSubscriptions}
 								>
-									<FiRefreshCw />
+									<span>🔄</span>
 									Refresh
 								</button>
 							</>
@@ -1431,7 +1413,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										style={styles.button('primary')}
 										onClick={handleStartMonitoring}
 									>
-										<FiActivity />
+										<span>🔄</span>
 										Start Monitoring
 									</button>
 								) : (
@@ -1440,7 +1422,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										style={styles.button('danger')}
 										onClick={handleStopMonitoring}
 									>
-										<FiActivity />
+										<span>🔄</span>
 										Stop Monitoring
 									</button>
 								)}
@@ -1450,7 +1432,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									onClick={handleClearWebhooks}
 									disabled={webhooks.length === 0}
 								>
-									<FiTrash2 />
+									<span>🗑️</span>
 									Clear History
 								</button>
 								<button
@@ -1459,7 +1441,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									onClick={handleExportWebhooks}
 									disabled={webhooks.length === 0}
 								>
-									<FiDownload />
+									<span>📥</span>
 									Export
 								</button>
 							</>
@@ -1534,7 +1516,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										style={styles.button('secondary')}
 										onClick={handleCancelEdit}
 									>
-										<FiX />
+										<span>❌</span>
 										Cancel
 									</button>
 								</div>
@@ -1690,7 +1672,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Loading subscriptions...</p>
 								) : subscriptions.length === 0 ? (
 									<div style={styles.emptyState}>
-										<FiServer size={48} />
+										<span style={{ fontSize: '48px' }}>🖥️</span>
 										<h3>No webhook subscriptions</h3>
 										<p>Create your first webhook subscription to start receiving events.</p>
 									</div>
@@ -1702,7 +1684,7 @@ const PingOneWebhookViewer: React.FC = () => {
 													<div style={styles.subscriptionName}>{subscription.name}</div>
 													<div style={styles.subscriptionMeta}>
 														<span style={styles.statusBadge(subscription.enabled)}>
-															{subscription.enabled ? <FiCheckCircle /> : <FiX />}
+															{subscription.enabled ? <span>✅</span> : <span>❌</span>}
 															{subscription.enabled ? 'Enabled' : 'Disabled'}
 														</span>
 														<span>
@@ -1731,14 +1713,14 @@ const PingOneWebhookViewer: React.FC = () => {
 														style={styles.button('secondary')}
 														onClick={() => handleEditSubscription(subscription)}
 													>
-														<FiEdit />
+														<span>✏️</span>
 													</button>
 													<button
 														type="button"
 														style={styles.button('danger')}
 														onClick={() => handleDeleteSubscription(subscription.id)}
 													>
-														<FiTrash2 />
+														<span>🗑️</span>
 													</button>
 												</div>
 											</div>
@@ -1813,7 +1795,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<FiCopy />
+									<span>📋</span>
 									Copy URL
 								</button>
 							</div>
@@ -1844,7 +1826,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 						{webhooks.length > 0 && (
 							<div style={styles.filterBar}>
-								<FiFilter size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" />
+								<span style={{ fontSize: 20, color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>🔽</span>
 								<label style={styles.filterLabel}>
 									Status:
 									<select
@@ -1865,7 +1847,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									</select>
 								</label>
 								<label style={styles.filterLabel}>
-									<FiCalendar />
+									<span>📅</span>
 									Time:
 									<select
 										style={styles.filterSelect}
@@ -1880,7 +1862,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									</select>
 								</label>
 								<label style={styles.filterLabel}>
-									<FiTag />
+									<span>❓</span>
 									Type:
 									<select
 										style={styles.filterSelect}
@@ -1896,7 +1878,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									</select>
 								</label>
 								<label style={styles.filterLabel}>
-									<FiTag />
+									<span>❓</span>
 									Display Format:
 									<select
 										style={styles.filterSelect}
@@ -1917,7 +1899,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										style={styles.clearFiltersButton}
 										onClick={handleClearFilters}
 									>
-										<FiX />
+										<span>❌</span>
 										Clear Filters
 									</button>
 								)}
@@ -1927,7 +1909,7 @@ const PingOneWebhookViewer: React.FC = () => {
 						<div style={styles.webhookContainer}>
 							{filteredWebhooks.length === 0 ? (
 								<div style={styles.emptyState}>
-									<FiServer size={48} />
+									<span style={{ fontSize: '48px' }}>🖥️</span>
 									<h3>
 										{webhooks.length === 0 ? 'No webhooks yet' : 'No webhooks match your filters'}
 									</h3>
@@ -1945,15 +1927,15 @@ const PingOneWebhookViewer: React.FC = () => {
 										<div style={styles.webhookHeader}>
 											<div style={styles.webhookTitle}>
 												<span style={styles.eventStatusBadge(webhook.status)}>
-													{webhook.status === 'success' ? <FiCheckCircle /> : <FiAlertCircle />}
+													{webhook.status === 'success' ? <span>✅</span> : <span>⚠️</span>}
 													{webhook.status}
 												</span>
 												<span>{webhook.type}</span>
 											</div>
 											<div style={styles.webhookMeta}>
-												<FiClock size={16} />
+												<span style={{ fontSize: '16px' }}>🕐</span>
 												{formatTimestamp(webhook.timestamp)}
-												<FiTag size={16} />
+												<span style={{ fontSize: '16px' }}>❓</span>
 												{webhook.source}
 											</div>
 										</div>

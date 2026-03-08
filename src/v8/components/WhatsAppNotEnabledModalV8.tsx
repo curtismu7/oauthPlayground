@@ -1,7 +1,7 @@
 // src/v8/components/WhatsAppNotEnabledModalV8.tsx
 // Modal for displaying WhatsApp MFA not enabled errors
 
-import { FiAlertCircle, FiExternalLink, FiInfo, FiX } from '@icons';
+
 import React, { useId } from 'react';
 import styled from 'styled-components';
 
@@ -202,10 +202,10 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 				onClick={(event) => event.stopPropagation()}
 			>
 				<CloseButton type="button" aria-label="Close error details" onClick={onClose}>
-					<FiX size={18} />
+					<span style={{ fontSize: '18px' }}>❌</span>
 				</CloseButton>
 				<ModalHeader>
-					<FiAlertCircle size={28} color="#f59e0b" />
+					<span style={{ fontSize: 28, color: '#f59e0b' }}>⚠️</span>
 					<div>
 						<ModalTitle id={modalTitleId}>WhatsApp MFA Not Enabled</ModalTitle>
 						<p
@@ -228,7 +228,7 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 
 					<InfoCallout>
 						<InfoIcon>
-							<FiInfo size={20} color="#f59e0b" />
+							<span style={{ fontSize: 20, color: '#f59e0b' }}>ℹ️</span>
 						</InfoIcon>
 						<InfoContent>
 							<InfoTitle>How to Enable WhatsApp MFA:</InfoTitle>
@@ -257,7 +257,7 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 								rel="noopener noreferrer"
 								onClick={(e) => e.stopPropagation()}
 							>
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 								Open PingOne Admin Console - MFA Settings
 							</LinkButton>
 						</InfoContent>

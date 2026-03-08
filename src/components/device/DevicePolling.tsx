@@ -1,11 +1,11 @@
 // Device polling component for OIDC Device Code flow
 
-import { FiCheckCircle, FiClock, FiLoader, FiXCircle } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 
 interface DevicePollingProps {
@@ -211,7 +211,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setCurrentStatus(status);
 				setProgress((attempt / (totalAttempts || 120)) * 100);
 				onProgress(attempt, status);
-				logger.info('DevicePolling', 'Polling progress', { attempt, status });
+				log.info('DevicePolling', 'Polling progress', { attempt, status });
 			},
 			onSuccess: (response) => {
 				setPollingStatus('success');
@@ -219,17 +219,17 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setProgress(100);
 				setTokens(response as DeviceCodeTokens);
 				onSuccess(response as DeviceCodeTokens);
-				logger.success('DevicePolling', 'Polling completed successfully', { tokens: response });
+				log.success('DevicePolling', 'Polling completed successfully', { tokens: response });
 			},
 			onError: (error) => {
 				setPollingStatus('error');
 				setErrorMessage(error.message);
 				setCurrentStatus('Authorization failed');
 				onError(error);
-				logger.error('DevicePolling', 'Polling failed', error);
+				log.error('DevicePolling', 'Polling failed', error);
 			},
 			onSlowDown: (newInterval) => {
-				logger.info('DevicePolling', 'Polling slowed down', { newInterval });
+				log.info('DevicePolling', 'Polling slowed down', { newInterval });
 			},
 		};
 
@@ -258,7 +258,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setCurrentStatus('Authorization failed');
 				setErrorMessage(error.message);
 				onError(error);
-				logger.error('DevicePolling', 'Polling start failed', error);
+				log.error('DevicePolling', 'Polling start failed', error);
 			});
 
 		return () => {
@@ -269,11 +269,11 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 	const getStatusIcon = () => {
 		switch (pollingStatus) {
 			case 'success':
-				return <FiCheckCircle size={24} />;
+				return <span style={{ fontSize: '24px' }}>✅</span>;
 			case 'error':
-				return <FiXCircle size={24} />;
+				return <span style={{ fontSize: '24px' }}>❌</span>;
 			case 'expired':
-				return <FiClock size={24} />;
+				return <span style={{ fontSize: '24px' }}>🕐</span>;
 			default:
 				return <FiLoader size={24} className="animate-spin" />;
 		}
@@ -284,7 +284,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 			case 'success':
 				return (
 					<SuccessMessage>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						<div>
 							<div style={{ fontWeight: '500' }}>Authorization successful!</div>
 							<div>Access token received and stored.</div>
@@ -294,7 +294,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 			case 'error':
 				return (
 					<ErrorMessage>
-						<FiXCircle size={16} />
+						<span style={{ fontSize: '16px' }}>❌</span>
 						<div>
 							<div style={{ fontWeight: '500' }}>Authorization failed</div>
 							<div>{errorMessage}</div>
@@ -304,7 +304,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 			case 'expired':
 				return (
 					<ExpiredMessage>
-						<FiClock size={16} />
+						<span style={{ fontSize: '16px' }}>🕐</span>
 						<div>
 							<div style={{ fontWeight: '500' }}>Authorization expired</div>
 							<div>The user code has expired. Please restart the device code flow.</div>

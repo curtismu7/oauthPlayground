@@ -2,19 +2,12 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiCreditCard,
-	FiExternalLink,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
@@ -428,26 +421,26 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
+		log.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -513,9 +506,9 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 
 				{/* Card Reader */}
 				<CardReader>
-					<FiCreditCard />
+					<span>💳</span>
 					<CardReaderSlot>
-						<FiCreditCard />
+						<span>💳</span>
 					</CardReaderSlot>
 					<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
 				</CardReader>
@@ -561,10 +554,10 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink /> Open App
+							<span>🔗</span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>
@@ -573,7 +566,7 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 				{state.status === 'authorized' && state.tokens && (
 					<SuccessDisplay>
 						<SuccessTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							POS Terminal Connected Successfully!
 						</SuccessTitle>
 						<SuccessMessage>

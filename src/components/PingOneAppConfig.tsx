@@ -1,11 +1,11 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
-import { FiChevronDown, FiSettings } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;
@@ -264,7 +264,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 				const parsed = JSON.parse(savedConfig);
 				setConfig((prev) => ({ ...prev, ...parsed }));
 			} catch (err) {
-				logger.error(
+				log.error(
 					'PingOneAppConfig',
 					'Failed to load saved configuration:',
 					undefined,
@@ -359,7 +359,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 		<CollapsibleSection>
 			<SectionToggle onClick={toggleCollapse}>
 				<SectionTitle>
-					<FiSettings />
+					<span>⚙️</span>
 					PingOne Application Configuration
 				</SectionTitle>
 				<FiChevronDown

@@ -14,7 +14,7 @@
  * - Token refresh and validation
  */
 
-import { FiCode, FiShield } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -150,7 +150,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				logger.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
+				log.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
 				setTokenStatus({
 					isValid: false,
 					status: 'error',
@@ -210,13 +210,13 @@ const TokenStatusPageV8U: React.FC = () => {
 
 			console.log('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
 		} catch (error) {
-			logger.error('TokenStatusPageV8U', ' Detailed error:', {
+			log.error('TokenStatusPageV8U', ' Detailed error:', {
 				error,
 				message: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? error.stack : undefined,
 				name: error instanceof Error ? error.name : 'Unknown',
 			});
-			logger.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
+			log.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
 		}
 	};
 
@@ -261,7 +261,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				<TokenStatusCard>
 					<TokenStatusHeader>
 						<TokenStatusTitle>
-							<FiShield />
+							<span>🛡️</span>
 							Worker Token Status
 						</TokenStatusTitle>
 					</TokenStatusHeader>
@@ -273,7 +273,7 @@ const TokenStatusPageV8U: React.FC = () => {
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						<div style={{ display: 'flex', gap: '8px' }}>
 							<ActionButton onClick={handleShowWorkerTokenModal}>
-								<FiShield />
+								<span>🛡️</span>
 								Get Worker Token
 							</ActionButton>
 						</div>
@@ -323,7 +323,7 @@ const TokenStatusPageV8U: React.FC = () => {
 												const currentStatus =
 													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
-													logger.debug(
+													log.debug(
 														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 													);
 													const { handleShowWorkerTokenModal } = await import(
@@ -338,7 +338,7 @@ const TokenStatusPageV8U: React.FC = () => {
 													);
 												}
 											} catch (error) {
-												logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
+												log.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
 											}
 										}
 									}}
@@ -423,7 +423,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				<TokenStatusCard>
 					<TokenStatusHeader>
 						<TokenStatusTitle>
-							<FiCode />
+							<span>❓</span>
 							User Token Status
 						</TokenStatusTitle>
 					</TokenStatusHeader>

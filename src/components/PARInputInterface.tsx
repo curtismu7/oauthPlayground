@@ -1,22 +1,9 @@
 // src/components/PARInputInterface.tsx
 
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiCode,
-	FiCopy,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiSettings,
-	FiShield,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface PARInputInterfaceProps {
 	onPARDataSubmit: (parData: PARInputData) => void;
@@ -498,7 +485,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			logger.error('PARInputInterface', 'Failed to copy text: ', undefined, err as Error);
+			log.error('PARInputInterface', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -531,7 +518,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 	const quickFillExamples = [
 		{
 			title: 'Current Configuration',
-			icon: <FiCheckCircle />,
+			icon: <span>✅</span>,
 			description: 'Use your current client ID, environment ID, and redirect URI',
 			data: {
 				requestUri:
@@ -544,7 +531,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 		},
 		{
 			title: 'PingOne Production',
-			icon: <FiGlobe />,
+			icon: <span>🌐</span>,
 			description: 'Real PingOne production environment example',
 			data: {
 				requestUri:
@@ -557,7 +544,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 		},
 		{
 			title: 'High Security',
-			icon: <FiLock />,
+			icon: <span>🔒</span>,
 			description: 'Short-lived request URI for high security',
 			data: {
 				requestUri: 'urn:ietf:params:oauth:request_uri:pingone-secure-xyz789abc123def456ghi',
@@ -569,7 +556,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 		},
 		{
 			title: 'Extended Session',
-			icon: <FiSettings />,
+			icon: <span>⚙️</span>,
 			description: 'Longer-lived request URI for complex flows',
 			data: {
 				requestUri: 'urn:ietf:params:oauth:request_uri:pingone-extended-session-long-identifier',
@@ -588,7 +575,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 			<Modal>
 				<Header>
 					<Title>
-						<FiShield />
+						<span>🛡️</span>
 						PAR (Pushed Authorization Request) Assistant
 					</Title>
 					<Subtitle>
@@ -602,7 +589,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 					{/* Enhanced Info Box */}
 					<InfoBox>
 						<InfoIcon>
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 						</InfoIcon>
 						<InfoContent>
 							<InfoTitle>🔐 PAR (Pushed Authorization Request) - RFC 9126</InfoTitle>
@@ -618,15 +605,15 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 					{/* Tab Navigation */}
 					<TabContainer>
 						<Tab $active={activeTab === 'input'} onClick={() => setActiveTab('input')}>
-							<FiKey size={14} />
+							<span style={{ fontSize: '14px' }}>🔑</span>
 							Use Existing PAR
 						</Tab>
 						<Tab $active={activeTab === 'builder'} onClick={() => setActiveTab('builder')}>
-							<FiCode size={14} />
+							<span style={{ fontSize: '14px' }}>❓</span>
 							Build PAR Request
 						</Tab>
 						<Tab $active={activeTab === 'learn'} onClick={() => setActiveTab('learn')}>
-							<FiBook size={14} />
+							<span style={{ fontSize: '14px' }}>📖</span>
 							Learn PAR
 						</Tab>
 					</TabContainer>
@@ -643,7 +630,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiAlertCircle size={16} />
+									<span style={{ fontSize: '16px' }}>⚠️</span>
 									<strong>Quick Fill Examples</strong>
 								</div>
 								<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem' }}>
@@ -667,7 +654,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 							<Form onSubmit={handleSubmit}>
 								<Field>
 									<Label>
-										<FiKey size={14} />
+										<span style={{ fontSize: '14px' }}>🔑</span>
 										PAR Request URI *
 									</Label>
 									<Input
@@ -689,7 +676,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 
 								<Field>
 									<Label>
-										<FiCode size={14} />
+										<span style={{ fontSize: '14px' }}>❓</span>
 										Client ID *
 									</Label>
 									<Input
@@ -709,7 +696,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 
 								<Field>
 									<Label>
-										<FiGlobe size={14} />
+										<span style={{ fontSize: '14px' }}>🌐</span>
 										Environment ID *
 									</Label>
 									<Input
@@ -729,7 +716,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 
 								<Field>
 									<Label>
-										<FiArrowRight size={14} />
+										<span style={{ fontSize: '14px' }}>➡️</span>
 										Redirect URI
 									</Label>
 									<Input
@@ -748,7 +735,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 
 								<Field>
 									<Label>
-										<FiInfo size={14} />
+										<span style={{ fontSize: '14px' }}>ℹ️</span>
 										Expires In (seconds)
 									</Label>
 									<Input
@@ -781,7 +768,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 											marginBottom: '0.5rem',
 										}}
 									>
-										<FiCheckCircle size={16} />
+										<span style={{ fontSize: '16px' }}>✅</span>
 										<strong>Generated Authorization URL</strong>
 									</div>
 									<CodeBlock>
@@ -795,9 +782,9 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 											}
 										>
 											{copiedText === 'Authorization URL' ? (
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 											) : (
-												<FiCopy size={12} />
+												<span style={{ fontSize: '12px' }}>📋</span>
 											)}
 											{copiedText === 'Authorization URL' ? 'Copied!' : 'Copy'}
 										</CopyButton>
@@ -829,7 +816,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiCode size={16} />
+									<span style={{ fontSize: '16px' }}>❓</span>
 									<strong>Build Your PAR Request</strong>
 								</div>
 								<p style={{ margin: 0, fontSize: '0.875rem' }}>
@@ -927,7 +914,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiArrowRight size={16} />
+									<span style={{ fontSize: '16px' }}>➡️</span>
 									<strong>Generated PAR Request</strong>
 								</div>
 								<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem' }}>
@@ -947,9 +934,9 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 											}
 										>
 											{copiedText === 'PAR Endpoint' ? (
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 											) : (
-												<FiCopy size={12} />
+												<span style={{ fontSize: '12px' }}>📋</span>
 											)}
 											{copiedText === 'PAR Endpoint' ? 'Copied!' : 'Copy'}
 										</CopyButton>
@@ -970,9 +957,9 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 											}
 										>
 											{copiedText === 'Headers' ? (
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 											) : (
-												<FiCopy size={12} />
+												<span style={{ fontSize: '12px' }}>📋</span>
 											)}
 											{copiedText === 'Headers' ? 'Copied!' : 'Copy'}
 										</CopyButton>
@@ -987,9 +974,9 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 											onClick={() => copyToClipboard(generatePARRequest().body, 'Request Body')}
 										>
 											{copiedText === 'Request Body' ? (
-												<FiCheckCircle size={12} />
+												<span style={{ fontSize: '12px' }}>✅</span>
 											) : (
-												<FiCopy size={12} />
+												<span style={{ fontSize: '12px' }}>📋</span>
 											)}
 											{copiedText === 'Request Body' ? 'Copied!' : 'Copy'}
 										</CopyButton>
@@ -1029,7 +1016,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiBook size={16} />
+									<span style={{ fontSize: '16px' }}>📖</span>
 									<strong>Understanding PAR (Pushed Authorization Request)</strong>
 								</div>
 								<p style={{ margin: 0, fontSize: '0.875rem' }}>
@@ -1111,7 +1098,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiCheckCircle size={16} />
+									<span style={{ fontSize: '16px' }}>✅</span>
 									<strong>Real-World Example: Banking Application</strong>
 								</div>
 								<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem' }}>
@@ -1157,7 +1144,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiAlertCircle size={16} />
+									<span style={{ fontSize: '16px' }}>⚠️</span>
 									<strong>PingOne PAR Implementation Notes</strong>
 								</div>
 								<ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
@@ -1197,7 +1184,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 							onClick={handleSubmit}
 							disabled={!formData.requestUri || !formData.clientId || !formData.environmentId}
 						>
-							<FiShield />
+							<span>🛡️</span>
 							Generate Authorization URL
 						</Button>
 					)}
@@ -1216,14 +1203,14 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 								setActiveTab('input');
 							}}
 						>
-							<FiArrowRight />
+							<span>➡️</span>
 							Use This Configuration
 						</Button>
 					)}
 
 					{activeTab === 'learn' && (
 						<Button type="button" $variant="primary" onClick={() => setActiveTab('builder')}>
-							<FiCode />
+							<span>❓</span>
 							Try Building a PAR Request
 						</Button>
 					)}

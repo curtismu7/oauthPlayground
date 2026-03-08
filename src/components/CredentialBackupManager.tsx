@@ -1,12 +1,12 @@
 // src/components/CredentialBackupManager.tsx
 // V7 Credential Backup Manager Component
 
-import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
 
 const Container = styled.div`
@@ -187,7 +187,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 			const data = credentialBackupService.getCredentialBackup();
 			setBackupData(data);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialBackupManager',
 				'Failed to load backup data:',
 				undefined,
@@ -236,7 +236,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 		<Container>
 			<Header>
 				<Title>
-					<FiShield size={20} />
+					<span style={{ fontSize: '20px' }}>🛡️</span>
 					Credential Backup Manager
 				</Title>
 				<ActionButton onClick={handleRefresh} disabled={isLoading}>
@@ -262,11 +262,11 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 
 			<ActionsContainer>
 				<ActionButton $variant="primary" onClick={handleDownloadEnv}>
-					<FiDownload size={16} />
+					<span style={{ fontSize: '16px' }}>📥</span>
 					Download .env File
 				</ActionButton>
 				<ActionButton $variant="danger" onClick={handleClearAll}>
-					<FiTrash2 size={16} />
+					<span style={{ fontSize: '16px' }}>🗑️</span>
 					Clear All Backups
 				</ActionButton>
 			</ActionsContainer>
@@ -300,7 +300,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 
 			<InfoBox>
 				<InfoTitle>
-					<FiInfo size={16} />
+					<span style={{ fontSize: '16px' }}>ℹ️</span>
 					About Credential Backup
 				</InfoTitle>
 				<InfoText>

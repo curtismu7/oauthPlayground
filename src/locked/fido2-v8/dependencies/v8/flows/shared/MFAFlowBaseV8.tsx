@@ -5,7 +5,7 @@
  * @version 8.1.0
  */
 
-import { FiX } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -713,7 +713,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								</>
 							) : (
 								<>
-									<FiX size={16} />
+									<span style={{ fontSize: '16px' }}>❌</span>
 									Cancel Authentication
 								</>
 							)}

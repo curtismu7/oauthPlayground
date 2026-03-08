@@ -2,15 +2,7 @@
 // Airport Check-in Kiosk Style Device Authorization Flow Interface
 // Designed to look like CLEAR/TSA biometric kiosks
 
-import {
-	FiAlertTriangle,
-	FiCamera,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiUser,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -19,7 +11,7 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel
@@ -520,26 +512,26 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
+		log.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
+		log.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -586,7 +578,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 						</CLEARLogo>
 						<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
 							<TSABadge>
-								<FiUser />
+								<span>👤</span>
 								TSA PreCheck®
 							</TSABadge>
 							<KioskStatusBadge $status={state.status}>
@@ -599,7 +591,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 					{/* Biometric Scanner (like CLEAR iris scanner) */}
 					<BiometricScanner>
 						<ScannerIcon>
-							<FiCamera />
+							<span>📷</span>
 						</ScannerIcon>
 						<ScannerLabel>Iris Scanner</ScannerLabel>
 					</BiometricScanner>
@@ -672,10 +664,10 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 							</QRCodeContainer>
 							<ActionButtons>
 								<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-									<FiCopy /> Copy Code
+									<span>📋</span> Copy Code
 								</ActionButton>
 								<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-									<FiExternalLink /> Open on This Device
+									<span>🔗</span> Open on This Device
 								</ActionButton>
 							</ActionButtons>
 						</QRSection>
@@ -714,7 +706,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiCheckCircle />
+								<span>✅</span>
 								Boarding Pass Ready - Proceed to Security
 							</div>
 						</div>

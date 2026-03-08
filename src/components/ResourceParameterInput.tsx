@@ -1,7 +1,7 @@
 // src/components/ResourceParameterInput.tsx
 // OAuth/OIDC Resource Parameter Input - RFC 8707 Resource Indicators
 
-import { FiInfo, FiMove, FiPlus, FiServer, FiTrash2 } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -431,7 +431,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 		<Container>
 			<EducationalHeader>
 				<EducationalTitle>
-					<FiServer />
+					<span>🖥️</span>
 					Resources
 				</EducationalTitle>
 				<EducationalContent>
@@ -503,7 +503,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 
 			<Label>
 				<LabelIcon>
-					<FiServer />
+					<span>🖥️</span>
 				</LabelIcon>
 				Add Resources (Optional)
 			</Label>
@@ -519,13 +519,13 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 								disabled={disabled}
 								title="Remove resource"
 							>
-								<FiTrash2 size={16} />
+								<span style={{ fontSize: '16px' }}>🗑️</span>
 							</RemoveButton>
 						</ResourceItem>
 					))}
 
 				<InfoBox style={{ fontSize: '0.8125rem', marginTop: value.length > 0 ? '0.75rem' : '0' }}>
-					<FiInfo size={16} />
+					<span style={{ fontSize: '16px' }}>ℹ️</span>
 					<div>
 						<strong>Type or drag:</strong> Enter a resource URI below, or drag an example from the
 						list. Press Enter or click "Add Resource" to add it to the list.
@@ -569,7 +569,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 					disabled={disabled || !newResource.trim() || value.includes(newResource.trim())}
 					style={{ marginTop: '0.75rem' }}
 				>
-					<FiPlus size={16} />
+					<span style={{ fontSize: '16px' }}>➕</span>
 					Add Resource
 				</AddButton>
 			</ResourceList>
@@ -599,7 +599,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						<ExampleText>{example.value}</ExampleText>
 						{example.isFromDiscovery && <DiscoveryBadge>OIDC</DiscoveryBadge>}
 						<DragIcon>
-							<FiMove />
+							<span>❓</span>
 						</DragIcon>
 					</ExampleItem>
 				))}
@@ -608,7 +608,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 			{value.length > 0 && (
 				<InfoBox>
 					<InfoIcon>
-						<FiInfo />
+						<span>ℹ️</span>
 					</InfoIcon>
 					<div>
 						<strong>
@@ -628,7 +628,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 			{value.length === 0 && (issuer || environmentId) && (
 				<InfoBox>
 					<InfoIcon>
-						<FiInfo />
+						<span>ℹ️</span>
 					</InfoIcon>
 					<div>
 						<strong>Optional but Recommended:</strong> Resources are optional, but specifying them

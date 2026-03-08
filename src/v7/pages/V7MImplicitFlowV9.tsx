@@ -1,7 +1,7 @@
 // src/v7/pages/V7MImplicitFlowV9.tsx
 /* eslint-disable no-alert */
 
-import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
@@ -199,7 +199,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 				</p>
 			</div>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiKey /> {title}
+				<span>🔑</span> {title}
 			</h1>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
@@ -276,7 +276,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 						gap: 8,
 					}}
 				>
-					<FiSend /> Step 1: Build Authorization Request
+					<span>📤</span> Step 1: Build Authorization Request
 					<V7MInfoIcon
 						label=""
 						title="About Implicit Flow"
@@ -375,7 +375,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 						</div>
 					</div>
 					<button type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
-						<FiSend /> Build Authorization URL
+						<span>📤</span> Build Authorization URL
 					</button>
 					{authorizationUrl && (
 						<div style={{ marginTop: 12 }}>
@@ -410,7 +410,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 							gap: 8,
 						}}
 					>
-						<FiShield /> Step 2: Tokens Received (in URL Fragment)
+						<span>🛡️</span> Step 2: Tokens Received (in URL Fragment)
 					</header>
 					<div style={{ padding: 12 }}>
 						<p style={{ fontSize: 14, color: '#6b7280', marginBottom: 12 }}>
@@ -521,7 +521,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 							gap: 8,
 						}}
 					>
-						<FiBook /> Step 3: Use Access Token
+						<span>📖</span> Step 3: Use Access Token
 					</header>
 					<div style={{ padding: 12 }}>
 						<div style={{ display: 'flex', gap: 8 }}>

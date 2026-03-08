@@ -1,4 +1,4 @@
-import { FiChevronDown } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -159,7 +159,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 						<HeaderActions onClick={(e) => e.stopPropagation()}>{headerActions}</HeaderActions>
 					)}
 					<ChevronIcon $collapsed={collapsed} aria-hidden="true">
-						<FiChevronDown size={18} />
+						<span style={{ fontSize: '18px' }}>⬇️</span>
 					</ChevronIcon>
 				</RightContent>
 			</SectionHeader>

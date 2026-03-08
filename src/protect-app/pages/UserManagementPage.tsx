@@ -12,10 +12,10 @@
  * - Open/Closed: Extensible for new user operations
  */
 
-import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
@@ -473,7 +473,7 @@ export const UserManagementPage: React.FC = () => {
 			});
 			setUsers(result.users);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error loading users:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error loading users:', undefined, error as Error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -484,7 +484,7 @@ export const UserManagementPage: React.FC = () => {
 			const roles = await userService.getRoles();
 			setRoles(roles);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error loading roles:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error loading roles:', undefined, error as Error);
 		}
 	}, []);
 
@@ -493,7 +493,7 @@ export const UserManagementPage: React.FC = () => {
 			const statuses = await userService.getStatuses();
 			setStatuses(statuses);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error loading statuses:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error loading statuses:', undefined, error as Error);
 		}
 	}, []);
 
@@ -504,7 +504,7 @@ export const UserManagementPage: React.FC = () => {
 			setShowCreateModal(false);
 			resetForm();
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error creating user:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error creating user:', undefined, error as Error);
 		}
 	}, [formData, resetForm]);
 
@@ -525,7 +525,7 @@ export const UserManagementPage: React.FC = () => {
 			setShowEditModal(false);
 			resetForm();
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error updating user:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error updating user:', undefined, error as Error);
 		}
 	}, [selectedUser, formData, resetForm]);
 
@@ -538,7 +538,7 @@ export const UserManagementPage: React.FC = () => {
 			setShowDeleteModal(false);
 			setSelectedUser(null);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Error deleting user:', undefined, error as Error);
+			log.error('UserManagementPage', 'Error deleting user:', undefined, error as Error);
 		}
 	}, [selectedUser]);
 
@@ -598,7 +598,7 @@ export const UserManagementPage: React.FC = () => {
 					variant="primary"
 					onClick={() => setShowCreateModal(true)}
 				>
-					<FiPlus />
+					<span>➕</span>
 					Create User
 				</ActionButton>
 			</PageHeader>
@@ -706,14 +706,14 @@ export const UserManagementPage: React.FC = () => {
 									variant="edit"
 									onClick={() => handleEditUser(user)}
 								>
-									<FiEdit2 size={16} />
+									<span style={{ fontSize: '16px' }}>❓</span>
 								</IconButton>
 								<IconButton
 									theme={currentTheme}
 									variant="delete"
 									onClick={() => handleDeleteClick(user)}
 								>
-									<FiTrash2 size={16} />
+									<span style={{ fontSize: '16px' }}>🗑️</span>
 								</IconButton>
 							</ActionButtons>
 						</TableRow>
@@ -728,7 +728,7 @@ export const UserManagementPage: React.FC = () => {
 						<ModalHeader theme={currentTheme}>
 							<ModalTitle theme={currentTheme}>Create New User</ModalTitle>
 							<ModalClose theme={currentTheme} onClick={() => setShowCreateModal(false)}>
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</ModalClose>
 						</ModalHeader>
 						<Form
@@ -833,7 +833,7 @@ export const UserManagementPage: React.FC = () => {
 									Cancel
 								</ActionButton>
 								<ActionButton theme={currentTheme} variant="primary" type="submit">
-									<FiPlus />
+									<span>➕</span>
 									Create User
 								</ActionButton>
 							</FormActions>
@@ -849,7 +849,7 @@ export const UserManagementPage: React.FC = () => {
 						<ModalHeader theme={currentTheme}>
 							<ModalTitle theme={currentTheme}>Edit User</ModalTitle>
 							<ModalClose theme={currentTheme} onClick={() => setShowEditModal(false)}>
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</ModalClose>
 						</ModalHeader>
 						<Form
@@ -953,7 +953,7 @@ export const UserManagementPage: React.FC = () => {
 									Cancel
 								</ActionButton>
 								<ActionButton theme={currentTheme} variant="primary" type="submit">
-									<FiEdit2 />
+									<span>❓</span>
 									Update User
 								</ActionButton>
 							</FormActions>
@@ -969,7 +969,7 @@ export const UserManagementPage: React.FC = () => {
 						<ModalHeader theme={currentTheme}>
 							<ModalTitle theme={currentTheme}>Delete User</ModalTitle>
 							<ModalClose theme={currentTheme} onClick={() => setShowDeleteModal(false)}>
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</ModalClose>
 						</ModalHeader>
 						<div style={{ marginBottom: '1.5rem' }}>
@@ -1000,7 +1000,7 @@ export const UserManagementPage: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiAlertTriangle />
+								<span>⚠️</span>
 								This action cannot be undone.
 							</p>
 						</div>
@@ -1019,7 +1019,7 @@ export const UserManagementPage: React.FC = () => {
 								type="button"
 								onClick={handleDeleteUser}
 							>
-								<FiTrash2 />
+								<span>🗑️</span>
 								Delete User
 							</ActionButton>
 						</FormActions>

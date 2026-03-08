@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiShield } from '@icons';
+
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -2753,7 +2753,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<FiShield />
+									<span>🛡️</span>
 									View Session Details
 								</button>
 							</div>

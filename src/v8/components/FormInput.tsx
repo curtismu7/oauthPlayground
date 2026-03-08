@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { FiAlertCircle, FiCheck } from '@icons';
+
 import React from 'react';
 import { borderRadius, colors, spacing, transitions, typography } from '@/v8/design/tokens';
 
@@ -107,7 +107,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 						gap: spacing.xs,
 					}}
 				>
-					<FiAlertCircle size={14} />
+					<span style={{ fontSize: '14px' }}>⚠️</span>
 					{error}
 				</p>
 			) : helpText ? (

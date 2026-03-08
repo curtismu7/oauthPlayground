@@ -1,4 +1,3 @@
-import { FiArrowRight, FiSettings } from '@icons';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -47,9 +46,9 @@ export const AdvancedParametersNavigation: React.FC<AdvancedParametersNavigation
 
 	return (
 		<NavigationButton onClick={handleNavigate} className={className}>
-			<FiSettings />
+			<span>⚙️</span>
 			Configure Advanced Parameters
-			<FiArrowRight />
+			<span>➡️</span>
 		</NavigationButton>
 	);
 };

@@ -1,7 +1,7 @@
 // src/components/AuthorizationDetailsEditor.tsx
 // Enhanced Authorization Details Editor with JSON editor and real-time validation
 
-import { FiAlertCircle, FiCheckCircle, FiCode, FiEdit3, FiPlus, FiTrash2 } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RARService, {
@@ -358,7 +358,7 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 				</ArrayItem>
 			))}
 			<AddArrayItem onClick={() => addArrayItem(detailIndex, field)}>
-				<FiPlus size={12} />
+				<span style={{ fontSize: '12px' }}>➕</span>
 				Add {field}
 			</AddArrayItem>
 		</ArrayInput>
@@ -371,7 +371,7 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 					<DetailHeader>
 						<DetailType>{detail.type || 'Untitled Authorization Detail'}</DetailType>
 						<RemoveButton onClick={() => removeDetail(index)}>
-							<FiTrash2 size={14} />
+							<span style={{ fontSize: '14px' }}>🗑️</span>
 						</RemoveButton>
 					</DetailHeader>
 
@@ -475,7 +475,7 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 			))}
 
 			<AddDetailButton onClick={addDetail}>
-				<FiPlus size={16} />
+				<span style={{ fontSize: '16px' }}>➕</span>
 				Add Authorization Detail
 			</AddDetailButton>
 		</VisualEditor>
@@ -487,11 +487,11 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 				<Title>Authorization Details (RAR)</Title>
 				<ViewModeToggle>
 					<ViewModeButton $active={viewMode === 'visual'} onClick={() => setViewMode('visual')}>
-						<FiEdit3 size={14} />
+						<span style={{ fontSize: '14px' }}>❓</span>
 						Visual Editor
 					</ViewModeButton>
 					<ViewModeButton $active={viewMode === 'json'} onClick={() => setViewMode('json')}>
-						<FiCode size={14} />
+						<span style={{ fontSize: '14px' }}>❓</span>
 						JSON Editor
 					</ViewModeButton>
 				</ViewModeToggle>
@@ -500,12 +500,12 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 			<ValidationStatus $isValid={validation.valid}>
 				{validation.valid ? (
 					<>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						Authorization details are valid
 					</>
 				) : (
 					<>
-						<FiAlertCircle size={16} />
+						<span style={{ fontSize: '16px' }}>⚠️</span>
 						<div>
 							Validation errors found:
 							<ErrorList>

@@ -5,7 +5,7 @@
  * @version 8.1.0
  */
 
-import { FiExternalLink, FiKey, FiShield } from '@icons';
+
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
@@ -98,7 +98,7 @@ export const UserLoginStepV8: React.FC<UserLoginStepV8Props> = ({ renderProps })
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 						}}
 					>
-						<FiExternalLink size={18} />
+						<span style={{ fontSize: '18px' }}>🔗</span>
 						Start PingOne Authentication
 					</button>
 				) : (

@@ -1,12 +1,12 @@
 // src/components/IndustrialIoTControllerDeviceFlow.tsx
 // Industrial IoT Controller Style Device Authorization Flow Interface
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Industrial IoT Controller Main Container - Metallic gray with industrial design
@@ -295,31 +295,31 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('IndustrialIoTControllerDeviceFlow', 'User code copied to clipboard');
+		log.info('IndustrialIoTControllerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('IndustrialIoTControllerDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('IndustrialIoTControllerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('IndustrialIoTControllerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('IndustrialIoTControllerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -391,13 +391,13 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 				{/* Control Buttons */}
 				<ControlButtons>
 					<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</ControlButton>
 					<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</ControlButton>
 					<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open Auth
+						<span>🔗</span> Open Auth
 					</ControlButton>
 				</ControlButtons>
 

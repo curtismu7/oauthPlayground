@@ -1,10 +1,10 @@
-import { FiCheck, FiChevronDown, FiCopy, FiSave, FiSettings } from '@icons';
+
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { themeService } from '../services/themeService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
 
@@ -546,7 +546,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				announce(`${field} copied to clipboard`);
 				window.setTimeout(() => setCopiedField(null), 2000);
 			} catch (error) {
-				logger.error('FlowConfiguration', 'Failed to copy to clipboard', undefined, error as Error);
+				log.error('FlowConfiguration', 'Failed to copy to clipboard', undefined, error as Error);
 			}
 		},
 		[announce]
@@ -596,7 +596,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				saveTimeoutRef.current = null;
 			}, SAVE_FEEDBACK_TIMEOUT_MS);
 		} catch (error) {
-			logger.error('FlowConfiguration', 'Failed to save configuration:', undefined, error as Error);
+			log.error('FlowConfiguration', 'Failed to save configuration:', undefined, error as Error);
 			announce('Failed to save configuration');
 		} finally {
 			setIsSaving(false);
@@ -620,7 +620,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 						}}
 					>
 						<h3>
-							<FiSettings />
+							<span>⚙️</span>
 							{title}
 						</h3>
 						<FiChevronDown
@@ -639,7 +639,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 						{/* Basic OAuth Parameters */}
 						<ConfigSection>
 							<h4>
-								<FiSettings />
+								<span>⚙️</span>
 								Basic OAuth Parameters
 							</h4>
 							<ConfigGrid>
@@ -1183,7 +1183,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										$copied={copiedField === 'scopes'}
 										onClick={() => copyToClipboard(normalizedConfig.scopes.join(' '), 'scopes')}
 									>
-										{copiedField === 'scopes' ? <FiCheck /> : <FiCopy />}
+										{copiedField === 'scopes' ? <span>✅</span> : <span>📋</span>}
 										{copiedField === 'scopes' ? 'Copied!' : 'Copy'}
 									</CopyButton>
 								</div>
@@ -1293,7 +1293,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							</>
 						) : (
 							<>
-								<FiSave />
+								<span>💾</span>
 								{isConfigured ? 'Complete' : 'Save Configuration'}
 							</>
 						)}

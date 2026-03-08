@@ -1,4 +1,4 @@
-import { FiEye, FiEyeOff, FiMove } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -615,7 +615,7 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 				>
 					<DragHandleBar />
 					<DragHint>
-						<FiMove size={14} /> Drag Window
+						<span style={{ fontSize: '14px' }}>❓</span> Drag Window
 					</DragHint>
 					<LogoContainer>
 						<LogoMark
@@ -692,7 +692,7 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 									onClick={() => setShowPassword((prev) => !prev)}
 									aria-label={showPassword ? 'Hide password' : 'Show password'}
 								>
-									{showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+									{showPassword ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 								</PasswordToggleButton>
 							</InputWrapper>
 						</InputGroup>

@@ -13,7 +13,7 @@
  * />
  */
 
-import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔐 PKCE-V8]';
@@ -138,7 +138,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

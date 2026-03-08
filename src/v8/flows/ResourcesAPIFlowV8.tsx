@@ -9,7 +9,7 @@
  * OAuth 2.0 resources, scopes, and resource attributes.
  */
 
-import { FiBook, FiCode, FiExternalLink, FiInfo, FiKey, FiLayers, FiShield } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -280,11 +280,11 @@ export const ResourcesAPIFlowV8: React.FC = () => {
 	const modals: Record<string, ModalData> = {
 		overview: {
 			title: 'Resources API Overview',
-			icon: <FiBook size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>📖</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>What are Resources?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
@@ -316,7 +316,7 @@ export const ResourcesAPIFlowV8: React.FC = () => {
 
 					<h3>Concrete Example: E-Commerce Platform</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> You're building an e-commerce platform with multiple APIs
 						</div>
@@ -392,18 +392,18 @@ DELETE /environments/{environmentId}/resources/{resourceId}`}</CodeBlock>
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						View Full API Documentation <FiExternalLink size={14} />
+						View Full API Documentation <span style={{ fontSize: '14px' }}>🔗</span>
 					</ExternalLink>
 				</>
 			),
 		},
 		createResource: {
 			title: 'Create a Resource',
-			icon: <FiLayers size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							Creating a resource defines a protected API that applications can request access to.
 						</div>
@@ -411,7 +411,7 @@ DELETE /environments/{environmentId}/resources/{resourceId}`}</CodeBlock>
 
 					<h3>Real-World Example: Healthcare Portal</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> You're building a healthcare system with separate APIs for
 							different functions.
@@ -526,7 +526,7 @@ Content-Type: application/json
 }`}</CodeBlock>
 
 					<InfoBox $variant="warning">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Token Lifetime Guidelines:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -545,7 +545,7 @@ Content-Type: application/json
 					</InfoBox>
 
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Best Practice:</strong> Use descriptive names and unique audience values. The
 							audience will appear in the <code>aud</code> claim of access tokens.
@@ -556,11 +556,11 @@ Content-Type: application/json
 		},
 		createScopes: {
 			title: 'Define Resource Scopes',
-			icon: <FiKey size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🔑</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							Scopes define granular permissions within a resource. Applications request specific
 							scopes, and users consent to them during authorization.
@@ -569,7 +569,7 @@ Content-Type: application/json
 
 					<h3>Real-World Example: Social Media Platform</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> Building a social media platform like Twitter/X with
 							different permission levels
@@ -678,7 +678,7 @@ Content-Type: application/json
 }`}</CodeBlock>
 
 					<InfoBox $variant="warning">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Security Tip:</strong> Follow the principle of least privilege. Only grant the
 							minimum scopes needed for each application. Separate read and write operations.
@@ -686,7 +686,7 @@ Content-Type: application/json
 					</InfoBox>
 
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Try It in PingOne:</strong>
 							<ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -704,11 +704,11 @@ Content-Type: application/json
 		},
 		resourceAttributes: {
 			title: 'Resource Attributes',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							Resource attributes are custom claims added to access tokens. They provide additional
 							context about the user or authorization.
@@ -717,7 +717,7 @@ Content-Type: application/json
 
 					<h3>Real-World Example: Multi-Tenant SaaS Platform</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> You run a project management SaaS serving multiple
 							companies. Each API call needs to know which company's data to access.
@@ -862,7 +862,7 @@ Attributes:
 					</StepList>
 
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Pro Tip:</strong> Include data that changes rarely (role, tier, region) but
 							avoid frequently changing data (balance, points) that could become stale.
@@ -870,7 +870,7 @@ Attributes:
 					</InfoBox>
 
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Try It in PingOne:</strong>
 							<ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -890,11 +890,11 @@ Attributes:
 		},
 		integration: {
 			title: 'Integration with Auth Flows',
-			icon: <FiShield size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🛡️</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							Resources integrate seamlessly with OAuth 2.0 authorization flows. Applications
 							request scopes, and PingOne issues tokens with the appropriate audience.
@@ -940,7 +940,7 @@ Authorization: Bearer eyJhbGc...
 // 4. Required scopes are present`}</CodeBlock>
 
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Integration Complete!</strong> Your application can now request specific
 							permissions and receive properly scoped access tokens.
@@ -951,11 +951,11 @@ Authorization: Bearer eyJhbGc...
 		},
 		pingoneScopes: {
 			title: 'PingOne Access Control Scopes',
-			icon: <FiKey size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🔑</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>What are PingOne Access Control Scopes?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
@@ -974,7 +974,7 @@ p1:update:user:{suffix}`}</CodeBlock>
 
 					<h3>Real-World Example: HR System</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> Your HR application needs different permission levels for
 							different roles.
@@ -1096,7 +1096,7 @@ p1:update:user:academic-full
 Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 
 					<InfoBox $variant="warning">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Try It Yourself!</strong>
 							<ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -1137,18 +1137,18 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Learn More: Access Services Through Scopes and Roles <FiExternalLink size={14} />
+						Learn More: Access Services Through Scopes and Roles <span style={{ fontSize: '14px' }}>🔗</span>
 					</ExternalLink>
 				</>
 			),
 		},
 		customClaims: {
 			title: 'Custom Claims in Tokens',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>What are Custom Claims?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
@@ -1187,7 +1187,7 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 }`}</CodeBlock>
 
 					<InfoBox $variant="warning">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Key Difference:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -1203,7 +1203,7 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 
 					<h3>Real-World Example: Multi-Tenant SaaS</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> Project management platform serving multiple companies
 						</div>
@@ -1395,7 +1395,7 @@ POST /resources/{resourceId}/attributes
 					</StepList>
 
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Pro Tips:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -1434,18 +1434,18 @@ POST /resources/{resourceId}/attributes
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Learn More: Configure Application Attributes <FiExternalLink size={14} />
+						Learn More: Configure Application Attributes <span style={{ fontSize: '14px' }}>🔗</span>
 					</ExternalLink>
 				</>
 			),
 		},
 		adminAPI: {
 			title: 'Admin API: Create Resources & Scopes',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			content: (
 				<>
 					<InfoBox $variant="info">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Automate Resource Management</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
@@ -1483,7 +1483,7 @@ grant_type=client_credentials
 
 					<h3>Real-World Example: E-Commerce Platform Setup</h3>
 					<InfoBox $variant="success">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Scenario:</strong> Automatically provision resources for a new e-commerce
 							tenant
@@ -1788,7 +1788,7 @@ POST /resources/{resourceId}/attributes
 					</StepList>
 
 					<InfoBox $variant="warning">
-						<FiInfo size={20} />
+						<span style={{ fontSize: '20px' }}>ℹ️</span>
 						<div>
 							<strong>Security Best Practices:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -1808,14 +1808,14 @@ POST /resources/{resourceId}/attributes
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						View Full Management API Documentation <FiExternalLink size={14} />
+						View Full Management API Documentation <span style={{ fontSize: '14px' }}>🔗</span>
 					</ExternalLink>
 				</>
 			),
 		},
 		bestPractices: {
 			title: 'Best Practices',
-			icon: <FiShield size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🛡️</span>,
 			content: (
 				<>
 					<h3>Resource Design</h3>
@@ -1848,7 +1848,7 @@ POST /resources/{resourceId}/attributes
 
 					<h3>Security</h3>
 					<InfoBox $variant="warning">
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						<div>
 							<strong>Important Security Practices:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -1881,7 +1881,7 @@ POST /resources/{resourceId}/attributes
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						Read Full Documentation <FiExternalLink size={14} />
+						Read Full Documentation <span style={{ fontSize: '14px' }}>🔗</span>
 					</ExternalLink>
 				</>
 			),
@@ -1891,63 +1891,63 @@ POST /resources/{resourceId}/attributes
 	const cards = [
 		{
 			id: 'overview',
-			icon: <FiBook size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>📖</span>,
 			color: '#3b82f6',
 			title: 'Resources Overview',
 			description: 'Learn what resources are and how they work in PingOne',
 		},
 		{
 			id: 'createResource',
-			icon: <FiLayers size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			color: '#10b981',
 			title: 'Create a Resource',
 			description: 'Step-by-step guide to creating a new resource',
 		},
 		{
 			id: 'createScopes',
-			icon: <FiKey size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🔑</span>,
 			color: '#f59e0b',
 			title: 'Define Scopes',
 			description: 'Add granular permissions to your resources',
 		},
 		{
 			id: 'resourceAttributes',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			color: '#8b5cf6',
 			title: 'Resource Attributes',
 			description: 'Add custom claims to access tokens',
 		},
 		{
 			id: 'customClaims',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			color: '#14b8a6',
 			title: 'Custom Claims in Tokens',
 			description: 'Add custom claims to access tokens and ID tokens with real examples',
 		},
 		{
 			id: 'pingoneScopes',
-			icon: <FiKey size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🔑</span>,
 			color: '#ef4444',
 			title: 'PingOne Access Control',
 			description: 'Custom scopes for user data with real-world examples',
 		},
 		{
 			id: 'adminAPI',
-			icon: <FiCode size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>❓</span>,
 			color: '#f97316',
 			title: 'Admin API Automation',
 			description: 'Programmatically create resources and scopes',
 		},
 		{
 			id: 'integration',
-			icon: <FiShield size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🛡️</span>,
 			color: '#ec4899',
 			title: 'Auth Flow Integration',
 			description: 'Use resources in OAuth 2.0 flows',
 		},
 		{
 			id: 'bestPractices',
-			icon: <FiShield size={24} />,
+			icon: <span style={{ fontSize: '24px' }}>🛡️</span>,
 			color: '#06b6d4',
 			title: 'Best Practices',
 			description: 'Security and design recommendations',
@@ -1959,7 +1959,7 @@ POST /resources/{resourceId}/attributes
 			<ContentWrapper>
 				<Header>
 					<Title>
-						<FiLayers size={32} />
+						<span style={{ fontSize: '32px' }}>❓</span>
 						PingOne Resources API
 					</Title>
 					<Subtitle>
@@ -1969,7 +1969,7 @@ POST /resources/{resourceId}/attributes
 
 				<OverviewSection>
 					<OverviewTitle>
-						<FiBook size={24} />
+						<span style={{ fontSize: '24px' }}>📖</span>
 						What is the Resources API?
 					</OverviewTitle>
 					<OverviewContent>

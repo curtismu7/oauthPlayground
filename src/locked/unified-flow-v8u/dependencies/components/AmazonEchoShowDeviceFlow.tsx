@@ -1,7 +1,7 @@
 // src/components/AmazonEchoShowDeviceFlow.tsx
 // Amazon Echo Show Style Device Authorization Flow Interface
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,7 +10,7 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Amazon Echo Show Main Container - Realistic Physical Device
 const EchoShowContainer = styled.div`
@@ -366,31 +366,31 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('AmazonEchoShowDeviceFlow', 'User code copied to clipboard');
+		log.info('AmazonEchoShowDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('AmazonEchoShowDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('AmazonEchoShowDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('AmazonEchoShowDeviceFlow', 'Verification URI opened in new tab');
+		log.info('AmazonEchoShowDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -461,10 +461,10 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 					{/* Control Buttons */}
 					<ControlButtons>
 						<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy size={12} /> Copy Code
+							<span style={{ fontSize: '12px' }}>📋</span> Copy Code
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<FiCopy size={12} /> Copy URI
+							<span style={{ fontSize: '12px' }}>📋</span> Copy URI
 						</ControlButton>
 					</ControlButtons>
 
@@ -533,10 +533,10 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 						}}
 					>
 						<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink size={12} /> Open in Browser
+							<span style={{ fontSize: '12px' }}>🔗</span> Open in Browser
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<FiCopy size={12} /> Copy URI
+							<span style={{ fontSize: '12px' }}>📋</span> Copy URI
 						</ControlButton>
 					</div>
 				</QRCodeSection>

@@ -1,18 +1,4 @@
-import {
-	FiArrowLeft,
-	FiCheckCircle,
-	FiCopy,
-	FiEdit,
-	FiEye,
-	FiInfo,
-	FiMinus,
-	FiPlus,
-	FiRotateCcw,
-	FiSave,
-	FiSettings,
-	FiShield,
-	FiTerminal,
-} from '@icons';
+
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -386,7 +372,7 @@ const AdvancedConfiguration = () => {
 					return data.credentials.environmentId;
 				}
 			} catch (error) {
-				logger.warn('AdvancedConfiguration', 'Failed to load environment ID from worker token', {
+				log.warn('AdvancedConfiguration', 'Failed to load environment ID from worker token', {
 					error,
 				});
 			}
@@ -452,14 +438,14 @@ const AdvancedConfiguration = () => {
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			logger.error('AdvancedConfiguration', 'Failed to copy text: ', undefined, err as Error);
+			log.error('AdvancedConfiguration', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
 	const CodeBlockWithCopy = ({ children, label }: { children: string; label: string }) => (
 		<CodeBlock>
 			<CopyButton onClick={() => copyToClipboard(children, label)}>
-				<FiCopy />
+				<span>📋</span>
 				{copiedText === label ? 'Copied!' : 'Copy'}
 			</CopyButton>
 			{children}
@@ -586,7 +572,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
-				logger.warn('AdvancedConfiguration', 'Failed to update environment ID from worker token', {
+				log.warn('AdvancedConfiguration', 'Failed to update environment ID from worker token', {
 					error,
 				});
 			}
@@ -607,7 +593,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				{LayoutPageHeader && <LayoutPageHeader />}
 
 				<BackButton onClick={() => navigate('/')} aria-label="Back to Dashboard">
-					<FiArrowLeft />
+					<span>⬅️</span>
 					Back to Dashboard
 				</BackButton>
 
@@ -615,12 +601,12 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="PingOne Default Settings"
 					subtitle="Set default values for Environment ID, Redirect URI, and Scopes that will be used across all flows"
-					icon={<FiSettings />}
+					icon={<span>⚙️</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<InfoBox $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiInfo />
+							<span>ℹ️</span>
 							<div>
 								<strong>About Default Settings</strong>
 								<p>
@@ -731,7 +717,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE_DARK')}
 								onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE')}
 							>
-								<FiSave />
+								<span>💾</span>
 								Save Defaults
 							</button>
 
@@ -747,7 +733,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle />
+									<span>✅</span>
 									Defaults saved successfully!
 								</div>
 							)}
@@ -759,7 +745,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="Default OAuth Scopes"
 					subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -768,7 +754,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<FiShield />
+										<span>🛡️</span>
 										OAuth Scopes
 									</h2>
 									<p>Configure the permissions your application requests</p>
@@ -824,7 +810,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										>
 											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Scopes</h3>
 											<AddButton onClick={addCustomScope}>
-												<FiPlus size={16} />
+												<span style={{ fontSize: '16px' }}>➕</span>
 												Add Scope
 											</AddButton>
 										</div>
@@ -839,7 +825,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 													onChange={(e) => updateCustomScope(index, e.target.value)}
 												/>
 												<RemoveButton onClick={() => removeCustomScope(index)}>
-													<FiMinus size={16} />
+													<span style={{ fontSize: '16px' }}>➖</span>
 												</RemoveButton>
 											</div>
 										))}
@@ -851,7 +837,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<FiEye />
+										<span>👁️</span>
 										OpenID Connect Claims
 									</h2>
 									<p>Configure the user information your application receives</p>
@@ -899,7 +885,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										>
 											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Claims</h3>
 											<AddButton onClick={addCustomClaim}>
-												<FiPlus size={16} />
+												<span style={{ fontSize: '16px' }}>➕</span>
 												Add Claim
 											</AddButton>
 										</div>
@@ -912,7 +898,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 													onChange={(e) => updateCustomClaim(index, e.target.value)}
 												/>
 												<RemoveButton onClick={() => removeCustomClaim(index)}>
-													<FiMinus size={16} />
+													<span style={{ fontSize: '16px' }}>➖</span>
 												</RemoveButton>
 											</ClaimItem>
 										))}
@@ -927,14 +913,14 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="Configuration Preview"
 					subtitle="Review your default configuration and copy the JSON for use in your applications"
-					icon={<FiSave />}
+					icon={<span>💾</span>}
 					defaultCollapsed={true}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<PreviewSection>
 							<CardHeader>
 								<h2>
-									<FiSave />
+									<span>💾</span>
 									Configuration Preview
 								</h2>
 								<p>Review your configuration and generate code snippets for your application</p>
@@ -976,7 +962,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 								<div style={{ marginBottom: '1.5rem' }}>
 									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-										<FiTerminal />
+										<span>❓</span>
 										Generated Configuration Code
 									</h3>
 									<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
@@ -994,7 +980,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 								<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
 									<SaveButton onClick={saveConfiguration}>
-										<FiSave />
+										<span>💾</span>
 										{saved ? 'Configuration Saved!' : 'Save Configuration'}
 									</SaveButton>
 									<button
@@ -1017,7 +1003,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.RED_DARK')}
 										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.RED')}
 									>
-										<FiRotateCcw />
+										<span>❓</span>
 										Reset to Defaults
 									</button>
 								</div>

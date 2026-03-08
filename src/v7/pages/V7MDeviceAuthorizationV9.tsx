@@ -2,7 +2,7 @@
 /* eslint-disable no-alert */
 // lint-file-disable: token-value-in-jsx
 
-import { FiBook, FiCheck, FiCopy, FiSmartphone } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
@@ -163,7 +163,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 				</p>
 			</div>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiSmartphone /> V7M Device Authorization
+				<span>📱</span> V7M Device Authorization
 			</h1>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
@@ -190,7 +190,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 						gap: 8,
 					}}
 				>
-					<FiSmartphone /> Step 1: Request Device Authorization
+					<span>📱</span> Step 1: Request Device Authorization
 					<V7MInfoIcon
 						label="What is Device Authorization?"
 						title="Device Authorization Flow (RFC 8628)"
@@ -264,7 +264,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										{userCode}
 									</code>
 									<button type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</button>
 								</div>
 								<div style={{ marginBottom: 8 }}>
@@ -273,7 +273,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										{deviceCode}
 									</code>
 									<button type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</button>
 								</div>
 								<div style={{ marginBottom: 8 }}>
@@ -286,7 +286,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										onClick={() => copyToClipboard(verificationUri)}
 										style={copyBtn}
 									>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</button>
 								</div>
 								<div style={{ marginTop: 12 }}>
@@ -312,7 +312,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							gap: 8,
 						}}
 					>
-						<FiCheck /> Step 2: Simulate User Approval
+						<span>✅</span> Step 2: Simulate User Approval
 					</header>
 					<div style={{ padding: 12 }}>
 						<p style={{ marginBottom: 12 }}>
@@ -356,7 +356,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							gap: 8,
 						}}
 					>
-						<FiSmartphone /> Step 3: Poll for Tokens
+						<span>📱</span> Step 3: Poll for Tokens
 					</header>
 					<div style={{ padding: 12 }}>
 						<p style={{ marginBottom: 12 }}>

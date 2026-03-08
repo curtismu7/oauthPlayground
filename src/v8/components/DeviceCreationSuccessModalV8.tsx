@@ -1,16 +1,7 @@
 // src/v8/components/DeviceCreationSuccessModalV8.tsx
 // Device Creation Success Modal - Shows device info for all flow types
 
-import {
-	FiCheckCircle,
-	FiKey,
-	FiMail,
-	FiMessageSquare,
-	FiPhone,
-	FiShield,
-	FiSmartphone,
-	FiX,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { DeviceType } from '../flows/shared/MFATypes';
@@ -249,21 +240,21 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 	const getDeviceIcon = (deviceType: DeviceType) => {
 		switch (deviceType) {
 			case 'EMAIL':
-				return <FiMail />;
+				return <span>📧</span>;
 			case 'SMS':
 			case 'VOICE':
-				return <FiPhone />;
+				return <span>📞</span>;
 			case 'TOTP':
-				return <FiKey />;
+				return <span>🔑</span>;
 			case 'FIDO2':
-				return <FiShield />;
+				return <span>🛡️</span>;
 			case 'WHATSAPP':
-				return <FiMessageSquare />;
+				return <span>❓</span>;
 			case 'MOBILE':
 			case 'OATH_TOKEN':
-				return <FiSmartphone />;
+				return <span>📱</span>;
 			default:
-				return <FiShield />;
+				return <span>🛡️</span>;
 		}
 	};
 
@@ -294,17 +285,17 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 			<ModalContent>
 				<ModalHeader>
 					<ModalTitle>
-						<FiCheckCircle />
+						<span>✅</span>
 						Device Created Successfully
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalBody>
 					<SuccessIcon>
-						<FiCheckCircle />
+						<span>✅</span>
 					</SuccessIcon>
 
 					<SuccessMessage>

@@ -1,23 +1,12 @@
 // src/components/SmartSpeakerDeviceFlow.tsx
 // Smart Speaker Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiHome,
-	FiMic,
-	FiPause,
-	FiSettings,
-	FiVolume2,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Smart Speaker Main Container - Audio/Speaker aesthetics
@@ -312,31 +301,31 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SmartSpeakerDeviceFlow', 'User code copied to clipboard');
+		log.info('SmartSpeakerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('SmartSpeakerDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('SmartSpeakerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -452,13 +441,13 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 				{/* Speaker Control Panel */}
 				<SpeakerControlPanel>
 					<SpeakerControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</SpeakerControlButton>
 					<SpeakerControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</SpeakerControlButton>
 					<SpeakerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</SpeakerControlButton>
 				</SpeakerControlPanel>
 
@@ -592,7 +581,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										cursor: 'pointer',
 									}}
 								>
-									<FiPause size={16} />
+									<span style={{ fontSize: '16px' }}>❓</span>
 								</div>
 							</div>
 
@@ -805,7 +794,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiVolume2 /> Volume
+								<span>🔊</span> Volume
 							</button>
 							<button
 								style={{
@@ -824,7 +813,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiHome /> Smart Home
+								<span>🏠</span> Smart Home
 							</button>
 							<button
 								style={{
@@ -843,7 +832,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiSettings /> Settings
+								<span>⚙️</span> Settings
 							</button>
 						</div>
 					</div>

@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiGitBranch, FiGlobe, FiLayers, FiLink, FiShield, FiUsers } from '@icons';
+
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -70,7 +70,7 @@ const Highlight = styled.span`
 const specData = [
 	{
 		title: 'Client ID Metadata Document (CIMD)',
-		icon: <FiGlobe />,
+		icon: <span>🌐</span>,
 		summary:
 			'Enables authorization servers to fetch rich client metadata directly from a URL-based client_id, bypassing pre-registration requirements and supporting open ecosystems of AI agents.',
 		points: [
@@ -85,7 +85,7 @@ const specData = [
 	},
 	{
 		title: 'Identity Assertion Authorization Grant (ID-JAG)',
-		icon: <FiUsers />,
+		icon: <span>👥</span>,
 		summary:
 			'Coordinates enterprise identities so an agent can exchange a trusted identity assertion for access tokens targeting third-party APIs, using OAuth Token Exchange and JWT grant profiles.',
 		points: [
@@ -100,7 +100,7 @@ const specData = [
 	},
 	{
 		title: 'Identity and Authorization Chaining',
-		icon: <FiLayers />,
+		icon: <span>❓</span>,
 		summary:
 			'Preserves identity context and authorization data across multiple trust domains so chained services can verify who initiated a request and under which policy.',
 		points: [
@@ -115,7 +115,7 @@ const specData = [
 	},
 	{
 		title: 'Model Context Protocol (MCP) Client Registration',
-		icon: <FiGitBranch />,
+		icon: <span>❓</span>,
 		summary:
 			'The MCP ecosystem is reevaluating traditional Dynamic Client Registration for personal agents, experimenting with CIMD to streamline discovery and trust establishment.',
 		points: [
@@ -163,7 +163,7 @@ const EmergingAIStandards = () => {
 					<CollapsibleHeader
 						title="Why AI agents need new OAuth primitives"
 						subtitle="Dynamic Client Registration alone cannot sustain autonomous agent ecosystems"
-						icon={<FiAlertCircle />}
+						icon={<span>⚠️</span>}
 						defaultCollapsed={false}
 						theme="orange"
 					>
@@ -178,7 +178,7 @@ const EmergingAIStandards = () => {
 									chaining to preserve security while enabling spontaneous collaboration.
 								</p>
 								<Highlight>
-									<FiLink />
+									<span>🔗</span>
 									Coordinated standards work across the IETF OAuth Working Group and the Model
 									Context Protocol is accelerating these capabilities.
 								</Highlight>
@@ -193,7 +193,7 @@ const EmergingAIStandards = () => {
 					<CollapsibleHeader
 						title="Specifications shaping the AI agent ecosystem"
 						subtitle="Four converging efforts define discovery, identity, and delegation for autonomous clients"
-						icon={<FiShield />}
+						icon={<span>🛡️</span>}
 						defaultCollapsed={false}
 						theme="purple"
 					>
@@ -210,7 +210,7 @@ const EmergingAIStandards = () => {
 											))}
 										</SpecList>
 										<ResourceLink href={spec.link.href} target="_blank" rel="noopener noreferrer">
-											<FiLink />
+											<span>🔗</span>
 											{spec.link.label}
 										</ResourceLink>
 									</CardBody>
@@ -226,7 +226,7 @@ const EmergingAIStandards = () => {
 					<CollapsibleHeader
 						title="Further reading"
 						subtitle="Key discussions and reference material from industry contributors"
-						icon={<FiGitBranch />}
+						icon={<span>❓</span>}
 						defaultCollapsed={false}
 						theme="green"
 					>
@@ -236,7 +236,7 @@ const EmergingAIStandards = () => {
 									{resourceLinks.map((item) => (
 										<li key={item.href}>
 											<ResourceLink href={item.href} target="_blank" rel="noopener noreferrer">
-												<FiLink />
+												<span>🔗</span>
 												{item.label}
 											</ResourceLink>
 										</li>

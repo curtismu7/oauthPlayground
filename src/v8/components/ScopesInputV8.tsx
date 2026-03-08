@@ -13,7 +13,7 @@
  * />
  */
 
-import { FiInfo, FiKey } from '@icons';
+
 import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔑 SCOPES-V8]';
@@ -154,7 +154,7 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

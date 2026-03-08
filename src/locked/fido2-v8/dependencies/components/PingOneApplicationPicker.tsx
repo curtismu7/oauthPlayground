@@ -1,14 +1,6 @@
 // src/components/PingOneApplicationPicker.tsx
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiChevronDown,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiRefreshCw,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -69,7 +61,7 @@ const Select = styled.select<{ $hasError?: boolean }>`
 	}
 `;
 
-const ChevronIcon = styled(FiChevronDown)`
+const ChevronIcon = styled.span`
 	position: absolute;
 	right: 0.75rem;
 	top: 50%;
@@ -78,7 +70,7 @@ const ChevronIcon = styled(FiChevronDown)`
 	color: #6c757d;
 `;
 
-const LoadingSpinner = styled(FiRefreshCw)`
+const LoadingSpinner = styled.span`
 	position: absolute;
 	right: 0.75rem;
 	top: 50%;
@@ -397,14 +389,14 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 			{error && (
 				<ErrorMessage>
-					<FiAlertCircle size={16} />
+					<span style={{ fontSize: '16px' }}>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
 
 			{success && !error && (
 				<SuccessMessage>
-					<FiCheck size={16} />
+					<span style={{ fontSize: '16px' }}>✅</span>
 					{success}
 				</SuccessMessage>
 			)}
@@ -438,7 +430,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 													onClick={() => handleCopy(selectedApp.clientId, 'Client ID')}
 													title="Copy Client ID"
 												>
-													<FiCopy size={14} />
+													<span style={{ fontSize: '14px' }}>📋</span>
 												</CopyButton>
 											</TableCell>
 										</TableRow>
@@ -469,13 +461,13 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 															onClick={() => handleCopy(selectedApp.clientSecret!, 'Client Secret')}
 															title="Copy Client Secret"
 														>
-															<FiCopy size={14} />
+															<span style={{ fontSize: '14px' }}>📋</span>
 														</CopyButton>
 														<CopyButton
 															onClick={() => setShowClientSecret(!showClientSecret)}
 															title={showClientSecret ? 'Hide' : 'Show'}
 														>
-															{showClientSecret ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+															{showClientSecret ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 														</CopyButton>
 													</div>
 												)}
@@ -496,7 +488,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														}
 														title="Copy Grant Types"
 													>
-														<FiCopy size={14} />
+														<span style={{ fontSize: '14px' }}>📋</span>
 													</CopyButton>
 												)}
 											</TableCell>
@@ -541,7 +533,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 																		}
 																		title="Copy Post-Logout URIs"
 																	>
-																		<FiCopy size={14} />
+																		<span style={{ fontSize: '14px' }}>📋</span>
 																	</CopyButton>
 																)}
 														</TableCell>
@@ -561,7 +553,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')}
 														title="Copy Scopes"
 													>
-														<FiCopy size={14} />
+														<span style={{ fontSize: '14px' }}>📋</span>
 													</CopyButton>
 												)}
 											</TableCell>
@@ -585,7 +577,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 													}
 													title="Copy Token Auth Method"
 												>
-													<FiCopy size={14} />
+													<span style={{ fontSize: '14px' }}>📋</span>
 												</CopyButton>
 											</TableCell>
 										</TableRow>
@@ -604,7 +596,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														}
 														title="Copy PKCE Enforcement"
 													>
-														<FiCopy size={14} />
+														<span style={{ fontSize: '14px' }}>📋</span>
 													</CopyButton>
 												</TableCell>
 											</TableRow>
@@ -622,11 +614,11 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 											onApplicationSelect(selectedApp);
 										}}
 									>
-										<FiCheck size={14} />
+										<span style={{ fontSize: '14px' }}>✅</span>
 										Apply Configuration
 									</ApplyButton>
 									<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
-										<FiRefreshCw size={14} />
+										<span style={{ fontSize: '14px' }}>🔄</span>
 										{loading ? 'Loading...' : 'Refresh Applications'}
 									</RefreshButton>
 								</ButtonContainer>
@@ -638,7 +630,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 			{!selectedAppId && (
 				<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
-					<FiRefreshCw size={14} />
+					<span style={{ fontSize: '14px' }}>🔄</span>
 					{loading ? 'Loading...' : 'Refresh Applications'}
 				</RefreshButton>
 			)}

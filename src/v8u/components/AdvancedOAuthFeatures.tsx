@@ -1,4 +1,4 @@
-import { FiCheck, FiChevronDown, FiInfo, FiKey, FiLock, FiServer, FiShield, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -282,7 +282,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				id: 'par',
 				name: 'Pushed Authorization Request (PAR)',
 				description: 'Secure authorization requests by pushing them to the authorization server',
-				icon: <FiKey />,
+				icon: <span>🔑</span>,
 				enabled: enabledFeatures.includes('par'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -304,7 +304,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				name: 'JWT Secured Authorization Request (JAR)',
 				description:
 					'Secure authorization requests using signed JWTs to prevent parameter tampering',
-				icon: <FiKey />,
+				icon: <span>🔑</span>,
 				enabled: enabledFeatures.includes('jar'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -327,7 +327,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				name: 'Mutual TLS (mTLS)',
 				description:
 					'Use client certificates for mutual authentication between client and authorization server',
-				icon: <FiLock />,
+				icon: <span>🔒</span>,
 				enabled: enabledFeatures.includes('mtls'),
 				supported: true, // mTLS can be supported across all versions
 				requirements: [
@@ -350,7 +350,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				id: 'dpop',
 				name: 'Demonstration of Proof-of-Possession (DPoP)',
 				description: 'Bind tokens to a specific client using proof-of-possession keys',
-				icon: <FiServer />,
+				icon: <span>🖥️</span>,
 				enabled: enabledFeatures.includes('dpop'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -444,7 +444,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				});
 			}
 		} catch (error) {
-			logger.error('Failed to toggle feature:', error);
+			log.error('Failed to toggle feature:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -494,7 +494,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 					Advanced OAuth Features
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 			{!isCollapsed && (

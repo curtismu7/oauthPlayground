@@ -6,7 +6,7 @@
  * @since 2024-11-17
  */
 
-import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from '@icons';
+
 import React from 'react';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
@@ -70,7 +70,7 @@ const extractUserInfo = (
 				if (!result.sub) result.sub = payload.sub;
 			}
 		} catch (err) {
-			logger.warn(`Failed to decode ID token`, err);
+			log.warn(`Failed to decode ID token`, err);
 		}
 	}
 
@@ -226,7 +226,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
 							}}
 						>
-							<FiX size={20} />
+							<span style={{ fontSize: '20px' }}>❌</span>
 						</button>
 					</div>
 
@@ -259,7 +259,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<FiUser size={14} />
+												<span style={{ fontSize: '14px' }}>👤</span>
 												Full Name
 											</div>
 											<div
@@ -289,7 +289,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<FiMail size={14} />
+												<span style={{ fontSize: '14px' }}>📧</span>
 												Email
 											</div>
 											<div
@@ -318,7 +318,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<FiUser size={14} />
+												<span style={{ fontSize: '14px' }}>👤</span>
 												Username
 											</div>
 											<div
@@ -347,7 +347,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<FiHash size={14} />
+												<span style={{ fontSize: '14px' }}>❓</span>
 												Subject ID
 											</div>
 											<div
