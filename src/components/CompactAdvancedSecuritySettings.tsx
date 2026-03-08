@@ -5,12 +5,6 @@ import { FiCheck, FiChevronDown, FiSettings, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
 type AdvancedSecuritySettings
 ,
 	advancedSecuritySettingsService,

@@ -20,12 +20,6 @@ import {
 } from '../services/comprehensiveDiscoveryService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
 discoveryPersistenceService,
 	PersistedDiscoveryData,
 } from '../services/discoveryPersistenceService'
