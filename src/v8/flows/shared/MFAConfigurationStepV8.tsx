@@ -21,6 +21,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
 
@@ -39,13 +40,13 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	isLoadingPolicies,
 	policiesError,
 	refreshDeviceAuthPolicies,
-	showWorkerTokenModal,
+	_showWorkerTokenModal,
 	setShowWorkerTokenModal,
 	showUserLoginModal,
 	setShowUserLoginModal,
-	showSettingsModal,
-	setShowSettingsModal,
-	deviceType,
+	_showSettingsModal,
+	_setShowSettingsModal,
+	_deviceType,
 	deviceTypeLabel,
 	policyDescription,
 	registrationFlowType,
@@ -115,7 +116,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
-			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
@@ -123,7 +123,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	});
 	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
 		try {
-			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
 		} catch {
 			return true;
@@ -604,7 +603,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			setUserTokenStatus(status);
 		}
 		// Only depend on local state, not credentials properties (prevents loops)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		tokenType,
 		userToken,
