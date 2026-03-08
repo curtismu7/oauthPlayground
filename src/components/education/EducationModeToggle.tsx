@@ -13,12 +13,6 @@ import { FiBook, FiChevronDown, FiEyeOff, FiMinimize2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../../services/v9/V9ColorStandards');
 type EducationMode
 ,
 	EducationPreferenceService,

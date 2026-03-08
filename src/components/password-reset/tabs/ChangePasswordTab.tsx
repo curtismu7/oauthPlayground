@@ -17,12 +17,6 @@ import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../../../services/v9/V9ColorStandards');
 Alert,
 	Button,
 	Card,

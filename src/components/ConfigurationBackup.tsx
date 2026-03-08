@@ -8,13 +8,7 @@ import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from '@ico
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import configurationBackupService, {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
-FlowConfiguration,
+	FlowConfiguration,
 } from '../services/configurationBackupService'
 
 interface ConfigurationBackupProps {

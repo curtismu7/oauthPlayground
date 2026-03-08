@@ -7,12 +7,6 @@ import { formatUserCode } from '../../utils/deviceCode';
 import { logger } from '../../utils/logger';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../../services/v9/V9ColorStandards');
 formatUrlForQRCode,
 	generateQRCode,
 	getQRCodeAltText,
