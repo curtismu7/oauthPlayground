@@ -372,7 +372,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 
 	// Debug: Log when props change
 	React.useEffect(() => {
-		log.debug('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
+		logger.debug('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
 	}, [flowType, specVersion, credentials]);
 
 	const getSecurityChecks = (): SecurityCheck[] => {
@@ -512,7 +512,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 		else grade = 'F';
 
 		// Debug: Log score calculation
-		log.debug('[SecurityScorecard] Score calculated:', {
+		logger.debug('[SecurityScorecard] Score calculated:', {
 			flowType,
 			specVersion,
 			totalItems,
