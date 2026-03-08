@@ -57,7 +57,6 @@ import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 import { logger } from '../../../utils/logger';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 

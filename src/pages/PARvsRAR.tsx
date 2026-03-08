@@ -8,7 +8,6 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1400px;

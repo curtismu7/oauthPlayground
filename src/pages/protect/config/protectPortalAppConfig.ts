@@ -20,7 +20,6 @@ export const PINGONE_CONFIG = {
 	clientSecret: import.meta.env.VITE_PINGONE_CLIENT_SECRET || 'your-client-secret',
 	redirectUri:
 		import.meta.env.VITE_PINGONE_REDIRECT_URI || 'http://localhost:3000/protect-portal-callback',
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 	// Development fallbacks (for testing)
 	development: {

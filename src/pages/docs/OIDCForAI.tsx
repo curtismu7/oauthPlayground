@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const _DocsContainer = styled.div`
   max-width: 1200px;

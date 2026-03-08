@@ -18,7 +18,6 @@ import { Card, CardBody, CardHeader } from '../../components/Card';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {
