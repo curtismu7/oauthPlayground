@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 import {
 	FiClock,
@@ -22,7 +23,6 @@ import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const WhiteContainer = styled.div`
 	background-color: white;

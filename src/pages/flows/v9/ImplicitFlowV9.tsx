@@ -29,7 +29,6 @@ import { FlowUIService } from '../../../services/flowUIService';
 import { ImplicitFlowV9Helpers } from '../../../services/implicitFlowSharedService';
 import { createModuleLogger } from '../../../utils/logger';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Get UI components
 const {

@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
 import { PageTitle } from '../components/PageTitle';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   min-height: 100vh;

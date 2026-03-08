@@ -21,7 +21,6 @@ import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmen
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	container: {

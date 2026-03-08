@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../../services/pageLayoutService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Create layout components at module level
 const _promptsLayout = PageLayoutService.createPageLayout({

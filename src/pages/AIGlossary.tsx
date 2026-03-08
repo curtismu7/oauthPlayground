@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.main`
 	min-height: 100vh;

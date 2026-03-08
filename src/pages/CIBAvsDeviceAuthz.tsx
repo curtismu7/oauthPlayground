@@ -21,7 +21,6 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { copyToClipboard } from '../utils/clipboard';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Container styling handled by PageLayoutService
 

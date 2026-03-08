@@ -7,7 +7,6 @@ import { OpenIDConfiguration } from '../services/discoveryService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   max-width: 1200px;

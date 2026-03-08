@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/RedirectlessFlowV9_Real.tsx
 // lint-file-disable: token-value-in-jsx
 // ⭐ V9 FLOW - Redirectless Flow using PingOne API without browser redirects
@@ -44,7 +45,6 @@ import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';

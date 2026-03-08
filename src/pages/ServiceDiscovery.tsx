@@ -6,7 +6,6 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ServiceDiscoveryBrowser from '../components/ServiceDiscoveryBrowser';
 import { FlowType } from '../services/serviceDiscoveryService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const ServiceDiscovery: React.FC = () => {
 	const [searchParams] = useSearchParams();

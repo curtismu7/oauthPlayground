@@ -27,7 +27,6 @@ import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
 import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security

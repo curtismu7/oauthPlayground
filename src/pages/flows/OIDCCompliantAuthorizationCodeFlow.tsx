@@ -17,7 +17,6 @@ import { FiCheckCircle, FiShield } from '@icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components (reusing from OAuth2 compliant flow)
 const Container = styled.div`

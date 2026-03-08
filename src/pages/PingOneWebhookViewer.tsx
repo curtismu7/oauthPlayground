@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
 
@@ -32,7 +33,6 @@ import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	container: {
