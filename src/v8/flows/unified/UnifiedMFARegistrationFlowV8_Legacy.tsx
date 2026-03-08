@@ -54,9 +54,11 @@ import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
+import { UnifiedActivationStepModern } from './components/UnifiedActivationStep.modern';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
+import { UnifiedSuccessStepModern } from './components/UnifiedSuccessStep.modern';
 import './UnifiedMFAFlow.css';
 import { logger } from '../../../utils/logger';
 
@@ -2414,20 +2416,24 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	/**
 	 * Render Step 1: Activation
-	 */
-	const renderStep1 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedActivationStep {...props} config={config} />;
-		},
-		[config]
-	);
+         * Uses modern design-system variant when mfa_modern_ui flag is enabled.
+         */
+        const renderStep1 = useCallback(
+                (props: MFAFlowBaseRenderProps) => {
+                        if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+                                return <UnifiedActivationStepModern {...props} config={config} />;
+                        }
+                        return <UnifiedActivationStep {...props} config={config} />;
+                },
+                [config]
+        );
 
-	/**
-	 * Render Step 2: API Documentation
-	 */
-	const renderStep2 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			return (
+        /**
+         * Render Step 2: API Documentation
+         */
+        const renderStep2 = useCallback(
+                (props: MFAFlowBaseRenderProps) => {
+                        return (
 				<MFADocumentationPageV8
 					deviceType={deviceType}
 					flowType="registration"
@@ -2464,20 +2470,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	/**
 	 * Render Step 3: Success
-	 */
-	const renderStep3 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedSuccessStep {...props} config={config} />;
-		},
-		[config]
-	);
-
-	/**
-	 * Render Step 4: Not used
-	 */
-	const renderStep4 = useCallback((_props: MFAFlowBaseRenderProps) => {
-		return null;
-	}, []);
+         * Uses modern design-system variant when mfa_modern_ui flag is enabled.
+         */
+        const renderStep3 = useCallback(
+                (props: MFAFlowBaseRenderProps) => {
+                        if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+                                return <UnifiedSuccessStepModern {...props} config={config} />;
+                        }
+                        return <UnifiedSuccessStep {...props} config={config} />;
+                },
+                [config]
+        );
 
 	// ========================================================================
 	// STEP LABELS
