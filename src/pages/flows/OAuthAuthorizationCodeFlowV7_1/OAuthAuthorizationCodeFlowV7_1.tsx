@@ -37,7 +37,7 @@ const _FlowCredentialService = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(credentials));
 		} catch (error) {
-			log.warn('Failed to save credentials:', error);
+			logger.warn('Failed to save credentials:', error);
 		}
 	},
 };
@@ -303,7 +303,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					duration: 4000,
 				});
 			} catch (error) {
-				log.error('Failed to initialize flow:', error);
+				logger.error('Failed to initialize flow:', error);
 				onFlowError?.(error as Error);
 				setIsLoading(false);
 			}
