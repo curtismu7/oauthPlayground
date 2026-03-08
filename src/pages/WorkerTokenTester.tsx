@@ -684,20 +684,9 @@ const _WorkerTokenTester: React.FC = () => {
 			</div>
 
 			{payload && (
-				<>
-					<div style={styles.section}>
-											)}
-										</div>
-										<div style={styles.testResultMessage}>{result.message}</div>
-										{result.details && <div style={styles.testResultDetails}>{result.details}</div>}
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-
+				<div style={styles.section}>
 					<SuperSimpleApiDisplayV8 />
-				</>
+				</div>
 			)}
 			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
@@ -710,4 +699,4 @@ const _WorkerTokenTester: React.FC = () => {
 	);
 };
 
-export default WorkerTokenTester;
+export default _WorkerTokenTester;
