@@ -333,23 +333,6 @@ return '';
 const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
 const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
 const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
-		try {
-			// Try synchronous check from localStorage for worker token credentials
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				if (data.credentials?.environmentId) {
-					return data.credentials.environmentId;
-				}
-			}
-		} catch {
-			return '';
-		}
-		return '';
-	});
-	const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
-	const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
-	const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 
 	const toggleOutput = useCallback((key: string) => {
 		setExpandedOutputs((prev) => {
