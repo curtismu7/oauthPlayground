@@ -33,7 +33,6 @@ import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
 // Import types and config
 import type {
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 	LoginContext,
 	PortalError,
 	PortalState,
