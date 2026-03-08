@@ -18,11 +18,6 @@ vi.mock('@/v8/services/mfaConfigurationServiceV8');
 describe('useWorkerToken', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.useFakeTimers();
-	});
-
-	afterEach(() => {
-		vi.useRealTimers();
 	});
 
 	describe('Initialization', () => {
@@ -105,24 +100,32 @@ describe('useWorkerToken', () => {
 		});
 
 		it('should update token status on interval', async () => {
-			const mockStatus = {
-				status: 'valid' as const,
-				message: 'Token is valid',
-				isValid: true,
-			};
+			vi.useFakeTimers();
+			try {
+				const mockStatus = {
+					status: 'valid' as const,
+					message: 'Token is valid',
+					isValid: true,
+				};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
+				vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(mockStatus);
 
-			renderHook(() => useWorkerToken({ refreshInterval: 5000 }));
+				renderHook(() => useWorkerToken({ refreshInterval: 5000 }));
 
-			// Fast-forward time by 5 seconds
-			await act(async () => {
-				vi.advanceTimersByTime(5000);
-			});
+				// Flush initial effects (microtasks are not affected by fake timers)
+				await act(async () => {
+					await Promise.resolve();
+				});
 
-			await waitFor(() => {
+				// Advance past one interval tick
+				await act(async () => {
+					await vi.advanceTimersByTimeAsync(5100);
+				});
+
 				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalledTimes(2); // Initial + interval
-			});
+			} finally {
+				vi.useRealTimers();
+			}
 		});
 	});
 
@@ -213,7 +216,9 @@ describe('useWorkerToken', () => {
 				await result.current.checkAndRefreshToken();
 			});
 
-			expect(result.current.isRefreshing).toBe(false);
+			// isRefreshing should be true — auto-refresh was triggered (still awaiting the
+			// 2s cleanup timeout internally)
+			expect(result.current.isRefreshing).toBe(true);
 		});
 
 		it('should not auto-refresh when disabled', async () => {
@@ -316,9 +321,18 @@ describe('useWorkerToken', () => {
 
 			renderHook(() => useWorkerToken());
 
-			// Dispatch storage event
+			// Wait for initial mount call
+			await waitFor(() => {
+				expect(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).toHaveBeenCalled();
+			});
+
+			vi.clearAllMocks();
+
+			// Dispatch storage event with a worker_token key to satisfy the handler filter
 			await act(async () => {
-				window.dispatchEvent(new Event('storage'));
+				window.dispatchEvent(
+					new StorageEvent('storage', { key: 'worker_token_data' }),
+				);
 			});
 
 			await waitFor(() => {
