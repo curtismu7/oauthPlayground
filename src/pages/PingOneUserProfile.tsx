@@ -147,6 +147,7 @@ type PingOneMfaStatus = PingOneMfaDetails | null;
 
 import type { CSSProperties } from 'react';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {

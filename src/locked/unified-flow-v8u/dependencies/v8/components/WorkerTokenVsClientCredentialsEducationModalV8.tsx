@@ -22,6 +22,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { FiInfo, FiShield, FiXCircle } from '@icons';
 
 interface WorkerTokenVsClientCredentialsEducationModalV8Props {
 	isOpen: boolean;

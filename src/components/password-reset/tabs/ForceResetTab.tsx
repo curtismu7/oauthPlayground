@@ -27,6 +27,7 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
+import { FiAlertCircle, FiBook, FiExternalLink, FiLock } from '@icons';
 
 interface ForceResetTabProps {
 	environmentId: string;

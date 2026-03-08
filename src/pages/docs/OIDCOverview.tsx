@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from '../../components/Card';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { FiAlertTriangle, FiArrowRight, FiBookOpen, FiCheckCircle, FiCode, FiInfo, FiLock, FiShield, FiUsers, FiZap } from '@icons';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {

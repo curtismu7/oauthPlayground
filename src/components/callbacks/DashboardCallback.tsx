@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
+import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   min-height: 100vh;

@@ -14,6 +14,7 @@ import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { FiActivity, FiCheck, FiDatabase, FiEye, FiFilter, FiServer } from '@icons';
 
 const styles = {
 	pageContainer: {

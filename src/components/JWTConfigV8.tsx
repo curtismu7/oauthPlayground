@@ -20,6 +20,7 @@ import {
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCode } from '@icons';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 

@@ -8,6 +8,7 @@
 
 
 import React from 'react';
+import { FiAlertTriangle } from '@icons';
 
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 

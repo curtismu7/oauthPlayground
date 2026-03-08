@@ -26,6 +26,7 @@
 import React, { useState } from 'react';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { FiArrowRight } from '@icons';
 
 const _MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 

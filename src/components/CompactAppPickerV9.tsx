@@ -25,6 +25,7 @@ import {
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiSearch } from '@icons';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
 

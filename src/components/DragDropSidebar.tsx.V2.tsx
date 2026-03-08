@@ -16,6 +16,7 @@
 // Import only what's needed for this demo
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FiChevronDown } from '@icons';
 
 interface MenuItem {
 	id: string;

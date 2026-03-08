@@ -6,6 +6,7 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`

@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import { FiInfo } from '@icons';
 
 export interface PingOneApplicationState {
 	clientAuthMethod:

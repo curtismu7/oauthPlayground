@@ -1748,6 +1748,7 @@ ${
 						<CodeBlock>{`// TokenExchangeComponent.tsx (React)
 import React, { useState } from "react";
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { FiRefreshCw } from '@icons';
 
 function TokenExchangeComponent() {
   const [exchangeState, setExchangeState] = useState({
