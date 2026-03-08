@@ -317,9 +317,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 		setJustFetched(false);
 		try {
 			await onFetchUserInfo();
-			modernMessaging.showFooterMessage({ type: 'status', message: '✓ User information fetched successfully!', {
-				description: 'Check the UserInfo Response section below',
-			}, duration: 4000 });
+			modernMessaging.showFooterMessage({ type: 'status', message: '✓ User information fetched successfully!', description: 'Check the UserInfo Response section below', duration: 4000 });
 			// Auto-collapse overview to focus on results
 			setCollapsedSections((prev) => ({ ...prev, userInfoOverview: true }));
 		} catch (_error) {
