@@ -239,9 +239,7 @@ export class DeviceCodeIntegrationServiceV8 {
 ).catch(() =>
 {
 }
-)
-} catch (_e)
-{
+} catch (_e) {
 }
 // #endregion
 
