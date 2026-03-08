@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { logger } from '../../../../utils/logger';
 import type {
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 	AuthCodeState,
 	FlowCredentials,
 	FlowState,
