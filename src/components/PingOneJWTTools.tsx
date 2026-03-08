@@ -10,7 +10,6 @@
  * - Transaction approval flow configuration
  */
 
-import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCopy, FiKey, FiSettings } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -484,15 +483,15 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 	return (
 		<ToolsContainer>
 			<h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-				<FiKey /> PingOne JWT Creation Tools
+				🔑 PingOne JWT Creation Tools
 			</h2>
 
 			{/* Keypair Generation */}
 			<SectionHeader onClick={() => toggleSection('keypair')}>
 				<SectionTitle>
-					<FiKey /> Generate Keypair
+					🔑 Generate Keypair
 				</SectionTitle>
-				{collapsedSections.keypair ? <FiChevronDown /> : <FiChevronUp />}
+				{collapsedSections.keypair ? 🔽 : 🔼}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.keypair}>
 				<FormGroup>
@@ -533,13 +532,13 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				)}
 				<ButtonRow>
 					<Button $variant="primary" onClick={handleGenerateKeypair} disabled={generatingKeypair}>
-						<FiKey /> {generatingKeypair ? 'Generating...' : 'Generate Keypair'}
+						🔑 {generatingKeypair ? 'Generating...' : 'Generate Keypair'}
 					</Button>
 				</ButtonRow>
 				{keypair && (
 					<>
 						<SuccessMessage>
-							<FiCheckCircle /> Keypair generated successfully! Key ID: {keypair.keyId}
+							✅ Keypair generated successfully! Key ID: {keypair.keyId}
 						</SuccessMessage>
 						<ResultBox>
 							<ResultLabel>Private Key (JWK)</ResultLabel>
@@ -551,7 +550,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 										copyToClipboard(JSON.stringify(keypair.jwk.private, null, 2), 'Private Key')
 									}
 								>
-									<FiCopy /> Copy Private Key
+									📋 Copy Private Key
 								</Button>
 							</ButtonRow>
 						</ResultBox>
@@ -565,7 +564,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 										copyToClipboard(JSON.stringify(keypair.jwk.public, null, 2), 'Public Key')
 									}
 								>
-									<FiCopy /> Copy Public Key
+									📋 Copy Public Key
 								</Button>
 							</ButtonRow>
 						</ResultBox>
@@ -576,9 +575,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			{/* Login Hint Token */}
 			<SectionHeader onClick={() => toggleSection('loginHint')}>
 				<SectionTitle>
-					<FiSettings /> Create Login Hint Token
+					⚙️ Create Login Hint Token
 				</SectionTitle>
-				{collapsedSections.loginHint ? <FiChevronDown /> : <FiChevronUp />}
+				{collapsedSections.loginHint ? 🔽 : 🔼}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.loginHint}>
 				<InfoText>
@@ -632,7 +631,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				</FormGroup>
 				<ButtonRow>
 					<Button $variant="primary" onClick={handleCreateLoginHintToken} disabled={!keypair}>
-						<FiKey /> Create Login Hint Token
+						🔑 Create Login Hint Token
 					</Button>
 				</ButtonRow>
 				{loginHintToken && (
@@ -644,14 +643,14 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 								$variant="secondary"
 								onClick={() => copyToClipboard(loginHintToken, 'Login Hint Token')}
 							>
-								<FiCopy /> Copy Token
+								📋 Copy Token
 							</Button>
 							{onLoginHintTokenGenerated && (
 								<Button
 									$variant="primary"
 									onClick={() => onLoginHintTokenGenerated(loginHintToken)}
 								>
-									<FiCheckCircle /> Use This Token
+									✅ Use This Token
 								</Button>
 							)}
 						</ButtonRow>
@@ -662,9 +661,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			{/* Request Property JWT */}
 			<SectionHeader onClick={() => toggleSection('requestProperty')}>
 				<SectionTitle>
-					<FiSettings /> Create Request Property JWT
+					⚙️ Create Request Property JWT
 				</SectionTitle>
-				{collapsedSections.requestProperty ? <FiChevronDown /> : <FiChevronUp />}
+				{collapsedSections.requestProperty ? 🔽 : 🔼}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.requestProperty}>
 				<InfoText>
@@ -745,7 +744,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 						onClick={handleCreateRequestPropertyJWT}
 						disabled={!keypair || !requestPropertyClientId}
 					>
-						<FiKey /> Create Request Property JWT
+						🔑 Create Request Property JWT
 					</Button>
 				</ButtonRow>
 				{requestPropertyToken && (
@@ -757,7 +756,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 								$variant="secondary"
 								onClick={() => copyToClipboard(requestPropertyToken, 'Request Property JWT')}
 							>
-								<FiCopy /> Copy Token
+								📋 Copy Token
 							</Button>
 						</ButtonRow>
 					</ResultBox>
@@ -767,9 +766,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			{/* Private Key JWT */}
 			<SectionHeader onClick={() => toggleSection('privateKey')}>
 				<SectionTitle>
-					<FiKey /> Create Private Key JWT (Client Authentication)
+					🔑 Create Private Key JWT (Client Authentication)
 				</SectionTitle>
-				{collapsedSections.privateKey ? <FiChevronDown /> : <FiChevronUp />}
+				{collapsedSections.privateKey ? 🔽 : 🔼}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.privateKey}>
 				<InfoText>
@@ -817,7 +816,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 						onClick={handleCreatePrivateKeyJWT}
 						disabled={!privateKeyJWTPrivateKey || !privateKeyJWTClientId || !privateKeyJWTAudience}
 					>
-						<FiKey /> Create Private Key JWT
+						🔑 Create Private Key JWT
 					</Button>
 				</ButtonRow>
 				{privateKeyJWT && (
@@ -829,7 +828,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 								$variant="secondary"
 								onClick={() => copyToClipboard(privateKeyJWT, 'Private Key JWT')}
 							>
-								<FiCopy /> Copy Token
+								📋 Copy Token
 							</Button>
 						</ButtonRow>
 					</ResultBox>
@@ -839,9 +838,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 			{/* Transaction Approval Flow */}
 			<SectionHeader onClick={() => toggleSection('transaction')}>
 				<SectionTitle>
-					<FiSettings /> Transaction Approval Flow Configuration
+					⚙️ Transaction Approval Flow Configuration
 				</SectionTitle>
-				{collapsedSections.transaction ? <FiChevronDown /> : <FiChevronUp />}
+				{collapsedSections.transaction ? 🔽 : 🔼}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.transaction}>
 				<InfoText>

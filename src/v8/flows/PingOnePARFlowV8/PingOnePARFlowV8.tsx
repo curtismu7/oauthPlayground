@@ -33,7 +33,6 @@
 //    - Check PAR service logs for request generation errors
 //
 
-import { FiCheckCircle, FiInfo, FiLock, FiSettings } from '@icons';
 import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
@@ -295,15 +294,14 @@ export const PingOnePARFlowV8: React.FC = () => {
 					<>
 						<Section>
 							<SectionTitle>
-								<FiSettings />
+								⚙️
 								Flow Variant
 								<LearningTooltip
 									variant="info"
-									title="OAuth vs OIDC"
 									content="OAuth 2.0 provides authorization (API access), while OIDC adds authentication (user identity)"
 									placement="right"
 								>
-									<FiInfo size={16} />
+									ℹ️
 								</LearningTooltip>
 							</SectionTitle>
 							<VariantSelector>
@@ -330,16 +328,15 @@ export const PingOnePARFlowV8: React.FC = () => {
 
 						<InfoBox $type="info">
 							<div style={{ display: 'flex', alignItems: 'start', gap: '0.5rem' }}>
-								<FiLock size={20} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+								🔒
 								<div>
 									<strong>What is PAR?</strong>
 									<LearningTooltip
-										variant="learning"
-										title="Pushed Authorization Requests (RFC 9126)"
+										variant="info"
 										content="PAR sends authorization parameters via secure back-channel POST instead of URL parameters, preventing tampering and reducing URL length"
 										placement="right"
 									>
-										<FiInfo size={14} style={{ marginLeft: '0.25rem', cursor: 'help' }} />
+										ℹ️
 									</LearningTooltip>
 									<div style={{ marginTop: '0.5rem' }}>
 										PAR enhances security by pushing authorization parameters to a secure endpoint
@@ -353,14 +350,15 @@ export const PingOnePARFlowV8: React.FC = () => {
 						<Section>
 							<FormGroup>
 								<Label>
-									Environment ID
+									🌐
+									Your PingOne environment identifier
 									<LearningTooltip
 										variant="info"
 										title="PingOne Environment"
 										content="Your PingOne environment identifier"
 										placement="right"
 									>
-										<FiInfo size={14} style={{ marginLeft: '0.25rem' }} />
+										ℹ️
 									</LearningTooltip>
 								</Label>
 								<Input
@@ -372,7 +370,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 							</FormGroup>
 
 							<FormGroup>
-								<Label>Client ID</Label>
+								<Label>👥 Client ID</Label>
 								<Input
 									type="text"
 									value={state.credentials.clientId}
@@ -382,7 +380,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 							</FormGroup>
 
 							<FormGroup>
-								<Label>Client Secret</Label>
+								<Label>🔑 Client Secret</Label>
 								<Input
 									type="password"
 									value={state.credentials.clientSecret}
@@ -392,7 +390,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 							</FormGroup>
 
 							<FormGroup>
-								<Label>Redirect URI</Label>
+								<Label>🔄 Redirect URI</Label>
 								<Input
 									type="text"
 									value={state.credentials.redirectUri}
@@ -402,7 +400,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 							</FormGroup>
 
 							<FormGroup>
-								<Label>Scope</Label>
+								<Label>📝 Scope</Label>
 								<Input
 									type="text"
 									value={state.credentials.scope}
@@ -429,7 +427,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 								content="PKCE prevents authorization code interception attacks by binding the code to the client that requested it"
 								placement="right"
 							>
-								<FiInfo size={14} style={{ marginLeft: '0.25rem' }} />
+								🔒
 							</LearningTooltip>
 							<div style={{ marginTop: '0.5rem' }}>
 								PKCE adds an extra security layer by ensuring only the client that initiated the
@@ -468,7 +466,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiCheckCircle />
+									✅
 									<strong>PKCE Parameters Generated</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
@@ -538,7 +536,7 @@ code_challenge_method=S256`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiCheckCircle />
+									✅
 									<strong>PAR Request Successful</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
@@ -601,7 +599,7 @@ code_challenge_method=S256`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									<FiCheckCircle />
+									✅
 									<strong>Authorization Code Received</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
@@ -657,7 +655,7 @@ code_challenge_method=S256`}
 											marginBottom: '0.5rem',
 										}}
 									>
-										<FiCheckCircle />
+										✅
 										<strong>Tokens Received</strong>
 									</div>
 								</InfoBox>

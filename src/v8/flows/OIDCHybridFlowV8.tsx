@@ -17,15 +17,6 @@
  * <OIDCHybridFlowV8 />
  */
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '@/components/common/CommonSpinner';
@@ -446,7 +437,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 	const renderCredentialsStep = () => (
 		<>
 			<InfoBox variant="info">
-				<FiInfo size={20} />
+				ℹ️
 				<div>
 					<strong>Configure OIDC Hybrid Flow Credentials</strong>
 					<p>Enter your PingOne application credentials to begin the hybrid flow.</p>
@@ -541,7 +532,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 
 			<ActionRow>
 				<Button variant="primary" onClick={saveCredentials} disabled={hybridFlow.isLoading}>
-					<FiCheckCircle /> Save Credentials
+					✅ Save Credentials
 				</Button>
 			</ActionRow>
 		</>
@@ -551,7 +542,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 	const renderVariantStep = () => (
 		<>
 			<InfoBox variant="info">
-				<FiKey size={20} />
+				🔑
 				<div>
 					<strong>Choose Hybrid Variant</strong>
 					<p>Select the response type for your OIDC Hybrid Flow.</p>
@@ -590,7 +581,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 
 			<ActionRow>
 				<Button variant="primary" onClick={handleGenerateUrl} disabled={hybridFlow.isLoading}>
-					<FiRefreshCw /> Generate Authorization URL
+					🔄 Generate Authorization URL
 				</Button>
 			</ActionRow>
 		</>
@@ -600,7 +591,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 	const renderAuthorizationStep = () => (
 		<>
 			<InfoBox variant="info">
-				<FiExternalLink size={20} />
+				🔗
 				<div>
 					<strong>Authorization URL Generated</strong>
 					<p>Click the link below to authorize the application.</p>
@@ -612,17 +603,17 @@ const OIDCHybridFlowV8: React.FC = () => {
 					<TokenTitle>Authorization URL</TokenTitle>
 					<TokenContent>{hybridFlow.authorizationUrl}</TokenContent>
 					<CopyButton onClick={() => copyToClipboard(hybridFlow.authorizationUrl)}>
-						<FiCopy /> Copy URL
+						📋 Copy URL
 					</CopyButton>
 				</URLDisplay>
 			)}
 
 			<ActionRow>
 				<Button variant="primary" onClick={hybridFlow.redirectToAuthorization}>
-					<FiExternalLink /> Open Authorization Page
+					🔗 Open Authorization Page
 				</Button>
 				<Button variant="secondary" onClick={handleGenerateUrl}>
-					<FiRefreshCw /> Regenerate URL
+					🔄 Regenerate URL
 				</Button>
 			</ActionRow>
 		</>
@@ -636,7 +627,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 		return (
 			<>
 				<InfoBox variant="success">
-					<FiCheckCircle size={20} />
+					✅
 					<div>
 						<strong>Authentication Successful!</strong>
 						<p>Tokens have been received and processed.</p>
@@ -647,13 +638,13 @@ const OIDCHybridFlowV8: React.FC = () => {
 					<TokenTitle>Received Tokens</TokenTitle>
 					<TokenContent>{JSON.stringify(allTokens, null, 2)}</TokenContent>
 					<CopyButton onClick={() => copyToClipboard(JSON.stringify(allTokens, null, 2))}>
-						<FiCopy /> Copy Tokens
+						📋 Copy Tokens
 					</CopyButton>
 				</TokenDisplay>
 
 				<ActionRow>
 					<Button variant="secondary" onClick={hybridFlow.reset}>
-						<FiRefreshCw /> Start New Flow
+						🔄 Start New Flow
 					</Button>
 				</ActionRow>
 
@@ -761,7 +752,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 					</StepTitle>
 					{hybridFlow.error && (
 						<InfoBox variant="warning" style={{ maxWidth: '400px' }}>
-							<FiAlertTriangle size={16} />
+							⚠️
 							<small>{hybridFlow.error}</small>
 						</InfoBox>
 					)}

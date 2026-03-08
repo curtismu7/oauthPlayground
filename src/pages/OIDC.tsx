@@ -1,4 +1,3 @@
-import { FiCode, FiExternalLink, FiKey, FiLayers, FiLock, FiSmartphone, FiZap } from '@icons';
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -86,7 +85,7 @@ const OIDC: React.FC = () => {
 
 				<Grid>
 					<FeatureCard to="/oidc/authorization-code">
-						<FiCode />
+						📝
 						<h3>Authorization Code</h3>
 						<p>
 							The most secure OAuth 2.0 flow for web applications. Learn how to implement the
@@ -95,7 +94,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/hybrid">
-						<FiLayers />
+						📚
 						<h3>Hybrid Flow</h3>
 						<p>
 							Combines Authorization Code and Implicit flows. Get some tokens directly from the
@@ -105,7 +104,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/implicit">
-						<FiZap />
+						⚡
 						<h3>Implicit Flow</h3>
 						<p>
 							Legacy OAuth 2.0 flow for single-page applications. Learn when and how to use it,
@@ -114,7 +113,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/client-credentials">
-						<FiLock />
+						🔒
 						<h3>Client Credentials</h3>
 						<p>
 							Server-to-server authentication flow. Perfect for API access and machine-to-machine
@@ -123,7 +122,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/device-code">
-						<FiSmartphone />
+						📱
 						<h3>Device Code</h3>
 						<p>
 							OAuth 2.0 flow for devices with limited input capabilities. Ideal for smart TVs, IoT
@@ -132,7 +131,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/token-management">
-						<FiKey />
+						🔑
 						<h3>Token Management</h3>
 						<p>
 							View and manage your access tokens, refresh tokens, and JWTs with detailed inspection
@@ -170,7 +169,7 @@ const OIDC: React.FC = () => {
 						}}
 					>
 						Learn more about OpenID Connect
-						<FiExternalLink size={16} />
+						🔗
 					</a>
 				</div>
 			</OIDCContainer>

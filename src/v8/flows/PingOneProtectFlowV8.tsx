@@ -17,15 +17,6 @@
  * <PingOneProtectFlowV8 />
  */
 
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiDatabase,
-	FiSettings,
-	FiTrendingUp,
-	FiXCircle,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -119,7 +110,7 @@ const RISK_LEVEL_CONFIG = {
 		color: '#10b981',
 		bgColor: '#f0fdf4',
 		borderColor: '#86efac',
-		icon: FiCheckCircle,
+		icon: '✅',
 		action: 'ALLOW',
 		description: 'Low risk - Allow access',
 	},
@@ -127,7 +118,7 @@ const RISK_LEVEL_CONFIG = {
 		color: '#f59e0b',
 		bgColor: '#fffbeb',
 		borderColor: '#fcd34d',
-		icon: FiAlertTriangle,
+		icon: '⚠️',
 		action: 'CHALLENGE',
 		description: 'Medium risk - Require additional verification',
 	},
@@ -135,7 +126,7 @@ const RISK_LEVEL_CONFIG = {
 		color: '#ef4444',
 		bgColor: '#fef2f2',
 		borderColor: '#fca5a5',
-		icon: FiXCircle,
+		icon: '❌',
 		action: 'BLOCK',
 		description: 'High risk - Block access',
 	},
@@ -500,7 +491,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					fontWeight: '600',
 				}}
 			>
-				<Icon size={16} />
+				{Icon}
 				<span>{level}</span>
 			</div>
 		);
@@ -509,7 +500,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep1 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				<FiSettings size={24} />
+				⚙️
 				Configuration
 			</h3>
 
@@ -580,9 +571,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						<div style={{ fontWeight: '600' }}>Worker Token Status</div>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 							{tokenStatus.isValid ? (
-								<FiCheckCircle color="#10b981" size={16} />
+								<span>✅</span>
 							) : (
-								<FiXCircle color="#ef4444" size={16} />
+								<span>❌</span>
 							)}
 							<span
 								style={{ fontSize: '14px', color: tokenStatus.isValid ? '#10b981' : '#ef4444' }}
@@ -769,7 +760,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep2 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				<FiDatabase size={24} />
+				🗄️
 				Risk Policies
 			</h3>
 
@@ -811,7 +802,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							}}
 						>
 							<div
-								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'start',
+									marginBottom: '16px',
+								}}
 							>
 								<div>
 									<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>{policy.name}</h5>
@@ -841,7 +837,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep3 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				<FiActivity size={24} />
+				📊
 				Risk Evaluation
 			</h3>
 
@@ -1200,7 +1196,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep4 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				<FiTrendingUp size={24} />
+				📈
 				Integration Patterns
 			</h3>
 

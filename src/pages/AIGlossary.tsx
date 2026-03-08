@@ -1,4 +1,3 @@
-import { FiSearch, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -40,12 +39,19 @@ const SearchInput = styled.input`
 	}
 `;
 
-const SearchIcon = styled(FiSearch)`
+const SearchIcon = styled.span`
 	position: absolute;
 	left: 1.25rem;
 	width: 1.25rem;
 	height: 1.25rem;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&::before {
+		content: '🔍';
+	}
 `;
 
 const ClearButton = styled.button<{ $inactive?: boolean }>`
@@ -1446,7 +1452,7 @@ const AIGlossary: React.FC = () => {
 						title="Clear search"
 						$inactive={!searchTerm}
 					>
-						<FiX />
+						❌
 					</ClearButton>
 				</SearchBar>
 
