@@ -10,7 +10,6 @@ import { FiMenu, FiPackage, FiSearch, FiX } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

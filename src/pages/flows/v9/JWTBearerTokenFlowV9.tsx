@@ -13,7 +13,6 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {

@@ -12,7 +12,6 @@ import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Styled components
 const DashboardContainer = styled.div`
