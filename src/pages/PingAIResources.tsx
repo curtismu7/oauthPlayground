@@ -7,6 +7,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 import { PageLayoutService } from '../services/pageLayoutService';
+import { FiCpu } from '@icons';
 
 const Card = FlowUIService.getMainCard();
 const InfoBox = FlowUIService.getInfoBox();

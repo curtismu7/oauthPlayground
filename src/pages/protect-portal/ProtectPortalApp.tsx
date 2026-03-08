@@ -39,6 +39,7 @@ import type {
 	TokenSet,
 	UserContext,
 } from './types/protectPortal.types';
+import { FiLoader } from '@icons';
 
 // ============================================================================
 // INLINE STYLE HELPERS

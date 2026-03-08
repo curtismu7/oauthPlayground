@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { FiSettings } from '@icons';
 
 interface MFASettingsModalV8Props {
 	isOpen: boolean;

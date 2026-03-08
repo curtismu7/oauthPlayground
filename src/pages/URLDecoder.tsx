@@ -7,6 +7,7 @@ import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccess
 import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiRefreshCw } from '@icons';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`

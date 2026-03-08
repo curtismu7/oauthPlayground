@@ -60,6 +60,7 @@ import {
 import credentialManager from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo, FiKey, FiPackage, FiRefreshCw, FiSmartphone } from '@icons';
 
 export interface CompleteMFAFlowProps {
 	requireMFA?: boolean;

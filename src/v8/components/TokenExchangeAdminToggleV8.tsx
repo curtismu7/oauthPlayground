@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
+import { FiAlertCircle, FiSettings } from '@icons';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 

@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { FiCheckCircle } from '@icons';
 
 const _MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 

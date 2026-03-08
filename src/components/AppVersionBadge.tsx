@@ -54,10 +54,10 @@ const APP_LABELS = {
 };
 
 const APP_ICONS = {
-	app: FiBox,
-	mfa: FiShield,
-	unified: FiLayers,
-	protect: FiZap,
+	app: '📦',
+	mfa: '🛡️',
+	unified: '📚',
+	protect: '⚡',
 };
 
 export const AppVersionBadge: React.FC<AppVersionBadgeProps> = ({ type, showIcon = true }) => {
@@ -85,7 +85,7 @@ export const AppVersionBadge: React.FC<AppVersionBadgeProps> = ({ type, showIcon
 		<BadgeContainer $color={color} title={`${label} Version ${version}`}>
 			{showIcon && (
 				<IconWrapper>
-					<Icon size={14} />
+					<span style={{ fontSize: '14px' }}>{Icon}</span>
 				</IconWrapper>
 			)}
 			<VersionText>

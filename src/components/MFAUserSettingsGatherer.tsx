@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCheck, FiChevronDown } from '@icons';
 
 // Types
 interface MFAUserSettings {

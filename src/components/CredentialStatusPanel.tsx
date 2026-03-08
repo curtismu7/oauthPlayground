@@ -10,6 +10,7 @@ import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ServerStatusModal from './ServerStatusModal';
+import { FiRefreshCw } from '@icons';
 
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);

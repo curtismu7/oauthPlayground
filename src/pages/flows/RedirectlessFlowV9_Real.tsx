@@ -37,6 +37,7 @@ import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U'
 
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
+import { FiCode, FiEye } from '@icons';
 
 // Define type for password change error
 interface PasswordChangeError extends Error {

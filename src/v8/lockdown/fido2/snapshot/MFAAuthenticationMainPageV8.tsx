@@ -60,6 +60,7 @@ import {
 	MFAOTPInputModal,
 	MFAPushConfirmationModal,
 } from './components/modals';
+import { FiAlertCircle, FiCheck, FiLoader, FiShield } from '@icons';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';

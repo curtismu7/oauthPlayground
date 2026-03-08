@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
+import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '@icons';
 
 const _Container = styled.div`
   max-width: 1400px;

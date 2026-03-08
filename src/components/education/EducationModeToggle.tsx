@@ -17,6 +17,7 @@ type EducationMode
 ,
 	EducationPreferenceService,
 } from '../../services/educationPreferenceService'
+import { FiChevronDown } from '@icons';
 
 const ToggleContainer = styled.div`
 	position: sticky;
