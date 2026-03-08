@@ -8,6 +8,7 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiRefreshCw } from '@icons';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiLoader, FiLock, FiUser } from '@icons';
 
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;

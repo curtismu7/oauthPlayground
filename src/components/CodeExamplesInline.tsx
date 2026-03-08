@@ -11,6 +11,7 @@ import {
 } from '../services/codeExamplesService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
+import { FiChevronDown } from '@icons';
 
 interface CodeExamplesInlineProps {
 	flowType: string;

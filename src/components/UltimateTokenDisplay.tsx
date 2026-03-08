@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from '../services/tokenDisplayService';
+import { FiClock, FiTag, FiUnlock } from '@icons';
 
 interface TokenSet {
 	access_token?: string;

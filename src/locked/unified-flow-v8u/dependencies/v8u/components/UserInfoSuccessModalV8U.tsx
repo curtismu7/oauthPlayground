@@ -8,6 +8,7 @@
 
 
 import React from 'react';
+import { FiCheckCircle } from '@icons';
 
 const MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 

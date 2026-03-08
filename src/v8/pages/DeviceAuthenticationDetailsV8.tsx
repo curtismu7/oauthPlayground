@@ -13,6 +13,7 @@ import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBann
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
+import { FiAlertTriangle, FiClock } from '@icons';
 
 interface DeviceAuthenticationRecord {
 	success?: boolean;

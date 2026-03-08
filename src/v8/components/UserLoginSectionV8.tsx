@@ -15,6 +15,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UserLoginModalV8 } from './UserLoginModalV8';
+import { FiRefreshCw } from '@icons';
 
 const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
 

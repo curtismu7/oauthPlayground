@@ -25,6 +25,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { DraggableModal } from './DraggableModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
+import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiInfo, FiKey, FiRefreshCw, FiSave } from '@icons';
 
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components

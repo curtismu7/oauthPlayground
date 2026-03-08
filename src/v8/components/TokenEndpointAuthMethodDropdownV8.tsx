@@ -22,6 +22,7 @@ import {
 	type TokenEndpointAuthMethod,
 	TokenEndpointAuthMethodServiceV8,
 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
+import { FiChevronDown } from '@icons';
 
 const MODULE_TAG = '[🔐 TOKEN-AUTH-METHOD-V8]';
 

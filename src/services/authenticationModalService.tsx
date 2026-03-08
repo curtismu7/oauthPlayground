@@ -7,6 +7,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
 import { logger } from '../utils/logger';
+import { FiExternalLink, FiInfo } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 

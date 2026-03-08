@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
+import { FiAlertTriangle } from '@icons';
 
 interface OAuthErrorDisplayProps {
 	errorDetails: OAuthErrorDetails;

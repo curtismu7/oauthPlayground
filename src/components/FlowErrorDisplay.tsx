@@ -32,6 +32,7 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
+import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
 
 export interface FlowErrorDisplayProps {
 	// Flow context

@@ -19,6 +19,7 @@ import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { FiAlertTriangle } from '@icons';
 
 type Props = {
 	oidc?: boolean;

@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiAlertCircle, FiInfo, FiRefreshCw, FiShield } from '@icons';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;

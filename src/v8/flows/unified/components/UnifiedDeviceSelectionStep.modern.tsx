@@ -18,6 +18,7 @@ import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
+import { FiCheck } from '@icons';
 
 const MODULE_TAG = '[🔍 DEVICE-SELECTION-MODERN]';
 

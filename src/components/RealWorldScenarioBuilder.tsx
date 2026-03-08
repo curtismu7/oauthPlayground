@@ -1292,6 +1292,7 @@ import java.net.URI;
 import java.util.Map;
 import com.google.gson.Gson;
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCheckCircle, FiCode, FiExternalLink } from '@icons';
 
 public class DeviceFlowAuth {
     private String envId;

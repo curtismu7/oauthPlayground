@@ -5,6 +5,7 @@ import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
+import { FiRefreshCw, FiShield, FiTrendingUp } from '@icons';
 
 // Styled components
 const DashboardContainer = styled.div`

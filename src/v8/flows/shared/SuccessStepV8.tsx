@@ -8,6 +8,7 @@
 
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
+import { FiCpu, FiShield } from '@icons';
 
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';
 

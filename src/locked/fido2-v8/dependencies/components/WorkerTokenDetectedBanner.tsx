@@ -5,6 +5,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
+import { FiCheckCircle } from '@icons';
 
 interface WorkerTokenDetectedBannerProps {
 	token: string;

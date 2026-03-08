@@ -5,6 +5,7 @@ import { SpecCard } from '../components/SpecCard';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FiCheck, FiInfo, FiShield } from '@icons';
 
 const _Container = styled.div`
   max-width: 1400px;

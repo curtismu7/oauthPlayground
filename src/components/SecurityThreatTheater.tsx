@@ -812,6 +812,7 @@ await fetch('/api/redirectless/resume', {
 			parameter: 'client_assertion (private_key_jwt)',
 			code: `// Create signed JWT for PAR (private_key_jwt)
 import { SignJWT } from 'jose';
+import { FiAlertTriangle } from '@icons';
 
 const assertion = await new SignJWT({
   iss: clientId,

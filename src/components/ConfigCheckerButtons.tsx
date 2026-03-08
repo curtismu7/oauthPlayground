@@ -10,6 +10,7 @@ import { pingOneAppCreationService } from '../services/pingOneAppCreationService
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
+import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '@icons';
 
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (

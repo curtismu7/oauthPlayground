@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { borderRadius, colors, spacing, transitions, typography } from '@/v8/design/tokens';
+import { FiAlertCircle, FiCheck } from '@icons';
 
 interface FormInputProps {
 	label: string;

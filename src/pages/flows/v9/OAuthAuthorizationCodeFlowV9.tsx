@@ -58,6 +58,7 @@ import {
 	type IntroSectionKey,
 	STEP_METADATA,
 } from '../config/OAuthAuthzCodeFlowV9.config';
+import { FiCode } from '@icons';
 
 const log = createModuleLogger('src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx');
 

@@ -19,6 +19,7 @@ import {
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { FiCode } from '@icons';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 

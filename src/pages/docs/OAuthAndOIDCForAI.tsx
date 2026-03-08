@@ -16,6 +16,7 @@ import {
 } from '../../services/commonImportsService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import { FiBookOpen, FiCode, FiCpu, FiExternalLink, FiLayers, FiShield, FiUsers } from '@icons';
 
 const LinkGrid = styled.div`
   display: grid;

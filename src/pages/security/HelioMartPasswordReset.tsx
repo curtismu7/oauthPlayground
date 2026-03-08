@@ -51,6 +51,7 @@ import {
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { trackedFetch } from '../../utils/trackedFetch';
+import { FiAlertCircle, FiCheckCircle, FiLock } from '@icons';
 
 // Type for PingOne user objects
 interface PingOneUserName {

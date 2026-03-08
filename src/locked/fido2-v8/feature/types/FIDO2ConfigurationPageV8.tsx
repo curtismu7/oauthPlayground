@@ -30,6 +30,7 @@ import { WorkerTokenStatusServiceV8 } from '../../dependencies/v8/services/worke
 import { navigateToMfaHubWithCleanup } from '../../dependencies/v8/utils/mfaFlowCleanupV8.ts';
 import { toastV8 } from '../../dependencies/v8/utils/toastNotificationsV8.ts';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
+import { FiInfo } from '@icons';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 

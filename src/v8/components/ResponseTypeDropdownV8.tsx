@@ -16,6 +16,7 @@
 
 
 import React, { useState } from 'react';
+import { FiChevronDown } from '@icons';
 
 const MODULE_TAG = '[🎯 RESPONSE-TYPE-V8]';
 

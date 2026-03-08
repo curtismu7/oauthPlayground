@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { FiActivity, FiCloud, FiCpu, FiDatabase, FiEye, FiGitBranch } from '@icons';
 
 const Container = styled.div`
 	max-width: 1400px;

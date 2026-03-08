@@ -4,6 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FiCheck, FiDatabase, FiMail, FiPhone } from '@icons';
 
 const PageContainer = styled.div`
 	max-width: 90rem;

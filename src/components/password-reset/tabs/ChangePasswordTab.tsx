@@ -33,6 +33,7 @@ Alert,
 	UserCard,
 	UserInfo,
 } from '../shared/PasswordResetSharedComponents'
+import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiLogIn } from '@icons';
 
 interface ChangePasswordTabProps {
 	environmentId: string;

@@ -12,6 +12,7 @@ import {
 } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
+import { FiActivity, FiCpu } from '@icons';
 
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`

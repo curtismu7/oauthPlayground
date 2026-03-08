@@ -11,6 +11,7 @@ import {
 	environmentServiceV8,
 	type PingOneEnvironment,
 } from '../services/environmentServiceV8Simple';
+import { FiRefreshCw } from '@icons';
 
 // Styled Components
 const PageContainer = styled.div`

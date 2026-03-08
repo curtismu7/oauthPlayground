@@ -7,6 +7,7 @@ import { themeService } from '../services/themeService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
+import { FiChevronDown } from '@icons';
 
 const SAVE_FEEDBACK_TIMEOUT_MS = 3200;
 

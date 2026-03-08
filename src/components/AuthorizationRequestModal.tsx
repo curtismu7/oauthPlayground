@@ -2,6 +2,7 @@ import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import ColorCodedURL from './ColorCodedURL';
+import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

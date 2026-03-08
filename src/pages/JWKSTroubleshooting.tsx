@@ -5,6 +5,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '@icons';
 
 const Container = styled.div`
   max-width: 1200px;

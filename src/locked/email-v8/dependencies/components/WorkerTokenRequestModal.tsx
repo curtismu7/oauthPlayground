@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import { FiRefreshCw } from '@icons';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {

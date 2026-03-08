@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';
+import { FiCode } from '@icons';
 
 const PageContainer = styled.div`
   padding: 2rem;

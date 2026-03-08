@@ -10,6 +10,7 @@ import { fetchApplications } from '../services/pingOneApplicationService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
+import { FiInfo } from '@icons';
 
 export interface ConfigurationURICheckerProps {
 	flowType?: string;

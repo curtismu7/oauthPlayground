@@ -35,6 +35,7 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { FlowRedirectUriService } from './flowRedirectUriService';
 import { getDefaultScopesForFlow } from './flowScopeMappingService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
+import { FiCheckCircle } from '@icons';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`

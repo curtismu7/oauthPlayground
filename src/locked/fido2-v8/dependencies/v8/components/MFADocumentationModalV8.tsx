@@ -17,6 +17,7 @@ import {
 	generateMarkdown,
 	getApiCalls,
 } from './MFADocumentationPageV8';
+import { FiDownload, FiFileText } from '@icons';
 
 interface UseCase {
 	id: string;

@@ -23,6 +23,7 @@ import type {
 	RiskEvaluationResult,
 	UserContext,
 } from '../types/protectPortal.types';
+import { FiShield } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS

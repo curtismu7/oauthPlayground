@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiRefreshCw, FiTrendingUp } from '@icons';
 
 // Styled components
 const DashboardContainer = styled.div`

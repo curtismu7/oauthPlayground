@@ -43,6 +43,7 @@ import {
 	useModernMessaging,
 	type WaitScreenConfig,
 } from '../../services/v9/V9ModernMessagingService';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo, FiLoader, FiPhone } from '@icons';
 
 // V9 Color Standards
 const V9_COLORS = {

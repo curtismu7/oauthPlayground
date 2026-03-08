@@ -64,6 +64,7 @@ import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
+import { FiChevronDown } from '@icons';
 
 const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 

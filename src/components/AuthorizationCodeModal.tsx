@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
+import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

@@ -12,6 +12,7 @@
 
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertTriangle, FiCheck } from '@icons';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
 

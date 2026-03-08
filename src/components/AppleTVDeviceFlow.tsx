@@ -11,6 +11,7 @@ import {
 	deviceFlowService,
 } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCheckCircle } from '@icons';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`

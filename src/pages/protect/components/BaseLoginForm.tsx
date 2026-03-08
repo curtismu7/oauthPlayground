@@ -21,6 +21,7 @@ import { logger } from '../../../utils/logger';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import { FiLockIcon } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
