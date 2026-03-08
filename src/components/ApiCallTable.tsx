@@ -1,7 +1,7 @@
 // src/components/ApiCallTable.tsx
 // Table component to display tracked API calls with full details
 
-import { FiChevronDown, FiChevronRight, FiCode, FiFileText } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { ApiCall } from '../services/apiCallTrackerService';
@@ -263,7 +263,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 							return (
 								<React.Fragment key={call.id}>
 									<TableRow $isExpanded={isExpanded} onClick={() => toggleRow(call.id)}>
-										<TableCell>{isExpanded ? <FiChevronDown /> : <FiChevronRight />}</TableCell>
+										<TableCell>{isExpanded ? <span>⬇️</span> : <span>➡️</span>}</TableCell>
 										<TableCell>
 											<MethodBadge $method={call.method}>{call.method}</MethodBadge>
 										</TableCell>
@@ -358,7 +358,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.headers && Object.keys(call.headers).length > 0 && (
 														<Section>
 															<SectionTitle>
-																<FiFileText /> Request Headers
+																<span>📄</span> Request Headers
 															</SectionTitle>
 															<KeyValueList>
 																{Object.entries(call.headers).map(([key, value]) => (
@@ -378,7 +378,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.body && (
 														<Section>
 															<SectionTitle>
-																<FiCode /> Request Body
+																<span>❓</span> Request Body
 															</SectionTitle>
 															{typeof call.body === 'object' && call.body !== null ? (
 																<JSONHighlighter data={call.body as JSONData} />
@@ -397,7 +397,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																Object.keys(call.response.headers).length > 0 && (
 																	<Section>
 																		<SectionTitle>
-																			<FiFileText /> Response Headers
+																			<span>📄</span> Response Headers
 																		</SectionTitle>
 																		<KeyValueList>
 																			{Object.entries(call.response.headers).map(([key, value]) => (
@@ -411,7 +411,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																)}
 															<Section>
 																<SectionTitle>
-																	<FiCode /> Response Body
+																	<span>❓</span> Response Body
 																</SectionTitle>
 																{call.response.data ? (
 																	<JSONHighlighter data={call.response.data as JSONData} />

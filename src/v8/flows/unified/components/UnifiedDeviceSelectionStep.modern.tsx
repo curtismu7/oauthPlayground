@@ -6,7 +6,7 @@
  * @since 2026-01-29
  */
 
-import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -135,14 +135,14 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 		switch (type.toUpperCase()) {
 			case 'SMS':
 			case 'MOBILE':
-				return <FiSmartphone size={32} />;
+				return <span style={{ fontSize: '32px' }}>📱</span>;
 			case 'EMAIL':
-				return <FiMail size={32} />;
+				return <span style={{ fontSize: '32px' }}>📧</span>;
 			case 'TOTP':
 			case 'FIDO2':
-				return <FiKey size={32} />;
+				return <span style={{ fontSize: '32px' }}>🔑</span>;
 			default:
-				return <FiSmartphone size={32} />;
+				return <span style={{ fontSize: '32px' }}>📱</span>;
 		}
 	};
 
@@ -277,7 +277,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 								size="lg"
 								onClick={handleUseDevice}
 								disabled={!selectedDeviceId}
-								rightIcon={<FiArrowRight />}
+								rightIcon={<span>➡️</span>}
 								fullWidth
 							>
 								Use Selected Device
@@ -311,7 +311,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 					<p style={{ margin: `0 0 ${spacing.lg} 0`, color: colors.neutral[600] }}>
 						Add a new {config.displayName} device to your account
 					</p>
-					<Button variant="primary" size="lg" onClick={handleRegisterNew} leftIcon={<FiPlus />}>
+					<Button variant="primary" size="lg" onClick={handleRegisterNew} leftIcon={<span>➕</span>}>
 						Register New {config.displayName}
 					</Button>
 				</div>

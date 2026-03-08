@@ -6,7 +6,7 @@
  * @since 2026-03-06
  */
 
-import { FiDownload, FiUpload } from '@icons';
+
 import React, { useRef } from 'react';
 import {
 	credentialsImportExportService,
@@ -34,7 +34,7 @@ export interface CredentialsImportExportProps {
  *     flowType: 'oauth-authorization-code',
  *     appName: 'OAuth Authorization Code Flow',
  *     onImportSuccess: (creds) => setCredentials(creds),
- *     onImportError: (error) => logger.error(error),
+ *     onImportError: (error) => log.error(error),
  *   }}
  * />
  * ```
@@ -114,7 +114,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 				style={exportButtonStyle}
 				title={`Export ${options.appName || options.flowType} credentials as JSON`}
 			>
-				<FiDownload size={compact ? 12 : 13} />
+				<span style={{ fontSize: compact ? 12 : 13 }}>📥</span>
 				{showLabels && 'Export'}
 			</button>
 
@@ -125,7 +125,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 				style={importButtonStyle}
 				title={`Import ${options.appName || options.flowType} credentials from JSON file`}
 			>
-				<FiUpload size={compact ? 12 : 13} />
+				<span style={{ fontSize: compact ? 12 : 13 }}>📤</span>
 				{showLabels && 'Import'}
 			</button>
 

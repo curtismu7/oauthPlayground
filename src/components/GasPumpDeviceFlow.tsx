@@ -1,19 +1,12 @@
 // src/components/GasPumpDeviceFlow.tsx
 // Gas Pump Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiRefreshCw,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Kroger Gas Pump Main Container - Red and White Design
@@ -497,31 +490,31 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('GasPumpDeviceFlow', 'User code copied to clipboard');
+		log.info('GasPumpDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('GasPumpDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('GasPumpDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('GasPumpDeviceFlow', 'Verification URI opened in new tab');
+		log.info('GasPumpDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -560,10 +553,10 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 					<LeftPanel>
 						<TransactionButton $active={state.status === 'pending'}>📱 QR Code</TransactionButton>
 						<TransactionButton $active={state.status === 'authorized'}>
-							<FiCheckCircle /> Complete
+							<span>✅</span> Complete
 						</TransactionButton>
 						<TransactionButton>
-							<FiRefreshCw /> Refresh
+							<span>🔄</span> Refresh
 						</TransactionButton>
 					</LeftPanel>
 
@@ -572,7 +565,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 						<UserCodeLabel>Enter this code on your device</UserCodeLabel>
 						<UserCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</UserCodeDisplay>
 						<CopyCodeButton onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</CopyCodeButton>
 					</CenterPanel>
 
@@ -665,10 +658,10 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 				{/* Verification Section */}
 				<VerificationSection>
 					<VerificationButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</VerificationButton>
 					<VerificationButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open Authorization
+						<span>🔗</span> Open Authorization
 					</VerificationButton>
 				</VerificationSection>
 

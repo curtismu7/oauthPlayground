@@ -2,7 +2,7 @@
 // Bose Smart Speaker Style Device Authorization Flow Interface
 // Designed to look like actual Bose smart speakers
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,7 +11,7 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
@@ -333,26 +333,26 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
+		log.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -461,10 +461,10 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink /> Open App
+							<span>🔗</span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>
@@ -473,7 +473,7 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 				{state.status === 'authorized' && (
 					<SuccessDisplay>
 						<SuccessTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							Speaker Connected Successfully!
 						</SuccessTitle>
 						<SuccessMessage>

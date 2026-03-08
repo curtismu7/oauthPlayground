@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -27,7 +27,7 @@ interface SpinnerProps {
 const Spinner: React.FC<SpinnerProps> = ({ size = 16, color }) => {
 	return (
 		<SpinnerWrapper size={size} color={color}>
-			<FiLoader />
+			<span>❓</span>
 		</SpinnerWrapper>
 	);
 };

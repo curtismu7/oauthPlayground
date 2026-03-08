@@ -24,7 +24,7 @@
  * />
  */
 
-import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
@@ -74,7 +74,7 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -646,7 +646,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
-						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
+						log.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
 
@@ -657,7 +657,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				logger.error('CredentialsFormV8U', `Error saving credentials`, { field, flowKey, error });
+				log.error('CredentialsFormV8U', `Error saving credentials`, { field, flowKey, error });
 			}
 
 			onChange(updated);
@@ -1197,7 +1197,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					}
 				}
 			} catch (error) {
-				logger.error('CredentialsFormV8U', `Error fetching allowed scopes:`, undefined, error);
+				log.error('CredentialsFormV8U', `Error fetching allowed scopes:`, undefined, error);
 				// Use common OIDC scopes as fallback
 				setAllowedScopes(['openid', 'profile', 'email', 'address', 'phone', 'offline_access']);
 			} finally {
@@ -1400,7 +1400,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					authMethodSet: hasChanges && defaultAuthMethod ? updated.clientAuthMethod : 'not set',
 				});
 			} catch (error) {
-				logger.error('CredentialsFormV8U', `Error saving credentials after setting defaults`, {
+				log.error('CredentialsFormV8U', `Error saving credentials after setting defaults`, {
 					flowKey,
 					error,
 				});
@@ -1626,7 +1626,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 						console.log(`${MODULE_TAG} No worker token available, using app data without secret`);
 					}
 				} catch (error) {
-					logger.error('CredentialsFormV8U', `Error fetching application secret`, {
+					log.error('CredentialsFormV8U', `Error fetching application secret`, {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					// Continue with app data even if secret fetch fails
@@ -1845,7 +1845,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
-						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
+						log.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
 
@@ -1859,7 +1859,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					clientAuthMethod: updated.clientAuthMethod,
 				});
 			} catch (error) {
-				logger.error('CredentialsFormV8U', `Error saving credentials after app selection`, {
+				log.error('CredentialsFormV8U', `Error saving credentials after app selection`, {
 					flowKey,
 					error,
 				});
@@ -1916,7 +1916,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				setShowDiscoveryModal(true);
 				onDiscoveryComplete?.(result.data);
 			} else {
-				logger.error('CredentialsFormV8U', `Discovery failed`, undefined, result.error);
+				log.error('CredentialsFormV8U', `Discovery failed`, undefined, result.error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1925,7 +1925,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				});
 			}
 		} catch (error) {
-			logger.error('CredentialsFormV8U', `Discovery error`, undefined, error);
+			log.error('CredentialsFormV8U', `Discovery error`, undefined, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2490,7 +2490,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														e.currentTarget.style.color = '#6b7280';
 													}}
 												>
-													{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+													{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 												</button>
 											</div>
 											{highlightEmptyFields &&
@@ -2584,9 +2584,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 													<span>When Do I Get What Tokens</span>
 												</div>
 												{showRefreshTokenRules ? (
-													<FiChevronUp size={18} />
+													<span style={{ fontSize: '18px' }}>⬆️</span>
 												) : (
-													<FiChevronDown size={18} />
+													<span style={{ fontSize: '18px' }}>⬇️</span>
 												)}
 											</button>
 
@@ -2814,7 +2814,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											e.currentTarget.style.background = '#eff6ff';
 										}}
 									>
-										<FiInfo size={14} />
+										<span style={{ fontSize: '14px' }}>ℹ️</span>
 										{showDiscoveryInfo ? 'Hide Info' : "What's this?"}
 									</button>
 								</div>
@@ -3561,7 +3561,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													e.currentTarget.style.background = '#eff6ff';
 												}}
 											>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												What is this?
 											</button>
 										</label>
@@ -4593,7 +4593,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
 																	(_err) => {
-																		logger.warn(
+																		log.warn(
 																			'CredentialsFormV8U',
 																			`Background disk save failed (non-critical):`
 																		);
@@ -4610,7 +4610,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																}
 															);
 														} catch (error) {
-															logger.error(
+															log.error(
 																'CredentialsFormV8U',
 																`Error saving credentials for refresh token toggle`,
 																{ flowKey, error }
@@ -4933,7 +4933,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														}}
 														title="Learn more about PAR (Pushed Authorization Requests)"
 													>
-														<FiInfo size={14} />
+														<span style={{ fontSize: '14px' }}>ℹ️</span>
 														What is this?
 													</button>
 												</label>
@@ -5148,7 +5148,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												}}
 												title="Learn about prompt values"
 											>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												What is this?
 											</button>
 										</div>

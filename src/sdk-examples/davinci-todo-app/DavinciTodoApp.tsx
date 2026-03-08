@@ -1,4 +1,4 @@
-import { FiLoader, FiLogOut, FiPlus, FiTrash2 } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -446,7 +446,7 @@ const DavinciTodoApp: React.FC = () => {
 					form rendering and real-time updates.
 				</Description>
 				<LoadingMessage>
-					<FiLoader />
+					<span>❓</span>
 					Initializing authentication...
 				</LoadingMessage>
 			</Container>
@@ -530,7 +530,7 @@ const DavinciTodoApp: React.FC = () => {
 			</FixedStatusPanel>
 
 			<LogoutButton onClick={clearCurrentUser}>
-				<FiLogOut />
+				<span>❓</span>
 				Logout
 			</LogoutButton>
 
@@ -560,14 +560,14 @@ const DavinciTodoApp: React.FC = () => {
 					disabled={isCreating}
 				/>
 				<Button type="submit" disabled={isCreating || !newTodoTitle.trim()}>
-					{isCreating ? <FiLoader /> : <FiPlus />}
+					{isCreating ? <span>❓</span> : <span>➕</span>}
 					Add Todo
 				</Button>
 			</AddTodoForm>
 
 			{isLoading ? (
 				<LoadingMessage>
-					<FiLoader />
+					<span>❓</span>
 					Loading todos...
 				</LoadingMessage>
 			) : todos.length === 0 ? (
@@ -584,7 +584,7 @@ const DavinciTodoApp: React.FC = () => {
 							<TodoText completed={todo.completed}>{todo.title}</TodoText>
 							<TodoActions>
 								<ActionButton onClick={() => handleDelete(todo.id)}>
-									<FiTrash2 />
+									<span>🗑️</span>
 								</ActionButton>
 							</TodoActions>
 						</TodoItem>

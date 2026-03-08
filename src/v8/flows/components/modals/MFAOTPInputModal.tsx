@@ -1,4 +1,4 @@
-import { FiX } from '@icons';
+
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
@@ -100,7 +100,7 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 							padding: 0,
 						}}
 					>
-						<FiX size={18} />
+						<span style={{ fontSize: '18px' }}>❌</span>
 					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3

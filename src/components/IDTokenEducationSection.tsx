@@ -1,16 +1,4 @@
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiClock,
-	FiDatabase,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiShield,
-	FiUser,
-	FiXCircle,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -194,11 +182,11 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 		<EducationContainer className={className}>
 			<Header onClick={handleToggle}>
 				<HeaderContent>
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<Title>Understanding ID Tokens</Title>
 				</HeaderContent>
 				<ChevronIcon $collapsed={collapsed}>
-					{collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
+					{collapsed ? <span style={{ fontSize: '16px' }}>➡️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
 				</ChevronIcon>
 			</Header>
 
@@ -206,7 +194,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 				<ContentInner>
 					<Section>
 						<SectionTitle>
-							<FiUser size={16} />
+							<span style={{ fontSize: '16px' }}>👤</span>
 							Core Uses of ID Tokens
 						</SectionTitle>
 
@@ -233,7 +221,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<FiUser size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
 									</UseIcon>
 									<span>
 										<strong>WHO</strong> authenticated (sub claim)
@@ -241,7 +229,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiClock size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🕐</span>
 									</UseIcon>
 									<span>
 										<strong>WHEN</strong> they authenticated (auth_time, iat)
@@ -249,7 +237,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiKey size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🔑</span>
 									</UseIcon>
 									<span>
 										<strong>HOW</strong> they authenticated (amr - authentication methods)
@@ -257,7 +245,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiShield size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
 									</UseIcon>
 									<span>
 										<strong>STRENGTH</strong> of authentication (acr - authentication level)
@@ -288,19 +276,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<FiUser size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
 									</UseIcon>
 									<span>Basic profile info (name, email, username)</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiDatabase size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🗄️</span>
 									</UseIcon>
 									<span>Custom claims specific to your application</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiGlobe size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🌐</span>
 									</UseIcon>
 									<span>Group memberships and roles</span>
 								</UseItem>
@@ -329,19 +317,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<FiShield size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
 									</UseIcon>
 									<span>Signature validation using JWKS keys</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 									</UseIcon>
 									<span>Claims validation (issuer, audience, expiration)</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiShield size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
 									</UseIcon>
 									<span>Ensuring the token hasn't been tampered with</span>
 								</UseItem>
@@ -393,19 +381,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<FiClock size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🕐</span>
 									</UseIcon>
 									<span>Determining if user needs re-authentication</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiUser size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
 									</UseIcon>
 									<span>Managing session lifetime</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<FiGlobe size={14} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🌐</span>
 									</UseIcon>
 									<span>Implementing Single Sign-On across applications</span>
 								</UseItem>
@@ -415,7 +403,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 
 					<ImportantSection>
 						<ImportantTitle>
-							<FiInfo size={16} />
+							<span style={{ fontSize: '16px' }}>ℹ️</span>
 							Important Distinctions
 						</ImportantTitle>
 
@@ -432,25 +420,25 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<DoDontList>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 									</UseIcon>
 									<span>Authentication (proving who the user is)</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 									</UseIcon>
 									<span>Getting user identity information</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 									</UseIcon>
 									<span>Session management</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 									</UseIcon>
 									<span>Authorization decisions based on user attributes</span>
 								</DoDontItem>
@@ -470,19 +458,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<DoDontList>
 								<DoDontItem>
 									<UseIcon>
-										<FiXCircle size={14} color="V9_COLORS.PRIMARY.RED_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
 									</UseIcon>
 									<span>ID tokens are private to the client and should never be sent to APIs</span>
 								</DoDontItem>
 								<DoDontItem>
 									<UseIcon>
-										<FiXCircle size={14} color="V9_COLORS.PRIMARY.RED_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
 									</UseIcon>
 									<span>Long-term storage (they have shorter lifetimes)</span>
 								</DoDontItem>
 								<DoDontItem>
 									<UseIcon>
-										<FiXCircle size={14} color="V9_COLORS.PRIMARY.RED_DARK" />
+										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
 									</UseIcon>
 									<span>API access (that's what access tokens are for)</span>
 								</DoDontItem>

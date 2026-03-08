@@ -1,17 +1,4 @@
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiClock,
-	FiEye,
-	FiEyeOff,
-	FiFileText,
-	FiLock,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiUnlock,
-	FiZap,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -345,7 +332,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				},
 			});
 		} catch (error) {
-			logger.error('Security scan failed:', error);
+			log.error('Security scan failed:', error);
 		} finally {
 			setIsScanning(false);
 		}
@@ -377,7 +364,7 @@ export const SecurityDashboardPage: React.FC = () => {
 		<PageContainer>
 			<PageHeader>
 				<PageTitle>
-					<FiShield /> Security Dashboard
+					<span>🛡️</span> Security Dashboard
 				</PageTitle>
 				<PageSubtitle>Comprehensive security monitoring and threat detection</PageSubtitle>
 			</PageHeader>
@@ -387,7 +374,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SecurityCard $variant="primary">
 					<CardHeader>
 						<CardTitle>
-							<FiShield /> Security Score
+							<span>🛡️</span> Security Score
 						</CardTitle>
 						<ScanButton onClick={handleSecurityScan} disabled={isScanning}>
 							<FiRefreshCw className={isScanning ? 'animate-spin' : ''} />
@@ -410,7 +397,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				>
 					<CardHeader>
 						<CardTitle>
-							<FiAlertTriangle /> Threats Blocked
+							<span>⚠️</span> Threats Blocked
 						</CardTitle>
 					</CardHeader>
 					<CardValue
@@ -427,7 +414,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SecurityCard $variant={securityMetrics.encryptionEnabled ? 'success' : 'danger'}>
 					<CardHeader>
 						<CardTitle>
-							{securityMetrics.encryptionEnabled ? <FiLock /> : <FiUnlock />}
+							{securityMetrics.encryptionEnabled ? <span>🔒</span> : <span>🔓</span>}
 							Token Encryption
 						</CardTitle>
 					</CardHeader>
@@ -445,7 +432,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SecurityCard>
 					<CardHeader>
 						<CardTitle>
-							<FiFileText /> Audit Logs
+							<span>📄</span> Audit Logs
 						</CardTitle>
 					</CardHeader>
 					<CardValue>{securityMetrics.auditLogCount}</CardValue>
@@ -459,7 +446,7 @@ export const SecurityDashboardPage: React.FC = () => {
 			<SecurityCard>
 				<CardHeader>
 					<CardTitle>
-						<FiSettings /> Security Settings
+						<span>⚙️</span> Security Settings
 					</CardTitle>
 				</CardHeader>
 				<SettingsGrid>
@@ -513,7 +500,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SecurityCard $variant="warning">
 					<CardHeader>
 						<CardTitle>
-							<FiAlertTriangle /> Recent Threats ({lastScan.threats.length})
+							<span>⚠️</span> Recent Threats ({lastScan.threats.length})
 						</CardTitle>
 					</CardHeader>
 					<ThreatList>
@@ -553,7 +540,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SecurityCard>
 					<CardHeader>
 						<CardTitle>
-							<FiZap /> Security Recommendations
+							<span>⚡</span> Security Recommendations
 						</CardTitle>
 					</CardHeader>
 					<div style={{ marginTop: '1rem' }}>
@@ -580,10 +567,10 @@ export const SecurityDashboardPage: React.FC = () => {
 			<SecurityCard>
 				<CardHeader>
 					<CardTitle>
-						<FiActivity /> Recent Audit Logs
+						<span>🔄</span> Recent Audit Logs
 					</CardTitle>
 					<ActionButton onClick={() => setShowAuditLogs(!showAuditLogs)}>
-						{showAuditLogs ? <FiEyeOff /> : <FiEye />}
+						{showAuditLogs ? <span>🙈</span> : <span>👁️</span>}
 						{showAuditLogs ? 'Hide' : 'Show'}
 					</ActionButton>
 				</CardHeader>

@@ -491,7 +491,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				<SectionTitle>
 					🔑 Generate Keypair
 				</SectionTitle>
-				{collapsedSections.keypair ? 🔽 : 🔼}
+				{collapsedSections.keypair ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.keypair}>
 				<FormGroup>
@@ -577,7 +577,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				<SectionTitle>
 					⚙️ Create Login Hint Token
 				</SectionTitle>
-				{collapsedSections.loginHint ? 🔽 : 🔼}
+				{collapsedSections.loginHint ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.loginHint}>
 				<InfoText>
@@ -663,7 +663,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				<SectionTitle>
 					⚙️ Create Request Property JWT
 				</SectionTitle>
-				{collapsedSections.requestProperty ? 🔽 : 🔼}
+				{collapsedSections.requestProperty ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.requestProperty}>
 				<InfoText>
@@ -768,7 +768,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				<SectionTitle>
 					🔑 Create Private Key JWT (Client Authentication)
 				</SectionTitle>
-				{collapsedSections.privateKey ? 🔽 : 🔼}
+				{collapsedSections.privateKey ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.privateKey}>
 				<InfoText>
@@ -840,7 +840,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 				<SectionTitle>
 					⚙️ Transaction Approval Flow Configuration
 				</SectionTitle>
-				{collapsedSections.transaction ? 🔽 : 🔼}
+				{collapsedSections.transaction ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.transaction}>
 				<InfoText>

@@ -11,10 +11,10 @@
  * - Dependency Inversion: Depends on UserService abstraction
  */
 
-import { FiChevronDown, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
@@ -281,7 +281,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 			setHasMore(result.hasMore);
 			setOffset(startOffset + result.limit);
 		} catch (error) {
-			logger.error('UserSearchDropdown', 'Error searching users:', undefined, error as Error);
+			log.error('UserSearchDropdown', 'Error searching users:', undefined, error as Error);
 			if (startOffset === 0) {
 				setUsers([]);
 			}
@@ -331,7 +331,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 				aria-haspopup="listbox"
 			>
 				<span>{displayValue || placeholder}</span>
-				<FiChevronDown />
+				<span>⬇️</span>
 			</DropdownTrigger>
 
 			{isOpen && (

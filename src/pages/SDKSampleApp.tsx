@@ -1,4 +1,4 @@
-import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPlay } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -226,7 +226,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'nodejs',
 			name: 'Node.js SDK',
 			version: 'v2.0.0',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			description:
 				'Official PingOne SDK for Node.js applications with full OAuth 2.0 and OpenID Connect support.',
 			features: [
@@ -244,7 +244,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'python',
 			name: 'Python SDK',
 			version: 'v1.5.0',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			description: 'Python SDK for building secure applications with PingOne identity services.',
 			features: [
 				'Django and Flask integration',
@@ -261,7 +261,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'java',
 			name: 'Java SDK',
 			version: 'v3.1.0',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			description:
 				'Enterprise-grade Java SDK with Spring Boot integration and comprehensive OAuth support.',
 			features: [
@@ -279,7 +279,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'csharp',
 			name: '.NET SDK',
 			version: 'v2.2.0',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			description:
 				'Microsoft .NET SDK for ASP.NET Core applications with built-in authentication middleware.',
 			features: [
@@ -303,14 +303,14 @@ const SdkSampleApp: React.FC = () => {
 				<CollapsibleHeader
 					title="Quick Start Guide"
 					subtitle="Get started with PingOne SDKs in minutes. Choose your preferred language and follow the installation and setup instructions."
-					icon={<FiPlay />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<Card>
 							<CardHeader>
 								<h2>
-									<FiPlay />
+									<span>❓</span>
 									Quick Start Guide
 								</h2>
 								<p>
@@ -378,7 +378,7 @@ app.get('/callback', async (req, res) => {
 						<Card>
 							<CardHeader>
 								<h2>
-									<FiGithub />
+									<span>🐙</span>
 									Available SDKs
 								</h2>
 								<p>Official PingOne SDKs for popular programming languages and frameworks.</p>
@@ -417,7 +417,7 @@ app.get('/callback', async (req, res) => {
 												rel="noopener noreferrer"
 												$variant="primary"
 											>
-												<FiExternalLink />
+												<span>🔗</span>
 												Documentation
 											</ActionButton>
 											<ActionButton
@@ -426,7 +426,7 @@ app.get('/callback', async (req, res) => {
 												rel="noopener noreferrer"
 												$variant="secondary"
 											>
-												<FiGithub />
+												<span>🐙</span>
 												GitHub
 											</ActionButton>
 										</SdkActions>
@@ -440,14 +440,14 @@ app.get('/callback', async (req, res) => {
 				<CollapsibleHeader
 					title="Sample Applications"
 					subtitle="Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID Connect integration patterns."
-					icon={<FiDownload />}
+					icon={<span>📥</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<Card>
 							<CardHeader>
 								<h2>
-									<FiDownload />
+									<span>📥</span>
 									Sample Applications
 								</h2>
 								<p>
@@ -478,7 +478,7 @@ app.get('/callback', async (req, res) => {
 										rel="noopener noreferrer"
 										$variant="primary"
 									>
-										<FiGithub />
+										<span>🐙</span>
 										View on GitHub
 									</ActionButton>
 								</div>
@@ -504,7 +504,7 @@ app.get('/callback', async (req, res) => {
 										rel="noopener noreferrer"
 										$variant="primary"
 									>
-										<FiExternalLink />
+										<span>🔗</span>
 										View Samples
 									</ActionButton>
 								</div>

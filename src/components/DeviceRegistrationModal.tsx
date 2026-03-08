@@ -1,6 +1,6 @@
 // src/components/DeviceRegistrationModal.tsx
 
-import { FiCheckCircle, FiMail, FiShield, FiSmartphone, FiX } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -212,13 +212,13 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 	const getDeviceIcon = (deviceType: string) => {
 		switch (deviceType.toLowerCase()) {
 			case 'sms':
-				return <FiSmartphone size={16} />;
+				return <span style={{ fontSize: '16px' }}>📱</span>;
 			case 'email':
-				return <FiMail size={16} />;
+				return <span style={{ fontSize: '16px' }}>📧</span>;
 			case 'totp':
-				return <FiShield size={16} />;
+				return <span style={{ fontSize: '16px' }}>🛡️</span>;
 			default:
-				return <FiSmartphone size={16} />;
+				return <span style={{ fontSize: '16px' }}>📱</span>;
 		}
 	};
 
@@ -243,16 +243,16 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiCheckCircle size={24} color="V9_COLORS.PRIMARY.GREEN" />
+						<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 						Device Registered Successfully
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
 				<SuccessIcon>
-					<FiCheckCircle size={32} color="V9_COLORS.PRIMARY.GREEN" />
+					<span style={{ fontSize: 32, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 				</SuccessIcon>
 
 				<DeviceInfo>

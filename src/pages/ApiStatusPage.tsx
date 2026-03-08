@@ -1,4 +1,4 @@
-import { FiRefreshCw, FiServer } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -7,7 +7,7 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -158,7 +158,7 @@ const ApiStatusPage: React.FC = () => {
 			setServers(updatedServers);
 			setLastRefresh(new Date());
 		} catch (err) {
-			logger.error('ApiStatusPage', 'Failed to fetch server health data:', undefined, err as Error);
+			log.error('ApiStatusPage', 'Failed to fetch server health data:', undefined, err as Error);
 		} finally {
 			setLoading(false);
 		}
@@ -173,7 +173,7 @@ const ApiStatusPage: React.FC = () => {
 			<PageContainer>
 				<PageHeader>
 					<PageTitle>
-						<FiServer />
+						<span>🖥️</span>
 						API Status
 					</PageTitle>
 					<PageDescription>Loading server health information...</PageDescription>
@@ -186,7 +186,7 @@ const ApiStatusPage: React.FC = () => {
 		<PageContainer>
 			<PageHeader>
 				<PageTitle>
-					<FiServer />
+					<span>🖥️</span>
 					API Status
 				</PageTitle>
 				<PageDescription>
@@ -216,7 +216,7 @@ const ApiStatusPage: React.FC = () => {
 											: 'V9_COLORS.PRIMARY.YELLOW'
 								}
 							>
-								<FiServer />
+								<span>🖥️</span>
 							</CardIcon>
 							<CardTitle>{server.name}</CardTitle>
 							<StatusBadge status={server.status}>

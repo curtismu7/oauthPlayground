@@ -9,7 +9,7 @@
  * - Ask for User token (access token from Authorization Code Flow) OR Worker token (active or "ACTIVATION_REQUIRED")
  */
 
-import { FiLoader } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';

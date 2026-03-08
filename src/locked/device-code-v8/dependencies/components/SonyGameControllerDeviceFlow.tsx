@@ -2,12 +2,12 @@
 // Sony DualSense Game Controller Style Device Authorization Flow Interface
 // Designed to look like actual Sony PlayStation DualSense controller
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sony DualSense Controller Physical Housing - Authentic White Design
@@ -351,26 +351,26 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
+		log.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -463,10 +463,10 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 					</QRCodeContainer>
 					<ActionButtons>
 						<UIActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</UIActionButton>
 						<UIActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink /> Open App
+							<span>🔗</span> Open App
 						</UIActionButton>
 					</ActionButtons>
 				</QRCodeSection>
@@ -475,7 +475,7 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 				{state.status === 'authorized' && (
 					<SuccessDisplay>
 						<SuccessTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							Controller Connected Successfully!
 						</SuccessTitle>
 						<SuccessMessage>

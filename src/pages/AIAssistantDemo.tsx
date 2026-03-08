@@ -1,4 +1,4 @@
-import { FiBook, FiMessageCircle, FiSearch, FiZap } from '@icons';
+
 import React from 'react';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
@@ -229,7 +229,7 @@ const AIAssistantDemo: React.FC = () => {
 			<div style={styles.content}>
 				<section style={styles.section}>
 					<h2 style={styles.sectionTitle}>
-						<FiMessageCircle size={24} />
+						<span style={{ fontSize: '24px' }}>💬</span>
 						What is the AI Assistant?
 					</h2>
 					<p style={styles.description}>
@@ -266,7 +266,7 @@ const AIAssistantDemo: React.FC = () => {
 
 				<section style={styles.section}>
 					<h2 style={styles.sectionTitle}>
-						<FiSearch size={24} />
+						<span style={{ fontSize: '24px' }}>🔍</span>
 						How to Use It
 					</h2>
 					<div style={styles.stepList}>
@@ -312,7 +312,7 @@ const AIAssistantDemo: React.FC = () => {
 
 				<section style={styles.section}>
 					<h2 style={styles.sectionTitle}>
-						<FiZap size={24} />
+						<span style={{ fontSize: '24px' }}>⚡</span>
 						Example Questions
 					</h2>
 					<div style={styles.examplesGrid}>
@@ -357,7 +357,7 @@ const AIAssistantDemo: React.FC = () => {
 
 				<section style={styles.section}>
 					<h2 style={styles.sectionTitle}>
-						<FiBook size={24} />
+						<span style={{ fontSize: '24px' }}>📖</span>
 						What It Can Search
 					</h2>
 					<div style={styles.searchableContent}>
@@ -393,7 +393,7 @@ const AIAssistantDemo: React.FC = () => {
 						Look for the purple chat button in the bottom-right corner and start asking questions.
 					</p>
 					<div style={styles.ctaIcon}>
-						<FiMessageCircle size={48} />
+						<span style={{ fontSize: '48px' }}>💬</span>
 					</div>
 				</div>
 			</div>

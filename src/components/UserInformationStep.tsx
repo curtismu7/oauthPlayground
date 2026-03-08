@@ -1,4 +1,4 @@
-import { FiCheckCircle, FiChevronDown, FiCopy, FiExternalLink, FiEye, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -340,17 +340,17 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 					aria-expanded={!collapsedSections.userInfoOverview}
 				>
 					<CollapsibleTitle>
-						<FiEye /> User Information Overview
+						<span>👁️</span> User Information Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.userInfoOverview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.userInfoOverview && (
 					<CollapsibleContent>
 						<ExplanationSection>
 							<ExplanationHeading>
-								<FiEye /> {flowText.title}
+								<span>👁️</span> {flowText.title}
 							</ExplanationHeading>
 							<InfoText>{flowText.description}</InfoText>
 						</ExplanationSection>
@@ -364,10 +364,10 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 					aria-expanded={!collapsedSections.userInfoDetails}
 				>
 					<CollapsibleTitle>
-						<FiUser /> User Information Details
+						<span>👤</span> User Information Details
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.userInfoDetails}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.userInfoDetails && (
@@ -382,7 +382,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 									borderColor: primaryColor,
 								}}
 							>
-								<FiEye /> {isLoading ? 'Fetching...' : flowText.buttonText}
+								<span>👁️</span> {isLoading ? 'Fetching...' : flowText.buttonText}
 							</HighlightedActionButton>
 						</ActionRow>
 
@@ -391,7 +391,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 						<ResultsSection>
 							<ResultsHeading style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 								<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-									<FiCheckCircle size={18} /> UserInfo Response
+									<span style={{ fontSize: '18px' }}>✅</span> UserInfo Response
 								</span>
 								{justFetched && <AnimatedBadge>✓ JUST FETCHED!</AnimatedBadge>}
 							</ResultsHeading>
@@ -428,7 +428,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 												fontWeight: '600',
 											}}
 										>
-											<FiCopy /> Copy User Info
+											<span>📋</span> Copy User Info
 										</Button>
 										<Button
 											onClick={handleNavigateToTokenManagement}
@@ -438,7 +438,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 												borderColor: secondaryColor,
 											}}
 										>
-											<FiExternalLink /> Inspect Tokens
+											<span>🔗</span> Inspect Tokens
 										</Button>
 									</ActionRow>
 								</GeneratedContentBox>

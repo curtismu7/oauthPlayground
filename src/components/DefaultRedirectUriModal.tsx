@@ -1,8 +1,8 @@
-import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -247,7 +247,7 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'DefaultRedirectUriModal',
 				'Failed to copy redirect URI:',
 				undefined,
@@ -279,14 +279,14 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
 				<ModalHeader>
 					<ModalTitle>Configure Redirect URI</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalContent>
 					<WarningBox>
 						<WarningTitle>
-							<FiExternalLink size={16} />
+							<span style={{ fontSize: '16px' }}>🔗</span>
 							Redirect URI Required
 						</WarningTitle>
 						<WarningText>
@@ -300,7 +300,7 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
 						<UriDisplay>
 							{defaultRedirectUri}
 							<CopyButton copied={copied} onClick={handleCopyUri}>
-								{copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+								{copied ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>📋</span>}
 								{copied ? 'Copied!' : 'Copy'}
 							</CopyButton>
 						</UriDisplay>

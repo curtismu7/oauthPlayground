@@ -1,20 +1,7 @@
 // src/components/UltimateTokenDisplay.tsx
 // Ultimate Token Display Component - Combines all the best features
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiClock,
-	FiCode,
-	FiCopy,
-	FiExternalLink,
-	FiKey,
-	FiLock,
-	FiShield,
-	FiTag,
-	FiUnlock,
-	FiZap,
-} from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -448,13 +435,13 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	const getTokenIcon = (tokenType: TokenType) => {
 		switch (tokenType) {
 			case 'access':
-				return <FiKey size={16} />;
+				return <span style={{ fontSize: '16px' }}>🔑</span>;
 			case 'id':
-				return <FiShield size={16} />;
+				return <span style={{ fontSize: '16px' }}>🛡️</span>;
 			case 'refresh':
-				return <FiZap size={16} />;
+				return <span style={{ fontSize: '16px' }}>⚡</span>;
 			default:
-				return <FiLock size={16} />;
+				return <span style={{ fontSize: '16px' }}>🔒</span>;
 		}
 	};
 
@@ -560,7 +547,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title={isDecoded ? 'Hide decoded content' : 'Show decoded content'}
 								$variant="warning"
 							>
-								<FiCode size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 								{isDecoded ? 'Hide Decode' : 'Decode JWT'}
 							</ActionButton>
 						)}
@@ -571,7 +558,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title="Copy token"
 								$variant="primary"
 							>
-								{isCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+								{isCopied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</ActionButton>
 						)}
@@ -582,7 +569,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title="Send to Token Management"
 								$variant="success"
 							>
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								Analyze
 							</ActionButton>
 						)}
@@ -592,7 +579,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								onClick={() => onTokenAnalyze(tokenType, token)}
 								title="Custom analysis"
 							>
-								<FiZap size={14} />
+								<span style={{ fontSize: '14px' }}>⚡</span>
 								Analyze
 							</ActionButton>
 						)}
@@ -608,26 +595,26 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 						<DecodedSection>
 							{!isJWT ? (
 								<OpaqueMessage>
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									{TokenDisplayService.getOpaqueTokenMessage(tokenType)}
 								</OpaqueMessage>
 							) : decodedContent ? (
 								<>
 									<DecodedTitle>
-										<FiKey size={16} />
+										<span style={{ fontSize: '16px' }}>🔑</span>
 										JWT Header
 									</DecodedTitle>
 									<DecodedContent>{JSON.stringify(decodedContent.header, null, 2)}</DecodedContent>
 
 									<DecodedTitle style={{ marginTop: '1rem' }}>
-										<FiShield size={16} />
+										<span style={{ fontSize: '16px' }}>🛡️</span>
 										JWT Payload
 									</DecodedTitle>
 									<DecodedContent>{JSON.stringify(decodedContent.payload, null, 2)}</DecodedContent>
 								</>
 							) : (
 								<OpaqueMessage>
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									Failed to decode JWT token
 								</OpaqueMessage>
 							)}
@@ -644,7 +631,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 			<Container $mode={displayMode} className={className}>
 				<EmptyState>
 					<EmptyStateIcon>
-						<FiLock />
+						<span>🔒</span>
 					</EmptyStateIcon>
 					<EmptyStateText>
 						No tokens available yet. Complete the authentication flow to retrieve tokens.
@@ -672,7 +659,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 				>
 					<div>
 						<Title $mode={displayMode}>
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 							{displayTitle}
 						</Title>
 						{subtitle !== false && <Subtitle>{displaySubtitle}</Subtitle>}

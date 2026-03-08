@@ -6,7 +6,7 @@
  * @since 2026-02-13
  */
 
-import { FiMenu, FiPackage, FiSearch, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -229,14 +229,14 @@ const FedExNavigation: React.FC = () => {
 
 						<NavActions>
 							<SearchButton title="Search">
-								<FiSearch size={20} />
+								<span style={{ fontSize: '20px' }}>🔍</span>
 							</SearchButton>
 							<TrackingButton>
-								<FiPackage size={16} />
+								<span style={{ fontSize: '16px' }}>📦</span>
 								Track Package
 							</TrackingButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
-								<FiMenu size={24} />
+								<span style={{ fontSize: '24px' }}>❓</span>
 							</MobileMenuButton>
 						</NavActions>
 					</NavMainContent>
@@ -251,7 +251,7 @@ const FedExNavigation: React.FC = () => {
 						onClick={toggleMobileMenu}
 						style={{ background: 'none', border: 'none', color: 'white' }}
 					>
-						<FiX size={24} />
+						<span style={{ fontSize: '24px' }}>❌</span>
 					</button>
 				</MobileMenuHeader>
 				<MobileMenuContent>

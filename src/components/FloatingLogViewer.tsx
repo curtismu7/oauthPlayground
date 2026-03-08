@@ -5,11 +5,11 @@
  * @version 1.0.0
  */
 
-import { FiDownload, FiExternalLink, FiMaximize2, FiMinimize2, FiRefreshCw, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { useServerStatusOptional } from './ServerStatusProvider';
 
 const BACKEND_DOWN_MESSAGE =
@@ -313,7 +313,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : '';
 			if (!msg.includes('Log API not available')) {
-				logger.error(
+				log.error(
 					'FloatingLogViewer',
 					'[FloatingLogViewer] Failed to load files:',
 					undefined,
@@ -366,7 +366,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 								setLogContent((prev) => prev + data.content);
 							}
 						} catch (error) {
-							logger.error(
+							log.error(
 								'FloatingLogViewer',
 								'[FloatingLogViewer] Failed to parse tail data:',
 								undefined,
@@ -376,14 +376,14 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 					};
 
 					eventSource.onerror = () => {
-						logger.error('FloatingLogViewer', '[FloatingLogViewer] Tail stream error');
+						log.error('FloatingLogViewer', '[FloatingLogViewer] Tail stream error');
 						setIsTailMode(false);
 						eventSourceRef.current = null;
 					};
 
 					setIsTailMode(true);
 				} catch (error) {
-					logger.error(
+					log.error(
 						'FloatingLogViewer',
 						'[FloatingLogViewer] Failed to start tail mode:',
 						undefined,
@@ -617,7 +617,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							onClick={handlePopOut}
 							title="Popout window - Open Debug Log Viewer in separate window"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							<span style={{ marginLeft: 4, fontSize: 12 }}>Popout window</span>
 						</ControlButton>
 					)}
@@ -626,7 +626,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 						onClick={() => setIsMinimized(!isMinimized)}
 						title={isMinimized ? 'Expand' : 'Minimize'}
 					>
-						{isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
+						{isMinimized ? <span>❓</span> : <span>❓</span>}
 					</ControlButton>
 					<ControlButton
 						$variant="secondary"
@@ -636,7 +636,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 						{isMaximized ? '🗗' : '🗖'}
 					</ControlButton>
 					<ControlButton $variant="secondary" onClick={onClose} title="Close">
-						<FiX />
+						<span>❌</span>
 					</ControlButton>
 				</Controls>
 			</Header>
@@ -686,7 +686,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							disabled={isLoading || isTailMode}
 							title="Refresh log content from file"
 						>
-							<FiRefreshCw />
+							<span>🔄</span>
 						</ControlButton>
 
 						<ControlButton $variant="secondary" onClick={clearLogs} title="Clear all log content">
@@ -699,7 +699,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							disabled={!logContent}
 							title="Download log content as file"
 						>
-							<FiDownload />
+							<span>📥</span>
 						</ControlButton>
 					</ControlsPanel>
 

@@ -10,7 +10,7 @@
  * functionality that was previously scattered across MFAConfigurationStepV8.
  */
 
-import { FiKey, FiRefreshCw } from '@icons';
+
 import React, { useState } from 'react';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -151,7 +151,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 			<div style={sectionStyle}>
 				{/* Header */}
 				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-					<FiKey size={20} color="#3b82f6" />
+					<span style={{ fontSize: 20, color: '#3b82f6' }}>🔑</span>
 					<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 						Worker Token (Admin Flow)
 					</h3>
@@ -265,7 +265,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								e.currentTarget.style.transform = 'translateY(0)';
 							}}
 						>
-							<FiKey size={16} />
+							<span style={{ fontSize: '16px' }}>🔑</span>
 							Get Worker Token
 						</button>
 					) : (
@@ -296,7 +296,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 									e.currentTarget.style.transform = 'translateY(0)';
 								}}
 							>
-								<FiKey size={16} />
+								<span style={{ fontSize: '16px' }}>🔑</span>
 								Update Token
 							</button>
 							<button

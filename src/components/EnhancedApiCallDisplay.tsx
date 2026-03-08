@@ -1,7 +1,7 @@
 // src/components/EnhancedApiCallDisplay.tsx
 // React component for displaying API calls with enhanced features
 
-import { FiChevronDown, FiCode, FiCopy, FiExternalLink, FiEye, FiEyeOff, FiLock } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -435,7 +435,7 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 				title={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey} for educational inspection`}
 				aria-label={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey}`}
 			>
-				{revealed ? <FiEyeOff size={13} /> : <FiEye size={13} />}
+				{revealed ? <span style={{ fontSize: '13px' }}>🙈</span> : <span style={{ fontSize: '13px' }}>👁️</span>}
 				{revealed ? 'mask' : 'reveal'}
 			</RevealToggleBtn>
 		</span>
@@ -459,7 +459,7 @@ const CredentialMaskedValue: React.FC = () => (
 				gap: '0.2rem',
 			}}
 		>
-			<FiLock size={11} /> credential
+			<span style={{ fontSize: '11px' }}>🔒</span> credential
 		</span>
 	</span>
 );
@@ -479,7 +479,7 @@ const TokenMaskedNoReveal: React.FC = () => (
 				gap: '0.2rem',
 			}}
 		>
-			<FiLock size={11} /> token
+			<span style={{ fontSize: '11px' }}>🔒</span> token
 		</span>
 	</span>
 );
@@ -904,11 +904,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								$variant="primary"
 								onClick={() => handleCopy(curlCommand, 'cURL command')}
 							>
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 								Copy cURL
 							</ActionButton>
 							<ActionButton $variant="secondary" onClick={() => window.open(apiCall.url, '_blank')}>
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								Open URL
 							</ActionButton>
 						</div>
@@ -927,7 +927,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							Code Examples
 						</h5>
 						<ActionButton $variant="success" onClick={handleViewCodeExamples}>
-							<FiCode size={14} />
+							<span style={{ fontSize: '14px' }}>❓</span>
 							View Code Examples
 						</ActionButton>
 					</div>
@@ -1084,7 +1084,7 @@ console.log('PingOne Response:', data);`,
 										)
 									}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy JavaScript
 								</ActionButton>
 							</ActionButtons>
@@ -1165,7 +1165,7 @@ ${
 										handleCopy(postmanCollection, 'Postman Collection');
 									}}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy Postman Collection
 								</ActionButton>
 							</div>
@@ -1280,7 +1280,7 @@ ${
 										)
 									}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy Postman Collection
 								</ActionButton>
 							</ActionButtons>
@@ -1309,7 +1309,7 @@ ${
 									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
-									<FiExternalLink size={16} />
+									<span style={{ fontSize: '16px' }}>🔗</span>
 									PingOne API Documentation
 								</ActionButton>
 								<ActionButton
@@ -1322,7 +1322,7 @@ ${
 									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
-									<FiExternalLink size={16} />
+									<span style={{ fontSize: '16px' }}>🔗</span>
 									PingOne Postman Collection
 								</ActionButton>
 							</div>
@@ -1377,7 +1377,7 @@ ${
 										)
 									}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy Real cURL
 								</ActionButton>
 							</ActionButtons>

@@ -16,18 +16,7 @@
  * <CIBAFlowV8 />
  */
 
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiClock,
-	FiCopy,
-	FiInfo,
-	FiShield,
-	FiSmartphone,
-	FiX,
-	FiZap,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -470,17 +459,17 @@ const CIBAFlowV8: React.FC = () => {
 	const getStatusIcon = (status: string) => {
 		switch (status) {
 			case 'pending':
-				return <FiClock />;
+				return <span>🕐</span>;
 			case 'approved':
 			case 'completed':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
 			case 'failed':
 			case 'error':
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 		}
 	};
 
@@ -525,7 +514,7 @@ const CIBAFlowV8: React.FC = () => {
 				{/* Configuration Section */}
 				<Section>
 					<SectionTitle>
-						<FiShield />
+						<span>🛡️</span>
 						CIBA Configuration
 					</SectionTitle>
 
@@ -665,7 +654,7 @@ const CIBAFlowV8: React.FC = () => {
 				{/* Action Buttons */}
 				<Section>
 					<SectionTitle>
-						<FiZap />
+						<span>⚡</span>
 						Actions
 					</SectionTitle>
 
@@ -682,7 +671,7 @@ const CIBAFlowV8: React.FC = () => {
 									!credentials.loginHint
 								}
 							>
-								<FiSmartphone />
+								<span>📱</span>
 								{cibaFlow.state.isInitiating ? 'Initiating...' : 'Initiate CIBA Authentication'}
 							</Button>
 						) : (
@@ -693,7 +682,7 @@ const CIBAFlowV8: React.FC = () => {
 										onClick={handlePollForTokens}
 										disabled={cibaFlow.state.isPolling}
 									>
-										<FiActivity />
+										<span>🔄</span>
 										Check Status
 									</Button>
 								)}
@@ -704,7 +693,7 @@ const CIBAFlowV8: React.FC = () => {
 									}
 									disabled={cibaFlow.state.isPolling}
 								>
-									<FiClock />
+									<span>🕐</span>
 									Start Polling
 								</Button>
 								<Button
@@ -712,11 +701,11 @@ const CIBAFlowV8: React.FC = () => {
 									onClick={cibaFlow.stopPolling}
 									disabled={!cibaFlow.state.isPolling}
 								>
-									<FiX />
+									<span>❌</span>
 									Stop Polling
 								</Button>
 								<Button $variant="secondary" onClick={cibaFlow.reset}>
-									<FiX />
+									<span>❌</span>
 									Reset Flow
 								</Button>
 							</>
@@ -728,7 +717,7 @@ const CIBAFlowV8: React.FC = () => {
 				{cibaFlow.state.authRequest && (
 					<Section>
 						<SectionTitle>
-							<FiInfo />
+							<span>ℹ️</span>
 							Authentication Request Details
 						</SectionTitle>
 
@@ -748,7 +737,7 @@ const CIBAFlowV8: React.FC = () => {
 									<CopyButton
 										onClick={() => copyToClipboard(cibaFlow.state.authRequest!.auth_req_id)}
 									>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</CopyButton>
 								</div>
 							</div>
@@ -776,7 +765,7 @@ const CIBAFlowV8: React.FC = () => {
 				{cibaFlow.state.tokens && (
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							Authentication Tokens
 						</SectionTitle>
 
@@ -785,7 +774,7 @@ const CIBAFlowV8: React.FC = () => {
 							<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
 								{maskToken(cibaFlow.state.tokens.access_token)}
 								<CopyButton onClick={() => copyToClipboard(cibaFlow.state.tokens!.access_token)}>
-									<FiCopy /> Copy
+									<span>📋</span> Copy
 								</CopyButton>
 							</div>
 						</TokenDisplay>
@@ -798,7 +787,7 @@ const CIBAFlowV8: React.FC = () => {
 									<CopyButton
 										onClick={() => copyToClipboard(cibaFlow.state.tokens!.refresh_token!)}
 									>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</CopyButton>
 								</div>
 							</TokenDisplay>
@@ -810,7 +799,7 @@ const CIBAFlowV8: React.FC = () => {
 								<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
 									{maskToken(cibaFlow.state.tokens.id_token)}
 									<CopyButton onClick={() => copyToClipboard(cibaFlow.state.tokens!.id_token!)}>
-										<FiCopy /> Copy
+										<span>📋</span> Copy
 									</CopyButton>
 								</div>
 							</TokenDisplay>

@@ -6,7 +6,7 @@
  * @since 2025-01-27
  */
 
-import { FiDownload, FiRefreshCw, FiTrash2 } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { LogEntry, LogLevel, logger } from '@/services/loggingService';
@@ -204,15 +204,15 @@ export const LogViewer: React.FC<LogViewerProps> = ({ visible = true, onClose })
 	}, [logs, selectedLevel, searchTerm]);
 
 	const loadLogs = () => {
-		setLogs(logger.getLogs());
+		setLogs(log.getLogs());
 	};
 
 	const handleExport = () => {
-		logger.exportLogs();
+		log.exportLogs();
 	};
 
 	const handleClear = () => {
-		logger.clearLogs();
+		log.clearLogs();
 		setLogs([]);
 		setFilteredLogs([]);
 	};
@@ -256,22 +256,22 @@ export const LogViewer: React.FC<LogViewerProps> = ({ visible = true, onClose })
 						onClick={() => setAutoRefresh(!autoRefresh)}
 						style={{ background: autoRefresh ? '#4444ff' : '#333' }}
 					>
-						<FiRefreshCw size={12} />
+						<span style={{ fontSize: '12px' }}>🔄</span>
 						Auto
 					</Button>
 
 					<Button onClick={loadLogs}>
-						<FiRefreshCw size={12} />
+						<span style={{ fontSize: '12px' }}>🔄</span>
 						Refresh
 					</Button>
 
 					<Button onClick={handleExport}>
-						<FiDownload size={12} />
+						<span style={{ fontSize: '12px' }}>📥</span>
 						Export
 					</Button>
 
 					<Button onClick={handleClear}>
-						<FiTrash2 size={12} />
+						<span style={{ fontSize: '12px' }}>🗑️</span>
 						Clear
 					</Button>
 

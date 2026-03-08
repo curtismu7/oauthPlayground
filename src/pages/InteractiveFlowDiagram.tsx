@@ -1,7 +1,7 @@
 // src/pages/InteractiveFlowDiagram.tsx
 // ⭐ V6 UPGRADE - Interactive OAuth/OIDC Flow Diagrams with Mermaid.js
 
-import { FiGitBranch, FiKey, FiShield, FiUsers, FiZap } from '@icons';
+
 import React from 'react';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -81,7 +81,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="OAuth 2.0 Authorization Code Flow"
 					subtitle="The most secure and recommended OAuth 2.0 flow for web applications with backend servers. This flow provides the highest level of security by keeping access tokens on the server side."
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -92,7 +92,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="OpenID Connect Authorization Code Flow"
 					subtitle="OAuth 2.0 Authorization Code Flow extended with OpenID Connect for user authentication and identity information. This is the recommended flow for applications that need to authenticate users and access their profile information."
-					icon={<FiUsers />}
+					icon={<span>👥</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -103,7 +103,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="Client Credentials Flow"
 					subtitle="OAuth 2.0 flow designed for machine-to-machine communication where no user interaction is required. Commonly used for API access, server-to-server communication, and backend services."
-					icon={<FiKey />}
+					icon={<span>🔑</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -114,7 +114,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="Implicit Flow (Deprecated)"
 					subtitle="OAuth 2.0 Implicit Flow has been deprecated due to security concerns. The access token is returned directly to the client, making it vulnerable to token theft. Use Authorization Code Flow with PKCE instead."
-					icon={<FiZap />}
+					icon={<span>⚡</span>}
 					defaultCollapsed={true}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -139,7 +139,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="Flow Comparison & Best Practices"
 					subtitle="Compare different OAuth 2.0 and OpenID Connect flows, understand their security implications, and learn when to use each flow type."
-					icon={<FiGitBranch />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>

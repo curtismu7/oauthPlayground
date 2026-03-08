@@ -1,7 +1,7 @@
 // src/components/DisplayParameterSelector.tsx
 // OIDC Display Parameter Selector - Controls UI presentation mode
 
-import { FiInfo, FiLayout, FiMonitor, FiSmartphone } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -157,7 +157,7 @@ export const DisplayParameterSelector: React.FC<DisplayParameterSelectorProps> =
 
 			<InfoBox>
 				<InfoIcon>
-					<FiInfo />
+					<span>ℹ️</span>
 				</InfoIcon>
 				<div>
 					<strong>About Display Parameter:</strong> The <code>display</code> parameter tells the

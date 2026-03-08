@@ -1,14 +1,4 @@
-import {
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiClock,
-	FiCode,
-	FiShield,
-	FiStar,
-	FiUser,
-	FiX,
-} from '@icons';
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -282,28 +272,28 @@ const wizardSteps: WizardStep[] = [
 				id: 'web-app',
 				label: 'Web Application',
 				description: 'Traditional web app with server-side rendering',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				value: 'web-app',
 			},
 			{
 				id: 'spa',
 				label: 'Single Page App',
 				description: 'Client-side JavaScript application (React, Vue, Angular)',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				value: 'spa',
 			},
 			{
 				id: 'mobile-app',
 				label: 'Mobile Application',
 				description: 'Native mobile app (iOS, Android)',
-				icon: <FiUser />,
+				icon: <span>👤</span>,
 				value: 'mobile-app',
 			},
 			{
 				id: 'server-app',
 				label: 'Server Application',
 				description: 'Backend service or API',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				value: 'server-app',
 			},
 		],
@@ -317,14 +307,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'has-backend',
 				label: 'Yes, I have a backend',
 				description: 'My app can securely store client secrets',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				value: 'has-backend',
 			},
 			{
 				id: 'no-backend',
 				label: 'No backend',
 				description: 'Client-side only or public application',
-				icon: <FiCode />,
+				icon: <span>❓</span>,
 				value: 'no-backend',
 			},
 		],
@@ -338,14 +328,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'standard',
 				label: 'Standard Security',
 				description: 'Good security for most applications',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				value: 'standard',
 			},
 			{
 				id: 'high',
 				label: 'High Security',
 				description: 'Maximum security for sensitive applications',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				value: 'high',
 			},
 		],
@@ -359,14 +349,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'user-interaction',
 				label: 'Yes, users will log in',
 				description: 'Users need to authenticate and access their data',
-				icon: <FiUser />,
+				icon: <span>👤</span>,
 				value: 'user-interaction',
 			},
 			{
 				id: 'no-user-interaction',
 				label: 'No user interaction',
 				description: 'Machine-to-machine or automated service',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				value: 'no-user-interaction',
 			},
 		],
@@ -382,7 +372,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'client-credentials',
 			title: 'Client Credentials Flow',
 			description: 'Perfect for machine-to-machine authentication without user interaction',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			security: 'high',
 			complexity: 'low',
 			implementationTime: '1-2 hours',
@@ -395,7 +385,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'pkce',
 			title: 'PKCE Flow',
 			description: 'Authorization Code flow with enhanced security for public clients',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -408,7 +398,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'authorization-code',
 			title: 'Authorization Code Flow',
 			description: 'The most secure and widely supported OAuth flow',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -421,7 +411,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'authorization-code',
 			title: 'Authorization Code Flow',
 			description: 'The most secure and widely supported OAuth flow',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -437,7 +427,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'implicit',
 			title: 'Implicit Grant Flow',
 			description: 'Simplified flow for client-side applications (deprecated)',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			security: 'low',
 			complexity: 'low',
 			implementationTime: '1-2 hours',
@@ -496,7 +486,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 				<ResultsCard>
 					<CardBody>
 						<div className="results-icon">
-							<FiCheckCircle />
+							<span>✅</span>
 						</div>
 						<h2 className="results-title">Perfect Match!</h2>
 						<p className="results-description">
@@ -517,15 +507,15 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 
 									<div className="recommendation-meta">
 										<div className="meta-item">
-											<FiShield />
+											<span>🛡️</span>
 											{rec.security} security
 										</div>
 										<div className="meta-item">
-											<FiClock />
+											<span>🕐</span>
 											{rec.implementationTime}
 										</div>
 										<div className="meta-item">
-											<FiStar />
+											<span>⭐</span>
 											{rec.complexity} complexity
 										</div>
 									</div>
@@ -535,7 +525,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 									</p>
 
 									<Link to={rec.route} className="recommendation-button">
-										<FiArrowRight />
+										<span>➡️</span>
 										Try {rec.title}
 									</Link>
 								</CardBody>
@@ -544,12 +534,12 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 
 						<NavigationButtons>
 							<button className="nav-button secondary" onClick={handleRestart}>
-								<FiArrowLeft />
+								<span>⬅️</span>
 								Start Over
 							</button>
 							{onClose && (
 								<button className="nav-button secondary" onClick={onClose}>
-									<FiX />
+									<span>❌</span>
 									Close
 								</button>
 							)}
@@ -600,7 +590,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 							onClick={handlePrevious}
 							disabled={currentStep === 0}
 						>
-							<FiArrowLeft />
+							<span>⬅️</span>
 							Previous
 						</button>
 
@@ -610,7 +600,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 
 						<button className="nav-button primary" onClick={handleNext} disabled={!canProceed}>
 							{currentStep === wizardSteps.length - 1 ? 'Get Recommendations' : 'Next'}
-							<FiArrowRight />
+							<span>➡️</span>
 						</button>
 					</NavigationButtons>
 				</CardBody>

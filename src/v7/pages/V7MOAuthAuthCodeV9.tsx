@@ -1,7 +1,7 @@
 // src/v7/pages/V7MOAuthAuthCodeV9.tsx
 /* eslint-disable no-alert */
 
-import { FiBook, FiKey, FiSend } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { V7MPKCEGenerationService } from '../../services/v7m/core/V7MPKCEGenerationService';
@@ -198,7 +198,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 				</p>
 			</div>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiKey /> {title}
+				<span>🔑</span> {title}
 			</h1>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
@@ -225,7 +225,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 						gap: 8,
 					}}
 				>
-					<FiSend /> Build Authorization Request
+					<span>📤</span> Build Authorization Request
 				</header>
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -383,7 +383,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 						gap: 8,
 					}}
 				>
-					<FiSend /> Exchange Token
+					<span>📤</span> Exchange Token
 				</header>
 				<div style={{ padding: 12 }}>
 					<button type="button" onClick={handleExchangeToken} style={primaryBtn}>

@@ -1,19 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiBook,
-	FiCheckCircle,
-	FiCode,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiUsers,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -326,7 +311,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 			<ReferenceCard>
 				<ReferenceIcon>
-					<FiBook />
+					<span>📖</span>
 				</ReferenceIcon>
 				<ReferenceContent>
 					<ReferenceTitle>Official Reference</ReferenceTitle>
@@ -340,7 +325,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<FiExternalLink />
+						<span>🔗</span>
 						View RFC 9700 on IETF Datatracker
 					</ReferenceLink>
 				</ReferenceContent>
@@ -349,20 +334,20 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Client Security"
 				subtitle="Essential security practices for OAuth 2.0 client applications"
-				icon={<FiLock />}
+				icon={<span>🔒</span>}
 				defaultCollapsed={false}
 			>
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiKey />
+							<span>🔑</span>
 						</SubsectionIcon>
 						Client Authentication
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Use Strong Client Authentication</PracticeTitle>
@@ -387,7 +372,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<BestPracticeCard $type="important">
 						<PracticeIcon>
-							<FiShield />
+							<span>🛡️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Secure Client Secret Management</PracticeTitle>
@@ -407,7 +392,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<BestPracticeCard $type="recommended">
 						<PracticeIcon>
-							<FiSettings />
+							<span>⚙️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Client Registration Security</PracticeTitle>
@@ -431,14 +416,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiGlobe />
+							<span>🌐</span>
 						</SubsectionIcon>
 						Redirect URI Security
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Validate Redirect URIs Strictly</PracticeTitle>
@@ -481,20 +466,20 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Authorization Code Flow Security"
 				subtitle="Security considerations for the authorization code flow"
-				icon={<FiRefreshCw />}
+				icon={<span>🔄</span>}
 				defaultCollapsed={false}
 			>
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiCode />
+							<span>❓</span>
 						</SubsectionIcon>
 						PKCE Implementation
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Always Use PKCE for Public Clients</PracticeTitle>
@@ -546,14 +531,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiShield />
+							<span>🛡️</span>
 						</SubsectionIcon>
 						State Parameter Security
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Always Use State Parameter</PracticeTitle>
@@ -577,20 +562,20 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Token Security"
 				subtitle="Best practices for secure token handling and storage"
-				icon={<FiUsers />}
+				icon={<span>👥</span>}
 				defaultCollapsed={false}
 			>
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiKey />
+							<span>🔑</span>
 						</SubsectionIcon>
 						Access Token Security
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Secure Token Storage</PracticeTitle>
@@ -610,7 +595,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<BestPracticeCard $type="important">
 						<PracticeIcon>
-							<FiShield />
+							<span>🛡️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Token Transmission Security</PracticeTitle>
@@ -628,7 +613,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<WarningBox>
 						<WarningIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</WarningIcon>
 						<WarningContent>
 							<WarningTitle>Never Expose Tokens in URLs</WarningTitle>
@@ -643,14 +628,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<FiRefreshCw />
+							<span>🔄</span>
 						</SubsectionIcon>
 						Refresh Token Security
 					</SubsectionTitle>
 
 					<BestPracticeCard $type="critical">
 						<PracticeIcon>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Secure Refresh Token Handling</PracticeTitle>
@@ -676,12 +661,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Transport Security"
 				subtitle="Network security requirements for OAuth 2.0"
-				icon={<FiGlobe />}
+				icon={<span>🌐</span>}
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="critical">
 					<PracticeIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Always Use HTTPS</PracticeTitle>
@@ -699,7 +684,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<FiShield />
+						<span>🛡️</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Implement Security Headers</PracticeTitle>
@@ -719,12 +704,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Scope and Permission Security"
 				subtitle="Implementing secure scope and permission management"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<FiShield />
+						<span>🛡️</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Implement Principle of Least Privilege</PracticeTitle>
@@ -744,7 +729,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<InfoBox>
 					<InfoIcon>
-						<FiEye />
+						<span>👁️</span>
 					</InfoIcon>
 					<InfoContent>
 						<InfoTitle>Scope Examples</InfoTitle>
@@ -760,12 +745,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Common Security Pitfalls"
 				subtitle="Avoiding common OAuth 2.0 security mistakes"
-				icon={<FiAlertTriangle />}
+				icon={<span>⚠️</span>}
 				defaultCollapsed={false}
 			>
 				<WarningBox>
 					<WarningIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</WarningIcon>
 					<WarningContent>
 						<WarningTitle>Implicit Grant Flow Deprecation</WarningTitle>
@@ -778,7 +763,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<BestPracticeCard $type="critical">
 					<PracticeIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Avoid Resource Owner Password Credentials</PracticeTitle>
@@ -795,7 +780,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<FiShield />
+						<span>🛡️</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Prevent Token Leakage</PracticeTitle>
@@ -817,12 +802,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Security Checklist"
 				subtitle="Comprehensive security checklist for OAuth 2.0 implementations"
-				icon={<FiCheckCircle />}
+				icon={<span>✅</span>}
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="recommended">
 					<PracticeIcon>
-						<FiCheckCircle />
+						<span>✅</span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Pre-Implementation Checklist</PracticeTitle>
@@ -847,7 +832,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 			<ReferenceCard>
 				<ReferenceIcon>
-					<FiBook />
+					<span>📖</span>
 				</ReferenceIcon>
 				<ReferenceContent>
 					<ReferenceTitle>Additional Resources</ReferenceTitle>
@@ -863,7 +848,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							RFC 6749 - OAuth 2.0 Authorization Framework
 						</ReferenceLink>
 						<ReferenceLink
@@ -871,7 +856,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							RFC 6750 - OAuth 2.0 Bearer Token Usage
 						</ReferenceLink>
 						<ReferenceLink
@@ -879,7 +864,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							RFC 6819 - OAuth 2.0 Threat Model and Security Considerations
 						</ReferenceLink>
 						<ReferenceLink
@@ -887,7 +872,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							RFC 7636 - PKCE for OAuth 2.0
 						</ReferenceLink>
 					</div>

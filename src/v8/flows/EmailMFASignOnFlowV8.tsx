@@ -13,18 +13,7 @@
  * 6. Exchange authorization code for tokens
  */
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiKey,
-	FiLoader,
-	FiMail,
-	FiPackage,
-	FiSend,
-	FiSettings,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -903,19 +892,19 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			case 'success':
 				return (
 					<StepStatus $status="success">
-						<FiCheckCircle /> Completed
+						<span>✅</span> Completed
 					</StepStatus>
 				);
 			case 'error':
 				return (
 					<StepStatus $status="error">
-						<FiAlertCircle /> Error
+						<span>⚠️</span> Error
 					</StepStatus>
 				);
 			case 'loading':
 				return (
 					<StepStatus $status="loading">
-						<FiLoader /> Processing...
+						<span>❓</span> Processing...
 					</StepStatus>
 				);
 			default:
@@ -956,7 +945,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				{stepStates[3]?.status === 'success' && stepStates[3]?.result && (
 					<SuccessScreen>
 						<SuccessIcon>
-							<FiCheckCircle />
+							<span>✅</span>
 						</SuccessIcon>
 						<SuccessTitle>Email Device Registered Successfully!</SuccessTitle>
 						<SuccessMessage>
@@ -993,7 +982,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="orange">
 						<StepTitle>
-							<FiSettings /> Step 0: Create Application with Resource Grants
+							<span>⚙️</span> Step 0: Create Application with Resource Grants
 						</StepTitle>
 						{renderStepStatus(0)}
 					</StepHeader>
@@ -1052,7 +1041,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="blue">
 						<StepTitle>
-							<FiSend /> Step 1: Create Sign-On Policy with Email MFA Action
+							<span>📤</span> Step 1: Create Sign-On Policy with Email MFA Action
 						</StepTitle>
 						{renderStepStatus(1)}
 					</StepHeader>
@@ -1090,7 +1079,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="yellow">
 						<StepTitle>
-							<FiUser /> Step 2: Create User and Enable MFA
+							<span>👤</span> Step 2: Create User and Enable MFA
 						</StepTitle>
 						{renderStepStatus(2)}
 					</StepHeader>
@@ -1148,7 +1137,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="green">
 						<StepTitle>
-							<FiShield /> Step 3: Create Device Auth Policy and Register Email Device
+							<span>🛡️</span> Step 3: Create Device Auth Policy and Register Email Device
 						</StepTitle>
 						{renderStepStatus(3)}
 					</StepHeader>
@@ -1194,7 +1183,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="blue">
 						<StepTitle>
-							<FiKey /> Step 4: Initiate Authorization Request
+							<span>🔑</span> Step 4: Initiate Authorization Request
 						</StepTitle>
 						{renderStepStatus(4)}
 					</StepHeader>
@@ -1232,7 +1221,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="yellow">
 						<StepTitle>
-							<FiMail /> Step 5: Complete MFA Action (User Lookup + OTP)
+							<span>📧</span> Step 5: Complete MFA Action (User Lookup + OTP)
 						</StepTitle>
 						{renderStepStatus(5)}
 					</StepHeader>
@@ -1279,7 +1268,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="green">
 						<StepTitle>
-							<FiPackage /> Step 6: Resume Flow and Exchange Code for Token
+							<span>📦</span> Step 6: Resume Flow and Exchange Code for Token
 						</StepTitle>
 						{renderStepStatus(6)}
 					</StepHeader>

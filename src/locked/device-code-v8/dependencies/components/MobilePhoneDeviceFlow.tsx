@@ -1,12 +1,12 @@
 // src/components/MobilePhoneDeviceFlow.tsx
 // Mobile Phone Style Device Authorization Flow Interface
 
-import { FiCheckCircle, FiCopy, FiExternalLink } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
@@ -404,17 +404,17 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
+		log.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const _handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('MobilePhoneDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('MobilePhoneDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
+		log.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusText = () => {
@@ -475,10 +475,10 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
 					{/* Touch Buttons */}
 					<TouchButtons>
 						<TouchButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy
+							<span>📋</span> Copy
 						</TouchButton>
 						<TouchButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink /> Open
+							<span>🔗</span> Open
 						</TouchButton>
 					</TouchButtons>
 

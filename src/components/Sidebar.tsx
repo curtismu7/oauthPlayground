@@ -1,4 +1,4 @@
-import { FiMove, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -273,7 +273,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
 						<VersionBadge version={APP_VERSION} variant="sidebar" />
 						<CloseButton onClick={onClose} title="Close sidebar">
-							<FiX size={20} />
+							<span style={{ fontSize: '20px' }}>❌</span>
 						</CloseButton>
 					</div>
 				</div>
@@ -291,7 +291,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'}
 								$isActive={isDragDropMode}
 							>
-								<FiMove size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 								{isDragDropMode ? 'Drag mode' : 'Reorder'}
 							</DragModeToggle>
 						</div>
@@ -313,7 +313,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
 								$isActive={isDragDropMode}
 							>
-								<FiMove size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 								{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
 							</DragModeToggle>
 						</div>

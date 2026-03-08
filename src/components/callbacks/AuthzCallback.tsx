@@ -1,10 +1,10 @@
-import { FiCheckCircle, FiLoader, FiXCircle } from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -118,7 +118,7 @@ const AuthzCallback: React.FC = () => {
 
 			try {
 				const currentUrl = getValidatedCurrentUrl('AuthzCallback');
-				logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
+				log.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
 
 				const urlObj = new URL(currentUrl);
 				const queryParams = urlObj.searchParams;
@@ -138,7 +138,7 @@ const AuthzCallback: React.FC = () => {
 					(Boolean(implicitAccessToken) || Boolean(implicitIdToken) || Boolean(implicitError));
 
 				if (hasImplicitPayload) {
-					logger.auth('AuthzCallback', 'Implicit flow payload detected, redirecting', {
+					log.auth('AuthzCallback', 'Implicit flow payload detected, redirecting', {
 						hasAccessToken: Boolean(implicitAccessToken),
 						hasIdToken: Boolean(implicitIdToken),
 						hasError: Boolean(implicitError),
@@ -147,9 +147,9 @@ const AuthzCallback: React.FC = () => {
 
 					if (implicitError) {
 						// DEBUG: Enhanced error logging with full URL details
-						// Removed duplicate console.error (logger.error below captures this)
+						// Removed duplicate console.error (log.error below captures this)
 
-						logger.error('AuthzCallback', 'Implicit flow returned error parameters', {
+						log.error('AuthzCallback', 'Implicit flow returned error parameters', {
 							error: implicitError,
 							errorDescription: implicitErrorDescription,
 							url: urlObj.href?.substring(0, 300), // Limit URL length for logging
@@ -204,7 +204,7 @@ const AuthzCallback: React.FC = () => {
 						rawFlowContext: flowContext,
 					});
 				} catch (e) {
-					logger.error(
+					log.error(
 						'AuthzCallback',
 						' [AuthzCallback] Flow context parsing failed:',
 						undefined,
@@ -245,7 +245,7 @@ const AuthzCallback: React.FC = () => {
 					const errorDescription = urlParams.get('error_description');
 
 					if (error) {
-						logger.error(
+						log.error(
 							'AuthzCallback',
 							' [AuthzCallback] Authorization error in popup:',
 							undefined,
@@ -293,7 +293,7 @@ const AuthzCallback: React.FC = () => {
 						}, 1000);
 						return;
 					} else {
-						logger.error(
+						log.error(
 							'AuthzCallback',
 							' [AuthzCallback] Missing code or state in popup callback'
 						);
@@ -345,7 +345,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] OAuth V3 authorization error:',
 									undefined,
@@ -388,7 +388,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] V5 authorization error:',
 									undefined,
@@ -442,7 +442,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] V7 authorization error:',
 									undefined,
@@ -530,7 +530,7 @@ const AuthzCallback: React.FC = () => {
 							});
 
 							if (error) {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] MFA authorization error:',
 									undefined,
@@ -566,7 +566,7 @@ const AuthzCallback: React.FC = () => {
 								}, 1500);
 								return;
 							} else {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] Missing code or state in MFA callback'
 								);
@@ -599,7 +599,7 @@ const AuthzCallback: React.FC = () => {
 								const errorDescription = urlParams.get('error_description');
 								const allParams = Object.fromEntries(urlParams.entries());
 
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] Authorization error in V3 full redirect:',
 									{
@@ -706,7 +706,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 								}, 1500);
 								return;
 							} else {
-								logger.error(
+								log.error(
 									'AuthzCallback',
 									' [AuthzCallback] Missing code or state in V3 full redirect'
 								);
@@ -716,7 +716,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 							}
 						}
 					} catch (e) {
-						logger.warn('AuthzCallback', 'Failed to parse flow context in AuthzCallback:', {
+						log.warn('AuthzCallback', 'Failed to parse flow context in AuthzCallback:', {
 							error: e,
 						});
 					}
@@ -729,7 +729,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 				if (result.success) {
 					setStatus('success');
 					setMessage('Authorization successful! Redirecting...');
-					logger.auth('AuthzCallback', 'Authorization successful', {
+					log.auth('AuthzCallback', 'Authorization successful', {
 						redirectUrl: result.redirectUrl,
 					});
 
@@ -783,7 +783,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 					setStatus('error');
 					setMessage('Authorization failed');
 					setError(result.error || 'Unknown error occurred');
-					logger.error('AuthzCallback', 'Authorization failed', { error: result.error });
+					log.error('AuthzCallback', 'Authorization failed', { error: result.error });
 
 					// For non-popup flows, the error is displayed in the UI
 				}
@@ -791,7 +791,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 				setStatus('error');
 				setMessage('Authorization failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error(
+				log.error(
 					'AuthzCallback',
 					'Error processing callback',
 					err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) }
@@ -807,9 +807,9 @@ Check your PingOne application configuration and ensure all parameters match exa
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			default:
 				return <FiLoader className="animate-spin" />;
 		}

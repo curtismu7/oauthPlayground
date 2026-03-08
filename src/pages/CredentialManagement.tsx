@@ -1,29 +1,13 @@
 // src/pages/CredentialManagement.tsx
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiClock,
-	FiDatabase,
-	FiDownload,
-	FiExternalLink,
-	FiGlobe,
-	FiHardDrive,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiTrash2,
-	FiUpload,
-	FiUser,
-	FiXCircle,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // import { FlowHeader } from '../services/flowHeaderService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
@@ -283,7 +267,7 @@ export const CredentialManagement: React.FC = () => {
 
 			setFlows(flowInfos);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialManagement',
 				'[CredentialManagement] Failed to load credentials:',
 				undefined,
@@ -343,7 +327,7 @@ export const CredentialManagement: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialManagement',
 				'[CredentialManagement] Export failed:',
 				undefined,
@@ -399,7 +383,7 @@ export const CredentialManagement: React.FC = () => {
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialManagement',
 				'[CredentialManagement] Import failed:',
 				undefined,
@@ -436,7 +420,7 @@ export const CredentialManagement: React.FC = () => {
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
 			);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'CredentialManagement',
 				`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`,
 				undefined,
@@ -608,7 +592,7 @@ export const CredentialManagement: React.FC = () => {
 		<div style={styles.container}>
 			<div style={styles.pageHeader}>
 				<h1 style={styles.pageTitle}>
-					<FiKey /> Credential Management
+					<span>🔑</span> Credential Management
 				</h1>
 				<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
 				<WorkerTokenSectionV8 compact />
@@ -633,7 +617,7 @@ export const CredentialManagement: React.FC = () => {
 					}}
 					onClick={() => setActiveTab('credentials')}
 				>
-					<FiDatabase size={15} /> Flow Credentials
+					<span style={{ fontSize: '15px' }}>🗄️</span> Flow Credentials
 				</button>
 				<button
 					type="button"
@@ -653,14 +637,14 @@ export const CredentialManagement: React.FC = () => {
 					}}
 					onClick={() => setActiveTab('tester')}
 				>
-					<FiShield size={15} /> Token Tester
+					<span style={{ fontSize: '15px' }}>🛡️</span> Token Tester
 				</button>
 			</div>
 
 			{activeTab === 'tester' ? (
 				<div style={styles.card}>
 					<h2 style={styles.title}>
-						<FiShield /> Worker Token Tester
+						<span>🛡️</span> Worker Token Tester
 					</h2>
 					<p style={styles.description}>
 						Paste a PingOne worker token to decode and validate it against the PingOne API.
@@ -709,7 +693,7 @@ export const CredentialManagement: React.FC = () => {
 									fontSize: '0.875rem',
 								}}
 							>
-								<FiXCircle /> {testerError}
+								<span>❌</span> {testerError}
 							</div>
 						)}
 					</div>
@@ -726,7 +710,7 @@ export const CredentialManagement: React.FC = () => {
 							>
 								{[
 									{
-										icon: <FiClock />,
+										icon: <span>🕐</span>,
 										label: 'Status',
 										value: testerIsExpired ? 'EXPIRED' : 'VALID',
 										color: testerIsExpired ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK',
@@ -737,21 +721,21 @@ export const CredentialManagement: React.FC = () => {
 												: undefined,
 									},
 									{
-										icon: <FiKey />,
+										icon: <span>🔑</span>,
 										label: 'Client ID',
 										value: testerPayload.client_id ?? 'N/A',
 										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 										detail: 'OAuth Client',
 									},
 									{
-										icon: <FiGlobe />,
+										icon: <span>🌐</span>,
 										label: 'Environment ID',
 										value: testerPayload.env ?? 'N/A',
 										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 										detail: 'PingOne Environment',
 									},
 									{
-										icon: <FiUser />,
+										icon: <span>👤</span>,
 										label: 'Organization',
 										value: testerPayload.org ?? 'N/A',
 										color: 'V9_COLORS.PRIMARY.BLUE_DARK',
@@ -926,7 +910,7 @@ export const CredentialManagement: React.FC = () => {
 										fontSize: '0.875rem',
 									}}
 								>
-									<FiAlertCircle /> This token is expired — API validation will fail
+									<span>⚠️</span> This token is expired — API validation will fail
 								</div>
 							)}
 
@@ -945,7 +929,7 @@ export const CredentialManagement: React.FC = () => {
 								onClick={runTesterTests}
 								disabled={testerIsTesting || testerIsExpired}
 							>
-								<FiShield /> {testerIsTesting ? 'Testing...' : 'Test Token Against PingOne API'}
+								<span>🛡️</span> {testerIsTesting ? 'Testing...' : 'Test Token Against PingOne API'}
 							</button>
 							{testerResults.length > 0 && (
 								<div
@@ -1023,7 +1007,7 @@ export const CredentialManagement: React.FC = () => {
 			) : (
 				<div style={styles.card}>
 					<h2 style={styles.title}>
-						<FiDatabase />
+						<span>🗄️</span>
 						Flow Credentials
 					</h2>
 					<p style={styles.description}>
@@ -1033,17 +1017,17 @@ export const CredentialManagement: React.FC = () => {
 
 					<div style={styles.buttonRow}>
 						<button type="button" style={styles.refreshButton} onClick={loadFlowCredentials}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Refresh Status
 						</button>
 
 						<button type="button" style={styles.exportButton} onClick={handleExportCredentials}>
-							<FiDownload />
+							<span>📥</span>
 							Export All Credentials
 						</button>
 
 						<label style={styles.importLabel}>
-							<FiUpload />
+							<span>📤</span>
 							Import Credentials
 							<input
 								type="file"
@@ -1058,7 +1042,7 @@ export const CredentialManagement: React.FC = () => {
 							style={styles.clearButton}
 							onClick={() => setShowClearAllModal(true)}
 						>
-							<FiTrash2 />
+							<span>🗑️</span>
 							Clear All Credentials
 						</button>
 					</div>
@@ -1138,8 +1122,8 @@ export const CredentialManagement: React.FC = () => {
 																	: { background: '#e0e7ff', color: '#4338ca' }),
 														}}
 													>
-														{flow.source === 'browser' && <FiHardDrive size={12} />}
-														{flow.source === 'file' && <FiDatabase size={12} />}
+														{flow.source === 'browser' && <span style={{ fontSize: '12px' }}>💾</span>}
+														{flow.source === 'file' && <span style={{ fontSize: '12px' }}>🗄️</span>}
 														{flow.source.toUpperCase()}
 													</span>
 												</div>
@@ -1155,7 +1139,7 @@ export const CredentialManagement: React.FC = () => {
 											handleNavigateToFlow(flow.flowKey);
 										}}
 									>
-										<FiExternalLink />
+										<span>🔗</span>
 										Open Flow
 									</button>
 								</button>

@@ -1,18 +1,18 @@
-/* Sidebar Ping UI theme — fixed width, light grey, blue active, no wrap (see MENU_PING_UI_PLAN.md) */
+/* Sidebar Ping UI theme — fixed width, dark, blue active, white text (see MENU_PING_UI_PLAN.md) */
 
 :root {
 	--sidebar-ping-width: 260px;
-	--sidebar-ping-bg: #f5f5f5;
-	--sidebar-ping-item-text: #374151;
+	--sidebar-ping-bg: #1e293b;
+	--sidebar-ping-item-text: #f1f5f9;
 	--sidebar-ping-active-bg: #007bff;
 	--sidebar-ping-active-text: #ffffff;
-	--sidebar-ping-active-bar: #0056b3;
+	--sidebar-ping-active-bar: #60a5fa;
 }
 
 /* Resizable: width/min/max come from Sidebar state (sidebar.width in localStorage) */
 .sidebar--ping {
 	background: var(--sidebar-ping-bg);
-	border-right: 1px solid #e5e7eb;
+	border-right: 1px solid #334155;
 }
 
 .sidebar-ping__drag-handle {
@@ -32,9 +32,9 @@
 .sidebar-ping__drag-hint {
 	padding: 0.5rem 1rem;
 	font-size: 0.75rem;
-	color: #0369a1;
-	background: #e0f2fe;
-	border-bottom: 1px solid #bae6fd;
+	color: #93c5fd;
+	background: rgba(255, 255, 255, 0.06);
+	border-bottom: 1px solid #334155;
 }
 
 /* Drop zones for reordering groups — visible gap between sections */
@@ -176,7 +176,7 @@
 }
 
 .sidebar-ping__group-header:hover {
-	color: #b91c1c;
+	color: #ffffff;
 }
 
 .sidebar-ping__group-header:focus-visible {
@@ -212,8 +212,8 @@
 }
 
 .sidebar-ping__item:hover {
-	background: rgba(0, 0, 0, 0.05);
-	color: #b91c1c;
+	background: rgba(255, 255, 255, 0.08);
+	color: #ffffff;
 }
 
 .sidebar-ping__item:focus-visible {
@@ -225,6 +225,13 @@
 	background: var(--sidebar-ping-active-bg);
 	color: var(--sidebar-ping-active-text);
 	border-left-color: var(--sidebar-ping-active-bar);
+}
+
+/* Ensure ALL inactive menu text and icon are white (override global nav a color) */
+.sidebar-ping__nav .sidebar-ping__item,
+.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-label,
+.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-icon {
+	color: var(--sidebar-ping-item-text);
 }
 
 /* Ensure selected menu text and icon are white (override global nav a color) */

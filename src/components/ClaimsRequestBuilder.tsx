@@ -1,7 +1,7 @@
 // src/components/ClaimsRequestBuilder.tsx
 // Advanced OIDC Claims Request Builder - Request specific claims with essential/voluntary flags
 
-import { FiAlertCircle, FiCheckCircle, FiCode, FiInfo, FiPlus, FiTrash2 } from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -568,7 +568,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
 					<HeaderIcon>
-						<FiCode />
+						<span>❓</span>
 					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
@@ -585,7 +585,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
 					<HeaderIcon>
-						<FiCode />
+						<span>❓</span>
 					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
@@ -600,7 +600,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			<Content>
 				<InfoBox>
 					<HeaderIcon>
-						<FiInfo />
+						<span>ℹ️</span>
 					</HeaderIcon>
 					<div>
 						<strong>About Claims Requests:</strong> The <code>claims</code> parameter lets you
@@ -691,11 +691,11 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 											: "Voluntary (optional) - JSON: null - Auth server will try to return this claim but won't fail if missing"
 									}
 								>
-									{isEssential ? <FiAlertCircle /> : <FiCheckCircle />}
+									{isEssential ? <span>⚠️</span> : <span>✅</span>}
 									{isEssential ? 'Essential' : 'Voluntary'}
 								</EssentialToggle>
 								<DeleteButton onClick={() => deleteClaim(activeTab, name)}>
-									<FiTrash2 />
+									<span>🗑️</span>
 								</DeleteButton>
 							</ClaimRow>
 						);
@@ -703,7 +703,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 				</ClaimsList>
 
 				<AddClaimHelper>
-					<FiInfo />
+					<span>ℹ️</span>
 					<div>
 						<strong>Type custom claim names</strong> (like PingOne custom attributes) in the input
 						field above, or <strong>drag claims from below</strong>. Click "Add Claim" to add
@@ -714,7 +714,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 				{/* Common Claims - Draggable Grid */}
 				<CommonClaimsContainer>
 					<CommonClaimsTitle>
-						<FiInfo />
+						<span>ℹ️</span>
 						Common OIDC/PingOne Claims (Drag to Use)
 					</CommonClaimsTitle>
 					<CommonClaimsGrid>
@@ -736,7 +736,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 				</CommonClaimsContainer>
 
 				<AddButton onClick={() => addClaim(activeTab)}>
-					<FiPlus /> Add Another Claim
+					<span>➕</span> Add Another Claim
 				</AddButton>
 
 				<div
@@ -857,7 +857,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							onClick={() => setShowPreview(!showPreview)}
 							style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}
 						>
-							<FiCode /> {showPreview ? 'Hide' : 'Show'} JSON Preview
+							<span>❓</span> {showPreview ? 'Hide' : 'Show'} JSON Preview
 						</AddButton>
 
 						{showPreview && (

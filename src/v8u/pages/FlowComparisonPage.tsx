@@ -1,15 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiBarChart2,
-	FiCheckCircle,
-	FiClock,
-	FiDatabase,
-	FiDownload,
-	FiRefreshCw,
-	FiShield,
-	FiUsers,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';
@@ -487,7 +476,7 @@ export const FlowComparisonPage: React.FC = () => {
 			<StatsGrid>
 				<StatCard>
 					<StatIcon $color="#3b82f6">
-						<FiBarChart2 />
+						<span>❓</span>
 					</StatIcon>
 					<StatValue>{stats.totalFlows}</StatValue>
 					<StatLabel>Total Flows</StatLabel>
@@ -495,7 +484,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#10b981">
-						<FiCheckCircle />
+						<span>✅</span>
 					</StatIcon>
 					<StatValue>{stats.selectedFlows}</StatValue>
 					<StatLabel>Selected Flows</StatLabel>
@@ -503,7 +492,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<FiShield />
+						<span>🛡️</span>
 					</StatIcon>
 					<StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
 					<StatLabel>Avg Security</StatLabel>
@@ -511,7 +500,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#8b5cf6">
-						<FiClock />
+						<span>🕐</span>
 					</StatIcon>
 					<StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
 					<StatLabel>Avg Complexity</StatLabel>
@@ -525,7 +514,7 @@ export const FlowComparisonPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiDatabase />
+						<span>🗄️</span>
 					</SectionIcon>
 					<SectionTitle>Comparison Features</SectionTitle>
 				</SectionHeader>
@@ -533,7 +522,7 @@ export const FlowComparisonPage: React.FC = () => {
 				<FeatureList>
 					<FeatureItem>
 						<FeatureIcon $color="#10b981">
-							<FiShield />
+							<span>🛡️</span>
 						</FeatureIcon>
 						<FeatureText>Comprehensive security analysis with detailed ratings</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -541,7 +530,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#3b82f6">
-							<FiBarChart2 />
+							<span>❓</span>
 						</FeatureIcon>
 						<FeatureText>Performance metrics and complexity assessment</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -549,7 +538,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#8b5cf6">
-							<FiUsers />
+							<span>👥</span>
 						</FeatureIcon>
 						<FeatureText>User experience evaluation and recommendations</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -557,7 +546,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#10b981">
-							<FiDatabase />
+							<span>🗄️</span>
 						</FeatureIcon>
 						<FeatureText>Detailed pros and cons for each flow type</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -565,7 +554,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#f59e0b">
-							<FiArrowRight />
+							<span>➡️</span>
 						</FeatureIcon>
 						<FeatureText>Best use case recommendations and guidance</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -573,7 +562,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#ef4444">
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</FeatureIcon>
 						<FeatureText>Security warnings and deprecation notices</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -585,7 +574,7 @@ export const FlowComparisonPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiBarChart2 />
+						<span>❓</span>
 					</SectionIcon>
 					<SectionTitle>Comparison Statistics</SectionTitle>
 				</SectionHeader>
@@ -616,12 +605,12 @@ export const FlowComparisonPage: React.FC = () => {
 			{/* Export Actions */}
 			<ActionButtons>
 				<ActionButton onClick={handleExportComparison}>
-					<FiDownload /> Export Comparison
+					<span>📥</span> Export Comparison
 				</ActionButton>
 				<ActionButton
 					onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}
 				>
-					<FiRefreshCw /> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
+					<span>🔄</span> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
 				</ActionButton>
 			</ActionButtons>
 		</PageContainer>

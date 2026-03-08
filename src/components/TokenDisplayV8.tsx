@@ -1,7 +1,7 @@
-import { FiCopy, FiEye, FiEyeOff } from '@icons';
+
 import React, { useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TokenDisplayV8Props {
 	idToken?: string;
@@ -23,7 +23,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 		try {
 			await navigator.clipboard.writeText(text);
 		} catch (err) {
-			logger.error('TokenDisplayV8', 'Failed to copy text: ', undefined, err as Error);
+			log.error('TokenDisplayV8', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -57,7 +57,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								{showIdToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+								{showIdToken ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 								{showIdToken ? 'Hide' : 'Show'}
 							</ButtonSpinner>
 							<ButtonSpinner
@@ -68,7 +68,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Copying..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 								Copy
 							</ButtonSpinner>
 						</div>
@@ -96,7 +96,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								{showAccessToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+								{showAccessToken ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 								{showAccessToken ? 'Hide' : 'Show'}
 							</ButtonSpinner>
 							<ButtonSpinner
@@ -107,7 +107,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Copying..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 								Copy
 							</ButtonSpinner>
 						</div>

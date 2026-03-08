@@ -13,7 +13,7 @@
  * <MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
  */
 
-import { FiExternalLink, FiInfo, FiX } from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
@@ -229,7 +229,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 			style={mergedTriggerStyle}
 			className={triggerClassName}
 		>
-			<FiInfo size={14} />
+			<span style={{ fontSize: '14px' }}>ℹ️</span>
 			<span>{label || 'What is this?'}</span>
 		</button>
 	);
@@ -345,7 +345,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 							}}
 						>
 							<span>Learn more in PingOne docs</span>
-							<FiExternalLink size={12} />
+							<span style={{ fontSize: '12px' }}>🔗</span>
 						</a>
 					)}
 				</div>
@@ -460,7 +460,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 								}}
 								aria-label="Close"
 							>
-								<FiX size={24} />
+								<span style={{ fontSize: '24px' }}>❌</span>
 							</button>
 						</div>
 
@@ -532,7 +532,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 									}}
 								>
 									<span>📚 Learn more in PingOne documentation</span>
-									<FiExternalLink size={14} />
+									<span style={{ fontSize: '14px' }}>🔗</span>
 								</a>
 							</div>
 						)}

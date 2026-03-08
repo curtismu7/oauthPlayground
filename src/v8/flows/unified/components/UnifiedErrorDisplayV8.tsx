@@ -9,7 +9,7 @@
  * Following SWE-15 principles for reusable error handling
  */
 
-import { FiKey, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -227,7 +227,7 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 									</>
 								) : (
 									<>
-										<FiKey size={14} />
+										<span style={{ fontSize: '14px' }}>🔑</span>
 										Get Worker Token
 									</>
 								)}

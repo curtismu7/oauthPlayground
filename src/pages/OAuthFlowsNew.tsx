@@ -1,4 +1,4 @@
-import { FiHelpCircle } from '@icons';
+
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
@@ -73,7 +73,7 @@ const OAuthFlowsNew: React.FC = () => {
 					to OAuth, or use our wizard to find the perfect flow for your use case.
 				</p>
 				<WizardButton onClick={() => setShowWizard(true)}>
-					<FiHelpCircle />
+					<span>❓</span>
 					Find the Right Flow for Me
 				</WizardButton>
 			</PageHeader>

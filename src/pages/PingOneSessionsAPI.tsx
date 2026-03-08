@@ -1,19 +1,6 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
-import {
-	FiClock,
-	FiCode,
-	FiDatabase,
-	FiExternalLink,
-	FiInfo,
-	FiLogOut,
-	FiMonitor,
-	FiPlay,
-	FiRefreshCw,
-	FiShield,
-	FiTrash2,
-	FiUsers,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -417,7 +404,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					}}
 					type="button"
 				>
-					<FiCode size={16} />
+					<span style={{ fontSize: '16px' }}>❓</span>
 					{copiedCode === id ? 'Copied!' : 'Copy'}
 				</button>
 			</div>
@@ -459,7 +446,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					<CollapsibleHeader
 						title="What is the PingOne Sessions API?"
 						subtitle="The Sessions API provides programmatic access to manage user authentication sessions in PingOne"
-						icon={<FiUsers />}
+						icon={<span>👥</span>}
 						defaultCollapsed={false}
 					>
 						<div style={{ padding: '1.5rem' }}>
@@ -476,7 +463,7 @@ const PingOneSessionsAPI: React.FC = () => {
 									</p>
 
 									<PingOneNote>
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<h4>Key Capabilities</h4>
 											<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
@@ -501,7 +488,7 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiShield size={24} color="V9_COLORS.PRIMARY.BLUE" />
+													<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.BLUE' }}>🛡️</span>
 													<h4 style={{ margin: 0 }}>Security Management</h4>
 												</div>
 												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -521,7 +508,7 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiMonitor size={24} color="V9_COLORS.PRIMARY.BLUE" />
+													<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.BLUE' }}>🖥️</span>
 													<h4 style={{ margin: 0 }}>Session Monitoring</h4>
 												</div>
 												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -541,7 +528,7 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<FiLogOut size={24} color="V9_COLORS.PRIMARY.BLUE" />
+													<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.BLUE' }}>❓</span>
 													<h4 style={{ margin: 0 }}>Admin Controls</h4>
 												</div>
 												<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -568,7 +555,7 @@ const PingOneSessionsAPI: React.FC = () => {
 							<Card style={{ marginBottom: '2rem' }}>
 								<CardHeader>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-										<FiDatabase size={20} />
+										<span style={{ fontSize: '20px' }}>🗄️</span>
 										<h3 style={{ margin: 0 }}>Read All Sessions</h3>
 									</div>
 								</CardHeader>
@@ -629,7 +616,7 @@ const PingOneSessionsAPI: React.FC = () => {
 									)}
 
 									<PingOneNote>
-										<FiInfo size={18} />
+										<span style={{ fontSize: '18px' }}>ℹ️</span>
 										<div>
 											<h4>Session Properties</h4>
 											<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -646,7 +633,7 @@ const PingOneSessionsAPI: React.FC = () => {
 							<Card style={{ marginBottom: '2rem' }}>
 								<CardHeader>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-										<FiMonitor size={20} />
+										<span style={{ fontSize: '20px' }}>🖥️</span>
 										<h3 style={{ margin: 0 }}>Read One Session</h3>
 									</div>
 								</CardHeader>
@@ -707,7 +694,7 @@ const PingOneSessionsAPI: React.FC = () => {
 							<Card style={{ marginBottom: '2rem' }}>
 								<CardHeader>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-										<FiLogOut size={20} />
+										<span style={{ fontSize: '20px' }}>❓</span>
 										<h3 style={{ margin: 0 }}>Delete One Session (Revoke)</h3>
 									</div>
 								</CardHeader>
@@ -733,7 +720,7 @@ const PingOneSessionsAPI: React.FC = () => {
 									)}
 
 									<SecurityNote>
-										<FiShield size={18} />
+										<span style={{ fontSize: '18px' }}>🛡️</span>
 										<div>
 											<h4>Security Consideration</h4>
 											<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -758,7 +745,7 @@ const PingOneSessionsAPI: React.FC = () => {
 							<Card style={{ marginBottom: '2rem' }}>
 								<CardHeader>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-										<FiTrash2 size={20} />
+										<span style={{ fontSize: '20px' }}>🗑️</span>
 										<h3 style={{ margin: 0 }}>Delete All Sessions</h3>
 									</div>
 								</CardHeader>
@@ -785,7 +772,7 @@ const PingOneSessionsAPI: React.FC = () => {
 									)}
 
 									<SecurityNote>
-										<FiShield size={18} />
+										<span style={{ fontSize: '18px' }}>🛡️</span>
 										<div>
 											<h4>Critical Action</h4>
 											<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -873,7 +860,7 @@ grant_type=client_credentials
 									)}
 
 									<PingOneNote>
-										<FiInfo size={18} />
+										<span style={{ fontSize: '18px' }}>ℹ️</span>
 										<div>
 											<h4>Worker Application</h4>
 											<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -993,7 +980,7 @@ grant_type=client_credentials
 												!credentials.accessToken
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{isLoading ? 'Testing...' : 'Test API'}
 										</Button>
 
@@ -1006,7 +993,7 @@ grant_type=client_credentials
 
 									{selectedEndpoint === 'read-one' || selectedEndpoint === 'delete-one' ? (
 										<PingOneNote style={{ marginTop: '1rem' }}>
-											<FiInfo size={18} />
+											<span style={{ fontSize: '18px' }}>ℹ️</span>
 											<div>
 												<h4>Session ID Required</h4>
 												<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -1221,7 +1208,7 @@ try {
   await revokeSession('env-123', 'user-456', 'session-789', 'access-token');
   console.log('User has been logged out of that session');
 } catch (error) {
-  logger.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
+  log.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
 }`,
 										'example-revoke-session-js'
 									)}
@@ -1275,7 +1262,7 @@ async function handlePasswordReset(userId) {
 									)}
 
 									<SecurityNote>
-										<FiShield size={18} />
+										<span style={{ fontSize: '18px' }}>🛡️</span>
 										<div>
 											<h4>Security Best Practice</h4>
 											<p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -1364,7 +1351,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiShield size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
 											<h4 style={{ margin: 0 }}>Secure Token Storage</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1385,7 +1372,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiClock size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>🕐</span>
 											<h4 style={{ margin: 0 }}>Rate Limiting</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1405,7 +1392,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiRefreshCw size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>🔄</span>
 											<h4 style={{ margin: 0 }}>Error Handling</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1426,7 +1413,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiMonitor size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>🖥️</span>
 											<h4 style={{ margin: 0 }}>Audit Logging</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1446,7 +1433,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiUsers size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>👥</span>
 											<h4 style={{ margin: 0 }}>User Notifications</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1466,7 +1453,7 @@ function isExpiringSoon(session) {
 												marginBottom: '0.75rem',
 											}}
 										>
-											<FiDatabase size={24} color="V9_COLORS.PRIMARY.GREEN" />
+											<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>🗄️</span>
 											<h4 style={{ margin: 0 }}>Caching Strategy</h4>
 										</div>
 										<p style={{ margin: 0, fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1499,7 +1486,7 @@ function isExpiringSoon(session) {
 												fontSize: '1rem',
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											PingOne Sessions API Documentation
 										</a>
 										<a
@@ -1515,7 +1502,7 @@ function isExpiringSoon(session) {
 												fontSize: '1rem',
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											PingOne API Reference - Sessions
 										</a>
 										<a
@@ -1531,7 +1518,7 @@ function isExpiringSoon(session) {
 												fontSize: '1rem',
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											PingOne Platform API - Getting Started
 										</a>
 									</div>

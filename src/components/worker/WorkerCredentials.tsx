@@ -1,11 +1,11 @@
 // Worker Credentials component for secure credential input
 
-import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiSettings } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
 import { validateCredentialFormat } from '../../utils/clientCredentials';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { validateEnvironmentId } from '../../utils/workerToken';
 
 const Container = styled.div`
@@ -292,7 +292,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 		setIsValidating(true);
 
 		try {
-			logger.info('WORKER-CREDENTIALS', 'Testing connection', {
+			log.info('WORKER-CREDENTIALS', 'Testing connection', {
 				clientId: `${credentials.client_id.substring(0, 8)}...`,
 				environmentId: credentials.environment_id,
 			});
@@ -315,13 +315,13 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 			);
 
 			if (response.ok) {
-				logger.success('WORKER-CREDENTIALS', 'Connection test successful');
+				log.success('WORKER-CREDENTIALS', 'Connection test successful');
 				setValidationErrors([]);
 			} else {
 				throw new Error(`Token endpoint returned ${response.status}`);
 			}
 		} catch (error) {
-			logger.error('WORKER-CREDENTIALS', 'Connection test failed', error);
+			log.error('WORKER-CREDENTIALS', 'Connection test failed', error);
 			setValidationErrors([
 				`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			]);
@@ -333,14 +333,14 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 	const handleLoadFromEnv = useCallback(() => {
 		// In a real implementation, this would load from actual environment variables
 		// For now, we'll just show a placeholder
-		logger.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
+		log.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
 		// This would be implemented based on the actual environment variable loading mechanism
 	}, []);
 
 	return (
 		<Container>
 			<Header>
-				<FiSettings size={20} color="V9_COLORS.PRIMARY.BLUE" />
+				<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE' }}>⚙️</span>
 				<h3>Worker Application Credentials</h3>
 			</Header>
 
@@ -358,7 +358,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 					/>
 					{validationErrors.some((error) => error.includes('Client ID')) && (
 						<ErrorMessage>
-							<FiAlertCircle size={14} />
+							<span style={{ fontSize: '14px' }}>⚠️</span>
 							{validationErrors.find((error) => error.includes('Client ID'))}
 						</ErrorMessage>
 					)}
@@ -381,12 +381,12 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 							onClick={() => setShowSecret(!showSecret)}
 							title={showSecret ? 'Hide secret' : 'Show secret'}
 						>
-							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</ToggleButton>
 					</SecureInputContainer>
 					{validationErrors.some((error) => error.includes('Client Secret')) && (
 						<ErrorMessage>
-							<FiAlertCircle size={14} />
+							<span style={{ fontSize: '14px' }}>⚠️</span>
 							{validationErrors.find((error) => error.includes('Client Secret'))}
 						</ErrorMessage>
 					)}
@@ -404,13 +404,13 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 					/>
 					{validationErrors.some((error) => error.includes('Environment ID')) && (
 						<ErrorMessage>
-							<FiAlertCircle size={14} />
+							<span style={{ fontSize: '14px' }}>⚠️</span>
 							{validationErrors.find((error) => error.includes('Environment ID'))}
 						</ErrorMessage>
 					)}
 					{credentials.environment_id && validateEnvironmentId(credentials.environment_id) && (
 						<SuccessMessage>
-							<FiCheck size={14} />
+							<span style={{ fontSize: '14px' }}>✅</span>
 							Valid environment ID format
 						</SuccessMessage>
 					)}
@@ -434,7 +434,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 					</ScopeContainer>
 					{validationErrors.some((error) => error.includes('scope')) && (
 						<ErrorMessage>
-							<FiAlertCircle size={14} />
+							<span style={{ fontSize: '14px' }}>⚠️</span>
 							{validationErrors.find((error) => error.includes('scope'))}
 						</ErrorMessage>
 					)}

@@ -1,7 +1,7 @@
 // src/components/AudienceParameterInput.tsx
 // OAuth/OIDC Audience Parameter Input - API targeting for access tokens
 
-import { FiAlertCircle, FiInfo, FiMove, FiTarget } from '@icons';
+
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -249,7 +249,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 		<Container>
 			<Label>
 				<LabelIcon>
-					<FiTarget />
+					<span>❓</span>
 				</LabelIcon>
 				Audience (API Target for Access Token)
 			</Label>
@@ -293,7 +293,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 						<ExampleText>{example.value}</ExampleText>
 						{example.isFromDiscovery && <DiscoveryBadge>OIDC</DiscoveryBadge>}
 						<DragIcon>
-							<FiMove />
+							<span>❓</span>
 						</DragIcon>
 					</ExampleItem>
 				))}
@@ -301,7 +301,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 
 			<InfoBox>
 				<InfoIcon>
-					<FiInfo />
+					<span>ℹ️</span>
 				</InfoIcon>
 				<div>
 					<strong>Why Use Audience?</strong>
@@ -323,7 +323,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 			{flowType === 'oauth' && !value && (
 				<InfoBox $variant="warning">
 					<InfoIcon $variant="warning">
-						<FiAlertCircle />
+						<span>⚠️</span>
 					</InfoIcon>
 					<div>
 						<strong>OAuth Best Practice:</strong> For production OAuth applications accessing

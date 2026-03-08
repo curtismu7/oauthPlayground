@@ -9,9 +9,9 @@
  * when environment variables are not available or need to be updated.
  */
 
-import { FiAlertTriangle, FiInfo, FiSave, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -90,7 +90,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 			onConfigurationSaved?.(config);
 			onClose();
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ProtectPortalConfigModal',
 				'Failed to save configuration:',
 				undefined,
@@ -279,13 +279,13 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							e.currentTarget.style.color = currentTheme.colors.textSecondary;
 						}}
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 
 				{!process.env.REACT_APP_ENVIRONMENT_ID && (
 					<div style={warningBoxStyle}>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 						<div
 							style={{ fontSize: '0.8125rem', color: currentTheme.colors.error, lineHeight: '1.5' }}
 						>
@@ -320,7 +320,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 				)}
 
 				<div style={infoBoxStyle}>
-					<FiInfo />
+					<span>ℹ️</span>
 					<div
 						style={{ fontSize: '0.8125rem', color: currentTheme.colors.primary, lineHeight: '1.5' }}
 					>
@@ -527,7 +527,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							</>
 						) : (
 							<>
-								<FiSave />
+								<span>💾</span>
 								Save Configuration
 							</>
 						)}

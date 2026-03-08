@@ -9,7 +9,7 @@
  * due to NO_USABLE_DEVICES errors, showing which devices are unavailable and why.
  */
 
-import { FiAlertCircle, FiRefreshCw, FiUnlock, FiX } from '@icons';
+
 import React from 'react';
 
 export interface UnavailableDevice {
@@ -143,7 +143,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<FiAlertCircle size={24} color="white" />
+						<span style={{ fontSize: 24, color: 'white' }}>⚠️</span>
 						<h3
 							style={{
 								margin: 0,
@@ -170,7 +170,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 						}}
 						aria-label="Close modal"
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 
@@ -281,7 +281,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 													gap: '4px',
 												}}
 											>
-												<FiUnlock size={14} />
+												<span style={{ fontSize: '14px' }}>🔓</span>
 												Unlock
 											</button>
 										)}
@@ -368,7 +368,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 									gap: '8px',
 								}}
 							>
-								<FiRefreshCw size={16} />
+								<span style={{ fontSize: '16px' }}>🔄</span>
 								Retry
 							</button>
 						)}

@@ -1,12 +1,12 @@
 // src/components/SmartTVDeviceFlow.tsx
 // Smart TV Style Device Authorization Flow Interface
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Vizio TV Main Container - Authentic Vizio Design
@@ -285,31 +285,31 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SmartTVDeviceFlow', 'User code copied to clipboard');
+		log.info('SmartTVDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('SmartTVDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('SmartTVDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SmartTVDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SmartTVDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -408,7 +408,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
 								}}
 							>
-								<FiExternalLink size={18} /> Open in Browser
+								<span style={{ fontSize: '18px' }}>🔗</span> Open in Browser
 							</ControlButton>
 						</div>
 					)}
@@ -416,10 +416,10 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 					{/* Control Buttons */}
 					<ControlButtons>
 						<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy /> Copy Code
+							<span>📋</span> Copy Code
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<FiCopy /> Copy URI
+							<span>📋</span> Copy URI
 						</ControlButton>
 					</ControlButtons>
 

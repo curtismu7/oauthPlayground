@@ -1,7 +1,7 @@
 // src/components/FlowConfigurationTable.tsx
 // Comprehensive table showing configuration requirements for all OAuth/OIDC flows
 
-import { FiAlertTriangle, FiCheck, FiX } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -162,11 +162,11 @@ const FlowConfigurationTable: React.FC = () => {
 	const getIcon = (status: string) => {
 		switch (status) {
 			case 'required':
-				return <FiAlertTriangle size={14} />;
+				return <span style={{ fontSize: '14px' }}>⚠️</span>;
 			case 'not-used':
-				return <FiX size={14} />;
+				return <span style={{ fontSize: '14px' }}>❌</span>;
 			case 'optional':
-				return <FiCheck size={14} />;
+				return <span style={{ fontSize: '14px' }}>✅</span>;
 			default:
 				return null;
 		}

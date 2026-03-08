@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -352,13 +352,13 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
 	const getIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiAlertCircle />;
+				return <span>⚠️</span>;
 			case 'warning':
-				return <FiAlertCircle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiLoader />;
+				return <span>❓</span>;
 		}
 	};
 
@@ -420,7 +420,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 					}}
 				>
 					<StepNumber $status={step.status}>
-						{step.status === 'completed' ? <FiCheckCircle size={16} /> : index + 1}
+						{step.status === 'completed' ? <span style={{ fontSize: '16px' }}>✅</span> : index + 1}
 					</StepNumber>
 					<StepContent>
 						<h4>{step.title}</h4>

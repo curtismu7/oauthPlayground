@@ -1,24 +1,13 @@
 // src/components/MFAUserSettingsGatherer.tsx
 // Modern MFA User Settings Component with username input and MFA policy selection
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiChevronDown,
-	FiKey,
-	FiLock,
-	FiMessageSquare,
-	FiSettings,
-	FiShield,
-	FiSmartphone,
-	FiUser,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Types
 interface MFAUserSettings {
@@ -348,7 +337,7 @@ const MFA_POLICY_OPTIONS: MFAPolicyOption[] = [
 		id: 'mfa-sms-email',
 		name: 'SMS & Email MFA',
 		description: 'Send verification codes via SMS and email for flexible authentication',
-		icon: <FiMessageSquare />,
+		icon: <span>❓</span>,
 		devices: ['SMS', 'EMAIL'],
 		requiresWorkerToken: true,
 	},
@@ -356,7 +345,7 @@ const MFA_POLICY_OPTIONS: MFAPolicyOption[] = [
 		id: 'mfa-totp',
 		name: 'TOTP Authenticator',
 		description: 'Time-based One-Time Password using authenticator apps',
-		icon: <FiSmartphone />,
+		icon: <span>📱</span>,
 		devices: ['TOTP'],
 		requiresWorkerToken: true,
 	},
@@ -364,7 +353,7 @@ const MFA_POLICY_OPTIONS: MFAPolicyOption[] = [
 		id: 'mfa-voice',
 		name: 'Voice Call MFA',
 		description: 'Receive verification codes through automated voice calls',
-		icon: <FiLock />,
+		icon: <span>🔒</span>,
 		devices: ['VOICE'],
 		requiresWorkerToken: true,
 	},
@@ -372,7 +361,7 @@ const MFA_POLICY_OPTIONS: MFAPolicyOption[] = [
 		id: 'mfa-comprehensive',
 		name: 'Comprehensive MFA',
 		description: 'Multiple MFA methods including SMS, Email, TOTP, and Voice',
-		icon: <FiShield />,
+		icon: <span>🛡️</span>,
 		devices: ['SMS', 'EMAIL', 'TOTP', 'VOICE'],
 		requiresWorkerToken: true,
 	},
@@ -500,7 +489,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'MFAUserSettingsGatherer',
 				'Failed to get worker token:',
 				undefined,
@@ -523,7 +512,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 	return (
 		<Container className={className}>
 			<SectionTitle>
-				<FiUser />
+				<span>👤</span>
 				MFA User Configuration
 			</SectionTitle>
 
@@ -531,7 +520,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				{/* Username Input */}
 				<FormGroup>
 					<FormLabel>
-						<FiUser />
+						<span>👤</span>
 						Username
 					</FormLabel>
 					<FormInput
@@ -544,7 +533,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					/>
 					{errors.username && (
 						<ErrorMessage>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							{errors.username}
 						</ErrorMessage>
 					)}
@@ -553,7 +542,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				{/* MFA Policy Dropdown */}
 				<FormGroup>
 					<FormLabel>
-						<FiShield />
+						<span>🛡️</span>
 						MFA Policy
 					</FormLabel>
 					<DropdownContainer>
@@ -609,7 +598,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					</DropdownContainer>
 					{errors.mfaPolicy && (
 						<ErrorMessage>
-							<FiAlertCircle />
+							<span>⚠️</span>
 							{errors.mfaPolicy}
 						</ErrorMessage>
 					)}
@@ -621,11 +610,11 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				<WorkerTokenSection>
 					<WorkerTokenHeader>
 						<WorkerTokenTitle>
-							<FiKey />
+							<span>🔑</span>
 							Worker Token Required
 						</WorkerTokenTitle>
 						<WorkerTokenStatus $hasToken={!!workerToken}>
-							{workerToken ? <FiCheck /> : <FiAlertCircle />}
+							{workerToken ? <span>✅</span> : <span>⚠️</span>}
 							{workerToken ? 'Token Available' : 'Token Needed'}
 						</WorkerTokenStatus>
 					</WorkerTokenHeader>
@@ -647,7 +636,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 							onClick={handleGetWorkerToken}
 							disabled={isGettingWorkerToken}
 						>
-							{isGettingWorkerToken ? <LoadingSpinner /> : <FiKey />}
+							{isGettingWorkerToken ? <LoadingSpinner /> : <span>🔑</span>}
 							{workerToken ? 'Refresh Worker Token' : 'Get Worker Token'}
 						</ActionButton>
 
@@ -662,7 +651,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 									});
 								}}
 							>
-								<FiCheck />
+								<span>✅</span>
 								Copy Token
 							</ActionButton>
 						)}
@@ -685,7 +674,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 			{/* Device Creation Options */}
 			<DeviceCreationSection>
 				<SectionTitle style={{ marginBottom: '1rem' }}>
-					<FiSettings />
+					<span>⚙️</span>
 					Device Registration Method
 				</SectionTitle>
 
@@ -705,7 +694,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 						onClick={() => handleDeviceCreationModeChange('active')}
 					>
 						<DeviceCreationTitle>
-							<FiCheck />
+							<span>✅</span>
 							Active Registration
 						</DeviceCreationTitle>
 						<DeviceCreationDescription>
@@ -719,7 +708,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 						onClick={() => handleDeviceCreationModeChange('authentication_required')}
 					>
 						<DeviceCreationTitle>
-							<FiLock />
+							<span>🔒</span>
 							Authentication Required
 						</DeviceCreationTitle>
 						<DeviceCreationDescription>

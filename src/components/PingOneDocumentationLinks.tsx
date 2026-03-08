@@ -5,7 +5,7 @@
  * Provides references to key PingOne documentation for users
  */
 
-import { FiBook, FiChevronDown, FiChevronUp, FiExternalLink } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -166,9 +166,9 @@ export const PingOneDocumentationLinks: React.FC = () => {
 		<DocsContainer>
 			<DocsHeader $expanded={expanded} onClick={() => setExpanded(!expanded)}>
 				<DocsTitle>
-					<FiBook /> PingOne Documentation References
+					<span>📖</span> PingOne Documentation References
 				</DocsTitle>
-				{expanded ? <FiChevronUp /> : <FiChevronDown />}
+				{expanded ? <span>⬆️</span> : <span>⬇️</span>}
 			</DocsHeader>
 			<DocsContent $expanded={expanded}>
 				{DOCUMENTATION_SECTIONS.map((section, sectionIndex) => (
@@ -177,7 +177,7 @@ export const PingOneDocumentationLinks: React.FC = () => {
 						{section.links.map((link, linkIndex) => (
 							<div key={linkIndex}>
 								<DocsLink href={link.url} target="_blank" rel="noopener noreferrer">
-									<FiExternalLink size={16} />
+									<span style={{ fontSize: '16px' }}>🔗</span>
 									<span>{link.title}</span>
 								</DocsLink>
 								{link.description && <DocsDescription>{link.description}</DocsDescription>}

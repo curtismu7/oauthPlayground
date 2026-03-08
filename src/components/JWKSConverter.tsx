@@ -1,6 +1,6 @@
 // src/components/JWKSConverter.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiDownload, FiRefreshCw } from '@icons';
+
 import type React from 'react';
 import { useId, useState } from 'react';
 import styled from 'styled-components';
@@ -263,7 +263,7 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 						</>
 					) : (
 						<>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Convert to JWKS
 						</>
 					)}
@@ -276,14 +276,14 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 
 			{error && (
 				<ErrorMessage>
-					<FiAlertCircle />
+					<span>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
 
 			{success && (
 				<SuccessMessage>
-					<FiCheckCircle />
+					<span>✅</span>
 					{success}
 				</SuccessMessage>
 			)}
@@ -294,11 +294,11 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 					<TextArea value={jwksOutput} readOnly style={{ minHeight: '200px' }} />
 					<ButtonGroup>
 						<Button variant="secondary" onClick={handleCopyJWKS}>
-							<FiCopy />
+							<span>📋</span>
 							Copy JWKS
 						</Button>
 						<Button variant="secondary" onClick={handleDownloadJWKS}>
-							<FiDownload />
+							<span>📥</span>
 							Download JWKS
 						</Button>
 					</ButtonGroup>

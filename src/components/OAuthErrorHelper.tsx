@@ -1,16 +1,6 @@
 // src/components/OAuthErrorHelper.tsx
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiGlobe,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiX,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
@@ -166,7 +156,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 				solutions: [
 					{
 						title: 'General Troubleshooting',
-						icon: <FiSettings />,
+						icon: <span>⚙️</span>,
 						description: 'Check your configuration and try again.',
 						steps: [
 							'Verify your client credentials are correct',
@@ -187,7 +177,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'Check PingOne Application Configuration',
-							icon: <FiSettings />,
+							icon: <span>⚙️</span>,
 							description:
 								'Verify that the required scopes are enabled in your PingOne application settings.',
 							steps: [
@@ -200,7 +190,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Verify Scope Format',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							description: 'Ensure scopes are properly formatted in your authorization request.',
 							steps: [
 								'Check that scopes are space-separated',
@@ -211,7 +201,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Check Application Permissions',
-							icon: <FiGlobe />,
+							icon: <span>🌐</span>,
 							description:
 								'Verify your application has the necessary permissions for the requested scopes.',
 							steps: [
@@ -230,7 +220,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'Verify Client Credentials',
-							icon: <FiSettings />,
+							icon: <span>⚙️</span>,
 							description: 'Check that your client ID and client secret are correct.',
 							steps: [
 								'Verify client ID in PingOne Admin Console',
@@ -240,7 +230,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Check Application Status',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							description: 'Ensure your application is active and properly configured.',
 							steps: [
 								'Verify application is enabled',
@@ -258,7 +248,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'Update Redirect URI Configuration',
-							icon: <FiSettings />,
+							icon: <span>⚙️</span>,
 							description: 'Add the correct redirect URI to your PingOne application.',
 							steps: [
 								'Go to PingOne Admin Console',
@@ -278,7 +268,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'User Consent Required',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							description: 'The user needs to grant permission for the requested scopes.',
 							steps: [
 								'User must click "Allow" or "Authorize"',
@@ -297,7 +287,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'Check Configuration',
-							icon: <FiSettings />,
+							icon: <span>⚙️</span>,
 							description: 'Verify your PingOne application configuration.',
 							steps: [
 								'Review application settings',
@@ -307,7 +297,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Review Error Details',
-							icon: <FiAlertTriangle />,
+							icon: <span>⚠️</span>,
 							description: 'Check the error details for more specific information.',
 							steps: [
 								'Look at the correlation ID for support',
@@ -330,7 +320,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 		<ErrorContainer>
 			<ErrorHeader>
 				<ErrorIcon>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 				</ErrorIcon>
 				<ErrorTitle>{guidance.title}</ErrorTitle>
 			</ErrorHeader>
@@ -353,7 +343,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 
 			<SolutionsSection>
 				<SolutionsTitle>
-					<FiCheckCircle />
+					<span>✅</span>
 					Possible Solutions
 				</SolutionsTitle>
 
@@ -391,7 +381,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 									<CodeBlock>
 										{solution.codeExample}
 										<CopyButton onClick={() => copyToClipboard(solution.codeExample!)}>
-											<FiCopy size={12} />
+											<span style={{ fontSize: '12px' }}>📋</span>
 											Copy
 										</CopyButton>
 									</CodeBlock>
@@ -411,14 +401,14 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 			<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 				{onRetry && (
 					<ActionButton onClick={onRetry}>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Try Again
 					</ActionButton>
 				)}
 
 				{onGoToConfig && (
 					<ActionButton onClick={onGoToConfig}>
-						<FiSettings size={16} />
+						<span style={{ fontSize: '16px' }}>⚙️</span>
 						Go to Configuration
 					</ActionButton>
 				)}
@@ -431,7 +421,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						)
 					}
 				>
-					<FiExternalLink size={16} />
+					<span style={{ fontSize: '16px' }}>🔗</span>
 					PingOne Documentation
 				</ActionButton>
 
@@ -440,7 +430,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						onClick={onDismiss}
 						style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
 					>
-						<FiX size={16} />
+						<span style={{ fontSize: '16px' }}>❌</span>
 						Dismiss
 					</ActionButton>
 				)}

@@ -1,4 +1,4 @@
-import { FiCheckCircle, FiEye, FiPlay, FiRefreshCw, FiSettings } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from './Card';
@@ -190,10 +190,10 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 		if (!step.action) return undefined;
 
 		const icons = {
-			navigate: <FiEye size={16} />,
-			configure: <FiSettings size={16} />,
-			execute: <FiPlay size={16} />,
-			observe: <FiEye size={16} />,
+			navigate: <span style={{ fontSize: '16px' }}>👁️</span>,
+			configure: <span style={{ fontSize: '16px' }}>⚙️</span>,
+			execute: <span style={{ fontSize: '16px' }}>❓</span>,
+			observe: <span style={{ fontSize: '16px' }}>👁️</span>,
 		};
 
 		return {
@@ -220,7 +220,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
 					<TutorialMeta>
 						<MetaItem>
-							<FiPlay size={16} />
+							<span style={{ fontSize: '16px' }}>❓</span>
 							{tutorial.estimatedTime}
 						</MetaItem>
 						<MetaItem>
@@ -229,7 +229,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 							</DifficultyBadge>
 						</MetaItem>
 						<MetaItem>
-							<FiCheckCircle size={16} />
+							<span style={{ fontSize: '16px' }}>✅</span>
 							{tutorial.steps.length} steps
 						</MetaItem>
 					</TutorialMeta>
@@ -251,12 +251,12 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 					<TutorialActions>
 						{!isStarted || isCompleted ? (
 							<ActionButton onClick={handleStartTutorial}>
-								<FiPlay size={16} />
+								<span style={{ fontSize: '16px' }}>❓</span>
 								{isCompleted ? 'Start Again' : 'Start Tutorial'}
 							</ActionButton>
 						) : (
 							<ActionButton $variant="secondary" onClick={handleResetTutorial}>
-								<FiRefreshCw size={16} />
+								<span style={{ fontSize: '16px' }}>🔄</span>
 								Reset Tutorial
 							</ActionButton>
 						)}
@@ -298,7 +298,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 							hands-on experience with this OAuth flow.
 						</p>
 						<ActionButton onClick={handleStartTutorial}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Try Again
 						</ActionButton>
 					</CardBody>

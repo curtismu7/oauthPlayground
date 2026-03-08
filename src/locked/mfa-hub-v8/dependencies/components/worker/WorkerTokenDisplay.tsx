@@ -1,15 +1,6 @@
 // Worker Token Display component for token visualization and management
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiClock,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
@@ -18,7 +9,7 @@ import {
 	TokenIntrospectionResponse,
 	WorkerTokenResponse,
 } from '../../types/workerToken';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
 const Container = styled.div`
@@ -302,12 +293,12 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			setCopySuccess(true);
 			onCopy?.(token.access_token);
 
-			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
+			log.success('TOKEN-DISPLAY', 'Token copied to clipboard');
 			v4ToastManager.showCopySuccess('Access Token');
 
 			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (error) {
-			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
+			log.error('TOKEN-DISPLAY', 'Failed to copy token', error);
 			v4ToastManager.showCopyError('Access Token');
 		}
 	}, [token.access_token, onCopy]);
@@ -315,10 +306,10 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 	const handleCopyValue = useCallback(async (value: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(value);
-			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
+			log.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
 			v4ToastManager.showCopySuccess(label);
 		} catch (error) {
-			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
+			log.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
 			v4ToastManager.showCopyError(label);
 		}
 	}, []);
@@ -371,23 +362,23 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		<Container>
 			<Header>
 				<h3>
-					<FiShield size={20} color="#3b82f6" />
+					<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
 					Worker Token
 					<StatusIndicator status={tokenStatus}>
-						{tokenStatus === 'active' && <FiCheck size={12} />}
-						{tokenStatus === 'expired' && <FiClock size={12} />}
-						{tokenStatus === 'invalid' && <FiAlertCircle size={12} />}
+						{tokenStatus === 'active' && <span style={{ fontSize: '12px' }}>✅</span>}
+						{tokenStatus === 'expired' && <span style={{ fontSize: '12px' }}>🕐</span>}
+						{tokenStatus === 'invalid' && <span style={{ fontSize: '12px' }}>⚠️</span>}
 						{tokenStatus.toUpperCase()}
 					</StatusIndicator>
 				</h3>
 				<ButtonGroup>
 					<Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
-						{showFullToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						{showFullToken ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						{showFullToken ? 'Hide' : 'Show'} Token
 					</Button>
 					{onRefresh && (
 						<Button onClick={onRefresh} variant="secondary">
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Refresh
 						</Button>
 					)}
@@ -401,7 +392,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 						{showFullToken ? token.access_token : `${token.access_token.substring(0, 50)}...`}
 					</TokenText>
 					<CopyButton onClick={handleCopyToken}>
-						<FiCopy size={12} />
+						<span style={{ fontSize: '12px' }}>📋</span>
 						{copySuccess ? 'Copied!' : 'Copy'}
 					</CopyButton>
 				</TokenContainer>
@@ -463,7 +454,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			{showJWTDecode && jwtPayload && (
 				<ButtonGroup>
 					<Button onClick={() => setShowJWTModal(true)} variant="secondary">
-						<FiEye size={16} />
+						<span style={{ fontSize: '16px' }}>👁️</span>
 						View JWT Payload
 					</Button>
 				</ButtonGroup>
@@ -482,7 +473,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 								onClick={() => handleCopyValue(JSON.stringify(jwtPayload, null, 2), 'JWT payload')}
 								variant="secondary"
 							>
-								<FiCopy size={16} />
+								<span style={{ fontSize: '16px' }}>📋</span>
 								Copy Payload
 							</Button>
 						</ButtonGroup>
@@ -501,7 +492,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 							}
 							variant="secondary"
 						>
-							<FiCopy size={16} />
+							<span style={{ fontSize: '16px' }}>📋</span>
 							Copy Introspection
 						</Button>
 					</ButtonGroup>

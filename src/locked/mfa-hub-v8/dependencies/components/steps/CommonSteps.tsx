@@ -1,20 +1,6 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
-import {
-	FiAlertCircle,
-	FiArrowLeft,
-	FiCheckCircle,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiRotateCcw,
-	FiSettings,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import styled from 'styled-components';
 import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
@@ -293,7 +279,7 @@ export const createCredentialsStep = (
 	id: 'setup-credentials',
 	title: 'Setup OAuth Credentials',
 	description: `Configure your PingOne OAuth application credentials for ${flowType}. These will be saved securely for future sessions.`,
-	icon: <FiSettings />,
+	icon: <span>⚙️</span>,
 	category: 'setup',
 	content: (
 		<div>
@@ -347,7 +333,7 @@ export const createCredentialsStep = (
 							}}
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
-							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</button>
 					)}
 				</div>
@@ -518,7 +504,7 @@ export const createPKCEStep = (
 	title: 'Generate PKCE Codes',
 	description:
 		'PKCE (Proof Key for Code Exchange) adds security by preventing authorization code interception attacks. This step is optional but recommended for enhanced security.',
-	icon: <FiShield />,
+	icon: <span>🛡️</span>,
 	category: 'security',
 	content: (
 		<div>
@@ -534,7 +520,7 @@ export const createPKCEStep = (
 							gap: '0.5rem',
 						}}
 					>
-						<FiShield />
+						<span>🛡️</span>
 						What is PKCE and Why Use It?
 					</h4>
 
@@ -618,7 +604,7 @@ export const createPKCEStep = (
 						>
 							<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Code Verifier:</FormLabel>
 							<CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier, 'Code Verifier')}>
-								<FiCopy /> Copy
+								<span>📋</span> Copy
 							</CopyButton>
 						</div>
 						<TokenDisplay>{maskToken(pkceCodes.codeVerifier)}</TokenDisplay>
@@ -637,7 +623,7 @@ export const createPKCEStep = (
 							<CopyButton
 								onClick={() => copyToClipboard(pkceCodes.codeChallenge, 'Code Challenge')}
 							>
-								<FiCopy /> Copy
+								<span>📋</span> Copy
 							</CopyButton>
 						</div>
 						<TokenDisplay>{maskToken(pkceCodes.codeChallenge)}</TokenDisplay>
@@ -671,7 +657,7 @@ export const createAuthUrlStep = (
 		id: 'build-auth-url',
 		title: 'Build Authorization URL',
 		description: 'Construct the complete authorization URL with all required OAuth parameters.',
-		icon: <FiGlobe />,
+		icon: <span>🌐</span>,
 		category: 'authorization',
 		content: (
 			<div>
@@ -687,7 +673,7 @@ export const createAuthUrlStep = (
 								gap: '0.5rem',
 							}}
 						>
-							<FiGlobe />
+							<span>🌐</span>
 							What is the Authorization URL?
 						</h4>
 
@@ -790,7 +776,7 @@ export const createAuthUrlStep = (
 								Generated Authorization URL:
 							</FormLabel>
 							<CopyButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
-								<FiCopy /> Copy
+								<span>📋</span> Copy
 							</CopyButton>
 							<CopyButton
 								onClick={() => setShowExplainer?.(true)}
@@ -799,7 +785,7 @@ export const createAuthUrlStep = (
 									marginLeft: '0.5rem',
 								}}
 							>
-								<FiInfo /> Explain URL
+								<span>ℹ️</span> Explain URL
 							</CopyButton>
 						</div>
 						<ColorCodedURL url={authUrl} showInfoButton={false} />
@@ -844,12 +830,12 @@ export const createTokenExchangeStep = (
 		flowVariant === 'oauth'
 			? 'Exchange the authorization code for OAuth access and refresh tokens (no ID token in pure OAuth 2.0).'
 			: 'Exchange the authorization code for OIDC tokens: access token, refresh token, and ID token.',
-	icon: <FiKey />,
+	icon: <span>🔑</span>,
 	category: 'token-exchange',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiKey />
+				<span>🔑</span>
 				<div>
 					<strong>Token Exchange - Authorization Code Flow Step 4</strong>
 					<br />
@@ -898,7 +884,7 @@ export const createTokenExchangeStep = (
 
 			{tokens && (
 				<InfoBox type="success">
-					<FiCheckCircle />
+					<span>✅</span>
 					<div>
 						<strong> Token Exchange Successful!</strong>
 						<br />
@@ -986,7 +972,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Access Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}>
-									<FiCopy /> Copy
+									<span>📋</span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.access_token)}</TokenDisplay>
@@ -1005,7 +991,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Refresh Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.refresh_token, 'Refresh Token')}>
-									<FiCopy /> Copy
+									<span>📋</span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.refresh_token)}</TokenDisplay>
@@ -1024,7 +1010,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>ID Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.id_token, 'ID Token')}>
-									<FiCopy /> Copy
+									<span>📋</span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.id_token)}</TokenDisplay>
@@ -1045,7 +1031,7 @@ export const createTokenExchangeStep = (
 					>
 						<h4 style={{ margin: 0 }}>Authorization Code:</h4>
 						<CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
-							<FiCopy /> Copy
+							<span>📋</span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1086,12 +1072,12 @@ export const createUserInfoStep = (
 	title: 'Validate Tokens',
 	description:
 		"Use the access token to call the UserInfo endpoint and retrieve the authenticated user's profile.",
-	icon: <FiUser />,
+	icon: <span>👤</span>,
 	category: 'validation',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiUser />
+				<span>👤</span>
 				<div>
 					<strong>UserInfo Endpoint</strong>
 					<br />
@@ -1110,7 +1096,7 @@ export const createUserInfoStep = (
 
 			{tokens && (
 				<InfoBox type="success">
-					<FiCheckCircle />
+					<span>✅</span>
 					<div>
 						<strong> User Information Retrieved!</strong>
 						<br />
@@ -1141,12 +1127,12 @@ export const createUserAuthorizationStep = (
 	title: 'User Authorization & Authorization Code',
 	description:
 		'Redirect the user to PingOne to authenticate and obtain an authorization code for secure token exchange.',
-	icon: <FiGlobe />,
+	icon: <span>🌐</span>,
 	category: 'authorization',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiGlobe />
+				<span>🌐</span>
 				<div>
 					<strong>Authorization Code Flow - Step 3</strong>
 					<br />
@@ -1176,7 +1162,7 @@ export const createUserAuthorizationStep = (
 
 			{authCode && (
 				<InfoBox type="success">
-					<FiCheckCircle />
+					<span>✅</span>
 					<div>
 						<strong> Authorization Code Received!</strong>
 						<br />
@@ -1307,12 +1293,12 @@ export const createCallbackHandlingStep = (
 	id: 'handle-callback',
 	title: 'Handle Authorization Callback',
 	description: 'Process the authorization server callback and extract the authorization code.',
-	icon: <FiArrowLeft />,
+	icon: <span>⬅️</span>,
 	category: 'callback',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiArrowLeft />
+				<span>⬅️</span>
 				<div>
 					<strong>Authorization Callback</strong>
 					<br />
@@ -1322,7 +1308,7 @@ export const createCallbackHandlingStep = (
 
 			{authCode ? (
 				<InfoBox type="success">
-					<FiCheckCircle />
+					<span>✅</span>
 					<div>
 						<strong> Authorization Code Received!</strong>
 						<br />
@@ -1331,7 +1317,7 @@ export const createCallbackHandlingStep = (
 				</InfoBox>
 			) : (
 				<InfoBox type="warning">
-					<FiAlertCircle />
+					<span>⚠️</span>
 					<div>
 						<strong> Waiting for Authorization...</strong>
 						<br />
@@ -1352,7 +1338,7 @@ export const createCallbackHandlingStep = (
 					>
 						<h4 style={{ margin: 0 }}>Authorization Code:</h4>
 						<CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
-							<FiCopy /> Copy
+							<span>📋</span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1364,7 +1350,7 @@ export const createCallbackHandlingStep = (
 			{onReset && (
 				<div style={{ marginTop: '1rem' }}>
 					<ActionButton onClick={onReset} style={{ backgroundColor: '#6b7280' }}>
-						<FiRotateCcw /> Reset Flow
+						<span>❓</span> Reset Flow
 					</ActionButton>
 				</div>
 			)}
@@ -1391,12 +1377,12 @@ export const createTokenValidationStep = (
 	title: 'Validate Tokens & Get User Info',
 	description:
 		'Validate the received tokens and call the UserInfo endpoint to retrieve user profile information.',
-	icon: <FiShield />,
+	icon: <span>🛡️</span>,
 	category: 'validation',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiShield />
+				<span>🛡️</span>
 				<div>
 					<strong>Token Validation</strong>
 					<br />
@@ -1415,7 +1401,7 @@ export const createTokenValidationStep = (
 
 			{tokens && (
 				<InfoBox type="success">
-					<FiCheckCircle />
+					<span>✅</span>
 					<div>
 						<strong> Tokens Validated!</strong>
 						<br />
@@ -1426,7 +1412,7 @@ export const createTokenValidationStep = (
 
 			{userInfo && (
 				<InfoBox type="success">
-					<FiUser />
+					<span>👤</span>
 					<div>
 						<strong> User Information Retrieved!</strong>
 						<br />
@@ -1513,7 +1499,7 @@ export const createTokenValidationStep = (
 						<CopyButton
 							onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2), 'User Info')}
 						>
-							<FiCopy /> Copy
+							<span>📋</span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1532,7 +1518,7 @@ export const createTokenValidationStep = (
 							opacity: isValidating ? 0.5 : 1,
 						}}
 					>
-						<FiUser /> Get User Info
+						<span>👤</span> Get User Info
 					</ActionButton>
 				</div>
 			)}
@@ -1565,12 +1551,12 @@ export const createRefreshTokenStep = (
 	title: 'Refresh Tokens',
 	description:
 		'Exchange the refresh token for a new access token (and optionally ID token) to keep the session alive without user interaction.',
-	icon: <FiRotateCcw />,
+	icon: <span>❓</span>,
 	category: 'token-refresh',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<FiKey />
+				<span>🔑</span>
 				<div>
 					<strong>Refresh Token Usage - Extending Token Lifetime</strong>
 					<br />
@@ -1707,7 +1693,7 @@ export const createRefreshTokenStep = (
 			{newTokens && (
 				<div>
 					<InfoBox type="success">
-						<FiCheckCircle />
+						<span>✅</span>
 						<div>
 							<strong> SUCCESS! You Now Have a New Access Token!</strong>
 							<br />

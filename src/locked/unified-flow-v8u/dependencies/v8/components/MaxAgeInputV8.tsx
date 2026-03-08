@@ -12,7 +12,7 @@
  * />
  */
 
-import { FiClock, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 
 const MODULE_TAG = '[⏱️ MAX-AGE-V8]';
@@ -117,7 +117,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

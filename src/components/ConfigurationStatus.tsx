@@ -1,13 +1,4 @@
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiExternalLink,
-	FiInfo,
-	FiRefreshCw,
-	FiSettings,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -277,13 +268,13 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'ready':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'partial':
-				return <FiAlertCircle />;
+				return <span>⚠️</span>;
 			case 'missing':
-				return <FiAlertCircle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 		}
 	};
 
@@ -306,23 +297,23 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 			case 'ready':
 				return (
 					<CompactButton onClick={handleConfigure}>
-						<FiSettings />
+						<span>⚙️</span>
 						Update Config
 					</CompactButton>
 				);
 			case 'partial':
 				return (
 					<CompactButton onClick={handleConfigure}>
-						<FiSettings />
+						<span>⚙️</span>
 						Complete
 					</CompactButton>
 				);
 			case 'missing':
 				return (
 					<CompactLinkButton to="/configuration">
-						<FiSettings />
+						<span>⚙️</span>
 						Configure
-						<FiExternalLink />
+						<span>🔗</span>
 					</CompactLinkButton>
 				);
 			default:
@@ -334,7 +325,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 		if (status === 'ready') {
 			return (
 				<CompactButton onClick={handleViewDetails}>
-					<FiInfo />
+					<span>ℹ️</span>
 					Details
 				</CompactButton>
 			);
@@ -348,7 +339,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 				onClick={handleRefresh}
 				style={{ backgroundColor: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
 			>
-				<FiRefreshCw />
+				<span>🔄</span>
 				Refresh
 			</CompactButton>
 		);
@@ -366,7 +357,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 					{getPrimaryAction()}
 					{getSecondaryAction()}
 					{getRefreshAction()}
-					{isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+					{isExpanded ? <span>⬇️</span> : <span>➡️</span>}
 				</StatusRight>
 			</CompactStatusBar>
 

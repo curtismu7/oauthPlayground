@@ -1,12 +1,4 @@
-import {
-	FiBookOpen,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiLink2,
-	FiTarget,
-} from '@icons';
+
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -287,14 +279,14 @@ const FlowUriEducationModal: React.FC<{
 			<Content>
 				<Intro>
 					<IntroTitle>
-						<FiBookOpen /> URI Requirements for PingOne Applications
+						<span>❓</span> URI Requirements for PingOne Applications
 					</IntroTitle>
 					<IntroCopy>{educationCopy}</IntroCopy>
 				</Intro>
 
 				{entries.length === 0 ? (
 					<EmptyState>
-						<FiInfo size={32} />
+						<span style={{ fontSize: '32px' }}>ℹ️</span>
 						<EmptyTitle>No URI definitions available</EmptyTitle>
 						<EmptyCopy>
 							We did not find any redirect/logout URI definitions for this flow. Please add them
@@ -323,7 +315,7 @@ const FlowUriEducationModal: React.FC<{
 														{entry.title}
 													</span>
 													<Tag>
-														<FiTarget size={12} />
+														<span style={{ fontSize: '12px' }}>❓</span>
 														{entry.flowType}
 													</Tag>
 												</UriCell>
@@ -333,7 +325,7 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresRedirectUri ? (
 														<>
 															<UriRow>
-																<FiLink2 size={14} color="V9_COLORS.PRIMARY.BLUE_DARK" />
+																<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>❓</span>
 																{entry.redirectUri}
 															</UriRow>
 															<ActionRow>
@@ -342,7 +334,7 @@ const FlowUriEducationModal: React.FC<{
 																		handleCopy(entry.redirectUri, `${entry.title} Redirect URI`)
 																	}
 																>
-																	<FiCopy size={14} /> Copy Redirect
+																	<span style={{ fontSize: '14px' }}>📋</span> Copy Redirect
 																</Button>
 																{onSelectRedirect && (
 																	<Button
@@ -363,18 +355,18 @@ const FlowUriEducationModal: React.FC<{
 																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
-																			<FiCheckCircle size={14} /> Use Both in App
+																			<span style={{ fontSize: '14px' }}>✅</span> Use Both in App
 																		</Button>
 																	)}
 															</ActionRow>
 															<Note>
-																<FiInfo size={12} />
+																<span style={{ fontSize: '12px' }}>ℹ️</span>
 																{entry.note}
 															</Note>
 														</>
 													) : (
 														<Note $muted>
-															<FiInfo size={12} />
+															<span style={{ fontSize: '12px' }}>ℹ️</span>
 															Redirect URI not required for this flow type.
 														</Note>
 													)}
@@ -385,7 +377,7 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresLogoutUri ? (
 														<>
 															<UriRow>
-																<FiLink2 size={14} color="#15803d" />
+																<span style={{ fontSize: 14, color: '#15803d' }}>❓</span>
 																{entry.logoutUri}
 															</UriRow>
 															<ActionRow>
@@ -394,7 +386,7 @@ const FlowUriEducationModal: React.FC<{
 																		handleCopy(entry.logoutUri, `${entry.title} Logout URI`)
 																	}
 																>
-																	<FiCopy size={14} /> Copy Logout
+																	<span style={{ fontSize: '14px' }}>📋</span> Copy Logout
 																</Button>
 																{onSelectLogout && (
 																	<Button
@@ -415,18 +407,18 @@ const FlowUriEducationModal: React.FC<{
 																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
-																			<FiCheckCircle size={14} /> Use Both in App
+																			<span style={{ fontSize: '14px' }}>✅</span> Use Both in App
 																		</Button>
 																	)}
 															</ActionRow>
 															<Note>
-																<FiInfo size={12} />
+																<span style={{ fontSize: '12px' }}>ℹ️</span>
 																{entry.logoutNote}
 															</Note>
 														</>
 													) : (
 														<Note $muted>
-															<FiInfo size={12} />
+															<span style={{ fontSize: '12px' }}>ℹ️</span>
 															Logout URI not used for this flow type.
 														</Note>
 													)}
@@ -461,7 +453,7 @@ const FlowUriEducationModal: React.FC<{
 																	fontSize: '0.8rem',
 																}}
 															>
-																<FiCheckCircle size={14} /> Apply Both URIs to Credentials
+																<span style={{ fontSize: '14px' }}>✅</span> Apply Both URIs to Credentials
 															</Button>
 														</ActionRow>
 													)}
@@ -476,7 +468,7 @@ const FlowUriEducationModal: React.FC<{
 															}
 															disabled={!entry.requiresRedirectUri}
 														>
-															<FiCopy size={14} /> Default
+															<span style={{ fontSize: '14px' }}>📋</span> Default
 														</Button>
 														<Button
 															$variant="secondary"
@@ -485,7 +477,7 @@ const FlowUriEducationModal: React.FC<{
 															}
 															disabled={!entry.requiresLogoutUri}
 														>
-															<FiCopy size={14} /> Default Logout
+															<span style={{ fontSize: '14px' }}>📋</span> Default Logout
 														</Button>
 													</ActionRow>
 													<ActionRow>
@@ -493,7 +485,7 @@ const FlowUriEducationModal: React.FC<{
 															$variant="secondary"
 															onClick={() => openSpec(entry.specification)}
 														>
-															<FiExternalLink size={14} /> Spec
+															<span style={{ fontSize: '14px' }}>🔗</span> Spec
 														</Button>
 													</ActionRow>
 												</UriCell>

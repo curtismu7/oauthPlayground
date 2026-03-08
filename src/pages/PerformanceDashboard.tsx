@@ -1,17 +1,9 @@
-import {
-	FiActivity,
-	FiClock,
-	FiDownload,
-	FiMonitor,
-	FiTrendingDown,
-	FiTrendingUp,
-	FiZap,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -243,7 +235,7 @@ export const PerformanceDashboard: React.FC = () => {
 	}, [lazyLoadingMetrics]);
 
 	const handleRefreshMetrics = () => {
-		logger.info('[PerformanceDashboard] Refreshing performance metrics');
+		log.info('[PerformanceDashboard] Refreshing performance metrics');
 		// Force update of performance data
 		const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
 		const paint = performance.getEntriesByType('paint');
@@ -260,7 +252,7 @@ export const PerformanceDashboard: React.FC = () => {
 	};
 
 	const handleClearMetrics = () => {
-		logger.info('[PerformanceDashboard] Clearing performance metrics');
+		log.info('[PerformanceDashboard] Clearing performance metrics');
 		lazyLoadingMetrics.clearMetrics();
 		setPerformanceData((prev) => ({
 			...prev,
@@ -272,7 +264,7 @@ export const PerformanceDashboard: React.FC = () => {
 		<DashboardContainer>
 			<DashboardHeader>
 				<DashboardIcon>
-					<FiMonitor />
+					<span>🖥️</span>
 				</DashboardIcon>
 				<div>
 					<DashboardTitle>Performance Dashboard</DashboardTitle>
@@ -287,7 +279,7 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Load Time</MetricLabel>
 						<MetricIcon color="V9_COLORS.PRIMARY.BLUE">
-							<FiClock />
+							<span>🕐</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -296,7 +288,7 @@ export const PerformanceDashboard: React.FC = () => {
 					</MetricValue>
 					<MetricDescription>Time to load the application</MetricDescription>
 					<MetricTrend trend={performanceData.loadTime < 1000 ? 'up' : 'down'}>
-						{performanceData.loadTime < 1000 ? <FiTrendingUp /> : <FiTrendingDown />}
+						{performanceData.loadTime < 1000 ? <span>📈</span> : <span>📉</span>}
 						{performanceData.loadTime < 1000 ? 'Good' : 'Slow'}
 					</MetricTrend>
 				</MetricCard>
@@ -305,7 +297,7 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Render Time</MetricLabel>
 						<MetricIcon color="V9_COLORS.PRIMARY.GREEN">
-							<FiZap />
+							<span>⚡</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -314,7 +306,7 @@ export const PerformanceDashboard: React.FC = () => {
 					</MetricValue>
 					<MetricDescription>First contentful paint time</MetricDescription>
 					<MetricTrend trend={performanceData.renderTime < 500 ? 'up' : 'down'}>
-						{performanceData.renderTime < 500 ? <FiTrendingUp /> : <FiTrendingDown />}
+						{performanceData.renderTime < 500 ? <span>📈</span> : <span>📉</span>}
 						{performanceData.renderTime < 500 ? 'Fast' : 'Slow'}
 					</MetricTrend>
 				</MetricCard>
@@ -323,7 +315,7 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Bundle Size</MetricLabel>
 						<MetricIcon color="V9_COLORS.PRIMARY.GREEN">
-							<FiDownload />
+							<span>📥</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -332,7 +324,7 @@ export const PerformanceDashboard: React.FC = () => {
 					</MetricValue>
 					<MetricDescription>Total application size (optimized)</MetricDescription>
 					<MetricTrend trend="up">
-						<FiTrendingUp />
+						<span>📈</span>
 						Optimized
 					</MetricTrend>
 				</MetricCard>
@@ -341,13 +333,13 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Chunk Count</MetricLabel>
 						<MetricIcon color="V9_COLORS.PRIMARY.YELLOW">
-							<FiActivity />
+							<span>🔄</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{performanceData.chunkCount}</MetricValue>
 					<MetricDescription>Code-split chunks for better caching</MetricDescription>
 					<MetricTrend trend="up">
-						<FiTrendingUp />
+						<span>📈</span>
 						Optimized
 					</MetricTrend>
 				</MetricCard>
@@ -356,7 +348,7 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Memory Usage</MetricLabel>
 						<MetricIcon color="V9_COLORS.PRIMARY.RED">
-							<FiMonitor />
+							<span>🖥️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -365,7 +357,7 @@ export const PerformanceDashboard: React.FC = () => {
 					</MetricValue>
 					<MetricDescription>JavaScript heap size</MetricDescription>
 					<MetricTrend trend={performanceData.memoryUsage < 50 ? 'up' : 'down'}>
-						{performanceData.memoryUsage < 50 ? <FiTrendingUp /> : <FiTrendingDown />}
+						{performanceData.memoryUsage < 50 ? <span>📈</span> : <span>📉</span>}
 						{performanceData.memoryUsage < 50 ? 'Low' : 'High'}
 					</MetricTrend>
 				</MetricCard>
@@ -374,13 +366,13 @@ export const PerformanceDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Loaded Components</MetricLabel>
 						<MetricIcon color="#06b6d4">
-							<FiZap />
+							<span>⚡</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{lazyLoadingMetrics.loadedComponents}</MetricValue>
 					<MetricDescription>Lazy-loaded components</MetricDescription>
 					<MetricTrend trend="up">
-						<FiTrendingUp />
+						<span>📈</span>
 						Active
 					</MetricTrend>
 				</MetricCard>

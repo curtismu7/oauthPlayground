@@ -15,7 +15,7 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
-import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
+import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 /**
  * PAR Request Interface (RFC 9126)

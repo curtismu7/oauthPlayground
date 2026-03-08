@@ -12,7 +12,7 @@
  * ========================================================================
  */
 
-import { FiChevronDown, FiMove } from '@icons';
+
 // Import only what's needed for this demo
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -312,7 +312,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{dragMode && <FiMove size={12} />}
+									{dragMode && <span style={{ fontSize: '12px' }}>❓</span>}
 									{item.icon}
 									<span style={{ flex: 1 }}>{item.label}</span>
 									{item.badge}

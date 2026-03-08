@@ -6,7 +6,7 @@
  * is not applicable to the current OAuth/OIDC flow type.
  */
 
-import { FiInfo } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -76,7 +76,7 @@ export const HiddenFieldExplanation: React.FC<HiddenFieldExplanationProps> = ({
 	return (
 		<InfoPanel role="status" aria-live="polite">
 			<InfoIcon aria-hidden="true">
-				<FiInfo size={14} />
+				<span style={{ fontSize: '14px' }}>ℹ️</span>
 			</InfoIcon>
 			<InfoContent>
 				<strong>{fieldName}</strong> is not used in this flow.

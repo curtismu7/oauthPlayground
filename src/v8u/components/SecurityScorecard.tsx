@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiShield, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
@@ -371,7 +371,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 
 	// Debug: Log when props change
 	React.useEffect(() => {
-		logger.debug('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
+		log.debug('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
 	}, [flowType, specVersion, credentials]);
 
 	const getSecurityChecks = (): SecurityCheck[] => {
@@ -511,7 +511,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 		else grade = 'F';
 
 		// Debug: Log score calculation
-		logger.debug('[SecurityScorecard] Score calculated:', {
+		log.debug('[SecurityScorecard] Score calculated:', {
 			flowType,
 			specVersion,
 			totalItems,
@@ -550,11 +550,11 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 	const getStatusIcon = (status: 'pass' | 'warning' | 'fail') => {
 		switch (status) {
 			case 'pass':
-				return <FiCheck />;
+				return <span>✅</span>;
 			case 'warning':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'fail':
-				return <FiX />;
+				return <span>❌</span>;
 		}
 	};
 
@@ -569,7 +569,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 					Security Scorecard
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 

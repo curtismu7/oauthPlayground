@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowResults.tsx
 // V7.1 Flow Results - Display tokens, user info, and flow results
 
-import { FiCheck, FiChevronRight, FiCopy, FiEye, FiEyeOff, FiRefreshCw } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
@@ -337,7 +337,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 			setCopiedToken(tokenType);
 			setTimeout(() => setCopiedToken(null), 2000);
 		} catch (error) {
-			logger.error('Failed to copy token:', error);
+			log.error('Failed to copy token:', error);
 		}
 	};
 
@@ -367,7 +367,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 				<SectionHeader $collapsed={isCollapsed} onClick={onToggleCollapse}>
 					<SectionTitle>
 						<CollapseIcon $collapsed={isCollapsed}>
-							<FiChevronRight />
+							<span>➡️</span>
 						</CollapseIcon>
 						<span>Flow Results</span>
 					</SectionTitle>
@@ -387,7 +387,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 			<SectionHeader $collapsed={isCollapsed} onClick={onToggleCollapse}>
 				<SectionTitle>
 					<CollapseIcon $collapsed={isCollapsed}>
-						<FiChevronRight />
+						<span>➡️</span>
 					</CollapseIcon>
 					<span>Flow Results</span>
 				</SectionTitle>
@@ -406,14 +406,14 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 											onClick={() => toggleTokenMask('access_token')}
 											title={maskedTokens.access_token ? 'Show token' : 'Hide token'}
 										>
-											{maskedTokens.access_token ? <FiEye /> : <FiEyeOff />}
+											{maskedTokens.access_token ? <span>👁️</span> : <span>🙈</span>}
 										</ActionButton>
 										<ActionButton
 											$variant="primary"
 											onClick={() => copyToken(tokens.access_token!, 'access_token')}
 											title="Copy token"
 										>
-											{copiedToken === 'access_token' ? <FiCheck /> : <FiCopy />}
+											{copiedToken === 'access_token' ? <span>✅</span> : <span>📋</span>}
 										</ActionButton>
 									</TokenActions>
 								</TokenHeader>
@@ -441,14 +441,14 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 											onClick={() => toggleTokenMask('id_token')}
 											title={maskedTokens.id_token ? 'Show token' : 'Hide token'}
 										>
-											{maskedTokens.id_token ? <FiEye /> : <FiEyeOff />}
+											{maskedTokens.id_token ? <span>👁️</span> : <span>🙈</span>}
 										</ActionButton>
 										<ActionButton
 											$variant="primary"
 											onClick={() => copyToken(tokens.id_token!, 'id_token')}
 											title="Copy token"
 										>
-											{copiedToken === 'id_token' ? <FiCheck /> : <FiCopy />}
+											{copiedToken === 'id_token' ? <span>✅</span> : <span>📋</span>}
 										</ActionButton>
 									</TokenActions>
 								</TokenHeader>
@@ -476,14 +476,14 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 											onClick={() => toggleTokenMask('refresh_token')}
 											title={maskedTokens.refresh_token ? 'Show token' : 'Hide token'}
 										>
-											{maskedTokens.refresh_token ? <FiEye /> : <FiEyeOff />}
+											{maskedTokens.refresh_token ? <span>👁️</span> : <span>🙈</span>}
 										</ActionButton>
 										<ActionButton
 											$variant="primary"
 											onClick={() => copyToken(tokens.refresh_token!, 'refresh_token')}
 											title="Copy token"
 										>
-											{copiedToken === 'refresh_token' ? <FiCheck /> : <FiCopy />}
+											{copiedToken === 'refresh_token' ? <span>✅</span> : <span>📋</span>}
 										</ActionButton>
 									</TokenActions>
 								</TokenHeader>
@@ -517,7 +517,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 				<ButtonGroup>
 					{onRefreshTokens && (
 						<Button $variant="primary" onClick={onRefreshTokens}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Refresh Tokens
 						</Button>
 					)}

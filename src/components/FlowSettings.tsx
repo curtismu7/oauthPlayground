@@ -1,11 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiSettings,
-	FiToggleLeft,
-	FiToggleRight,
-	FiX,
-} from '@icons';
+
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -320,7 +313,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					/>
 					{errors.customRedirectUri && (
 						<ErrorMessage>
-							<FiX size={12} />
+							<span style={{ fontSize: '12px' }}>❌</span>
 							{errors.customRedirectUri}
 						</ErrorMessage>
 					)}
@@ -339,7 +332,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					/>
 					{errors.customScope && (
 						<ErrorMessage>
-							<FiX size={12} />
+							<span style={{ fontSize: '12px' }}>❌</span>
 							{errors.customScope}
 						</ErrorMessage>
 					)}
@@ -354,7 +347,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 		<SettingsPanel className={isExpanded ? 'expanded' : ''}>
 			<SettingsHeader onClick={() => setIsExpanded(!isExpanded)}>
 				<h3>
-					<FiSettings />
+					<span>⚙️</span>
 					Flow Settings & Experimentation
 					<span
 						style={{
@@ -418,7 +411,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 								<div className="description">{setting.description}</div>
 								{setting.warning && !settings[setting.key] && (
 									<div className="warning">
-										<FiAlertTriangle size={12} />
+										<span style={{ fontSize: '12px' }}>⚠️</span>
 										{setting.warning}
 									</div>
 								)}
@@ -429,7 +422,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 								className={settings[setting.key] ? 'enabled' : 'disabled'}
 								onClick={() => updateSetting(setting.key, !settings[setting.key])}
 							>
-								{settings[setting.key] ? <FiToggleRight /> : <FiToggleLeft />}
+								{settings[setting.key] ? <span>❓</span> : <span>❓</span>}
 								{settings[setting.key] ? 'Enabled' : 'Disabled'}
 							</ToggleButton>
 						</SettingItem>

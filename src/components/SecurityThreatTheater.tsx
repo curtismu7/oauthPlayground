@@ -4,17 +4,7 @@
  * Interactive attack simulations showing what happens when security parameters are missing
  */
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiMonitor,
-	FiPlay,
-	FiRefreshCw,
-	FiShield,
-	FiUnlock,
-	FiUser,
-	FiXCircle,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -980,7 +970,7 @@ const SecurityThreatTheater: React.FC = () => {
 						onClick={() => runSimulation('vulnerable')}
 						disabled={isSimulating}
 					>
-						<FiPlay />
+						<span>❓</span>
 						Run Vulnerable Scenario
 					</SimulationButton>
 					<SimulationButton
@@ -988,11 +978,11 @@ const SecurityThreatTheater: React.FC = () => {
 						onClick={() => runSimulation('protected')}
 						disabled={isSimulating}
 					>
-						<FiShield />
+						<span>🛡️</span>
 						Run Protected Scenario
 					</SimulationButton>
 					<SimulationButton onClick={resetSimulation} disabled={isSimulating}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Reset
 					</SimulationButton>
 				</ControlBar>
@@ -1000,7 +990,7 @@ const SecurityThreatTheater: React.FC = () => {
 				<ActorsContainer>
 					<Actor $active={activeActor === 'user'}>
 						<ActorIcon>
-							<FiUser />
+							<span>👤</span>
 						</ActorIcon>
 						<ActorLabel>👤 User</ActorLabel>
 						<ActorStatus>{activeActor === 'user' ? '🔄 Acting...' : 'Waiting...'}</ActorStatus>
@@ -1008,7 +998,7 @@ const SecurityThreatTheater: React.FC = () => {
 
 					<Actor $active={activeActor === 'attacker'}>
 						<ActorIcon>
-							<FiUnlock />
+							<span>🔓</span>
 						</ActorIcon>
 						<ActorLabel>😈 Attacker</ActorLabel>
 						<ActorStatus>
@@ -1018,7 +1008,7 @@ const SecurityThreatTheater: React.FC = () => {
 
 					<Actor $active={activeActor === 'server'}>
 						<ActorIcon>
-							<FiMonitor />
+							<span>🖥️</span>
 						</ActorIcon>
 						<ActorLabel>🖥️ Server</ActorLabel>
 						<ActorStatus>{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}</ActorStatus>
@@ -1053,12 +1043,12 @@ const SecurityThreatTheater: React.FC = () => {
 					<OutcomeTitle success={simulationMode === 'protected'}>
 						{simulationMode === 'protected' ? (
 							<>
-								<FiCheckCircle size={32} />
+								<span style={{ fontSize: '32px' }}>✅</span>
 								Attack Blocked!
 							</>
 						) : (
 							<>
-								<FiXCircle size={32} />
+								<span style={{ fontSize: '32px' }}>❌</span>
 								Security Breach!
 							</>
 						)}
@@ -1148,7 +1138,7 @@ const SecurityThreatTheater: React.FC = () => {
 						gap: '0.5rem',
 					}}
 				>
-					<FiAlertTriangle size={20} />
+					<span style={{ fontSize: '20px' }}>⚠️</span>
 					Critical Security Warning
 				</div>
 				<div

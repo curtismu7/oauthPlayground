@@ -1,22 +1,12 @@
 // src/components/SmartVehicleDeviceFlow.tsx
 // Smart Vehicle Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiMusic,
-	FiNavigation,
-	FiSettings,
-	FiTruck,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Tesla Screen Main Container - Automotive Display
@@ -353,31 +343,31 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('SmartVehicleDeviceFlow', 'User code copied to clipboard');
+		log.info('SmartVehicleDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('SmartVehicleDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('SmartVehicleDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('SmartVehicleDeviceFlow', 'Verification URI opened in new tab');
+		log.info('SmartVehicleDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -458,13 +448,13 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 				{/* Vehicle Control Panel */}
 				<VehicleControlPanel>
 					<VehicleControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</VehicleControlButton>
 					<VehicleControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</VehicleControlButton>
 					<VehicleControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</VehicleControlButton>
 				</VehicleControlPanel>
 
@@ -729,7 +719,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiNavigation /> Navigate
+								<span>🧭</span> Navigate
 							</button>
 							<button
 								style={{
@@ -748,7 +738,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiMusic /> Media
+								<span>🎵</span> Media
 							</button>
 							<button
 								style={{
@@ -767,7 +757,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiSettings /> Climate
+								<span>⚙️</span> Climate
 							</button>
 						</div>
 					</div>

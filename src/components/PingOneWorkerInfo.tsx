@@ -1,14 +1,6 @@
 // src/components/PingOneWorkerInfo.tsx
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiServer,
-	FiShield,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -300,7 +292,7 @@ const PingOneWorkerInfo: React.FC = () => {
 			<Section>
 				<Header>
 					<IconWrapper $color="blue">
-						<FiServer size={48} />
+						<span style={{ fontSize: '48px' }}>🖥️</span>
 					</IconWrapper>
 					<div>
 						<Title>PingOne Worker Application & Token Usage</Title>
@@ -320,13 +312,13 @@ const PingOneWorkerInfo: React.FC = () => {
 			{/* Key Functions */}
 			<Section>
 				<Title>
-					<FiKey size={28} />
+					<span style={{ fontSize: '28px' }}>🔑</span>
 					What Does It Do?
 				</Title>
 				<Grid>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 							API Management
 						</CardTitle>
 						<CardText>
@@ -336,7 +328,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 							Automation
 						</CardTitle>
 						<CardText>
@@ -345,7 +337,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 							Integration
 						</CardTitle>
 						<CardText>
@@ -355,7 +347,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 							Administrative Tasks
 						</CardTitle>
 						<CardText>
@@ -368,7 +360,7 @@ const PingOneWorkerInfo: React.FC = () => {
 			{/* Token Usage */}
 			<Section>
 				<Title>
-					<FiRefreshCw size={28} />
+					<span style={{ fontSize: '28px' }}>🔄</span>
 					Worker Token Usage
 				</Title>
 				<InfoBox $color="purple">
@@ -435,7 +427,7 @@ const PingOneWorkerInfo: React.FC = () => {
 			{/* Roles */}
 			<Section>
 				<Title>
-					<FiShield size={28} />
+					<span style={{ fontSize: '28px' }}>🛡️</span>
 					Role-Based Permissions
 				</Title>
 				<InfoBox $color="orange">
@@ -469,14 +461,14 @@ const PingOneWorkerInfo: React.FC = () => {
 			{/* Security Best Practices */}
 			<Section>
 				<Title>
-					<FiLock size={28} />
+					<span style={{ fontSize: '28px' }}>🔒</span>
 					Security Considerations
 				</Title>
 
 				<Grid>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Store client secrets in secure vaults (never in code repositories)
@@ -484,7 +476,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Assign least-privilege roles - only what's needed for the task
@@ -492,7 +484,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Use separate Worker apps for different automation tasks
@@ -500,7 +492,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Rotate client secrets regularly (every 90 days recommended)
@@ -508,19 +500,19 @@ const PingOneWorkerInfo: React.FC = () => {
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>Monitor Worker app API usage for anomalies</BestPracticeText>
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>Implement IP whitelisting when possible</BestPracticeText>
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Use certificate-based authentication for enhanced security
@@ -528,7 +520,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</IconWrapper>
 						<BestPracticeText>
 							Never share Worker app credentials across teams or environments
@@ -539,7 +531,7 @@ const PingOneWorkerInfo: React.FC = () => {
 				<div style={{ marginTop: '1.5rem' }}>
 					<CriticalNote>
 						<IconWrapper $color="red">
-							<FiAlertTriangle size={32} />
+							<span style={{ fontSize: '32px' }}>⚠️</span>
 						</IconWrapper>
 						<div>
 							<CriticalTitle>Critical Security Note</CriticalTitle>

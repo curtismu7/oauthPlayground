@@ -13,16 +13,7 @@
  * - Compact and detailed view modes
  */
 
-import {
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiTrash2,
-	FiUser,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -372,7 +363,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
 			return JSON.parse(window.atob(base64));
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
+			log.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
 			return {};
 		}
 	}, []);
@@ -423,7 +414,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
+			log.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
 			return null;
 		}
 	}, [parseJWT]);
@@ -474,7 +465,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
+			log.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
 			return null;
 		}
 	}, [parseJWT]);
@@ -512,7 +503,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: 'valid',
 			};
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
+			log.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
 			return null;
 		}
 	}, []);
@@ -525,7 +516,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const resolvedTokens = await Promise.all(tokenPromises);
 			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
+			log.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
 		}
 	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
 
@@ -684,7 +675,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		return (
 			<div style={{ fontSize: '14px' }}>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-					<FiUser />
+					<span>👤</span>
 					<strong>User Tokens:</strong>
 					{showRefresh && (
 						<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
@@ -721,7 +712,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		<div>
 			<SectionHeader>
 				<SectionTitle>
-					<FiUser />
+					<span>👤</span>
 					User Token Monitoring
 				</SectionTitle>
 				{showRefresh && (
@@ -780,7 +771,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									fontSize: '14px',
 								}}
 							>
-								<FiInfo />
+								<span>ℹ️</span>
 							</div>
 							<TokenText>
 								<TokenLabel>No User Tokens</TokenLabel>
@@ -815,11 +806,11 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									}}
 								>
 									{token.type === 'access_token' ? (
-										<FiKey />
+										<span>🔑</span>
 									) : token.type === 'id_token' ? (
-										<FiUser />
+										<span>👤</span>
 									) : (
-										<FiRefreshCw />
+										<span>🔄</span>
 									)}
 								</div>
 								<TokenText>
@@ -883,15 +874,15 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									setShowTokens((prev) => ({ ...prev, [token.token]: !prev[token.token] }))
 								}
 							>
-								{showTokens[token.token] ? <FiEyeOff /> : <FiEye />}
+								{showTokens[token.token] ? <span>🙈</span> : <span>👁️</span>}
 								{showTokens[token.token] ? 'Hide' : 'Show'}
 							</ActionButton>
 							<ActionButton onClick={() => copyToken(token.token, token.type)}>
-								<FiCopy />
+								<span>📋</span>
 								Copy
 							</ActionButton>
 							<ActionButton $variant="danger" onClick={() => clearToken(token.type)}>
-								<FiTrash2 />
+								<span>🗑️</span>
 								Clear
 							</ActionButton>
 						</TokenActions>

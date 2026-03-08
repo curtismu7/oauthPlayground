@@ -1,20 +1,7 @@
 // src/v8/pages/EnvironmentManagementPageV8.tsx
 // PingOne Environment Management Page V8 - Main dashboard for managing environments
 
-import {
-	FiActivity,
-	FiDatabase,
-	FiEdit3,
-	FiEye,
-	FiFilter,
-	FiGlobe,
-	FiPlus,
-	FiRefreshCw,
-	FiSearch,
-	FiServer,
-	FiSettings,
-	FiTrash2,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -58,7 +45,7 @@ const Title = styled.h1`
 	gap: 0.75rem;
 `;
 
-const TitleIcon = styled(FiGlobe)`
+const TitleIcon = styled.span`
 	color: #3182ce;
 	font-size: 2rem;
 `;
@@ -90,7 +77,7 @@ const SearchInput = styled.input`
 	}
 `;
 
-const SearchIcon = styled(FiSearch)`
+const SearchIcon = styled.span`
 	position: absolute;
 	left: 0.75rem;
 	color: #6b7280;
@@ -408,7 +395,7 @@ const LoadingState = styled.div`
 	color: #6b7280;
 `;
 
-const LoadingIcon = styled(FiRefreshCw)`
+const LoadingIcon = styled.span`
 	font-size: 2rem;
 	margin-bottom: 1rem;
 	animation: spin 1s linear infinite;
@@ -429,7 +416,7 @@ const EmptyState = styled.div`
 	text-align: center;
 `;
 
-const EmptyIcon = styled(FiDatabase)`
+const EmptyIcon = styled.span`
 	font-size: 3rem;
 	margin-bottom: 1rem;
 	color: #d1d5db;
@@ -602,11 +589,11 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 						</Title>
 						<Actions>
 							<RefreshButton disabled>
-								<FiRefreshCw />
+								<span>🔄</span>
 								Refresh
 							</RefreshButton>
 							<CreateButton>
-								<FiPlus />
+								<span>➕</span>
 								Create Environment
 							</CreateButton>
 						</Actions>
@@ -640,7 +627,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 							/>
 						</SearchContainer>
 						<FilterButton onClick={() => setShowFilters(!showFilters)}>
-							<FiFilter />
+							<span>🔽</span>
 							Filters
 						</FilterButton>
 						<RefreshButton onClick={handleRefresh} disabled={refreshing}>
@@ -648,7 +635,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 							Refresh
 						</RefreshButton>
 						<CreateButton>
-							<FiPlus />
+							<span>➕</span>
 							Create Environment
 						</CreateButton>
 					</Actions>
@@ -708,7 +695,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 						<StatHeader>
 							<StatTitle>Total Environments</StatTitle>
 							<StatIcon color="#3182ce">
-								<FiServer />
+								<span>🖥️</span>
 							</StatIcon>
 						</StatHeader>
 						<StatValue>{totalCount}</StatValue>
@@ -718,7 +705,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 						<StatHeader>
 							<StatTitle>Active</StatTitle>
 							<StatIcon color="#10b981">
-								<FiActivity />
+								<span>🔄</span>
 							</StatIcon>
 						</StatHeader>
 						<StatValue>{stats.active}</StatValue>
@@ -728,7 +715,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 						<StatHeader>
 							<StatTitle>Production</StatTitle>
 							<StatIcon color="#f59e0b">
-								<FiSettings />
+								<span>⚙️</span>
 							</StatIcon>
 						</StatHeader>
 						<StatValue>{stats.production}</StatValue>
@@ -738,7 +725,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 						<StatHeader>
 							<StatTitle>Sandbox</StatTitle>
 							<StatIcon color="#8b5cf6">
-								<FiDatabase />
+								<span>🗄️</span>
 							</StatIcon>
 						</StatHeader>
 						<StatValue>{stats.sandbox}</StatValue>
@@ -770,7 +757,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 										<StatusBadge status={environment.status}>{environment.status}</StatusBadge>
 										{environment.region && (
 											<MetaItem>
-												<FiGlobe />
+												<span>🌐</span>
 												{environment.region}
 											</MetaItem>
 										)}
@@ -784,15 +771,15 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 									</ServicesList>
 									<CardActions>
 										<ActionButton>
-											<FiEye />
+											<span>👁️</span>
 											View
 										</ActionButton>
 										<ActionButton>
-											<FiEdit3 />
+											<span>❓</span>
 											Edit
 										</ActionButton>
 										<DeleteButton>
-											<FiTrash2 />
+											<span>🗑️</span>
 											Delete
 										</DeleteButton>
 									</CardActions>

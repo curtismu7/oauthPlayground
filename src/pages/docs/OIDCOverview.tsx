@@ -1,17 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiBookOpen,
-	FiCheckCircle,
-	FiCode,
-	FiInfo,
-	FiLock,
-	FiSearch,
-	FiShield,
-	FiTrendingUp,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
@@ -127,7 +114,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchIcon = styled(FiSearch)`
+const SearchIcon = styled.span`
   position: absolute;
   left: 1rem;
   top: 50%;
@@ -641,7 +628,7 @@ const OIDCOverview = () => {
 				{/* Enhanced Header */}
 				<Header>
 					<h1>
-						<FiShield />
+						<span>🛡️</span>
 						OpenID Connect Overview
 					</h1>
 					<p>
@@ -1029,7 +1016,7 @@ const OIDCOverview = () => {
 				<ComparisonTable>
 					<CardBody>
 						<TableHeader>
-							<FiTrendingUp size={20} />
+							<span style={{ fontSize: '20px' }}>📈</span>
 							<h2>Quick Comparison</h2>
 						</TableHeader>
 
@@ -1146,7 +1133,7 @@ const OIDCOverview = () => {
 				<SecuritySection>
 					<CardHeader>
 						<h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0 }}>
-							<FiShield size={24} />
+							<span style={{ fontSize: '24px' }}>🛡️</span>
 							Security Recommendations
 						</h2>
 					</CardHeader>
@@ -1158,7 +1145,7 @@ const OIDCOverview = () => {
 
 						<RecommendationList>
 							<li>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Use Authorization Code Flow with PKCE</strong>
 									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1168,7 +1155,7 @@ const OIDCOverview = () => {
 								</div>
 							</li>
 							<li>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Validate ID Tokens Properly</strong>
 									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1177,7 +1164,7 @@ const OIDCOverview = () => {
 								</div>
 							</li>
 							<li>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Use HTTPS Everywhere</strong>
 									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1186,7 +1173,7 @@ const OIDCOverview = () => {
 								</div>
 							</li>
 							<li>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Implement Proper State Parameter</strong>
 									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -1195,7 +1182,7 @@ const OIDCOverview = () => {
 								</div>
 							</li>
 							<li>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Regular Token Rotation</strong>
 									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>

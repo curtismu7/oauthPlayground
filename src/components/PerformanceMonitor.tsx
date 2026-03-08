@@ -1,8 +1,8 @@
-import { FiActivity, FiClock, FiDownload, FiTrendingDown, FiTrendingUp, FiZap } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Performance metrics interface
 interface PerformanceMetrics {
@@ -261,20 +261,20 @@ export const PerformanceMonitor: React.FC = () => {
 	// Start performance monitoring
 	const startMonitoring = useCallback(() => {
 		setIsMonitoring(true);
-		logger.info('[PerformanceMonitor] Started performance monitoring');
+		log.info('[PerformanceMonitor] Started performance monitoring');
 	}, []);
 
 	// Stop performance monitoring
 	const stopMonitoring = useCallback(() => {
 		setIsMonitoring(false);
-		logger.info('[PerformanceMonitor] Stopped performance monitoring');
+		log.info('[PerformanceMonitor] Stopped performance monitoring');
 	}, []);
 
 	// Clear performance data
 	const clearData = useCallback(() => {
 		setPerformanceHistory([]);
 		lazyLoadingMetrics.clearMetrics();
-		logger.info('[PerformanceMonitor] Cleared performance data');
+		log.info('[PerformanceMonitor] Cleared performance data');
 	}, [lazyLoadingMetrics]);
 
 	// Update metrics periodically
@@ -308,7 +308,7 @@ export const PerformanceMonitor: React.FC = () => {
 		<MonitorContainer>
 			<MonitorHeader>
 				<MonitorIcon>
-					<FiActivity />
+					<span>🔄</span>
 				</MonitorIcon>
 				<MonitorTitle>Performance Monitor</MonitorTitle>
 			</MonitorHeader>
@@ -318,7 +318,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Load Time</MetricLabel>
 						<MetricIcon trend={metrics.loadTime < 1000 ? 'up' : 'down'}>
-							<FiClock />
+							<span>🕐</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -332,7 +332,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Render Time</MetricLabel>
 						<MetricIcon trend={metrics.renderTime < 500 ? 'up' : 'down'}>
-							<FiZap />
+							<span>⚡</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -346,7 +346,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Memory Usage</MetricLabel>
 						<MetricIcon>
-							<FiActivity />
+							<span>🔄</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -360,7 +360,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Bundle Size</MetricLabel>
 						<MetricIcon>
-							<FiDownload />
+							<span>📥</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -374,7 +374,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Chunk Count</MetricLabel>
 						<MetricIcon>
-							<FiTrendingUp />
+							<span>📈</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{metrics.chunkCount}</MetricValue>
@@ -385,7 +385,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Cache Hit Rate</MetricLabel>
 						<MetricIcon trend={metrics.cacheHitRate > 80 ? 'up' : 'down'}>
-							<FiTrendingUp />
+							<span>📈</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -399,7 +399,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Error Rate</MetricLabel>
 						<MetricIcon trend={metrics.errorRate < 5 ? 'up' : 'down'}>
-							<FiTrendingDown />
+							<span>📉</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -413,7 +413,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Loaded Components</MetricLabel>
 						<MetricIcon>
-							<FiZap />
+							<span>⚡</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{lazyLoadingMetrics.loadedComponents}</MetricValue>

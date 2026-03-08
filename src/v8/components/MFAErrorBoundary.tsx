@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { FiAlertTriangle, FiHome, FiRefreshCw } from '@icons';
+
 import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -154,7 +154,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 									cursor: 'pointer',
 								}}
 							>
-								<FiRefreshCw size={18} />
+								<span style={{ fontSize: '18px' }}>🔄</span>
 								Try Again
 							</button>
 							<button
@@ -174,7 +174,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 									cursor: 'pointer',
 								}}
 							>
-								<FiHome size={18} />
+								<span style={{ fontSize: '18px' }}>🏠</span>
 								Go to MFA Hub
 							</button>
 						</div>

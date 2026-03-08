@@ -4,11 +4,11 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
@@ -511,7 +511,7 @@ const OAuthDetective: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'OAuthDetective',
 				'[OAuth Detective] Error analyzing URL:',
 				undefined,
@@ -547,7 +547,7 @@ const OAuthDetective: React.FC = () => {
 	return (
 		<DetectiveContainer>
 			<Title>
-				<FiSearch size={28} />
+				<span style={{ fontSize: '28px' }}>🔍</span>
 				OAuth Detective
 			</Title>
 			<Description>
@@ -575,7 +575,7 @@ const OAuthDetective: React.FC = () => {
 					}}
 				/>
 				<AnalyzeButton onClick={analyzeURL} disabled={isAnalyzing || !url.trim()}>
-					<FiSearch />
+					<span>🔍</span>
 					{isAnalyzing ? 'Analyzing...' : 'Analyze URL'}
 				</AnalyzeButton>
 			</InputArea>
@@ -583,7 +583,7 @@ const OAuthDetective: React.FC = () => {
 			{analysis && (
 				<AnalysisResult>
 					<ProviderBadge provider={analysis.provider}>
-						<FiCheckCircle />
+						<span>✅</span>
 						Detected: {analysis.provider}
 					</ProviderBadge>
 
@@ -641,7 +641,7 @@ const OAuthDetective: React.FC = () => {
 										}}
 										title="Copy parameter"
 									>
-										<FiCopy size={14} />
+										<span style={{ fontSize: '14px' }}>📋</span>
 									</button>
 								</ParameterValue>
 

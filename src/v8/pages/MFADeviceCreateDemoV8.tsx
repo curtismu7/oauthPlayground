@@ -4,7 +4,7 @@
  * @description Interactive page for crafting PingOne Create Device requests with editable JSON.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiMail, FiPhone, FiRefreshCw, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -301,7 +301,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 								color: savedWorkerToken ? '#047857' : '#991b1b',
 							}}
 						>
-							{savedWorkerToken ? <FiCheckCircle /> : <FiAlertTriangle />}
+							{savedWorkerToken ? <span>✅</span> : <span>⚠️</span>}
 							<span>
 								{savedWorkerToken ? 'Saved worker token detected' : 'No saved worker token'}
 							</span>
@@ -390,7 +390,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 										</>
 									) : (
 										<>
-											<FiUser />
+											<span>👤</span>
 											<span style={{ marginLeft: '6px' }}>Lookup</span>
 										</>
 									)}
@@ -478,7 +478,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					{[
 						{
 							title: 'Create SMS Device',
-							icon: <FiPhone />,
+							icon: <span>📞</span>,
 							body: smsBody,
 							setBody: setSmsBody,
 							type: 'SMS' as const,
@@ -486,7 +486,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 						},
 						{
 							title: 'Create Email Device',
-							icon: <FiMail />,
+							icon: <span>📧</span>,
 							body: emailBody,
 							setBody: setEmailBody,
 							type: 'EMAIL' as const,

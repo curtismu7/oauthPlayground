@@ -1,12 +1,12 @@
 // src/components/TOTPQRCodeModal.tsx
 // TOTP QR Code Modal for Authenticator App Setup
 
-import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;
@@ -56,7 +56,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 
 			console.log(`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'TOTPQRCodeModal',
 				'❌ [TOTP QR Code] Failed to generate TOTP config:',
 				undefined,
@@ -95,7 +95,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 			// Reset copied state after 2 seconds
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'TOTPQRCodeModal',
 				'❌ [TOTP QR Code] Failed to copy secret:',
 				undefined,
@@ -176,7 +176,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								color: 'white',
 							}}
 						>
-							<FiSmartphone size={20} />
+							<span style={{ fontSize: '20px' }}>📱</span>
 						</div>
 						<div>
 							<h2
@@ -214,7 +214,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							justifyContent: 'center',
 						}}
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 
@@ -350,7 +350,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<FiKey size={16} />
+									<span style={{ fontSize: '16px' }}>🔑</span>
 									Manual Entry (Alternative)
 								</h4>
 								<button
@@ -367,7 +367,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										justifyContent: 'center',
 									}}
 								>
-									{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 								</button>
 							</div>
 
@@ -411,7 +411,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									{copied ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>📋</span>}
 								</button>
 							</div>
 

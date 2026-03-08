@@ -13,7 +13,7 @@
  * All outbound WhatsApp messages are sent by PingOne using its configured sender.
  */
 
-import { FiArrowRight, FiBook, FiMessageSquare } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -625,7 +625,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-						<FiMessageSquare size={32} color="white" />
+						<span style={{ fontSize: 32, color: 'white' }}>❓</span>
 						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 							WhatsApp / OTP Configuration
 						</h1>
@@ -971,7 +971,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-						<FiBook size={24} color="#3b82f6" />
+						<span style={{ fontSize: 24, color: '#3b82f6' }}>📖</span>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
 							About WhatsApp / OTP Authentication
 						</h2>
@@ -1060,7 +1060,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						}}
 					>
 						Continue to Device Registration
-						<FiArrowRight size={18} />
+						<span style={{ fontSize: '18px' }}>➡️</span>
 					</button>
 				</div>
 

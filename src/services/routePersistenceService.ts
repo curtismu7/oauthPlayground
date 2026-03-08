@@ -1,6 +1,10 @@
 // src/services/routePersistenceService.ts
 // Service to remember the last visited route and restore it on app reload
 
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
+
+const log = createModuleLogger('src/services/routePersistenceService.ts');
+
 const LAST_ROUTE_KEY = 'oauth_playground_last_route';
 const LAST_ROUTE_TIMESTAMP_KEY = 'oauth_playground_last_route_timestamp';
 const ROUTE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -49,16 +53,13 @@ export class RoutePersistenceService {
 	static saveCurrentRoute(path: string): void {
 		// Don't save excluded routes
 		if (RoutePersistenceService.isExcludedRoute(path)) {
-			logger.info(
-				'RoutePersistenceService',
-				`🚫 [RoutePersistence] Not saving excluded route: ${path}`
-			);
+			log.info(`🚫 [RoutePersistence] Not saving excluded route: ${path}`);
 			return;
 		}
 
 		// Don't save the root path
 		if (path === '/' || path === '') {
-			logger.info('RoutePersistenceService', `🚫 [RoutePersistence] Not saving root path`);
+			log.info(`🚫 [RoutePersistence] Not saving root path`);
 			return;
 		}
 
@@ -66,12 +67,7 @@ export class RoutePersistenceService {
 			localStorage.setItem(LAST_ROUTE_KEY, path);
 			localStorage.setItem(LAST_ROUTE_TIMESTAMP_KEY, Date.now().toString());
 		} catch (error) {
-			logger.warn(
-				'RoutePersistenceService',
-				'[RoutePersistence] Failed to save route:',
-				undefined,
-				error as Error
-			);
+			log.warn('[RoutePersistence] Failed to save route:', error as Error);
 		}
 	}
 
@@ -84,36 +80,22 @@ export class RoutePersistenceService {
 			const timestamp = localStorage.getItem(LAST_ROUTE_TIMESTAMP_KEY);
 
 			if (!savedRoute || !timestamp) {
-				logger.info(
-					'RoutePersistenceService',
-					`📍 [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`
-				);
+				log.info(`📍 [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`);
 				return DEFAULT_ROUTE;
 			}
 
 			// Check if route is expired
 			const age = Date.now() - parseInt(timestamp, 10);
 			if (age > ROUTE_EXPIRY_MS) {
-				logger.info(
-					'RoutePersistenceService',
-					`⏰ [RoutePersistence] Saved route expired, using default: ${DEFAULT_ROUTE}`
-				);
+				log.info(`⏰ [RoutePersistence] Saved route expired, using default: ${DEFAULT_ROUTE}`);
 				RoutePersistenceService.clearSavedRoute();
 				return DEFAULT_ROUTE;
 			}
 
-			logger.info(
-				'RoutePersistenceService',
-				`✅ [RoutePersistence] Restoring last route: ${savedRoute}`
-			);
+			log.info(`✅ [RoutePersistence] Restoring last route: ${savedRoute}`);
 			return savedRoute;
 		} catch (error) {
-			logger.warn(
-				'RoutePersistenceService',
-				'[RoutePersistence] Failed to get last route:',
-				undefined,
-				error as Error
-			);
+			log.warn('[RoutePersistence] Failed to get last route:', error as Error);
 			return DEFAULT_ROUTE;
 		}
 	}
@@ -125,14 +107,9 @@ export class RoutePersistenceService {
 		try {
 			localStorage.removeItem(LAST_ROUTE_KEY);
 			localStorage.removeItem(LAST_ROUTE_TIMESTAMP_KEY);
-			logger.info('RoutePersistenceService', `🗑️ [RoutePersistence] Cleared saved route`);
+			log.info(`🗑️ [RoutePersistence] Cleared saved route`);
 		} catch (error) {
-			logger.warn(
-				'RoutePersistenceService',
-				'[RoutePersistence] Failed to clear saved route:',
-				undefined,
-				error as Error
-			);
+			log.warn('[RoutePersistence] Failed to clear saved route:', error as Error);
 		}
 	}
 

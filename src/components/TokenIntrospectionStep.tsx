@@ -1,4 +1,4 @@
-import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiShield } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -315,10 +315,10 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 					aria-expanded={!collapsedSections.completionOverview}
 				>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Flow Completion Overview
+						<span>✅</span> Flow Completion Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.completionOverview && (
@@ -337,17 +337,17 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 					aria-expanded={!collapsedSections.completionDetails}
 				>
 					<CollapsibleTitle>
-						<FiShield /> Next Steps & Resources
+						<span>🛡️</span> Next Steps & Resources
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionDetails}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.completionDetails && (
 					<CollapsibleContent>
 						<CalloutCard style={{ marginTop: '1.5rem' }}>
 							<InfoTitle>
-								<FiShield /> Next Steps
+								<span>🛡️</span> Next Steps
 							</InfoTitle>
 							<InfoList>
 								{flowText.nextSteps.map((step, index) => (
@@ -367,17 +367,17 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 						aria-expanded={!collapsedSections.introspectionDetails}
 					>
 						<CollapsibleTitle>
-							<FiEye /> Token Introspection
+							<span>👁️</span> Token Introspection
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionDetails}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.introspectionDetails && (
 						<CollapsibleContent>
 							<ResultsSection>
 								<ResultsHeading>
-									<FiEye /> Access Token Introspection
+									<span>👁️</span> Access Token Introspection
 								</ResultsHeading>
 								<HelperText>
 									Introspect your access token to see detailed information about its validity,
@@ -394,7 +394,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 											borderColor: primaryColor,
 										}}
 									>
-										<FiEye /> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
+										<span>👁️</span> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
 									</HighlightedActionButton>
 								</ActionRow>
 
@@ -485,7 +485,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 												}
 												$variant="outline"
 											>
-												<FiCopy /> Copy Results
+												<span>📋</span> Copy Results
 											</Button>
 										</ActionRow>
 									</GeneratedContentBox>

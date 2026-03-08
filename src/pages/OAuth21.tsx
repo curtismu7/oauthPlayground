@@ -1,13 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiUsers,
-	FiX,
-} from '@icons';
+
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
@@ -178,7 +169,7 @@ const OAuth21 = () => {
 				<CollapsibleHeader
 					title="What is OAuth 2.1?"
 					subtitle="Evolution of OAuth 2.0 with built-in security improvements and best practices"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<OverviewCard>
@@ -206,7 +197,7 @@ const OAuth21 = () => {
 				<CollapsibleHeader
 					title="Flows and Features Removed from OAuth 2.1"
 					subtitle="Deprecated patterns that no longer appear in the consolidated specification"
-					icon={<FiAlertTriangle />}
+					icon={<span>⚠️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -279,7 +270,7 @@ const OAuth21 = () => {
 								</SpecCard>
 							</ChangesGrid>
 							<PingOneNote>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<h4>PingOne guidance</h4>
 									<p>
@@ -297,7 +288,7 @@ const OAuth21 = () => {
 				<CollapsibleHeader
 					title="Key Changes from OAuth 2.0 to OAuth 2.1"
 					subtitle="Major security improvements and deprecations in OAuth 2.1"
-					icon={<FiKey />}
+					icon={<span>🔑</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -637,7 +628,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 				<CollapsibleHeader
 					title="Migration Guide"
 					subtitle="Step-by-step guide for migrating from OAuth 2.0 to OAuth 2.1"
-					icon={<FiRefreshCw />}
+					icon={<span>🔄</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -687,7 +678,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 				<CollapsibleHeader
 					title="PingOne OAuth 2.1 Readiness"
 					subtitle="PingOne's support for OAuth 2.1 features and recommendations"
-					icon={<FiUsers />}
+					icon={<span>👥</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -715,7 +706,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							</ul>
 
 							<PingOneNote>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<h4>Recommendation</h4>
 									<p>

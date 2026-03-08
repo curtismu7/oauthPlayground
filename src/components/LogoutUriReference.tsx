@@ -1,10 +1,10 @@
 // src/components/LogoutUriReference.tsx
 
-import { FiAlertTriangle, FiCheck, FiCopy, FiGlobe, FiLogOut, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface LogoutUriReferenceProps {
 	isOpen: boolean;
@@ -262,7 +262,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 				});
 			}, 2000);
 		} catch (err) {
-			logger.error('LogoutUriReference', 'Failed to copy URI:', undefined, err as Error);
+			log.error('LogoutUriReference', 'Failed to copy URI:', undefined, err as Error);
 		}
 	};
 
@@ -275,7 +275,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 		try {
 			await navigator.clipboard.writeText(allUris);
 		} catch (err) {
-			logger.error('LogoutUriReference', 'Failed to copy all URIs:', undefined, err as Error);
+			log.error('LogoutUriReference', 'Failed to copy all URIs:', undefined, err as Error);
 		}
 	};
 
@@ -286,18 +286,18 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiLogOut />
+						<span>❓</span>
 						Logout URIs Reference
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalBody>
 					<IntroSection>
 						<IntroTitle>
-							<FiGlobe />
+							<span>🌐</span>
 							Why Flow-Specific Logout URIs?
 						</IntroTitle>
 						<IntroText>
@@ -322,7 +322,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 									<UriContainer>
 										<UriCode>{uriInfo.logoutUri}</UriCode>
 										<CopyButton copied={isCopied} onClick={() => handleCopyUri(uriInfo.logoutUri)}>
-											{isCopied ? <FiCheck /> : <FiCopy />}
+											{isCopied ? <span>✅</span> : <span>📋</span>}
 											{isCopied ? 'Copied!' : 'Copy URI'}
 										</CopyButton>
 									</UriContainer>
@@ -335,7 +335,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 
 					<PingOneSection>
 						<PingOneTitle>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							PingOne Application Configuration
 						</PingOneTitle>
 						<PingOneText>
@@ -348,14 +348,14 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 							))}
 						</UriList>
 						<CopyButton onClick={handleCopyAllUris} style={{ marginTop: '0.75rem' }}>
-							<FiCopy />
+							<span>📋</span>
 							Copy All URIs
 						</CopyButton>
 					</PingOneSection>
 
 					<WarningSection>
 						<WarningTitle>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							Important Security Notes
 						</WarningTitle>
 						<WarningText>

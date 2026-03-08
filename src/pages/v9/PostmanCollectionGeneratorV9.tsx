@@ -11,7 +11,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  * - Just Unified (all, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft), or combinations)
  */
 
-import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from '@icons';
+
 import React, { useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -35,7 +35,7 @@ import {
 	type V9SpecVersion,
 	V9SpecVersionService,
 } from '../../services/v9/V9SpecVersionService';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 
@@ -1181,7 +1181,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			log.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1268,7 +1268,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			log.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1359,7 +1359,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error generating environment:', undefined, error as Error);
+			log.error(MODULE_TAG, 'Error generating environment:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1393,7 +1393,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error downloading MFA collection:', undefined, error as Error);
+			log.error(MODULE_TAG, 'Error downloading MFA collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1424,7 +1424,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error downloading complete collection:', undefined, error as Error);
+			log.error(MODULE_TAG, 'Error downloading complete collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1467,7 +1467,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						gap: '12px',
 					}}
 				>
-					<FiPackage size={32} />
+					<span style={{ fontSize: '32px' }}>📦</span>
 					Postman Collection Generator
 					<span
 						style={{
@@ -1660,7 +1660,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						{expandedUseCases ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
+						{expandedUseCases ? <span style={{ fontSize: '20px' }}>⬇️</span> : <span style={{ fontSize: '20px' }}>➡️</span>}
 						<span>
 							Use Cases ({selectedUseCases.size} of {useCaseTypes.length} selected)
 						</span>
@@ -1917,9 +1917,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 								}}
 							>
 								{expandedUnifiedVariations ? (
-									<FiChevronDown size={20} />
+									<span style={{ fontSize: '20px' }}>⬇️</span>
 								) : (
-									<FiChevronRight size={20} />
+									<span style={{ fontSize: '20px' }}>➡️</span>
 								)}
 								<span>Select Specific Flow Variations</span>
 							</button>
@@ -2120,7 +2120,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						{expandedMFADeviceList ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
+						{expandedMFADeviceList ? <span style={{ fontSize: '20px' }}>⬇️</span> : <span style={{ fontSize: '20px' }}>➡️</span>}
 						<span>Device Types</span>
 					</button>
 					{expandedMFADeviceList && (
@@ -2172,7 +2172,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 														fontWeight: '500',
 													}}
 												>
-													{isExpanded ? <FiChevronDown size={14} /> : <FiChevronRight size={14} />}
+													{isExpanded ? <span style={{ fontSize: '14px' }}>⬇️</span> : <span style={{ fontSize: '14px' }}>➡️</span>}
 													<span>Use Cases</span>
 												</button>
 											)}
@@ -2320,7 +2320,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<FiDownload size={20} />
+							<span style={{ fontSize: '20px' }}>📥</span>
 							Download Collection + Variables
 						</>
 					)}
@@ -2374,7 +2374,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<FiPackage size={20} />
+							<span style={{ fontSize: '20px' }}>📦</span>
 							Download Collection Only
 						</>
 					)}
@@ -2428,7 +2428,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<FiPackage size={20} />
+							<span style={{ fontSize: '20px' }}>📦</span>
 							Download Variables Only
 						</>
 					)}
@@ -2507,7 +2507,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						}
 					}}
 				>
-					<FiPackage size={20} />
+					<span style={{ fontSize: '20px' }}>📦</span>
 					Download All MFA Flows Postman Collection
 				</button>
 				<button
@@ -2542,7 +2542,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						}
 					}}
 				>
-					<FiPackage size={20} />
+					<span style={{ fontSize: '20px' }}>📦</span>
 					Download Complete Collection (Unified + MFA)
 				</button>
 			</div>

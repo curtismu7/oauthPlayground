@@ -8,7 +8,7 @@
  * Two-step OTP login flow for PingIdentity pattern.
  */
 
-import { FiArrowRight, FiLock, FiMail } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -251,7 +251,7 @@ const TwoStepOTPLogin: React.FC<TwoStepOTPLoginProps> = ({
 
 						<ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
 							Send Code
-							<FiArrowRight />
+							<span>➡️</span>
 						</ActionButton>
 					</LoginForm>
 				</>
@@ -278,12 +278,12 @@ const TwoStepOTPLogin: React.FC<TwoStepOTPLoginProps> = ({
 						</InputGroup>
 
 						<ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-							<FiLock />
+							<span>🔒</span>
 							Verify Code
 						</ActionButton>
 
 						<ResendLink type="button" onClick={handleResendOTP} $brandColor={brandColor}>
-							<FiMail />
+							<span>📧</span>
 							Resend Code
 						</ResendLink>
 					</LoginForm>

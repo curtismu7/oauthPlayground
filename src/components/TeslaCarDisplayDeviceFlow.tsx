@@ -1,7 +1,7 @@
 // src/components/TeslaCarDisplayDeviceFlow.tsx
 // Tesla Car Display Style Device Authorization Flow Interface
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,7 +10,7 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`
@@ -400,12 +400,12 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('TeslaCarDisplayDeviceFlow', 'User code copied to clipboard');
+		log.info('TeslaCarDisplayDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('TeslaCarDisplayDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
@@ -417,12 +417,12 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 				: state.verificationUri);
 
 		if (!uriToOpen) {
-			logger.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
+			log.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
 			return;
 		}
 
 		window.open(uriToOpen, '_blank');
-		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', {
+		log.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', {
 			uri: uriToOpen,
 		});
 	};
@@ -430,15 +430,15 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -521,10 +521,10 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 							{/* Control Buttons */}
 							<ControlButtons>
 								<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-									<FiCopy size={12} /> Copy Code
+									<span style={{ fontSize: '12px' }}>📋</span> Copy Code
 								</ControlButton>
 								<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-									<FiCopy size={12} /> Copy URI
+									<span style={{ fontSize: '12px' }}>📋</span> Copy URI
 								</ControlButton>
 							</ControlButtons>
 
@@ -602,10 +602,10 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 						}}
 					>
 						<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<FiExternalLink size={12} /> Open in Browser
+							<span style={{ fontSize: '12px' }}>🔗</span> Open in Browser
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<FiCopy size={12} /> Copy URI
+							<span style={{ fontSize: '12px' }}>📋</span> Copy URI
 						</ControlButton>
 					</div>
 				</QRCodeSection>

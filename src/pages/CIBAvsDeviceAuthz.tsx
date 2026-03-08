@@ -1,17 +1,6 @@
 // src/pages/CIBAvsDeviceAuthz.tsx - CIBA vs Device Authorization Comparison Guide
 
-import {
-	FiAlertCircle,
-	FiBook,
-	FiCheck,
-	FiClock,
-	FiCode,
-	FiCopy,
-	FiInfo,
-	FiMonitor,
-	FiSettings,
-	FiSmartphone,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -245,7 +234,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 						</p>
 						<InfoBox>
 							<InfoIcon>
-								<FiInfo />
+								<span>ℹ️</span>
 							</InfoIcon>
 							<InfoContent>
 								<h4>Key Insight</h4>
@@ -264,7 +253,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 				<CollapsibleHeader
 					title="Quick Comparison Table"
 					theme="blue"
-					icon={<FiSettings />}
+					icon={<span>⚙️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -358,7 +347,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 					<ComparisonCard $type="ciba">
 						<CardHeader>
 							<h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<FiSmartphone />
+								<span>📱</span>
 								CIBA (Client-Initiated Backchannel Authentication)
 							</h2>
 						</CardHeader>
@@ -406,7 +395,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 					<ComparisonCard $type="device">
 						<CardHeader>
 							<h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<FiMonitor />
+								<span>🖥️</span>
 								Device Authorization Grant
 							</h2>
 						</CardHeader>
@@ -453,7 +442,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 				<CollapsibleHeader
 					title="CIBA Flow Example"
 					theme="purple"
-					icon={<FiSmartphone />}
+					icon={<span>📱</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -492,7 +481,7 @@ requested_expiry=600`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -519,7 +508,7 @@ requested_expiry=600`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<FiInfo />
+										<span>ℹ️</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>Push Notification</h4>
@@ -555,7 +544,7 @@ requested_expiry=600`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -590,7 +579,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -613,7 +602,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<FiSmartphone />
+										<span>📱</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>User Experience</h4>
@@ -652,7 +641,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -672,7 +661,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 				<CollapsibleHeader
 					title="Device Authorization Flow Example"
 					theme="blue"
-					icon={<FiMonitor />}
+					icon={<span>🖥️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -706,7 +695,7 @@ scope=openid profile email`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -743,7 +732,7 @@ scope=openid profile email`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -768,7 +757,7 @@ scope=openid profile email`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<FiMonitor />
+										<span>🖥️</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>User Code Display</h4>
@@ -792,7 +781,7 @@ scope=openid profile email`}</CodeBlock>
 								</FlowStepDescription>
 								<WarningBox>
 									<InfoIcon>
-										<FiAlertCircle />
+										<span>⚠️</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>Manual Process</h4>
@@ -829,7 +818,7 @@ client_id=your_client_id`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -841,7 +830,7 @@ device_code=GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS&
 client_id=your_client_id`}</CodeBlock>
 								<InfoBox>
 									<InfoIcon>
-										<FiClock />
+										<span>🕐</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>Polling Behavior</h4>
@@ -866,7 +855,7 @@ client_id=your_client_id`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<FiInfo />
+										<span>ℹ️</span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>User Flow</h4>
@@ -905,7 +894,7 @@ client_id=your_client_id`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -925,7 +914,7 @@ client_id=your_client_id`}</CodeBlock>
 				<CollapsibleHeader
 					title="When to Use Which?"
 					theme="green"
-					icon={<FiBook />}
+					icon={<span>📖</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -935,7 +924,7 @@ client_id=your_client_id`}</CodeBlock>
 							<UseCaseCard>
 								<CardHeader>
 									<h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<FiSmartphone />
+										<span>📱</span>
 										Use CIBA When:
 									</h3>
 								</CardHeader>
@@ -992,7 +981,7 @@ client_id=your_client_id`}</CodeBlock>
 							<UseCaseCard>
 								<CardHeader>
 									<h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<FiMonitor />
+										<span>🖥️</span>
 										Use Device Authorization When:
 									</h3>
 								</CardHeader>
@@ -1052,7 +1041,7 @@ client_id=your_client_id`}</CodeBlock>
 				<CollapsibleHeader
 					title="Complete Code Examples"
 					theme="orange"
-					icon={<FiCode />}
+					icon={<span>❓</span>}
 					defaultCollapsed={true}
 				>
 					<Card>
@@ -1127,7 +1116,7 @@ function sleep(ms) {
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1276,7 +1265,7 @@ function sleep(ms) {
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1359,7 +1348,7 @@ function sleep(ms) {
 				<CollapsibleHeader
 					title="Summary & Recommendations"
 					theme="highlight"
-					icon={<FiCheck />}
+					icon={<span>✅</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -1482,7 +1471,7 @@ function sleep(ms) {
 
 							<InfoBox style={{ marginTop: '2rem' }}>
 								<InfoIcon>
-									<FiInfo />
+									<span>ℹ️</span>
 								</InfoIcon>
 								<InfoContent>
 									<h4>PingOne Support</h4>

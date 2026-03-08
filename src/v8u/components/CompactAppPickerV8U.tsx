@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiSearch, FiX } from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -155,7 +155,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			logger.error('Discovery error', { error });
+			log.error('Discovery error', { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -234,7 +234,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 						title="Search and select PingOne application to auto-fill credentials"
 						aria-label="Search and select PingOne application to auto-fill credentials"
 					>
-						{isLoading ? '🔄' : <FiSearch size={16} />}
+						{isLoading ? '🔄' : <span style={{ fontSize: '16px' }}>🔍</span>}
 					</button>
 					{/* Tooltip on hover */}
 					<div
@@ -338,7 +338,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 							}}
 							aria-label="Close search"
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 

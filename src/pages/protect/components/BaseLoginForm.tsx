@@ -13,7 +13,7 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -299,7 +299,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 				if (!credsResponse.success) {
 					const errorDetails = credsResponse.error?.details || {};
-					logger.error('BaseLoginForm', '[🔐 BASE-LOGIN] Credential submission failed:', {
+					log.error('BaseLoginForm', '[🔐 BASE-LOGIN] Credential submission failed:', {
 						errorDetails,
 					});
 
@@ -344,7 +344,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 				onLoginSuccess(userContext, loginContext);
 			} catch (err) {
-				logger.error(
+				log.error(
 					'BaseLoginForm',
 					'[🔐 BASE-LOGIN] Authentication error:',
 					undefined,
@@ -373,7 +373,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 		<>
 			{error && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
@@ -385,7 +385,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					<InputWrapper>
 						{showIcons && (
 							<InputIcon>
-								<FiUser />
+								<span>👤</span>
 							</InputIcon>
 						)}
 						<StyledInput
@@ -432,7 +432,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 							disabled={isLoading}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <FiEyeOff /> : <FiEye />}
+							{showPassword ? <span>🙈</span> : <span>👁️</span>}
 						</PasswordToggle>
 					</InputWrapper>
 				</InputGroup>

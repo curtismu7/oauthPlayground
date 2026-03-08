@@ -1,19 +1,9 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiDownload,
-	FiEye,
-	FiRefreshCw,
-	FiShield,
-	FiTrendingDown,
-	FiTrendingUp,
-	FiXCircle,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
 // Styled components
@@ -447,7 +437,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 				announceToScreenReader('Security analytics data refreshed successfully');
 			}, 1000);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'SecurityAnalyticsDashboard',
 				'Failed to refresh security analytics:',
 				undefined,
@@ -522,7 +512,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 			<DashboardHeader>
 				<DashboardTitle>
 					<DashboardIcon>
-						<FiShield />
+						<span>🛡️</span>
 					</DashboardIcon>
 					Security Analytics Dashboard
 				</DashboardTitle>
@@ -543,7 +533,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						onClick={handleExport}
 						aria-label="Export security analytics data"
 					>
-						<FiDownload />
+						<span>📥</span>
 						Export Data
 					</ActionButton>
 				</DashboardActions>
@@ -562,12 +552,12 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 								averageRiskScore > 70 ? 'danger' : averageRiskScore > 40 ? 'warning' : 'good'
 							}
 						>
-							<FiShield />
+							<span>🛡️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{averageRiskScore.toFixed(1)}</MetricValue>
 					<MetricChange $positive={averageRiskScore < 50}>
-						{averageRiskScore < 50 ? <FiTrendingDown /> : <FiTrendingUp />}
+						{averageRiskScore < 50 ? <span>📉</span> : <span>📈</span>}
 						{averageRiskScore < 50 ? 'Low Risk' : 'High Risk'}
 					</MetricChange>
 				</MetricCard>
@@ -594,12 +584,12 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 										: 'good'
 							}
 						>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{criticalAlerts.length}</MetricValue>
 					<MetricChange $positive={criticalAlerts.length === 0}>
-						{criticalAlerts.length === 0 ? <FiCheckCircle /> : <FiXCircle />}
+						{criticalAlerts.length === 0 ? <span>✅</span> : <span>❌</span>}
 						{criticalAlerts.length === 0 ? 'All Clear' : 'Action Required'}
 					</MetricChange>
 				</MetricCard>
@@ -622,7 +612,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 									: 'good'
 							}
 						>
-							<FiEye />
+							<span>👁️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{threatIntelligence.filter((t) => t.active).length}</MetricValue>
@@ -630,9 +620,9 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						$positive={threatIntelligence.filter((t) => t.severity === 'critical').length === 0}
 					>
 						{threatIntelligence.filter((t) => t.severity === 'critical').length === 0 ? (
-							<FiCheckCircle />
+							<span>✅</span>
 						) : (
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						)}
 						{threatIntelligence.filter((t) => t.severity === 'critical').length === 0
 							? 'No Critical Threats'
@@ -650,7 +640,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 							$metric="compliance"
 							$status={complianceReports.some((r) => r.score < 80) ? 'warning' : 'good'}
 						>
-							<FiCheckCircle />
+							<span>✅</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -662,9 +652,9 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 					</MetricValue>
 					<MetricChange $positive={complianceReports.every((r) => r.score >= 95)}>
 						{complianceReports.every((r) => r.score >= 95) ? (
-							<FiCheckCircle />
+							<span>✅</span>
 						) : (
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						)}
 						{complianceReports.every((r) => r.score >= 95)
 							? 'Fully Compliant'
@@ -686,11 +676,11 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 							<ComplianceStatus>
 								<ComplianceIcon $status={status}>
 									{status === 'compliant' ? (
-										<FiCheckCircle />
+										<span>✅</span>
 									) : status === 'partial' ? (
-										<FiAlertTriangle />
+										<span>⚠️</span>
 									) : (
-										<FiXCircle />
+										<span>❌</span>
 									)}
 								</ComplianceIcon>
 								<StatusBadge

@@ -1,4 +1,4 @@
-import { FiArrowLeft } from '@icons';
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -266,7 +266,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdownPath, title, pa
 		<PageContainer>
 			<ContentWrapper>
 				<BackButton to="/documentation">
-					<FiArrowLeft /> Back to Documentation
+					<span>⬅️</span> Back to Documentation
 				</BackButton>
 
 				{loading && <LoadingMessage>Loading documentation...</LoadingMessage>}

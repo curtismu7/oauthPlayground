@@ -6,7 +6,7 @@
  * @since 2026-02-13
  */
 
-import { FiMenu, FiSearch, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -205,11 +205,11 @@ const SouthwestNavigation: React.FC = () => {
 
 						<NavActions>
 							<SearchButton title="Search">
-								<FiSearch size={20} />
+								<span style={{ fontSize: '20px' }}>🔍</span>
 							</SearchButton>
 							<BookButton>Book Flight</BookButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
-								<FiMenu size={24} />
+								<span style={{ fontSize: '24px' }}>❓</span>
 							</MobileMenuButton>
 						</NavActions>
 					</NavMainContent>
@@ -224,7 +224,7 @@ const SouthwestNavigation: React.FC = () => {
 						onClick={toggleMobileMenu}
 						style={{ background: 'none', border: 'none', color: 'white' }}
 					>
-						<FiX size={24} />
+						<span style={{ fontSize: '24px' }}>❌</span>
 					</button>
 				</MobileMenuHeader>
 				<MobileMenuContent>

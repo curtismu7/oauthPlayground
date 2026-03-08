@@ -7,11 +7,11 @@
  * feedback on discovery status.
  */
 
-import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiGlobe, FiLoader, FiRefreshCw } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -369,7 +369,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 				};
 			}
 		} catch (error) {
-			logger.warn('OIDCDiscoveryInput', 'Failed to load OIDC Discovery settings:', { error });
+			log.warn('OIDCDiscoveryInput', 'Failed to load OIDC Discovery settings:', { error });
 		}
 		return {
 			issuerUrl: initialIssuerUrl || '',
@@ -402,7 +402,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		try {
 			localStorage.setItem('oidc-discovery-settings', JSON.stringify(settings));
 		} catch (error) {
-			logger.warn('OIDCDiscoveryInput', 'Failed to save OIDC Discovery settings:', { error });
+			log.warn('OIDCDiscoveryInput', 'Failed to save OIDC Discovery settings:', { error });
 		}
 	}, [issuerUrl, discoveryResult, error]);
 
@@ -417,7 +417,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			setError(null);
 			setShowResults(false);
 		} catch (error) {
-			logger.warn('OIDCDiscoveryInput', 'Failed to clear OIDC Discovery settings:', { error });
+			log.warn('OIDCDiscoveryInput', 'Failed to clear OIDC Discovery settings:', { error });
 		}
 	}, [initialIssuerUrl]);
 
@@ -457,7 +457,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-			logger.error('OIDCDiscoveryInput', '[OIDC Discovery Input] Discovery failed:', {
+			log.error('OIDCDiscoveryInput', '[OIDC Discovery Input] Discovery failed:', {
 				message: errorMessage,
 			});
 			setError(errorMessage);
@@ -512,7 +512,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		if (discoveryResult?.success) {
 			return (
 				<StatusContainer type="success">
-					<FiCheck />
+					<span>✅</span>
 					<StatusText>
 						Successfully discovered OIDC endpoints
 						{discoveryResult.data?.cached && ' (cached)'}
@@ -524,7 +524,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		if (discoveryResult && !discoveryResult.success) {
 			return (
 				<StatusContainer type="error">
-					<FiAlertCircle />
+					<span>⚠️</span>
 					<StatusText>Discovery failed: {discoveryResult.error?.message}</StatusText>
 				</StatusContainer>
 			);
@@ -569,7 +569,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 	return (
 		<Container className={className}>
 			<Header>
-				<FiGlobe />
+				<span>🌐</span>
 				<Title>OIDC Discovery</Title>
 			</Header>
 
@@ -586,7 +586,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 						hasSuccess={discoveryResult?.success}
 						isLoading={isDiscovering}
 					>
-						{isDiscovering ? <FiLoader className="animate-spin" /> : <FiGlobe />}
+						{isDiscovering ? <FiLoader className="animate-spin" /> : <span>🌐</span>}
 					</InputIcon>
 
 					<Input
@@ -607,7 +607,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 						isLoading={isDiscovering}
 						title="Discover OIDC endpoints"
 					>
-						{isDiscovering ? <FiLoader className="animate-spin" /> : <FiRefreshCw />}
+						{isDiscovering ? <FiLoader className="animate-spin" /> : <span>🔄</span>}
 					</DiscoverButton>
 				</InputGroup>
 
@@ -635,7 +635,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			{/* Clear Settings Button */}
 			{(issuerUrl || discoveryResult || error) && (
 				<ClearButton onClick={clearSavedSettings}>
-					<FiRefreshCw size={16} />
+					<span style={{ fontSize: '16px' }}>🔄</span>
 					Clear Settings
 				</ClearButton>
 			)}
@@ -646,7 +646,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			{discoveryResult?.success && discoveryResult.data && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
-						{showResults ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						{showResults ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
 					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>

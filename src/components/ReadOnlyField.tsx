@@ -6,7 +6,7 @@
  * Used when a field value is fixed by OAuth/OIDC specifications.
  */
 
-import { FiLock } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -98,7 +98,7 @@ export const ReadOnlyField: React.FC<ReadOnlyFieldProps> = ({
 	return (
 		<FormField>
 			<FormLabel>
-				<LockIcon>{icon || <FiLock size={14} />}</LockIcon>
+				<LockIcon>{icon || <span style={{ fontSize: '14px' }}>🔒</span>}</LockIcon>
 				{label}
 			</FormLabel>
 			<ReadOnlyInput

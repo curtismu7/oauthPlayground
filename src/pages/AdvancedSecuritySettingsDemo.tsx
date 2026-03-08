@@ -1,7 +1,7 @@
 // src/pages/AdvancedSecuritySettingsDemo.tsx
 // Demo page to showcase the Advanced Security Settings service
 
-import { FiArrowLeft, FiExternalLink } from '@icons';
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -86,7 +86,7 @@ const AdvancedSecuritySettingsDemo: React.FC = () => {
 		<PageContainer>
 			<Header>
 				<BackButton to="/">
-					<FiArrowLeft size={16} />
+					<span style={{ fontSize: '16px' }}>⬅️</span>
 					Back to Dashboard
 				</BackButton>
 				<div>
@@ -97,7 +97,7 @@ const AdvancedSecuritySettingsDemo: React.FC = () => {
 
 			<InfoCard>
 				<InfoTitle>
-					<FiExternalLink size={18} />
+					<span style={{ fontSize: '18px' }}>🔗</span>
 					Service Implementation Complete
 				</InfoTitle>
 				<InfoText>

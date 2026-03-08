@@ -1,4 +1,4 @@
-import { FiSearch, FiX } from '@icons';
+
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -191,7 +191,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 		<SearchContainer data-search-container>
 			<SearchInputWrapper>
 				<SearchIcon>
-					<FiSearch size={14} />
+					<span style={{ fontSize: '14px' }}>🔍</span>
 				</SearchIcon>
 				<SearchInput
 					ref={inputRef}
@@ -209,11 +209,11 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 				/>
 				{displayQuery && displayQuery !== activeQuery ? (
 					<SearchButton onClick={triggerSearch} title="Search (Enter)">
-						<FiSearch size={14} />
+						<span style={{ fontSize: '14px' }}>🔍</span>
 					</SearchButton>
 				) : displayQuery || activeQuery ? (
 					<ClearButton onClick={clearSearch} title="Clear search">
-						<FiX size={14} />
+						<span style={{ fontSize: '14px' }}>❌</span>
 					</ClearButton>
 				) : null}
 			</SearchInputWrapper>

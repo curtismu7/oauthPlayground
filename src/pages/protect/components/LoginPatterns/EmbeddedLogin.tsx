@@ -8,7 +8,7 @@
  * Authentic embedded login form that matches real Bank of America online banking experience.
  */
 
-import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -327,7 +327,7 @@ const EmbeddedLogin: React.FC<{
 		<LoginContainer $brandColor={brandColor}>
 			<SecurityBanner $brandColor={brandColor}>
 				<SecurityIcon $brandColor={brandColor}>
-					<FiShield size={20} />
+					<span style={{ fontSize: '20px' }}>🛡️</span>
 				</SecurityIcon>
 				<SecurityText>
 					<SecurityTitle>Secure Sign-In</SecurityTitle>
@@ -342,7 +342,7 @@ const EmbeddedLogin: React.FC<{
 					<InputLabel htmlFor="username">Online ID</InputLabel>
 					<InputWrapper>
 						<InputIcon>
-							<FiUser size={16} />
+							<span style={{ fontSize: '16px' }}>👤</span>
 						</InputIcon>
 						<Input
 							id="username"
@@ -359,7 +359,7 @@ const EmbeddedLogin: React.FC<{
 					<InputLabel htmlFor="password">Passcode</InputLabel>
 					<InputWrapper>
 						<InputIcon>
-							<FiKey size={16} />
+							<span style={{ fontSize: '16px' }}>🔑</span>
 						</InputIcon>
 						<Input
 							id="password"
@@ -374,7 +374,7 @@ const EmbeddedLogin: React.FC<{
 							onClick={() => setShowPassword(!showPassword)}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</TogglePassword>
 					</InputWrapper>
 				</InputGroup>
@@ -396,7 +396,7 @@ const EmbeddedLogin: React.FC<{
 				</RememberMeGroup>
 
 				<LoginButton type="submit" $brandColor={brandColor} disabled={isLoading}>
-					<FiLock />
+					<span>🔒</span>
 					{isLoading ? 'Signing In...' : 'Sign In'}
 				</LoginButton>
 			</LoginForm>
@@ -409,11 +409,11 @@ const EmbeddedLogin: React.FC<{
 
 			<AlternativeOptions>
 				<AlternativeButton type="button" $brandColor={brandColor}>
-					<FiShield size={16} />
+					<span style={{ fontSize: '16px' }}>🛡️</span>
 					Sign In with Face ID
 				</AlternativeButton>
 				<AlternativeButton type="button" $brandColor={brandColor}>
-					<FiShield size={16} />
+					<span style={{ fontSize: '16px' }}>🛡️</span>
 					Sign In with Touch ID
 				</AlternativeButton>
 			</AlternativeOptions>

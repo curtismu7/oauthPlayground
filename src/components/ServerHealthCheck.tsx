@@ -1,7 +1,7 @@
-import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiWifiOff } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const pulse = keyframes`
   0% { opacity: 1; }
@@ -217,7 +217,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				setStatus('offline');
 			}
 		} catch (error) {
-			logger.warn('ServerHealthCheck', 'Server health check failed:', { error });
+			log.warn('ServerHealthCheck', 'Server health check failed:', { error });
 			setStatus('offline');
 			setRetryCount((prev) => prev + 1);
 		}
@@ -260,25 +260,25 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 		switch (status) {
 			case 'checking':
 				return {
-					icon: <FiRefreshCw />,
+					icon: <span>🔄</span>,
 					title: 'Checking Server Status...',
 					message: 'Verifying connection to backend server...',
 				};
 			case 'online':
 				return {
-					icon: <FiCheckCircle />,
+					icon: <span>✅</span>,
 					title: 'Backend Server Online',
 					message: 'Backend server is running and responding normally.',
 				};
 			case 'offline':
 				return {
-					icon: <FiWifiOff />,
+					icon: <span>❓</span>,
 					title: 'Server is not running',
 					message: `The backend server is not responding. Start it with \`./run.sh\` from the project root to use logs, custom domain, and other API features.${retryCount > 0 ? ` (${retryCount} failed attempts)` : ''}`,
 				};
 			default:
 				return {
-					icon: <FiAlertTriangle />,
+					icon: <span>⚠️</span>,
 					title: 'Unknown Status',
 					message: 'Unable to determine server status.',
 				};
@@ -299,7 +299,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 					<ModalBody>{statusInfo.message}</ModalBody>
 					<ModalActions>
 						<HealthButton type="button" onClick={handleRetry}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Retry
 						</HealthButton>
 						<DismissButton type="button" onClick={handleDismiss}>
@@ -332,7 +332,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				)}
 				<HealthActions>
 					<HealthButton type="button" onClick={handleRetry} disabled={status === 'checking'}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Retry
 					</HealthButton>
 					{status === 'online' && (

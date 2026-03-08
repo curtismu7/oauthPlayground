@@ -1,4 +1,4 @@
-import { FiChevronDown, FiChevronUp } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -535,7 +535,7 @@ export const MobileCollapsibleSection: React.FC<{
 		<MobileCollapsible $isOpen={isOpen} className={className}>
 			<MobileCollapsibleHeader $isOpen={isOpen} onClick={toggle}>
 				<span>{title}</span>
-				{isOpen ? <FiChevronUp /> : <FiChevronDown />}
+				{isOpen ? <span>⬆️</span> : <span>⬇️</span>}
 			</MobileCollapsibleHeader>
 			<MobileCollapsibleContent $isOpen={isOpen}>
 				<div>{children}</div>

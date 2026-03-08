@@ -6,7 +6,7 @@
  * @since 2025-01-25
  */
 
-import { FiUser } from '@icons';
+
 import React from 'react';
 
 interface UserInfoDisplayV8Props {
@@ -70,7 +70,7 @@ export const UserInfoDisplayV8: React.FC<UserInfoDisplayV8Props> = ({
 						fontSize: '24px',
 					}}
 				>
-					<FiUser />
+					<span>👤</span>
 				</div>
 				<div style={{ flex: 1 }}>
 					{fullName && (

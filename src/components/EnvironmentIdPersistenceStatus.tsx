@@ -1,10 +1,10 @@
-import { FiAlertCircle, FiCheckCircle, FiEdit, FiInfo, FiRefreshCw, FiSave } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const StatusContent = styled.div`
   color: #075985;
@@ -56,18 +56,18 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 
 	useEffect(() => {
 		const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
-		logger.debug('EnvironmentIdPersistenceStatus', 'Updated status', persistenceStatus);
+		log.debug('EnvironmentIdPersistenceStatus', 'Updated status', persistenceStatus);
 		setStatus(persistenceStatus);
 	}, []);
 
 	const handleCopyEnvContent = () => {
-		logger.debug('EnvironmentIdPersistenceStatus', 'Copy .env content clicked');
+		log.debug('EnvironmentIdPersistenceStatus', 'Copy .env content clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContent();
-		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content', {
+		log.debug('EnvironmentIdPersistenceStatus', 'Generated env content', {
 			contentLength: envContent.length,
 		});
 		navigator.clipboard.writeText(envContent).then(() => {
-			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard');
+			log.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard');
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Environment content copied to clipboard!',
@@ -77,13 +77,13 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleUpdateEnv = () => {
-		logger.debug('EnvironmentIdPersistenceStatus', 'Update .env clicked');
+		log.debug('EnvironmentIdPersistenceStatus', 'Update .env clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
-		logger.debug('EnvironmentIdPersistenceStatus', 'Generated env content with newline', {
+		log.debug('EnvironmentIdPersistenceStatus', 'Generated env content with newline', {
 			contentLength: envContent.length,
 		});
 		navigator.clipboard.writeText(envContent).then(() => {
-			logger.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard with newline');
+			log.info('EnvironmentIdPersistenceStatus', 'Copied to clipboard with newline');
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Environment content copied! Paste into your .env file on a new line.',
@@ -93,9 +93,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleClearPersistence = () => {
-		logger.debug('EnvironmentIdPersistenceStatus', 'Clear persistence clicked');
+		log.debug('EnvironmentIdPersistenceStatus', 'Clear persistence clicked');
 		environmentIdPersistenceService.clearEnvironmentId();
-		logger.info('EnvironmentIdPersistenceStatus', 'Cleared from localStorage');
+		log.info('EnvironmentIdPersistenceStatus', 'Cleared from localStorage');
 		if (onRefresh) onRefresh();
 	};
 
@@ -104,7 +104,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	return (
 		<CollapsibleHeader
 			title="Environment ID Persistence"
-			icon={<FiInfo />}
+			icon={<span>ℹ️</span>}
 			theme="blue"
 			defaultCollapsed={true}
 			variant="compact"
@@ -112,54 +112,54 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 			<StatusContent>
 				<StatusItem>
 					{status.hasStoredId ? (
-						<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
+						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 					) : (
-						<FiAlertCircle size={14} color="V9_COLORS.PRIMARY.YELLOW" />
+						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
 					)}
 					<span>{status.hasStoredId ? 'Stored in localStorage' : 'Not stored locally'}</span>
 				</StatusItem>
 
 				<StatusItem>
 					{status.hasEnvVar ? (
-						<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
+						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 					) : (
-						<FiAlertCircle size={14} color="V9_COLORS.PRIMARY.YELLOW" />
+						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
 					)}
 					<span>{status.hasEnvVar ? 'Available in .env' : 'Not in .env file'}</span>
 				</StatusItem>
 
 				{status.lastUpdated && (
 					<StatusItem>
-						<FiInfo size={14} />
+						<span style={{ fontSize: '14px' }}>ℹ️</span>
 						<span>Last updated: {new Date(status.lastUpdated).toLocaleString()}</span>
 					</StatusItem>
 				)}
 
 				{status.source && (
 					<StatusItem>
-						<FiInfo size={14} />
+						<span style={{ fontSize: '14px' }}>ℹ️</span>
 						<span>Source: {status.source.replace('_', ' ')}</span>
 					</StatusItem>
 				)}
 
 				<div style={{ marginTop: '0.5rem' }}>
 					<ActionButton onClick={() => setShowEnvContent(!showEnvContent)}>
-						<FiInfo size={12} />
+						<span style={{ fontSize: '12px' }}>ℹ️</span>
 						{showEnvContent ? 'Hide' : 'Show'} .env Content
 					</ActionButton>
 
 					<ActionButton onClick={handleCopyEnvContent}>
-						<FiSave size={12} />
+						<span style={{ fontSize: '12px' }}>💾</span>
 						Copy .env Content
 					</ActionButton>
 
 					<ActionButton onClick={handleUpdateEnv}>
-						<FiEdit size={12} />
+						<span style={{ fontSize: '12px' }}>✏️</span>
 						Update .env
 					</ActionButton>
 
 					<ActionButton onClick={handleClearPersistence}>
-						<FiRefreshCw size={12} />
+						<span style={{ fontSize: '12px' }}>🔄</span>
 						Clear Storage
 					</ActionButton>
 				</div>

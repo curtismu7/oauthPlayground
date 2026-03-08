@@ -4,7 +4,7 @@
  * Shows before/after comparisons of OAuth parameter effects
  */
 
-import { FiAlertCircle, FiCheckCircle, FiClock, FiGlobe, FiLock, FiShield, FiUsers } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -753,49 +753,49 @@ const ParameterImpactVisualizer: React.FC = () => {
 					$active={selectedParameter === 'max_age'}
 					onClick={() => setSelectedParameter('max_age')}
 				>
-					<FiClock />
+					<span>🕐</span>
 					max_age
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'prompt'}
 					onClick={() => setSelectedParameter('prompt')}
 				>
-					<FiUsers />
+					<span>👥</span>
 					prompt
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'state'}
 					onClick={() => setSelectedParameter('state')}
 				>
-					<FiShield />
+					<span>🛡️</span>
 					state
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'nonce'}
 					onClick={() => setSelectedParameter('nonce')}
 				>
-					<FiLock />
+					<span>🔒</span>
 					nonce
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'pkce'}
 					onClick={() => setSelectedParameter('pkce')}
 				>
-					<FiCheckCircle />
+					<span>✅</span>
 					PKCE
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'resource'}
 					onClick={() => setSelectedParameter('resource')}
 				>
-					<FiGlobe />
+					<span>🌐</span>
 					resource
 				</TabButton>
 				<TabButton
 					$active={selectedParameter === 'login_hint'}
 					onClick={() => setSelectedParameter('login_hint')}
 				>
-					<FiUsers />
+					<span>👥</span>
 					login_hint
 				</TabButton>
 			</ParameterTabs>
@@ -804,7 +804,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 				<ScenarioCard variant="before">
 					<ScenarioHeader variant="before">
 						<HeaderIcon variant="before">
-							<FiAlertCircle />
+							<span>⚠️</span>
 						</HeaderIcon>
 						<div>
 							<ScenarioTitle variant="before">❌ WITHOUT {selectedParameter}</ScenarioTitle>
@@ -818,7 +818,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 						{scenario.before.events.map((event, index) => (
 							<TimelineEvent key={index} type={event.type}>
 								<EventTime>
-									<FiClock size={14} />
+									<span style={{ fontSize: '14px' }}>🕐</span>
 									{event.time}
 								</EventTime>
 								<EventDescription>{event.description}</EventDescription>
@@ -835,7 +835,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 				<ScenarioCard variant="after">
 					<ScenarioHeader variant="after">
 						<HeaderIcon variant="after">
-							<FiCheckCircle />
+							<span>✅</span>
 						</HeaderIcon>
 						<div>
 							<ScenarioTitle variant="after">✅ WITH {selectedParameter}</ScenarioTitle>
@@ -849,7 +849,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 						{scenario.after.events.map((event, index) => (
 							<TimelineEvent key={index} type={event.type}>
 								<EventTime>
-									<FiClock size={14} />
+									<span style={{ fontSize: '14px' }}>🕐</span>
 									{event.time}
 								</EventTime>
 								<EventDescription>{event.description}</EventDescription>

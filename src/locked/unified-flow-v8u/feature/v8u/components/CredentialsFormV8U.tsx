@@ -23,7 +23,7 @@
  * />
  */
 
-import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
@@ -2062,7 +2062,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														e.currentTarget.style.color = '#6b7280';
 													}}
 												>
-													{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+													{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 												</button>
 											</div>
 											{highlightEmptyFields &&
@@ -2156,9 +2156,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 													<span>When Do I Get What Tokens</span>
 												</div>
 												{showRefreshTokenRules ? (
-													<FiChevronUp size={18} />
+													<span style={{ fontSize: '18px' }}>⬆️</span>
 												) : (
-													<FiChevronDown size={18} />
+													<span style={{ fontSize: '18px' }}>⬇️</span>
 												)}
 											</button>
 
@@ -2386,7 +2386,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											e.currentTarget.style.background = '#eff6ff';
 										}}
 									>
-										<FiInfo size={14} />
+										<span style={{ fontSize: '14px' }}>ℹ️</span>
 										{showDiscoveryInfo ? 'Hide Info' : "What's this?"}
 									</button>
 								</div>
@@ -3126,7 +3126,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													e.currentTarget.style.background = '#eff6ff';
 												}}
 											>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												What is this?
 											</button>
 										</label>
@@ -4215,7 +4215,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														}}
 														title="Learn more about PAR (Pushed Authorization Requests)"
 													>
-														<FiInfo size={14} />
+														<span style={{ fontSize: '14px' }}>ℹ️</span>
 														What is this?
 													</button>
 												</label>
@@ -4360,7 +4360,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												}}
 												title="Learn about prompt values"
 											>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												What is this?
 											</button>
 										</div>

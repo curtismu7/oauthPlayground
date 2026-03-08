@@ -1,19 +1,9 @@
 // src/components/AuthorizationUrlExplainer.tsx - Interactive popup explaining authorization URL parameters
 
-import {
-	FiCopy,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiShield,
-	FiUser,
-	FiX,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface AuthorizationUrlExplainerProps {
 	authUrl: string;
@@ -251,7 +241,7 @@ const copyToClipboard = async (text: string, label: string) => {
 		// You could add a toast notification here
 		console.log(`${label} copied to clipboard`);
 	} catch (err) {
-		logger.error(
+		log.error(
 			'AuthorizationUrlExplainer',
 			'Failed to copy to clipboard:',
 			undefined,
@@ -275,7 +265,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 				'The PingOne authorization server endpoint where the authorization request is sent.',
 			purpose:
 				'This is the OAuth 2.0 authorization endpoint provided by PingOne for your environment.',
-			icon: <FiGlobe />,
+			icon: <span>🌐</span>,
 			category: 'authentication',
 		});
 
@@ -289,7 +279,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'Unique identifier for your OAuth application registered in PingOne.',
 						purpose:
 							'The authorization server uses this to identify which application is requesting access.',
-						icon: <FiKey />,
+						icon: <span>🔑</span>,
 						category: 'authentication',
 					});
 					break;
@@ -301,7 +291,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'Specifies the OAuth 2.0 grant type being used.',
 						purpose:
 							'Indicates that this is an Authorization Code Flow, which is the most secure flow for web applications.',
-						icon: <FiShield />,
+						icon: <span>🛡️</span>,
 						category: 'flow',
 					});
 					break;
@@ -313,7 +303,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'The URL where the user will be redirected after authorization.',
 						purpose:
 							'This must exactly match the redirect URI configured in your PingOne application settings.',
-						icon: <FiExternalLink />,
+						icon: <span>🔗</span>,
 						category: 'flow',
 					});
 					break;
@@ -324,7 +314,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						value: decodeURIComponent(value).replace(/\+/g, ' '),
 						description: 'The permissions your application is requesting from the user.',
 						purpose: 'Defines what resources your application can access on behalf of the user.',
-						icon: <FiUser />,
+						icon: <span>👤</span>,
 						category: 'authorization',
 					});
 					break;
@@ -336,7 +326,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'A random string used to prevent CSRF attacks.',
 						purpose:
 							'The authorization server will return this exact value, allowing you to verify the request authenticity.',
-						icon: <FiLock />,
+						icon: <span>🔒</span>,
 						category: 'security',
 					});
 					break;
@@ -349,7 +339,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 							'A cryptographic challenge derived from a code verifier for PKCE security.',
 						purpose:
 							'Prevents authorization code interception attacks, especially important for public clients.',
-						icon: <FiShield />,
+						icon: <span>🛡️</span>,
 						category: 'security',
 					});
 					break;
@@ -361,7 +351,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'The method used to generate the code challenge from the code verifier.',
 						purpose:
 							'S256 uses SHA256 hashing, which is the recommended and most secure method for PKCE.',
-						icon: <FiShield />,
+						icon: <span>🛡️</span>,
 						category: 'security',
 					});
 					break;
@@ -373,7 +363,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						description: 'A random string used to prevent replay attacks in OpenID Connect.',
 						purpose:
 							'Ensures that ID tokens are fresh and not reused, providing additional security for authentication.',
-						icon: <FiLock />,
+						icon: <span>🔒</span>,
 						category: 'security',
 					});
 					break;
@@ -386,7 +376,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 							'Pushed Authorization Request URI containing the authorization parameters.',
 						purpose:
 							'This URI references authorization parameters that were securely pushed to the authorization server via PAR, enhancing security by keeping sensitive parameters off the browser URL.',
-						icon: <FiShield />,
+						icon: <span>🛡️</span>,
 						category: 'security',
 					});
 					break;
@@ -397,7 +387,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 						value: decodeURIComponent(value),
 						description: `Custom parameter: ${key}`,
 						purpose: 'Additional parameter included in the authorization request.',
-						icon: <FiInfo />,
+						icon: <span>ℹ️</span>,
 						category: 'authorization',
 					});
 			}
@@ -405,7 +395,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 
 		return parameters;
 	} catch (error) {
-		logger.error(
+		log.error(
 			'AuthorizationUrlExplainer',
 			'Error parsing authorization URL:',
 			undefined,
@@ -429,11 +419,11 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 			<Modal onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiInfo />
+						<span>ℹ️</span>
 						Authorization URL Breakdown
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -450,7 +440,7 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 						</h3>
 						<UrlDisplay>
 							<CopyUrlButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
-								<FiCopy /> Copy URL
+								<span>📋</span> Copy URL
 							</CopyUrlButton>
 							{authUrl}
 						</UrlDisplay>

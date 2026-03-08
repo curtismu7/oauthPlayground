@@ -1,15 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiBookOpen,
-	FiCheckCircle,
-	FiDatabase,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiUsers,
-	FiXCircle,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
@@ -317,7 +306,7 @@ const ScopesBestPractices: React.FC = () => {
 				<Content>
 					<Section>
 						<SectionTitle>
-							<FiBookOpen />
+							<span>❓</span>
 							What are OAuth 2.0 Scopes?
 						</SectionTitle>
 
@@ -331,7 +320,7 @@ const ScopesBestPractices: React.FC = () => {
 						<InfoBox type="info">
 							<InfoBoxContent>
 								<InfoBoxIcon type="info">
-									<FiKey />
+									<span>🔑</span>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Scope Purpose</InfoBoxTitle>
@@ -414,7 +403,7 @@ const ScopesBestPractices: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<FiUsers />
+							<span>👥</span>
 							Scopes in Real-World Systems
 						</SectionTitle>
 
@@ -457,7 +446,7 @@ const ScopesBestPractices: React.FC = () => {
 						<BestPracticeGrid>
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Do: Configure Scopes by Business Area
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -470,7 +459,7 @@ const ScopesBestPractices: React.FC = () => {
 
 							<BestPracticeCard type="dont">
 								<BestPracticeHeader type="dont">
-									<FiXCircle />
+									<span>❌</span>
 									Don't: Use Technical API Names
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -484,7 +473,7 @@ const ScopesBestPractices: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<FiShield />
+							<span>🛡️</span>
 							Scope Design Principles
 						</SectionTitle>
 
@@ -497,7 +486,7 @@ const ScopesBestPractices: React.FC = () => {
 						<InfoBox type="warning">
 							<InfoBoxContent>
 								<InfoBoxIcon type="warning">
-									<FiAlertTriangle />
+									<span>⚠️</span>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Scope Explosion Anti-Pattern</InfoBoxTitle>
@@ -559,7 +548,7 @@ transaction-12345`}</CodeBlock>
 						<InfoBox type="info">
 							<InfoBoxContent>
 								<InfoBoxIcon type="info">
-									<FiKey />
+									<span>🔑</span>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Prefix Scope Use Cases</InfoBoxTitle>
@@ -574,7 +563,7 @@ transaction-12345`}</CodeBlock>
 
 					<Section>
 						<SectionTitle>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Token Exchange and Scope Management
 						</SectionTitle>
 
@@ -655,7 +644,7 @@ transaction-12345`}</CodeBlock>
 
 					<Section>
 						<SectionTitle>
-							<FiDatabase />
+							<span>🗄️</span>
 							Scope Best Practices Summary
 						</SectionTitle>
 
@@ -667,7 +656,7 @@ transaction-12345`}</CodeBlock>
 						<BestPracticeGrid>
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Always Use Scopes
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -678,7 +667,7 @@ transaction-12345`}</CodeBlock>
 
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Enable User Consent
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -689,7 +678,7 @@ transaction-12345`}</CodeBlock>
 
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Use Business Areas
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -700,7 +689,7 @@ transaction-12345`}</CodeBlock>
 
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Keep Scopes Stable
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -711,7 +700,7 @@ transaction-12345`}</CodeBlock>
 
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Design for End-to-End Flows
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -722,7 +711,7 @@ transaction-12345`}</CodeBlock>
 
 							<BestPracticeCard type="do">
 								<BestPracticeHeader type="do">
-									<FiCheckCircle />
+									<span>✅</span>
 									Use Token Exchange
 								</BestPracticeHeader>
 								<BestPracticeContent>
@@ -735,7 +724,7 @@ transaction-12345`}</CodeBlock>
 						<InfoBox type="success">
 							<InfoBoxContent>
 								<InfoBoxIcon type="success">
-									<FiShield />
+									<span>🛡️</span>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Complete Authorization Solution</InfoBoxTitle>
@@ -751,7 +740,7 @@ transaction-12345`}</CodeBlock>
 
 					<Section>
 						<SectionTitle>
-							<FiArrowRight />
+							<span>➡️</span>
 							Next Steps
 						</SectionTitle>
 
@@ -786,7 +775,7 @@ transaction-12345`}</CodeBlock>
 						<InfoBox type="info">
 							<InfoBoxContent>
 								<InfoBoxIcon type="info">
-									<FiBookOpen />
+									<span>❓</span>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Additional Resources</InfoBoxTitle>

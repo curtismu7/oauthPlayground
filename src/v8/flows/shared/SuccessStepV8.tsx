@@ -5,7 +5,7 @@
  * @version 8.1.0
  */
 
-import { FiCheckCircle, FiCpu, FiDownload, FiExternalLink, FiRefreshCw, FiShield } from '@icons';
+
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
@@ -78,7 +78,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 						margin: '0 auto 20px',
 					}}
 				>
-					<FiCheckCircle size={40} color="white" />
+					<span style={{ fontSize: 40, color: 'white' }}>✅</span>
 				</div>
 				<h2
 					style={{
@@ -220,7 +220,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
 					>
-						<FiDownload size={16} />
+						<span style={{ fontSize: '16px' }}>📥</span>
 						Export Session Data
 					</button>
 
@@ -250,7 +250,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
 					>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Start New Authentication
 					</button>
 
@@ -280,7 +280,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
 					>
-						<FiExternalLink size={16} />
+						<span style={{ fontSize: '16px' }}>🔗</span>
 						Device Management
 					</button>
 				</div>

@@ -1,4 +1,4 @@
-import { FiArrowRight, FiKey, FiLock, FiSettings, FiShield, FiZap } from '@icons';
+
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -122,103 +122,103 @@ const UserGuidesOverview = () => {
 				<CardGrid>
 					<GuideCard to="/user-guides/redirect-uris">
 						<div className="icon-wrapper">
-							<FiSettings />
+							<span>⚙️</span>
 						</div>
 						<h3>
 							Redirect URIs
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Complete reference for all redirect URIs needed to configure your PingOne application.
 							Includes URIs for all OAuth flows with copy-paste examples.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 
 					<GuideCard to="/user-guides/logout-uris">
 						<div className="icon-wrapper">
-							<FiSettings />
+							<span>⚙️</span>
 						</div>
 						<h3>
 							Logout URIs
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Flow-specific logout URI configuration to ensure proper logout handling. Learn why
 							each flow needs its own unique logout URI.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 
 					<GuideCard to="/user-guides/security-features">
 						<div className="icon-wrapper">
-							<FiShield />
+							<span>🛡️</span>
 						</div>
 						<h3>
 							Security Features
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Comprehensive guide to configuring PKCE, client authentication, token security, and
 							advanced features like DPoP, PAR, and JWKS.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 
 					<GuideCard to="/user-guides/pingone-pi-flow">
 						<div className="icon-wrapper">
-							<FiZap />
+							<span>⚡</span>
 						</div>
 						<h3>
 							PingOne pi.flow
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Learn how to use PingOne's non-redirect authorization flow (pi.flow) for enhanced user
 							experiences and embedded authentication.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 
 					<GuideCard to="/user-guides/par-explanation">
 						<div className="icon-wrapper">
-							<FiLock />
+							<span>🔒</span>
 						</div>
 						<h3>
 							PAR Explanation
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Understand Pushed Authorization Requests (PAR) and how they enhance security by moving
 							authorization parameters to a secure back-channel.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 
 					<GuideCard to="/user-guides/rar-explanation">
 						<div className="icon-wrapper">
-							<FiKey />
+							<span>🔑</span>
 						</div>
 						<h3>
 							RAR Explanation
-							<FiArrowRight size={20} />
+							<span style={{ fontSize: '20px' }}>➡️</span>
 						</h3>
 						<p>
 							Learn about Rich Authorization Requests (RAR) for fine-grained authorization with
 							detailed permission specifications beyond simple scopes.
 						</p>
 						<div className="read-more">
-							Read Guide <FiArrowRight size={16} />
+							Read Guide <span style={{ fontSize: '16px' }}>➡️</span>
 						</div>
 					</GuideCard>
 				</CardGrid>

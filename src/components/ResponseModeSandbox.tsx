@@ -4,7 +4,7 @@
  * Visualizes how authorization responses travel for query, fragment, form_post, and PingOne redirectless
  */
 
-import { FiActivity, FiGitBranch, FiInfo, FiNavigation, FiShare2 } from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -454,7 +454,7 @@ const ResponseModeSandbox: React.FC = () => {
 		<SandboxContainer>
 			<Header>
 				<Title>
-					<FiShare2 size={28} />
+					<span style={{ fontSize: '28px' }}>🔗</span>
 					response_mode Sandbox
 				</Title>
 				<Intro>
@@ -475,7 +475,7 @@ const ResponseModeSandbox: React.FC = () => {
 						<ModeTitle>{item.title}</ModeTitle>
 						<ModeTagline>{item.tagline}</ModeTagline>
 						<SupportBadge $support={item.pingoneSupport}>
-							<FiInfo size={16} />
+							<span style={{ fontSize: '16px' }}>ℹ️</span>
 							PingOne {item.pingoneSupport === 'full' ? 'Supported' : 'Partial'}
 						</SupportBadge>
 					</ModeCard>
@@ -485,17 +485,17 @@ const ResponseModeSandbox: React.FC = () => {
 			<DetailLayout>
 				<TimelineCard>
 					<TimelineHeader>
-						<FiGitBranch />
+						<span>❓</span>
 						Request Timeline
 					</TimelineHeader>
 					<TimelineList>
 						{definition.timeline.map((step, index) => (
 							<TimelineItem key={`${step.actor}-${index}`}>
 								<TimelineActor $actor={step.actor}>
-									{step.actor === 'browser' && <FiNavigation size={16} />}
-									{step.actor === 'authorizationServer' && <FiShare2 size={16} />}
-									{step.actor === 'application' && <FiActivity size={16} />}
-									{step.actor === 'pingone' && <FiInfo size={16} />}
+									{step.actor === 'browser' && <span style={{ fontSize: '16px' }}>🧭</span>}
+									{step.actor === 'authorizationServer' && <span style={{ fontSize: '16px' }}>🔗</span>}
+									{step.actor === 'application' && <span style={{ fontSize: '16px' }}>🔄</span>}
+									{step.actor === 'pingone' && <span style={{ fontSize: '16px' }}>ℹ️</span>}
 									{step.actor}
 								</TimelineActor>
 								{' – '}

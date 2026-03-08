@@ -11,7 +11,7 @@
  * - Generic OIDC provider URLs
  */
 
-import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -587,7 +587,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					disabled={isLoading || !input.trim()}
 					$loading={isLoading}
 				>
-					{isLoading ? <FiSearch className="animate-spin" /> : <FiSearch />}
+					{isLoading ? <FiSearch className="animate-spin" /> : <span>🔍</span>}
 					{isLoading ? 'Discovering...' : 'OIDC Discovery'}
 				</SearchButton>
 			</InputGroup>
@@ -604,7 +604,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 			{status && (
 				<StatusMessage $type={status.type}>
-					{status.type === 'success' ? <FiCheck /> : status.type === 'error' ? <FiX /> : <FiInfo />}
+					{status.type === 'success' ? <span>✅</span> : status.type === 'error' ? <span>❌</span> : <span>ℹ️</span>}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -659,7 +659,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			{discoveryResult?.success && discoveryResult.document && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
-						{showResults ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						{showResults ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
 					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>

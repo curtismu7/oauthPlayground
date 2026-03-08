@@ -1,4 +1,4 @@
-import { FiCalendar, FiCheckCircle, FiClock, FiEdit3, FiInbox, FiPlus, FiTrash2 } from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -475,7 +475,7 @@ const TaskListApp: React.FC = () => {
 					<HeaderRow>
 						<TitleGroup>
 							<GlowingBadge>
-								<FiInbox /> Productivity Hub
+								<span>❓</span> Productivity Hub
 							</GlowingBadge>
 							<Title>Task List</Title>
 							<Subtitle>Plan, prioritize, and celebrate your progress.</Subtitle>
@@ -535,7 +535,7 @@ const TaskListApp: React.FC = () => {
 						<TaskList>
 							{filteredTasks.length === 0 && (
 								<EmptyState>
-									<FiCalendar size={36} />
+									<span style={{ fontSize: '36px' }}>📅</span>
 									<strong>No tasks found</strong>
 									<span>Try changing the filters or add something new.</span>
 								</EmptyState>
@@ -550,10 +550,10 @@ const TaskListApp: React.FC = () => {
 										</div>
 										<TaskActions>
 											<IconButton onClick={() => toggleTaskStatus(task.id)} title="Toggle status">
-												{task.status === 'completed' ? <FiEdit3 /> : <FiCheckCircle />}
+												{task.status === 'completed' ? <span>❓</span> : <span>✅</span>}
 											</IconButton>
 											<IconButton onClick={() => deleteTask(task.id)} title="Delete task">
-												<FiTrash2 />
+												<span>🗑️</span>
 											</IconButton>
 										</TaskActions>
 									</TaskHeader>
@@ -562,10 +562,10 @@ const TaskListApp: React.FC = () => {
 											{task.priority.toUpperCase()} priority
 										</PriorityPill>
 										<MetaChip>
-											<FiCalendar /> {new Date(task.dueDate).toLocaleDateString()}
+											<span>📅</span> {new Date(task.dueDate).toLocaleDateString()}
 										</MetaChip>
 										<MetaChip>
-											<FiClock /> {task.estimate}
+											<span>🕐</span> {task.estimate}
 										</MetaChip>
 										<StatusBadge $status={task.status} onClick={() => toggleTaskStatus(task.id)}>
 											{task.status.replace('-', ' ')}
@@ -628,7 +628,7 @@ const TaskListApp: React.FC = () => {
 								/>
 							</SelectRow>
 							<SubmitButton type="submit">
-								<FiPlus /> Add Task
+								<span>➕</span> Add Task
 							</SubmitButton>
 						</Form>
 					</SidePanel>

@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
@@ -152,7 +152,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 						}}
 						aria-label="Close modal"
 					>
-						<FiX />
+						<span>❌</span>
 					</button>
 				</div>
 
@@ -211,7 +211,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 											fontSize: '12px',
 										}}
 									>
-										<FiCopy />
+										<span>📋</span>
 									</button>
 								</div>
 							</div>
@@ -254,7 +254,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 												fontSize: '12px',
 											}}
 										>
-											<FiCopy />
+											<span>📋</span>
 										</button>
 									</div>
 								</div>
@@ -351,7 +351,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 										fontWeight: '500',
 									}}
 								>
-									<FiExternalLink />
+									<span>🔗</span>
 									Open PingOne Admin
 								</button>
 							)}
@@ -374,7 +374,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 										fontWeight: '500',
 									}}
 								>
-									<FiCheck />
+									<span>✅</span>
 									Apply Fix
 								</button>
 							)}

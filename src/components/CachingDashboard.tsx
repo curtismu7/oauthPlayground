@@ -1,16 +1,8 @@
-import {
-	FiCheckCircle,
-	FiDatabase,
-	FiDownload,
-	FiInfo,
-	FiRefreshCw,
-	FiTrash2,
-	FiXCircle,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -337,10 +329,10 @@ export const CachingDashboard: React.FC = () => {
 		autoRegister: true,
 		autoUpdate: false,
 		onUpdateAvailable: () => {
-			logger.info('[CachingDashboard] Service worker update available');
+			log.info('[CachingDashboard] Service worker update available');
 		},
 		onUpdateInstalled: () => {
-			logger.info('[CachingDashboard] Service worker update installed');
+			log.info('[CachingDashboard] Service worker update installed');
 		},
 	});
 
@@ -439,7 +431,7 @@ export const CachingDashboard: React.FC = () => {
 		<DashboardContainer>
 			<DashboardHeader>
 				<DashboardIcon>
-					<FiDatabase />
+					<span>🗄️</span>
 				</DashboardIcon>
 				<div>
 					<DashboardTitle>Caching Dashboard</DashboardTitle>
@@ -454,7 +446,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Service Worker</StatusLabel>
 						<StatusIcon $status={getStatus()}>
-							{isActive ? <FiCheckCircle /> : <FiXCircle />}
+							{isActive ? <span>✅</span> : <span>❌</span>}
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{isActive ? 'Active' : 'Inactive'}</StatusValue>
@@ -469,7 +461,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Cache Storage</StatusLabel>
 						<StatusIcon $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
-							<FiDatabase />
+							<span>🗄️</span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{cacheNames.length}</StatusValue>
@@ -482,7 +474,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Cache Size</StatusLabel>
 						<StatusIcon $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
-							<FiDownload />
+							<span>📥</span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{getCacheSizeFormatted()}</StatusValue>
@@ -493,7 +485,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Updates</StatusLabel>
 						<StatusIcon $status={updateAvailable ? 'active' : 'inactive'}>
-							<FiRefreshCw />
+							<span>🔄</span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{updateAvailable ? 'Available' : 'Up to Date'}</StatusValue>
@@ -527,7 +519,7 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleRegister}
 					disabled={isLoading || isRegistered}
 				>
-					<FiCheckCircle />
+					<span>✅</span>
 					Register Service Worker
 				</ActionButton>
 
@@ -536,7 +528,7 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleUnregister}
 					disabled={isLoading || !isRegistered}
 				>
-					<FiXCircle />
+					<span>❌</span>
 					Unregister Service Worker
 				</ActionButton>
 
@@ -545,13 +537,13 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleUpdate}
 					disabled={isLoading || !isRegistered}
 				>
-					<FiRefreshCw />
+					<span>🔄</span>
 					Check for Updates
 				</ActionButton>
 
 				{updateAvailable && (
 					<ActionButton variant="primary" onClick={handleSkipWaiting} disabled={isLoading}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Activate Update
 					</ActionButton>
 				)}
@@ -561,12 +553,12 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleClearCaches}
 					disabled={isLoading || cacheNames.length === 0}
 				>
-					<FiTrash2 />
+					<span>🗑️</span>
 					Clear All Caches
 				</ActionButton>
 
 				<ActionButton variant="secondary" onClick={handleRefresh} disabled={isLoading}>
-					<FiRefreshCw />
+					<span>🔄</span>
 					Refresh Status
 				</ActionButton>
 			</Actions>
@@ -576,10 +568,10 @@ export const CachingDashboard: React.FC = () => {
 				{notifications.map((notification) => (
 					<Notification key={notification.timestamp} type={notification.type}>
 						<NotificationIcon type={notification.type}>
-							{notification.type === 'success' && <FiCheckCircle />}
-							{notification.type === 'error' && <FiXCircle />}
-							{notification.type === 'warning' && <FiInfo />}
-							{notification.type === 'info' && <FiInfo />}
+							{notification.type === 'success' && <span>✅</span>}
+							{notification.type === 'error' && <span>❌</span>}
+							{notification.type === 'warning' && <span>ℹ️</span>}
+							{notification.type === 'info' && <span>ℹ️</span>}
 						</NotificationIcon>
 						<NotificationMessage>{notification.message}</NotificationMessage>
 					</Notification>

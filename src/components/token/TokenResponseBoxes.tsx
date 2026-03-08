@@ -1,7 +1,7 @@
-import { FiCopy } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 interface TokenResponseBoxesProps {
 	tokens: {
@@ -75,7 +75,7 @@ const TokenValue = styled.pre`
 const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 	const handleCopy = (token: string, tokenName: string) => {
 		navigator.clipboard.writeText(token);
-		logger.info('Token copied to clipboard', tokenName);
+		log.info('Token copied to clipboard', tokenName);
 		// You could add a toast notification here
 	};
 
@@ -94,7 +94,7 @@ const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 							<TokenHeader>
 								<TokenTitle>{name}</TokenTitle>
 								<CopyButton onClick={() => handleCopy(value, name)} title={`Copy ${name}`}>
-									<FiCopy />
+									<span>📋</span>
 								</CopyButton>
 							</TokenHeader>
 							<TokenValue>{value}</TokenValue>

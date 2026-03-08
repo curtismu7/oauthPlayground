@@ -1,7 +1,7 @@
 // src/components/CredentialDiagnosticModal.tsx
 // Modal to show diagnostic information about credentials being sent
 
-import { FiAlertTriangle, FiCheckCircle, FiX } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -278,11 +278,11 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 			<Modal onClick={(e) => e.stopPropagation()}>
 				<Header>
 					<Title>
-						<FiAlertTriangle size={24} color="V9_COLORS.PRIMARY.YELLOW" />
+						<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
 						Credential Diagnostic Report
 					</Title>
 					<CloseButton onClick={onClose}>
-						<FiX size={24} />
+						<span style={{ fontSize: '24px' }}>❌</span>
 					</CloseButton>
 				</Header>
 
@@ -290,7 +290,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 					{hasIssues && (
 						<WarningBox>
 							<WarningIcon>
-								<FiAlertTriangle size={20} />
+								<span style={{ fontSize: '20px' }}>⚠️</span>
 							</WarningIcon>
 							<WarningContent>
 								<WarningTitle>⚠️ Empty Credentials Detected</WarningTitle>
@@ -324,9 +324,9 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 									<FieldName>{diagnostic.field}</FieldName>
 									<StatusIcon $hasIssue={diagnostic.isEmpty}>
 										{diagnostic.isEmpty ? (
-											<FiAlertTriangle size={20} />
+											<span style={{ fontSize: '20px' }}>⚠️</span>
 										) : (
-											<FiCheckCircle size={20} />
+											<span style={{ fontSize: '20px' }}>✅</span>
 										)}
 									</StatusIcon>
 								</DiagnosticHeader>
@@ -366,7 +366,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 					{hasIssues && (
 						<WarningBox>
 							<WarningIcon>
-								<FiAlertTriangle size={20} />
+								<span style={{ fontSize: '20px' }}>⚠️</span>
 							</WarningIcon>
 							<WarningContent>
 								<WarningTitle>Recommended Actions:</WarningTitle>

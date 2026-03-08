@@ -9,10 +9,10 @@
  * risk-based authentication with custom login, MFA integration, and OIDC token display.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
@@ -346,7 +346,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		logger.error(
+		log.error(
 			'ProtectPortalApp',
 			'[🚀 PROTECT-PORTAL] Error occurred:',
 			undefined,
@@ -411,7 +411,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			return (
 				<div style={styles.errorContainer}>
 					<h3 style={styles.errorTitle}>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 						Something went wrong
 					</h3>
 					<p style={styles.errorMessage}>{error.message}</p>
@@ -427,7 +427,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 								style={{ ...styles.btnBase, ...styles.btnPrimary }}
 								onClick={handleRetry}
 							>
-								<FiCheckCircle />
+								<span>✅</span>
 								Try Again
 							</button>
 						)}
@@ -436,7 +436,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 							style={{ ...styles.btnBase, ...styles.btnSecondary }}
 							onClick={handleReset}
 						>
-							<FiX />
+							<span>❌</span>
 							Start Over
 						</button>
 					</div>
@@ -581,7 +581,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 				return (
 					<div style={styles.errorContainer}>
 						<h3 style={styles.errorTitle}>
-							<FiShield />
+							<span>🛡️</span>
 							Access Blocked
 						</h3>
 						<p style={styles.errorMessage}>
@@ -594,7 +594,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 								style={{ ...styles.btnBase, ...styles.btnSecondary }}
 								onClick={handleReset}
 							>
-								<FiX />
+								<span>❌</span>
 								Try Again Later
 							</button>
 						</div>
@@ -616,7 +616,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 				return (
 					<div style={styles.errorContainer}>
 						<h3 style={styles.errorTitle}>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							Unknown Step
 						</h3>
 						<p style={styles.errorMessage}>
@@ -628,7 +628,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 								style={{ ...styles.btnBase, ...styles.btnPrimary }}
 								onClick={handleReset}
 							>
-								<FiCheckCircle />
+								<span>✅</span>
 								Start Over
 							</button>
 						</div>
@@ -831,7 +831,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 
 				<div style={styles.resourceSection}>
 					<h3 style={styles.resourceTitle}>
-						<FiShield size={24} />
+						<span style={{ fontSize: '24px' }}>🛡️</span>
 						PingOne Protect Best Practices
 					</h3>
 					<p style={styles.resourceDescription}>
@@ -845,7 +845,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<FiCheckCircle size={20} />
+						<span style={{ fontSize: '20px' }}>✅</span>
 						Download PDF Guide
 					</a>
 				</div>

@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/OAuthAuthorizationCodeFlowV7_1.tsx
 // V7.1 Main Container - Orchestrates all refactored components
 
-import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -37,7 +37,7 @@ const _FlowCredentialService = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(credentials));
 		} catch (error) {
-			logger.warn('Failed to save credentials:', error);
+			log.warn('Failed to save credentials:', error);
 		}
 	},
 };
@@ -303,7 +303,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					duration: 4000,
 				});
 			} catch (error) {
-				logger.error('Failed to initialize flow:', error);
+				log.error('Failed to initialize flow:', error);
 				onFlowError?.(error as Error);
 				setIsLoading(false);
 			}
@@ -511,13 +511,13 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 									$collapsed={flowState.flowState.collapsedSections.configuration || false}
 								>
 									<CollapsibleTitle>
-										<FiSettings />
+										<span>⚙️</span>
 										Configuration
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon
 										$collapsed={flowState.flowState.collapsedSections.configuration || false}
 									>
-										<FiChevronDown />
+										<span>⬇️</span>
 									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								<CollapsibleContent
@@ -544,13 +544,13 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 									$collapsed={flowState.flowState.collapsedSections.steps || false}
 								>
 									<CollapsibleTitle>
-										<FiBook />
+										<span>📖</span>
 										Flow Steps
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon
 										$collapsed={flowState.flowState.collapsedSections.steps || false}
 									>
-										<FiChevronDown />
+										<span>⬇️</span>
 									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								<CollapsibleContent
@@ -575,13 +575,13 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 									$collapsed={flowState.flowState.collapsedSections.results || false}
 								>
 									<CollapsibleTitle>
-										<FiCheckCircle />
+										<span>✅</span>
 										Results
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon
 										$collapsed={flowState.flowState.collapsedSections.results || false}
 									>
-										<FiChevronDown />
+										<span>⬇️</span>
 									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								<CollapsibleContent

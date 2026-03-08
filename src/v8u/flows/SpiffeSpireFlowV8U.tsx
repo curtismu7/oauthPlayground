@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 /**
  * @file SpiffeSpireFlowV8U.tsx
  * @module v8u/flows
@@ -13,16 +13,7 @@ import { logger } from '../../utils/logger';
  * - OAuth/OIDC token issuance for workloads
  */
 
-import {
-	FiBook,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiServer,
-	FiShield,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -1020,7 +1011,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	// Step 3: Exchange for PingOne Token
 	const handleTokenExchange = () => {
 		if (!svid || !environmentId) {
-			logger.error('SpiffeSpireFlowV8U', `Missing required data for token exchange`);
+			log.error('SpiffeSpireFlowV8U', `Missing required data for token exchange`);
 			return;
 		}
 
@@ -1143,7 +1134,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				<>
 					<PhaseTransitionBackdrop />
 					<PhaseTransition>
-						<FiServer />
+						<span>🖥️</span>
 						{transitionMessage}
 					</PhaseTransition>
 				</>
@@ -1151,14 +1142,14 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 			<Header>
 				<h1>
-					<FiShield />
+					<span>🛡️</span>
 					SPIFFE/SPIRE Mock Flow
 				</h1>
 				<p>Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens</p>
 			</Header>
 
 			<Alert $type="info">
-				<FiExternalLink />
+				<span>🔗</span>
 				<div>
 					<strong>Educational Mock Flow:</strong> This demonstrates SPIFFE/SPIRE workload identity
 					integration with PingOne OAuth/OIDC. In production, this would use real SPIRE agents,
@@ -1179,7 +1170,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 			<EducationPanel>
 				<EducationHeader>
-					<FiBook />
+					<span>📖</span>
 					<h3>What is SPIFFE/SPIRE?</h3>
 				</EducationHeader>
 
@@ -1196,7 +1187,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							<CollapsibleSection>
 								<SectionHeader onClick={() => setShowWhySpiffe(!showWhySpiffe)}>
 									<h3>
-										<FiKey /> Why SPIFFE/SPIRE?
+										<span>🔑</span> Why SPIFFE/SPIRE?
 									</h3>
 									<SectionToggle>{showWhySpiffe ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
 								</SectionHeader>
@@ -1220,7 +1211,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							<CollapsibleSection>
 								<SectionHeader onClick={() => setShowCoreConcepts(!showCoreConcepts)}>
 									<h3>
-										<FiShield /> Core SPIFFE Concepts
+										<span>🛡️</span> Core SPIFFE Concepts
 									</h3>
 									<SectionToggle>{showCoreConcepts ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
 								</SectionHeader>
@@ -1262,7 +1253,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							<CollapsibleSection>
 								<SectionHeader onClick={() => setShowSpireArchitecture(!showSpireArchitecture)}>
 									<h3>
-										<FiServer /> SPIRE Architecture
+										<span>🖥️</span> SPIRE Architecture
 									</h3>
 									<SectionToggle>{showSpireArchitecture ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
 								</SectionHeader>
@@ -1294,7 +1285,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							<CollapsibleSection>
 								<SectionHeader onClick={() => setShowPingOneIntegration(!showPingOneIntegration)}>
 									<h3>
-										<FiServer /> Integration with PingOne
+										<span>🖥️</span> Integration with PingOne
 									</h3>
 									<SectionToggle>{showPingOneIntegration ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
 								</SectionHeader>
@@ -1364,13 +1355,13 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				<div>
 					<Card>
 						<CardHeader>
-							<FiServer />
+							<span>🖥️</span>
 							<h2>Workload Configuration</h2>
 						</CardHeader>
 
 						{currentStep === 1 && (
 							<Alert $type="success" style={{ marginBottom: '1.5rem' }}>
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>Step 1: Workload Attestation</strong>
 									<br />
@@ -1383,7 +1374,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 						{currentStep === 2 && (
 							<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<strong>Step 2: SVID Issuance</strong>
 									<br />
@@ -1396,7 +1387,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 						{currentStep === 3 && (
 							<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<strong>Step 3: SVID Validation</strong>
 									<br />
@@ -1408,7 +1399,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 						{currentStep === 4 && (
 							<Alert $type="success" style={{ marginBottom: '1.5rem' }}>
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>Step 4: Token Exchange Complete</strong>
 									<br />
@@ -1437,7 +1428,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 									<span>{showTrustDomainInfo ? 'Hide info' : "What's this?"}</span>
 								</button>
 							</div>
@@ -1574,21 +1565,21 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 									isLoading
 								}
 							>
-								<FiKey />
+								<span>🔑</span>
 								{isLoading ? 'Attesting & Issuing SVID...' : 'Attest Workload & Issue SVID'}
 							</Button>
 						)}
 
 						{currentStep === 2 && (
 							<Button $variant="primary" onClick={handleValidateSVID} disabled={isLoading}>
-								<FiCheckCircle />
+								<span>✅</span>
 								{isLoading ? 'Validating SVID...' : 'Validate SVID with Trust Bundle'}
 							</Button>
 						)}
 
 						{currentStep === 3 && (
 							<Button $variant="primary" onClick={handleTokenExchange} disabled={isLoading}>
-								<FiShield />
+								<span>🛡️</span>
 								{isLoading ? 'Exchanging for OAuth Token...' : 'Exchange SVID for PingOne Token'}
 							</Button>
 						)}
@@ -1606,12 +1597,12 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					{svid && (
 						<Card>
 							<CardHeader>
-								<FiKey />
+								<span>🔑</span>
 								<h2>SPIFFE Verifiable Identity Document (SVID)</h2>
 							</CardHeader>
 
 							<Alert $type="info" style={{ marginBottom: '1rem' }}>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<strong>What is an SVID?</strong> This is like a digital passport for your
 									workload. It contains a cryptographic certificate that proves the workload's
@@ -1620,7 +1611,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							</Alert>
 
 							<Alert $type="success">
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>SVID Generated Successfully</strong>
 									<br />
@@ -1648,13 +1639,13 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 											cursor: 'pointer',
 										}}
 									>
-										<FiInfo size={14} />
+										<span style={{ fontSize: '14px' }}>ℹ️</span>
 										<span>{showSpiffeIdInfo ? 'Hide info' : "What's this?"}</span>
 									</button>
 								</div>
 								<TokenDisplay>
 									<CopyButton onClick={async () => await handleCopy(svid.spiffeId, 'SPIFFE ID')}>
-										{copiedField === 'SPIFFE ID' ? <FiCheckCircle /> : <FiCopy />}
+										{copiedField === 'SPIFFE ID' ? <span>✅</span> : <span>📋</span>}
 									</CopyButton>
 									<TokenText>{svid.spiffeId}</TokenText>
 								</TokenDisplay>
@@ -1684,7 +1675,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 							{currentStep >= 2 && (
 								<Alert $type="info">
-									<FiCheckCircle />
+									<span>✅</span>
 									<div>
 										<strong>SVID Validated</strong>
 										<br />
@@ -1699,7 +1690,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					{workloadConfig && (
 						<Card style={{ marginTop: svid ? '2rem' : 0 }}>
 							<CardHeader>
-								<FiServer />
+								<span>🖥️</span>
 								<h2>SPIRE Registration Entry (Simulated)</h2>
 							</CardHeader>
 							{(() => {
@@ -1755,7 +1746,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 													cursor: 'pointer',
 												}}
 											>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												<span>{showRegistrationInfo ? 'Hide info' : "What's this?"}</span>
 											</button>
 										</div>
@@ -1797,12 +1788,12 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					{pingOneToken && (
 						<Card style={{ marginTop: '2rem' }}>
 							<CardHeader>
-								<FiShield />
+								<span>🛡️</span>
 								<h2>PingOne OAuth Token (Dedicated View)</h2>
 							</CardHeader>
 
 							<Alert $type="info" style={{ marginBottom: '1rem' }}>
-								<FiInfo />
+								<span>ℹ️</span>
 								<div>
 									<strong>Token Exchange Complete!</strong> Your workload's SVID was validated and
 									exchanged for OAuth tokens. View and analyze those tokens on a dedicated page.
@@ -1810,7 +1801,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							</Alert>
 
 							<Alert $type="success" style={{ marginBottom: '1rem' }}>
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>Token Exchange Successful</strong>
 									<br />
@@ -1834,7 +1825,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										});
 									}}
 								>
-									<FiShield /> View Tokens on Dedicated Page
+									<span>🛡️</span> View Tokens on Dedicated Page
 								</Button>
 							</FormGroup>
 						</Card>
@@ -1843,7 +1834,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					{pingOneToken && (
 						<Card style={{ marginTop: '2rem' }}>
 							<CardHeader>
-								<FiShield />
+								<span>🛡️</span>
 								<h2>PingOne OAuth Token</h2>
 							</CardHeader>
 
@@ -1859,7 +1850,7 @@ Issued At: ${new Date().toISOString()}`}
 							</FormGroup>
 
 							<Alert $type="info">
-								<FiExternalLink />
+								<span>🔗</span>
 								<div>
 									<strong>Next Steps:</strong> Use this access token in the Authorization header
 									when making API calls to PingOne-protected resources:

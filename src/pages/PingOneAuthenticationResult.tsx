@@ -1,4 +1,4 @@
-import { FiBook, FiChevronLeft, FiPackage, FiShield } from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -7,7 +7,7 @@ import TokenIntrospect from '../components/TokenIntrospect';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { type PlaygroundResult, RESPONSE_TYPES, RESULT_STORAGE_KEY } from './PingOneAuthentication';
 
 const Page = styled.div`
@@ -282,7 +282,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			logger.warn(
+			log.warn(
 				'PingOneAuthenticationResult',
 				'[PingOneAuthenticationResult] Failed to load result:',
 				{ error }
@@ -374,7 +374,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 				<StepContent>
 					<TopNav>
 						<PrevButton onClick={() => navigate('/pingone-authentication')}>
-							<FiChevronLeft size={16} /> Previous
+							<span style={{ fontSize: '16px' }}>⬅️</span> Previous
 						</PrevButton>
 					</TopNav>
 					<Title style={{ display: 'none' }}>Hidden</Title>
@@ -434,7 +434,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 						<CollapsibleHeader
 							title="Token Introspection"
 							subtitle="Inspect your access token to see its metadata, claims, and expiration"
-							icon={<FiShield />}
+							icon={<span>🛡️</span>}
 							defaultCollapsed={false}
 							theme="green"
 						>
@@ -457,7 +457,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 					<CollapsibleHeader
 						title="Documentation & Resources"
 						subtitle="Learn more about OAuth 2.0, OpenID Connect, and PingOne authentication"
-						icon={<FiBook />}
+						icon={<span>📖</span>}
 						defaultCollapsed={true}
 						theme="yellow"
 					>
@@ -521,7 +521,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 					<CollapsibleHeader
 						title="Flow Requests & Responses (latest session)"
 						subtitle="Detailed requests and responses for the latest run"
-						icon={<FiPackage />}
+						icon={<span>📦</span>}
 						defaultCollapsed={true}
 						theme="highlight"
 						onToggle={(c) => setFlowLogCollapsed(c)}
@@ -590,7 +590,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 						$variant="secondary"
 						onClick={() => navigate('/pingone-authentication')}
 					>
-						<FiChevronLeft size={16} /> Previous
+						<span style={{ fontSize: '16px' }}>⬅️</span> Previous
 					</NavigationButton>
 					<div />
 				</StepNavigation>

@@ -1,13 +1,13 @@
 // src/components/ConfigurationURIChecker.tsx
 // Component to display and check redirect and logout URIs against PingOne configuration
 
-import { FiCheckCircle, FiCopy, FiInfo, FiKey, FiRefreshCw, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
@@ -49,7 +49,7 @@ const Title = styled.h3`
   margin: 0;
 `;
 
-const InfoIcon = styled(FiInfo)`
+const InfoIcon = styled.span`
   color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: help;
 `;
@@ -150,7 +150,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
-const LoadingSpinner = styled(FiRefreshCw)`
+const LoadingSpinner = styled.span`
   animation: spin 1s linear infinite;
 
   @keyframes spin {
@@ -234,7 +234,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					setRetrievedWorkerToken('');
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'ConfigurationURIChecker',
 					'[Config URI Checker] Failed to check worker token:',
 					undefined,
@@ -332,7 +332,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 				});
 			}
 		} catch (err) {
-			logger.error(
+			log.error(
 				'ConfigurationURIChecker',
 				'[ConfigurationURIChecker] Error checking URIs:',
 				undefined,
@@ -424,7 +424,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 								{redirectUri || 'Not configured'}
 								{redirectUri && (
 									<CopyButton onClick={() => handleCopy(redirectUri, 'Redirect URI')}>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 									</CopyButton>
 								)}
 							</URICell>
@@ -438,17 +438,17 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											</>
 										) : redirectURIStatus.existsInPingOne === null ? (
 											<>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												Not checked
 											</>
 										) : redirectURIStatus.existsInPingOne ? (
 											<>
-												<FiCheckCircle size={14} />
+												<span style={{ fontSize: '14px' }}>✅</span>
 												Registered
 											</>
 										) : (
 											<>
-												<FiX size={14} />
+												<span style={{ fontSize: '14px' }}>❌</span>
 												Not registered
 											</>
 										)}
@@ -483,7 +483,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 									<CopyButton
 										onClick={() => handleCopy(postLogoutRedirectUri, 'Post-Logout Redirect URI')}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 									</CopyButton>
 								)}
 							</URICell>
@@ -497,17 +497,17 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											</>
 										) : logoutURIStatus.existsInPingOne === null ? (
 											<>
-												<FiInfo size={14} />
+												<span style={{ fontSize: '14px' }}>ℹ️</span>
 												Not checked
 											</>
 										) : logoutURIStatus.existsInPingOne ? (
 											<>
-												<FiCheckCircle size={14} />
+												<span style={{ fontSize: '14px' }}>✅</span>
 												Registered
 											</>
 										) : (
 											<>
-												<FiX size={14} />
+												<span style={{ fontSize: '14px' }}>❌</span>
 												Not registered
 											</>
 										)}
@@ -598,7 +598,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											handleCopy(flowInfo.redirectUri, `${flowInfo.description} Redirect URI`)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 									</CopyButton>
 								</URICell>
 								<URICell>
@@ -608,7 +608,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											handleCopy(flowInfo.logoutUri, `${flowInfo.description} Logout URI`)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 									</CopyButton>
 								</URICell>
 								<TableCell style={{ textAlign: 'center' }}>
@@ -627,7 +627,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			<ActionBar>
 				{!effectiveWorkerToken ? (
 					<ActionButton onClick={() => setShowWorkerTokenModal(true)}>
-						<FiKey size={16} />
+						<span style={{ fontSize: '16px' }}>🔑</span>
 						Get Worker Token
 					</ActionButton>
 				) : (
@@ -641,7 +641,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 							logoutURIStatus.isChecking
 						}
 					>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Check URIs Against PingOne
 					</ActionButton>
 				)}

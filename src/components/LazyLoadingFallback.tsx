@@ -1,4 +1,4 @@
-import { FiLoader, FiShield, FiUsers, FiZap } from '@icons';
+
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
@@ -45,7 +45,7 @@ const LoadingSpinner = styled.div`
   animation: ${spin} 1s linear infinite;
 `;
 
-const SpinnerIcon = styled(FiLoader)`
+const SpinnerIcon = styled.span`
   color: white;
   font-size: 24px;
   animation: ${css`${pulse} 2s ease-in-out infinite`};
@@ -157,21 +157,21 @@ export const LazyLoadingFallback: React.FC<LazyLoadingFallbackProps> = ({
 			{
 				id: 'init',
 				text: 'Initializing OAuth flow',
-				icon: <FiZap />,
+				icon: <span>⚡</span>,
 				completed: progress > 20,
 				active: progress <= 20 && progress > 0,
 			},
 			{
 				id: 'load',
 				text: 'Loading flow components',
-				icon: <FiShield />,
+				icon: <span>🛡️</span>,
 				completed: progress > 60,
 				active: progress > 20 && progress <= 60,
 			},
 			{
 				id: 'ready',
 				text: 'Preparing user interface',
-				icon: <FiUsers />,
+				icon: <span>👥</span>,
 				completed: progress > 90,
 				active: progress > 60 && progress <= 90,
 			},

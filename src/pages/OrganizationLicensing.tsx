@@ -2,7 +2,7 @@
 // Organization Licensing: Get Worker Token & License Information
 // lint-file-disable: token-value-in-jsx
 
-import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
@@ -21,7 +21,7 @@ import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -257,7 +257,7 @@ const OrganizationLicensingV2: React.FC = () => {
 		try {
 			return localStorage.getItem(ORGANIZATION_ID_STORAGE_KEY) || '';
 		} catch (error) {
-			logger.warn(
+			log.warn(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Unable to load stored organization ID:',
 				{ error }
@@ -316,7 +316,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					return { access_token: globalTokenStatus.token };
 				}
 			} catch (e) {
-				logger.warn(
+				log.warn(
 					'OrganizationLicensing',
 					'[OrganizationLicensing] Error loading worker token:',
 					{ error: e }
@@ -430,7 +430,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				localStorage.removeItem(ORGANIZATION_ID_STORAGE_KEY);
 			}
 		} catch (error) {
-			logger.warn(
+			log.warn(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Unable to persist organization ID:',
 				{ error }
@@ -495,14 +495,14 @@ const OrganizationLicensingV2: React.FC = () => {
 					message: 'Failed to fetch organization information. Check the error message for details.',
 					dismissible: true,
 				});
-				logger.error(
+				log.error(
 					'OrganizationLicensing',
 					'[OrganizationLicensing] getOrganizationLicensingInfo returned null'
 				);
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			logger.error(
+			log.error(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Error fetching organization info:',
 				undefined,
@@ -570,7 +570,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				<CollapsibleHeader
 					title="Worker Token Status"
 					subtitle="Unified worker token service with real-time status and management"
-					icon={<FiKey />}
+					icon={<span>🔑</span>}
 					defaultCollapsed={false}
 				>
 					<div style={styles.stepContent}>
@@ -614,7 +614,7 @@ const OrganizationLicensingV2: React.FC = () => {
 									cursor: 'pointer',
 								}}
 							>
-								<FiKey />
+								<span>🔑</span>
 								Get Worker Token
 							</button>
 						</div>{' '}
@@ -633,7 +633,7 @@ const OrganizationLicensingV2: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<FiShield /> Get License Information
+						<span>🛡️</span> Get License Information
 					</h3>
 					<p style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 						Enter your Organization ID to fetch organization information including region and number
@@ -667,14 +667,14 @@ const OrganizationLicensingV2: React.FC = () => {
 					</div>
 					{error && (
 						<div style={styles.errorMessage}>
-							<FiAlertTriangle /> {error}
+							<span>⚠️</span> {error}
 						</div>
 					)}
 				</div>
 
 				{/* Results */}
 				{orgInfo && (
-					<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
+					<CollapsibleHeader title="Organization Information" icon={<span>ℹ️</span>} theme="blue">
 						<div style={styles.licenseGrid}>
 							<div style={styles.licenseCard('V9_COLORS.PRIMARY.BLUE')}>
 								<div style={styles.infoRow}>
@@ -706,7 +706,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					</CollapsibleHeader>
 				)}
 				{orgInfo && (
-					<CollapsibleHeader title="Applied License" icon={<FiShield />} theme="green">
+					<CollapsibleHeader title="Applied License" icon={<span>🛡️</span>} theme="green">
 						<div style={styles.licenseCard('V9_COLORS.PRIMARY.GREEN')}>
 							<div style={styles.infoRow}>
 								<span style={styles.infoLabel}>License Name:</span>
@@ -778,7 +778,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				{orgInfo && (
 					<CollapsibleHeader
 						title={`Environments (${Math.min(5, orgInfo.environments.length)} of ${orgInfo.environments.length})`}
-						icon={<FiInfo />}
+						icon={<span>ℹ️</span>}
 						theme="highlight"
 					>
 						{orgInfo.environments.length === 0 ? (
@@ -845,7 +845,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				{allLicenses.length > 0 && (
 					<CollapsibleHeader
 						title={`All Licenses (${allLicenses.length})`}
-						icon={<FiShield />}
+						icon={<span>🛡️</span>}
 						theme="green"
 					>
 						<div style={styles.licenseGrid}>

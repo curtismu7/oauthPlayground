@@ -1,11 +1,11 @@
 // src/components/WorkerTokenDetectedBanner.tsx
 // Reusable banner component to display when a worker token is detected
 
-import { FiAlertCircle, FiCheckCircle, FiClock, FiDatabase } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface WorkerTokenDetectedBannerProps {
 	token: string;
@@ -138,7 +138,7 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 					expiryTime: expiresAtFormatted,
 				});
 			} catch (error) {
-				logger.warn(
+				log.warn(
 					'WorkerTokenDetectedBanner',
 					'[WorkerTokenDetectedBanner] Error checking expiry:',
 					{ error }
@@ -186,7 +186,7 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 		>
 			<TitleRow>
 				{expiryInfo?.isExpired ? (
-					<FiAlertCircle size={18} color="V9_COLORS.PRIMARY.RED_DARK" />
+					<span style={{ fontSize: 18, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>⚠️</span>
 				) : (
 					<FiCheckCircle
 						size={18}
@@ -228,14 +228,14 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 							: 'V9_COLORS.PRIMARY.GREEN_DARK',
 				}}
 			>
-				<FiDatabase size={14} /> Token cached • {token.substring(0, 16)}…
+				<span style={{ fontSize: '14px' }}>🗄️</span> Token cached • {token.substring(0, 16)}…
 			</TokenBadge>
 			{expiryInfo && (
 				<ExpiryMessage
 					$isExpired={expiryInfo.isExpired}
 					$isExpiringSoon={expiryInfo.isExpiringSoon}
 				>
-					<FiClock size={14} />
+					<span style={{ fontSize: '14px' }}>🕐</span>
 					<strong>{expiryInfo.timeRemaining}</strong>
 					{expiryInfo.expiryTime && !expiryInfo.isExpired && (
 						<span style={{ fontSize: '0.75rem', opacity: 0.8 }}> ({expiryInfo.expiryTime})</span>

@@ -5,7 +5,7 @@
  * @version 8.1.0
  */
 
-import { FiBook, FiCode, FiCopy, FiExternalLink } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';

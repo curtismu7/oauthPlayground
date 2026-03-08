@@ -1,6 +1,6 @@
 // src/components/GeneratedParametersDisplay.tsx
 
-import { FiCopy, FiEye, FiEyeOff, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -286,7 +286,7 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 				<ActionButtons>
 					{showInfoButton && (
 						<ActionButton onClick={() => setIsInfoOpen(true)}>
-							<FiInfo size={16} />
+							<span style={{ fontSize: '16px' }}>ℹ️</span>
 							Info
 						</ActionButton>
 					)}
@@ -308,7 +308,7 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 											onClick={() => toggleVisibility(param.label)}
 											title={isVisible ? 'Hide value' : 'Show value'}
 										>
-											{isVisible ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+											{isVisible ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 											{isVisible ? 'Hide' : 'Show'}
 										</ActionButton>
 									)}
@@ -317,7 +317,7 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 											onClick={() => handleCopy(param.value, param.label)}
 											title={`Copy ${param.label}`}
 										>
-											<FiCopy size={14} />
+											<span style={{ fontSize: '14px' }}>📋</span>
 											Copy
 										</ActionButton>
 									)}

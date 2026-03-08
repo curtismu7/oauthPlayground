@@ -1,18 +1,7 @@
 // src/components/AIAgentDeviceFlow.tsx
 // AI Agent Style Device Authorization Flow Interface
 
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiCpu,
-	FiExternalLink,
-	FiMessageCircle,
-	FiSettings,
-	FiUpload,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -21,7 +10,7 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // AI Assistant Main Container - Modern AI Interface Design
@@ -353,31 +342,31 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('AIAgentDeviceFlow', 'User code copied to clipboard');
+		log.info('AIAgentDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('AIAgentDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('AIAgentDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('AIAgentDeviceFlow', 'Verification URI opened in new tab');
+		log.info('AIAgentDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -447,13 +436,13 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 				{/* AI Control Panel */}
 				<AIControlPanel>
 					<AIControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Token
+						<span>📋</span> Copy Token
 					</AIControlButton>
 					<AIControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</AIControlButton>
 					<AIControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</AIControlButton>
 				</AIControlPanel>
 
@@ -838,7 +827,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiMessageCircle /> Chat
+								<span>💬</span> Chat
 							</button>
 							<button
 								type="button"
@@ -857,7 +846,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiUpload /> Upload
+								<span>📤</span> Upload
 							</button>
 							<button
 								type="button"
@@ -876,7 +865,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<FiSettings /> Settings
+								<span>⚙️</span> Settings
 							</button>
 						</div>
 					</div>

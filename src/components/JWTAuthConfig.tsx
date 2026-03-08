@@ -1,8 +1,8 @@
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiKey, FiShield } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;
@@ -371,14 +371,14 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			setStatus({ type: 'info', message: 'Copied to clipboard!' });
 			setTimeout(() => setStatus(null), 2000);
 		} catch (error) {
-			logger.error('JWTAuthConfig', 'Failed to copy:', undefined, error as Error);
+			log.error('JWTAuthConfig', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 
 	return (
 		<Container>
 			<Header>
-				<FiShield />
+				<span>🛡️</span>
 				<h3>JWT Authentication Configuration</h3>
 				<span className="badge">Advanced</span>
 			</Header>
@@ -389,7 +389,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 					onClick={() => setAuthMethod('CLIENT_SECRET_JWT')}
 				>
 					<div className="method-header">
-						<FiKey />
+						<span>🔑</span>
 						<span className="method-name">CLIENT_SECRET_JWT</span>
 						<span className="method-badge">HS256</span>
 					</div>
@@ -403,7 +403,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 					onClick={() => setAuthMethod('PRIVATE_KEY_JWT')}
 				>
 					<div className="method-header">
-						<FiKey />
+						<span>🔑</span>
 						<span className="method-name">PRIVATE_KEY_JWT</span>
 						<span className="method-badge">RS256</span>
 					</div>
@@ -424,7 +424,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 				/>
 				{errors.clientId && (
 					<div className="error-text">
-						<FiAlertCircle size={14} />
+						<span style={{ fontSize: '14px' }}>⚠️</span>
 						{errors.clientId}
 					</div>
 				)}
@@ -442,7 +442,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 				<div className="help-text">The issuer URL for your PingOne environment</div>
 				{errors.issuer && (
 					<div className="error-text">
-						<FiAlertCircle size={14} />
+						<span style={{ fontSize: '14px' }}>⚠️</span>
 						{errors.issuer}
 					</div>
 				)}
@@ -462,7 +462,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 				</div>
 				{errors.audience && (
 					<div className="error-text">
-						<FiAlertCircle size={14} />
+						<span style={{ fontSize: '14px' }}>⚠️</span>
 						{errors.audience}
 					</div>
 				)}
@@ -480,7 +480,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 				<div className="help-text">The token endpoint URL for your PingOne environment</div>
 				{errors.tokenEndpoint && (
 					<div className="error-text">
-						<FiAlertCircle size={14} />
+						<span style={{ fontSize: '14px' }}>⚠️</span>
 						{errors.tokenEndpoint}
 					</div>
 				)}
@@ -512,13 +512,13 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							}}
 						>
-							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</button>
 					</div>
 					<div className="help-text">The client secret for your PingOne application</div>
 					{errors.clientSecret && (
 						<div className="error-text">
-							<FiAlertCircle size={14} />
+							<span style={{ fontSize: '14px' }}>⚠️</span>
 							{errors.clientSecret}
 						</div>
 					)}
@@ -550,7 +550,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
-								{showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+								{showPrivateKey ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 							</button>
 						</div>
 						<div className="help-text">
@@ -558,7 +558,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 						</div>
 						{errors.privateKey && (
 							<div className="error-text">
-								<FiAlertCircle size={14} />
+								<span style={{ fontSize: '14px' }}>⚠️</span>
 								{errors.privateKey}
 							</div>
 						)}
@@ -582,9 +582,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 
 			{status && (
 				<StatusMessage type={status.type}>
-					{status.type === 'success' && <FiCheckCircle />}
-					{status.type === 'error' && <FiAlertCircle />}
-					{status.type === 'info' && <FiKey />}
+					{status.type === 'success' && <span>✅</span>}
+					{status.type === 'error' && <span>⚠️</span>}
+					{status.type === 'info' && <span>🔑</span>}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -596,7 +596,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 
 				{testResult && (
 					<Button variant="secondary" onClick={() => handleCopyToClipboard(testResult)}>
-						<FiCopy />
+						<span>📋</span>
 						Copy Result
 					</Button>
 				)}
@@ -605,7 +605,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			{testResult && (
 				<TestSection>
 					<div className="test-header">
-						<FiKey />
+						<span>🔑</span>
 						Test Result
 					</div>
 					<pre className="test-result">{testResult}</pre>

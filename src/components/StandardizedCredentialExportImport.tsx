@@ -1,7 +1,7 @@
 // src/components/StandardizedCredentialExportImport.tsx
 // Standardized credential export/import component for all Production apps
 
-import { FiDownload, FiUpload } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import {
@@ -10,7 +10,7 @@ import {
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const ButtonContainer = styled.div`
@@ -139,7 +139,7 @@ export const StandardizedCredentialExportImport: React.FC<
 			});
 			onExport?.();
 		} catch (error) {
-			logger.error(
+			log.error(
 				'StandardizedCredentialExportImport',
 				'[StandardizedCredentialExportImport] Export failed:',
 				undefined,
@@ -188,7 +188,7 @@ export const StandardizedCredentialExportImport: React.FC<
 			});
 			onImport?.(importedCredentials);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'StandardizedCredentialExportImport',
 				'[StandardizedCredentialExportImport] Import failed:',
 				undefined,
@@ -222,7 +222,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled || !credentials}
 				title={`Export ${appName} credentials to a file`}
 			>
-				<FiDownload size={16} />
+				<span style={{ fontSize: '16px' }}>📥</span>
 				{exportButtonText}
 			</ExportButton>
 		);
@@ -247,7 +247,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled}
 				title={`Import ${appName} credentials from a file`}
 			>
-				<FiUpload size={16} />
+				<span style={{ fontSize: '16px' }}>📤</span>
 				{importButtonText}
 			</ImportButton>
 		);
@@ -261,7 +261,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled || !credentials}
 				title={`Export ${appName} credentials to a file`}
 			>
-				<FiDownload size={16} />
+				<span style={{ fontSize: '16px' }}>📥</span>
 				{exportButtonText}
 			</ExportButton>
 
@@ -281,7 +281,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled}
 				title={`Import ${appName} credentials from a file`}
 			>
-				<FiUpload size={16} />
+				<span style={{ fontSize: '16px' }}>📤</span>
 				{importButtonText}
 			</ImportButton>
 		</ButtonContainer>

@@ -9,7 +9,7 @@
  * their actual login page layout with navigation, hero content, and login integration.
  */
 
-import { FiCheckCircle, FiDollarSign, FiHeart, FiShield, FiSmile } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -277,19 +277,19 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 							<Features>
 								<Feature>
 									<FeatureIcon>
-										<FiHeart />
+										<span>❤️</span>
 									</FeatureIcon>
 									<span>Bags Fly Free®</span>
 								</Feature>
 								<Feature>
 									<FeatureIcon>
-										<FiDollarSign />
+										<span>💵</span>
 									</FeatureIcon>
 									<span>No Change Fees</span>
 								</Feature>
 								<Feature>
 									<FeatureIcon>
-										<FiSmile />
+										<span>❓</span>
 									</FeatureIcon>
 									<span>Customer First</span>
 								</Feature>
@@ -307,7 +307,7 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 							</LoginSection>
 
 							<LoginButton onClick={onLoginStart}>
-								<FiShield />
+								<span>🛡️</span>
 								{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 							</LoginButton>
 
@@ -344,7 +344,7 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 								<Features>
 									<Feature>
 										<FeatureIcon>
-											<FiCheckCircle />
+											<span>✅</span>
 										</FeatureIcon>
 										<span>{isCustomer ? 'Customer First' : 'Employee First'}</span>
 									</Feature>
@@ -362,7 +362,7 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 								</LoginSection>
 
 								<LoginButton onClick={onLoginStart}>
-									<FiShield />
+									<span>🛡️</span>
 									{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 								</LoginButton>
 

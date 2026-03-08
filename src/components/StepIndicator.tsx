@@ -2,16 +2,7 @@
 // Visual indicator component showing what each OAuth step demonstrates
 // Helps users understand what they're learning at each stage
 
-import {
-	FiBook,
-	FiCheckCircle,
-	FiGlobe,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -150,27 +141,27 @@ const LearningBadge = styled.span`
 `;
 
 const getIcon = (type: StepType, completed?: boolean) => {
-	if (completed) return <FiCheckCircle size={14} />;
+	if (completed) return <span style={{ fontSize: '14px' }}>✅</span>;
 
 	switch (type) {
 		case 'configuration':
-			return <FiBook size={14} />;
+			return <span style={{ fontSize: '14px' }}>📖</span>;
 		case 'authorization':
-			return <FiShield size={14} />;
+			return <span style={{ fontSize: '14px' }}>🛡️</span>;
 		case 'token-exchange':
-			return <FiKey size={14} />;
+			return <span style={{ fontSize: '14px' }}>🔑</span>;
 		case 'refresh':
-			return <FiRefreshCw size={14} />;
+			return <span style={{ fontSize: '14px' }}>🔄</span>;
 		case 'user-info':
-			return <FiUser size={14} />;
+			return <span style={{ fontSize: '14px' }}>👤</span>;
 		case 'validation':
-			return <FiLock size={14} />;
+			return <span style={{ fontSize: '14px' }}>🔒</span>;
 		case 'completion':
-			return <FiCheckCircle size={14} />;
+			return <span style={{ fontSize: '14px' }}>✅</span>;
 		case 'pkce':
-			return <FiGlobe size={14} />;
+			return <span style={{ fontSize: '14px' }}>🌐</span>;
 		default:
-			return <FiBook size={14} />;
+			return <span style={{ fontSize: '14px' }}>📖</span>;
 	}
 };
 
@@ -232,7 +223,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 					{getTypeLabel(type)}
 					{learning && (
 						<LearningBadge>
-							<FiBook size={10} />
+							<span style={{ fontSize: '10px' }}>📖</span>
 							{learning}
 						</LearningBadge>
 					)}
