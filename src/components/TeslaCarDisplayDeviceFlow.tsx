@@ -11,6 +11,7 @@ import {
 	deviceFlowService,
 } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCheckCircle } from '@icons';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`

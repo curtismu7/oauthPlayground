@@ -7,6 +7,7 @@ import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
+import { FiLoader } from '@icons';
 
 interface DevicePollingProps {
 	deviceCode: string;

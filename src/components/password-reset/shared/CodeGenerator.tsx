@@ -16,6 +16,7 @@ import {
 	styled,
 } from '../../../services/commonImportsService';
 import { logger } from '../../../utils/logger';
+import { FiChevronDown, FiChevronUp, FiCode, FiCopy } from '@icons';
 
 const CodeGeneratorSection = styled.div`
 	background: #F9FAFB;

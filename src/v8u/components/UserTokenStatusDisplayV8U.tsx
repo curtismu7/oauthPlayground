@@ -18,6 +18,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { FiRefreshCw } from '@icons';
 
 // Flow types for dropdowns
 const FLOW_TYPES = [

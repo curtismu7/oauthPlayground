@@ -15,6 +15,7 @@
 
 import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '@/v8/services/oauthErrorCodesServiceV8';
+import { FiAlertCircle } from '@icons';
 
 const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';
 

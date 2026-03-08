@@ -34,6 +34,7 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
+import { FiInfo } from '@icons';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 

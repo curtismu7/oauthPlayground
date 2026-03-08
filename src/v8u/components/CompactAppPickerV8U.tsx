@@ -14,6 +14,7 @@ import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { FiSearch } from '@icons';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 

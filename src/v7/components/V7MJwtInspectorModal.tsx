@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { V7MHelpModal } from './V7MHelpModal';
+import { FiPackage } from '@icons';
 
 type Props = {
 	open: boolean;

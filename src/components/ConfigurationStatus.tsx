@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { type ConfigStatus, getSharedConfigurationStatusAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
+import { FiAlertCircle, FiCheckCircle } from '@icons';
 
 interface OAuthConfig {
 	environmentId?: string;

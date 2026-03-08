@@ -3,6 +3,7 @@
 import type { V7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { InfoBox } from '../steps/CommonSteps';
+import { FiLock, FiUser } from '@icons';
 
 /**
  * Utility function to mask tokens for security

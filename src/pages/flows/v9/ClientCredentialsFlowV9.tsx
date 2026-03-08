@@ -23,6 +23,7 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { FiCode } from '@icons';
 
 /**
  * Utility function to mask tokens for security

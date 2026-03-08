@@ -14,6 +14,7 @@ import {
 import { isJWT } from '../utils/jwtDecoder';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
+import { FiRefreshCw } from '@icons';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`

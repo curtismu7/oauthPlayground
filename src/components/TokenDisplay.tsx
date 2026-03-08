@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
 
 interface TokenDisplayProps {
 	tokens: {

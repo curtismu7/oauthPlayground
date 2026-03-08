@@ -27,6 +27,7 @@ import {
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
+import { FiCheck, FiInfo } from '@icons';
 
 export interface UnifiedMFASuccessPageData {
 	// Flow type

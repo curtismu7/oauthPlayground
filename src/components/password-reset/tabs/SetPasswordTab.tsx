@@ -33,6 +33,7 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
+import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiKey } from '@icons';
 
 interface SetPasswordTabProps {
 	environmentId: string;

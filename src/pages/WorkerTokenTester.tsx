@@ -7,6 +7,7 @@ import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBann
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiKey } from '@icons';
 
 interface TokenPayload {
 	client_id?: string;

@@ -26,6 +26,7 @@ import {
 } from '../services/v9/V9CredentialStorageService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import MenuVersionBadge from './MenuVersionBadge';
+import { FiChevronDown, FiMove } from '@icons';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};

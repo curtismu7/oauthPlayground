@@ -13,6 +13,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
+import { FiArrowRight, FiCode, FiGitBranch, FiGlobe, FiInfo, FiKey, FiLock, FiRefreshCw, FiSettings, FiSmartphone, FiUsers, FiZap } from '@icons';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();

@@ -8,6 +8,7 @@
 
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
+import { FiKey, FiShield } from '@icons';
 
 const MODULE_TAG = '[🔐 USER-LOGIN-STEP-V8]';
 

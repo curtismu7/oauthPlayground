@@ -13,6 +13,7 @@ import { AppDiscoveryServiceV8 } from '../../v8/services/appDiscoveryServiceV8.t
 import { workerTokenServiceV8 } from '../../v8/services/workerTokenServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../v8/services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from '../../v8/utils/toastNotificationsV8.ts';
+import { FiSearch } from '@icons';
 
 const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
