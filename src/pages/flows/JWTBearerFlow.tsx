@@ -1,15 +1,3 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiClock,
-	FiCopy,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-	FiXCircle,
-} from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -594,9 +582,9 @@ const JWTBearerFlow: React.FC = () => {
 							gap: '0.75rem',
 						}}
 					>
-						<FiAlertTriangle
+						<span
 							style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.25rem', marginTop: '0.125rem' }}
-						/>
+						>⚠️</span>
 						<div>
 							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1rem' }}>
 								Educational Flow - PingOne Not Supported
@@ -661,8 +649,7 @@ const JWTBearerFlow: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiAlertTriangle />
-							<strong>Error:</strong> {error}
+							<span>⚠️</span><strong>Error:</strong> {error}
 						</div>
 					</CardBody>
 				</FlowSection>
@@ -750,10 +737,10 @@ const JWTBearerFlow: React.FC = () => {
 							>
 								<StepHeader>
 									<StatusIndicator $status={stepStatus[step.id]}>
-										{stepStatus[step.id] === 'completed' && <FiCheckCircle />}
-										{stepStatus[step.id] === 'error' && <FiXCircle />}
-										{stepStatus[step.id] === 'active' && <FiClock />}
-										{stepStatus[step.id] === 'pending' && <FiInfo />}
+										{stepStatus[step.id] === 'completed' && <span>✅</span>}
+										{stepStatus[step.id] === 'error' && <span>❌</span>}
+										{stepStatus[step.id] === 'active' && <span>⏰</span>}
+										{stepStatus[step.id] === 'pending' && <span>ℹ️</span>}
 										Step {step.id}: {step.title}
 									</StatusIndicator>
 								</StepHeader>
@@ -768,8 +755,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleGenerateJWT}
 													disabled={isLoading}
 												>
-													<FiKey />
-													Generate JWT Assertion
+													<span>🔑</span>Generate JWT Assertion
 												</ActionButton>
 											</ButtonGroup>
 											{jwtToken && (
@@ -787,8 +773,7 @@ const JWTBearerFlow: React.FC = () => {
 															$variant="outline"
 															onClick={() => copyToClipboard(jwtToken, 'JWT assertion')}
 														>
-															<FiCopy />
-															Copy
+															<span>📋</span>Copy
 														</ActionButton>
 													</div>
 													<TokenDisplay>{maskToken(jwtToken)}</TokenDisplay>
@@ -805,8 +790,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleRequestToken}
 													disabled={isLoading || !jwtToken}
 												>
-													<FiRefreshCw />
-													Request Access Token
+													<span>🔄</span>Request Access Token
 												</ActionButton>
 											</ButtonGroup>
 											{tokenResponse && (
@@ -825,8 +809,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleValidateToken}
 													disabled={isLoading || !accessToken}
 												>
-													<FiShield />
-													Validate Token
+													<span>🛡️</span>Validate Token
 												</ActionButton>
 											</ButtonGroup>
 											{accessToken && (
@@ -844,8 +827,7 @@ const JWTBearerFlow: React.FC = () => {
 															$variant="outline"
 															onClick={() => copyToClipboard(accessToken, 'access token')}
 														>
-															<FiCopy />
-															Copy
+															<span>📋</span>Copy
 														</ActionButton>
 													</div>
 													<TokenDisplay>{maskToken(accessToken)}</TokenDisplay>
@@ -862,8 +844,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleUseToken}
 													disabled={isLoading || !accessToken}
 												>
-													<FiUser />
-													Use Token (Call UserInfo)
+													<span>👤</span>Use Token (Call UserInfo)
 												</ActionButton>
 											</ButtonGroup>
 										</div>
@@ -875,8 +856,7 @@ const JWTBearerFlow: React.FC = () => {
 
 					<ButtonGroup>
 						<ActionButton $variant="danger" onClick={resetFlow}>
-							<FiRefreshCw />
-							Reset Flow
+							<span>🔄</span>Reset Flow
 						</ActionButton>
 					</ButtonGroup>
 				</CardBody>

@@ -15,21 +15,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  * - Step-by-step guidance with validation
  */
 
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -456,15 +441,13 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 			<ContentWrapper>
 				<Header>
 					<HeaderTitle>
-						<FiShield />
-						OAuth 2.0 Authorization Code Flow
+						<span>🛡️</span>OAuth 2.0 Authorization Code Flow
 					</HeaderTitle>
 					<HeaderSubtitle>
 						RFC 6749 compliant implementation with enhanced security and validation
 					</HeaderSubtitle>
 					<ComplianceBadge>
-						<FiCheckCircle />
-						RFC 6749 Compliant
+						<span>✅</span>RFC 6749 Compliant
 					</ComplianceBadge>
 				</Header>
 
@@ -481,13 +464,13 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										$active={flowState.currentStep === step.number}
 										$completed={flowState.currentStep > step.number}
 									>
-										{flowState.currentStep > step.number ? <FiCheckCircle /> : step.number}
+										{flowState.currentStep > step.number ? <span>✅</span>: step.number}
 									</StepNumber>
 									<StepInfo>
 										<StepTitle>{step.title}</StepTitle>
 										<StepDescription>{step.description}</StepDescription>
 									</StepInfo>
-									{flowState.currentStep === step.number && <FiArrowRight />}
+									{flowState.currentStep === step.number && <span>➡️</span>}
 								</StepHeader>
 
 								<StepContent $visible={flowState.currentStep === step.number}>
@@ -495,8 +478,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										<div>
 											<InfoBox>
 												<InfoTitle>
-													<FiInfo />
-													Configuration Requirements
+													<span>ℹ️</span>Configuration Requirements
 												</InfoTitle>
 												<p>
 													Enter your OAuth 2.0 client credentials. All parameters will be validated
@@ -579,8 +561,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 											{flowState.configErrors.length > 0 && (
 												<ErrorBox>
 													<ErrorTitle>
-														<FiAlertCircle />
-														Configuration Errors
+														<span>⚠️</span>Configuration Errors
 													</ErrorTitle>
 													<ErrorList>
 														{flowState.configErrors.map((error, index) => (
@@ -597,8 +578,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													!flowState.credentials.clientId || !flowState.credentials.environmentId
 												}
 											>
-												<FiCheckCircle />
-												Validate Configuration
+												<span>✅</span>Validate Configuration
 											</Button>
 
 											{flowState.isConfigValid && (
@@ -608,8 +588,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<FiArrowRight />
-												</Button>
+													<span>➡️</span></Button>
 											)}
 										</div>
 									)}
@@ -618,8 +597,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										<div>
 											<InfoBox>
 												<InfoTitle>
-													<FiLock />
-													PKCE (Proof Key for Code Exchange)
+													<span>🔒</span>PKCE (Proof Key for Code Exchange)
 												</InfoTitle>
 												<p>
 													PKCE provides additional security for OAuth 2.0 flows by using
@@ -648,8 +626,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 											)}
 
 											<Button $variant="primary" onClick={flowActions.generatePKCECodes}>
-												<FiRefreshCw />
-												{flowState.pkceCodes ? 'Regenerate' : 'Generate'} PKCE Codes
+												<span>🔄</span>{flowState.pkceCodes ? 'Regenerate' : 'Generate'} PKCE Codes
 											</Button>
 
 											{flowState.isPkceGenerated && (
@@ -659,8 +636,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<FiArrowRight />
-												</Button>
+													<span>➡️</span></Button>
 											)}
 										</div>
 									)}
@@ -669,8 +645,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										<div>
 											<InfoBox>
 												<InfoTitle>
-													<FiKey />
-													Authorization URL Generation
+													<span>🔑</span>Authorization URL Generation
 												</InfoTitle>
 												<p>
 													The authorization URL includes all required parameters with
@@ -687,15 +662,13 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 																copyToClipboard(flowState.authorizationUrl, 'Authorization URL')
 															}
 														>
-															<FiCopy />
-															Copy
+															<span>📋</span>Copy
 														</CopyButton>
 													</CodeBlock>
 
 													<InfoBox>
 														<InfoTitle>
-															<FiInfo />
-															Security Features
+															<span>ℹ️</span>Security Features
 														</InfoTitle>
 														<ul>
 															<li>Cryptographically secure state parameter for CSRF protection</li>
@@ -712,8 +685,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 												onClick={flowActions.generateAuthorizationUrl}
 												disabled={!flowState.isConfigValid || !flowState.isPkceGenerated}
 											>
-												<FiKey />
-												Generate Authorization URL
+												<span>🔑</span>Generate Authorization URL
 											</Button>
 
 											{flowState.isAuthUrlGenerated && (
@@ -723,8 +695,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<FiArrowRight />
-												</Button>
+													<span>➡️</span></Button>
 											)}
 										</div>
 									)}
@@ -733,8 +704,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										<div>
 											<InfoBox>
 												<InfoTitle>
-													<FiExternalLink />
-													User Authorization
+													<span>🔗</span>User Authorization
 												</InfoTitle>
 												<p>
 													Click the button below to open the authorization URL in a new window.
@@ -751,8 +721,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 
 													<InfoBox>
 														<InfoTitle>
-															<FiCheckCircle />
-															Authorization Successful
+															<span>✅</span>Authorization Successful
 														</InfoTitle>
 														<p>
 															Authorization code received and state parameter validated
@@ -767,8 +736,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 												onClick={handleAuthorize}
 												disabled={!flowState.isAuthUrlGenerated}
 											>
-												<FiExternalLink />
-												Authorize Application
+												<span>🔗</span>Authorize Application
 											</Button>
 
 											{flowState.authorizationCode && (
@@ -778,8 +746,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<FiArrowRight />
-												</Button>
+													<span>➡️</span></Button>
 											)}
 										</div>
 									)}
@@ -788,8 +755,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										<div>
 											<InfoBox>
 												<InfoTitle>
-													<FiKey />
-													Token Exchange
+													<span>🔑</span>Token Exchange
 												</InfoTitle>
 												<p>
 													Exchange the authorization code for access tokens using the PKCE code
@@ -808,7 +774,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 														}}
 													>
 														<Button onClick={() => setShowTokens(!showTokens)}>
-															{showTokens ? <FiEyeOff /> : <FiEye />}
+															{showTokens ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
 															{showTokens ? 'Hide' : 'Show'} Tokens
 														</Button>
 													</div>
@@ -850,8 +816,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 
 													<InfoBox>
 														<InfoTitle>
-															<FiCheckCircle />
-															Flow Complete
+															<span>✅</span>Flow Complete
 														</InfoTitle>
 														<p>
 															OAuth 2.0 Authorization Code Flow completed successfully with full RFC
@@ -864,8 +829,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 											{flowState.tokenErrors.length > 0 && (
 												<ErrorBox>
 													<ErrorTitle>
-														<FiAlertCircle />
-														Token Exchange Errors
+														<span>⚠️</span>Token Exchange Errors
 													</ErrorTitle>
 													<ErrorList>
 														{flowState.tokenErrors.map((error, index) => (
@@ -880,8 +844,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 												onClick={flowActions.exchangeTokens}
 												disabled={!flowState.authorizationCode || flowState.isExchangingTokens}
 											>
-												<FiKey />
-												{flowState.isExchangingTokens ? 'Exchanging...' : 'Exchange Tokens'}
+												<span>🔑</span>{flowState.isExchangingTokens ? 'Exchanging...' : 'Exchange Tokens'}
 											</Button>
 
 											<Button
@@ -889,8 +852,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 												onClick={flowActions.resetFlow}
 												style={{ marginLeft: '1rem' }}
 											>
-												<FiRefreshCw />
-												Start Over
+												<span>🔄</span>Start Over
 											</Button>
 										</div>
 									)}
@@ -904,8 +866,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 						<StepContainer>
 							<ErrorBox>
 								<ErrorTitle>
-									<FiAlertCircle />
-									OAuth 2.0 Errors
+									<span>⚠️</span>OAuth 2.0 Errors
 								</ErrorTitle>
 								{flowState.errors.map((error, index) => (
 									<div key={index} style={{ marginBottom: '0.5rem' }}>
@@ -932,8 +893,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 						<StepContainer>
 							<WarningBox>
 								<WarningTitle>
-									<FiAlertTriangle />
-									Security Warnings
+									<span>⚠️</span>Security Warnings
 								</WarningTitle>
 								<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 									{flowState.warnings.map((warning, index) => (

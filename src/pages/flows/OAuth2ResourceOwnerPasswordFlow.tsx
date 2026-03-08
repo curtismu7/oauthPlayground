@@ -1,16 +1,5 @@
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiUser,
-} from '@icons';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -251,8 +240,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiKey />
-							PingOne Configuration
+							<span>🔑</span>PingOne Configuration
 						</h3>
 
 						{/* App Picker for Quick Configuration */}
@@ -295,7 +283,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										type="button"
 										onClick={() => setShowClientSecret(!showClientSecret)}
 									>
-										{showClientSecret ? <FiEyeOff /> : <FiEye />}
+										{showClientSecret ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
@@ -309,8 +297,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiUser />
-								User Credentials
+								<span>👤</span>User Credentials
 							</h3>
 
 							<FormGroup>
@@ -336,7 +323,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										autoComplete="current-password"
 									/>
 									<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
-										{showPassword ? <FiEyeOff /> : <FiEye />}
+										{showPassword ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
@@ -360,11 +347,9 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								>
 									{controller.isSavingCredentials ? (
 										<SpinningIcon>
-											<FiRefreshCw />
-										</SpinningIcon>
+											<span>🔄</span></SpinningIcon>
 									) : (
-										<FiCheckCircle />
-									)}
+										<span>✅</span>)}
 									Save Configuration
 								</Button>
 							</div>
@@ -383,8 +368,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiLock />
-							Resource Owner Password Authentication
+							<span>🔒</span>Resource Owner Password Authentication
 						</h3>
 
 						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -400,11 +384,9 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isAuthenticating ? (
 								<SpinningIcon>
-									<FiRefreshCw />
-								</SpinningIcon>
+									<span>🔄</span></SpinningIcon>
 							) : (
-								<FiLock />
-							)}
+								<span>🔒</span>)}
 							Authenticate User
 						</Button>
 
@@ -418,8 +400,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
-									Access Token Received
+									<span>✅</span>Access Token Received
 								</h4>
 
 								<UltimateTokenDisplay
@@ -475,8 +456,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiUser />
-							User Information
+							<span>👤</span>User Information
 						</h3>
 
 						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -491,11 +471,9 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isFetchingUserInfo ? (
 								<SpinningIcon>
-									<FiRefreshCw />
-								</SpinningIcon>
+									<span>🔄</span></SpinningIcon>
 							) : (
-								<FiUser />
-							)}
+								<span>👤</span>)}
 							Fetch User Info
 						</Button>
 
@@ -509,8 +487,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
-									User Information
+									<span>✅</span>User Information
 								</h4>
 
 								<div
@@ -544,8 +521,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiRefreshCw />
-							Token Refresh
+							<span>🔄</span>Token Refresh
 						</h3>
 
 						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
@@ -560,11 +536,9 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isRefreshingTokens ? (
 								<SpinningIcon>
-									<FiRefreshCw />
-								</SpinningIcon>
+									<span>🔄</span></SpinningIcon>
 							) : (
-								<FiRefreshCw />
-							)}
+								<span>🔄</span>)}
 							Refresh Tokens
 						</Button>
 
@@ -586,8 +560,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 												gap: '0.5rem',
 											}}
 										>
-											<FiInfo color="V9_COLORS.PRIMARY.BLUE" />
-											Before Refresh
+											<span>ℹ️</span>Before Refresh
 										</h4>
 										{UnifiedTokenDisplayService.showTokens(
 											controller.tokens,
@@ -609,12 +582,10 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 											gap: '0.5rem',
 										}}
 									>
-										<FiCheckCircle color="V9_COLORS.PRIMARY.GREEN_DARK" />
-										After Refresh
+										<span>✅</span>After Refresh
 									</h4>
 									<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
-										<FiInfo style={{ flexShrink: 0 }} />
-										<CardText style={{ margin: 0, fontSize: '0.875rem' }}>
+										<span>ℹ️</span><CardText style={{ margin: 0, fontSize: '0.875rem' }}>
 											Whether a refresh token is opaque or JWT depends on the authorization server's
 											design:
 											<br />• <strong>PingOne</strong> → typically opaque (refresh token references
@@ -652,8 +623,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="⚠️ Security Warning" defaultCollapsed={false}>
 				<WarningCard>
-					<FiAlertTriangle size={24} color="V9_COLORS.PRIMARY.RED_DARK" />
-					<CardContent>
+					<span>⚠️</span><CardContent>
 						<CardText style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 							The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should
 							be avoided in most cases due to significant security risks. This flow requires the
@@ -671,8 +641,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="📋 When to Use (Rare Cases)">
 				<InfoCard>
-					<FiInfo size={24} color="#0ea5e9" />
-					<CardContent>
+					<span>ℹ️</span><CardContent>
 						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							This flow should only be used in very specific, high-trust scenarios:
 						</CardText>
@@ -729,8 +698,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="✅ Recommended Alternatives">
 				<InfoCard>
-					<FiUser size={24} color="#0ea5e9" />
-					<CardContent>
+					<span>👤</span><CardContent>
 						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							Instead of the Resource Owner Password flow, consider these more secure alternatives:
 						</CardText>

@@ -13,15 +13,6 @@
  * - Educational content for each parameter
  */
 
-import {
-	FiAlertCircle,
-	FiBook,
-	FiCheckCircle,
-	FiCopy,
-	FiLink,
-	FiPackage,
-	FiSettings,
-} from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
@@ -271,8 +262,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 			{/* Demo Notice */}
 			<DemoNotice>
-				<FiAlertCircle size={32} style={{ color: 'V9_COLORS.PRIMARY.BLUE', flexShrink: 0 }} />
-				<div>
+				<span>⚠️</span><div>
 					<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '1.25rem' }}>
 						🎭 Educational Demo Flow
 					</h3>
@@ -294,7 +284,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{/* Step 1: Configure All Parameters */}
 			<CollapsibleHeader
 				title="Step 1: Configure Advanced Parameters"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				theme="orange"
 				defaultCollapsed={false}
 			>
@@ -434,8 +424,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				</ParameterSection>
 
 				<MockButton onClick={handleGenerateMockUrl}>
-					<FiLink />
-					Generate Mock Authorization URL
+					<span>🔗</span>Generate Mock Authorization URL
 				</MockButton>
 			</CollapsibleHeader>
 
@@ -443,7 +432,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{mockAuthUrl && (
 				<CollapsibleHeader
 					title="Step 2: Generated Authorization URL"
-					icon={<FiLink />}
+					icon={<span>🔗</span>}
 					theme="blue"
 					defaultCollapsed={false}
 				>
@@ -454,8 +443,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 					<UrlDisplay>
 						<CopyButton onClick={() => navigator.clipboard.writeText(mockAuthUrl)}>
-							<FiCopy />
-							Copy URL
+							<span>📋</span>Copy URL
 						</CopyButton>
 						{mockAuthUrl}
 					</UrlDisplay>
@@ -466,8 +454,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 					</InfoBox>
 
 					<MockButton onClick={handleGenerateMockTokens}>
-						<FiCheckCircle />
-						Simulate Authorization & Generate Mock Tokens
+						<span>✅</span>Simulate Authorization & Generate Mock Tokens
 					</MockButton>
 				</CollapsibleHeader>
 			)}
@@ -476,7 +463,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{mockTokens && (
 				<CollapsibleHeader
 					title="Step 3: Mock Token Response"
-					icon={<FiPackage />}
+					icon={<span>📦</span>}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -519,7 +506,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{/* Educational Content - Why These Don't Work with PingOne */}
 			<CollapsibleHeader
 				title="Why These Parameters May Not Work with PingOne"
-				icon={<FiBook />}
+				icon={<span>📚</span>}
 				theme="yellow"
 				defaultCollapsed={true}
 			>
