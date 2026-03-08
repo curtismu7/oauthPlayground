@@ -480,7 +480,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    log.error('PARvsRAR', 'PAR error:', undefined, error as Error);
+    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -500,7 +500,7 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => log.error('Error:', error));`,
+  .catch(error => logger.error('Error:', error));`,
 											'PAR JavaScript code'
 										)
 									}
@@ -561,7 +561,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    log.error('PARvsRAR', 'PAR error:', undefined, error as Error);
+    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -581,7 +581,7 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => log.error('Error:', error));`}</CodeBlock>
+  .catch(error => logger.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>
@@ -1247,7 +1247,7 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => log.error('Error:', error));`,
+  .catch(error => logger.error('Error:', error));`,
 											'PAR + RAR JavaScript code'
 										)
 									}
@@ -1343,7 +1343,7 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => log.error('Error:', error));`}</CodeBlock>
+  .catch(error => logger.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>
