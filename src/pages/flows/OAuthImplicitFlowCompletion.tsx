@@ -1,16 +1,3 @@
-import {
-	FiAlertTriangle,
-	FiAward,
-	FiBookOpen,
-	FiCheckCircle,
-	FiChevronDown,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiTrendingUp,
-} from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -393,8 +380,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 				{/* Hero Section */}
 				<HeroSection>
 					<TrophyIcon>
-						<FiAward />
-					</TrophyIcon>
+						<span>[FiAward]</span></TrophyIcon>
 					<HeroTitle>OAuth Implicit Flow Mastered!</HeroTitle>
 					<HeroSubtitle>
 						Congratulations! You've successfully completed the OAuth 2.0 Implicit Flow
@@ -429,19 +415,16 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 					<Section>
 						<SectionHeader onClick={() => toggleSection('achievements')}>
 							<SectionTitle>
-								<FiCheckCircle />
-								Your Achievements
+								<span>✅</span>Your Achievements
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.achievements}>
-								<FiChevronDown />
-							</SectionToggle>
+								<span>🔽</span></SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.achievements}>
 							<AchievementGrid>
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<FiCheckCircle />
-									</AchievementIcon>
+										<span>✅</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Flow Completion</AchievementTitle>
 										<AchievementText>
@@ -453,8 +436,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<FiKey />
-									</AchievementIcon>
+										<span>🔑</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Token Management</AchievementTitle>
 										<AchievementText>
@@ -466,8 +448,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<FiShield />
-									</AchievementIcon>
+										<span>🛡️</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Security Awareness</AchievementTitle>
 										<AchievementText>
@@ -479,8 +460,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="info">
 									<AchievementIcon $variant="info">
-										<FiBookOpen />
-									</AchievementIcon>
+										<span>📖</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>OAuth Knowledge</AchievementTitle>
 										<AchievementText>
@@ -497,19 +477,16 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 					<Section>
 						<SectionHeader onClick={() => toggleSection('insights')}>
 							<SectionTitle>
-								<FiTrendingUp />
-								Key Insights & Learnings
+								<span>📈</span>Key Insights & Learnings
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.insights}>
-								<FiChevronDown />
-							</SectionToggle>
+								<span>🔽</span></SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.insights}>
 							<AchievementGrid>
 								<AchievementCard $variant="info">
 									<AchievementIcon $variant="info">
-										<FiInfo />
-									</AchievementIcon>
+										<span>ℹ️</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Token Exposure</AchievementTitle>
 										<AchievementText>
@@ -521,8 +498,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<FiAlertTriangle />
-									</AchievementIcon>
+										<span>⚠️</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>No Refresh Tokens</AchievementTitle>
 										<AchievementText>
@@ -534,8 +510,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<FiCheckCircle />
-									</AchievementIcon>
+										<span>✅</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Simplicity Benefits</AchievementTitle>
 										<AchievementText>
@@ -547,8 +522,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<FiAlertTriangle />
-									</AchievementIcon>
+										<span>⚠️</span></AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Modern Standards</AchievementTitle>
 										<AchievementText>
@@ -568,23 +542,19 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 								$variant="primary"
 								onClick={() => handleNavigate('/authorization-code-v5')}
 							>
-								<FiExternalLink />
-								Try Auth Code + PKCE
+								<span>🔗</span>Try Auth Code + PKCE
 							</ActionButton>
 							<ActionButton
 								$variant="secondary"
 								onClick={() => handleNavigate('/oidc-implicit-v5')}
 							>
-								<FiExternalLink />
-								Explore OIDC Implicit
+								<span>🔗</span>Explore OIDC Implicit
 							</ActionButton>
 							<ActionButton $variant="success" onClick={() => handleNavigate('/token-management')}>
-								<FiKey />
-								Token Management
+								<span>🔑</span>Token Management
 							</ActionButton>
 							<ActionButton $variant="outline" onClick={() => handleNavigate('/oauth-implicit-v5')}>
-								<FiRefreshCw />
-								Restart Flow
+								<span>🔄</span>Restart Flow
 							</ActionButton>
 						</ActionGrid>
 					</Section>
@@ -593,18 +563,15 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 					<Section>
 						<SectionHeader onClick={() => toggleSection('migration')}>
 							<SectionTitle>
-								<FiShield />
-								Migration Guide: From Implicit to Auth Code + PKCE
+								<span>🛡️</span>Migration Guide: From Implicit to Auth Code + PKCE
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.migration}>
-								<FiChevronDown />
-							</SectionToggle>
+								<span>🔽</span></SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.migration}>
 							<MigrationSection>
 								<MigrationTitle>
-									<FiTrendingUp />
-									Why Migrate?
+									<span>📈</span>Why Migrate?
 								</MigrationTitle>
 								<MigrationText>
 									The Implicit Flow is deprecated by OAuth 2.1 specifications due to security
@@ -657,15 +624,13 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 				{/* Footer Actions */}
 				<FooterActions>
 					<ActionButton $variant="outline" onClick={() => handleNavigate('/flows')}>
-						<FiBookOpen />
-						Explore More Flows
+						<span>📖</span>Explore More Flows
 					</ActionButton>
 					<ActionButton
 						$variant="primary"
 						onClick={() => handleExternalLink('https://oauth.net/2/')}
 					>
-						<FiExternalLink />
-						OAuth 2.0 Specification
+						<span>🔗</span>OAuth 2.0 Specification
 					</ActionButton>
 				</FooterActions>
 			</ContentWrapper>

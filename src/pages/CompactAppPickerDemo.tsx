@@ -1,7 +1,6 @@
 // src/pages/CompactAppPickerDemo.tsx
 // Demo page for testing the compact application picker with real PingOne data
 
-import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -237,7 +236,7 @@ const CompactAppPickerDemo: React.FC = () => {
 		<PageContainer>
 			<HeaderCard>
 				<TitleRow>
-					<FiKey size={24} />
+					🔑
 					<Title>Compact Application Picker Demo</Title>
 				</TitleRow>
 				<Subtitle>
@@ -247,7 +246,7 @@ const CompactAppPickerDemo: React.FC = () => {
 				</Subtitle>
 				{!hasWorkerToken && (
 					<WarningBanner>
-						<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
+						⚠️
 						<div style={{ flex: 1 }}>
 							<strong>Worker Token Required</strong>
 							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -260,14 +259,14 @@ const CompactAppPickerDemo: React.FC = () => {
 
 			<Card>
 				<SectionTitle>
-					<FiKey /> Authentication
+					🔑 Authentication
 				</SectionTitle>
 
 				{hasWorkerToken ? (
 					<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="worker_token_expires_at" />
 				) : (
 					<WarningBanner>
-						<FiAlertCircle size={18} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
+						⚠️
 						<div style={{ flex: 1 }}>
 							<strong>No Worker Token Found</strong>
 							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -285,17 +284,17 @@ const CompactAppPickerDemo: React.FC = () => {
 					>
 						{hasWorkerToken ? (
 							<>
-								<FiCheckCircle /> Worker Token Ready
+								✅ Worker Token Ready
 							</>
 						) : (
 							<>
-								<FiKey /> Get Worker Token
+								🔑 Get Worker Token
 							</>
 						)}
 					</PrimaryButton>
 					{hasWorkerToken && (
 						<DangerButton onClick={handleClearWorkerToken} type="button">
-							<FiX /> Clear Token
+							❌ Clear Token
 						</DangerButton>
 					)}
 				</ButtonRow>
@@ -303,7 +302,7 @@ const CompactAppPickerDemo: React.FC = () => {
 
 			<Card>
 				<SectionTitle>
-					<FiCheckCircle /> Application Picker
+					✅ Application Picker
 				</SectionTitle>
 
 				<CompactApplicationPicker
@@ -323,7 +322,7 @@ const CompactAppPickerDemo: React.FC = () => {
 			{selectedApp && (
 				<SelectedAppCard>
 					<SelectedAppTitle>
-						<FiCheckCircle /> Selected Application
+						✅ Selected Application
 					</SelectedAppTitle>
 					<AppDetails>
 						<DetailLabel>Name</DetailLabel>

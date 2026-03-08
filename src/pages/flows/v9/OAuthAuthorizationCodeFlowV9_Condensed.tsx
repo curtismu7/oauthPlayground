@@ -1,7 +1,6 @@
 // src/pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx
 // V9 Condensed Authorization Code Flow - Enhanced Architecture with V9 Standards
 
-import { FiBook, FiCheckCircle, FiChevronDown, FiKey, FiSettings, FiTarget, FiZap } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -390,7 +389,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 			<Section $expanded={true}>
 				<SectionHeader $color={V9_COLORS.SUCCESS} $expanded={true}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiBook />📚 Quick Start & Overview
+						📚 Quick Start & Overview
 					</div>
 				</SectionHeader>
 				<SectionContent $show={true}>
@@ -450,15 +449,14 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					onClick={() => toggleSection('configuration')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiSettings />
 						⚙️ Configuration
 					</div>
-					<FiChevronDown
+					<span
 						style={{
 							transform: expandedSections.configuration ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					/>
+					>🔽</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.configuration}>
 					<CompactAppPickerV8U
@@ -514,7 +512,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					</MockCredentialsForm>
 
 					<Button $variant="primary" onClick={simulateFlow}>
-						<FiZap /> Simulate Authorization Flow
+						<span>⚡</span>Simulate Authorization Flow
 					</Button>
 				</SectionContent>
 			</Section>
@@ -527,14 +525,14 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					onClick={() => toggleSection('execution')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiTarget />🎯 Execution
+						🎯 Execution
 					</div>
-					<FiChevronDown
+					<span
 						style={{
 							transform: expandedSections.execution ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					/>
+					>🔽</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.execution}>
 					<StepIndicator>
@@ -577,14 +575,14 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					onClick={() => toggleSection('results')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCheckCircle />📊 Results
+						<span>✅</span>📊 Results
 					</div>
-					<FiChevronDown
+					<span
 						style={{
 							transform: expandedSections.results ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					/>
+					>🔽</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.results}>
 					{hasTokens ? (
@@ -624,14 +622,14 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					onClick={() => setIsWorkerTokenStatusCollapsed(!isWorkerTokenStatusCollapsed)}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiKey />🔑 Worker Token Status
+						🔑 Worker Token Status
 					</div>
-					<FiChevronDown
+					<span
 						style={{
 							transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
 							transition: 'transform 0.2s',
 						}}
-					/>
+					>🔽</span>
 				</SectionHeader>
 				<SectionContent $show={!isWorkerTokenStatusCollapsed}>
 					<WorkerTokenStatusDisplayV8
@@ -654,7 +652,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 			<Section style={{ marginTop: '2rem' }}>
 				<SectionHeader $color={V9_COLORS.TEXT_SECONDARY} $expanded={false}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiSettings />🔧 Credential Management
+						<span>⚙️</span>🔧 Credential Management
 					</div>
 				</SectionHeader>
 				<SectionContent $show={true}>

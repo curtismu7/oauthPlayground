@@ -26,7 +26,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  */
 // lint-file-disable: token-value-in-jsx
 
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CompactAppPickerV9 } from '@/components/CompactAppPickerV9';
@@ -974,11 +973,11 @@ const CIBAFlowV9: React.FC = () => {
 
 					<StatusCard status={cibaFlow.status}>
 						<StatusTitle>
-							{cibaFlow.status === 'pending' && <FiClock />}
-							{cibaFlow.status === 'approved' && <FiCheckCircle />}
-							{cibaFlow.status === 'denied' && <FiX />}
-							{cibaFlow.status === 'expired' && <FiAlertTriangle />}
-							{cibaFlow.status === 'error' && <FiAlertTriangle />} Status:{' '}
+							{cibaFlow.status === 'pending' && <span>⏰</span>}
+							{cibaFlow.status === 'approved' && <span>✅</span>}
+							{cibaFlow.status === 'denied' && <span>❌</span>}
+							{cibaFlow.status === 'expired' && <span>⚠️</span>}
+							{cibaFlow.status === 'error' && <span>⚠️</span>} Status:{' '}
 							{cibaFlow.status.toUpperCase()}
 						</StatusTitle>
 						<StatusText>
@@ -1060,7 +1059,7 @@ const CIBAFlowV9: React.FC = () => {
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 							<TokenContent>{maskToken(cibaFlow.tokens.access_token)}</TokenContent>
 							<CopyButton onClick={() => copyToken(cibaFlow.tokens.access_token)}>
-								{copiedToken ? 'Copied!' : <FiCopy />}
+								{copiedToken ? 'Copied!' : <span>📋</span>}
 							</CopyButton>
 						</div>
 					</TokenDisplay>
@@ -1073,8 +1072,7 @@ const CIBAFlowV9: React.FC = () => {
 							>
 								<TokenContent>{maskToken(cibaFlow.tokens.refresh_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.refresh_token)}>
-									<FiCopy />
-								</CopyButton>
+									<span>📋</span></CopyButton>
 							</div>
 						</TokenDisplay>
 					)}
@@ -1087,8 +1085,7 @@ const CIBAFlowV9: React.FC = () => {
 							>
 								<TokenContent>{maskToken(cibaFlow.tokens.id_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.id_token)}>
-									<FiCopy />
-								</CopyButton>
+									<span>📋</span></CopyButton>
 							</div>
 						</TokenDisplay>
 					)}

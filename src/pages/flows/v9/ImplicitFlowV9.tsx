@@ -2,10 +2,6 @@
 // lint-file-disable: token-value-in-jsx
 // Unified OAuth/OIDC Implicit Flow V9 - Single implementation supporting both variants
 
-import {
-	FiInfo,
-	FiShield,
-} from '@icons';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -311,7 +307,7 @@ const ImplicitFlowV9: React.FC = () => {
 						{
 							id: 'implicit-overview',
 							title: 'Implicit Flow Overview',
-							icon: <FiInfo />,
+							icon: <span>ℹ️</span>,
 							summary:
 								'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
 							content: (
@@ -345,7 +341,7 @@ const ImplicitFlowV9: React.FC = () => {
 						{
 							id: 'oauth-vs-oidc',
 							title: 'OAuth vs OIDC Variants',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
 							content: (
 								<div>

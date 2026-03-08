@@ -18,18 +18,6 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
  * - Mock token introspection with DPoP confirmation
  */
 
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiBook,
-	FiCheckCircle,
-	FiCode,
-	FiCpu,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiUnlock,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
@@ -588,27 +576,27 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 		{
 			title: 'Generate Key Pair',
 			description: 'Create a public/private key pair for DPoP proof generation',
-			icon: <FiKey />,
+			icon: <span>🔑</span>,
 		},
 		{
 			title: 'Create DPoP Proof',
 			description: 'Generate a DPoP proof JWT to demonstrate possession of the private key',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 		},
 		{
 			title: 'Get Authorization Code',
 			description: 'Request authorization code from the mock DPoP server',
-			icon: <FiRefreshCw />,
+			icon: <span>🔄</span>,
 		},
 		{
 			title: 'Exchange Code for Token',
 			description: 'Exchange authorization code for DPoP-bound access token',
-			icon: <FiUnlock />,
+			icon: <span>🔓</span>,
 		},
 		{
 			title: 'Use Token with DPoP',
 			description: 'Access protected resource using DPoP-bound token with proof',
-			icon: <FiCheckCircle />,
+			icon: <span>✅</span>,
 		},
 	];
 
@@ -625,8 +613,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiShield />
-					About DPoP
+					<span>🛡️</span>About DPoP
 				</SectionTitle>
 				<InfoBox>
 					<strong>What is DPoP?</strong>
@@ -656,8 +643,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiActivity />
-					Flow Progress
+					<span>[FiActivity]</span>Flow Progress
 				</SectionTitle>
 
 				{steps.map((step, index) => (
@@ -679,8 +665,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiCpu />
-					Mock DPoP Server Status
+					<span>[FiCpu]</span>Mock DPoP Server Status
 				</SectionTitle>
 
 				<div style={{ marginBottom: '1rem' }}>
@@ -720,8 +705,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiKey />
-					Step 1: Generate Key Pair
+					<span>🔑</span>Step 1: Generate Key Pair
 				</SectionTitle>
 				<InfoBox>
 					<strong>What is a Key Pair?</strong>
@@ -766,8 +750,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiShield />
-					Step 2: Create DPoP Proof
+					<span>🛡️</span>Step 2: Create DPoP Proof
 				</SectionTitle>
 				<InfoBox>
 					Create a DPoP proof JWT that demonstrates possession of the private key. The proof
@@ -820,8 +803,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiRefreshCw />
-					Step 3: Get Authorization Code
+					<span>🔄</span>Step 3: Get Authorization Code
 				</SectionTitle>
 				<InfoBox>
 					Request an authorization code from the mock DPoP server. In a real implementation, this
@@ -847,8 +829,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiUnlock />
-					Step 4: Exchange Code for Token
+					<span>🔓</span>Step 4: Exchange Code for Token
 				</SectionTitle>
 				<InfoBox>
 					Exchange the authorization code for a DPoP-bound access token. The token will be bound to
@@ -901,8 +882,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiCheckCircle />
-					Step 5: Use Token with DPoP
+					<span>✅</span>Step 5: Use Token with DPoP
 				</SectionTitle>
 				<InfoBox>
 					Access a protected resource using the DPoP-bound token. Each request must include a fresh
@@ -937,8 +917,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			{error && (
 				<Section>
 					<SectionTitle>
-						<FiAlertTriangle />
-						Error
+						<span>⚠️</span>Error
 					</SectionTitle>
 					<ErrorBox>{error}</ErrorBox>
 					<Button onClick={resetFlow} $variant="secondary">
@@ -949,8 +928,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiBook />
-					Server Logs
+					<span>📚</span>Server Logs
 				</SectionTitle>
 				<div
 					style={{
@@ -975,8 +953,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiCode />
-					Learn More About DPoP
+					<span>[FiCode]</span>Learn More About DPoP
 				</SectionTitle>
 				<InfoBox>
 					<strong>Official Resources:</strong>

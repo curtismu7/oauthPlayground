@@ -1,9 +1,7 @@
-import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -235,9 +233,9 @@ const HybridCallback: React.FC = () => {
 		<CallbackContainer>
 			<CallbackCard>
 				<IconContainer $status={status}>
-					{status === 'loading' && <FiLoader />}
-					{status === 'success' && <FiCheckCircle />}
-					{status === 'error' && <FiAlertCircle />}
+					{status === 'loading' && <span>⏳</span>}
+					{status === 'success' && <span>✅</span>}
+					{status === 'error' && <span>⚠️</span>}
 				</IconContainer>
 				<Title>
 					{status === 'loading' && 'Processing...'}
