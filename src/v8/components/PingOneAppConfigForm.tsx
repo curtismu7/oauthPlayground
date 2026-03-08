@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { FiAlertTriangle, FiGlobe, FiInfo, FiShield } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -206,7 +206,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 	return (
 		<Container>
 			<Header>
-				<FiShield size={24} color="#3b82f6" />
+				<span style={{ fontSize: 24, color: '#3b82f6' }}>🛡️</span>
 				<div>
 					<Title>PingOne Application Configuration</Title>
 					<Subtitle>
@@ -217,7 +217,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 
 			<Section>
 				<SectionTitle>
-					<FiGlobe size={16} />
+					<span style={{ fontSize: '16px' }}>🌐</span>
 					OAuth Version
 				</SectionTitle>
 				<FormGroup>
@@ -235,7 +235,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 				{config.oauthVersion === '2.1' && (
 					<Alert $type="info">
 						<AlertIcon>
-							<FiInfo size={16} />
+							<span style={{ fontSize: '16px' }}>ℹ️</span>
 						</AlertIcon>
 						<AlertContent>
 							<AlertTitle>OAuth 2.1 Restrictions</AlertTitle>
@@ -250,7 +250,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 
 			<Section>
 				<SectionTitle>
-					<FiGlobe size={16} />
+					<span style={{ fontSize: '16px' }}>🌐</span>
 					Redirect URI Patterns
 				</SectionTitle>
 				<ToggleContainer>
@@ -266,7 +266,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 				{!config.allowRedirectUriPatterns && (
 					<Alert $type="error">
 						<AlertIcon>
-							<FiAlertTriangle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 						</AlertIcon>
 						<AlertContent>
 							<AlertTitle>Wildcard URIs Not Allowed</AlertTitle>
@@ -292,7 +292,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 				{config.allowRedirectUriPatterns && config.oauthVersion === '2.0' && (
 					<Alert $type="warning">
 						<AlertIcon>
-							<FiAlertTriangle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 						</AlertIcon>
 						<AlertContent>
 							<AlertTitle>Developer Sandbox Only</AlertTitle>

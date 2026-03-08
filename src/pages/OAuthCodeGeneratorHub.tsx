@@ -8,7 +8,7 @@
  * - Inline Code Examples
  */
 
-import { FiBook, FiCode, FiShield, FiZap } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
@@ -164,7 +164,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 				<FeatureGrid>
 					<FeatureCard color="V9_COLORS.PRIMARY.GREEN">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)">
-							<FiZap />
+							<span>⚡</span>
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
 						<FeatureDescription>
@@ -174,7 +174,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="V9_COLORS.PRIMARY.BLUE_DARK">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)">
-							<FiBook />
+							<span>📖</span>
 						</FeatureIcon>
 						<FeatureTitle>Live RFC Explorer</FeatureTitle>
 						<FeatureDescription>
@@ -184,7 +184,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="V9_COLORS.PRIMARY.RED">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)">
-							<FiShield />
+							<span>🛡️</span>
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
 						<FeatureDescription>
@@ -195,7 +195,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="V9_COLORS.PRIMARY.BLUE">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)">
-							<FiCode />
+							<span>❓</span>
 						</FeatureIcon>
 						<FeatureTitle>Multi-Language Code</FeatureTitle>
 						<FeatureDescription>
@@ -290,7 +290,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<FiBook />
+							<span>📖</span>
 							PingOne Documentation
 						</a>
 						<a
@@ -311,7 +311,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<FiCode />
+							<span>❓</span>
 							Try OAuth Playground
 						</a>
 					</div>

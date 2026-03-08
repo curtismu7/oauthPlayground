@@ -1,18 +1,9 @@
 // src/components/StepNavigationButtons.tsx
 
-import {
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiMaximize2,
-	FiMinimize2,
-	FiMove,
-	FiSkipBack,
-	FiTrash2,
-} from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 export interface StepNavigationButtonsProps {
 	currentStep: number;
@@ -272,7 +263,7 @@ export const StepNavigationButtons = ({
 			const saved = localStorage.getItem('stepper-compact-mode');
 			return saved === 'true';
 		} catch (e) {
-			logger.warn(
+			log.warn(
 				'StepNavigationButtons',
 				'[StepNavigationButtons] Failed to load compact mode from localStorage:',
 				{ error: e }
@@ -313,7 +304,7 @@ export const StepNavigationButtons = ({
 			localStorage.setItem('stepper-compact-mode', isCompact.toString());
 			console.log('[StepNavigationButtons] Saved compact mode to localStorage:', isCompact);
 		} catch (e) {
-			logger.warn(
+			log.warn(
 				'StepNavigationButtons',
 				'[StepNavigationButtons] Failed to save compact mode to localStorage:',
 				{ error: e }
@@ -397,7 +388,7 @@ export const StepNavigationButtons = ({
 			onMouseDown={handleDragStart}
 		>
 			<DragHandle>
-				<FiMove size={16} />
+				<span style={{ fontSize: '16px' }}>❓</span>
 			</DragHandle>
 			<CompactToggle
 				onClick={(e) => {
@@ -406,7 +397,7 @@ export const StepNavigationButtons = ({
 				}}
 				title={isCompact ? 'Expand stepper' : 'Compact stepper'}
 			>
-				{isCompact ? <FiMaximize2 /> : <FiMinimize2 />}
+				{isCompact ? <span>❓</span> : <span>❓</span>}
 			</CompactToggle>
 			<StepIndicator $compact={isCompact}>
 				{Array.from({ length: totalSteps }, (_, i) => (
@@ -423,7 +414,7 @@ export const StepNavigationButtons = ({
 					$compact={isCompact}
 					disabled={isFirstStep}
 				>
-					<FiArrowLeft /> {!isCompact && 'Previous'}
+					<span>⬅️</span> {!isCompact && 'Previous'}
 				</NavButton>
 				{onStartOver && !isFirstStep && (
 					<NavButton
@@ -435,7 +426,7 @@ export const StepNavigationButtons = ({
 						$compact={isCompact}
 						title="Go back to Step 1, clear tokens/codes but keep credentials"
 					>
-						<FiSkipBack /> {!isCompact && 'Start Over'}
+						<span>❓</span> {!isCompact && 'Start Over'}
 					</NavButton>
 				)}
 				<NavButton
@@ -447,7 +438,7 @@ export const StepNavigationButtons = ({
 					$compact={isCompact}
 					title="Complete reset: clear everything and expand all sections"
 				>
-					<FiTrash2 /> {!isCompact && 'Reset Flow'}
+					<span>🗑️</span> {!isCompact && 'Reset Flow'}
 				</NavButton>
 				{showCompleteActionButton && onCompleteAction && (
 					<NavButton
@@ -460,10 +451,10 @@ export const StepNavigationButtons = ({
 						title="Complete the current action"
 					>
 						{isCompact ? (
-							<FiCheckCircle />
+							<span>✅</span>
 						) : (
 							<>
-								<FiCheckCircle /> Complete Action
+								<span>✅</span> Complete Action
 							</>
 						)}
 					</NavButton>
@@ -479,11 +470,11 @@ export const StepNavigationButtons = ({
 					title={nextButtonTitle}
 				>
 					{isCompact ? (
-						<FiArrowRight />
+						<span>➡️</span>
 					) : (
 						<>
 							{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')}{' '}
-							<FiArrowRight />
+							<span>➡️</span>
 						</>
 					)}
 				</NavButton>

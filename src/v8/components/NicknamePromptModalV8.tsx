@@ -1,7 +1,7 @@
 // src/v8/components/NicknamePromptModalV8.tsx
 // Modal for prompting user to set device nickname after pairing
 
-import { FiCheck, FiInfo, FiX } from '@icons';
+
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 
@@ -282,10 +282,10 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 				onClick={(event) => event.stopPropagation()}
 			>
 				<CloseButton type="button" aria-label="Close modal" onClick={onClose} disabled={isLoading}>
-					<FiX size={18} />
+					<span style={{ fontSize: '18px' }}>❌</span>
 				</CloseButton>
 				<ModalHeader>
-					<FiInfo size={28} color="#3b82f6" />
+					<span style={{ fontSize: 28, color: '#3b82f6' }}>ℹ️</span>
 					<div>
 						<ModalTitle id={modalTitleId}>Set Device Nickname</ModalTitle>
 						<p
@@ -346,7 +346,7 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 					)}
 					<InfoCallout>
 						<InfoIcon>
-							<FiInfo size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>ℹ️</span>
 						</InfoIcon>
 						<InfoContent>
 							<strong>Why set a nickname?</strong>

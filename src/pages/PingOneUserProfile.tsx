@@ -4,7 +4,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // Cache bust: 2025-02-17-11:32
 // PingOne User Profile Page - Display detailed user information using real PingOne APIs
 
-import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -146,7 +146,7 @@ interface PingOneMfaDetails {
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
 import type { CSSProperties } from 'react';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
@@ -1024,7 +1024,7 @@ const PingOneUserProfile: React.FC = () => {
 					);
 				}
 			} catch (additionalError) {
-				logger.error(
+				log.error(
 					'PingOneUserProfile',
 					'Failed to fetch additional user data:',
 					undefined,
@@ -1067,7 +1067,7 @@ const PingOneUserProfile: React.FC = () => {
 				setMfaStatus(bundle.mfa);
 				setUserConsents(bundle.consents);
 			} catch (err: unknown) {
-				logger.error(
+				log.error(
 					'PingOneUserProfile',
 					'Failed to fetch user profile:',
 					undefined,
@@ -1148,7 +1148,7 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				logger.error(
+				log.error(
 					'PingOneUserProfile',
 					'[Population] Failed to fetch population details:',
 					undefined,
@@ -1212,7 +1212,7 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				logger.error(
+				log.error(
 					'PingOneUserProfile',
 					'[Comparison Population] Failed to fetch population details:',
 					undefined,
@@ -1321,7 +1321,7 @@ const PingOneUserProfile: React.FC = () => {
 					localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, finalIdentifier);
 				}
 			} catch (storageError) {
-				logger.warn('PingOneUserProfile', 'Unable to persist credentials to localStorage:', {
+				log.warn('PingOneUserProfile', 'Unable to persist credentials to localStorage:', {
 					error: storageError,
 				});
 			}
@@ -1447,12 +1447,12 @@ const PingOneUserProfile: React.FC = () => {
 								color: '#047857',
 							}}
 						>
-							<FiCheckCircle />
+							<span>✅</span>
 							<span>Worker token detected. Token is active.</span>
 						</div>
 					) : (
 						<div style={styles.alertBanner}>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							<span>
 								No worker token found or token expired. Generate one to load a user profile.
 							</span>
@@ -1507,7 +1507,7 @@ const PingOneUserProfile: React.FC = () => {
 										localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
 									}
 								} catch (storageError) {
-									logger.warn(
+									log.warn(
 										'PingOneUserProfile',
 										'Unable to persist user identifier to localStorage:',
 										{ error: storageError }

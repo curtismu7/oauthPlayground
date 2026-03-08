@@ -1,6 +1,6 @@
 // src/components/ColoredUrlDisplay.tsx
 
-import { FiCode, FiEdit2, FiExternalLink, FiEye, FiInfo, FiSave, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -416,7 +416,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 				)}
 				{showInfoButton && !isEditing && (
 					<ActionButton onClick={() => setShowInfo(true)} $variant="secondary">
-						<FiInfo size={14} />
+						<span style={{ fontSize: '14px' }}>ℹ️</span>
 						Explain URL
 					</ActionButton>
 				)}
@@ -439,7 +439,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					/>
 					<ActionButtons>
 						<ActionButton onClick={handleSave} $variant="primary">
-							<FiSave size={14} />
+							<span style={{ fontSize: '14px' }}>💾</span>
 							Save
 						</ActionButton>
 						<ActionButton onClick={handleCancel} $variant="secondary">
@@ -452,7 +452,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					<ActionButtons>
 						{editable && (
 							<ActionButton onClick={handleEdit} $variant="secondary">
-								<FiEdit2 size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 								Edit
 							</ActionButton>
 						)}
@@ -466,12 +466,12 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 							/>
 						)}
 						<ActionButton onClick={toggleEncoding} $variant="secondary">
-							{isDecoded ? <FiCode size={14} /> : <FiEye size={14} />}
+							{isDecoded ? <span style={{ fontSize: '14px' }}>❓</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
 							{isDecoded ? 'Encode' : 'Decode'}
 						</ActionButton>
 						{showOpenButton && (
 							<ActionButton onClick={handleOpen} $variant="secondary">
-								<FiExternalLink size={14} />
+								<span style={{ fontSize: '14px' }}>🔗</span>
 								Open
 							</ActionButton>
 						)}

@@ -1,4 +1,4 @@
-import { FiActivity, FiLoader, FiRefreshCw } from '@icons';
+
 import React from 'react';
 
 interface SpinnerProps {
@@ -19,11 +19,11 @@ export const Spinner: React.FC<SpinnerProps> = ({
 	const getIcon = () => {
 		switch (variant) {
 			case 'pulse':
-				return <FiActivity />;
+				return <span>🔄</span>;
 			case 'dots':
-				return <FiLoader />;
+				return <span>❓</span>;
 			default:
-				return <FiRefreshCw />;
+				return <span>🔄</span>;
 		}
 	};
 

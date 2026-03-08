@@ -1,15 +1,4 @@
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiChevronDown,
-	FiCopy,
-	FiGlobe,
-	FiInfo,
-	FiLoader,
-	FiRefreshCw,
-	FiSave,
-	FiSearch,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
@@ -664,7 +653,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 		if (discoveryResult?.success) {
 			return (
 				<StatusContainer type="success">
-					<FiCheck />
+					<span>✅</span>
 					<StatusText>
 						Successfully discovered OIDC endpoints
 						{discoveryResult.cached && ' (cached)'}
@@ -676,7 +665,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 		if (discoveryResult && !discoveryResult.success) {
 			return (
 				<StatusContainer type="error">
-					<FiAlertCircle />
+					<span>⚠️</span>
 					<StatusText>Discovery failed: {discoveryResult.error}</StatusText>
 				</StatusContainer>
 			);
@@ -688,7 +677,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	return (
 		<Container className={className}>
 			<Header>
-				<FiGlobe />
+				<span>🌐</span>
 				<Title>PingOne Environment Configuration</Title>
 			</Header>
 
@@ -726,7 +715,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							isLoading={isDiscovering}
 							title="Discover OIDC endpoints"
 						>
-							{isDiscovering ? <FiLoader className="animate-spin" /> : <FiSearch />}
+							{isDiscovering ? <FiLoader className="animate-spin" /> : <span>🔍</span>}
 						</DiscoverButton>
 					)}
 				</InputGroup>
@@ -740,7 +729,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					<IssuerUrlDisplay>
 						{issuerUrl}
 						<CopyButton onClick={handleCopyIssuerUrl}>
-							{copied ? <FiCheck size={12} /> : <FiCopy size={12} />}
+							{copied ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 							{copied ? 'Copied!' : 'Copy'}
 						</CopyButton>
 					</IssuerUrlDisplay>
@@ -756,11 +745,11 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							aria-expanded={!isDiscoveryResultsCollapsed}
 						>
 							<DiscoveryResultsHeaderLeft>
-								<FiGlobe size={18} />
+								<span style={{ fontSize: '18px' }}>🌐</span>
 								<span>OIDC Discovery Results</span>
 							</DiscoveryResultsHeaderLeft>
 							<DiscoveryResultsToggleIcon $collapsed={isDiscoveryResultsCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</DiscoveryResultsToggleIcon>
 						</DiscoveryResultsHeader>
 						{!isDiscoveryResultsCollapsed && (
@@ -795,12 +784,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 					<ButtonGroup>
 						<ResetButton onClick={handleReset} disabled={isApplying}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Reset
 						</ResetButton>
 
 						<SaveButton onClick={handleSave} $isSaved={isSaved} disabled={isSaved || isApplying}>
-							<FiSave size={16} />
+							<span style={{ fontSize: '16px' }}>💾</span>
 							{isSaved ? 'Configuration Saved!' : 'Save Only'}
 						</SaveButton>
 
@@ -813,7 +802,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 								borderColor: isApplying ? '#d97706' : '#059669',
 							}}
 						>
-							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <FiCheck size={16} />}
+							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <span style={{ fontSize: '16px' }}>✅</span>}
 							{isApplying ? 'Applying...' : isSaved ? 'Applied!' : 'Save & Apply'}
 						</SaveButton>
 					</ButtonGroup>
@@ -821,7 +810,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			)}
 
 			<RegionInfo>
-				<FiInfo size={14} />
+				<span style={{ fontSize: '14px' }}>ℹ️</span>
 				<span>
 					Selected region: <strong>{regionLabels[selectedRegion]}</strong> -{' '}
 					{regionUrls[selectedRegion]}

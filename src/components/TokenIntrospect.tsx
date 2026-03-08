@@ -1,10 +1,10 @@
 // src/components/TokenIntrospect.tsx
 // lint-file-disable: token-value-in-jsx
-import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiKey, FiShield, FiUser } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
 
@@ -443,7 +443,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
+			log.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -474,10 +474,10 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					aria-expanded={!collapsedSections.completionOverview}
 				>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Flow Completion Overview
+						<span>✅</span> Flow Completion Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview ?? false}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.completionOverview && (
@@ -496,17 +496,17 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					aria-expanded={!collapsedSections.completionDetails}
 				>
 					<CollapsibleTitle>
-						<FiShield /> Next Steps & Resources
+						<span>🛡️</span> Next Steps & Resources
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionDetails ?? false}>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleToggleIcon>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.completionDetails && (
 					<CollapsibleContent>
 						<CalloutCard style={{ marginTop: '1.5rem' }}>
 							<InfoTitle>
-								<FiShield /> Next Steps
+								<span>🛡️</span> Next Steps
 							</InfoTitle>
 							<NextSteps steps={nextSteps} />
 						</CalloutCard>
@@ -522,17 +522,17 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						aria-expanded={!collapsedSections.introspectionDetails}
 					>
 						<CollapsibleTitle>
-							<FiEye /> Token Introspection
+							<span>👁️</span> Token Introspection
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionDetails ?? false}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.introspectionDetails && (
 						<CollapsibleContent>
 							<ResultsSection>
 								<ResultsHeading>
-									<FiEye /> Access Token Introspection
+									<span>👁️</span> Access Token Introspection
 								</ResultsHeading>
 								<HelperText>
 									Introspect your access token to see detailed information about its validity,
@@ -545,7 +545,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										$priority="primary"
 										disabled={isIntrospecting || !onIntrospectToken}
 									>
-										<FiEye /> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
+										<span>👁️</span> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
 									</HighlightedActionButton>
 								</ActionRow>
 
@@ -639,7 +639,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 													}
 													$variant="outline"
 												>
-													<FiCopy /> Copy Results
+													<span>📋</span> Copy Results
 												</Button>
 											</ActionRow>
 										</GeneratedContentBox>
@@ -651,16 +651,16 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												aria-expanded={!collapsedSections.rawJson}
 											>
 												<CollapsibleTitle>
-													<FiKey /> Raw JSON Response
+													<span>🔑</span> Raw JSON Response
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.rawJson ?? false}>
-													<FiChevronDown />
+													<span>⬇️</span>
 												</CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
 											{!collapsedSections.rawJson && (
 												<CollapsibleContent>
 													<InfoBox $variant="info">
-														<FiKey size={20} />
+														<span style={{ fontSize: '20px' }}>🔑</span>
 														<div>
 															<InfoTitle>Raw JSON Response</InfoTitle>
 															<InfoText>
@@ -700,7 +700,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																}
 																$variant="outline"
 															>
-																<FiCopy /> Copy Raw JSON
+																<span>📋</span> Copy Raw JSON
 															</Button>
 														</ActionRow>
 													</GeneratedContentBox>
@@ -723,17 +723,17 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						aria-expanded={!collapsedSections.userInfo}
 					>
 						<CollapsibleTitle>
-							<FiUser /> User Information
+							<span>👤</span> User Information
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.userInfo ?? false}>
-							<FiChevronDown />
+							<span>⬇️</span>
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.userInfo && (
 						<CollapsibleContent>
 							<ResultsSection>
 								<ResultsHeading>
-									<FiUser /> User Information
+									<span>👤</span> User Information
 								</ResultsHeading>
 								<HelperText>
 									Retrieve and display user information from the userinfo endpoint.
@@ -761,7 +761,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 											boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
 										}}
 									>
-										<FiUser />{' '}
+										<span>👤</span>{' '}
 										{isFetchingUserInfo ? 'Fetching User Info...' : 'Fetch User Information'}
 									</HighlightedActionButton>
 								</ActionRow>
@@ -792,7 +792,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												}
 												$variant="outline"
 											>
-												<FiCopy /> Copy User Info
+												<span>📋</span> Copy User Info
 											</Button>
 										</ActionRow>
 									</GeneratedContentBox>

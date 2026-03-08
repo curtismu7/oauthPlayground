@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import { FiX } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
@@ -157,7 +157,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
 							}}
 						>
-							<FiX size={18} />
+							<span style={{ fontSize: '18px' }}>❌</span>
 						</button>
 					</div>
 

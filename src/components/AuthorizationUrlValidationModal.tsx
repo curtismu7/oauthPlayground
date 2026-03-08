@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiCheckCircle, FiExternalLink, FiX } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -189,7 +189,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 						)}
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -202,19 +202,19 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 				<ValidationSummary $isValid={validationResult.isValid}>
 					{hasErrors ? (
 						<>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							{validationResult.errors.length} error
 							{validationResult.errors.length !== 1 ? 's' : ''} found
 						</>
 					) : hasWarnings ? (
 						<>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							{validationResult.warnings.length} warning
 							{validationResult.warnings.length !== 1 ? 's' : ''} found
 						</>
 					) : (
 						<>
-							<FiCheckCircle />
+							<span>✅</span>
 							URL validation passed
 						</>
 					)}

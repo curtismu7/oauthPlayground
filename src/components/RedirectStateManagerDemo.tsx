@@ -1,7 +1,7 @@
 // src/components/RedirectStateManagerDemo.tsx
 // Demo showing RedirectStateManager usage in OAuth flows
 
-import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSave } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
@@ -266,9 +266,9 @@ export const RedirectStateManagerDemo: React.FC = () => {
 
 			{status && (
 				<StatusDisplay status={status.type}>
-					{status.type === 'success' && <FiCheckCircle size={16} />}
-					{status.type === 'error' && <FiAlertCircle size={16} />}
-					{status.type === 'info' && <FiRefreshCw size={16} />}
+					{status.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
+					{status.type === 'error' && <span style={{ fontSize: '16px' }}>⚠️</span>}
+					{status.type === 'info' && <span style={{ fontSize: '16px' }}>🔄</span>}
 					{status.message}
 				</StatusDisplay>
 			)}
@@ -297,15 +297,15 @@ export const RedirectStateManagerDemo: React.FC = () => {
 
 				<div>
 					<Button variant="primary" onClick={handlePreserveState}>
-						<FiSave size={14} />
+						<span style={{ fontSize: '14px' }}>💾</span>
 						1. Preserve State
 					</Button>
 					<Button onClick={handleRestoreState}>
-						<FiRefreshCw size={14} />
+						<span style={{ fontSize: '14px' }}>🔄</span>
 						2. Restore State
 					</Button>
 					<Button variant="success" onClick={handleSimulateCallback}>
-						<FiArrowRight size={14} />
+						<span style={{ fontSize: '14px' }}>➡️</span>
 						3. Simulate Callback
 					</Button>
 					<Button variant="danger" onClick={handleClearState}>

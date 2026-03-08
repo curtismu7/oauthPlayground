@@ -1,12 +1,12 @@
 // src/examples/OAuthFlowWithRedirectStateManager.tsx
 // Example OAuth flow using RedirectStateManager for state preservation
 
-import { FiArrowRight, FiCheckCircle, FiSettings } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService from '../services/flowContextService';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   max-width: 800px;
@@ -185,7 +185,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 			RedirectStateManager.preserveFlowState(flowId, updatedFlowState);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'OAuthFlowWithRedirectStateManager',
 				'Token exchange failed:',
 				undefined,
@@ -244,14 +244,14 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 				{currentStep === 1 && (
 					<Button onClick={handleStep1Complete}>
-						<FiSettings size={16} />
+						<span style={{ fontSize: '16px' }}>⚙️</span>
 						Save & Continue
 					</Button>
 				)}
 
 				{currentStep > 1 && (
 					<div style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						Credentials saved and flow state preserved
 					</div>
 				)}
@@ -281,14 +281,14 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 				{currentStep === 2 && (
 					<Button onClick={handleStep2Complete}>
-						<FiArrowRight size={16} />
+						<span style={{ fontSize: '16px' }}>➡️</span>
 						Simulate OAuth Redirect
 					</Button>
 				)}
 
 				{currentStep > 2 && (
 					<div style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						OAuth redirect completed, state restored
 					</div>
 				)}
@@ -317,14 +317,14 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 				{currentStep === 3 && (
 					<Button onClick={handleStep3Complete}>
-						<FiArrowRight size={16} />
+						<span style={{ fontSize: '16px' }}>➡️</span>
 						Exchange for Tokens
 					</Button>
 				)}
 
 				{currentStep > 3 && (
 					<div style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						Tokens received successfully
 					</div>
 				)}
@@ -353,7 +353,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 				{currentStep === 4 && (
 					<Button onClick={handleComplete}>
-						<FiCheckCircle size={16} />
+						<span style={{ fontSize: '16px' }}>✅</span>
 						Complete & Cleanup
 					</Button>
 				)}

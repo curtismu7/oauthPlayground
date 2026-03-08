@@ -9,15 +9,7 @@
  * their actual login experience: first email/mileage plus/phone number, then password.
  */
 
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiEye,
-	FiEyeOff,
-	FiLock as FiLockIcon,
-	FiPhone,
-	FiUser,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -465,7 +457,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 
 			{error && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
@@ -487,7 +479,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 							/>
 							{!usePhone && (
 								<PhoneButton type="button" onClick={togglePhoneMode} disabled={isLoading}>
-									<FiPhone size={16} />
+									<span style={{ fontSize: '16px' }}>📞</span>
 									Use Phone
 								</PhoneButton>
 							)}
@@ -495,7 +487,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 
 						{usePhone && (
 							<PhoneButton type="button" onClick={togglePhoneMode} disabled={isLoading}>
-								<FiUser size={16} />
+								<span style={{ fontSize: '16px' }}>👤</span>
 								Use Email or MileagePlus
 							</PhoneButton>
 						)}
@@ -515,7 +507,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 								disabled={isLoading}
 							/>
 							<PasswordToggle type="button" onClick={togglePasswordVisibility} disabled={isLoading}>
-								{showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+								{showPassword ? <span style={{ fontSize: '20px' }}>🙈</span> : <span style={{ fontSize: '20px' }}>👁️</span>}
 							</PasswordToggle>
 						</InputGroup>
 
@@ -533,7 +525,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 					) : currentStep === 1 ? (
 						<>
 							Next
-							<FiArrowRight />
+							<span>➡️</span>
 						</>
 					) : (
 						<>

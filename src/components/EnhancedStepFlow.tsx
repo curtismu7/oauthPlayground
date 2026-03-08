@@ -1,21 +1,9 @@
 // src/components/EnhancedStepFlow.tsx
 
-import {
-	FiCheck,
-	FiChevronLeft,
-	FiChevronRight,
-	FiClock,
-	FiCopy,
-	FiPlay,
-	FiRefreshCw,
-	FiSave,
-	FiSettings,
-	FiSkipForward,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import '../styles/enhanced-flow.css';
 
 // Enhanced step interface with more options
@@ -427,10 +415,10 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 					setCurrentStepIndex(state.currentStepIndex || 0);
 					setStepResults(state.stepResults || {});
 					setStepHistory(state.stepHistory || []);
-					logger.info('EnhancedStepFlow', 'Loaded persisted state', state);
+					log.info('EnhancedStepFlow', 'Loaded persisted state', state);
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'EnhancedStepFlow',
 					'Failed to load persisted state',
 					error instanceof Error ? error.message : String(error),
@@ -451,9 +439,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 					timestamp: Date.now(),
 				};
 				localStorage.setItem(persistKey, JSON.stringify(state));
-				logger.debug('EnhancedStepFlow', 'Saved state to localStorage', state);
+				log.debug('EnhancedStepFlow', 'Saved state to localStorage', state);
 			} catch (error) {
-				logger.error(
+				log.error(
 					'EnhancedStepFlow',
 					'Failed to save state',
 					error instanceof Error ? error.message : String(error),
@@ -478,7 +466,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			const startTime = Date.now();
 
 			try {
-				logger.info('EnhancedStepFlow', `Executing step: ${stepId}`, `step: ${step.title}`);
+				log.info('EnhancedStepFlow', `Executing step: ${stepId}`, `step: ${step.title}`);
 
 				const result = await step.execute();
 				const duration = Date.now() - startTime;
@@ -505,7 +493,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				// Notify parent
 				onStepComplete?.(stepId, result);
 
-				logger.success(
+				log.success(
 					'EnhancedStepFlow',
 					`Step completed: ${stepId}`,
 					`result: ${JSON.stringify(result)}, duration: ${duration}ms`
@@ -536,7 +524,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				// Notify parent
 				onStepError?.(stepId, errorMessage);
 
-				logger.error(
+				log.error(
 					'EnhancedStepFlow',
 					`Step failed: ${stepId}`,
 					error instanceof Error ? error.message : String(error),
@@ -558,7 +546,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				(allowStepJumping || Math.abs(index - currentStepIndex) <= 1)
 			) {
 				setCurrentStepIndex(index);
-				logger.debug(
+				log.debug(
 					'EnhancedStepFlow',
 					`Navigated to step ${index}`,
 					`stepId: ${steps[index]?.id}`
@@ -589,7 +577,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 		if (persistKey) {
 			localStorage.removeItem(persistKey);
 		}
-		logger.info('EnhancedStepFlow', 'Flow reset');
+		log.info('EnhancedStepFlow', 'Flow reset');
 	}, [persistKey]);
 
 	// Copy code to clipboard
@@ -598,9 +586,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			await navigator.clipboard.writeText(code);
 			setCopiedCode(stepId);
 			setTimeout(() => setCopiedCode(null), 2000);
-			logger.debug('EnhancedStepFlow', 'Code copied to clipboard', `stepId: ${stepId}`);
+			log.debug('EnhancedStepFlow', 'Code copied to clipboard', `stepId: ${stepId}`);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'EnhancedStepFlow',
 				'Failed to copy code',
 				error instanceof Error ? error.message : String(error),
@@ -647,7 +635,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 	useEffect(() => {
 		if (isFlowComplete) {
 			onFlowComplete?.(stepResults);
-			logger.success(
+			log.success(
 				'EnhancedStepFlow',
 				'Flow completed',
 				`results: ${JSON.stringify(stepResults)}`
@@ -662,15 +650,15 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				<FlowTitle>{title}</FlowTitle>
 				<FlowControls>
 					<ControlButton onClick={() => setShowDebugPanel(!showDebugPanel)}>
-						<FiSettings />
+						<span>⚙️</span>
 						Debug
 					</ControlButton>
 					<ControlButton onClick={resetFlow} $variant="danger">
-						<FiRefreshCw />
+						<span>🔄</span>
 						Reset
 					</ControlButton>
 					<ControlButton $variant="success" onClick={saveState}>
-						<FiSave />
+						<span>💾</span>
 						Save
 					</ControlButton>
 				</FlowControls>
@@ -690,7 +678,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 								onClick={() => goToStep(index)}
 								title={`${step.title} - ${isCompleted ? 'Completed' : hasError ? 'Error' : 'Pending'}`}
 							>
-								{hasError ? <FiX /> : isCompleted ? <FiCheck /> : index + 1}
+								{hasError ? <span>❌</span> : isCompleted ? <span>✅</span> : index + 1}
 							</StepDot>
 						);
 					})}
@@ -698,12 +686,12 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 
 				<FlowControls>
 					<ControlButton onClick={previousStep} disabled={currentStepIndex === 0}>
-						<FiChevronLeft />
+						<span>⬅️</span>
 						Previous
 					</ControlButton>
 					<ControlButton onClick={nextStep} disabled={currentStepIndex === steps.length - 1}>
 						Next
-						<FiChevronRight />
+						<span>➡️</span>
 					</ControlButton>
 				</FlowControls>
 			</StepNavigator>
@@ -738,7 +726,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 						<StepMeta>
 							{stepHistory.find((h) => h.stepId === currentStep.id) && (
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-									<FiClock />
+									<span>🕐</span>
 									{stepHistory.find((h) => h.stepId === currentStep.id)?.duration}ms
 								</div>
 							)}
@@ -755,7 +743,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 								<CodeBlock>
 									{currentStep.code}
 									<CopyButton onClick={() => copyCode(currentStep.code!, currentStep.id)}>
-										{copiedCode === currentStep.id ? <FiCheck /> : <FiCopy />}
+										{copiedCode === currentStep.id ? <span>✅</span> : <span>📋</span>}
 										{copiedCode === currentStep.id ? 'Copied!' : 'Copy'}
 									</CopyButton>
 								</CodeBlock>
@@ -800,7 +788,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 										</>
 									) : (
 										<>
-											<FiPlay />
+											<span>❓</span>
 											Execute Step
 										</>
 									)}
@@ -809,14 +797,14 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 
 							{currentStep.canSkip && (
 								<ActionButton onClick={nextStep}>
-									<FiSkipForward />
+									<span>❓</span>
 									Skip Step
 								</ActionButton>
 							)}
 
 							{stepResults[currentStep.id] && (
 								<ActionButton $variant="success" onClick={() => executeStep(currentStep.id)}>
-									<FiRefreshCw />
+									<span>🔄</span>
 									Re-execute
 								</ActionButton>
 							)}
@@ -859,7 +847,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 						over.
 					</p>
 					<ActionButton $variant="primary" onClick={resetFlow}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Start Over
 					</ActionButton>
 				</StepResult>

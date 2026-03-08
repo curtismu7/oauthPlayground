@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiArrowRight, FiExternalLink, FiLayers, FiTrendingUp } from '@icons';
+
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
@@ -164,7 +164,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Evolving OAuth Client Registration in MCP
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://www.ietf.org/archive/id/draft-parecki-oauth-client-id-metadata-document-03.html"
@@ -172,7 +172,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								OAuth Client ID Metadata Document
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
@@ -180,7 +180,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Identity Assertion Authorization Grant
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/"
@@ -188,7 +188,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Identity Chaining Draft
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</ExternalLink>
 						</LinkGroup>
 					</IntroCard>
@@ -196,7 +196,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Why OAuth 2.1 DCR Falls Short for Personal Agents"
 						subtitle="MCP deployments need on-demand registration that preserves user safety and operator trust"
-						icon={<FiAlertTriangle />}
+						icon={<span>⚠️</span>}
 						defaultCollapsed={false}
 					>
 						<SectionText>
@@ -209,7 +209,7 @@ const AIPersonalAgentOAuth = () => {
 						</SectionText>
 						<Callout $tone="warning">
 							<CalloutTitle>
-								<FiAlertTriangle />
+								<span>⚠️</span>
 								Operational obstacles called out in the MCP post
 							</CalloutTitle>
 							<HighlightList>
@@ -226,7 +226,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Self-Describing Clients via Metadata Documents"
 						subtitle="Using a client_id URL to bootstrap trust without pre-registration"
-						icon={<FiLayers />}
+						icon={<span>❓</span>}
 						defaultCollapsed={false}
 					>
 						<SectionText>
@@ -259,7 +259,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Identity Assertions Build End-to-End Trust"
 						subtitle="Moving beyond registration into delegated identity guarantees"
-						icon={<FiTrendingUp />}
+						icon={<span>📈</span>}
 						defaultCollapsed={false}
 					>
 						<SectionText>
@@ -272,7 +272,7 @@ const AIPersonalAgentOAuth = () => {
 						<RoadmapGrid>
 							<RoadmapCard>
 								<CardTitle>
-									<FiArrowRight />
+									<span>➡️</span>
 									Identity Assertion Authorization Grant
 								</CardTitle>
 								<CardBody>
@@ -288,13 +288,13 @@ const AIPersonalAgentOAuth = () => {
 										rel="noopener noreferrer"
 									>
 										Draft overview
-										<FiExternalLink size={16} />
+										<span style={{ fontSize: '16px' }}>🔗</span>
 									</ExternalLink>
 								</CardBody>
 							</RoadmapCard>
 							<RoadmapCard>
 								<CardTitle>
-									<FiArrowRight />
+									<span>➡️</span>
 									Identity Chaining for Assistants
 								</CardTitle>
 								<CardBody>
@@ -310,7 +310,7 @@ const AIPersonalAgentOAuth = () => {
 										rel="noopener noreferrer"
 									>
 										Draft overview
-										<FiExternalLink size={16} />
+										<span style={{ fontSize: '16px' }}>🔗</span>
 									</ExternalLink>
 								</CardBody>
 							</RoadmapCard>
@@ -320,7 +320,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Implementation Checklist for MCP Integrators"
 						subtitle="Practical steps to get from experimentation to production"
-						icon={<FiArrowRight />}
+						icon={<span>➡️</span>}
 						defaultCollapsed={false}
 					>
 						<StepList>

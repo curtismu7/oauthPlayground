@@ -1,7 +1,7 @@
-import { FiChevronDown, FiChevronUp, FiCopy, FiExternalLink } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
 const ErrorContainer = styled.div<{ $severity: string }>`
@@ -227,15 +227,15 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 			await navigator.clipboard.writeText(errorText);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-			logger.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
+			log.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
 		} catch (err) {
-			logger.error('PingOneErrorDisplay', 'Failed to copy error details', err);
+			log.error('PingOneErrorDisplay', 'Failed to copy error details', err);
 		}
 	};
 
 	const handleToggleDetails = () => {
 		setIsExpanded(!isExpanded);
-		logger.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
+		log.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
 	};
 
 	return (
@@ -257,12 +257,12 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 
 			<ErrorActions>
 				<ToggleButton onClick={handleToggleDetails}>
-					{isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+					{isExpanded ? <span>⬆️</span> : <span>⬇️</span>}
 					{isExpanded ? 'Hide' : 'Show'} Technical Details
 				</ToggleButton>
 
 				<CopyButton onClick={handleCopyError}>
-					<FiCopy />
+					<span>📋</span>
 					{copied ? 'Copied!' : 'Copy Error'}
 				</CopyButton>
 
@@ -274,7 +274,7 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 							borderColor: 'V9_COLORS.PRIMARY.GREEN',
 						}}
 					>
-						<FiExternalLink />
+						<span>🔗</span>
 						Retry
 					</CopyButton>
 				)}

@@ -1,16 +1,8 @@
-import {
-	FiCheck,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronUp,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-} from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Flow configuration mapping based on OAuth/OIDC standards
 const FLOW_FIELD_CONFIG: Record<
@@ -421,7 +413,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			try {
 				// Mark as loading to prevent concurrent loads
 				hasLoadedCredentialsRef.current = true;
-				logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
+				log.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
 
 				// Load credentials from appropriate storage based on flow type
 				let flowCredentials: Record<string, unknown> = {};
@@ -453,11 +445,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 				// Call the callback using the ref to avoid dependency issues
 				onCredentialsChangeRef.current?.(finalCredentials);
-				logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
+				log.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
 			} catch (error) {
 				// Reset flag on error so we can retry
 				hasLoadedCredentialsRef.current = false;
-				logger.error(
+				log.error(
 					'FlowCredentials',
 					'Failed to load credentials',
 					error instanceof Error ? error.message : String(error),
@@ -493,7 +485,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					additionalScopes: parsed.additionalScopes || '',
 				};
 			} catch (error) {
-				logger.error(
+				log.error(
 					'FlowCredentials',
 					'Failed to parse global config:',
 					undefined,
@@ -510,7 +502,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 	}, [credentials]);
 
 	const handleFieldChange = (field: keyof FlowCredentialsData, value: string) => {
-		logger.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
+		log.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
 		setCredentials((prev) => ({ ...prev, [field]: value }));
 		setErrors((prev) => ({ ...prev, [field]: undefined }));
 	};
@@ -519,16 +511,16 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		if (!text) return;
 
 		try {
-			logger.ui('FlowCredentials', `Copying ${fieldName} to clipboard`, {
+			log.ui('FlowCredentials', `Copying ${fieldName} to clipboard`, {
 				fieldName,
 				textLength: text.length,
 			});
 			await navigator.clipboard.writeText(text);
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
-			logger.success('FlowCredentials', `Successfully copied ${fieldName}`);
+			log.success('FlowCredentials', `Successfully copied ${fieldName}`);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'FlowCredentials',
 				'Failed to copy to clipboard',
 				error instanceof Error ? error.message : String(error),
@@ -566,7 +558,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleSaveCredentials = () => {
 		try {
-			logger.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
+			log.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
 
 			// Convert to PermanentCredentials format
 			const permanentCredentials = {
@@ -608,7 +600,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			// Notify parent component
 			onCredentialsChange?.(credentials);
 
-			logger.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
+			log.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
 
 			// Clear save message after 3 seconds
 			setTimeout(() => {
@@ -616,7 +608,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				setSaveMessage(null);
 			}, 3000);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'FlowCredentials',
 				'Failed to save credentials',
 				error instanceof Error ? error.message : String(error),
@@ -629,7 +621,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleResetCredentials = () => {
 		try {
-			logger.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
+			log.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
 
 			// Reset to original credentials
 			setCredentials({ ...originalCredentials });
@@ -639,9 +631,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			setIsSaved(false);
 			setSaveMessage(null);
 
-			logger.success('FlowCredentials', `Credentials reset for ${flowType}`);
+			log.success('FlowCredentials', `Credentials reset for ${flowType}`);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'FlowCredentials',
 				'Failed to reset credentials',
 				error instanceof Error ? error.message : String(error),
@@ -663,7 +655,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 						PingOne Credentials for {getFlowDisplayName(flowType)}
 					</CredentialsTitle>
 					<CollapseIcon $isCollapsed={isCollapsed}>
-						{isCollapsed ? <FiChevronDown /> : <FiChevronUp />}
+						{isCollapsed ? <span>⬇️</span> : <span>⬆️</span>}
 					</CollapseIcon>
 				</CredentialsHeader>
 
@@ -705,9 +697,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										title="Copy Environment ID"
 									>
 										{copiedField === 'Environment ID' ? (
-											<FiCheck size={16} />
+											<span style={{ fontSize: '16px' }}>✅</span>
 										) : (
-											<FiCopy size={16} />
+											<span style={{ fontSize: '16px' }}>📋</span>
 										)}
 									</Button>
 								</div>
@@ -734,7 +726,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										aria-label="Copy Client ID"
 										title="Copy Client ID"
 									>
-										{copiedField === 'Client ID' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+										{copiedField === 'Client ID' ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>📋</span>}
 									</Button>
 								</div>
 							</InputContainer>
@@ -769,7 +761,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 												cursor: 'not-allowed',
 											}}
 										>
-											<FiCheck size={16} />
+											<span style={{ fontSize: '16px' }}>✅</span>
 										</Button>
 									</div>
 								</InputContainer>
@@ -810,7 +802,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 											title={showSecret ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+											{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 										</Button>
 										<Button
 											type="button"
@@ -822,9 +814,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											title="Copy Client Secret"
 										>
 											{copiedField === 'Client Secret' ? (
-												<FiCheck size={16} />
+												<span style={{ fontSize: '16px' }}>✅</span>
 											) : (
-												<FiCopy size={16} />
+												<span style={{ fontSize: '16px' }}>📋</span>
 											)}
 										</Button>
 									</div>
@@ -855,9 +847,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											title="Copy Redirect URI"
 										>
 											{copiedField === 'Redirect URI' ? (
-												<FiCheck size={16} />
+												<span style={{ fontSize: '16px' }}>✅</span>
 											) : (
-												<FiCopy size={16} />
+												<span style={{ fontSize: '16px' }}>📋</span>
 											)}
 										</Button>
 									</div>
@@ -888,9 +880,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										title="Copy Additional Scopes"
 									>
 										{copiedField === 'Additional Scopes' ? (
-											<FiCheck size={16} />
+											<span style={{ fontSize: '16px' }}>✅</span>
 										) : (
-											<FiCopy size={16} />
+											<span style={{ fontSize: '16px' }}>📋</span>
 										)}
 									</Button>
 								</div>
@@ -964,7 +956,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 								opacity: hasConfigChanges ? 1 : 0.6,
 							}}
 						>
-							<FiCheckCircle size={16} />
+							<span style={{ fontSize: '16px' }}>✅</span>
 							{isSaved ? 'Saved!' : 'Save Credentials'}
 						</button>
 

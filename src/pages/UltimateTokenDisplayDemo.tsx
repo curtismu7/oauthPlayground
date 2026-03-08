@@ -1,7 +1,7 @@
 // src/pages/UltimateTokenDisplayDemo.tsx
 // Demo page showcasing the UltimateTokenDisplay component
 
-import { FiRefreshCw, FiSettings, FiZap } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -202,7 +202,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 				<ControlPanel>
 					<SectionTitle>
-						<FiSettings size={20} />
+						<span style={{ fontSize: '20px' }}>⚙️</span>
 						Configuration Panel
 					</SectionTitle>
 
@@ -314,7 +314,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
 						<Button onClick={generateNewTokens}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Generate New Tokens
 						</Button>
 					</div>
@@ -322,7 +322,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 				<DemoSection>
 					<SectionTitle>
-						<FiZap size={20} />
+						<span style={{ fontSize: '20px' }}>⚡</span>
 						Live Demo
 					</SectionTitle>
 

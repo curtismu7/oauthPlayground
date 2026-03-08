@@ -1,9 +1,9 @@
-import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from '@icons';
+
 import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
 
 export type FlowStep =
@@ -611,7 +611,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				duration: 4000,
 			});
 		} catch (err) {
-			logger.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
+			log.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -661,7 +661,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				duration: 4000,
 			});
 		} catch (err) {
-			logger.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
+			log.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -835,7 +835,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 					<Divider />
 
 					<UpdateIndicator $visible={codeUpdated}>
-						<FiRefreshCw size={14} />
+						<span style={{ fontSize: '14px' }}>🔄</span>
 						Code Updated
 					</UpdateIndicator>
 
@@ -914,25 +914,25 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				<Toolbar>
 					<ToolbarLeft>
 						<ToolbarButton $variant="primary" onClick={handleCopy}>
-							{copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+							{copied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
 							{copied ? 'Copied!' : 'Copy Code'}
 						</ToolbarButton>
 						<ToolbarButton onClick={handleDownload}>
-							<FiDownload size={14} />
+							<span style={{ fontSize: '14px' }}>📥</span>
 							Download
 						</ToolbarButton>
 						<ToolbarButton onClick={handleFormat}>
-							<FiCode size={14} />
+							<span style={{ fontSize: '14px' }}>❓</span>
 							Format
 						</ToolbarButton>
 						<ToolbarButton onClick={handleReset}>
-							<FiRefreshCw size={14} />
+							<span style={{ fontSize: '14px' }}>🔄</span>
 							Reset
 						</ToolbarButton>
 					</ToolbarLeft>
 					<ToolbarRight>
 						<ThemeToggle $isDark={theme === 'vs-dark'} onClick={toggleTheme}>
-							{theme === 'vs-dark' ? <FiSun size={14} /> : <FiMoon size={14} />}
+							{theme === 'vs-dark' ? <span style={{ fontSize: '14px' }}>☀️</span> : <span style={{ fontSize: '14px' }}>🌙</span>}
 							{theme === 'vs-dark' ? 'Light' : 'Dark'}
 						</ThemeToggle>
 					</ToolbarRight>

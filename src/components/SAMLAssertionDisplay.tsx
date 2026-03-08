@@ -1,8 +1,8 @@
-import { FiCheck, FiCopy } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   background: V9_COLORS.BG.GRAY_LIGHT;
@@ -89,7 +89,7 @@ const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
 
 			return formatted;
 		} catch (error) {
-			logger.error(
+			log.error(
 				'SAMLAssertionDisplay',
 				'Error formatting SAML assertion:',
 				undefined,
@@ -122,11 +122,11 @@ const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
 					<CopyButton onClick={handleCopy}>
 						{copied ? (
 							<>
-								<FiCheck size={14} /> Copied!
+								<span style={{ fontSize: '14px' }}>✅</span> Copied!
 							</>
 						) : (
 							<>
-								<FiCopy size={14} /> Copy
+								<span style={{ fontSize: '14px' }}>📋</span> Copy
 							</>
 						)}
 					</CopyButton>

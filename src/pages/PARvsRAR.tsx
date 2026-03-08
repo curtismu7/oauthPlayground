@@ -1,7 +1,7 @@
 // src/pages/PARvsRAR.tsx - PAR vs RAR Comparison and Examples
 // lint-file-disable: token-value-in-jsx
 
-import { FiBook, FiCheck, FiCode, FiCopy, FiInfo, FiSend, FiSettings, FiShield } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -233,7 +233,7 @@ const PARvsRAR: React.FC = () => {
 		<Container>
 			<Header>
 				<h1>
-					<FiShield size={32} />
+					<span style={{ fontSize: '32px' }}>🛡️</span>
 					RAR vs PAR and DPoP Guide
 				</h1>
 				<p>
@@ -255,7 +255,7 @@ const PARvsRAR: React.FC = () => {
 					</p>
 					<InfoBox>
 						<InfoIcon>
-							<FiInfo />
+							<span>ℹ️</span>
 						</InfoIcon>
 						<InfoContent>
 							<h4>Key Insight</h4>
@@ -274,7 +274,7 @@ const PARvsRAR: React.FC = () => {
 			<CollapsibleHeader
 				title="What is PAR (Pushed Authorization Request)?"
 				theme="green"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -308,7 +308,7 @@ const PARvsRAR: React.FC = () => {
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								PAR Flow Example
 							</ExampleTitle>
 
@@ -342,7 +342,7 @@ nonce=random_nonce_string`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -381,7 +381,7 @@ nonce=random_nonce_string`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -410,7 +410,7 @@ nonce=random_nonce_string`}</CodeBlock>
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -420,7 +420,7 @@ nonce=random_nonce_string`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								JavaScript PAR Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -480,7 +480,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
+    log.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -500,12 +500,12 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => logger.error('Error:', error));`,
+  .catch(error => log.error('Error:', error));`,
 											'PAR JavaScript code'
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -561,7 +561,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
+    log.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -581,7 +581,7 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => logger.error('Error:', error));`}</CodeBlock>
+  .catch(error => log.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>
@@ -590,7 +590,7 @@ pushAuthorizationRequest(config)
 			<CollapsibleHeader
 				title="What is RAR (Rich Authorization Requests)?"
 				theme="blue"
-				icon={<FiBook />}
+				icon={<span>📖</span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -625,7 +625,7 @@ pushAuthorizationRequest(config)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								RAR Authorization Details Example
 							</ExampleTitle>
 
@@ -670,7 +670,7 @@ pushAuthorizationRequest(config)
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -719,7 +719,7 @@ pushAuthorizationRequest(config)
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -735,7 +735,7 @@ pushAuthorizationRequest(config)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								JavaScript RAR Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -800,7 +800,7 @@ console.log('RAR Authorization URL:', authUrl);`,
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -861,7 +861,7 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								RAR Use Cases
 							</ExampleTitle>
 							<ComparisonGrid>
@@ -930,7 +930,7 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 			<CollapsibleHeader
 				title="PAR vs RAR: Key Differences"
 				theme="highlight"
-				icon={<FiSend />}
+				icon={<span>📤</span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -1012,7 +1012,7 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 
 						<InfoBox>
 							<InfoIcon>
-								<FiInfo />
+								<span>ℹ️</span>
 							</InfoIcon>
 							<InfoContent>
 								<h4>Combining PAR + RAR</h4>
@@ -1035,7 +1035,7 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 			<CollapsibleHeader
 				title="PAR + RAR Combined Example"
 				theme="highlight"
-				icon={<FiCheck />}
+				icon={<span>✅</span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -1074,7 +1074,7 @@ code_challenge_method=S256`,
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1114,7 +1114,7 @@ code_challenge_method=S256`}</CodeBlock>
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1143,7 +1143,7 @@ code_challenge_method=S256`}</CodeBlock>
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1152,7 +1152,7 @@ code_challenge_method=S256`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								Complete PAR + RAR JavaScript Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -1215,7 +1215,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
+    log.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1247,12 +1247,12 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => logger.error('Error:', error));`,
+  .catch(error => log.error('Error:', error));`,
 											'PAR + RAR JavaScript code'
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1311,7 +1311,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
+    log.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1343,7 +1343,7 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => logger.error('Error:', error));`}</CodeBlock>
+  .catch(error => log.error('Error:', error));`}</CodeBlock>
 						</ExampleSection>
 					</CardBody>
 				</Card>
@@ -1352,7 +1352,7 @@ pushPARWithRAR(config, rarDetails)
 			<CollapsibleHeader
 				title="When to Use PAR, RAR, or Both"
 				theme="orange"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultExpanded={false}
 			>
 				<Card>
@@ -1405,7 +1405,7 @@ pushPARWithRAR(config, rarDetails)
 									</ul>
 									<WarningBox style={{ marginTop: '1rem' }}>
 										<InfoIcon>
-											<FiInfo />
+											<span>ℹ️</span>
 										</InfoIcon>
 										<InfoContent>
 											<h4>Best Practice</h4>
@@ -1425,7 +1425,7 @@ pushPARWithRAR(config, rarDetails)
 			<CollapsibleHeader
 				title="OAuth 2.1 JWT & DPoP Advancements (RFC 9449 / RFC 9448)"
 				theme="highlight"
-				icon={<FiShield />}
+				icon={<span>🛡️</span>}
 				defaultExpanded={false}
 			>
 				<Card>
@@ -1468,7 +1468,7 @@ pushPARWithRAR(config, rarDetails)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								JWT-Based Client Authentication Example
 							</ExampleTitle>
 							<FlowStep>
@@ -1503,7 +1503,7 @@ pushPARWithRAR(config, rarDetails)
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1551,7 +1551,7 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1598,7 +1598,7 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								DPoP Proof Creation Example
 							</ExampleTitle>
 							<FlowStep>
@@ -1631,7 +1631,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1686,7 +1686,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1732,7 +1732,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`,
 											)
 										}
 									>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1761,7 +1761,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 
 						<InfoBox>
 							<InfoIcon>
-								<FiInfo />
+								<span>ℹ️</span>
 							</InfoIcon>
 							<InfoContent>
 								<h4>PingOne Support Status</h4>
@@ -1778,7 +1778,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 
 						<ExampleSection>
 							<ExampleTitle>
-								<FiCode />
+								<span>❓</span>
 								Complete Example: PAR + RAR + JWT Auth + DPoP
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -1835,7 +1835,7 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 										)
 									}
 								>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1892,7 +1892,7 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 			<CollapsibleHeader
 				title="Summary & Next Steps"
 				theme="green"
-				icon={<FiCheck />}
+				icon={<span>✅</span>}
 				defaultExpanded={false}
 			>
 				<Card>

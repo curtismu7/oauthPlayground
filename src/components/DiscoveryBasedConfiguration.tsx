@@ -7,7 +7,7 @@
  * credentials, and all endpoints are automatically discovered.
  */
 
-import { FiAlertCircle, FiCopy, FiRefreshCw, FiSave } from '@icons';
+
 import React, { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
@@ -364,7 +364,7 @@ const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = 
 						<EndpointLabel>{endpoint.label}:</EndpointLabel>
 						<EndpointUrl>{endpoint.url}</EndpointUrl>
 						<CopyButton onClick={() => handleCopyEndpoint(endpoint.url)} title="Copy URL">
-							<FiCopy size={12} />
+							<span style={{ fontSize: '12px' }}>📋</span>
 						</CopyButton>
 					</EndpointItem>
 				))}
@@ -434,14 +434,14 @@ const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = 
 
 						{error && (
 							<StatusContainer type="error">
-								<FiAlertCircle />
+								<span>⚠️</span>
 								<span>{error}</span>
 							</StatusContainer>
 						)}
 
 						<ButtonGroup>
 							<Button variant="success" onClick={handleSaveConfiguration} disabled={!canSave}>
-								{isSaving ? <FiRefreshCw className="animate-spin" /> : <FiSave />}
+								{isSaving ? <FiRefreshCw className="animate-spin" /> : <span>💾</span>}
 								{isSaving ? 'Saving...' : 'Save Configuration'}
 							</Button>
 						</ButtonGroup>

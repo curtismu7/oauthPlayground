@@ -1,6 +1,6 @@
 // src/v7/pages/V7MSettingsV9.tsx
 
-import { FiPackage } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { isV7MEnabled, setV7MMode } from '../mode';
 
@@ -19,7 +19,7 @@ const V7MSettingsV9: React.FC = () => {
 	return (
 		<div style={{ padding: 24 }}>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiPackage /> V7M Settings
+				<span>📦</span> V7M Settings
 			</h1>
 			<p>Toggle V7M Educational Mock Mode for V7 flows.</p>
 			<div

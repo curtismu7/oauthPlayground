@@ -9,7 +9,7 @@
  * This component reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import { FiX } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -1934,7 +1934,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									zIndex: 1,
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3

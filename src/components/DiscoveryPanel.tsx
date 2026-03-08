@@ -1,15 +1,4 @@
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiCheckCircle,
-	FiCode,
-	FiEye,
-	FiGlobe,
-	FiRefreshCw,
-	FiSearch,
-	FiSettings,
-	FiX,
-} from '@icons';
+
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
@@ -17,7 +6,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
@@ -334,7 +323,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const workerCreds = await unifiedWorkerTokenService.loadCredentials();
 				if (workerCreds?.environmentId) {
 					setEnvironmentId(workerCreds.environmentId);
-					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from worker token', {
+					log.info('DiscoveryPanel', 'Pre-populated Environment ID from worker token', {
 						environmentId: workerCreds.environmentId,
 					});
 					return;
@@ -344,7 +333,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const oauthCreds = await unifiedWorkerTokenService.storageService?.getOAuthCredentials();
 				if (oauthCreds?.environmentId) {
 					setEnvironmentId(oauthCreds.environmentId as string);
-					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
+					log.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
 						environmentId: oauthCreds.environmentId,
 					});
 					return;
@@ -360,14 +349,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 							if (prefs.region) {
 								setRegion(prefs.region);
 							}
-							logger.info('DiscoveryPanel', 'Pre-populated from legacy discovery preferences', {
+							log.info('DiscoveryPanel', 'Pre-populated from legacy discovery preferences', {
 								environmentId: prefs.environmentId,
 								region: prefs.region,
 							});
 						}
 					}
 				} catch (error) {
-					logger.warn(
+					log.warn(
 						'DiscoveryPanel',
 						'Failed to load legacy discovery preferences',
 						undefined,
@@ -375,7 +364,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					);
 				}
 			} catch (error) {
-				logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
+				log.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
 			}
 		};
 
@@ -389,12 +378,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const credentials = await unifiedWorkerTokenService.loadCredentials();
 				if (credentials?.environmentId && !environmentId.trim()) {
 					setEnvironmentId(credentials.environmentId);
-					logger.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token update', {
+					log.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token update', {
 						environmentId: credentials.environmentId,
 					});
 				}
 			} catch (error) {
-				logger.error('DiscoveryPanel', 'Failed to update environment ID from worker token:', error);
+				log.error('DiscoveryPanel', 'Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -471,7 +460,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message: 'saveConfigurationSuccess',
 					duration: 4000,
 				});
-				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
+				log.success('DiscoveryPanel', 'Configuration discovered successfully', {
 					environmentId,
 					issuer: result.configuration.issuer,
 				});
@@ -488,7 +477,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'DiscoveryPanel',
 				' [DiscoveryPanel] Discovery failed:',
 				undefined,
@@ -531,7 +520,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message: 'stepError',
 					dismissible: true,
 				});
-				logger.error('DiscoveryPanel', 'Failed to apply configuration', error);
+				log.error('DiscoveryPanel', 'Failed to apply configuration', error);
 			}
 		} else {
 			modernMessaging.showBanner({
@@ -554,7 +543,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			});
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			logger.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
+			log.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -569,11 +558,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			<Panel onClick={(e) => e.stopPropagation()}>
 				<Header>
 					<Title>
-						<FiGlobe />
+						<span>🌐</span>
 						PingOne Discovery
 					</Title>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</Header>
 
@@ -619,16 +608,16 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 							onClick={handleDiscover}
 							disabled={isLoading || !environmentId.trim()}
 						>
-							{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiSearch />}
+							{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>🔍</span>}
 							{isLoading ? 'Discovering...' : 'Discover Configuration'}
 						</Button>
 					</div>
 
 					{status && (
 						<StatusMessage type={status.type}>
-							{status.type === 'success' && <FiCheckCircle />}
-							{status.type === 'error' && <FiAlertCircle />}
-							{status.type === 'info' && <FiSettings />}
+							{status.type === 'success' && <span>✅</span>}
+							{status.type === 'error' && <span>⚠️</span>}
+							{status.type === 'info' && <span>⚙️</span>}
 							{status.message}
 						</StatusMessage>
 					)}
@@ -658,7 +647,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										size="small"
 										onClick={() => setViewMode('formatted')}
 									>
-										<FiEye size={14} />
+										<span style={{ fontSize: '14px' }}>👁️</span>
 										Formatted
 									</Button>
 									<Button
@@ -666,7 +655,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										size="small"
 										onClick={() => setViewMode('json')}
 									>
-										<FiCode size={14} />
+										<span style={{ fontSize: '14px' }}>❓</span>
 										JSON
 									</Button>
 								</div>
@@ -682,7 +671,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
 												title="Copy Issuer"
 											>
-												{copiedField === 'issuer' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+												{copiedField === 'issuer' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -697,7 +686,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												}
 												title="Copy Authorization Endpoint"
 											>
-												{copiedField === 'auth' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+												{copiedField === 'auth' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -712,7 +701,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												}
 												title="Copy Token Endpoint"
 											>
-												{copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+												{copiedField === 'token' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -728,7 +717,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												title="Copy UserInfo Endpoint"
 											>
 												{copiedField === 'userinfo' ? (
-													<FiCheck size={14} />
+													<span style={{ fontSize: '14px' }}>✅</span>
 												) : (
 													<CopyIcon size={14} />
 												)}
@@ -744,7 +733,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
 												title="Copy JWKS URI"
 											>
-												{copiedField === 'jwks' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+												{copiedField === 'jwks' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -777,7 +766,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 							<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 								<Button variant="primary" onClick={handleApplyConfiguration}>
-									<FiCheckCircle />
+									<span>✅</span>
 									Apply Configuration
 								</Button>
 								{discoveredConfig ? (
@@ -794,7 +783,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 											});
 										}}
 									>
-										<FiRefreshCw />
+										<span>🔄</span>
 										Clear Configuration
 									</Button>
 								) : null}
@@ -809,7 +798,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										onClose();
 									}}
 								>
-									<FiX />
+									<span>❌</span>
 									Close
 								</Button>
 							</div>

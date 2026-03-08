@@ -1,4 +1,4 @@
-import { FiCheckCircle, FiChevronDown, FiChevronUp } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -161,7 +161,7 @@ const TutorialStep: React.FC<TutorialStepProps> = ({
 				onClick={hasExpandableContent ? () => setIsExpanded(!isExpanded) : undefined}
 			>
 				<StepNumber $completed={completed}>
-					{completed ? <FiCheckCircle size={16} /> : stepNumber}
+					{completed ? <span style={{ fontSize: '16px' }}>✅</span> : stepNumber}
 				</StepNumber>
 
 				<StepContent>
@@ -184,7 +184,7 @@ const TutorialStep: React.FC<TutorialStepProps> = ({
 
 					{hasExpandableContent && (
 						<ExpandButton>
-							{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+							{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
 						</ExpandButton>
 					)}
 				</StepActions>

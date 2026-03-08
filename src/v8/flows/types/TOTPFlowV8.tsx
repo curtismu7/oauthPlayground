@@ -12,7 +12,7 @@
  * - Step 4: Validate (Modal - for authentication after device is activated)
  */
 
-import { FiInfo, FiX } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1801,7 +1801,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										zIndex: 1,
 									}}
 								>
-									<FiX size={16} />
+									<span style={{ fontSize: '16px' }}>❌</span>
 								</button>
 								<PingIdentityLogo size={28} />
 								<h3
@@ -1877,7 +1877,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 													gap: '8px',
 												}}
 											>
-												<FiInfo size={16} color="#6b7280" />
+												<span style={{ fontSize: 16, color: '#6b7280' }}>ℹ️</span>
 												<span>
 													Device name will be set automatically during registration. You can rename
 													this device later through device management.
@@ -2390,7 +2390,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<FiX size={16} />
+									<span style={{ fontSize: '16px' }}>❌</span>
 								</button>
 								<PingIdentityLogo size={28} />
 								<h3
@@ -3269,7 +3269,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={16} />
+								<span style={{ fontSize: '16px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={28} />
 							<h3
@@ -4131,7 +4131,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										fontSize: '16px',
 									}}
 								>
-									<FiX />
+									<span>❌</span>
 								</button>
 								<h2
 									style={{

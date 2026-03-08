@@ -19,7 +19,7 @@
  * />
  */
 
-import { FiInfo } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { TooltipV8 } from './TooltipV8';
@@ -73,7 +73,7 @@ const Select = styled.select<{ disabled?: boolean }>`
 	}
 `;
 
-const InfoIcon = styled(FiInfo)`
+const InfoIcon = styled.span`
 	color: #6b7280;
 	cursor: help;
 	flex-shrink: 0;

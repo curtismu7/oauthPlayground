@@ -2,17 +2,7 @@
 // V8 OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 // Phase 1: Same environment only, admin enablement required
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCopy,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiShield,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -555,7 +545,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									transition: 'all 0.2s ease',
 								}}
 							>
-								{isLoading ? '' : <FiZap />}
+								{isLoading ? '' : <span>⚡</span>}
 								{isLoading ? '' : 'Exchange Token'}
 							</ButtonSpinner>
 
@@ -581,7 +571,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									transition: 'all 0.2s ease',
 								}}
 							>
-								<FiRefreshCw />
+								<span>🔄</span>
 								Clear Form
 							</ButtonSpinner>
 						</div>
@@ -612,7 +602,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 										transition: 'all 0.2s ease',
 									}}
 								>
-									<FiCopy />
+									<span>📋</span>
 									Copy JSON
 								</ButtonSpinner>
 								<ButtonSpinner
@@ -631,7 +621,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 										transition: 'all 0.2s ease',
 									}}
 								>
-									<FiKey />
+									<span>🔑</span>
 									Copy Access Token
 								</ButtonSpinner>
 							</div>
@@ -785,7 +775,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									transition: 'all 0.2s ease',
 								}}
 							>
-								<FiRefreshCw />
+								<span>🔄</span>
 								Try Again
 							</ButtonSpinner>
 						</ErrorSection>

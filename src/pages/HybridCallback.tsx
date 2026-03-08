@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
+
+const log = createModuleLogger('pages/HybridCallback.tsx');
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -12,7 +15,7 @@ const log = {
 	},
 	error: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		logger.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		log.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
 	},
 	success: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);

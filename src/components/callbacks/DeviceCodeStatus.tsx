@@ -1,8 +1,8 @@
-import { FiCheckCircle, FiClock, FiInfo, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const StatusContainer = styled.div`
   display: flex;
@@ -71,7 +71,7 @@ const DeviceCodeStatus: React.FC = () => {
 
 	useEffect(() => {
 		const checkStatus = () => {
-			logger.info('DeviceCodeStatus', 'Device code status page accessed', { url: location.href });
+			log.info('DeviceCodeStatus', 'Device code status page accessed', { url: location.href });
 
 			// Check if there are any device code parameters in the URL
 			const urlParams = new URLSearchParams(location.search);
@@ -83,7 +83,7 @@ const DeviceCodeStatus: React.FC = () => {
 			if (deviceCode || userCode) {
 				setStatus('pending');
 				setMessage('Device code flow in progress...');
-				logger.info('DeviceCodeStatus', 'Device code parameters found', {
+				log.info('DeviceCodeStatus', 'Device code parameters found', {
 					hasDeviceCode: !!deviceCode,
 					hasUserCode: !!userCode,
 					verificationUri,
@@ -101,13 +101,13 @@ const DeviceCodeStatus: React.FC = () => {
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'pending':
-				return <FiClock />;
+				return <span>🕐</span>;
 			default:
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 		}
 	};
 

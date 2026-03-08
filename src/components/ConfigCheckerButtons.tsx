@@ -1,24 +1,14 @@
 // src/components/ConfigCheckerButtons.tsx
 // Config Checker component for comparing form data against live PingOne applications
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiDownload,
-	FiKey,
-	FiLoader,
-	FiMonitor,
-	FiSave,
-	FiX,
-} from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
 
 // Custom P1 Logo Component
@@ -730,7 +720,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				// Wait a moment for the token to be generated
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 			} catch (error) {
-				logger.error(
+				log.error(
 					'ConfigCheckerButtons',
 					'[CONFIG-CHECKER] Failed to refresh worker token:',
 					undefined,
@@ -746,7 +736,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		}
 
 		setLoading('check');
-		logger.info('CONFIG-CHECKER', 'Starting configuration check', {
+		log.info('CONFIG-CHECKER', 'Starting configuration check', {
 			clientId,
 			selectedAppType,
 			hasWorkerToken: !!workerToken,
@@ -771,13 +761,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					message: 'No differences detected.',
 					duration: 4000,
 				});
-				logger.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
+				log.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
 					clientId,
 					selectedAppType,
 					elapsed,
 				});
 			} else {
-				logger.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
+				log.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
 					clientId,
 					selectedAppType,
 					elapsed,
@@ -806,7 +796,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					dismissible: true,
 				});
 				setShowAuthErrorModal(true);
-				logger.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
+				log.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -822,7 +812,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					duration: 6000,
 					dismissible: true,
 				});
-				logger.error('CONFIG-CHECKER', 'CORS/Network error', {
+				log.error('CONFIG-CHECKER', 'CORS/Network error', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -834,7 +824,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					message: `Configuration check failed: ${errorMessage}`,
 					dismissible: true,
 				});
-				logger.error('CONFIG-CHECKER', 'Configuration check failed', {
+				log.error('CONFIG-CHECKER', 'Configuration check failed', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -934,7 +924,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		setLoading('create');
 		setShowCreateModal(false);
-		logger.info('CONFIG-CHECKER', 'Starting application creation', {
+		log.info('CONFIG-CHECKER', 'Starting application creation', {
 			selectedAppType,
 			createFormData,
 		});
@@ -946,7 +936,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			const result = await onCreateApplication(createFormData);
 
 			const elapsed = Date.now() - startTime;
-			logger.info('CONFIG-CHECKER', 'Application creation completed', {
+			log.info('CONFIG-CHECKER', 'Application creation completed', {
 				selectedAppType,
 				elapsed,
 			});
@@ -964,7 +954,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				message: `Application creation failed: ${errorMessage}`,
 				dismissible: true,
 			});
-			logger.error('CONFIG-CHECKER', 'Application creation failed', {
+			log.error('CONFIG-CHECKER', 'Application creation failed', {
 				selectedAppType,
 				error: errorMessage,
 			});
@@ -1111,7 +1101,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Failed to update application:',
 				undefined,
@@ -1194,7 +1184,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				throw new Error('Import configuration callback not available');
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Error updating Our App:',
 				undefined,
@@ -1292,7 +1282,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Error exporting configuration:',
 				undefined,
@@ -1313,7 +1303,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		<>
 			<ConfigCheckerHeader>
 				<ConfigCheckerTitle>
-					<FiAlertTriangle size={20} />
+					<span style={{ fontSize: '20px' }}>⚠️</span>
 					PingOne Configuration Checker
 				</ConfigCheckerTitle>
 				<ConfigCheckerDescription>
@@ -1391,7 +1381,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<FiCheckCircle size={14} color="V9_COLORS.PRIMARY.GREEN" />
+							<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								Worker token refreshed
 							</span>
@@ -1445,7 +1435,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							fontWeight: '600',
 						}}
 					>
-						<FiKey />
+						<span>🔑</span>
 						Get New Worker Token
 					</Button>
 				</div>
@@ -1458,7 +1448,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				headerContent={
 					diffs && (
 						<Badge $tone={diffs.hasDiffs ? 'warning' : 'success'}>
-							{diffs.hasDiffs ? <FiAlertTriangle /> : <FiCheckCircle />}
+							{diffs.hasDiffs ? <span>⚠️</span> : <span>✅</span>}
 							{diffs.hasDiffs ? 'Differences detected' : 'No differences'}
 						</Badge>
 					)
@@ -1492,7 +1482,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								height: '48px',
 							}}
 						>
-							<FiKey size={24} />
+							<span style={{ fontSize: '24px' }}>🔑</span>
 						</div>
 						<div style={{ flex: 1, minWidth: 0 }}>
 							<div
@@ -1536,7 +1526,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								fontSize: '0.8125rem',
 							}}
 						>
-							<FiCopy size={14} />
+							<span style={{ fontSize: '14px' }}>📋</span>
 							Copy
 						</Button>
 					</div>
@@ -1869,7 +1859,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 								}}
 							>
-								<FiCopy /> Copy JSON
+								<span>📋</span> Copy JSON
 							</Button>
 							{onImportConfig && diffs && (
 								<Button
@@ -1882,7 +1872,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									<FiDownload /> Import Config
+									<span>📥</span> Import Config
 								</Button>
 							)}
 							{diffs?.hasDiffs && (
@@ -1897,7 +1887,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<FiDownload /> Export Config
+									<span>📥</span> Export Config
 								</Button>
 							)}
 						</div>
@@ -1980,7 +1970,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<FiMonitor /> Update Our App ({selectedDiffs.size} selected)
+									<span>🖥️</span> Update Our App ({selectedDiffs.size} selected)
 								</Button>
 								{/* Option 1: Limited Update PingOne (current implementation) */}
 								<Button
@@ -2000,7 +1990,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<FiSave /> Update PingOne (Safe Fields Only) ({selectedDiffs.size} selected)
+									<span>💾</span> Update PingOne (Safe Fields Only) ({selectedDiffs.size} selected)
 								</Button>
 
 								{/* Option 2: Completely remove Update PingOne button - uncomment to use this approach instead:
@@ -2512,7 +2502,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							{loading === 'create' && <FiLoader className="spinner" />}
-							<FiSave /> Create Application
+							<span>💾</span> Create Application
 						</Button>
 						<Button
 							$variant="secondary"
@@ -2576,7 +2566,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</button>
 						</ModalHeader>
 
@@ -2726,7 +2716,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</button>
 						</ModalHeader>
 

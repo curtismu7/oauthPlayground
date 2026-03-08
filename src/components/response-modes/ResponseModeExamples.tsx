@@ -1,7 +1,7 @@
 // src/components/response-modes/ResponseModeExamples.tsx
 // Example presets for the Response Modes learn page
 
-import { FiCopy, FiPlay } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -183,7 +183,7 @@ const ResponseModeExamples: React.FC<ResponseModeExamplesProps> = ({
 	return (
 		<ExamplesContainer className={className}>
 			<ExamplesTitle>
-				<FiPlay size={16} />
+				<span style={{ fontSize: '16px' }}>❓</span>
 				Example Presets
 			</ExamplesTitle>
 			<ExamplesGrid>
@@ -192,7 +192,7 @@ const ResponseModeExamples: React.FC<ResponseModeExamplesProps> = ({
 						<ExampleHeader>
 							<ExampleTitle>{example.title}</ExampleTitle>
 							<ExampleIcon>
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 							</ExampleIcon>
 						</ExampleHeader>
 						<ExampleDescription>{example.description}</ExampleDescription>

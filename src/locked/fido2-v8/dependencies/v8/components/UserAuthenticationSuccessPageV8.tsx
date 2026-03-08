@@ -7,7 +7,7 @@
  * Shows user information and session details after OAuth login
  */
 
-import { FiCheckCircle, FiCopy, FiShield, FiUser } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
@@ -197,7 +197,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 							marginBottom: '16px',
 						}}
 					>
-						<FiCheckCircle size={32} color="#10b981" />
+						<span style={{ fontSize: 32, color: '#10b981' }}>✅</span>
 					</div>
 					<h1
 						style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '600', color: '#1f2937' }}
@@ -220,7 +220,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-						<FiUser size={20} color="#3b82f6" />
+						<span style={{ fontSize: 20, color: '#3b82f6' }}>👤</span>
 						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
 							User Information
 						</h2>
@@ -301,7 +301,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-						<FiShield size={20} color="#10b981" />
+						<span style={{ fontSize: 20, color: '#10b981' }}>🛡️</span>
 						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#065f46' }}>
 							PingOne Session
 						</h2>
@@ -368,7 +368,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										}
 									}}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
 								</button>
 							</div>
@@ -540,7 +540,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<FiShield size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
 							<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
 								ID Token (OIDC)
 							</h2>
@@ -597,7 +597,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										e.currentTarget.style.background = '#3b82f6';
 									}}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy Token
 								</button>
 							</div>

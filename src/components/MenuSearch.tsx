@@ -1,4 +1,4 @@
-import { FiSearch, FiX } from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -201,7 +201,7 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 		<SearchContainer data-search-container>
 			<SearchInputWrapper>
 				<SearchIcon>
-					<FiSearch size={16} />
+					<span style={{ fontSize: '16px' }}>🔍</span>
 				</SearchIcon>
 				<SearchInput
 					ref={inputRef}
@@ -213,7 +213,7 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 					onKeyDown={handleKeyDown}
 				/>
 				<ClearButton onClick={clearSearch} title="Clear search">
-					<FiX size={16} />
+					<span style={{ fontSize: '16px' }}>❌</span>
 				</ClearButton>
 			</SearchInputWrapper>
 
