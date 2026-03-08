@@ -13,10 +13,10 @@
  * - at_hash and c_hash validation
  */
 
-import { FiCheckCircle, FiShield } from '@icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components (reusing from OAuth2 compliant flow)
 const Container = styled.div`
@@ -79,14 +79,14 @@ export default function OIDCCompliantAuthorizationCodeFlow() {
 			<ContentWrapper>
 				<Header>
 					<HeaderTitle>
-						<FiShield />
+						🛡️
 						OpenID Connect Authorization Code Flow
 					</HeaderTitle>
 					<HeaderSubtitle>
 						OIDC Core 1.0 compliant implementation with ID token validation and UserInfo integration
 					</HeaderSubtitle>
 					<ComplianceBadge>
-						<FiCheckCircle />
+						✅
 						OIDC Core 1.0 Compliant
 					</ComplianceBadge>
 				</Header>

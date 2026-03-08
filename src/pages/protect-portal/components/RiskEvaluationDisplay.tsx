@@ -25,7 +25,6 @@ import { workerTokenManager } from '@/services/workerTokenManager';
 import { logger } from '../../../utils/logger';
 import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 	EducationalContent,
 	LoginContext,
 	PortalError,
