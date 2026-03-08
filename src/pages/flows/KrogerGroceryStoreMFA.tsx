@@ -789,49 +789,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		void fetchKrogerUserInfo();
 	}, [isAuthenticated, credentials.environmentId, tokens, fetchKrogerUserInfo]);
 
-				return false;
-			}
-
-			try {
-				const response = await trackedFetch(
-					`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices/${deviceId}`,
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${workerToken}`,
-						},
-						body: JSON.stringify({
-							enabled: true,
-						}),
-					}
-				);
-
-				const data = await response.json();
-				if (response.ok) {
-					modernMessaging.showFooterMessage({
-						type: 'info',
-						message: 'MFA device enabled successfully',
-						duration: 3000,
-					});
-					return true;
-				} else {
-					throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
-				}
-			} catch (error) {
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: error instanceof Error ? error.message : 'Failed to enable MFA device',
-					dismissible: true,
-				});
-				return false;
-			}
-		},
-		[credentials.environmentId, userId, workerToken]
-	);
-
-
 	// Step 15-17: Complete MFA and Get Tokens
 	const verifyMFACode = useCallback(async () => {
 		if (!flowId || !mfaCode || !credentials.environmentId) {
