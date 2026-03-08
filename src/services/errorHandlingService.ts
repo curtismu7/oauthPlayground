@@ -2,6 +2,8 @@
 // Comprehensive error handling service for OAuth flows
 // Provides standardized error classification, user-friendly messages, and recovery strategies
 
+import { logger } from '../utils/logger';
+
 export enum ErrorType {
 	NETWORK = 'network',
 	AUTHENTICATION = 'authentication',

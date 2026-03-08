@@ -401,7 +401,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					);
 					// #endregion
 
-					log.warn(`⚠️ No compatible spec version found for URL flow type`, {
+					logger.warn(`⚠️ No compatible spec version found for URL flow type`, {
 						urlFlowType,
 					});
 					// Mark as synced to prevent loops, but don't change flow type
@@ -716,7 +716,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			return initial;
 		} catch (err) {
-			log.error(`Error loading initial credentials (using defaults):`, err);
+			logger.error(`Error loading initial credentials (using defaults):`, err);
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 
 			// Try worker token credentials as fallback
@@ -797,7 +797,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					setAppConfig(null);
 				}
 			} catch (error: unknown) {
-				log.error(`Error fetching app config:`, error);
+				logger.error(`Error fetching app config:`, error);
 				setAppConfig(null);
 				// Surface 401/403 — token was rejected by PingOne API
 				const msg = error instanceof Error ? error.message : String(error);
@@ -877,8 +877,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for worker token updates
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			log.debug(`🔑 Worker token updated event received!`);
-			log.debug(`🔑 Current credentials:`, {
+			logger.debug(`🔑 Worker token updated event received!`);
+			logger.debug(`🔑 Current credentials:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				environmentId: credentials.environmentId,
@@ -893,21 +893,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
-				log.debug(`🔑 Clearing app config to trigger re-fetch`);
+				logger.debug(`🔑 Clearing app config to trigger re-fetch`);
 				setAppConfig(null); // Clear current config to trigger re-fetch
 			} else {
-				log.debug(`⚠️ Cannot refresh app config - missing credentials`);
+				logger.debug(`⚠️ Cannot refresh app config - missing credentials`);
 			}
 		};
 
-		log.debug(`🔑 Setting up worker token event listener`);
+		logger.debug(`🔑 Setting up worker token event listener`);
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 
 		// Test if event listener is working
-		log.debug(`🔑 Worker token listener setup complete`);
+		logger.debug(`🔑 Worker token listener setup complete`);
 
 		return () => {
-			log.debug(`🔑 Cleaning up worker token event listener`);
+			logger.debug(`🔑 Cleaning up worker token event listener`);
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		};
 	}, [credentials.environmentId, credentials.clientId]);
@@ -945,7 +945,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Fallback to first available flow (usually 'oauth-authz')
 		// This ensures we always have a valid flow type
 		const fallback = availableFlows[0] || 'oauth-authz';
-		log.warn(`⚠️ Flow type not available, using fallback`, {
+		logger.warn(`⚠️ Flow type not available, using fallback`, {
 			requested: flowType,
 			fallback,
 		});
@@ -1098,7 +1098,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						environmentId,
 						enableBackup: !!environmentId,
 					}).catch((err) => {
-						log.warn(`Error loading flow-specific credentials with SQLite backup`, err);
+						logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
 						// Fallback to existing service
 						return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
 					})) ?? {};
@@ -1109,7 +1109,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						environmentId,
 						enableBackup: !!environmentId,
 					}).catch((err) => {
-						log.warn(`Error loading shared credentials with SQLite backup`, err);
+						logger.warn(`Error loading shared credentials with SQLite backup`, err);
 						// Fallback to existing service
 						return SharedCredentialsServiceV8.loadSharedCredentials();
 					})) ||
@@ -1304,8 +1304,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 				});
 			} catch (err) {
-				log.error(`❌ Error loading credentials (will preserve existing state):`, err);
-				log.error(`Error stack:`, err instanceof Error ? err.stack : 'No stack trace');
+				logger.error(`❌ Error loading credentials (will preserve existing state):`, err);
+				logger.error(`Error stack:`, err instanceof Error ? err.stack : 'No stack trace');
 				// Don't clear credentials on error - preserve what we have
 			} finally {
 				// Clear loading flag after load completes (use setTimeout to ensure state updates have flushed)
@@ -1423,7 +1423,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						enableBackup: !!environmentId,
 						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
 					}).catch((err) => {
-						log.warn(`SQLite backup save failed, using fallback`, err);
+						logger.warn(`SQLite backup save failed, using fallback`, err);
 						// Fallback to existing service
 						const fallbackCreds = credentials as unknown as Parameters<
 							typeof CredentialsServiceV8.saveCredentials
@@ -1446,7 +1446,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							enableBackup: !!environmentId,
 							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
 						}).catch((err) => {
-							log.warn(`SQLite shared backup save failed, using fallback`, err);
+							logger.warn(`SQLite shared backup save failed, using fallback`, err);
 							// Fallback to existing service
 							SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 						});
@@ -1455,7 +1455,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			};
 
 			saveCredentials().catch((err) => {
-				log.error(`Error saving credentials:`, err);
+				logger.error(`Error saving credentials:`, err);
 			});
 		}, 100);
 
@@ -1532,7 +1532,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				});
 			}
 		} catch (error) {
-			log.error(`Error manually saving credentials:`, error);
+			logger.error(`Error manually saving credentials:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1675,7 +1675,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// #region agent log
 				// #endregion
 
-				log.error(`❌ No compatible spec version found for flow type`, {
+				logger.error(`❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
 				modernMessaging.showBanner({
@@ -2427,7 +2427,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					currentFlowType={effectiveFlowType}
 					currentSpecVersion={specVersion}
 					onFlowSelect={(selectedFlowType, selectedSpecVersion) => {
-						log.debug(`🎯 User selected recommended flow`, {
+						logger.debug(`🎯 User selected recommended flow`, {
 							selectedFlowType,
 							selectedSpecVersion,
 						});
@@ -2470,7 +2470,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					specVersion={specVersion}
 					enabledFeatures={advancedFeatures}
 					onFeatureToggle={(featureId, enabled) => {
-						log.debug(`🔧 Advanced feature toggled`, { featureId, enabled });
+						logger.debug(`🔧 Advanced feature toggled`, { featureId, enabled });
 
 						// Update advanced features state
 						if (enabled) {
@@ -2497,7 +2497,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							log.debug(`🔄 Toggling credentials collapse`, {
+							logger.debug(`🔄 Toggling credentials collapse`, {
 								from: isCredentialsCollapsed,
 								to: !isCredentialsCollapsed,
 							});
@@ -2543,8 +2543,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						</div>
 
 						{/* Enhanced Toggle Icon */}
-						<button
-							type="button"
+						<div
+							role="button"
+							tabIndex={0}
 							style={{
 								display: 'inline-flex',
 								alignItems: 'center',
@@ -2559,6 +2560,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								cursor: 'pointer',
 								color: '#3b82f6',
 								boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
+								outline: 'none',
+								userSelect: 'none',
 							}}
 							onMouseEnter={(e) => {
 								e.currentTarget.style.background =
@@ -2580,16 +2583,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									: 'rotate(0deg)';
 								e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
 							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									// Trigger the parent button's click
+									const parentButton = e.currentTarget.closest('button');
+									if (parentButton) {
+										parentButton.click();
+									}
+								}
+							}}
 						>
-							<FiChevronDown
-								style={{
-									width: '24px',
-									height: '24px',
-									strokeWidth: '3px',
-									filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
-								}}
-							/>
-						</button>
+							<span style={{ fontSize: '24px' }}>▼</span>
+						</div>
 					</button>
 				)}
 
@@ -2606,13 +2612,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							title={`${SpecVersionServiceV8.getSpecLabel(specVersion)} - ${SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}`}
 							subtitle={SpecVersionServiceV8.getSpecDescription(specVersion)}
 							onAppTypeChange={(appType, suggestedFlowType) => {
-								log.debug(`App type changed`, { appType, suggestedFlowType });
+								logger.debug(`App type changed`, { appType, suggestedFlowType });
 
 								// Check if suggested flow type is available for current spec
 								if (suggestedFlowType) {
 									const availableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 									if (availableFlows.includes(suggestedFlowType)) {
-										log.debug(`Auto-selecting suggested flow type`, {
+										logger.debug(`Auto-selecting suggested flow type`, {
 											from: flowType,
 											to: suggestedFlowType,
 											appType,
@@ -2629,10 +2635,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											log.debug(`Auto-enabled PKCE for ${appType} application type`);
+											logger.debug(`Auto-enabled PKCE for ${appType} application type`);
 										}
 									} else {
-										log.debug(`Suggested flow not available for spec`, {
+										logger.debug(`Suggested flow not available for spec`, {
 											suggestedFlowType,
 											specVersion,
 											availableFlows,
@@ -2660,10 +2666,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									environment: credentials.environmentId,
 								}}
 								onExport={() => {
-									log.info('Credentials exported', { flowKey, flowType: effectiveFlowType });
+									logger.info('Credentials exported', { flowKey, flowType: effectiveFlowType });
 								}}
 								onImport={(imported) => {
-									log.info('Credentials imported', {
+									logger.info('Credentials imported', {
 										flowKey,
 										importedApp: imported.appName,
 										importedType: imported.appType,
@@ -2674,7 +2680,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									});
 								}}
 								onError={(error) => {
-									log.error('Credential export/import failed', { error: error.message });
+									logger.error('Credential export/import failed', { error: error.message });
 								}}
 							/>
 						</div>
@@ -2829,7 +2835,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 													false // forceShowModal - don't force, use silent retrieval
 												);
 											} catch (_error) {
-												log.warn('UnifiedOAuthFlowV8U', 'Failed to attempt silent retrieval:');
+												logger.warn('UnifiedOAuthFlowV8U', 'Failed to attempt silent retrieval:');
 											}
 										}
 									}}
@@ -2862,7 +2868,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					appConfig={appConfig ?? undefined}
 					onFlowReset={() => {
 						// Flow reset - preserve credentials, spec version, and flow type
-						log.debug(
+						logger.debug(
 							`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
 							{
 								specVersion,
@@ -2874,7 +2880,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						// Use standardized credential reload service (now async)
 						reloadCredentialsAfterReset(flowKey)
 							.then((reloaded) => {
-								log.debug(`✅ Credentials reloaded after reset`, {
+								logger.debug(`✅ Credentials reloaded after reset`, {
 									flowKey,
 									hasRedirectUri: !!reloaded.redirectUri,
 									redirectUri: reloaded.redirectUri,
@@ -2884,7 +2890,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								setCredentials(reloaded);
 							})
 							.catch((error) => {
-								log.error(`❌ Error reloading credentials after reset`, {
+								logger.error(`❌ Error reloading credentials after reset`, {
 									flowKey,
 									error,
 								});
@@ -2893,7 +2899,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 						// Spec version and flow type are already preserved in React state
 						// No need to do anything - they will remain as-is
-						log.debug(`✅ Flow reset complete - spec version and flow type preserved`, {
+						logger.debug(`✅ Flow reset complete - spec version and flow type preserved`, {
 							specVersion,
 							flowType: effectiveFlowType,
 						});
