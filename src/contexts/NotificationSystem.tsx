@@ -12,7 +12,8 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { FiCheckCircle, FiAlertOctagon, FiAlertTriangle, FiInfo, FiX } from 'react-icons/fi';
+import { logger } from '../utils/logger';
+// Icons replaced with emojis - no more react-icons/fi dependency
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Not used in this file
 
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
@@ -89,10 +90,10 @@ export const DEFAULT_NOTIFICATION_DURATIONS: Record<NotificationTone, number> = 
 };
 
 const toneIcons: Record<NotificationTone, JSX.Element> = {
-	success: <FiCheckCircle aria-hidden="true" />,
-	error: <FiAlertOctagon aria-hidden="true" />,
-	warning: <FiAlertTriangle aria-hidden="true" />,
-	info: <FiInfo aria-hidden="true" />,
+	success: <span aria-hidden="true">✅</span>,
+	error: <span aria-hidden="true">❌</span>,
+	warning: <span aria-hidden="true">⚠️</span>,
+	info: <span aria-hidden="true">ℹ️</span>,
 };
 
 const toneStyles: Record<
@@ -790,7 +791,7 @@ export const NotificationContainer: React.FC = () => {
 									}
 								}}
 							>
-								<FiX aria-hidden="true" />
+								<span aria-hidden="true">❌</span>
 							</CloseButton>
 						</ToastHeader>
 
