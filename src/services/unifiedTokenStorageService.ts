@@ -386,6 +386,27 @@ export class UnifiedTokenStorageService {
 		try {
 			await this.initializeIndexedDB();
 
+			// Validate that the token type is compatible with storage
+			const validTokenTypes: UnifiedStorageItem['type'][] = [
+				'access_token',
+				'refresh_token', 
+				'id_token',
+				'worker_token',
+				'oauth_credentials',
+				'mfa_credentials',
+				'environment_settings',
+				'ui_preferences',
+				'pkce_state',
+				'flow_state',
+				'v8_storage',
+				'v8_credentials',
+				'v8u_pkce'
+			];
+
+			if (!validTokenTypes.includes(token.type)) {
+				throw new Error(`Invalid token type: ${token.type}`);
+			}
+
 			const unifiedToken: UnifiedStorageItem = {
 				...token,
 				id: this.generateTokenId(token),
@@ -404,12 +425,6 @@ export class UnifiedTokenStorageService {
 			// Store in SQLite via backend (async, don't wait)
 			this.storeInSQLite(unifiedToken).catch((error) => {
 				logger.warn(MODULE_TAG, 'Failed to store token in SQLite', undefined, error);
-			});
-
-			logger.info(MODULE_TAG, 'Token stored successfully', {
-				tokenId: unifiedToken.id,
-				type: token.type,
-				source: token.source,
 			});
 
 			return {

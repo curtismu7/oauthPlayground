@@ -321,7 +321,7 @@ const TokenInspector: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						⚠️ style={{ flexShrink: 0, marginTop: '0.2rem' }} />
+						<span style={{ flexShrink: 0, marginTop: '0.2rem' }}>⚠️</span>
 						<div>
 							<div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
 								{TokenErrorMessages[error.code as keyof typeof TokenErrorMessages] ||
