@@ -1,4 +1,3 @@
-import { FiArrowRight, FiBook, FiCheckCircle, FiGlobe, FiKey, FiShield, FiUsers } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -166,7 +165,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 	const educationTopics = [
 		{
 			title: 'OAuth 2.0 Fundamentals',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			topics: [
 				'Authorization vs Authentication',
 				'OAuth 2.0 Roles & Actors',
@@ -179,7 +178,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'OpenID Connect (OIDC)',
-			icon: <FiKey />,
+			icon: <span>🔑</span>,
 			topics: [
 				'OIDC vs OAuth 2.0',
 				'ID Tokens & Claims',
@@ -192,7 +191,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Security Best Practices',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			topics: [
 				'PKCE (Proof Key for Code Exchange)',
 				'State Parameter Validation',
@@ -205,7 +204,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Modern Standards',
-			icon: <FiGlobe />,
+			icon: <span>🌐</span>,
 			topics: [
 				'OAuth 2.1 Updates',
 				'Pushed Authorization Requests (PAR)',
@@ -218,7 +217,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Custom Resources & Scopes',
-			icon: <FiUsers />,
+			icon: <span>👥</span>,
 			topics: [
 				'Custom Resource Configuration',
 				'Attribute Mapping Limitations',
@@ -281,8 +280,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 
 			<Header>
 				<h1>
-					<FiBook />
-					Comprehensive OAuth Education
+					<span>📚</span>Comprehensive OAuth Education
 				</h1>
 				<p>
 					Master OAuth 2.0 and OpenID Connect fundamentals, flows, security best practices, and
@@ -304,14 +302,12 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 						<TopicList>
 							{section.topics.map((topic, topicIndex) => (
 								<TopicItem key={topicIndex}>
-									<FiCheckCircle size={16} />
-									{topic}
+									<span>✅</span>{topic}
 								</TopicItem>
 							))}
 						</TopicList>
 						<ActionButton href="#flows">
-							Explore Flows <FiArrowRight />
-						</ActionButton>
+							Explore Flows <span>➡️</span></ActionButton>
 					</EducationCard>
 				))}
 			</EducationGrid>
@@ -319,8 +315,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 			<FlowSection>
 				<CardHeader>
 					<h2>
-						<FiUsers />
-						Interactive Flow Demonstrations
+						<span>👥</span>Interactive Flow Demonstrations
 					</h2>
 					<p>
 						Experience each OAuth 2.0 and OpenID Connect flow with real-time demonstrations,
@@ -334,8 +329,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 							<h3>{flow.name}</h3>
 							<p>{flow.description}</p>
 							<ActionButton href={flow.url}>
-								Try Flow <FiArrowRight />
-							</ActionButton>
+								Try Flow <span>➡️</span></ActionButton>
 						</FlowCard>
 					))}
 				</FlowGrid>
@@ -344,8 +338,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 			<EducationCard>
 				<CardHeader>
 					<h2>
-						<FiUsers />
-						Custom Resource Attribute Mapping
+						<span>👥</span>Custom Resource Attribute Mapping
 					</h2>
 					<p>
 						Understanding current limitations and best practices for mapping custom resource
@@ -354,25 +347,20 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				</CardHeader>
 				<TopicList>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						<strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource
+						<span>✅</span><strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource
 						attributes
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						<strong>Security Impact:</strong> Violates principle of least privilege
+						<span>✅</span><strong>Security Impact:</strong> Violates principle of least privilege
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						<strong>Expected Behavior:</strong> Scope-specific attribute mapping (like mappedClaims)
+						<span>✅</span><strong>Expected Behavior:</strong> Scope-specific attribute mapping (like mappedClaims)
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						<strong>Workaround:</strong> Use multiple resources with specific attribute sets
+						<span>✅</span><strong>Workaround:</strong> Use multiple resources with specific attribute sets
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						<strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
+						<span>✅</span><strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
 					</TopicItem>
 				</TopicList>
 
@@ -381,22 +369,18 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				>
 					<CardHeader>
 						<h3 style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.125rem' }}>
-							<FiShield />
-							Security Considerations
+							<span>🛡️</span>Security Considerations
 						</h3>
 					</CardHeader>
 					<TopicList>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
-							Only request necessary scopes for your use case
+							<span>✅</span>Only request necessary scopes for your use case
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
-							Audit access tokens for unnecessary attribute exposure
+							<span>✅</span>Audit access tokens for unnecessary attribute exposure
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
-							Implement client-side validation for received attributes
+							<span>✅</span>Implement client-side validation for received attributes
 						</TopicItem>
 					</TopicList>
 				</EducationCard>
@@ -406,26 +390,21 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				>
 					<CardHeader>
 						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>
-							<FiBook />
-							Configuration Examples
+							<span>📚</span>Configuration Examples
 						</h3>
 					</CardHeader>
 					<TopicList>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#075985' }} />
-							<strong>Problem:</strong> One resource with attributes: name, email, phone, department
+							<span>✅</span><strong>Problem:</strong> One resource with attributes: name, email, phone, department
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#075985' }} />
-							<strong>Current:</strong> Scope read:profile.basic returns ALL attributes
+							<span>✅</span><strong>Current:</strong> Scope read:profile.basic returns ALL attributes
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#075985' }} />
-							<strong>Workaround:</strong> Create separate resources for different attribute sets
+							<span>✅</span><strong>Workaround:</strong> Create separate resources for different attribute sets
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#075985' }} />
-							<strong>Future:</strong> Configure scope-to-attribute mapping per resource
+							<span>✅</span><strong>Future:</strong> Configure scope-to-attribute mapping per resource
 						</TopicItem>
 					</TopicList>
 				</EducationCard>
@@ -435,15 +414,13 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					Learn More in PingOne Docs <FiArrowRight />
-				</ActionButton>
+					Learn More in PingOne Docs <span>➡️</span></ActionButton>
 			</EducationCard>
 
 			<EducationCard>
 				<CardHeader>
 					<h2>
-						<FiShield />
-						Getting Started
+						<span>🛡️</span>Getting Started
 					</h2>
 					<p>
 						New to OAuth 2.0 and OpenID Connect? Start here with our beginner-friendly resources.
@@ -451,29 +428,23 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				</CardHeader>
 				<TopicList>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						Configure your PingOne environment in the Configuration page
+						<span>✅</span>Configure your PingOne environment in the Configuration page
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						Try the Authorization Code flow first (most common)
+						<span>✅</span>Try the Authorization Code flow first (most common)
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						Understand the difference between OAuth 2.0 and OpenID Connect
+						<span>✅</span>Understand the difference between OAuth 2.0 and OpenID Connect
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						Learn about scopes and permissions
+						<span>✅</span>Learn about scopes and permissions
 					</TopicItem>
 					<TopicItem>
-						<FiCheckCircle size={16} />
-						Practice with different response modes
+						<span>✅</span>Practice with different response modes
 					</TopicItem>
 				</TopicList>
 				<ActionButton href="/configuration">
-					Start Configuration <FiArrowRight />
-				</ActionButton>
+					Start Configuration <span>➡️</span></ActionButton>
 			</EducationCard>
 		</Container>
 	);

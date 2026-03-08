@@ -1,7 +1,6 @@
 // src/pages/PingProductComparison.tsx
 // Comparison of OAuth/OIDC features across Ping products
 
-import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -955,13 +954,13 @@ const PingProductComparison: React.FC = () => {
 	const getSupportIcon = (support: 'full' | 'partial' | 'none' | 'plugin') => {
 		switch (support) {
 			case 'full':
-				return <FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
+				return <span>✅</span>;
 			case 'partial':
-				return <FiAlertCircle size={16} color="V9_COLORS.PRIMARY.YELLOW_DARK" />;
+				return <span>⚠️</span>;
 			case 'plugin':
-				return <FiInfo size={16} color="V9_COLORS.PRIMARY.BLUE_DARK" />;
+				return <span>ℹ️</span>;
 			case 'none':
-				return <FiXCircle size={16} color="V9_COLORS.PRIMARY.RED_DARK" />;
+				return <span>❌</span>;
 		}
 	};
 
@@ -1094,20 +1093,16 @@ const PingProductComparison: React.FC = () => {
 
 			<Legend>
 				<LegendItem>
-					<FiCheckCircle size={18} color="V9_COLORS.PRIMARY.GREEN_DARK" />
-					<strong>Full Support</strong> - Feature fully supported out of the box
+					<span>✅</span><strong>Full Support</strong> - Feature fully supported out of the box
 				</LegendItem>
 				<LegendItem>
-					<FiAlertCircle size={18} color="V9_COLORS.PRIMARY.YELLOW_DARK" />
-					<strong>Partial Support</strong> - Limited or requires configuration
+					<span>⚠️</span><strong>Partial Support</strong> - Limited or requires configuration
 				</LegendItem>
 				<LegendItem>
-					<FiInfo size={18} color="V9_COLORS.PRIMARY.BLUE_DARK" />
-					<strong>Plugin/Integration</strong> - Requires additional plugin or integration
+					<span>ℹ️</span><strong>Plugin/Integration</strong> - Requires additional plugin or integration
 				</LegendItem>
 				<LegendItem>
-					<FiXCircle size={18} color="V9_COLORS.PRIMARY.RED_DARK" />
-					<strong>Not Supported</strong> - Feature not available
+					<span>❌</span><strong>Not Supported</strong> - Feature not available
 				</LegendItem>
 			</Legend>
 
@@ -1248,7 +1243,6 @@ const PingProductComparison: React.FC = () => {
 						gap: '0.5rem',
 					}}
 				>
-					<FiAlertCircle size={20} />
 					⚠️ Important Disclaimer
 				</h3>
 				<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', lineHeight: 1.8, fontSize: '0.95rem' }}>
@@ -1291,8 +1285,7 @@ const PingProductComparison: React.FC = () => {
 						gap: '0.5rem',
 					}}
 				>
-					<FiInfo size={20} />
-					Key Takeaways
+					<span>ℹ️</span>Key Takeaways
 				</h3>
 				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.BLUE_DARK', lineHeight: 1.8 }}>
 					<li>
@@ -1333,8 +1326,7 @@ const PingProductComparison: React.FC = () => {
 						gap: '0.5rem',
 					}}
 				>
-					<FiInfo size={20} />
-					Sources & Verification
+					<span>ℹ️</span>Sources & Verification
 				</h3>
 				<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: 1.8, fontSize: '0.875rem' }}>
 					<p style={{ margin: '0 0 0.75rem 0' }}>This comparison is compiled from:</p>
