@@ -13,6 +13,7 @@ import {
 } from '../../services/commonImportsService';
 import PageLayoutService from '../../services/pageLayoutService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { FiBook, FiCheckCircle, FiInfo, FiShield, FiTarget } from '@icons';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 

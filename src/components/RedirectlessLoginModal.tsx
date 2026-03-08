@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiLoader, FiLock, FiUser } from '@icons';
 
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;

@@ -23,6 +23,7 @@ import {
 discoveryPersistenceService,
 	PersistedDiscoveryData,
 } from '../services/discoveryPersistenceService'
+import { FiSearch } from '@icons';
 
 interface ComprehensiveDiscoveryInputProps {
 	onDiscoveryComplete: (result: DiscoveryResult) => void;

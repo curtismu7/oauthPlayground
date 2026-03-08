@@ -16,6 +16,7 @@ import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import { FiLockIcon } from '@icons';
 
 // ============================================================================
 // PKCE HELPER FUNCTIONS

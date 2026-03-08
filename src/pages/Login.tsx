@@ -45,6 +45,7 @@ import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
 import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '../v8/services/sharedCredentialsServiceV8';
+import { FiAlertCircle, FiCheckCircle } from '@icons';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';

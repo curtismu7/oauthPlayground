@@ -36,6 +36,7 @@ import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { StandardizedCredentialExportImport } from './StandardizedCredentialExportImport';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
+import { FiAlertTriangle, FiExternalLink, FiEye, FiEyeOff, FiInfo, FiKey, FiRefreshCw, FiSave } from '@icons';
 
 type RequestDetails = {
 	tokenEndpoint: string;

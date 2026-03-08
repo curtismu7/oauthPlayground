@@ -556,6 +556,7 @@ if (idToken.nonce !== expectedNonce) {
 		},
 		code: `// Step 1: Generate PKCE pair
 import crypto from 'crypto';
+import { FiCheckCircle, FiShield } from '@icons';
 
 const codeVerifier = crypto.randomBytes(32).toString('hex');
 const codeChallenge = crypto

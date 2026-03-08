@@ -12,6 +12,7 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FiInfo, FiRefreshCw } from '@icons';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;

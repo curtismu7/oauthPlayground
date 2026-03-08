@@ -13,6 +13,7 @@ type EnhancedApiCallData
 ,
 	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService'
+import { FiChevronDown } from '@icons';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`

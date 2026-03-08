@@ -6,6 +6,7 @@ import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService from './tokenDisplayService';
+import { FiInfo } from '@icons';
 
 // Styled components for unified token display
 const TokenContainer = styled.div`

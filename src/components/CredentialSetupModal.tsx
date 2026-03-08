@@ -11,6 +11,7 @@ import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCreden
 import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardMessage from './StandardMessage';
+import { FiLoader } from '@icons';
 
 const ModalOverlay = styled.div`
   position: fixed;

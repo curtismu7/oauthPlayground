@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { FiAlertTriangle } from '@icons';
 
 interface ProtectPortalConfigModalProps {
 	isOpen: boolean;

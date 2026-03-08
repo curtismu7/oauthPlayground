@@ -23,6 +23,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
+import { FiChevronDown, FiMove } from '@icons';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};

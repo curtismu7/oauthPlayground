@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
+import { FiActivity, FiClock } from '@icons';
 
 const DashboardContainer = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);

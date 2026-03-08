@@ -9,6 +9,7 @@ import { logger } from '../services/loggingService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
+import { FiEdit } from '@icons';
 
 const _Container = styled.div`
   max-width: 1200px;

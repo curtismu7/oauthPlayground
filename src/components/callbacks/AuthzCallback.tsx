@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
+import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   display: flex;

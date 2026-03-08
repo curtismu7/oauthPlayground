@@ -5,6 +5,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
+import { FiCheckCircle, FiGitBranch, FiInfo, FiShield, FiStar, FiTarget, FiUser, FiXCircle } from '@icons';
 
 interface FlowComparison {
 	id: string;

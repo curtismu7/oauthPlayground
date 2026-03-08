@@ -32,6 +32,7 @@ import {
 	WORKER_TOKEN_STATUS_STYLES,
 	WorkerTokenStatusServiceV8U,
 } from '@/v8u/services/workerTokenStatusServiceV8U';
+import { FiActivity, FiCalendar, FiClock, FiCpu, FiGlobe, FiInfo, FiKey, FiLoader, FiRefreshCw, FiSettings, FiShield, FiTrendingUp, FiZap } from '@icons';
 
 // Animation keyframes
 const pulse = keyframes`
