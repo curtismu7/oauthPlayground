@@ -1,18 +1,6 @@
 // src/pages/EnvironmentManagementPageV8.tsx
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
-import {
-	FiBook,
-	FiCode,
-	FiDownload,
-	FiEdit2,
-	FiInfo,
-	FiPlus,
-	FiRefreshCw,
-	FiShield,
-	FiTrash2,
-	FiUpload,
-} from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
@@ -999,14 +987,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		<div style={styles.container}>
 			<div style={styles.educationalSection}>
 				<div style={styles.educationalHeader}>
-					<FiBook size={24} />
-					<h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
+					<span>📚</span><h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
 				</div>
 				<div style={styles.educationalContent}>
 					<div style={styles.educationalCard}>
 						<h3 style={styles.educationalCardTitle}>
-							<FiInfo />
-							Enterprise Environment Management
+							<span>ℹ️</span>Enterprise Environment Management
 						</h3>
 						<div style={styles.educationalCardText}>
 							Environments are the foundation of your PingOne identity infrastructure. Each
@@ -1018,8 +1004,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</div>
 					<div style={styles.educationalCard}>
 						<h3 style={styles.educationalCardTitle}>
-							<FiShield />
-							Production-Ready Environment Types
+							<span>🛡️</span>Production-Ready Environment Types
 						</h3>
 						<div style={styles.educationalCardText}>
 							<strong>PRODUCTION:</strong> Mission-critical environments for live business
@@ -1038,8 +1023,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			{/* API Endpoints Section - Full Width */}
 			<div style={styles.apiEndpointsSection}>
 				<h3 style={styles.apiEndpointsHeader}>
-					<FiCode />
-					Enterprise API Operations
+					<span>[FiCode]</span>Enterprise API Operations
 				</h3>
 				<p style={styles.apiEndpointsDescription}>
 					MasterFlow API provides comprehensive environment management capabilities with full audit
@@ -1113,36 +1097,31 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				</p>
 				<div style={styles.actions}>
 					<button type="button" style={styles.button()} onClick={handleRefresh}>
-						<FiRefreshCw />
-						Refresh
+						<span>🔄</span>Refresh
 					</button>
 					<button
 						type="button"
 						style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
 						onClick={handleToggleApiDisplay}
 					>
-						<FiCode />
-						{showApiDisplay ? 'Hide API' : 'Show API'}
+						<span>[FiCode]</span>{showApiDisplay ? 'Hide API' : 'Show API'}
 					</button>
 					<button
 						type="button"
 						style={styles.button('secondary')}
 						onClick={handleExportEnvironments}
 					>
-						<FiDownload />
-						Export
+						<span>[FiDownload]</span>Export
 					</button>
 					<button
 						type="button"
 						style={styles.button('secondary')}
 						onClick={handleImportEnvironments}
 					>
-						<FiUpload />
-						Import
+						<span>⬆️</span>Import
 					</button>
 					<button type="button" style={styles.button('primary')} onClick={handleCreateEnvironment}>
-						<FiPlus />
-						Create Environment
+						<span>[FiPlus]</span>Create Environment
 					</button>
 				</div>
 			</div>
@@ -1372,8 +1351,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
 							>
-								<FiRefreshCw />
-							</button>
+								<span>🔄</span></button>
 							<button
 								type="button"
 								style={styles.iconButton}
@@ -1381,8 +1359,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title="Edit"
 							>
-								<FiEdit2 />
-							</button>
+								<span>[FiEdit2]</span></button>
 							<button
 								type="button"
 								style={styles.iconButton}
@@ -1390,8 +1367,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
 								title="Delete"
 							>
-								<FiTrash2 />
-							</button>
+								<span>🗑️</span></button>
 						</div>
 					</div>
 				))}
@@ -1440,8 +1416,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showEditModal)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<FiEdit2 />
-						Edit Environment
+						<span>[FiEdit2]</span>Edit Environment
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
 						×
@@ -1583,8 +1558,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showApiDisplay)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<FiCode />
-						API Call History
+						<span>[FiCode]</span>API Call History
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={() => setShowApiDisplay(false)}>
 						×

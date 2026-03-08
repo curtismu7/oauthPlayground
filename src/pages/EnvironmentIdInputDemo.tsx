@@ -1,4 +1,3 @@
-import { FiGlobe, FiSettings } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
@@ -180,7 +179,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 			<Header>
 				<h1>
-					<FiGlobe />
+					🌐
 					Environment ID Input Component Demo
 				</h1>
 				<p>
@@ -192,7 +191,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<DemoSection>
 				<SectionHeader>
 					<h2>
-						<FiSettings />
+						⚙️
 						Live Demo
 					</h2>
 					<p>
@@ -274,7 +273,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<DemoSection>
 				<SectionHeader>
 					<h2>
-						<FiGlobe />
+						🌐
 						Usage Examples
 					</h2>
 					<p>Here are some example environment IDs you can try (these are examples only):</p>

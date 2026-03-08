@@ -1,19 +1,6 @@
 // src/pages/PingOneScopesReference.tsx
 // Educational reference page for PingOne OAuth 2.0 and OIDC scopes
 
-import {
-	FiBook,
-	FiCheck,
-	FiDatabase,
-	FiInfo,
-	FiLock,
-	FiMail,
-	FiMapPin,
-	FiPhone,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-} from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -206,8 +193,7 @@ const PingOneScopesReference: React.FC = () => {
 		<PageContainer>
 			<HeaderCard>
 				<TitleRow>
-					<FiBook size={32} />
-					<Title>PingOne OAuth 2.0 & OIDC Scopes Reference</Title>
+					<span>📚</span><Title>PingOne OAuth 2.0 & OIDC Scopes Reference</Title>
 				</TitleRow>
 				<Subtitle>
 					A guide to understanding and using the most common scopes in PingOne SSO and Management
@@ -217,8 +203,7 @@ const PingOneScopesReference: React.FC = () => {
 					style={{ margin: '1rem 0 0 0', background: 'V9_COLORS.BG.GRAY_LIGHT', border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' }}
 				>
 					<InfoIcon>
-						<FiInfo size={20} style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }} />
-					</InfoIcon>
+						<span>ℹ️</span></InfoIcon>
 					<InfoText style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
 						<strong>📖 Complete Scope Documentation:</strong> For the full list of all PingOne
 						Management API scopes and detailed permissions, see the official{' '}
@@ -237,8 +222,7 @@ const PingOneScopesReference: React.FC = () => {
 
 			<InfoBox>
 				<InfoIcon>
-					<FiShield size={24} />
-				</InfoIcon>
+					<span>🛡️</span></InfoIcon>
 				<InfoText>
 					<strong>What are scopes?</strong> Scopes are permissions that an application requests
 					during authentication. They determine what user data the application can access and what
@@ -254,8 +238,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiLock size={24} style={{ color: '#6366f1' }} />
-							Standard OpenID Connect (OIDC) Scopes
+							<span>🔒</span>Standard OpenID Connect (OIDC) Scopes
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -265,8 +248,7 @@ const PingOneScopesReference: React.FC = () => {
 					<ScopeList>
 						<ScopeItem color="#6366f1">
 							<ScopeIcon color="#6366f1">
-								<FiCheck size={20} />
-							</ScopeIcon>
+								<span>[FiCheck]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>openid</ScopeName>
 								<ScopeDescription>
@@ -286,8 +268,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#8b5cf6">
 							<ScopeIcon color="#8b5cf6">
-								<FiUser size={20} />
-							</ScopeIcon>
+								<span>👤</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>profile</ScopeName>
 								<ScopeDescription>
@@ -309,8 +290,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#ec4899">
 							<ScopeIcon color="#ec4899">
-								<FiMail size={20} />
-							</ScopeIcon>
+								<span>[FiMail]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>email</ScopeName>
 								<ScopeDescription>
@@ -326,8 +306,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
 							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<FiMapPin size={20} />
-							</ScopeIcon>
+								<span>[FiMapPin]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>address</ScopeName>
 								<ScopeDescription>
@@ -347,8 +326,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
 							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
-								<FiPhone size={20} />
-							</ScopeIcon>
+								<span>[FiPhone]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>phone</ScopeName>
 								<ScopeDescription>
@@ -364,8 +342,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#06b6d4">
 							<ScopeIcon color="#06b6d4">
-								<FiRefreshCw size={20} />
-							</ScopeIcon>
+								<span>🔄</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>offline_access</ScopeName>
 								<ScopeDescription>
@@ -382,8 +359,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiDatabase size={24} style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
-							Common PingOne Management API Scopes
+							<span>[FiDatabase]</span>Common PingOne Management API Scopes
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -408,8 +384,7 @@ const PingOneScopesReference: React.FC = () => {
 					<ScopeList>
 						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
 							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
-								<FiUser size={20} />
-							</ScopeIcon>
+								<span>👤</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:users</ScopeName>
 								<ScopeDescription>
@@ -420,8 +395,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
 							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
-								<FiUser size={20} />
-							</ScopeIcon>
+								<span>👤</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:update:users</ScopeName>
 								<ScopeDescription>
@@ -432,8 +406,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
 							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
-								<FiDatabase size={20} />
-							</ScopeIcon>
+								<span>[FiDatabase]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:environments</ScopeName>
 								<ScopeDescription>
@@ -444,8 +417,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#8b5cf6">
 							<ScopeIcon color="#8b5cf6">
-								<FiDatabase size={20} />
-							</ScopeIcon>
+								<span>[FiDatabase]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:applications</ScopeName>
 								<ScopeDescription>
@@ -456,8 +428,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
 							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<FiDatabase size={20} />
-							</ScopeIcon>
+								<span>[FiDatabase]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:populations</ScopeName>
 								<ScopeDescription>
@@ -468,8 +439,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#14b8a6">
 							<ScopeIcon color="#14b8a6">
-								<FiDatabase size={20} />
-							</ScopeIcon>
+								<span>[FiDatabase]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:groups</ScopeName>
 								<ScopeDescription>Read group information and memberships.</ScopeDescription>
@@ -478,8 +448,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#6366f1">
 							<ScopeIcon color="#6366f1">
-								<FiShield size={20} />
-							</ScopeIcon>
+								<span>🛡️</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:roles</ScopeName>
 								<ScopeDescription>Read role assignments and permissions.</ScopeDescription>
@@ -488,8 +457,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#f43f5e">
 							<ScopeIcon color="#f43f5e">
-								<FiDatabase size={20} />
-							</ScopeIcon>
+								<span>[FiDatabase]</span></ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:audit</ScopeName>
 								<ScopeDescription>
@@ -504,8 +472,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiShield size={24} style={{ color: '#8b5cf6' }} />
-							How to Configure Scopes & Permissions in PingOne
+							<span>🛡️</span>How to Configure Scopes & Permissions in PingOne
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -527,8 +494,7 @@ const PingOneScopesReference: React.FC = () => {
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
-										<FiDatabase size={20} />
-									</InfoIcon>
+										<span>[FiDatabase]</span></InfoIcon>
 									<InfoText>
 										<strong>Important:</strong> Worker apps access PingOne Management APIs using{' '}
 										<code>p1:*</code> scopes. However, requesting a scope is NOT enough - the
@@ -632,8 +598,7 @@ const PingOneScopesReference: React.FC = () => {
 
 								<InfoBox style={{ margin: 0 }}>
 									<InfoIcon>
-										<FiCheck size={20} />
-									</InfoIcon>
+										<span>[FiCheck]</span></InfoIcon>
 									<InfoText>
 										<strong>Verification:</strong> After generating a token, decode it at{' '}
 										<a href="https://jwt.io" target="_blank" rel="noopener noreferrer">
@@ -717,8 +682,7 @@ const PingOneScopesReference: React.FC = () => {
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
-										<FiDatabase size={20} />
-									</InfoIcon>
+										<span>[FiDatabase]</span></InfoIcon>
 									<InfoText>
 										<strong>What are Resources?</strong> Resources represent APIs or services that
 										you want to protect with PingOne. Each resource can have custom scopes that
@@ -837,8 +801,7 @@ const PingOneScopesReference: React.FC = () => {
 								style={{ margin: '1rem 0 0 0', background: 'V9_COLORS.TEXT.WHITE7ed', border: '1px solid #fed7aa' }}
 							>
 								<InfoIcon>
-									<FiShield size={20} style={{ color: '#c2410c' }} />
-								</InfoIcon>
+									<span>🛡️</span></InfoIcon>
 								<InfoText style={{ color: '#9a3412' }}>
 									<strong>Security Best Practice:</strong> Only grant scopes that an application
 									actually needs. Review and audit scope assignments regularly. Use custom resources
@@ -854,15 +817,13 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<FiShield size={24} style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
-							Best Practices
+							<span>🛡️</span>Best Practices
 						</CategoryTitle>
 					</CategoryHeader>
 					<ScopeList>
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<FiCheck size={20} />
-							</InfoIcon>
+								<span>[FiCheck]</span></InfoIcon>
 							<InfoText>
 								<strong>1. Principle of Least Privilege:</strong> Only request scopes that your
 								application actually needs. Don't request <code>profile</code> if you only need{' '}
@@ -872,8 +833,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<FiCheck size={20} />
-							</InfoIcon>
+								<span>[FiCheck]</span></InfoIcon>
 							<InfoText>
 								<strong>2. Always Include openid:</strong> For SSO/authentication flows, always
 								include the <code>openid</code> scope. Without it, you'll only get an OAuth access
@@ -883,8 +843,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<FiCheck size={20} />
-							</InfoIcon>
+								<span>[FiCheck]</span></InfoIcon>
 							<InfoText>
 								<strong>3. Worker Apps vs User Apps:</strong> Management API scopes (
 								<code>p1:*</code>) are typically for worker applications (machine-to-machine).
@@ -894,8 +853,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<FiCheck size={20} />
-							</InfoIcon>
+								<span>[FiCheck]</span></InfoIcon>
 							<InfoText>
 								<strong>4. Scope ≠ Permission:</strong> Just because an app <em>requests</em> a
 								scope doesn't mean it will be <em>granted</em>. Worker apps must have the
@@ -905,8 +863,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<FiCheck size={20} />
-							</InfoIcon>
+								<span>[FiCheck]</span></InfoIcon>
 							<InfoText>
 								<strong>5. Dynamic Consent:</strong> Users should be shown what scopes are being
 								requested and what data will be shared. Transparent consent builds trust.
