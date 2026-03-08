@@ -13,7 +13,6 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { logger } from '../utils/logger';
 
 interface EnvironmentIdInputProps {

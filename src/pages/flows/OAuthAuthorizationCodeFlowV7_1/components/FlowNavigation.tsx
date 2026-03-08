@@ -6,7 +6,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowNavigationProps {
 	currentStep: number;

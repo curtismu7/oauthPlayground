@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/ClientCredentialsFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
@@ -34,7 +35,6 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { createModuleLogger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security

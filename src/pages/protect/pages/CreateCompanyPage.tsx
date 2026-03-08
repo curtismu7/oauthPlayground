@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 /**
  * @file CreateCompanyPage.tsx
  * @module protect-portal/pages
@@ -14,7 +15,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/test/PARTest.tsx
 // Test page for PingOne Pushed Authorization Request (PAR) Flow
 // Tests RFC 9126 PAR implementation with real PingOne API calls
@@ -7,7 +8,6 @@ import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // PAR Test Configuration
 interface PARTestConfig {

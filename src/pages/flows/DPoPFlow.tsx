@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/DPoPFlow.tsx
 // DPoP (Demonstration of Proof-of-Possession) Flow - Educational/Mock Implementation
 // RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
@@ -22,7 +23,6 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { copyToClipboard } from '../../utils/clipboard';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
 	max-width: 1400px;

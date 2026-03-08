@@ -8,7 +8,6 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/WebhookReceiver.tsx
 // Webhook Receiver - Receives and processes PingOne webhook events
 
@@ -5,7 +6,6 @@ import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;

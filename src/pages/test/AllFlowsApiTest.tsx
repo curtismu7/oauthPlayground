@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/test/AllFlowsApiTest.tsx
 // Comprehensive test page for ALL OAuth/OIDC flow types AND MFA flows
 // Tests PingOne API implementations across Authorization Code, Implicit, Hybrid, Device Auth, etc.
@@ -12,7 +13,6 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { logger } from '../../utils/logger';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {

@@ -9,7 +9,6 @@ import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
 import { logger } from '../utils/logger';
 import { type PlaygroundResult, RESPONSE_TYPES, RESULT_STORAGE_KEY } from './PingOneAuthentication';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Page = styled.div`
   background: white;

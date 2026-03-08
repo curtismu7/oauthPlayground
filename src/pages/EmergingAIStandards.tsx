@@ -4,7 +4,6 @@ import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const SummaryCard = styled(Card)`
   border-left: 4px solid ${({ theme }) => theme.colors.primary};
