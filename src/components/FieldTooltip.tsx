@@ -6,7 +6,7 @@
  * field purpose and specification references.
  */
 
-import { FiHelpCircle } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -120,7 +120,7 @@ export const FieldTooltip: React.FC<FieldTooltipProps> = ({ content, specReferen
 				role="tooltip"
 				aria-label={content}
 			>
-				{children || <FiHelpCircle size={14} />}
+				{children || <span style={{ fontSize: '14px' }}>❓</span>}
 			</TooltipTrigger>
 			<TooltipContent $visible={visible} role="tooltip">
 				{content}

@@ -1,7 +1,7 @@
 // src/examples/MFASetupWithQRCode.tsx
 // Example MFA setup flow using QRCodeService
 
-import { FiCheckCircle, FiCopy, FiRefreshCw, FiSmartphone } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult } from '../services/qrCodeService';
@@ -282,7 +282,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 
 			{status && (
 				<StatusMessage type={status.type}>
-					{status.type === 'success' && <FiCheckCircle size={16} />}
+					{status.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -291,7 +291,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 			<StepCard active={currentStep === 1}>
 				<StepHeader>
 					<StepNumber completed={currentStep > 1}>
-						{currentStep > 1 ? <FiCheckCircle size={20} /> : '1'}
+						{currentStep > 1 ? <span style={{ fontSize: '20px' }}>✅</span> : '1'}
 					</StepNumber>
 					<StepTitle>Set Up Two-Factor Authentication</StepTitle>
 				</StepHeader>
@@ -313,7 +313,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 
 				{currentStep === 1 && (
 					<Button variant="primary" onClick={handleStartSetup} disabled={isLoading}>
-						<FiSmartphone size={16} />
+						<span style={{ fontSize: '16px' }}>📱</span>
 						{isLoading ? 'Generating...' : 'Start Setup'}
 					</Button>
 				)}
@@ -324,7 +324,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 				<StepCard active={currentStep === 2}>
 					<StepHeader>
 						<StepNumber completed={currentStep > 2}>
-							{currentStep > 2 ? <FiCheckCircle size={20} /> : '2'}
+							{currentStep > 2 ? <span style={{ fontSize: '20px' }}>✅</span> : '2'}
 						</StepNumber>
 						<StepTitle>Scan QR Code</StepTitle>
 					</StepHeader>
@@ -353,7 +353,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 						</p>
 						<ManualEntryKey>{qrResult.manualEntryKey}</ManualEntryKey>
 						<Button onClick={handleCopySecret}>
-							<FiCopy size={14} />
+							<span style={{ fontSize: '14px' }}>📋</span>
 							Copy Secret Key
 						</Button>
 					</ManualEntry>
@@ -375,7 +375,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 								onClick={handleVerifyCode}
 								disabled={verificationCode.length !== 6}
 							>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								Verify & Complete Setup
 							</Button>
 						</>
@@ -388,7 +388,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 				<StepCard active={true}>
 					<StepHeader>
 						<StepNumber completed={true}>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 						</StepNumber>
 						<StepTitle>Setup Complete!</StepTitle>
 					</StepHeader>
@@ -436,7 +436,7 @@ export const MFASetupWithQRCode: React.FC = () => {
 					)}
 
 					<Button onClick={handleReset}>
-						<FiRefreshCw size={16} />
+						<span style={{ fontSize: '16px' }}>🔄</span>
 						Set Up Another Account
 					</Button>
 				</StepCard>

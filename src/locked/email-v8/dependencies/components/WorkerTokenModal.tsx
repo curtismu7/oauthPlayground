@@ -1,16 +1,7 @@
 // src/components/WorkerTokenModal.tsx
 // Modal for configuring worker token when not available
 
-import {
-	FiAlertTriangle,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -1435,11 +1426,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 							<ButtonGroup>
 								<ActionButton onClick={() => setShowForm(true)}>
-									<FiKey />
+									<span>🔑</span>
 									Generate Worker Token Here
 								</ActionButton>
 								<ActionButton onClick={handleGetWorkerToken} disabled={isNavigating}>
-									<FiExternalLink />
+									<span>🔗</span>
 									Use Client Generator
 								</ActionButton>
 								<ActionButton $variant="secondary" onClick={handleContinueWithoutToken}>
@@ -1544,7 +1535,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}
 										/>
 										<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+											{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 										</PasswordToggle>
 									</PasswordInput>
 								</FormField>
@@ -1621,7 +1612,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											!workerCredentials.clientSecret
 										}
 									>
-										{isGenerating ? <LoadingSpinner /> : <FiRefreshCw />}
+										{isGenerating ? <LoadingSpinner /> : <span>🔄</span>}
 										{isGenerating ? 'Generating...' : 'Generate Worker Token'}
 									</ActionButton>
 									<ActionButton
@@ -1634,7 +1625,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											!workerCredentials.clientSecret
 										}
 									>
-										<FiSave />
+										<span>💾</span>
 										Save Credentials
 									</ActionButton>
 									<ActionButton

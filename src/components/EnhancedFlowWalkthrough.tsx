@@ -1,7 +1,7 @@
 // src/components/EnhancedFlowWalkthrough.tsx
 // Enhanced FlowWalkthrough component using the FlowWalkthroughService
 
-import { FiChevronDown, FiGlobe } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FlowWalkthroughConfig, FlowWalkthroughService } from '../services/FlowWalkthroughService';
@@ -253,12 +253,12 @@ export const EnhancedFlowWalkthrough: React.FC<EnhancedFlowWalkthroughProps> = (
 			<Header $isCollapsible={true} onClick={toggleCollapsed}>
 				<HeaderContent>
 					<HeaderIcon $flowType={config.flowType}>
-						{config.icon || <FiGlobe size={20} />}
+						{config.icon || <span style={{ fontSize: '20px' }}>🌐</span>}
 					</HeaderIcon>
 					<Title>{config.flowName} Walkthrough</Title>
 				</HeaderContent>
 				<ChevronButton $collapsed={isCollapsed}>
-					<FiChevronDown size={16} />
+					<span style={{ fontSize: '16px' }}>⬇️</span>
 				</ChevronButton>
 			</Header>
 			<Content $collapsed={isCollapsed}>

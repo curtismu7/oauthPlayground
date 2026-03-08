@@ -1,4 +1,4 @@
-import { FiEye, FiEyeOff } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { jwtGenerator } from '../utils/jwtGenerator';
@@ -727,7 +727,7 @@ const JWTGenerator: React.FC = () => {
 							aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
-							{showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+							{showSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 						</button>
 					</div>
 				</FormGroup>

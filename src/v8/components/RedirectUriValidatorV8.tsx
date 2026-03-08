@@ -9,7 +9,7 @@
  * Following SWE-15 principles for reusable validation components
  */
 
-import { FiAlertTriangle, FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
@@ -230,7 +230,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 								}
 							}}
 						>
-							{copiedUri === currentUri ? <FiCheck size={14} /> : <FiCopy size={14} />}
+							{copiedUri === currentUri ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
 							{copiedUri === currentUri ? 'Copied!' : 'Copy'}
 						</button>
 					)}
@@ -329,7 +329,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 										fontSize: '12px',
 									}}
 								>
-									{copiedUri === suggestedUri ? <FiCheck size={12} /> : <FiCopy size={12} />}
+									{copiedUri === suggestedUri ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 									Copy
 								</button>
 								<button
@@ -391,7 +391,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 												color: '#6b7280',
 											}}
 										>
-											<FiCopy size={10} />
+											<span style={{ fontSize: '10px' }}>📋</span>
 										</button>
 									</div>
 								))}
@@ -414,7 +414,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 								fontSize: '13px',
 							}}
 						>
-							<FiExternalLink size={14} />
+							<span style={{ fontSize: '14px' }}>🔗</span>
 							Learn more about redirect URIs in PingOne
 						</a>
 					</div>

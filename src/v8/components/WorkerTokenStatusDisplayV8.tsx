@@ -14,25 +14,7 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import {
-	FiActivity,
-	FiAlertCircle,
-	FiCalendar,
-	FiCheckCircle,
-	FiClock,
-	FiCpu,
-	FiDatabase,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLoader,
-	FiLock,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiTrendingUp,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import type {
@@ -601,7 +583,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						};
 					}
 				} catch (credError) {
-					logger.warn('[WorkerTokenStatusDisplayV8] Failed to load MFA credentials:', credError);
+					log.warn('[WorkerTokenStatusDisplayV8] Failed to load MFA credentials:', credError);
 					// Fallback to unified service
 					const loadResult = await unifiedWorkerTokenService.loadCredentials();
 					credentials = loadResult.success ? loadResult.data : null;
@@ -626,11 +608,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(status);
 			} catch (dataError) {
-				logger.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
+				log.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
 				// Don't let additional data failure break the main status
 			}
 		} catch (error) {
-			logger.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
+			log.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -647,7 +629,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
+			log.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -717,11 +699,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const getStatusIcon = () => {
 		switch (getVariant()) {
 			case 'valid':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'warning':
-				return <FiClock />;
+				return <span>🕐</span>;
 			default:
-				return <FiAlertCircle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -800,7 +782,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						});
 					}
 				} catch (error) {
-					logger.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
+					log.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
 					// Use default config as fallback
 					setOauthConfig({
 						pkceEnabled: false, // Default value since oauth property doesn't exist
@@ -871,7 +853,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						});
 					}
 				} catch (error) {
-					logger.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
+					log.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
 					modernMessaging.showBanner({
 						type: 'warning',
 						title: 'Warning',
@@ -891,7 +873,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			// Dispatch event to notify other components
 			window.dispatchEvent(new CustomEvent('oauthConfigurationUpdated', { detail: oauthConfig }));
 		} catch (error) {
-			logger.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
+			log.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1003,15 +985,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						{showConfig && (
 							<>
 								<ConfigButton onClick={handleOpenConfigModal}>
-									<FiSettings />
+									<span>⚙️</span>
 									<span className="tooltip">Configure OAuth Settings</span>
 								</ConfigButton>
 								<ConfigButton onClick={handleOpenConfigModal}>
-									<FiLock />
+									<span>🔒</span>
 									<span className="tooltip">PKCE Settings</span>
 								</ConfigButton>
 								<ConfigButton onClick={handleOpenConfigModal}>
-									<FiDatabase />
+									<span>🗄️</span>
 									<span className="tooltip">Token Storage</span>
 								</ConfigButton>
 							</>

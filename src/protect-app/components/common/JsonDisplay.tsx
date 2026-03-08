@@ -11,7 +11,7 @@
  * - Dependency Inversion: Depends on theme abstraction, not concrete implementation
  */
 
-import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from '@icons';
+
 import React, { useState } from 'react';
 import { logger } from '../../../utils/logger';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -54,7 +54,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error('JsonDisplay', 'Failed to copy JSON:', undefined, error as Error);
+			log.error('JsonDisplay', 'Failed to copy JSON:', undefined, error as Error);
 		}
 	};
 
@@ -85,7 +85,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 					}}
 				>
 					<span className="text-xs">
-						{isExpanded ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
+						{isExpanded ? <span style={{ fontSize: '12px' }}>⬇️</span> : <span style={{ fontSize: '12px' }}>➡️</span>}
 					</span>
 					<h4
 						className="text-xs font-semibold uppercase tracking-wider"
@@ -116,7 +116,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 							}
 						}}
 					>
-						{copied ? <FiCheck size={10} /> : <FiCopy size={10} />}
+						{copied ? <span style={{ fontSize: '10px' }}>✅</span> : <span style={{ fontSize: '10px' }}>📋</span>}
 						<span>{copied ? 'Copied!' : 'Copy'}</span>
 					</button>
 				)}

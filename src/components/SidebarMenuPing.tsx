@@ -449,7 +449,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 					<div
 						style={{
 							padding: '1rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#94a3b8',
 							fontSize: '0.875rem',
 							textAlign: 'center',
 						}}
@@ -479,7 +479,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 										<span
 											style={{
 												fontSize: '0.7rem',
-												color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+											color: '#cbd5e1',
 												display: 'block',
 												overflow: 'hidden',
 												textOverflow: 'ellipsis',

@@ -19,7 +19,7 @@
  * />
  */
 
-import { FiInfo } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
@@ -808,7 +808,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 										marginLeft: '6px',
 									}}
 								>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 									<span>{showInfo ? 'Hide guide' : 'What is this?'}</span>
 								</button>
 							</div>

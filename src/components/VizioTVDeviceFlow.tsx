@@ -2,12 +2,12 @@
 // VIZIO Smart TV Style Device Authorization Flow Interface
 // Designed to look like actual VIZIO V-Series 4K TV
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiPlay, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
@@ -320,26 +320,26 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('VizioTVDeviceFlow', 'User code copied to clipboard');
+		log.info('VizioTVDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
+		log.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -395,7 +395,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 					<SmartCastInterface>
 						<SmartCastHeader>
 							<SmartCastTitle>
-								<FiPlay />
+								<span>❓</span>
 								SmartCast Home
 							</SmartCastTitle>
 							<SmartCastStatus $status={state.status}>
@@ -434,10 +434,10 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 						</QRCodeContainer>
 						<ActionButtons>
 							<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-								<FiCopy /> Copy Code
+								<span>📋</span> Copy Code
 							</ActionButton>
 							<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-								<FiExternalLink /> Open App
+								<span>🔗</span> Open App
 							</ActionButton>
 						</ActionButtons>
 					</QRCodeSection>
@@ -446,7 +446,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 					{state.status === 'authorized' && state.tokens && (
 						<SuccessDisplay>
 							<SuccessTitle>
-								<FiCheckCircle />
+								<span>✅</span>
 								SmartCast Connected Successfully!
 							</SuccessTitle>
 							<SuccessMessage>

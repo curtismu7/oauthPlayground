@@ -1,6 +1,6 @@
 // src/components/FlowInfoCard.tsx - Reusable flow information comparison card
 
-import { FiChevronDown } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
@@ -169,7 +169,7 @@ const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
 					</CardHeader>
 				</CardHeaderContent>
 				<ToggleIcon $isOpen={isOpen}>
-					<FiChevronDown size={18} />
+					<span style={{ fontSize: '18px' }}>⬇️</span>
 				</ToggleIcon>
 			</CardHeaderButton>
 

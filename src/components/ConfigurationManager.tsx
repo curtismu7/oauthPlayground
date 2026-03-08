@@ -2,16 +2,7 @@
 // Interactive configuration management component
 // Allows developers to view, edit, and validate flow configurations
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiDownload,
-	FiRefreshCw,
-	FiSave,
-	FiSettings,
-	FiUpload,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -23,7 +14,7 @@ import {
 	FlowSpecificConfig,
 	FlowType,
 } from '../services/enhancedConfigurationService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -352,7 +343,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
 			setHasUnsavedChanges(false);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigurationManager',
 				'Failed to load configuration:',
 				undefined,
@@ -403,7 +394,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			setHasUnsavedChanges(false);
 			console.log('Configuration saved successfully');
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigurationManager',
 				'Failed to save configuration:',
 				undefined,
@@ -458,7 +449,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						);
 					}
 				} catch (error) {
-					logger.error(
+					log.error(
 						'ConfigurationManager',
 						'Failed to import configuration:',
 						undefined,
@@ -522,7 +513,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						try {
 							handleConfigChange(field, JSON.parse(e.target.value) as BaseFlowConfig[K]);
 						} catch (error) {
-							logger.error(
+							log.error(
 								'ConfigurationManager',
 								'Invalid JSON input:',
 								undefined,
@@ -546,11 +537,11 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 	const getValidationIcon = (status: 'valid' | 'invalid' | 'warning') => {
 		switch (status) {
 			case 'valid':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'warning':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -610,23 +601,23 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						onClick={handleSaveConfiguration}
 						disabled={!hasUnsavedChanges}
 					>
-						<FiSave />
+						<span>💾</span>
 						{isLoading ? 'Saving...' : 'Save Configuration'}
 					</ActionButton>
 
 					<ActionButton onClick={loadConfiguration}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Reload
 					</ActionButton>
 
 					<ActionButton onClick={handleExportConfiguration}>
-						<FiDownload />
+						<span>📥</span>
 						Export
 					</ActionButton>
 
 					<label style={{ position: 'relative' }}>
 						<ActionButton as="span">
-							<FiUpload />
+							<span>📤</span>
 							Import
 						</ActionButton>
 						<input
@@ -649,7 +640,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
 			<ConfigurationSection>
 				<SectionTitle>
-					<FiSettings />
+					<span>⚙️</span>
 					Configuration Settings
 				</SectionTitle>
 
@@ -781,7 +772,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 					>
 						{validation.isValid ? (
 							<>
-								<FiCheckCircle />
+								<span>✅</span>
 								<div>
 									<strong>Configuration is valid!</strong>
 									<div>All settings are properly configured for the selected flow type.</div>
@@ -789,7 +780,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 							</>
 						) : validation.errors.length > 0 ? (
 							<>
-								<FiAlertTriangle />
+								<span>⚠️</span>
 								<div>
 									<strong>Configuration has errors</strong>
 									<div>Please fix the following issues:</div>
@@ -803,7 +794,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 							</>
 						) : (
 							<>
-								<FiAlertTriangle />
+								<span>⚠️</span>
 								<div>
 									<strong>Configuration has warnings</strong>
 									<div>Consider the following improvements:</div>
@@ -822,7 +813,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			{suggestions.length > 0 && (
 				<SuggestionsSection>
 					<SectionTitle>
-						<FiZap />
+						<span>⚡</span>
 						Configuration Suggestions
 					</SectionTitle>
 

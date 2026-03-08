@@ -1,13 +1,4 @@
-import {
-	FiArrowRight,
-	FiBook,
-	FiCheck,
-	FiChevronDown,
-	FiInfo,
-	FiLock,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
@@ -245,7 +236,7 @@ const useCases: UseCase[] = [
 		title: 'Web Application Login',
 		description:
 			'Secure user authentication for traditional web applications with redirect-based flow',
-		icon: <FiUsers />,
+		icon: <span>👥</span>,
 		recommendedFlow: 'oauth-authz',
 		recommendedSpec: 'oidc',
 		scenarios: ['User login', 'Single Sign-On', 'Profile access'],
@@ -254,7 +245,7 @@ const useCases: UseCase[] = [
 		id: 'mobile-app',
 		title: 'Mobile App Authentication',
 		description: 'Authentication for mobile apps using PKCE for enhanced security',
-		icon: <FiZap />,
+		icon: <span>⚡</span>,
 		recommendedFlow: 'oauth-authz',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['Native mobile apps', 'PKCE security', 'No client secret'],
@@ -263,7 +254,7 @@ const useCases: UseCase[] = [
 		id: 'server-api',
 		title: 'Server-to-API Communication',
 		description: 'Machine-to-machine communication between backend services',
-		icon: <FiLock />,
+		icon: <span>🔒</span>,
 		recommendedFlow: 'client-credentials',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['Backend services', 'API access', 'No user interaction'],
@@ -272,7 +263,7 @@ const useCases: UseCase[] = [
 		id: 'device-auth',
 		title: 'Device Authorization',
 		description: 'Authentication for devices with limited input capabilities',
-		icon: <FiBook />,
+		icon: <span>📖</span>,
 		recommendedFlow: 'device-code',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['IoT devices', 'Smart TVs', 'CLI applications'],
@@ -281,7 +272,7 @@ const useCases: UseCase[] = [
 		id: 'spa-app',
 		title: 'Single Page Application',
 		description: 'Client-side applications with enhanced security requirements',
-		icon: <FiCheck />,
+		icon: <span>✅</span>,
 		recommendedFlow: 'oauth-authz',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['React/Vue apps', 'PKCE required', 'No backend'],
@@ -290,7 +281,7 @@ const useCases: UseCase[] = [
 		id: 'legacy-app',
 		title: 'Legacy System Integration',
 		description: 'Integration with older systems requiring implicit flow',
-		icon: <FiInfo />,
+		icon: <span>ℹ️</span>,
 		recommendedFlow: 'implicit',
 		recommendedSpec: 'oauth2.0',
 		scenarios: ['Older browsers', 'Simple tokens', 'Deprecated flows'],
@@ -360,7 +351,7 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 					Choose the Right OAuth Flow
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 
@@ -413,7 +404,7 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 									{!isCurrentRecommendation && (
 										<ActionButton onClick={handleApplyRecommendation}>
 											Apply Recommendation
-											<FiArrowRight />
+											<span>➡️</span>
 										</ActionButton>
 									)}
 								</RecommendedFlow>

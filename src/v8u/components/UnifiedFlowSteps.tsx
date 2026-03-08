@@ -16,17 +16,7 @@
  * Use the mock ROPC flow instead.
  */
 
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCopy,
-	FiInfo,
-	FiKey,
-	FiShield,
-} from '@icons';
+
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -2842,7 +2832,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!isQuickStartCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook />
+								<span>📖</span>
 								<span>
 									Quick Start & Overview -{' '}
 									{flowType === 'oauth-authz'
@@ -2862,7 +2852,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</span>
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={isQuickStartCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!isQuickStartCollapsed && (
@@ -2877,14 +2867,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}}
 								>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>What You'll Get</InfoTitle>
 											<InfoText>{getWhatYoullGet()}</InfoText>
 										</div>
 									</InfoBox>
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>Perfect For</InfoTitle>
 											<InfoText>
@@ -2897,7 +2887,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 									</InfoBox>
 									<InfoBox $variant="warning" style={{ marginBottom: 0 }}>
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>Required for Full Functionality</InfoTitle>
 											<InfoText>
@@ -3138,7 +3128,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									)}
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!preflightValidationCollapsed && (
@@ -3666,16 +3656,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!pkceOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> What is PKCE?
+								<span>📖</span> What is PKCE?
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={pkceOverviewCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!pkceOverviewCollapsed && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiShield size={20} />
+									<span style={{ fontSize: '20px' }}>🛡️</span>
 									<div>
 										<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 										<InfoText>
@@ -3687,7 +3677,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</InfoBox>
 
 								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									<div>
 										<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
 										<InfoText>
@@ -3710,17 +3700,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!pkceDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> Understanding Code Verifier & Code Challenge
+								<span>📖</span> Understanding Code Verifier & Code Challenge
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={pkceDetailsCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!pkceDetailsCollapsed && (
 							<CollapsibleContent>
 								<ParameterGrid>
 									<InfoBox $variant="success">
-										<FiKey size={20} />
+										<span style={{ fontSize: '20px' }}>🔑</span>
 										<div>
 											<InfoTitle>Code Verifier</InfoTitle>
 											<InfoText>
@@ -3738,7 +3728,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiShield size={20} />
+										<span style={{ fontSize: '20px' }}>🛡️</span>
 										<div>
 											<InfoTitle>Code Challenge</InfoTitle>
 											<InfoText>
@@ -3757,7 +3747,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</ParameterGrid>
 
 								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									<div>
 										<InfoTitle>Security Best Practices</InfoTitle>
 										<InfoList>
@@ -6066,16 +6056,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!implicitOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> What is Implicit Flow?
+									<span>📖</span> What is Implicit Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={implicitOverviewCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!implicitOverviewCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>OAuth 2.0 / OIDC Implicit Flow - Educational Purpose</InfoTitle>
 											<InfoText>
@@ -6094,7 +6084,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>How Implicit Flow Works</InfoTitle>
 											<InfoText>
@@ -6116,16 +6106,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!implicitDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Security Considerations & Modern Alternatives
+									<span>📖</span> Security Considerations & Modern Alternatives
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={implicitDetailsCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!implicitDetailsCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>Implicit Flow Security Considerations</InfoTitle>
 											<InfoList>
@@ -6152,7 +6142,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>Modern Alternative: PKCE with Authorization Code Flow</InfoTitle>
 											<InfoText>
@@ -6183,7 +6173,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>⚙️ PingOne Configuration Required</InfoTitle>
 											<InfoText>
@@ -6219,7 +6209,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>When to Use Implicit Flow (Educational Purpose)</InfoTitle>
 											<InfoList>
@@ -6259,16 +6249,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!authzCodeOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> What is Authorization Code Flow?
+									<span>📖</span> What is Authorization Code Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={authzCodeOverviewCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!authzCodeOverviewCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>Recommended OAuth 2.0 Flow</InfoTitle>
 											<InfoText>
@@ -6281,7 +6271,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>How Authorization Code Flow Works</InfoTitle>
 											<InfoText>
@@ -6315,16 +6305,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!authzCodeDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Security Features & Best Practices
+									<span>📖</span> Security Features & Best Practices
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={authzCodeDetailsCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!authzCodeDetailsCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
-										<FiShield size={20} />
+										<span style={{ fontSize: '20px' }}>🛡️</span>
 										<div>
 											<InfoTitle>Why Authorization Code Flow is Secure</InfoTitle>
 											<InfoList>
@@ -6353,7 +6343,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>PingOne-Specific Requirements</InfoTitle>
 											<InfoList>
@@ -6392,16 +6382,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!hybridOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> What is Hybrid Flow?
+									<span>📖</span> What is Hybrid Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={hybridOverviewCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!hybridOverviewCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Hybrid Flow Overview</InfoTitle>
 											<InfoText>
@@ -6414,7 +6404,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>How Hybrid Flow Works</InfoTitle>
 											<InfoText>
@@ -6454,16 +6444,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!hybridDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Hybrid Flow vs Authorization Code Flow
+									<span>📖</span> Hybrid Flow vs Authorization Code Flow
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={hybridDetailsCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!hybridDetailsCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Key Similarities</InfoTitle>
 											<InfoList>
@@ -6487,7 +6477,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>Key Differences</InfoTitle>
 											<InfoList>
@@ -6514,7 +6504,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiShield size={20} />
+										<span style={{ fontSize: '20px' }}>🛡️</span>
 										<div>
 											<InfoTitle>When to Use Hybrid Flow</InfoTitle>
 											<InfoList>
@@ -6552,16 +6542,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!authRequestOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> Understanding Authorization Requests
+								<span>📖</span> Understanding Authorization Requests
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={authRequestOverviewCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!authRequestOverviewCollapsed && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
+									<span style={{ fontSize: '20px' }}>ℹ️</span>
 									<div>
 										<InfoTitle>What Makes a Valid Authorization Request?</InfoTitle>
 										<InfoText>
@@ -6623,17 +6613,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!authRequestDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> Authorization URL Parameters Deep Dive
+								<span>📖</span> Authorization URL Parameters Deep Dive
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={authRequestDetailsCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!authRequestDetailsCollapsed && (
 							<CollapsibleContent>
 								<ParameterGrid>
 									<InfoBox $variant="info">
-										<FiKey size={20} />
+										<span style={{ fontSize: '20px' }}>🔑</span>
 										<div>
 											<InfoTitle>Required Parameters</InfoTitle>
 											<InfoList>
@@ -6662,7 +6652,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiShield size={20} />
+										<span style={{ fontSize: '20px' }}>🛡️</span>
 										<div>
 											<InfoTitle>Security Parameters</InfoTitle>
 											<InfoList>
@@ -6695,7 +6685,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</ParameterGrid>
 
 								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									<div>
 										<InfoTitle>Optional But Recommended Parameters</InfoTitle>
 										<InfoList>
@@ -6793,7 +6783,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									)}
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!preflightValidationCollapsed && (
@@ -7405,16 +7395,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!deviceCodeOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> What is Device Authorization Flow?
+								<span>📖</span> What is Device Authorization Flow?
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={deviceCodeOverviewCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!deviceCodeOverviewCollapsed && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
+									<span style={{ fontSize: '20px' }}>ℹ️</span>
 									<div>
 										<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
 										<InfoText>
@@ -7427,7 +7417,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</InfoBox>
 
 								<InfoBox $variant="success">
-									<FiCheckCircle size={20} />
+									<span style={{ fontSize: '20px' }}>✅</span>
 									<div>
 										<InfoTitle>How Device Code Flow Works</InfoTitle>
 										<InfoList>
@@ -7458,17 +7448,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!deviceCodeDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<FiBook /> Device Code vs Authorization Code & Use Cases
+								<span>📖</span> Device Code vs Authorization Code & Use Cases
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={deviceCodeDetailsCollapsed}>
-								<FiChevronDown />
+								<span>⬇️</span>
 							</CollapsibleToggleIcon>
 						</CollapsibleHeaderButton>
 						{!deviceCodeDetailsCollapsed && (
 							<CollapsibleContent>
 								<ParameterGrid>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Device Code Flow</InfoTitle>
 											<InfoList>
@@ -7481,7 +7471,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>Authorization Code Flow</InfoTitle>
 											<InfoList>
@@ -7495,7 +7485,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</ParameterGrid>
 
 								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									<div>
 										<InfoTitle>Use Cases for Device Code Flow</InfoTitle>
 										<InfoList>
@@ -10497,7 +10487,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}}
 									title="Copy user code"
 								>
-									<FiCopy size={16} />
+									<span style={{ fontSize: '16px' }}>📋</span>
 									Copy
 								</button>
 							</div>
@@ -11246,16 +11236,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!clientCredentialsOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> What is Client Credentials Flow?
+									<span>📖</span> What is Client Credentials Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={clientCredentialsOverviewCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!clientCredentialsOverviewCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Machine-to-Machine Authentication</InfoTitle>
 											<InfoText>
@@ -11268,7 +11258,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>When to Use Client Credentials</InfoTitle>
 											<InfoList>
@@ -11299,17 +11289,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!clientCredentialsDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Client Credentials vs User Flows & Resource Server Scopes
+									<span>📖</span> Client Credentials vs User Flows & Resource Server Scopes
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={clientCredentialsDetailsCollapsed}>
-									<FiChevronDown />
+									<span>⬇️</span>
 								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!clientCredentialsDetailsCollapsed && (
 								<CollapsibleContent>
 									<ParameterGrid>
 										<InfoBox $variant="info">
-											<FiInfo size={20} />
+											<span style={{ fontSize: '20px' }}>ℹ️</span>
 											<div>
 												<InfoTitle>Client Credentials Flow</InfoTitle>
 												<InfoList>
@@ -11322,7 +11312,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</InfoBox>
 
 										<InfoBox $variant="success">
-											<FiCheckCircle size={20} />
+											<span style={{ fontSize: '20px' }}>✅</span>
 											<div>
 												<InfoTitle>User Flows (Auth Code, Implicit)</InfoTitle>
 												<InfoList>
@@ -11336,7 +11326,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</ParameterGrid>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
+										<span style={{ fontSize: '20px' }}>⚠️</span>
 										<div>
 											<InfoTitle>Resource Server Scopes Required</InfoTitle>
 											<InfoText>
@@ -11363,7 +11353,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
+										<span style={{ fontSize: '20px' }}>✅</span>
 										<div>
 											<InfoTitle>Using Custom Resources</InfoTitle>
 											<InfoText>
@@ -11398,7 +11388,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
+										<span style={{ fontSize: '20px' }}>ℹ️</span>
 										<div>
 											<InfoTitle>Use Cases for Client Credentials</InfoTitle>
 											<InfoList>
@@ -13822,7 +13812,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							e.currentTarget.style.boxShadow = 'none';
 						}}
 					>
-						<FiBook size={18} />
+						<span style={{ fontSize: '18px' }}>📖</span>
 						<span>View API Documentation</span>
 					</button>
 				</div>
@@ -15139,7 +15129,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									? 'View API Documentation'
 									: 'View API Documentation'}
 							</span>
-							<FiArrowRight size={16} />
+							<span style={{ fontSize: '16px' }}>➡️</span>
 						</button>
 					)}
 
@@ -15165,7 +15155,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							title="Go to Success page"
 						>
 							<span>View Success Summary</span>
-							<FiArrowRight size={16} />
+							<span style={{ fontSize: '16px' }}>➡️</span>
 						</button>
 					)}
 				</div>

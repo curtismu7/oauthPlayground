@@ -1,7 +1,7 @@
-import { FiAlertCircle, FiCheck, FiCopy, FiEye, FiKey, FiRefreshCw, FiTool } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
@@ -198,7 +198,7 @@ const OAuthUtilities: React.FC = () => {
 			});
 			return parsed;
 		} catch (e) {
-			logger.error(
+			log.error(
 				'OAuthUtilities',
 				' [JWT Decoder] Error parsing JWT part:',
 				{ part: `${part.substring(0, 20)}...` },
@@ -249,7 +249,7 @@ const OAuthUtilities: React.FC = () => {
 			setDecodedJwt({ header, payload });
 			setJwtError(''); // Clear any previous errors
 		} catch (error) {
-			logger.error(
+			log.error(
 				'OAuthUtilities',
 				' [JWT Decoder] Error in handleDecodeJWT:',
 				undefined,
@@ -284,14 +284,14 @@ const OAuthUtilities: React.FC = () => {
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			logger.error('OAuthUtilities', 'Failed to copy:', undefined, error as Error);
+			log.error('OAuthUtilities', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 
 	return (
 		<div>
 			<h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-				<FiTool /> OAuth Development Utilities
+				<span>❓</span> OAuth Development Utilities
 			</h2>
 
 			<UtilitiesContainer>
@@ -299,7 +299,7 @@ const OAuthUtilities: React.FC = () => {
 				<UtilityCard>
 					<CardHeader>
 						<h3>
-							<FiEye /> JWT Token Decoder
+							<span>👁️</span> JWT Token Decoder
 						</h3>
 					</CardHeader>
 					<CardBody>
@@ -320,7 +320,7 @@ const OAuthUtilities: React.FC = () => {
 
 						<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
 							<Button onClick={handleDecodeJWT}>
-								<FiEye size={16} />
+								<span style={{ fontSize: '16px' }}>👁️</span>
 								Decode JWT
 							</Button>
 							<Button
@@ -339,7 +339,7 @@ const OAuthUtilities: React.FC = () => {
 						{jwtError && (
 							<ResultBox $type="error">
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-									<FiAlertCircle size={16} />
+									<span style={{ fontSize: '16px' }}>⚠️</span>
 									{jwtError}
 								</div>
 							</ResultBox>
@@ -363,7 +363,7 @@ const OAuthUtilities: React.FC = () => {
 												handleCopy(JSON.stringify(decodedJwt.header, null, 2), 'header')
 											}
 										>
-											{copiedField === 'header' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+											{copiedField === 'header' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 											{copiedField === 'header' ? 'Copied!' : 'Copy'}
 										</CopyButton>
 									</div>
@@ -401,7 +401,7 @@ const OAuthUtilities: React.FC = () => {
 												handleCopy(JSON.stringify(decodedJwt.payload, null, 2), 'payload')
 											}
 										>
-											{copiedField === 'payload' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+											{copiedField === 'payload' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 											{copiedField === 'payload' ? 'Copied!' : 'Copy'}
 										</CopyButton>
 									</div>
@@ -428,7 +428,7 @@ const OAuthUtilities: React.FC = () => {
 									<CopyButton
 										onClick={() => handleCopy(JSON.stringify(decodedJwt, null, 2), 'full')}
 									>
-										{copiedField === 'full' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+										{copiedField === 'full' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 										{copiedField === 'full' ? 'Copied!' : 'Copy Full Decoded JWT'}
 									</CopyButton>
 								</div>
@@ -441,7 +441,7 @@ const OAuthUtilities: React.FC = () => {
 				<UtilityCard>
 					<CardHeader>
 						<h3>
-							<FiKey /> PKCE Code Generator
+							<span>🔑</span> PKCE Code Generator
 						</h3>
 					</CardHeader>
 					<CardBody>
@@ -451,14 +451,14 @@ const OAuthUtilities: React.FC = () => {
 						</p>
 
 						<Button onClick={handleGeneratePKCE}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Generate PKCE Pair
 						</Button>
 
 						{pkceError && (
 							<ResultBox $type="error">
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-									<FiAlertCircle size={16} />
+									<span style={{ fontSize: '16px' }}>⚠️</span>
 									{pkceError}
 								</div>
 							</ResultBox>
@@ -478,7 +478,7 @@ const OAuthUtilities: React.FC = () => {
 										>
 											<strong>Code Verifier:</strong>
 											<CopyButton onClick={() => handleCopy(codeVerifier, 'verifier')}>
-												{copiedField === 'verifier' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+												{copiedField === 'verifier' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 												{copiedField === 'verifier' ? 'Copied!' : 'Copy'}
 											</CopyButton>
 										</div>
@@ -494,7 +494,7 @@ const OAuthUtilities: React.FC = () => {
 										>
 											<strong>Code Challenge (S256):</strong>
 											<CopyButton onClick={() => handleCopy(codeChallenge, 'challenge')}>
-												{copiedField === 'challenge' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+												{copiedField === 'challenge' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 												{copiedField === 'challenge' ? 'Copied!' : 'Copy'}
 											</CopyButton>
 										</div>
@@ -510,7 +510,7 @@ const OAuthUtilities: React.FC = () => {
 				<UtilityCard>
 					<CardHeader>
 						<h3>
-							<FiRefreshCw /> Random String Generator
+							<span>🔄</span> Random String Generator
 						</h3>
 					</CardHeader>
 					<CardBody>
@@ -532,7 +532,7 @@ const OAuthUtilities: React.FC = () => {
 						</InputGroup>
 
 						<Button onClick={handleGenerateRandomString}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Generate Random String
 						</Button>
 
@@ -548,7 +548,7 @@ const OAuthUtilities: React.FC = () => {
 								>
 									<strong>Generated String ({randomString.length} characters):</strong>
 									<CopyButton onClick={() => handleCopy(randomString, 'random')}>
-										{copiedField === 'random' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+										{copiedField === 'random' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 										{copiedField === 'random' ? 'Copied!' : 'Copy'}
 									</CopyButton>
 								</div>
@@ -562,7 +562,7 @@ const OAuthUtilities: React.FC = () => {
 				<UtilityCard>
 					<CardHeader>
 						<h3>
-							<FiEye /> URL Parameter Decoder
+							<span>👁️</span> URL Parameter Decoder
 						</h3>
 					</CardHeader>
 					<CardBody>
@@ -581,7 +581,7 @@ const OAuthUtilities: React.FC = () => {
 						</InputGroup>
 
 						<Button>
-							<FiEye size={16} />
+							<span style={{ fontSize: '16px' }}>👁️</span>
 							Decode URL
 						</Button>
 
@@ -596,7 +596,7 @@ const OAuthUtilities: React.FC = () => {
 							>
 								<strong>URL Parameters:</strong>
 								<CopyButton>
-									<FiCopy size={12} />
+									<span style={{ fontSize: '12px' }}>📋</span>
 									Copy
 								</CopyButton>
 							</div>

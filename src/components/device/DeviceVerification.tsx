@@ -1,10 +1,10 @@
 // Device verification component for OIDC Device Code flow
 
-import { FiClock, FiCopy, FiExternalLink, FiMonitor, FiSmartphone } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { formatUserCode } from '../../utils/deviceCode';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 import {
 formatUrlForQRCode,
@@ -287,12 +287,12 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 					const qrDataUrl = await generateQRCode(urlToUse, { size: 200 });
 					setQrCodeUrl(qrDataUrl);
 				} else {
-					logger.warn('DeviceVerification', 'Invalid URL for QR code generation', {
+					log.warn('DeviceVerification', 'Invalid URL for QR code generation', {
 						url: urlToUse,
 					});
 				}
 			} catch (error) {
-				logger.error('DeviceVerification', 'Failed to generate QR code', error);
+				log.error('DeviceVerification', 'Failed to generate QR code', error);
 			}
 		};
 
@@ -318,9 +318,9 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 			setCopiedUserCode(true);
 			onCopyUserCode();
 			setTimeout(() => setCopiedUserCode(false), 2000);
-			logger.info('DeviceVerification', 'User code copied to clipboard');
+			log.info('DeviceVerification', 'User code copied to clipboard');
 		} catch (error) {
-			logger.error('DeviceVerification', 'Failed to copy user code', error);
+			log.error('DeviceVerification', 'Failed to copy user code', error);
 		}
 	}, [userCode, onCopyUserCode]);
 
@@ -330,15 +330,15 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 			setCopiedVerificationUri(true);
 			onCopyVerificationUri();
 			setTimeout(() => setCopiedVerificationUri(false), 2000);
-			logger.info('DeviceVerification', 'Verification URI copied to clipboard');
+			log.info('DeviceVerification', 'Verification URI copied to clipboard');
 		} catch (error) {
-			logger.error('DeviceVerification', 'Failed to copy verification URI', error);
+			log.error('DeviceVerification', 'Failed to copy verification URI', error);
 		}
 	}, [verificationUri, onCopyVerificationUri]);
 
 	const handleOpenVerificationUri = useCallback(() => {
 		window.open(verificationUri, '_blank', 'noopener,noreferrer');
-		logger.info('DeviceVerification', 'Opened verification URI in new tab');
+		log.info('DeviceVerification', 'Opened verification URI in new tab');
 	}, [verificationUri]);
 
 	return (
@@ -349,14 +349,14 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 			</Header>
 
 			<TimerSection>
-				<FiClock size={16} />
+				<span style={{ fontSize: '16px' }}>🕐</span>
 				<span>Code expires in {formatTimeRemaining(timeRemaining)}</span>
 			</TimerSection>
 
 			<VerificationSection>
 				<QRCodeSection>
 					<QRCodeLabel>
-						<FiSmartphone size={16} />
+						<span style={{ fontSize: '16px' }}>📱</span>
 						Scan with your phone
 					</QRCodeLabel>
 
@@ -368,7 +368,7 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 							/>
 						) : (
 							<QRCodeFallback>
-								<FiMonitor size={32} />
+								<span style={{ fontSize: '32px' }}>🖥️</span>
 								<div>QR Code</div>
 								<div style={{ fontSize: '0.75rem' }}>
 									{formatUrlForQRCode(verificationUriComplete || verificationUri)}
@@ -378,14 +378,14 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 					</QRCodeContainer>
 
 					<ActionButton variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink size={16} />
+						<span style={{ fontSize: '16px' }}>🔗</span>
 						Open in Browser
 					</ActionButton>
 				</QRCodeSection>
 
 				<UserCodeSection>
 					<UserCodeLabel>
-						<FiMonitor size={16} />
+						<span style={{ fontSize: '16px' }}>🖥️</span>
 						Enter this code manually
 					</UserCodeLabel>
 
@@ -394,7 +394,7 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 
 						<ActionButtons>
 							<ActionButton onClick={handleCopyUserCode}>
-								<FiCopy size={16} />
+								<span style={{ fontSize: '16px' }}>📋</span>
 								{copiedUserCode ? 'Copied!' : 'Copy Code'}
 							</ActionButton>
 						</ActionButtons>
@@ -408,7 +408,7 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 						</div>
 						<VerificationUrl>{formatUrlForQRCode(verificationUri)}</VerificationUrl>
 						<ActionButton onClick={handleCopyVerificationUri}>
-							<FiCopy size={16} />
+							<span style={{ fontSize: '16px' }}>📋</span>
 							{copiedVerificationUri ? 'Copied!' : 'Copy URL'}
 						</ActionButton>
 					</VerificationUrlSection>

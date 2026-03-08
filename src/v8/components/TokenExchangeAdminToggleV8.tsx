@@ -1,14 +1,7 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiSettings,
-	FiShield,
-	FiToggleLeft,
-	FiToggleRight,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -241,7 +234,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 		<Container>
 			<Header>
 				<Title>
-					<FiShield />
+					<span>🛡️</span>
 					Token Exchange Configuration
 				</Title>
 				<ToggleContainer>
@@ -251,9 +244,9 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 						disabled={isLoading}
 					>
 						<StatusIcon $enabled={isEnabled}>
-							{isEnabled ? <FiCheckCircle size={12} /> : <FiAlertCircle size={12} />}
+							{isEnabled ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>⚠️</span>}
 						</StatusIcon>
-						{isLoading ? <LoadingSpinner /> : isEnabled ? <FiToggleRight /> : <FiToggleLeft />}
+						{isLoading ? <LoadingSpinner /> : isEnabled ? <span>❓</span> : <span>❓</span>}
 						{isLoading ? 'Updating...' : isEnabled ? 'Enabled' : 'Disabled'}
 					</ToggleButton>
 				</ToggleContainer>

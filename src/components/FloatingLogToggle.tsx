@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { FiTerminal } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -76,7 +76,7 @@ export const FloatingLogToggle: React.FC<FloatingLogToggleProps> = ({
 			className={hasNewLogs ? 'pulse' : ''}
 			title={isOpen ? 'Close Log Viewer' : 'Open Log Viewer'}
 		>
-			<FiTerminal />
+			<span>❓</span>
 		</ToggleButton>
 	);
 };

@@ -4,18 +4,7 @@
  * Interactive OAuth/OIDC specification browser with real examples
  */
 
-import {
-	FiBook,
-	FiCheckCircle,
-	FiCode,
-	FiCompass,
-	FiCopy,
-	FiExternalLink,
-	FiGitBranch,
-	FiLayers,
-	FiSearch,
-	FiTool,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -930,7 +919,7 @@ const LiveRFCExplorer: React.FC = () => {
 	return (
 		<ExplorerContainer>
 			<Title>
-				<FiBook size={32} />
+				<span style={{ fontSize: '32px' }}>📖</span>
 				Live RFC Explorer
 			</Title>
 			<Subtitle>
@@ -941,7 +930,7 @@ const LiveRFCExplorer: React.FC = () => {
 			<ToggleRow>
 				<SearchBox>
 					<SearchIcon>
-						<FiSearch size={20} />
+						<span style={{ fontSize: '20px' }}>🔍</span>
 					</SearchIcon>
 					<SearchInput
 						type="text"
@@ -956,7 +945,7 @@ const LiveRFCExplorer: React.FC = () => {
 					onClick={() => setDeepDive((prev) => !prev)}
 					aria-pressed={deepDive}
 				>
-					<FiLayers />
+					<span>❓</span>
 					{deepDive ? 'Deep Dive Mode: ON' : 'Enable Deep Dive Mode'}
 				</DeepDiveToggle>
 			</ToggleRow>
@@ -969,7 +958,7 @@ const LiveRFCExplorer: React.FC = () => {
 						onClick={() => setSelectedRFC(spec.id)}
 					>
 						<RFCNumber>
-							<FiGitBranch />
+							<span>❓</span>
 							{spec.number}
 						</RFCNumber>
 						<RFCTitle>{spec.title}</RFCTitle>
@@ -981,7 +970,7 @@ const LiveRFCExplorer: React.FC = () => {
 			{rfc && (
 				<ContentPanel>
 					<SectionTitle>
-						<FiBook />
+						<span>📖</span>
 						{rfc.number}: {rfc.title}
 					</SectionTitle>
 
@@ -995,10 +984,10 @@ const LiveRFCExplorer: React.FC = () => {
 							{rfc.year}
 						</MetaItem>
 						<MetaItem>
-							<FiExternalLink size={14} />
+							<span style={{ fontSize: '14px' }}>🔗</span>
 							<LinkButton href={rfc.url} target="_blank" rel="noopener noreferrer">
 								View Official Spec
-								<FiExternalLink />
+								<span>🔗</span>
 							</LinkButton>
 						</MetaItem>
 					</RFCMeta>
@@ -1017,7 +1006,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 					<ContentSection>
 						<SubsectionTitle>
-							<FiCode />
+							<span>❓</span>
 							Real Code Examples
 						</SubsectionTitle>
 						{rfc.examples.map((example, index) => (
@@ -1027,7 +1016,7 @@ const LiveRFCExplorer: React.FC = () => {
 								</ContentText>
 								<ExampleBox>
 									<CopyButton onClick={() => copyCode(example.code)}>
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy
 									</CopyButton>
 									<pre style={{ margin: 0 }}>{example.code}</pre>
@@ -1038,7 +1027,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 					<ContentSection>
 						<SubsectionTitle>
-							<FiCheckCircle />
+							<span>✅</span>
 							PingOne Support
 						</SubsectionTitle>
 						<TipBox variant="success">{rfc.pingoneSupport}</TipBox>
@@ -1048,7 +1037,7 @@ const LiveRFCExplorer: React.FC = () => {
 						<>
 							<ContentSection>
 								<SubsectionTitle>
-									<FiLayers />
+									<span>❓</span>
 									Deep Dive Insights
 								</SubsectionTitle>
 								<InsightList>
@@ -1060,7 +1049,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 							<ContentSection>
 								<SubsectionTitle>
-									<FiCompass />
+									<span>❓</span>
 									PingOne Implementation Notes
 								</SubsectionTitle>
 								{rfc.pingoneCallouts.map((callout) => (
@@ -1070,7 +1059,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 							<ContentSection>
 								<SubsectionTitle>
-									<FiTool />
+									<span>❓</span>
 									Practice With These Playground Tools
 								</SubsectionTitle>
 								<ToolLinkList>

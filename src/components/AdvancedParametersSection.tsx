@@ -1,6 +1,6 @@
 // src/components/AdvancedParametersSection.tsx
 
-import { FiCode, FiGlobe, FiSettings, FiShield } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // Import services
@@ -144,7 +144,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 	return (
 		<CollapsibleHeader
 			title="Configure Advanced Parameters"
-			icon={<FiSettings />}
+			icon={<span>⚙️</span>}
 			defaultCollapsed={defaultCollapsed}
 		>
 			<InnerContent>
@@ -154,7 +154,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 						{/* Claims Request Builder */}
 						<CollapsibleHeader
 							title="Advanced Claims Request Builder"
-							icon={<FiCode />}
+							icon={<span>❓</span>}
 							defaultCollapsed={true}
 						>
 							<ClaimsRequestBuilder value={claimsRequest} onChange={setClaimsRequest} />
@@ -163,7 +163,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 						{/* Display Parameter (OIDC only) */}
 						<CollapsibleHeader
 							title="Display Parameter (OIDC)"
-							icon={<FiGlobe />}
+							icon={<span>🌐</span>}
 							defaultCollapsed={true}
 						>
 							<DisplayParameterSelector value={displayMode} onChange={setDisplayMode} />
@@ -177,7 +177,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 						{/* Resource Indicators (RFC 8707) */}
 						<CollapsibleHeader
 							title="Resource Indicators (RFC 8707)"
-							icon={<FiShield />}
+							icon={<span>🛡️</span>}
 							defaultCollapsed={true}
 						>
 							<InfoBox>
@@ -191,7 +191,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 						{/* Enhanced Prompt Selector */}
 						<CollapsibleHeader
 							title="Enhanced Prompt Parameter"
-							icon={<FiSettings />}
+							icon={<span>⚙️</span>}
 							defaultCollapsed={true}
 						>
 							<InfoBox>
@@ -207,7 +207,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 				)}
 
 				{/* Audience Parameter (available for most flows) */}
-				<CollapsibleHeader title="Audience Parameter" icon={<FiShield />} defaultCollapsed={true}>
+				<CollapsibleHeader title="Audience Parameter" icon={<span>🛡️</span>} defaultCollapsed={true}>
 					<InfoBox>
 						<strong>About Audience Parameter:</strong> Specifies the target API for the access
 						token. This helps authorization servers issue tokens with the correct audience claim.

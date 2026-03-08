@@ -1,21 +1,12 @@
 // src/components/MCPServerDeviceFlow.tsx
 // MCP Server Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiDatabase,
-	FiExternalLink,
-	FiLink,
-	FiServer,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
@@ -327,31 +318,31 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('MCPServerDeviceFlow', 'User code copied to clipboard');
+		log.info('MCPServerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('MCPServerDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('MCPServerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('MCPServerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('MCPServerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -421,13 +412,13 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 				{/* Server Control Panel */}
 				<ServerControlPanel>
 					<ServerControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy Token
+						<span>📋</span> Copy Token
 					</ServerControlButton>
 					<ServerControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</ServerControlButton>
 					<ServerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</ServerControlButton>
 				</ServerControlPanel>
 

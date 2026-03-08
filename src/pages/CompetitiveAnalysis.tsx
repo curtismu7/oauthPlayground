@@ -1,14 +1,4 @@
-import {
-	FiAward,
-	FiCheckCircle,
-	FiDollarSign,
-	FiExternalLink,
-	FiGlobe,
-	FiShield,
-	FiTrendingUp,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React, { useState } from 'react';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
@@ -538,7 +528,7 @@ const CompetitiveAnalysis: React.FC = () => {
 		<div style={styles.pageContainer}>
 			<div style={styles.heroSection}>
 				<h1 style={styles.heroTitle}>
-					<FiAward />
+					<span>❓</span>
 					Identity Provider Competitive Analysis
 				</h1>
 				<p style={styles.heroSubtitle}>Compare leading Identity & Access Management solutions</p>
@@ -551,7 +541,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Provider Overview"
 				subtitle="Detailed comparison of major IAM providers"
-				icon={<FiUsers />}
+				icon={<span>👥</span>}
 				defaultCollapsed={false}
 			>
 				<div style={styles.comparisonGrid}>
@@ -586,7 +576,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							<ul style={styles.featuresList}>
 								{provider.features.map((feature, index) => (
 									<li key={index} style={styles.featureItem}>
-										<FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN" />
+										<span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
 										{feature}
 									</li>
 								))}
@@ -595,7 +585,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							<div style={styles.prosConsContainer}>
 								<div style={styles.prosConsSection('pros')}>
 									<h4 style={styles.prosConsTitle('pros')}>
-										<FiTrendingUp size={14} />
+										<span style={{ fontSize: '14px' }}>📈</span>
 										Pros
 									</h4>
 									<ul style={styles.prosConsList}>
@@ -609,7 +599,7 @@ const CompetitiveAnalysis: React.FC = () => {
 
 								<div style={styles.prosConsSection('cons')}>
 									<h4 style={styles.prosConsTitle('cons')}>
-										<FiZap size={14} />
+										<span style={{ fontSize: '14px' }}>⚡</span>
 										Cons
 									</h4>
 									<ul style={styles.prosConsList}>
@@ -628,7 +618,7 @@ const CompetitiveAnalysis: React.FC = () => {
 									size="sm"
 									onClick={() => window.open(provider.website, '_blank')}
 								>
-									<FiExternalLink />
+									<span>🔗</span>
 									Visit Website
 								</Button>
 								<Button
@@ -636,7 +626,7 @@ const CompetitiveAnalysis: React.FC = () => {
 									size="sm"
 									onClick={() => setSelectedProvider(provider.id)}
 								>
-									<FiShield size={14} />
+									<span style={{ fontSize: '14px' }}>🛡️</span>
 									Learn More
 								</Button>
 							</div>
@@ -648,13 +638,13 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Feature Comparison Matrix"
 				subtitle="Side-by-side comparison of key features across all providers"
-				icon={<FiCheckCircle />}
+				icon={<span>✅</span>}
 				defaultCollapsed={false}
 			>
 				<div style={styles.comparisonTable}>
 					<div style={styles.tableHeader}>
 						<h3 style={styles.tableTitle}>
-							<FiCheckCircle />
+							<span>✅</span>
 							Feature Comparison Matrix
 						</h3>
 					</div>
@@ -728,7 +718,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Use Case Recommendations"
 				subtitle="Which provider is best for different scenarios"
-				icon={<FiGlobe />}
+				icon={<span>🌐</span>}
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '2rem' }}>
@@ -749,7 +739,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiUsers />
+							<span>👥</span>
 							Enterprise Organizations
 						</h3>
 						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
@@ -779,7 +769,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiZap />
+							<span>⚡</span>
 							Startups & SMBs
 						</h3>
 						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
@@ -809,7 +799,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiGlobe />
+							<span>🌐</span>
 							Cloud-Native Applications
 						</h3>
 						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
@@ -827,7 +817,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Pricing Analysis"
 				subtitle="Cost comparison and value analysis"
-				icon={<FiDollarSign />}
+				icon={<span>💵</span>}
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '1.5rem' }}>

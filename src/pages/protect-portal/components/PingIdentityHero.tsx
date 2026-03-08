@@ -9,7 +9,7 @@
  * identity and access management capabilities with enterprise security features.
  */
 
-import { FiArrowRight, FiDatabase, FiKey, FiLock, FiSettings, FiShield, FiUsers } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
@@ -249,28 +249,28 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 							<QuickActions>
 								<QuickAction>
 									<ActionIcon>
-										<FiShield />
+										<span>🛡️</span>
 									</ActionIcon>
 									<ActionLabel>Security</ActionLabel>
 								</QuickAction>
 
 								<QuickAction>
 									<ActionIcon>
-										<FiUsers />
+										<span>👥</span>
 									</ActionIcon>
 									<ActionLabel>Users</ActionLabel>
 								</QuickAction>
 
 								<QuickAction>
 									<ActionIcon>
-										<FiKey />
+										<span>🔑</span>
 									</ActionIcon>
 									<ActionLabel>Access</ActionLabel>
 								</QuickAction>
 
 								<QuickAction>
 									<ActionIcon>
-										<FiDatabase />
+										<span>🗄️</span>
 									</ActionIcon>
 									<ActionLabel>Directory</ActionLabel>
 								</QuickAction>
@@ -283,9 +283,9 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 									assessment.
 								</LoginDescription>
 								<LoginButton onClick={onLoginStart}>
-									<FiLock />
+									<span>🔒</span>
 									Begin Secure Login
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginSection>
 						</>
@@ -303,9 +303,9 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 									be required based on your security profile and access requirements.
 								</LoginDescription>
 								<LoginButton onClick={onLoginStart}>
-									<FiLock />
+									<span>🔒</span>
 									Sign In to Identity Portal
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginSection>
 						</>
@@ -319,7 +319,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 					<FeaturesGrid>
 						<FeatureCard>
 							<FeatureIcon>
-								<FiShield />
+								<span>🛡️</span>
 							</FeatureIcon>
 							<FeatureTitle>Advanced Security</FeatureTitle>
 							<FeatureDescription>
@@ -330,7 +330,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 
 						<FeatureCard>
 							<FeatureIcon>
-								<FiUsers />
+								<span>👥</span>
 							</FeatureIcon>
 							<FeatureTitle>User Management</FeatureTitle>
 							<FeatureDescription>
@@ -340,7 +340,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 
 						<FeatureCard>
 							<FeatureIcon>
-								<FiKey />
+								<span>🔑</span>
 							</FeatureIcon>
 							<FeatureTitle>Single Sign-On</FeatureTitle>
 							<FeatureDescription>
@@ -351,7 +351,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 
 						<FeatureCard>
 							<FeatureIcon>
-								<FiDatabase />
+								<span>🗄️</span>
 							</FeatureIcon>
 							<FeatureTitle>Directory Integration</FeatureTitle>
 							<FeatureDescription>
@@ -361,7 +361,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 
 						<FeatureCard>
 							<FeatureIcon>
-								<FiSettings />
+								<span>⚙️</span>
 							</FeatureIcon>
 							<FeatureTitle>API Security</FeatureTitle>
 							<FeatureDescription>
@@ -371,7 +371,7 @@ const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
 
 						<FeatureCard>
 							<FeatureIcon>
-								<FiLock />
+								<span>🔒</span>
 							</FeatureIcon>
 							<FeatureTitle>Risk Assessment</FeatureTitle>
 							<FeatureDescription>

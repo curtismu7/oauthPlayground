@@ -1,10 +1,10 @@
 // src/components/LogoutUriInfoPanel.tsx
 
-import { FiCheck, FiCopy } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface LogoutUriInfoPanelProps {
 	flowKey?:
@@ -180,7 +180,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			logger.error('LogoutUriInfoPanel', 'Failed to copy logout URI:', undefined, err as Error);
+			log.error('LogoutUriInfoPanel', 'Failed to copy logout URI:', undefined, err as Error);
 		}
 	};
 
@@ -202,7 +202,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 				<UriCode $compact={compact}>{uriInfo.logoutUri}</UriCode>
 				{showCopyButton && (
 					<CopyButton onClick={handleCopy}>
-						{copied ? <FiCheck /> : <FiCopy />}
+						{copied ? <span>✅</span> : <span>📋</span>}
 						{copied ? 'Copied!' : 'Copy URI'}
 					</CopyButton>
 				)}

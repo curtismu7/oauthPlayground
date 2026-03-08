@@ -6,7 +6,7 @@
  * @since 2024-11-20
  */
 
-import { FiCheckCircle, FiInfo, FiKey, FiLock, FiShield, FiX, FiXCircle } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -170,11 +170,11 @@ const TableRow = styled.tr`
 	}
 `;
 
-const CheckIcon = styled(FiCheckCircle)`
+const CheckIcon = styled.span`
 	color: #10b981;  // Green
 `;
 
-const XIcon = styled(FiXCircle)`
+const XIcon = styled.span`
 	color: #ef4444;  // Red
 `;
 
@@ -267,11 +267,11 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiKey size={24} />
+						<span style={{ fontSize: '24px' }}>🔑</span>
 						Token Endpoint Authentication Methods
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX size={24} />
+						<span style={{ fontSize: '24px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -279,7 +279,7 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 					{/* Introduction */}
 					<Section>
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<strong>What is Token Endpoint Authentication?</strong>
 								<p style={{ margin: '0.5rem 0 0 0' }}>
@@ -294,13 +294,13 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 					{/* Authentication Methods */}
 					<Section>
 						<SectionTitle>
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 							Authentication Methods
 						</SectionTitle>
 
 						<MethodCard>
 							<MethodHeader>
-								<FiKey size={18} color="#10b981" />
+								<span style={{ fontSize: 18, color: '#10b981' }}>🔑</span>
 								<MethodName>None (Public Client)</MethodName>
 							</MethodHeader>
 							<MethodDescription>
@@ -324,7 +324,7 @@ grant_type=authorization_code
 
 						<MethodCard>
 							<MethodHeader>
-								<FiLock size={18} color="#3b82f6" />
+								<span style={{ fontSize: 18, color: '#3b82f6' }}>🔒</span>
 								<MethodName>Client Secret Basic</MethodName>
 							</MethodHeader>
 							<MethodDescription>
@@ -348,7 +348,7 @@ grant_type=authorization_code
 
 						<MethodCard>
 							<MethodHeader>
-								<FiLock size={18} color="#8b5cf6" />
+								<span style={{ fontSize: 18, color: '#8b5cf6' }}>🔒</span>
 								<MethodName>Client Secret Post</MethodName>
 							</MethodHeader>
 							<MethodDescription>
@@ -373,7 +373,7 @@ grant_type=authorization_code
 
 						<MethodCard>
 							<MethodHeader>
-								<FiShield size={18} color="#f59e0b" />
+								<span style={{ fontSize: 18, color: '#f59e0b' }}>🛡️</span>
 								<MethodName>Client Secret JWT</MethodName>
 							</MethodHeader>
 							<MethodDescription>
@@ -397,7 +397,7 @@ grant_type=authorization_code
 
 						<MethodCard>
 							<MethodHeader>
-								<FiShield size={18} color="#ef4444" />
+								<span style={{ fontSize: 18, color: '#ef4444' }}>🛡️</span>
 								<MethodName>Private Key JWT</MethodName>
 							</MethodHeader>
 							<MethodDescription>
@@ -424,7 +424,7 @@ grant_type=authorization_code
 					{/* Compatibility Matrix */}
 					<Section>
 						<SectionTitle>
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							Flow Compatibility Matrix
 						</SectionTitle>
 
@@ -573,7 +573,7 @@ grant_type=authorization_code
 					{/* Recommendations */}
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							Recommended Pairings
 						</SectionTitle>
 
@@ -625,7 +625,7 @@ grant_type=authorization_code
 					{/* Key Takeaways */}
 					<Section>
 						<InfoBox $variant="warning">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<strong>Key Takeaways</strong>
 								<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>

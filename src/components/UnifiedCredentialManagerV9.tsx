@@ -9,7 +9,7 @@
  * component for easier maintenance and consistent user experience across all flows.
  */
 
-import { FiChevronDown, FiChevronUp, FiDownload, FiSearch, FiUpload } from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -23,7 +23,7 @@ import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const _MODULE_TAG = '[🔧 UNIFIED-CREDENTIAL-MANAGER-V9]';
 
@@ -280,7 +280,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	// Handle app discovery
 	const handleDiscover = async () => {
 		if (!environmentId || !tokenStatus?.isValid) {
-			logger.warn(_MODULE_TAG, 'Worker token required for app discovery');
+			log.warn(_MODULE_TAG, 'Worker token required for app discovery');
 			return;
 		}
 
@@ -303,7 +303,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 				setStatusMessage({ type: 'warning', text: 'No applications found for this grant type' });
 			}
 		} catch (error) {
-			logger.error(_MODULE_TAG, 'App discovery failed:', undefined, error as Error);
+			log.error(_MODULE_TAG, 'App discovery failed:', undefined, error as Error);
 			setStatusMessage({ type: 'error', text: 'Failed to discover applications' });
 		} finally {
 			setIsSearching(false);
@@ -358,7 +358,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 		<Container>
 			<Header $isExpanded={isExpanded} onClick={() => setIsExpanded(!isExpanded)}>
 				<HeaderTitle>
-					<FiSearch size={16} />
+					<span style={{ fontSize: '16px' }}>🔍</span>
 					Credential Management
 				</HeaderTitle>
 				<HeaderActions>
@@ -369,7 +369,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 							{showImportExport && 'Import/Export'}
 						</span>
 					)}
-					{isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+					{isExpanded ? <span style={{ fontSize: '16px' }}>⬆️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
 				</HeaderActions>
 			</Header>
 
@@ -385,7 +385,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={handleDiscover}
 									disabled={!canDiscover || isSearching}
 								>
-									<FiSearch size={14} />
+									<span style={{ fontSize: '14px' }}>🔍</span>
 									{isSearching ? 'Discovering...' : 'Discover Apps'}
 								</ActionButton>
 
@@ -440,7 +440,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={() => importFileRef.current?.click()}
 									disabled={disabled}
 								>
-									<FiUpload size={14} />
+									<span style={{ fontSize: '14px' }}>📤</span>
 									Import
 								</ActionButton>
 
@@ -449,7 +449,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={handleExport}
 									disabled={disabled || !credentials || Object.keys(credentials).length === 0}
 								>
-									<FiDownload size={14} />
+									<span style={{ fontSize: '14px' }}>📥</span>
 									Export
 								</ActionButton>
 							</ButtonGroup>

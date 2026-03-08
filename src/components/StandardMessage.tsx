@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
+
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -118,13 +118,13 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
 const getIcon = (type: MessageType) => {
 	switch (type) {
 		case 'success':
-			return <FiCheckCircle />;
+			return <span>✅</span>;
 		case 'error':
-			return <FiAlertCircle />;
+			return <span>⚠️</span>;
 		case 'warning':
-			return <FiAlertTriangle />;
+			return <span>⚠️</span>;
 		default:
-			return <FiInfo />;
+			return <span>ℹ️</span>;
 	}
 };
 

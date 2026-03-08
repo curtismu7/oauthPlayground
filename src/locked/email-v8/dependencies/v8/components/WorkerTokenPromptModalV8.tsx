@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import { FiAlertTriangle, FiX } from '@icons';
+
 import React from 'react';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '../config/constants.ts';
 
@@ -101,7 +101,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 									justifyContent: 'center',
 								}}
 							>
-								<FiAlertTriangle size={24} />
+								<span style={{ fontSize: '24px' }}>⚠️</span>
 							</div>
 							<h3
 								id="worker-token-prompt-title"
@@ -131,7 +131,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 							}}
 							aria-label="Close modal"
 						>
-							<FiX size={20} />
+							<span style={{ fontSize: '20px' }}>❌</span>
 						</button>
 					</div>
 

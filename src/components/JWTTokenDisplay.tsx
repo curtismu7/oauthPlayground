@@ -1,6 +1,6 @@
 // src/components/JWTTokenDisplay.tsx
 
-import { FiEye, FiEyeOff, FiKey } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -194,7 +194,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 		<TokenContainer>
 			<TokenHeader>
 				<TokenTitle>
-					<FiKey size={14} />
+					<span style={{ fontSize: '14px' }}>🔑</span>
 					{displayTokenType}
 				</TokenTitle>
 				<TokenActions>
@@ -209,7 +209,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 									: 'Show decoded token'
 						}
 					>
-						{isDecoded ? <FiEyeOff size={12} /> : <FiEye size={12} />}
+						{isDecoded ? <span style={{ fontSize: '12px' }}>🙈</span> : <span style={{ fontSize: '12px' }}>👁️</span>}
 						{isDecoded ? 'Hide Decoded' : 'Decode JWT'}
 					</ToggleButton>
 					<CopyButtonService

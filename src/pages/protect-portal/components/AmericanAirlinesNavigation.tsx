@@ -9,7 +9,7 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-import { FiChevronDown, FiMenu, FiSearch, FiUser, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -191,19 +191,19 @@ const AmericanAirlinesNavigation: React.FC<AmericanAirlinesNavigationProps> = ({
 
 				<RightSection>
 					<SearchButton>
-						<FiSearch size={16} />
+						<span style={{ fontSize: '16px' }}>🔍</span>
 					</SearchButton>
 
 					<UserMenu>
 						<UserButton>
-							<FiUser size={16} />
+							<span style={{ fontSize: '16px' }}>👤</span>
 							<span>Sign In</span>
-							<FiChevronDown size={12} />
+							<span style={{ fontSize: '12px' }}>⬇️</span>
 						</UserButton>
 					</UserMenu>
 
 					<MobileMenuButton onClick={toggleMobileMenu}>
-						{mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+						{mobileMenuOpen ? <span style={{ fontSize: '24px' }}>❌</span> : <span style={{ fontSize: '24px' }}>❓</span>}
 					</MobileMenuButton>
 				</RightSection>
 			</NavigationContent>

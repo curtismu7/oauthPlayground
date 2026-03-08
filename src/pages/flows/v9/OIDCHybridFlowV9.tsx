@@ -1,18 +1,6 @@
 // src/pages/flows/v9/OIDCHybridFlowV9.tsx
 
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiPackage,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
@@ -613,14 +601,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.overview}
 					>
 						<CollapsibleTitle>
-							<FiInfo /> {educationalContent.title}
+							<span>ℹ️</span> {educationalContent.title}
 						</CollapsibleTitle>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.overview && (
 						<CollapsibleContent>
 							<InfoBox $variant="info">
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>
 										<LearningTooltip
@@ -666,7 +654,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 								<div>
 									<InfoTitle>Key Benefits</InfoTitle>
 									<InfoList>
@@ -678,7 +666,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="info">
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>Use Cases</InfoTitle>
 									<InfoList>
@@ -690,7 +678,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="warning">
-								<FiAlertTriangle size={20} />
+								<span style={{ fontSize: '20px' }}>⚠️</span>
 								<div>
 									<InfoTitle>Security Requirements</InfoTitle>
 									<InfoList>
@@ -755,14 +743,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.responseType}
 				>
 					<CollapsibleTitle>
-						<FiKey /> Choose Hybrid Variant
+						<span>🔑</span> Choose Hybrid Variant
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.responseType && (
 					<CollapsibleContent>
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>
 									<LearningTooltip
@@ -844,7 +832,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						</ParameterGrid>
 
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>Selected Variant: {responseTypeInfo.description}</InfoTitle>
 								<InfoText>Benefits of this response type:</InfoText>
@@ -857,7 +845,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						</InfoBox>
 
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>Use Cases</InfoTitle>
 								<InfoList>
@@ -869,7 +857,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						</InfoBox>
 
 						<InfoBox $variant="warning">
-							<FiShield size={20} />
+							<span style={{ fontSize: '20px' }}>🛡️</span>
 							<div>
 								<InfoTitle>Security Requirements</InfoTitle>
 								<InfoList>
@@ -896,14 +884,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.authorizationUrl}
 					>
 						<CollapsibleTitle>
-							<FiGlobe /> Authorization Request
+							<span>🌐</span> Authorization Request
 						</CollapsibleTitle>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.authorizationUrl && (
 						<CollapsibleContent>
 							<InfoBox $variant="info">
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>{stepInfo.title}</InfoTitle>
 									<InfoText>{stepInfo.description}</InfoText>
@@ -911,7 +899,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 								<div>
 									<InfoTitle>Required Actions</InfoTitle>
 									<InfoList>
@@ -950,18 +938,18 @@ const OIDCHybridFlowV9: React.FC = () => {
 									onClick={controller.generatePKCE}
 									loading={controller.isLoading}
 								>
-									<FiKey /> Generate PKCE
+									<span>🔑</span> Generate PKCE
 								</Button>
 								<HighlightedActionButton
 									onClick={handleGenerateAuthorizationUrl}
 									priority="primary"
 									loading={controller.isLoading}
 								>
-									<FiRefreshCw /> Generate URL
+									<span>🔄</span> Generate URL
 								</HighlightedActionButton>
 								{controller.authorizationUrl && (
 									<HighlightedActionButton onClick={handleRedirectAuthorization} priority="success">
-										<FiExternalLink /> Redirect to PingOne
+										<span>🔗</span> Redirect to PingOne
 									</HighlightedActionButton>
 								)}
 							</ActionRow>
@@ -996,14 +984,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 						aria-expanded={!collapsedSections.hybridSecurity}
 					>
 						<CollapsibleTitle>
-							<FiShield /> Hybrid Flow Security
+							<span>🛡️</span> Hybrid Flow Security
 						</CollapsibleTitle>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapsibleHeaderButton>
 					{!collapsedSections.hybridSecurity && (
 						<CollapsibleContent>
 							<InfoBox $variant="warning">
-								<FiAlertTriangle size={20} />
+								<span style={{ fontSize: '20px' }}>⚠️</span>
 								<div>
 									<InfoTitle>Security Best Practices</InfoTitle>
 									<InfoList>
@@ -1015,7 +1003,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="info">
-								<FiInfo size={20} />
+								<span style={{ fontSize: '20px' }}>ℹ️</span>
 								<div>
 									<InfoTitle>Implementation Guidelines</InfoTitle>
 									<InfoList>
@@ -1042,14 +1030,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.responseOverview}
 				>
 					<CollapsibleTitle>
-						<FiCheckCircle /> Hybrid Authorization Response Overview
+						<span>✅</span> Hybrid Authorization Response Overview
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.responseOverview && (
 					<CollapsibleContent>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							<div>
 								<InfoTitle>
 									<LearningTooltip
@@ -1140,7 +1128,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						</InfoBox>
 
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>Response Processing</InfoTitle>
 								<InfoText>
@@ -1160,9 +1148,9 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.responseDetails}
 				>
 					<CollapsibleTitle>
-						<FiPackage /> Process Hybrid Response
+						<span>📦</span> Process Hybrid Response
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.responseDetails && (
 					<CollapsibleContent>
@@ -1174,7 +1162,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						{controller.tokens ? (
 							<>
 								<InfoBox $variant="success">
-									<FiCheckCircle size={20} />
+									<span style={{ fontSize: '20px' }}>✅</span>
 									<div>
 										<InfoTitle>Hybrid Response Received</InfoTitle>
 										<InfoText>
@@ -1204,14 +1192,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 										$priority="primary"
 										disabled={!controller.tokens.code}
 									>
-										<FiRefreshCw /> Exchange Authorization Code
+										<span>🔄</span> Exchange Authorization Code
 									</HighlightedActionButton>
 								</ActionRow>
 							</>
 						) : (
 							<>
 								<InfoBox $variant="warning">
-									<FiAlertTriangle size={20} />
+									<span style={{ fontSize: '20px' }}>⚠️</span>
 									<div>
 										<InfoTitle>No Response Data</InfoTitle>
 										<InfoText>
@@ -1242,14 +1230,14 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.hybridBenefits}
 				>
 					<CollapsibleTitle>
-						<FiShield /> Hybrid Flow Benefits & Security
+						<span>🛡️</span> Hybrid Flow Benefits & Security
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.hybridBenefits && (
 					<CollapsibleContent>
 						<InfoBox $variant="info">
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							<div>
 								<InfoTitle>Why Use Hybrid Flow?</InfoTitle>
 								<InfoText>
@@ -1267,7 +1255,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 						</InfoBox>
 
 						<InfoBox $variant="warning">
-							<FiAlertTriangle size={20} />
+							<span style={{ fontSize: '20px' }}>⚠️</span>
 							<div>
 								<InfoTitle>Security Considerations</InfoTitle>
 								<InfoText>
@@ -1296,9 +1284,9 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.tokens}
 				>
 					<CollapsibleTitle>
-						<FiShield /> Token Validation & Introspection
+						<span>🛡️</span> Token Validation & Introspection
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.tokens && (
 					<CollapsibleContent>
@@ -1320,9 +1308,9 @@ const OIDCHybridFlowV9: React.FC = () => {
 					aria-expanded={!collapsedSections.securityOverview}
 				>
 					<CollapsibleTitle>
-						<FiAlertCircle /> Security Playbooks
+						<span>⚠️</span> Security Playbooks
 					</CollapsibleTitle>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleHeaderButton>
 				{!collapsedSections.securityOverview && (
 					<CollapsibleContent>

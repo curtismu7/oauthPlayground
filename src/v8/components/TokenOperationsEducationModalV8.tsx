@@ -20,7 +20,7 @@
  * />
  */
 
-import { FiCheckCircle, FiInfo, FiX, FiXCircle } from '@icons';
+
 import React from 'react';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
@@ -136,7 +136,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 						}}
 						aria-label="Close modal"
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 

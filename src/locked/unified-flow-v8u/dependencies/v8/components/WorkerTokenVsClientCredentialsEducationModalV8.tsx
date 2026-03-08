@@ -19,7 +19,7 @@
  * />
  */
 
-import { FiCheckCircle, FiInfo, FiLock, FiShield, FiX, FiXCircle } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -234,18 +234,18 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 			<ModalContainer onKeyDown={handleKeyDown}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiShield size={28} />
+						<span style={{ fontSize: '28px' }}>🛡️</span>
 						Worker Tokens vs Client Credentials
 					</ModalTitle>
 					<CloseButton onClick={onClose} aria-label="Close">
-						<FiX size={24} />
+						<span style={{ fontSize: '24px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalBody>
 					<Section>
 						<SectionTitle>
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							Big Picture: Two Different Service Tokens
 						</SectionTitle>
 						<SectionContent>
@@ -255,7 +255,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 							</p>
 							<ConceptBox variant="worker">
 								<ConceptTitle>
-									<FiShield size={18} />
+									<span style={{ fontSize: '18px' }}>🛡️</span>
 									1. Worker Token (PingOne Admin)
 								</ConceptTitle>
 								<ConceptList>
@@ -278,7 +278,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 							<ConceptBox variant="client">
 								<ConceptTitle>
-									<FiLock size={18} />
+									<span style={{ fontSize: '18px' }}>🔒</span>
 									2. Client Credentials Token (Standard OAuth)
 								</ConceptTitle>
 								<ConceptList>
@@ -303,7 +303,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							Comparison Table
 						</SectionTitle>
 						<ComparisonTable>
@@ -377,7 +377,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 					<Section>
 						<SectionTitle>
-							<FiInfo size={20} />
+							<span style={{ fontSize: '20px' }}>ℹ️</span>
 							Management API Scopes: Correct Names
 						</SectionTitle>
 						<SectionContent>
@@ -429,7 +429,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 					<Section>
 						<SectionTitle>
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20px' }}>✅</span>
 							Key Takeaways
 						</SectionTitle>
 						<SectionContent>

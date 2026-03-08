@@ -12,7 +12,7 @@
  * - Simplified configuration flow
  */
 
-import { FiAlertCircle, FiArrowRight, FiCheck } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -532,7 +532,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 						onClick={handleContinue}
 						loading={isSubmitting}
 						disabled={isSubmitting || !values.username.trim()}
-						rightIcon={<FiArrowRight />}
+						rightIcon={<span>➡️</span>}
 						fullWidth
 					>
 						{['EMAIL', 'SMS', 'WHATSAPP', 'TOTP'].includes(deviceType)

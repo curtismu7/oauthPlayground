@@ -1,7 +1,7 @@
 // src/components/DraggableModal.tsx
 // Reusable draggable and collapsible modal component
 
-import { FiMaximize2, FiMinimize2, FiMove, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -327,7 +327,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 			>
 				<ModalHeader $isMinimized={isMinimized} onMouseDown={handleMouseDown}>
 					<DragHandle>
-						<FiMove size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						<div>
 							<ModalTitle id="modal-title">{title}</ModalTitle>
 							{headerContent && !isMinimized && headerContent}
@@ -336,11 +336,11 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 					<HeaderControls>
 						{showMinimize && (
 							<ControlButton onClick={toggleMinimize} title={isMinimized ? 'Maximize' : 'Minimize'}>
-								{isMinimized ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
+								{isMinimized ? <span style={{ fontSize: '16px' }}>❓</span> : <span style={{ fontSize: '16px' }}>❓</span>}
 							</ControlButton>
 						)}
 						<ControlButton onClick={handleClose} title="Close">
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</ControlButton>
 					</HeaderControls>
 				</ModalHeader>

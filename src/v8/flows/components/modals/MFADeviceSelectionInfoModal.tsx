@@ -9,7 +9,7 @@
  * Extracted from MFAAuthenticationMainPageV8.tsx lines 6075-6295
  */
 
-import { FiX } from '@icons';
+
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
@@ -90,7 +90,7 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 							padding: 0,
 						}}
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</ButtonSpinner>
 				</div>
 
