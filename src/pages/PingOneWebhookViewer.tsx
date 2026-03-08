@@ -15,6 +15,7 @@ import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
+import { FiAlertCircle, FiGlobe } from '@icons';
 
 const styles = {
 	container: {

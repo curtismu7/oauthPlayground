@@ -47,6 +47,7 @@ import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
+import { FiArrowRight } from '@icons';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 

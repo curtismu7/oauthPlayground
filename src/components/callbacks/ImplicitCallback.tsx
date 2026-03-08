@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   display: flex;

@@ -27,6 +27,7 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
+import { FiAlertCircle, FiBook, FiExternalLink, FiKey } from '@icons';
 
 interface LdapGatewayTabProps {
 	environmentId: string;

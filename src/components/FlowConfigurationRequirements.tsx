@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiChevronDown } from '@icons';
 
 interface FlowConfigRequirement {
 	clientSecret: 'required' | 'optional' | 'not-used';

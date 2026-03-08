@@ -25,6 +25,7 @@ import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
+import { FiArrowRight, FiBook, FiClock } from '@icons';
 
 const _MODULE_TAG = '[🔐 TOTP-CONFIG-V8]';
 

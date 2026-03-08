@@ -43,6 +43,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { FiKey } from '@icons';
 
 const Container = styled.div`
 	max-width: 1200px;

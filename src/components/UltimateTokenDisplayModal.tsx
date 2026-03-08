@@ -15,6 +15,7 @@ import {
 } from '../services/commonImportsService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { DraggableModal } from './DraggableModal';
+import { FiAlertCircle, FiCheck, FiCode, FiCopy, FiKey, FiShield, FiZap } from '@icons';
 
 interface TokenSet {
 	access_token?: string;

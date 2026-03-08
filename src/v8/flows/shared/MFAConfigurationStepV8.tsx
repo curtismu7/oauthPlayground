@@ -24,6 +24,7 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
+import { FiLoader } from '@icons';
 
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;

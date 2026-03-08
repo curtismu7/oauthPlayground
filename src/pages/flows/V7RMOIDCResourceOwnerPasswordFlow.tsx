@@ -13,6 +13,7 @@ import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import CompactAppPickerV8U from '../../v8u/components/CompactAppPickerV8U';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
 
 const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	const controller = useV7RMOIDCResourceOwnerPasswordController({
