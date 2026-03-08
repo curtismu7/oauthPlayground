@@ -3,7 +3,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
