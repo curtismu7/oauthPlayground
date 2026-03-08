@@ -27,7 +27,7 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 // Import shared services
 import { ImplicitFlowV9Helpers } from '../../../services/implicitFlowSharedService';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 
 // Get UI components

@@ -11,7 +11,7 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -266,7 +266,9 @@ interface TokenRevocationFlowProps {
 		clientSecret: string;
 		environmentId: string;
 	};
-}
+};
+
+const log = createModuleLogger('src/pages/flows/TokenRevocationFlow.tsx');
 
 const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -342,7 +344,7 @@ const revocationConfig = {
 
 console.log('Token revocation configured:', revocationConfig);`,
 			execute: async () => {
-				logger.info('TokenRevocationFlow', 'Configuring token revocation settings');
+				log.info('TokenRevocationFlow', 'Configuring token revocation settings');
 			},
 		},
 		{
@@ -394,7 +396,7 @@ if (revoked) {
   console.log('Token revocation failed');
 }`,
 			execute: async () => {
-				logger.info('TokenRevocationFlow', 'Revoking token(s)', {
+				log.info('TokenRevocationFlow', 'Revoking token(s)', {
 					type: activeTab,
 					tokenCount:
 						activeTab === 'bulk_revocation'
@@ -493,7 +495,7 @@ if (revocationResult.type === 'bulk') {
   console.log('Single verification result:', verification);
 }`,
 			execute: async () => {
-				logger.info('TokenRevocationFlow', 'Verifying token revocation');
+				log.info('TokenRevocationFlow', 'Verifying token revocation');
 
 				if (revocationResult) {
 					const verification = {
@@ -561,7 +563,7 @@ const cleanupAfterRevocation = (revocationResult) => {
 
 cleanupAfterRevocation(revocationResult);`,
 			execute: async () => {
-				logger.info('TokenRevocationFlow', 'Handling revocation cleanup');
+				log.info('TokenRevocationFlow', 'Handling revocation cleanup');
 
 				const cleanup = {
 					localStorageCleared: true,
@@ -587,7 +589,7 @@ cleanupAfterRevocation(revocationResult);`,
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info('TokenRevocationFlow', `Step ${step + 1} completed`, result);
+		log.info('TokenRevocationFlow', `Step ${step + 1} completed`, result);
 	}, []);
 
 	const handleRevocationStart = async () => {

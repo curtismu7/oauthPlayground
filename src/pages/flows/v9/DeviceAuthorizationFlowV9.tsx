@@ -75,7 +75,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { useV7CredentialValidation } from '../../../services/v7CredentialValidationService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 

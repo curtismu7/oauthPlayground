@@ -1,24 +1,9 @@
-import {
-	FiArrowRight,
-	FiCheckCircle,
-	FiClock,
-	FiExternalLink,
-	FiGitBranch,
-	FiInfo,
-	FiMinus,
-	FiPlus,
-	FiShield,
-	FiStar,
-	FiTarget,
-	FiUser,
-	FiXCircle,
-} from '@icons';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 
 interface FlowComparison {
@@ -392,7 +377,7 @@ const availableFlows: FlowComparison[] = [
 		title: 'OAuth 2.0 Implicit Flow V5',
 		description:
 			'Legacy implicit flow for educational purposes and understanding security considerations',
-		icon: <FiArrowRight />,
+		icon: ➡️,
 		security: 'low',
 		complexity: 'low',
 		implementationTime: '1-2 hours',
@@ -455,7 +440,7 @@ const availableFlows: FlowComparison[] = [
 		id: 'device-code-v5',
 		title: 'OIDC Device Code Flow V5',
 		description: 'For devices with limited input capabilities like smart TVs and IoT devices',
-		icon: <FiClock />,
+		icon: ⏰,
 		security: 'medium',
 		complexity: 'medium',
 		implementationTime: '3-5 hours',
@@ -490,6 +475,8 @@ const availableFlows: FlowComparison[] = [
 		recommended: false,
 	},
 ];
+
+const log = createModuleLogger('src/components/FlowComparisonTool.tsx');
 
 const FlowComparisonTool: React.FC = () => {
 	const [selectedFlows, setSelectedFlows] = useState<string[]>([]);
@@ -548,7 +535,7 @@ const FlowComparisonTool: React.FC = () => {
 
 			return flow.route;
 		} catch (error) {
-			logger.error(
+			log.error(
 				'FlowComparisonTool',
 				'Error generating flow URL with credentials:',
 				undefined,
@@ -576,7 +563,7 @@ const FlowComparisonTool: React.FC = () => {
 							onClick={() => toggleFlow(flow.id)}
 							disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
 						>
-							{selectedFlows.includes(flow.id) ? <FiMinus /> : <FiPlus />}
+							{selectedFlows.includes(flow.id) ? ➖ : ➕}
 							{flow.icon}
 							{flow.title}
 							{flow.recommended && <FiStar />}
@@ -671,7 +658,7 @@ const FlowComparisonTool: React.FC = () => {
 
 									<ComparisonSection>
 										<h4>
-											<FiCheckCircle />
+											✅
 											Pros
 										</h4>
 										<ProsConsList>
@@ -686,7 +673,7 @@ const FlowComparisonTool: React.FC = () => {
 
 									<ComparisonSection>
 										<h4>
-											<FiXCircle />
+											❌
 											Cons
 										</h4>
 										<ProsConsList>
@@ -714,7 +701,7 @@ const FlowComparisonTool: React.FC = () => {
 									</ComparisonSection>
 
 									<ActionButton to={generateFlowUrl(flow)}>
-										<FiExternalLink />
+										🔗
 										Try This Flow
 									</ActionButton>
 								</CardBody>
