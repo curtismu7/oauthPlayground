@@ -337,13 +337,6 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	);
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 
-	// Load existing credentials on mount
-	useEffect(() => {
-		if (isOpen) {
-			loadExistingCredentials();
-		}
-	}, [isOpen, loadExistingCredentials]);
-
 	const loadExistingCredentials = useCallback(async () => {
 		try {
 			// First try V9CredentialStorageService (primary for V9 flows)
@@ -383,6 +376,13 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 			console.error('Failed to load existing credentials:', error);
 		}
 	}, []);
+
+	// Load existing credentials on mount
+	useEffect(() => {
+		if (isOpen) {
+			loadExistingCredentials();
+		}
+	}, [isOpen, loadExistingCredentials]);
 
 	const handleInputChange = useCallback((field: keyof typeof credentials, value: string) => {
 		setCredentials((prev) => ({ ...prev, [field]: value }));
