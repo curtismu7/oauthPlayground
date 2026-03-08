@@ -2,7 +2,6 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/v9/WorkerTokenFlowV9.tsx
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
-import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -131,7 +130,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 	const renderStep0 = () => (
 		<StepContainer>
 			<StepTitle>
-				<FiKey /> Configure Worker Token Credentials
+				🔑 Configure Worker Token Credentials
 			</StepTitle>
 			<StyledHelperText>
 				Configure your PingOne environment and worker application credentials. Worker tokens are
@@ -287,7 +286,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 		return (
 			<StepContainer>
 				<StepTitle>
-					<FiCheckCircle /> Worker Token Generated
+					✅ Worker Token Generated
 				</StepTitle>
 				<StyledHelperText>
 					Your PingOne worker token has been successfully generated. Use this token to authenticate
@@ -306,7 +305,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				<StyledSectionDivider />
 				<ImportedResultsSection>
 					<ResultsHeading>
-						<FiAlertCircle size={18} /> Configuration Management
+						⚠️ Configuration Management
 					</ResultsHeading>
 					<StyledHelperText>
 						To use Config Checker features (Check Config, Create App, Get New Worker Token), return
@@ -332,7 +331,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 		return (
 			<StepContainer>
 				<StepTitle>
-					<FiShield /> Using Worker Tokens with PingOne Administration APIs
+					🛡️ Using Worker Tokens with PingOne Administration APIs
 				</StepTitle>
 				<StyledHelperText>
 					Learn how to use your worker token to make authenticated calls to PingOne Management APIs
