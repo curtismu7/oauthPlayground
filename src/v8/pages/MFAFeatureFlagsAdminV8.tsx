@@ -6,7 +6,7 @@
  * @since 2026-01-29
  */
 
-import { FiArrowLeft, FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -126,7 +126,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-							<FiFlag size={32} color="white" />
+							<span style={{ fontSize: 32, color: 'white' }}>❓</span>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 								<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 									MFA Feature Flags Admin
@@ -172,7 +172,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 								transition: 'all 0.2s',
 							}}
 						>
-							<FiArrowLeft size={16} />
+							<span style={{ fontSize: '16px' }}>⬅️</span>
 							Back to MFA Hub
 						</button>
 					</div>
@@ -488,7 +488,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 											transition: 'all 0.2s',
 										}}
 									>
-										{state.enabled ? <FiToggleRight size={20} /> : <FiToggleLeft size={20} />}
+										{state.enabled ? <span style={{ fontSize: '20px' }}>❓</span> : <span style={{ fontSize: '20px' }}>❓</span>}
 										{state.enabled ? 'ENABLED' : 'DISABLED'}
 									</button>
 								</div>
@@ -579,7 +579,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 							cursor: 'pointer',
 						}}
 					>
-						<FiRefreshCw size={18} />
+						<span style={{ fontSize: '18px' }}>🔄</span>
 						Refresh
 					</button>
 

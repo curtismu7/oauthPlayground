@@ -1,7 +1,7 @@
 // src/components/AppleTVDeviceFlow.tsx
 // Apple TV Style Device Authorization Flow Interface
 
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiXCircle } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,7 +10,7 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`
@@ -472,26 +472,26 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('AppleTVDeviceFlow', 'User code copied to clipboard');
+		log.info('AppleTVDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -608,10 +608,10 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 						{/* Control Buttons */}
 						<ControlButtons>
 							<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-								<FiCopy size={12} /> Copy Code
+								<span style={{ fontSize: '12px' }}>📋</span> Copy Code
 							</ControlButton>
 							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-								<FiCopy size={12} /> Copy URI
+								<span style={{ fontSize: '12px' }}>📋</span> Copy URI
 							</ControlButton>
 						</ControlButtons>
 

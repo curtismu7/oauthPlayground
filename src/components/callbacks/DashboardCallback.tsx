@@ -1,9 +1,9 @@
-import { FiCheckCircle, FiLoader, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -114,7 +114,7 @@ const DashboardCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('DashboardCallback');
-				logger.auth('DashboardCallback', 'Processing dashboard login callback', {
+				log.auth('DashboardCallback', 'Processing dashboard login callback', {
 					url: currentUrl,
 				});
 
@@ -123,7 +123,7 @@ const DashboardCallback: React.FC = () => {
 				if (result.success) {
 					setStatus('success');
 					setMessage('Dashboard login successful! Redirecting to dashboard...');
-					logger.auth('DashboardCallback', 'Dashboard login successful', {
+					log.auth('DashboardCallback', 'Dashboard login successful', {
 						redirectUrl: '/dashboard',
 					});
 
@@ -135,13 +135,13 @@ const DashboardCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Dashboard login failed');
 					setError(result.error || 'Unknown error occurred');
-					logger.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
+					log.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
 				}
 			} catch (err) {
 				setStatus('error');
 				setMessage('Dashboard login failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error('DashboardCallback', 'Error processing dashboard callback', err);
+				log.error('DashboardCallback', 'Error processing dashboard callback', err);
 			}
 		};
 
@@ -151,9 +151,9 @@ const DashboardCallback: React.FC = () => {
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			default:
 				return <FiLoader className="animate-spin" />;
 		}

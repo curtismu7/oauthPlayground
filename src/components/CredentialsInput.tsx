@@ -1,6 +1,6 @@
 // src/components/CredentialsInput.tsx
 
-import { FiChevronDown, FiChevronRight, FiEye, FiEyeOff, FiGlobe, FiSettings } from '@icons';
+
 import { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -455,11 +455,11 @@ export const CredentialsInput = ({
 					aria-expanded={!isCollapsed}
 				>
 					<CollapsibleHeaderLeft>
-						<FiSettings size={18} />
+						<span style={{ fontSize: '18px' }}>⚙️</span>
 						<span>Application Configuration & Credentials</span>
 					</CollapsibleHeaderLeft>
 					<CollapsibleToggleIcon $collapsed={isCollapsed}>
-						{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+						{isCollapsed ? <span>➡️</span> : <span>⬇️</span>}
 					</CollapsibleToggleIcon>
 				</CollapsibleHeader>
 
@@ -482,7 +482,7 @@ export const CredentialsInput = ({
 							<>
 								<EnvironmentSection>
 									<EnvironmentHeader>
-										<FiGlobe size={20} />
+										<span style={{ fontSize: '20px' }}>🌐</span>
 										<EnvironmentTitle>🌍 PingOne Environment Configuration</EnvironmentTitle>
 									</EnvironmentHeader>
 
@@ -722,7 +722,7 @@ export const CredentialsInput = ({
 											onClick={() => setShowClientSecretValue(!showClientSecretValue)}
 											title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+											{showClientSecretValue ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 										</SecretToggleButton>
 									</SecretInputWrapper>
 								</FormField>

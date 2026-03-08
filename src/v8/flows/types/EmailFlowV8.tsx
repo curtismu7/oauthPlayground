@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -20,7 +20,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
@@ -1719,7 +1719,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									zIndex: 1,
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3
@@ -2465,7 +2465,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3

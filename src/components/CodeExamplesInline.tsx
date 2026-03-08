@@ -1,6 +1,6 @@
 // src/components/CodeExamplesInline.tsx
 
-import { FiCheck, FiChevronDown, FiCode, FiCopy } from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -9,7 +9,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 interface CodeExamplesInlineProps {
@@ -208,7 +208,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			logger.error('CodeExamplesInline', 'Failed to copy code:', undefined, err as Error);
+			log.error('CodeExamplesInline', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 
@@ -217,7 +217,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			<Container className={className}>
 				<ToggleButton $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
 					<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCode />
+						<span>❓</span>
 						Code Examples
 					</span>
 					<FiChevronDown
@@ -254,7 +254,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 								)
 							}
 						>
-							{copiedCode ? <FiCheck /> : <FiCopy />}
+							{copiedCode ? <span>✅</span> : <span>📋</span>}
 							{copiedCode ? 'Copied!' : 'Copy'}
 						</CopyButton>
 						<pre>
@@ -274,7 +274,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 		<Container className={className}>
 			<ToggleButton $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
 				<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-					<FiCode />
+					<span>❓</span>
 					Code Examples ({flowType} - {stepId})
 				</span>
 				<FiChevronDown

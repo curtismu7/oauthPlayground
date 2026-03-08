@@ -1,4 +1,4 @@
-import { FiChevronDown } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -154,7 +154,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 					{title}
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={collapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 			{!collapsed && <CollapsibleContent>{children}</CollapsibleContent>}

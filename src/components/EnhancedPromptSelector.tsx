@@ -1,7 +1,7 @@
 // src/components/EnhancedPromptSelector.tsx
 // Enhanced OIDC Prompt Parameter Selector with multiple values
 
-import { FiCheck, FiInfo, FiShield, FiUser, FiUsers } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -175,7 +175,7 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 		<Container>
 			<Label>
 				<LabelIcon>
-					<FiUser />
+					<span>👤</span>
 				</LabelIcon>
 				Prompt Parameter (OIDC Authentication Behavior)
 			</Label>
@@ -206,7 +206,7 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 								<PromptDescription>{option.description}</PromptDescription>
 							</PromptContent>
 							<SelectedIndicator $selected={isSelected}>
-								<FiCheck size={20} />
+								<span style={{ fontSize: '20px' }}>✅</span>
 							</SelectedIndicator>
 						</PromptOption>
 					);
@@ -215,7 +215,7 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 
 			<InfoBox>
 				<InfoIcon>
-					<FiInfo />
+					<span>ℹ️</span>
 				</InfoIcon>
 				<div>
 					<strong>Current Value:</strong> <code>{formatValue(value)}</code>

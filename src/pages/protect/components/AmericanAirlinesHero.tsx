@@ -9,7 +9,7 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
@@ -303,28 +303,28 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 						<QuickActions>
 							<QuickAction>
 								<ActionIcon>
-									<FiSearch />
+									<span>🔍</span>
 								</ActionIcon>
 								<ActionLabel>Book a Trip</ActionLabel>
 							</QuickAction>
 
 							<QuickAction>
 								<ActionIcon>
-									<FiCalendar />
+									<span>📅</span>
 								</ActionIcon>
 								<ActionLabel>My Trips</ActionLabel>
 							</QuickAction>
 
 							<QuickAction>
 								<ActionIcon>
-									<FiMapPin />
+									<span>📍</span>
 								</ActionIcon>
 								<ActionLabel>Check In</ActionLabel>
 							</QuickAction>
 
 							<QuickAction>
 								<ActionIcon>
-									<FiArrowRight />
+									<span>➡️</span>
 								</ActionIcon>
 								<ActionLabel>AAdvantage®</ActionLabel>
 							</QuickAction>
@@ -336,9 +336,9 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 								real-time to provide the appropriate level of security.
 							</LoginDescription>
 							<LoginButton onClick={onLoginStart}>
-								<FiLock />
+								<span>🔒</span>
 								Begin Secure Login
-								<FiArrowRight />
+								<span>➡️</span>
 							</LoginButton>
 						</LoginSection>
 					</>
@@ -356,9 +356,9 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 								be required based on your security profile.
 							</LoginDescription>
 							<LoginButton onClick={onLoginStart}>
-								<FiLock />
+								<span>🔒</span>
 								Sign In to Employee Portal
-								<FiArrowRight />
+								<span>➡️</span>
 							</LoginButton>
 						</LoginSection>
 
@@ -407,7 +407,7 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 									</FormGroup>
 								</SearchInputs>
 								<SearchButton type="button">
-									<FiSearch />
+									<span>🔍</span>
 									Search flights
 								</SearchButton>
 							</FlightSearchForm>

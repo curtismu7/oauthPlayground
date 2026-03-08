@@ -1,6 +1,6 @@
 // src/components/LogoutUriInfoPanel.tsx
 
-import { FiCheck, FiCopy } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
@@ -201,7 +201,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 				<UriCode $compact={compact}>{uriInfo.logoutUri}</UriCode>
 				{showCopyButton && (
 					<CopyButton onClick={handleCopy}>
-						{copied ? <FiCheck /> : <FiCopy />}
+						{copied ? <span>✅</span> : <span>📋</span>}
 						{copied ? 'Copied!' : 'Copy URI'}
 					</CopyButton>
 				)}

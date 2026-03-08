@@ -11,11 +11,11 @@
  * - Educational feedback on validation results
  */
 
-import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiX } from '@icons';
+
 import { useEffect, useState } from 'react';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 
@@ -56,7 +56,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 			console.log(`${MODULE_TAG} Validation complete`, { valid: result.valid });
 			setValidationResult(result);
 		} catch (error) {
-			logger.error('IDTokenValidationModalV8U', `Validation failed`, undefined, error);
+			log.error('IDTokenValidationModalV8U', `Validation failed`, undefined, error);
 			setValidationResult({
 				valid: false,
 				errors: [`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`],
@@ -165,7 +165,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 						}}
 						title="Close"
 					>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</button>
 				</div>
 
@@ -211,9 +211,9 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 								}}
 							>
 								{validationResult.valid ? (
-									<FiCheckCircle size={24} color="#16a34a" />
+									<span style={{ fontSize: 24, color: '#16a34a' }}>✅</span>
 								) : (
-									<FiAlertCircle size={24} color="#dc2626" />
+									<span style={{ fontSize: 24, color: '#dc2626' }}>⚠️</span>
 								)}
 								<div>
 									<div
@@ -306,9 +306,9 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 											}}
 										>
 											{check.valid ? (
-												<FiCheckCircle size={16} color="#16a34a" />
+												<span style={{ fontSize: 16, color: '#16a34a' }}>✅</span>
 											) : (
-												<FiAlertCircle size={16} color="#dc2626" />
+												<span style={{ fontSize: 16, color: '#dc2626' }}>⚠️</span>
 											)}
 											<div style={{ flex: 1 }}>
 												<div
@@ -443,7 +443,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 										}}
 									>
 										OIDC ID Token Validation Spec
-										<FiExternalLink size={12} />
+										<span style={{ fontSize: '12px' }}>🔗</span>
 									</a>
 								</div>
 							</div>

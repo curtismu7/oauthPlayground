@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowSteps.tsx
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
-import { FiCheck, FiClock, FiPlay, FiRefreshCw } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
@@ -281,12 +281,12 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
 
 	const getStepIcon = (_stepIndex: number, status: 'pending' | 'active' | 'completed') => {
 		if (status === 'completed') {
-			return <FiCheck />;
+			return <span>✅</span>;
 		}
 		if (status === 'active') {
-			return <FiPlay />;
+			return <span>❓</span>;
 		}
-		return <FiClock />;
+		return <span>🕐</span>;
 	};
 
 	const getStepStatusText = (status: 'pending' | 'active' | 'completed') => {
@@ -359,7 +359,7 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
 							{status === 'active' && (
 								<StepActions>
 									<ActionButton $variant="primary">
-										<FiPlay />
+										<span>❓</span>
 										Continue
 									</ActionButton>
 								</StepActions>
@@ -368,7 +368,7 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
 							{status === 'completed' && (
 								<StepActions>
 									<ActionButton $variant="secondary">
-										<FiRefreshCw />
+										<span>🔄</span>
 										Review
 									</ActionButton>
 								</StepActions>

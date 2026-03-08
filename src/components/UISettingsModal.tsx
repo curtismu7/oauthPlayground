@@ -1,8 +1,8 @@
-import { FiCheck, FiCode, FiSettings, FiSun, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -258,7 +258,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 			setSaveStatus('saved');
 			setTimeout(() => setSaveStatus('idle'), 2000);
 		} catch (error) {
-			logger.error('UISettingsModal', 'Failed to save settings:', undefined, error as Error);
+			log.error('UISettingsModal', 'Failed to save settings:', undefined, error as Error);
 			setSaveStatus('idle');
 		}
 	};
@@ -274,11 +274,11 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 			<ModalContent>
 				<ModalHeader>
 					<ModalTitle>
-						<FiSettings />
+						<span>⚙️</span>
 						UI Settings
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -286,7 +286,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 					{/* Theme Settings */}
 					<Section>
 						<SectionTitle>
-							<FiSun />
+							<span>☀️</span>
 							Theme
 						</SectionTitle>
 
@@ -391,7 +391,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 					{/* Developer Settings */}
 					<Section>
 						<SectionTitle>
-							<FiCode />
+							<span>❓</span>
 							Developer
 						</SectionTitle>
 
@@ -460,7 +460,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 						className={saveStatus === 'saved' ? 'saved' : ''}
 						disabled={saveStatus === 'saving'}
 					>
-						<FiCheck />
+						<span>✅</span>
 						{saveStatus === 'saving'
 							? 'Saving...'
 							: saveStatus === 'saved'

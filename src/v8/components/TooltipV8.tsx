@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 
 export interface TooltipV8Props {
@@ -91,7 +91,7 @@ export const TooltipV8: React.FC<TooltipV8Props> = ({
 				}}
 				aria-label={`Help: ${title}`}
 			>
-				<FiInfo size={16} />
+				<span style={{ fontSize: '16px' }}>ℹ️</span>
 			</button>
 
 			{shouldShowTooltip && (

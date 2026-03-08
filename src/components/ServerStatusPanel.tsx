@@ -1,4 +1,4 @@
-import { FiCheckCircle, FiGlobe, FiRefreshCw, FiServer, FiXCircle } from '@icons';
+
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -361,15 +361,15 @@ const ServerStatusPanel: React.FC = () => {
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
 		switch (status) {
 			case 'online':
-				return <FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>;
 			case 'offline':
-				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
 			case 'checking':
 				return (
 					<FiRefreshCw size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" className="animate-spin" />
 				);
 			default:
-				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
 		}
 	};
 
@@ -401,7 +401,7 @@ const ServerStatusPanel: React.FC = () => {
 		<ServerStatusContainer>
 			<ServerStatusHeader>
 				<h3>
-					<FiServer size={24} />
+					<span style={{ fontSize: '24px' }}>🖥️</span>
 					Server Status
 				</h3>
 				<RefreshButton onClick={refreshAllServers} disabled={isRefreshing}>
@@ -421,7 +421,7 @@ const ServerStatusPanel: React.FC = () => {
 					<ServerCard key={getServerKey(server)} $status={server.status}>
 						<ServerHeader>
 							<ServerName>
-								{server.name === 'Frontend Server' ? <FiGlobe size={20} /> : <FiServer size={20} />}
+								{server.name === 'Frontend Server' ? <span style={{ fontSize: '20px' }}>🌐</span> : <span style={{ fontSize: '20px' }}>🖥️</span>}
 								{server.name}
 							</ServerName>
 							<StatusIndicator $status={server.status}>

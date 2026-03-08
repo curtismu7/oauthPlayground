@@ -2,20 +2,7 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/SAMLBearerAssertionFlowV9.tsx
 // OAuth 2.0 SAML Bearer Assertion Flow (RFC 7522) - V9
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiPackage,
-	FiRefreshCw,
-	FiSend,
-	FiSettings,
-	FiUsers,
-} from '@icons';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -430,7 +417,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			}
 
 			try {
-				logger.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', {
+				log.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', {
 					environmentId,
 				});
 				const issuerUrl = `https://auth.pingone.com/${environmentId}/as`;
@@ -439,7 +426,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					const { token_endpoint, issuer } = result.data;
 					if (token_endpoint) {
 						setTokenEndpoint(token_endpoint);
-						logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
+						log.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
 							token_endpoint,
 						});
 					}
@@ -449,7 +436,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							issuer,
 							audience: issuer,
 						}));
-						logger.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
+						log.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
 							issuer,
 						});
 					}
@@ -475,7 +462,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		const hasSubject = samlAssertion.subject.trim().length > 0;
 		const hasAudience = samlAssertion.audience.trim().length > 0;
 
-		logger.info('SAMLBearerAssertionFlowV9', 'Validation check', {
+		log.info('SAMLBearerAssertionFlowV9', 'Validation check', {
 			hasClientId,
 			hasTokenEndpoint,
 			hasIssuer,
@@ -596,14 +583,14 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const comprehensiveCredentials = credentialManager.getAllCredentials();
 
 				if (comprehensiveCredentials?.environmentId) {
-					logger.info(
+					log.info(
 						'SAMLBearerAssertionFlowV9',
 						'Loading credentials from comprehensive system',
 						{ comprehensiveCredentials }
 					);
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					logger.info(
+					log.info(
 						'SAMLBearerAssertionFlowV9',
 						'Comprehensive credentials loaded for mock flow'
 					);
@@ -611,7 +598,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
 					setTokenEndpoint(tokenEndpointUrl);
-					logger.info(
+					log.info(
 						'SAMLBearerAssertionFlowV9',
 						'Token endpoint auto-populated from credentials',
 						{ tokenEndpointUrl }
@@ -644,7 +631,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		setIsLoading(true);
 		try {
 			// MOCK IMPLEMENTATION - Simulating network delay
-			logger.info('SAMLBearerAssertionFlowV9', 'Simulating token request');
+			log.info('SAMLBearerAssertionFlowV9', 'Simulating token request');
 			await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
 
 			// MOCK IMPLEMENTATION - Generate mock JWT access token (real-looking format)
@@ -724,7 +711,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					'This is a simulated response for educational purposes. PingOne does not support SAML Bearer assertions.',
 			};
 
-			logger.info('SAMLBearerAssertionFlowV9', 'Mock token response', { mockTokenResponse });
+			log.info('SAMLBearerAssertionFlowV9', 'Mock token response', { mockTokenResponse });
 			setTokenResponse(mockTokenResponse);
 			modernMessaging.showFooterMessage({
 				type: 'info',
@@ -748,7 +735,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="SAML Bearer Configuration"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultCollapsed={collapsedSections.credentials}
 				showArrow={true}
 			>
@@ -804,12 +791,12 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="SAML Assertion Builder"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultCollapsed={collapsedSections.samlBuilder}
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<div>
 						<InfoTitle>SAML Assertion Configuration</InfoTitle>
 						<InfoText>
@@ -886,7 +873,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
 					<div style={{ display: 'flex', gap: '1rem' }}>
 						<Button onClick={saveSAMLConfiguration} $variant="secondary">
-							<FiSettings /> Save Configuration
+							<span>⚙️</span> Save Configuration
 						</Button>
 						<Button
 							onClick={generateSAMLAssertion}
@@ -897,7 +884,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								cursor: !canGenerateSAML() ? 'not-allowed' : 'pointer',
 							}}
 						>
-							<FiUsers /> Generate SAML Assertion
+							<span>👥</span> Generate SAML Assertion
 						</Button>
 					</div>
 					{!canGenerateSAML() && (
@@ -911,7 +898,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-								<FiAlertTriangle size={16} />
+								<span style={{ fontSize: '16px' }}>⚠️</span>
 								Missing required fields:
 							</div>
 							<ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
@@ -929,7 +916,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			{generatedSAML && (
 				<CollapsibleHeader
 					title="✅ Generated SAML Assertion"
-					icon={<FiCheckCircle />}
+					icon={<span>✅</span>}
 					theme="green"
 					defaultCollapsed={collapsedSections.generatedSAML}
 					showArrow={true}
@@ -978,7 +965,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
 										disabled={!generatedSAML}
 									>
-										<FiCopy /> Copy XML
+										<span>📋</span> Copy XML
 									</Button>
 								</div>
 							</div>
@@ -1025,7 +1012,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
 										disabled={!base64SAML}
 									>
-										<FiCopy /> Copy Base64
+										<span>📋</span> Copy Base64
 									</Button>
 								</div>
 							</div>
@@ -1064,19 +1051,19 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								$variant="secondary"
 								disabled={!generatedSAML}
 							>
-								<FiCopy /> Copy XML SAML
+								<span>📋</span> Copy XML SAML
 							</Button>
 							<Button
 								onClick={() => copyToClipboard(base64SAML, 'Base64 SAML assertion')}
 								$variant="secondary"
 								disabled={!base64SAML}
 							>
-								<FiCopy /> Copy Base64 SAML
+								<span>📋</span> Copy Base64 SAML
 							</Button>
 							<Button
 								onClick={() => {
 									const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
-									logger.info('SAMLBearerAssertionFlowV9', 'Formatted SAML', { formatted });
+									log.info('SAMLBearerAssertionFlowV9', 'Formatted SAML', { formatted });
 									modernMessaging.showFooterMessage({
 										type: 'info',
 										message: 'SAML assertion formatted for display',
@@ -1085,14 +1072,14 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								}}
 								$variant="secondary"
 							>
-								<FiSettings /> Format Display
+								<span>⚙️</span> Format Display
 							</Button>
 							<Button
 								onClick={() => setShowDecodedSAML((prev) => !prev)}
 								$variant="secondary"
 								disabled={!base64SAML}
 							>
-								{showDecodedSAML ? <FiEyeOff /> : <FiEye />}{' '}
+								{showDecodedSAML ? <span>🙈</span> : <span>👁️</span>}{' '}
 								{showDecodedSAML ? 'Hide Decode' : 'Decode Base64'}
 							</Button>
 						</div>
@@ -1106,13 +1093,13 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="Token Request"
-				icon={<FiSend />}
+				icon={<span>📤</span>}
 				theme="blue"
 				defaultCollapsed={collapsedSections.tokenRequest}
 				showArrow={true}
 			>
 				<InfoBox $variant="error">
-					<FiAlertTriangle size={20} />
+					<span style={{ fontSize: '20px' }}>⚠️</span>
 					<div>
 						<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
 						<InfoText>
@@ -1164,7 +1151,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						$variant="success"
 						disabled={!generatedSAML || isLoading}
 					>
-						{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
+						{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>🔗</span>}
 						{isLoading ? 'Requesting Token...' : 'Make Token Request'}
 					</Button>
 					{!generatedSAML && (
@@ -1177,7 +1164,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								gap: '0.25rem',
 							}}
 						>
-							<FiAlertTriangle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 							Generate a SAML assertion first to enable token request
 						</div>
 					)}
@@ -1191,12 +1178,12 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			{tokenResponse && (
 				<CollapsibleHeader
 					title="Token Response"
-					icon={<FiPackage />}
+					icon={<span>📦</span>}
 					defaultCollapsed={collapsedSections.tokenResponse}
 					showArrow={true}
 				>
 					<InfoBox $variant="success">
-						<FiCheckCircle size={20} />
+						<span style={{ fontSize: '20px' }}>✅</span>
 						<div>
 							<InfoTitle>Access token from SAML Assertion</InfoTitle>
 							<InfoText>

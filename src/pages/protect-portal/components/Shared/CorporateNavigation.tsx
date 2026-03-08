@@ -8,7 +8,7 @@
  * Universal navigation component that adapts to different company styles.
  */
 
-import { FiChevronDown, FiMenu, FiSearch } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -400,7 +400,7 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLog
 									onClick={() => handleDropdownToggle(link.text)}
 								>
 									{link.text}
-									<FiChevronDown size={14} />
+									<span style={{ fontSize: '14px' }}>⬇️</span>
 								</DropdownTrigger>
 								<DropdownMenu $isOpen={activeDropdown === link.text}>
 									{link.dropdownItems?.map((item, itemIndex) => (
@@ -422,7 +422,7 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLog
 					{config.navigation.showBrandSelector && <BrandDropdownSelector />}
 
 					<SearchButton>
-						<FiSearch size={20} />
+						<span style={{ fontSize: '20px' }}>🔍</span>
 					</SearchButton>
 
 					<LoginButton
@@ -435,7 +435,7 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLog
 					</LoginButton>
 
 					<MobileMenuButton>
-						<FiMenu size={20} />
+						<span style={{ fontSize: '20px' }}>❓</span>
 					</MobileMenuButton>
 				</RightNav>
 			</NavContainer>

@@ -1,4 +1,4 @@
-import { FiBookOpen, FiCheck, FiInfo, FiKey, FiLink2, FiRefreshCw, FiSearch } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -377,7 +377,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 		>
 			<Content>
 				<InlineInfo>
-					<FiBookOpen /> Browse applications directly from your PingOne tenant and apply their
+					<span>❓</span> Browse applications directly from your PingOne tenant and apply their
 					credentials to this flow.
 				</InlineInfo>
 
@@ -401,7 +401,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 						</Select>
 					</FieldGroup>
 					<Button onClick={handleFetch} disabled={loading || missingWorkerToken}>
-						<FiSearch size={16} />
+						<span style={{ fontSize: '16px' }}>🔍</span>
 						{loading ? 'Loading…' : 'Fetch Applications'}
 					</Button>
 					<Button
@@ -414,7 +414,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 						}}
 						disabled={!applications.length}
 					>
-						<FiRefreshCw size={16} /> Clear Results
+						<span style={{ fontSize: '16px' }}>🔄</span> Clear Results
 					</Button>
 					<FieldGroup>
 						Search
@@ -431,7 +431,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 
 				{missingWorkerToken && (
 					<StatusBar $variant="warning">
-						<FiInfo size={16} /> Generate a worker token first so we can call the PingOne Admin API.
+						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can call the PingOne Admin API.
 						<Button
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
@@ -443,20 +443,20 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 								border: '1px solid rgba(251, 191, 36, 0.5)',
 							}}
 						>
-							<FiKey size={14} /> Get Worker Token
+							<span style={{ fontSize: '14px' }}>🔑</span> Get Worker Token
 						</Button>
 					</StatusBar>
 				)}
 
 				{error && (
 					<StatusBar $variant="warning">
-						<FiInfo size={16} /> {error}
+						<span style={{ fontSize: '16px' }}>ℹ️</span> {error}
 					</StatusBar>
 				)}
 
 				{!error && !applications.length && !loading && (
 					<EmptyState>
-						<FiInfo size={28} />
+						<span style={{ fontSize: '28px' }}>ℹ️</span>
 						<div style={{ fontWeight: 600 }}>No applications loaded yet</div>
 						<div style={{ maxWidth: 480 }}>
 							Enter your PingOne Environment ID, ensure a worker token is available, then click
@@ -498,7 +498,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 										</TD>
 										<TD>
 											<InlineInfo>
-												<FiLink2 size={14} color="V9_COLORS.PRIMARY.BLUE_DARK" />
+												<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>❓</span>
 												<span style={{ fontFamily: 'Menlo, monospace', fontSize: '0.78rem' }}>
 													{app.clientId}
 												</span>
@@ -525,7 +525,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 												onClick={() => handleSelect(app)}
 												style={{ width: '100%', justifyContent: 'center' }}
 											>
-												<FiCheck size={16} /> Use App
+												<span style={{ fontSize: '16px' }}>✅</span> Use App
 											</Button>
 										</TD>
 									</TR>

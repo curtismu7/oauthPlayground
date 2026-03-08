@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiX } from '@icons';
+
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -139,11 +139,11 @@ const GlobalErrorDisplay: React.FC = () => {
 		<ErrorContainer>
 			<ErrorHeader>
 				<ErrorIcon>
-					<FiAlertCircle />
+					<span>⚠️</span>
 				</ErrorIcon>
 				<ErrorTitle>{interpretedError.title}</ErrorTitle>
 				<DismissButton onClick={dismissError} title="Dismiss error">
-					<FiX />
+					<span>❌</span>
 				</DismissButton>
 			</ErrorHeader>
 

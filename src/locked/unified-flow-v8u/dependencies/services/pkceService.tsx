@@ -1,15 +1,6 @@
 // src/services/pkceService.tsx
 
-import {
-	FiCheck,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
@@ -437,7 +428,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 			<PKCEHeader>
 				<PKCEHeaderLeft>
 					<PKCETitle>
-						<FiShield />
+						<span>🛡️</span>
 						{title}
 					</PKCETitle>
 					{subtitle && <PKCESubtitle>{subtitle}</PKCESubtitle>}
@@ -447,13 +438,13 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 			{showDetails && (
 				<EducationalSection>
 					<EducationalTitle>
-						<FiInfo />
+						<span>ℹ️</span>
 						What is PKCE?
 					</EducationalTitle>
 					<EducationalContent>
 						<EducationalCard>
 							<EducationalCardTitle>
-								<FiShield />
+								<span>🛡️</span>
 								Security Protection
 							</EducationalCardTitle>
 							<EducationalText>
@@ -463,7 +454,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						</EducationalCard>
 						<EducationalCard>
 							<EducationalCardTitle>
-								<FiKey />
+								<span>🔑</span>
 								How It Works
 							</EducationalCardTitle>
 							<EducationalText>
@@ -498,7 +489,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						</>
 					) : (
 						<>
-							<FiRefreshCw />
+							<span>🔄</span>
 							{value.codeVerifier && value.codeChallenge
 								? 'Regenerate PKCE Codes'
 								: 'Generate PKCE Codes'}
@@ -513,7 +504,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						<PKCEField $isSecret={true}>
 							<PKCELabel $isSecret={true}>
 								<Badge $variant="secret">
-									<FiKey />
+									<span>🔑</span>
 									Secret
 								</Badge>
 								Code Verifier
@@ -529,7 +520,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 									$isVisible={showCodeVerifier}
 									title={showCodeVerifier ? 'Hide code verifier' : 'Show code verifier'}
 								>
-									{showCodeVerifier ? <FiEyeOff /> : <FiEye />}
+									{showCodeVerifier ? <span>🙈</span> : <span>👁️</span>}
 								</ToggleButton>
 								{CopyButtonVariants.identifier(value.codeVerifier, 'Code Verifier')}
 							</PKCEValueContainer>
@@ -538,7 +529,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						<PKCEField $isSecret={false}>
 							<PKCELabel $isSecret={false}>
 								<Badge $variant="public">
-									<FiCheck />
+									<span>✅</span>
 									Public
 								</Badge>
 								Code Challenge
@@ -552,7 +543,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 
 					<SecurityInfo>
 						<SecurityTitle>
-							<FiShield />
+							<span>🛡️</span>
 							Security Features
 						</SecurityTitle>
 						<SecurityList>
@@ -576,7 +567,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 					{authUrl && (
 						<URLSection>
 							<URLTitle>
-								<FiExternalLink />
+								<span>🔗</span>
 								Authorization URL with PKCE
 							</URLTitle>
 							<ColoredUrlDisplay

@@ -11,7 +11,7 @@
  * - PingOne-specific implementations and requirements
  */
 
-import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -169,7 +169,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 	return (
 		<PageContainer>
 			<BackButton onClick={handleBackToUnified}>
-				<FiArrowLeft size={16} />
+				<span style={{ fontSize: '16px' }}>⬅️</span>
 				Back to Unified Start
 			</BackButton>
 
@@ -178,13 +178,13 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				subtitle="Comprehensive reference comparing specification versions and flow types, including PingOne-specific requirements and implementations."
 				gradient={PageHeaderGradients.unifiedOAuth}
 				textColor={PageHeaderTextColors.darkBlue}
-				icon={<FiBook size={32} />}
+				icon={<span style={{ fontSize: '32px' }}>📖</span>}
 			/>
 
 			{/* Specification Versions Comparison */}
 			<Section>
 				<SectionTitle>
-					<FiInfo size={24} />
+					<span style={{ fontSize: '24px' }}>ℹ️</span>
 					Specification Versions Comparison
 				</SectionTitle>
 
@@ -296,7 +296,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</ComparisonTable>
 
 				<InfoBox $variant="info">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<InfoText>
 						<strong>PingOne Support:</strong> PingOne supports all three specification versions.
 						When using OIDC Core 1.0, the <code>openid</code> scope is required for ID tokens. For
@@ -308,7 +308,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 			{/* Flow Types Comparison */}
 			<Section>
 				<SectionTitle>
-					<FiShield size={24} />
+					<span style={{ fontSize: '24px' }}>🛡️</span>
 					Flow Types Comparison
 				</SectionTitle>
 
@@ -471,7 +471,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</ComparisonTable>
 
 				<InfoBox $variant="warning">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<InfoText>
 						<strong>Key Differences: Authorization Code vs Hybrid:</strong> Both flows are nearly
 						identical and use the same security mechanisms (PKCE recommended). The primary
@@ -484,7 +484,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</InfoBox>
 
 				<InfoBox $variant="success">
-					<FiCheckCircle size={20} />
+					<span style={{ fontSize: '20px' }}>✅</span>
 					<InfoText>
 						<strong>PingOne Implementation:</strong> PingOne supports all flow types except ROPC
 						(Resource Owner Password Credentials). For OIDC flows, the <code>openid</code> scope is
@@ -497,12 +497,12 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 			{/* PingOne-Specific Requirements */}
 			<Section>
 				<SectionTitle>
-					<FiShield size={24} />
+					<span style={{ fontSize: '24px' }}>🛡️</span>
 					PingOne-Specific Requirements & Best Practices
 				</SectionTitle>
 
 				<InfoBox $variant="info">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<div>
 						<InfoText>
 							<strong>OpenID Scope Requirement:</strong> PingOne requires the <code>openid</code>{' '}
@@ -513,7 +513,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</InfoBox>
 
 				<InfoBox $variant="success">
-					<FiCheckCircle size={20} />
+					<span style={{ fontSize: '20px' }}>✅</span>
 					<div>
 						<InfoText>
 							<strong>PKCE with PingOne:</strong> While PKCE is optional in OAuth 2.0, PingOne
@@ -524,7 +524,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</InfoBox>
 
 				<InfoBox $variant="warning">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<div>
 						<InfoText>
 							<strong>Token Endpoint Authentication:</strong> PingOne supports multiple
@@ -552,7 +552,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				</InfoBox>
 
 				<InfoBox $variant="info">
-					<FiInfo size={20} />
+					<span style={{ fontSize: '20px' }}>ℹ️</span>
 					<div>
 						<InfoText>
 							<strong>Redirect URI Validation:</strong> PingOne requires exact match of redirect

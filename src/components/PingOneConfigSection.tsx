@@ -1,9 +1,9 @@
-import { FiCheck, FiChevronDown, FiChevronRight, FiCopy, FiExternalLink } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   background: V9_COLORS.BG.WARNING;
@@ -227,7 +227,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error('PingOneConfigSection', 'Failed to copy URL:', undefined, error as Error);
+			log.error('PingOneConfigSection', 'Failed to copy URL:', undefined, error as Error);
 		}
 	};
 
@@ -253,7 +253,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 		<Container>
 			<Header $hasCredentials={hasCompleteCredentials} onClick={() => setIsExpanded(!isExpanded)}>
 				<ChevronIcon $hasCredentials={hasCompleteCredentials}>
-					{isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+					{isExpanded ? <span>⬇️</span> : <span>➡️</span>}
 				</ChevronIcon>
 				<HeaderTitle $hasCredentials={hasCompleteCredentials}>
 					{hasCompleteCredentials
@@ -273,7 +273,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 						<UrlText>{callbackUrl}</UrlText>
 						<ActionButtons>
 							<ActionButton $variant="copy" onClick={handleCopy} disabled={copied}>
-								{copied ? <FiCheck /> : <FiCopy />}
+								{copied ? <span>✅</span> : <span>📋</span>}
 								{copied ? 'Copied!' : 'Copy'}
 							</ActionButton>
 							<ActionButton
@@ -290,7 +290,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 									cursor: hasValidEnvironmentId ? 'pointer' : 'not-allowed',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								{hasValidEnvironmentId ? 'PingOne Console' : 'Console (No Env ID)'}
 							</ActionButton>
 						</ActionButtons>

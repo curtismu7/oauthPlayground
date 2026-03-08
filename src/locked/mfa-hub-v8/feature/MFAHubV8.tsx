@@ -15,7 +15,7 @@
  * <MFAHubV8 />
  */
 
-import { FiPackage, FiTrash2 } from '@icons';
+
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -479,7 +479,7 @@ export const MFAHubV8: React.FC = () => {
 							}}
 							title="Download comprehensive Postman collection for all MFA device types (SMS, Email, WhatsApp, TOTP, FIDO2, Mobile) grouped by Registration and Authentication"
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download All MFA Flows Postman Collection
 						</button>
 						<button
@@ -564,7 +564,7 @@ export const MFAHubV8: React.FC = () => {
 							}}
 							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 						>
-							<FiPackage size={18} />
+							<span style={{ fontSize: '18px' }}>📦</span>
 							Download Complete Collection (Unified + MFA)
 						</button>
 					</div>
@@ -620,7 +620,7 @@ export const MFAHubV8: React.FC = () => {
 							}}
 							title="Clear all tokens (worker tokens and user tokens)"
 						>
-							<FiTrash2 size={16} />
+							<span style={{ fontSize: '16px' }}>🗑️</span>
 							{isClearingTokens ? 'Clearing...' : 'Clear Tokens'}
 						</button>
 					</div>

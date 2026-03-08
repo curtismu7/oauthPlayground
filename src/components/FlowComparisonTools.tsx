@@ -1,17 +1,8 @@
-import {
-	FiClock,
-	FiDownload,
-	FiEye,
-	FiGitMerge,
-	FiShare2,
-	FiShield,
-	FiTrendingUp,
-	FiUsers,
-} from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const ComparisonContainer = styled.div`
@@ -530,7 +521,7 @@ export const FlowComparisonTools: React.FC = () => {
 				});
 				announceToScreenReader('Comparison shared successfully');
 			} catch (error) {
-				logger.error('FlowComparisonTools', 'Error sharing:', undefined, error as Error);
+				log.error('FlowComparisonTools', 'Error sharing:', undefined, error as Error);
 			}
 		} else {
 			await navigator.clipboard.writeText(comparisonUrl);
@@ -549,7 +540,7 @@ export const FlowComparisonTools: React.FC = () => {
 		<ComparisonContainer role="main" aria-label="OAuth flow comparison tools">
 			<ComparisonHeader>
 				<ComparisonIcon>
-					<FiGitMerge />
+					<span>❓</span>
 				</ComparisonIcon>
 				<div>
 					<ComparisonTitle>OAuth Flow Comparison Tools</ComparisonTitle>
@@ -591,7 +582,7 @@ export const FlowComparisonTools: React.FC = () => {
 									<MetricsGrid>
 										<MetricItem>
 											<MetricIcon $metric="security">
-												<FiShield />
+												<span>🛡️</span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Security</div>
@@ -601,7 +592,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="complexity">
-												<FiTrendingUp />
+												<span>📈</span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Complexity</div>
@@ -611,7 +602,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="performance">
-												<FiClock />
+												<span>🕐</span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Performance</div>
@@ -621,7 +612,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="usability">
-												<FiUsers />
+												<span>👥</span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Usability</div>
@@ -713,7 +704,7 @@ export const FlowComparisonTools: React.FC = () => {
 							}
 							aria-label={`Switch to ${comparisonMode === 'side-by-side' ? 'table' : 'side-by-side'} view`}
 						>
-							<FiEye />
+							<span>👁️</span>
 							{comparisonMode === 'side-by-side' ? 'Table View' : 'Side-by-Side View'}
 						</ActionButton>
 
@@ -722,7 +713,7 @@ export const FlowComparisonTools: React.FC = () => {
 							onClick={exportComparison}
 							aria-label="Export comparison data as JSON"
 						>
-							<FiDownload />
+							<span>📥</span>
 							Export Data
 						</ActionButton>
 
@@ -731,7 +722,7 @@ export const FlowComparisonTools: React.FC = () => {
 							onClick={shareComparison}
 							aria-label="Share comparison with others"
 						>
-							<FiShare2 />
+							<span>🔗</span>
 							Share Comparison
 						</ActionButton>
 					</ComparisonActions>

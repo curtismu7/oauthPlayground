@@ -16,17 +16,7 @@
  * - FIDO policy information (if applicable)
  */
 
-import {
-	FiBook,
-	FiCheck,
-	FiChevronDown,
-	FiChevronUp,
-	FiCopy,
-	FiHome,
-	FiInfo,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -399,7 +389,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<FiHome />
+					<span>🏠</span>
 					Back to MFA Hub
 				</button>
 				<ApiDisplayCheckbox />
@@ -505,13 +495,13 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-								<FiCheck size={16} color="#10b981" />
+								<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 								<span style={{ fontSize: '14px', color: '#166534' }}>
 									MFA authentication completed
 								</span>
 							</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-								<FiCheck size={16} color="#10b981" />
+								<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 								<span style={{ fontSize: '14px', color: '#166534' }}>Access token received</span>
 							</div>
 						</div>
@@ -532,7 +522,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-						<FiUser size={24} color="#3b82f6" />
+						<span style={{ fontSize: 24, color: '#3b82f6' }}>👤</span>
 						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1e40af' }}>
 							User Information
 						</h3>
@@ -636,7 +626,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 								color: '#047857',
 							}}
 						>
-							<FiInfo />
+							<span>ℹ️</span>
 						</div>
 						<div>
 							<h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#065f46' }}>
@@ -777,7 +767,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-						<FiShield size={24} color="#10b981" />
+						<span style={{ fontSize: 24, color: '#10b981' }}>🛡️</span>
 						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#065f46' }}>
 							🔑 Access Token
 						</h3>
@@ -829,7 +819,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 										}
 									}}
 								>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
 								</button>
 							</div>
@@ -1382,7 +1372,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						>
 							📄 Response Data (JSON)
 						</h4>
-						{jsonExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+						{jsonExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
 					</button>
 					{jsonExpanded && (
 						<div
@@ -1512,7 +1502,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<FiHome />
+					<span>🏠</span>
 					Back to MFA Hub
 				</button>
 				{/* Show Documentation button for registration flows and FIDO2 authentication flows */}
@@ -1534,7 +1524,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						<FiBook />
+						<span>📖</span>
 						View Documentation
 					</button>
 				)}
@@ -1557,7 +1547,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						<FiShield />
+						<span>🛡️</span>
 						Authentication
 					</button>
 				)}

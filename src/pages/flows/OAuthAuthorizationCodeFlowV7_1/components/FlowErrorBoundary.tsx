@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowErrorBoundary.tsx
 // V7.1 Flow Error Boundary - Graceful error handling for OAuth Authorization Code Flow
 
-import { FiAlertTriangle, FiChevronLeft, FiHome, FiRefreshCw } from '@icons';
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
@@ -196,7 +196,7 @@ export class FlowErrorBoundary extends Component<Props, State> {
 	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		logger.error('Flow Error Boundary caught an error:', error, errorInfo);
+		log.error('Flow Error Boundary caught an error:', error, errorInfo);
 
 		this.setState({
 			error,
@@ -231,7 +231,7 @@ export class FlowErrorBoundary extends Component<Props, State> {
 			url: window.location.href,
 		};
 
-		logger.error('Error logged:', errorData);
+		log.error('Error logged:', errorData);
 
 		// Example: Send to error tracking service
 		// errorTrackingService.captureException(error, { extra: errorData });
@@ -301,7 +301,7 @@ export class FlowErrorBoundary extends Component<Props, State> {
 			return (
 				<ErrorContainer>
 					<ErrorIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</ErrorIcon>
 
 					<ErrorTitle>Something went wrong in {flowName}</ErrorTitle>
@@ -334,27 +334,27 @@ export class FlowErrorBoundary extends Component<Props, State> {
 
 					<ButtonContainer>
 						<ErrorButton $variant="primary" onClick={this.handleRetry} disabled={retryCount >= 3}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							{retryCount >= 3 ? 'Max Retries Reached' : 'Try Again'}
 						</ErrorButton>
 
 						<ErrorButton $variant="secondary" onClick={this.handleReset}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Reset Flow
 						</ErrorButton>
 
 						<ErrorButton $variant="secondary" onClick={this.handleGoBack}>
-							<FiChevronLeft />
+							<span>⬅️</span>
 							Go Back
 						</ErrorButton>
 
 						<ErrorButton $variant="secondary" onClick={this.handleGoHome}>
-							<FiHome />
+							<span>🏠</span>
 							Go Home
 						</ErrorButton>
 
 						<ErrorButton $variant="danger" onClick={this.handleReload}>
-							<FiRefreshCw />
+							<span>🔄</span>
 							Reload Page
 						</ErrorButton>
 					</ButtonContainer>

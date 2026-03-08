@@ -8,23 +8,7 @@
  * Universal hero section that adapts to different company styles and provides authentic industry experiences.
  */
 
-import {
-	FiArrowRight,
-	FiAward,
-	FiCalendar,
-	FiCheckCircle,
-	FiCode,
-	FiCreditCard,
-	FiGlobe,
-	FiLock,
-	FiMapPin,
-	FiPackage,
-	FiSearch,
-	FiShield,
-	FiStar,
-	FiTrendingUp,
-	FiUsers,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -622,7 +606,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 							<BankingFeatures>
 								<BankingFeature $brandColor={brandColor}>
 									<div className="icon">
-										<FiShield />
+										<span>🛡️</span>
 									</div>
 									<div className="text">
 										<h4>Advanced Security</h4>
@@ -631,7 +615,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</BankingFeature>
 								<BankingFeature $brandColor={brandColor}>
 									<div className="icon">
-										<FiCreditCard />
+										<span>💳</span>
 									</div>
 									<div className="text">
 										<h4>Digital Wallet</h4>
@@ -640,7 +624,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</BankingFeature>
 								<BankingFeature $brandColor={brandColor}>
 									<div className="icon">
-										<FiTrendingUp />
+										<span>📈</span>
 									</div>
 									<div className="text">
 										<h4>Investing Tools</h4>
@@ -649,7 +633,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</BankingFeature>
 								<BankingFeature $brandColor={brandColor}>
 									<div className="icon">
-										<FiCheckCircle />
+										<span>✅</span>
 									</div>
 									<div className="text">
 										<h4>Bill Pay</h4>
@@ -664,18 +648,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 									$accentColor={accentColor}
 									$tone={tone}
 								>
-									<FiLock />
+									<span>🔒</span>
 									{loginPattern === 'new-page'
 										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
 										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginAction>
 						</BankingContent>
 						<BankingVisual $brandColor={brandColor}>
 							<div className="visual-content">
 								<div className="icon">
-									<FiShield />
+									<span>🛡️</span>
 								</div>
 								<h3>Online Banking</h3>
 								<p>Secure, convenient, and designed for you</p>
@@ -696,25 +680,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 							<div className="features">
 								<div className="feature">
 									<div className="icon">
-										<FiAward />
+										<span>❓</span>
 									</div>
 									<div className="text">Earn miles on every flight</div>
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiMapPin />
+										<span>📍</span>
 									</div>
 									<div className="text">Track flight status in real-time</div>
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiCalendar />
+										<span>📅</span>
 									</div>
 									<div className="text">Manage your travel calendar</div>
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiStar />
+										<span>⭐</span>
 									</div>
 									<div className="text">Access premium benefits</div>
 								</div>
@@ -726,11 +710,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 									$accentColor={accentColor}
 									$tone={tone}
 								>
-									<FiLock />
+									<span>🔒</span>
 									{loginPattern === 'new-page'
 										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
 										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginAction>
 						</AirlineContent>
@@ -754,7 +738,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 									<input id="return" type="date" />
 								</div>
 								<button type="button" className="search-button">
-									<FiSearch />
+									<span>🔍</span>
 									Search Flights
 								</button>
 							</div>
@@ -778,11 +762,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 									$accentColor={accentColor}
 									$tone={tone}
 								>
-									<FiLock />
+									<span>🔒</span>
 									{loginPattern === 'new-page'
 										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
 										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginAction>
 						</div>
@@ -795,11 +779,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</div>
 								<div className="buttons">
 									<button type="button">
-										<FiSearch />
+										<span>🔍</span>
 										Track
 									</button>
 									<button type="button" className="secondary">
-										<FiPackage />
+										<span>📦</span>
 										Ship
 									</button>
 								</div>
@@ -820,7 +804,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 							<div className="tech-features">
 								<div className="feature">
 									<div className="icon">
-										<FiShield />
+										<span>🛡️</span>
 									</div>
 									<div className="text">
 										<h4>Advanced Security</h4>
@@ -829,7 +813,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiCode />
+										<span>❓</span>
 									</div>
 									<div className="text">
 										<h4>Developer Tools</h4>
@@ -838,7 +822,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiUsers />
+										<span>👥</span>
 									</div>
 									<div className="text">
 										<h4>User Management</h4>
@@ -847,7 +831,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								</div>
 								<div className="feature">
 									<div className="icon">
-										<FiGlobe />
+										<span>🌐</span>
 									</div>
 									<div className="text">
 										<h4>Global Scale</h4>
@@ -862,17 +846,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 									$accentColor={accentColor}
 									$tone={tone}
 								>
-									<FiLock />
+									<span>🔒</span>
 									{loginPattern === 'new-page'
 										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
 										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
-									<FiArrowRight />
+									<span>➡️</span>
 								</LoginButton>
 							</LoginAction>
 						</TechContent>
 						<TechVisual $brandColor={brandColor}>
 							<div className="icon">
-								<FiShield />
+								<span>🛡️</span>
 							</div>
 							<h3>Enterprise Security</h3>
 							<p>Protect your digital identity with confidence</p>
@@ -894,11 +878,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 								$accentColor={accentColor}
 								$tone={tone}
 							>
-								<FiLock />
+								<span>🔒</span>
 								{loginPattern === 'new-page'
 									? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
 									: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
-								<FiArrowRight />
+								<span>➡️</span>
 							</LoginButton>
 						</LoginAction>
 					</HeroContent>

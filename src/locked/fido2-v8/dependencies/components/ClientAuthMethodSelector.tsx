@@ -1,7 +1,7 @@
 // src/components/ClientAuthMethodSelector.tsx
 // Token Endpoint Authentication Method Selector for OAuth/OIDC flows
 
-import { FiInfo, FiShield } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { ClientAuthMethod, getAuthMethodSecurityLevel } from '../utils/clientAuthentication';
@@ -163,7 +163,7 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 	return (
 		<Container>
 			<Label>
-				<FiShield />
+				<span>🛡️</span>
 				Token Endpoint Authentication Method
 			</Label>
 
@@ -194,7 +194,7 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 			)}
 
 			<HelperText>
-				<FiInfo />
+				<span>ℹ️</span>
 				<span>
 					Specifies how the client authenticates with the token endpoint. Public clients (SPAs,
 					mobile apps) use "None". Confidential clients use secret or JWT-based methods.

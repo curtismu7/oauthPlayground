@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowConfiguration.tsx
 // V7.1 Flow Configuration - Configuration section for credentials and settings
 
-import { FiChevronRight, FiInfo, FiRefreshCw, FiSave } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
@@ -298,7 +298,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				);
 				console.log('✅ Configuration saved successfully');
 			} catch (error) {
-				logger.error('❌ Failed to save configuration:', error);
+				log.error('❌ Failed to save configuration:', error);
 			}
 		} else {
 			setValidationErrors(errors);
@@ -323,7 +323,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 			<SectionHeader $collapsed={isCollapsed} onClick={onToggleCollapse}>
 				<SectionTitle>
 					<CollapseIcon $collapsed={isCollapsed}>
-						<FiChevronRight />
+						<span>➡️</span>
 					</CollapseIcon>
 					<span>Flow Configuration</span>
 				</SectionTitle>
@@ -332,7 +332,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 			<SectionContent $collapsed={isCollapsed}>
 				<InfoBox>
 					<InfoText>
-						<FiInfo />
+						<span>ℹ️</span>
 						<div>
 							Configure your OAuth application credentials and settings. The{' '}
 							{flowVariant.toUpperCase()} variant requires specific scopes and configuration.
@@ -442,11 +442,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 
 				<ButtonGroup>
 					<Button $variant="primary" onClick={handleSave}>
-						<FiSave />
+						<span>💾</span>
 						Save Configuration
 					</Button>
 					<Button $variant="secondary" onClick={handleReset}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Reset to Defaults
 					</Button>
 				</ButtonGroup>

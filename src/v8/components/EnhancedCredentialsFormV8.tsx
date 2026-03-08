@@ -14,15 +14,7 @@
  * - Storage backend status display
  */
 
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiClock,
-	FiDatabase,
-	FiHardDrive,
-	FiSave,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
@@ -554,9 +546,9 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 						key={backend.name}
 						status={backend.available ? 'available' : 'unavailable'}
 					>
-						{backend.name === 'indexeddb' && <FiDatabase />}
-						{backend.name === 'sqlite' && <FiHardDrive />}
-						{backend.name === 'localStorage' && <FiDatabase />}
+						{backend.name === 'indexeddb' && <span>🗄️</span>}
+						{backend.name === 'sqlite' && <span>💾</span>}
+						{backend.name === 'localStorage' && <span>🗄️</span>}
 						{backend.name.toUpperCase()}
 					</StorageBackend>
 				))}
@@ -565,14 +557,14 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			{/* Save Status Messages */}
 			{saveStatus === 'saved' && (
 				<SuccessMessage>
-					<FiCheckCircle />
+					<span>✅</span>
 					Credentials saved successfully!
 				</SuccessMessage>
 			)}
 
 			{saveStatus === 'error' && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					Failed to save credentials. Please try again.
 				</ErrorMessage>
 			)}
@@ -703,15 +695,15 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					onClick={handleSave}
 					disabled={tracking.isLoading || Object.keys(validationErrors).length > 0}
 				>
-					<FiSave />
+					<span>💾</span>
 					{tracking.isLoading ? 'Saving...' : 'Save Credentials'}
 				</Button>
 				<Button variant="secondary" onClick={handleLoad} disabled={tracking.isLoading}>
-					<FiDatabase />
+					<span>🗄️</span>
 					Load Credentials
 				</Button>
 				<Button variant="danger" onClick={handleClear} disabled={tracking.isLoading}>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					Clear Credentials
 				</Button>
 			</ButtonGroup>
@@ -719,7 +711,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			{/* Session Statistics */}
 			<StatsPanel>
 				<StatsTitle>
-					<FiActivity />
+					<span>🔄</span>
 					Session Statistics
 				</StatsTitle>
 				<StatsGrid>

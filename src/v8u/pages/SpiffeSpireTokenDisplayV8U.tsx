@@ -1,4 +1,4 @@
-import { FiArrowLeft, FiKey, FiShield } from '@icons';
+
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -126,7 +126,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 		<PageContainer>
 			<div style={{ display: 'flex', alignItems: 'center' }}>
 				<BackButton type="button" onClick={() => navigate('/v8u/spiffe-spire')}>
-					<FiArrowLeft size={16} /> Back to SPIFFE/SPIRE Flow
+					<span style={{ fontSize: '16px' }}>⬅️</span> Back to SPIFFE/SPIRE Flow
 				</BackButton>
 				<ResetButton type="button" onClick={() => navigate('/v8u/spiffe-spire')}>
 					Reset SPIFFE/SPIRE Flow
@@ -135,7 +135,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 
 			<Header>
 				<h1>
-					<FiShield /> SPIFFE → PingOne Token Viewer
+					<span>🛡️</span> SPIFFE → PingOne Token Viewer
 				</h1>
 				<p>
 					View and explore the OAuth/OIDC tokens issued after exchanging a SPIFFE SVID. Decode JWTs,
@@ -156,7 +156,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 							marginBottom: '0.75rem',
 						}}
 					>
-						<FiKey size={18} color="#1f2937" />
+						<span style={{ fontSize: 18, color: '#1f2937' }}>🔑</span>
 						<span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1f2937' }}>
 							Tokens issued for your SPIFFE-identified workload
 						</span>
@@ -238,7 +238,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 						e.currentTarget.style.background = '#2563eb';
 					}}
 				>
-					<FiArrowLeft size={16} />
+					<span style={{ fontSize: '16px' }}>⬅️</span>
 					Start Over
 				</button>
 			</div>

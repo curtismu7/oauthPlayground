@@ -8,7 +8,7 @@
  * Right-side slide-out login panel for United Airlines pattern.
  */
 
-import { FiLock, FiX } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -206,11 +206,11 @@ const RightPopoutLogin: React.FC<RightPopoutLoginProps> = ({
 			<LoginPanel $isOpen={isOpen} ref={panelRef}>
 				<PanelHeader $brandColor={brandColor}>
 					<PanelTitle>
-						<FiLock />
+						<span>🔒</span>
 						{config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
 					</PanelTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</PanelHeader>
 
@@ -245,7 +245,7 @@ const RightPopoutLogin: React.FC<RightPopoutLoginProps> = ({
 						</InputGroup>
 
 						<LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-							<FiLock />
+							<span>🔒</span>
 							Sign In
 						</LoginButton>
 					</LoginForm>

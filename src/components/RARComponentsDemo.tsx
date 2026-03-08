@@ -1,7 +1,7 @@
 // src/components/RARComponentsDemo.tsx
 // Demo component showcasing the new RAR UI components
 
-import { FiCheckCircle, FiEye, FiSettings } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
@@ -184,7 +184,7 @@ export const RARComponentsDemo: React.FC = () => {
 				<MainColumn>
 					<Section>
 						<SectionHeader>
-							<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 							<SectionTitle>Example Selector</SectionTitle>
 						</SectionHeader>
 						<SectionDescription>
@@ -197,7 +197,7 @@ export const RARComponentsDemo: React.FC = () => {
 
 					<Section>
 						<SectionHeader>
-							<FiSettings size={20} color="V9_COLORS.PRIMARY.BLUE" />
+							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE' }}>⚙️</span>
 							<SectionTitle>Authorization Details Editor</SectionTitle>
 						</SectionHeader>
 						<SectionDescription>
@@ -214,7 +214,7 @@ export const RARComponentsDemo: React.FC = () => {
 				<SideColumn>
 					<ConfigPanel>
 						<ConfigTitle>
-							<FiSettings size={16} />
+							<span style={{ fontSize: '16px' }}>⚙️</span>
 							Configuration
 						</ConfigTitle>
 
@@ -250,7 +250,7 @@ export const RARComponentsDemo: React.FC = () => {
 
 					<StatsPanel>
 						<ConfigTitle>
-							<FiEye size={16} />
+							<span style={{ fontSize: '16px' }}>👁️</span>
 							Statistics
 						</ConfigTitle>
 						<StatsGrid>

@@ -1,7 +1,7 @@
 // src/components/DeviceDisplayTemplate.tsx
 // Standardized Device Display Template - Based on Airport Kiosk Layout
 
-import { FiCopy, FiExternalLink } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -380,17 +380,17 @@ export const DeviceDisplayTemplate: React.FC<DeviceDisplayTemplateProps> = ({
 			<ActionButtons>
 				{onCopyCode && (
 					<ActionButton $variant="secondary" onClick={onCopyCode}>
-						<FiCopy /> Copy Code
+						<span>📋</span> Copy Code
 					</ActionButton>
 				)}
 				{onCopyURI && (
 					<ActionButton $variant="secondary" onClick={onCopyURI}>
-						<FiCopy /> Copy URI
+						<span>📋</span> Copy URI
 					</ActionButton>
 				)}
 				{onOpenURI && (
 					<ActionButton $variant="primary" onClick={onOpenURI}>
-						<FiExternalLink /> Open in Browser
+						<span>🔗</span> Open in Browser
 					</ActionButton>
 				)}
 			</ActionButtons>
