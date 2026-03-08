@@ -8,14 +8,9 @@
 
 import React, { useState } from 'react';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
-FloatingStepper, FloatingStepperService, type;
-FloatingStepperStep,
+	FloatingStepper,
+	FloatingStepperService,
+	type FloatingStepperStep,
 } from '../services/FloatingStepperService'
 
 const FloatingStepperExample: React.FC = () => {
