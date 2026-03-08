@@ -18,6 +18,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
+import { FiRefreshCw } from '@icons';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 

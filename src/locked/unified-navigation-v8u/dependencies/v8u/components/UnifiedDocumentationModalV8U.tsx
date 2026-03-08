@@ -17,6 +17,7 @@ import {
 	downloadAsPDF,
 	generateUnifiedFlowMarkdown,
 } from './UnifiedFlowDocumentationPageV8U';
+import { FiDownload, FiFileText } from '@icons';
 
 interface UseCase {
 	id: string;

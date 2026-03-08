@@ -16,6 +16,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
 
 /**
  * Utility function to mask tokens for security

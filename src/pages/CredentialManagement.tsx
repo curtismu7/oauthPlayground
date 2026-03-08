@@ -9,6 +9,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { FiAlertCircle, FiCheckCircle, FiXCircle } from '@icons';
 
 const styles = {
 	container: {

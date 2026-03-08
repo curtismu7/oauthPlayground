@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';
+import { FiCheck, FiInfo } from '@icons';
 
 const ComparisonContainer = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);

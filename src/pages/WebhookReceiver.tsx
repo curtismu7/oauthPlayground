@@ -6,6 +6,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertTriangle } from '@icons';
 
 const Container = styled.div`
   max-width: 1200px;

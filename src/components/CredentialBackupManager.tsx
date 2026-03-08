@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
+import { FiRefreshCw } from '@icons';
 
 const Container = styled.div`
 	background: V9_COLORS.TEXT.WHITE;

@@ -6,6 +6,7 @@ import { useId, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwksConverter';
+import { FiRefreshCw } from '@icons';
 
 const Container = styled.div`
   background: white;

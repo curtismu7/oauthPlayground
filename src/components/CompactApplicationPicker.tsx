@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { fetchApplications } from '../services/pingOneApplicationService';
+import { FiRefreshCw } from '@icons';
 
 const Container = styled.div`
 	display: flex;

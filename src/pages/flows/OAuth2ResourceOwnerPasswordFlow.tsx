@@ -12,6 +12,7 @@ import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
+import { FiEye, FiEyeOff } from '@icons';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

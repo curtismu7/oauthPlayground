@@ -8,6 +8,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import CopyIcon from './CopyIcon';
+import { FiRefreshCw } from '@icons';
 
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;

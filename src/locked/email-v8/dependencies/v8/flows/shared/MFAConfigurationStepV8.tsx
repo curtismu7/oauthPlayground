@@ -21,6 +21,7 @@ import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServ
 import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
+import { FiLoader } from '@icons';
 
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;

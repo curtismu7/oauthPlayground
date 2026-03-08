@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
+import { FiMic } from '@icons';
 
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`

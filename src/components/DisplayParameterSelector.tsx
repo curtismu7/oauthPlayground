@@ -4,6 +4,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { FiLayout, FiMonitor, FiSmartphone } from '@icons';
 
 export type DisplayMode = 'page' | 'popup' | 'touch' | 'wap';
 

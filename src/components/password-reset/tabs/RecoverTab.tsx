@@ -36,6 +36,7 @@ import {
 	SuccessTitle,
 } from '../shared/PasswordResetSharedComponents';
 import { type PingOneUser } from '../shared/useUserLookup';
+import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiMail } from '@icons';
 
 interface RecoverTabProps {
 	environmentId: string;

@@ -25,6 +25,7 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FiRefreshCw } from '@icons';
 
 type CredentialsState = {
 	environmentId: string;

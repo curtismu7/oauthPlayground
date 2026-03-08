@@ -15,6 +15,7 @@ import {
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
+import { FiInfo } from '@icons';
 
 const FormSection = styled.div`
 	display: flex;

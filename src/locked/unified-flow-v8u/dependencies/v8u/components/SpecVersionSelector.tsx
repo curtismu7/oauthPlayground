@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8.ts';
+import { FiHelpCircle } from '@icons';
 
 const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
 

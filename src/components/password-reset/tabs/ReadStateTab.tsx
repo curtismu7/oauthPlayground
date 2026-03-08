@@ -27,6 +27,7 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
+import { FiAlertCircle, FiBook, FiCheckCircle, FiClock, FiExternalLink, FiLock, FiRefreshCw, FiUnlock, FiXCircle } from '@icons';
 
 const StateDisplayContainer = styled.div`
 	background: linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%);
