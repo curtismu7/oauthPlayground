@@ -37,9 +37,8 @@ import {
 	HybridFlowEducationalContent,
 	HybridFlowResponseTypeManager,
 	HybridFlowTokenProcessor,
-	log,
 } from '../../../services/hybridFlowSharedService';
-import { logger } from '../../../services/loggingService';
+import { createModuleLogger } from '../../../utils/logger';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
@@ -247,6 +246,8 @@ const HYBRID_VARIANTS: Array<{
 	},
 ];
 
+const log = createModuleLogger('src/pages/flows/v9/OIDCHybridFlowV9.tsx');
+
 const OIDCHybridFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'OIDC Hybrid Flow V9', force: true });
 
@@ -287,7 +288,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 		if (savedToken && savedEnv === controller.credentials?.environmentId) {
 			setWorkerToken(savedToken);
-			logger.info('OIDCHybridFlowV9', 'Worker token loaded from localStorage');
+			log.info('OIDCHybridFlowV9', 'Worker token loaded from localStorage');
 		}
 	}, [controller.credentials?.environmentId]);
 
@@ -298,7 +299,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			logger.info('OIDCHybridFlowV9', 'Saving credentials to flow-specific storage', {
+			log.info('OIDCHybridFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'hybrid-flow-v7',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -521,7 +522,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear OIDC Hybrid Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
-			logger.info('OIDCHybridFlowV9', 'Cleared flow-specific storage');
+			log.info('OIDCHybridFlowV9', 'Cleared flow-specific storage');
 		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -534,7 +535,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
-			logger.info('OIDCHybridFlowV9', 'Cleared credential backup');
+			log.info('OIDCHybridFlowV9', 'Cleared credential backup');
 		} catch (_error) {
 			// Background credential backup clear — non-critical
 		}
