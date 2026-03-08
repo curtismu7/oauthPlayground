@@ -1,4 +1,3 @@
-import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
@@ -614,7 +613,7 @@ console.log('ID token is valid!');`,
 			<PageTitle
 				title={
 					<>
-						<FiShield />
+						🛡️
 						OpenID Connect ID Tokens
 					</>
 				}
@@ -681,7 +680,7 @@ console.log('ID token is valid!');`,
 					</FlowDescription>
 
 					<SecurityHighlight>
-						<FiKey size={20} />
+						🔑
 						<div>
 							<h3>Security First</h3>
 							<p>
@@ -713,7 +712,7 @@ console.log('ID token is valid!');`,
 
 					{!config && (
 						<ErrorMessage>
-							<FiAlertCircle />
+							⚠️
 							<strong>Configuration Required:</strong> Please configure your PingOne settings in the
 							Configuration page before running this demo.
 						</ErrorMessage>
@@ -721,7 +720,7 @@ console.log('ID token is valid!');`,
 
 					{!idToken && (
 						<ErrorMessage>
-							<FiAlertCircle />
+							⚠️
 							<strong>No ID Token Available:</strong> Please complete an OAuth flow (like Implicit
 							Grant Flow or Authorization Code Flow) that includes the 'openid' scope to obtain an
 							ID token before running this demo.
@@ -741,7 +740,7 @@ console.log('ID token is valid!');`,
 								gap: '0.5rem',
 							}}
 						>
-							<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+							✅ style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 							<div>
 								<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>ID Token Available:</strong>
 								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
@@ -754,7 +753,7 @@ console.log('ID token is valid!');`,
 
 					{error && (
 						<ErrorMessage>
-							<FiAlertCircle />
+							⚠️
 							<strong>Error:</strong> {error}
 						</ErrorMessage>
 					)}
@@ -814,7 +813,7 @@ console.log('ID token is valid!');`,
 							<h4>Validation Results:</h4>
 							{Object.entries(validationResults).map(([key, result]) => (
 								<div key={key} className={`validation-item ${result.valid ? 'valid' : 'invalid'}`}>
-									<FiCheckCircle size={16} />
+									✅ size={16} />
 									<span>
 										<strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {result.message}
 									</span>
