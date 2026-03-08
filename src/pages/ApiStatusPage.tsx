@@ -7,8 +7,8 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiRefreshCw } from '@icons';
+import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -138,15 +138,6 @@ const RefreshButton = styled.button`
 	}
 `;
 
-const _ErrorMessage = styled.div`
-	background: V9_COLORS.BG.ERROR;
-	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	color: V9_COLORS.PRIMARY.RED_DARK;
-	margin-bottom: 1.5rem;
-`;
-
 const ApiStatusPage: React.FC = () => {
 	const [servers, setServers] = useState<DetailedServerStatus[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -159,7 +150,7 @@ const ApiStatusPage: React.FC = () => {
 			setServers(updatedServers);
 			setLastRefresh(new Date());
 		} catch (err) {
-			log.error('ApiStatusPage', 'Failed to fetch server health data:', undefined, err as Error);
+			logger.error('ApiStatusPage', 'Failed to fetch server health data:', undefined, err as Error);
 		} finally {
 			setLoading(false);
 		}
@@ -199,7 +190,7 @@ const ApiStatusPage: React.FC = () => {
 					)}
 				</PageDescription>
 				<RefreshButton onClick={fetchHealthData}>
-					<FiRefreshCw style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+					<span>🔄</span>
 					{loading ? 'Refreshing...' : 'Refresh'}
 				</RefreshButton>
 			</PageHeader>
