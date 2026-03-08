@@ -5,7 +5,7 @@ export interface ParameterValidationResult {
 	isValid: boolean;
 	errors: string[];
 	warnings: string[];
-	validatedParameters: Record<string, any>;
+	validatedParameters: Record<string, unknown>;
 }
 
 export interface ParameterValidationRule {
@@ -16,7 +16,7 @@ export interface ParameterValidationRule {
 	minLength?: number;
 	maxLength?: number;
 	allowedValues?: string[];
-	validator?: (value: any) => boolean;
+	validator?: (value: unknown) => boolean;
 	description: string;
 }
 
@@ -370,7 +370,7 @@ export class ParameterValidationService {
 	 */
 	static validateFlowParameters(
 		flowName: string,
-		parameters: Record<string, any>
+		parameters: Record<string, unknown>
 	): ParameterValidationResult {
 		// Initialize configs if not already done
 		if (ParameterValidationService.flowConfigs.size === 0) {
@@ -433,7 +433,7 @@ export class ParameterValidationService {
 	 */
 	private static validateParameter(
 		paramName: string,
-		value: any,
+		value: unknown,
 		rule: ParameterValidationRule
 	): { isValid: boolean; errors: string[]; warnings: string[] } {
 		const result = {
@@ -507,7 +507,7 @@ export class ParameterValidationService {
 	/**
 	 * Validate type
 	 */
-	private static validateType(value: any, expectedType: string): boolean {
+	private static validateType(value: unknown, expectedType: string): boolean {
 		switch (expectedType) {
 			case 'string':
 				return typeof value === 'string';
@@ -528,7 +528,7 @@ export class ParameterValidationService {
 	 * Validate OIDC-specific parameters
 	 */
 	private static validateOIDCSpecificParameters(
-		parameters: Record<string, any>,
+		parameters: Record<string, unknown>,
 		result: ParameterValidationResult
 	): void {
 		// Check for openid scope
