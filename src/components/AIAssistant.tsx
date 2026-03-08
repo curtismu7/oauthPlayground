@@ -1,4 +1,3 @@
-import { FiExternalLink, FiMessageCircle, FiSend, FiX } from '@icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -115,7 +114,7 @@ const AIAssistant: React.FC = () => {
 			{/* Floating Button */}
 			{!isOpen && (
 				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open AI Assistant">
-					<FiMessageCircle size={24} />
+					<span style={{ fontSize: '24px' }}>💬</span>
 					<Pulse />
 				</FloatingButton>
 			)}
@@ -177,7 +176,7 @@ const AIAssistant: React.FC = () => {
 								</ToggleLabel>
 							</ToggleContainer>
 							<CloseButton onClick={() => setIsOpen(false)} aria-label="Close assistant">
-								<FiX size={20} />
+								<span style={{ fontSize: '20px' }}>❌</span>
 							</CloseButton>
 						</HeaderActions>
 					</ChatHeader>
@@ -205,7 +204,7 @@ const AIAssistant: React.FC = () => {
 														{link.type === 'guide' && '📚'}
 													</LinkIcon>
 													<LinkText>{link.title}</LinkText>
-													<FiExternalLink size={14} />
+													<span style={{ fontSize: '14px' }}>🔗</span>
 												</LinkItem>
 											))}
 										</LinksContainer>
@@ -255,7 +254,7 @@ const AIAssistant: React.FC = () => {
 							aria-label="Message input"
 						/>
 						<SendButton onClick={handleSend} disabled={!input.trim()} aria-label="Send message">
-							<FiSend size={18} />
+							<span style={{ fontSize: '18px' }}>📤</span>
 						</SendButton>
 					</InputContainer>
 				</ChatWindow>

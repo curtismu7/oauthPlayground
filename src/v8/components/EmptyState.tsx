@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { FiInbox } from '@icons';
+
 import React from 'react';
 import { colors, spacing, typography } from '@/v8/design/tokens';
 import { Button } from './Button';
@@ -21,7 +21,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-	icon = <FiInbox size={64} />,
+	icon = <span style={{ fontSize: '64px' }}>❓</span>,
 	title,
 	description,
 	action,

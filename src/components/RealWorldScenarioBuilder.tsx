@@ -4,17 +4,7 @@
  * Pre-built OAuth scenarios with auto-populated parameters and generated code
  */
 
-import {
-	FiCheckCircle,
-	FiCode,
-	FiCopy,
-	FiDollarSign,
-	FiExternalLink,
-	FiGlobe,
-	FiLock,
-	FiShoppingCart,
-	FiSmartphone,
-} from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -298,7 +288,7 @@ interface ScenarioConfig {
 const scenarios: ScenarioConfig[] = [
 	{
 		id: 'banking-mfa',
-		icon: <FiDollarSign />,
+		icon: <span>💵</span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 		title: 'Banking App with MFA',
@@ -497,7 +487,7 @@ public class BankingOAuthConfig
 	},
 	{
 		id: 'saas-multi-tenant',
-		icon: <FiGlobe />,
+		icon: <span>🌐</span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'Multi-Tenant SaaS Platform',
@@ -737,7 +727,7 @@ public class SaaSMultiTenantOAuth
 	},
 	{
 		id: 'mobile-ecommerce',
-		icon: <FiShoppingCart />,
+		icon: <span>🛒</span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)',
 		title: 'Mobile E-Commerce App',
@@ -1119,7 +1109,7 @@ public class MobileOAuthManager
 	},
 	{
 		id: 'iot-device',
-		icon: <FiSmartphone />,
+		icon: <span>📱</span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'IoT Device / Smart TV',
@@ -1220,7 +1210,7 @@ deviceFlowAuth()
     saveToDeviceStorage(tokens);
   })
   .catch(error => {
-    logger.error('RealWorldScenarioBuilder', '❌ Authorization failed:', { message: error.message });
+    log.error('RealWorldScenarioBuilder', '❌ Authorization failed:', { message: error.message });
   });`,
 			python: `# IoT Device / Smart TV OAuth (Device Flow)
 import requests
@@ -1301,7 +1291,7 @@ import java.net.http.*;
 import java.net.URI;
 import java.util.Map;
 import com.google.gson.Gson;
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 public class DeviceFlowAuth {
     private String envId;
@@ -1529,7 +1519,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 	return (
 		<BuilderContainer>
 			<Title>
-				<FiGlobe size={32} />
+				<span style={{ fontSize: '32px' }}>🌐</span>
 				Real-World Scenario Builder
 			</Title>
 			<Subtitle>
@@ -1575,7 +1565,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 							<WhyBox>
 								<WhyTitle>
-									<FiLock />
+									<span>🔒</span>
 									Why These Parameters Matter
 								</WhyTitle>
 								<WhyText>{scenario.whyItMatters}</WhyText>
@@ -1637,7 +1627,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<CodeBlock>
 							<CopyButton onClick={() => copyCode(scenario.codeExamples[selectedLanguage])}>
-								<FiCopy />
+								<span>📋</span>
 								Copy Code
 							</CopyButton>
 							{scenario.codeExamples[selectedLanguage]}
@@ -1645,11 +1635,11 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<ActionButtons>
 							<ActionButton onClick={() => copyCode(scenario.codeExamples[selectedLanguage])}>
-								<FiCopy />
+								<span>📋</span>
 								Copy to Clipboard
 							</ActionButton>
 							<ActionButton variant="secondary" onClick={() => setSelectedScenario(null)}>
-								<FiGlobe />
+								<span>🌐</span>
 								Choose Different Scenario
 							</ActionButton>
 						</ActionButtons>

@@ -9,7 +9,7 @@
  * for low risk score scenarios before proceeding to success page.
  */
 
-import { FiActivity, FiCheckCircle, FiClock, FiMapPin } from '@icons';
+
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import type {
@@ -156,7 +156,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 				<StatsGrid>
 					<StatCard>
 						<StatIcon>
-							<FiCheckCircle />
+							<span>✅</span>
 						</StatIcon>
 						<StatTitle>Success Rate</StatTitle>
 						<StatValue>
@@ -171,7 +171,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 
 					<StatCard>
 						<StatIcon>
-							<FiClock />
+							<span>🕐</span>
 						</StatIcon>
 						<StatTitle>Average Time</StatTitle>
 						<StatValue>{stats.averageTime}s</StatValue>
@@ -180,7 +180,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 
 					<StatCard>
 						<StatIcon>
-							<FiMapPin />
+							<span>📍</span>
 						</StatIcon>
 						<StatTitle>Devices</StatTitle>
 						<StatValue>{stats.deviceCount}</StatValue>
@@ -189,7 +189,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 
 					<StatCard>
 						<StatIcon>
-							<FiActivity />
+							<span>🔄</span>
 						</StatIcon>
 						<StatTitle>Risk Level</StatTitle>
 						<StatValue style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>LOW</StatValue>
@@ -202,7 +202,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 				<div style={{ textAlign: 'center' }}>
 					<ActionButton onClick={handleContinue}>
 						Continue to Success Page
-						<FiCheckCircle />
+						<span>✅</span>
 					</ActionButton>
 				</div>
 			</PortalPageSection>

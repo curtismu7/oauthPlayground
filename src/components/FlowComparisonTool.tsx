@@ -377,7 +377,7 @@ const availableFlows: FlowComparison[] = [
 		title: 'OAuth 2.0 Implicit Flow V5',
 		description:
 			'Legacy implicit flow for educational purposes and understanding security considerations',
-		icon: ➡️,
+		icon: <span>➡️</span>,
 		security: 'low',
 		complexity: 'low',
 		implementationTime: '1-2 hours',
@@ -440,7 +440,7 @@ const availableFlows: FlowComparison[] = [
 		id: 'device-code-v5',
 		title: 'OIDC Device Code Flow V5',
 		description: 'For devices with limited input capabilities like smart TVs and IoT devices',
-		icon: ⏰,
+		icon: <span>⏰</span>,
 		security: 'medium',
 		complexity: 'medium',
 		implementationTime: '3-5 hours',
@@ -563,7 +563,7 @@ const FlowComparisonTool: React.FC = () => {
 							onClick={() => toggleFlow(flow.id)}
 							disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
 						>
-							{selectedFlows.includes(flow.id) ? ➖ : ➕}
+							{selectedFlows.includes(flow.id) ? <span>➖</span> : <span>➕</span>}
 							{flow.icon}
 							{flow.title}
 							{flow.recommended && <FiStar />}

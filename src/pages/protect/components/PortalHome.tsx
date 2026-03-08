@@ -9,7 +9,7 @@
  * and educational content about risk-based authentication.
  */
 
-import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
@@ -159,7 +159,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 			<PortalPageSection>
 				<WelcomeSection>
 					<WelcomeIcon>
-						<FiShield />
+						<span>🛡️</span>
 					</WelcomeIcon>
 					<h2>Enterprise-Grade Security Made Simple</h2>
 					<p>
@@ -171,7 +171,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 				<FeaturesGrid>
 					<FeatureCard>
 						<FeatureIcon>
-							<FiShield />
+							<span>🛡️</span>
 						</FeatureIcon>
 						<FeatureTitle>Intelligent Risk Assessment</FeatureTitle>
 						<FeatureDescription>
@@ -182,7 +182,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 
 					<FeatureCard>
 						<FeatureIcon>
-							<FiLock />
+							<span>🔒</span>
 						</FeatureIcon>
 						<FeatureTitle>Adaptive Authentication</FeatureTitle>
 						<FeatureDescription>
@@ -193,7 +193,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 
 					<FeatureCard>
 						<FeatureIcon>
-							<FiUser />
+							<span>👤</span>
 						</FeatureIcon>
 						<FeatureTitle>Seamless User Experience</FeatureTitle>
 						<FeatureDescription>
@@ -217,7 +217,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 					</CompanySection>
 
 					<GoToLoginButton onClick={onGoToLogin}>
-						<FiArrowRight />
+						<span>➡️</span>
 						Go to Login
 					</GoToLoginButton>
 				</LoginSection>
@@ -231,7 +231,7 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 					{educationalContent.keyPoints.map((point, index) => (
 						<FeatureCard key={index}>
 							<FeatureIcon>
-								<FiCheckCircle />
+								<span>✅</span>
 							</FeatureIcon>
 							<FeatureTitle>Security Feature {index + 1}</FeatureTitle>
 							<FeatureDescription>{point}</FeatureDescription>

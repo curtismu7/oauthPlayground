@@ -1,11 +1,11 @@
 // src/components/RARExampleSelector.tsx
 // RAR Example Selector with pre-built templates including customer_information
 
-import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCode, FiCopy, FiEye } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface RARExampleSelectorProps {
 	onSelectExample: (details: AuthorizationDetail[]) => void;
@@ -282,7 +282,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 			await navigator.clipboard.writeText(JSON.stringify(details, null, 2));
 			// Could add a toast notification here
 		} catch (error) {
-			logger.warn('RARExampleSelector', 'Failed to copy to clipboard:', { error });
+			log.warn('RARExampleSelector', 'Failed to copy to clipboard:', { error });
 		}
 	};
 
@@ -350,11 +350,11 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 				<ExampleContent>
 					<ViewToggle>
 						<ViewButton active={viewMode === 'formatted'} onClick={() => toggleViewMode(config.id)}>
-							<FiEye size={12} />
+							<span style={{ fontSize: '12px' }}>👁️</span>
 							Formatted
 						</ViewButton>
 						<ViewButton active={viewMode === 'json'} onClick={() => toggleViewMode(config.id)}>
-							<FiCode size={12} />
+							<span style={{ fontSize: '12px' }}>❓</span>
 							JSON
 						</ViewButton>
 					</ViewToggle>
@@ -367,11 +367,11 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 
 					<ActionButtons>
 						<ActionButton onClick={() => copyToClipboard(config.details)}>
-							<FiCopy size={12} />
+							<span style={{ fontSize: '12px' }}>📋</span>
 							Copy
 						</ActionButton>
 						<ActionButton className="primary" onClick={() => onSelectExample(config.details)}>
-							<FiCheckCircle size={12} />
+							<span style={{ fontSize: '12px' }}>✅</span>
 							Use Example
 						</ActionButton>
 					</ActionButtons>
@@ -396,7 +396,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 			<CollapsibleSection>
 				<CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
 					<span>More Examples</span>
-					{isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+					{isExpanded ? <span style={{ fontSize: '16px' }}>⬆️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
 				</CollapsibleHeader>
 				<CollapsibleContent isOpen={isExpanded}>
 					<ExampleGrid>{exampleConfigs.slice(2).map(renderExample)}</ExampleGrid>

@@ -1,4 +1,4 @@
-import { FiKey, FiX } from '@icons';
+
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
@@ -87,7 +87,7 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 							padding: 0,
 						}}
 					>
-						<FiX size={18} />
+						<span style={{ fontSize: '18px' }}>❌</span>
 					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
@@ -178,7 +178,7 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 								'Authenticating...'
 							) : (
 								<>
-									<FiKey />
+									<span>🔑</span>
 									{isMac ? 'Authenticate with Passkey' : 'Authenticate with Security Key'}
 								</>
 							)}

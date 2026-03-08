@@ -1,6 +1,6 @@
 // src/components/CodeExamplesDisplay.tsx
 
-import { FiCheck, FiCode, FiCopy, FiDownload } from '@icons';
+
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -9,7 +9,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface CodeExamplesDisplayProps {
 	flowType: string;
@@ -238,7 +238,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			logger.error('CodeExamplesDisplay', 'Failed to copy code:', undefined, err as Error);
+			log.error('CodeExamplesDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 
@@ -281,7 +281,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 		<Container className={className}>
 			<Header>
 				<Title>
-					<FiCode />
+					<span>❓</span>
 					{stepData.stepName} - Code Examples
 				</Title>
 				<LanguageSelector>
@@ -308,11 +308,11 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 							</CodeTitle>
 							<CodeActions>
 								<ActionButton onClick={() => handleCopyCode(example.code)}>
-									{copiedCode === example.code ? <FiCheck /> : <FiCopy />}
+									{copiedCode === example.code ? <span>✅</span> : <span>📋</span>}
 									{copiedCode === example.code ? 'Copied!' : 'Copy'}
 								</ActionButton>
 								<ActionButton onClick={() => handleDownloadCode(example)}>
-									<FiDownload />
+									<span>📥</span>
 									Download
 								</ActionButton>
 							</CodeActions>

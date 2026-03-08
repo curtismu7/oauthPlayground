@@ -9,7 +9,7 @@
  * their actual login experience with distinctive button styling and brand colors.
  */
 
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -374,7 +374,7 @@ const SouthwestAirlinesLoginForm: React.FC<SouthwestAirlinesLoginFormProps> = ({
 
 			{error && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
@@ -406,7 +406,7 @@ const SouthwestAirlinesLoginForm: React.FC<SouthwestAirlinesLoginFormProps> = ({
 						disabled={isLoading}
 					/>
 					<PasswordToggle type="button" onClick={togglePasswordVisibility} disabled={isLoading}>
-						{showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+						{showPassword ? <span style={{ fontSize: '20px' }}>🙈</span> : <span style={{ fontSize: '20px' }}>👁️</span>}
 					</PasswordToggle>
 				</InputGroup>
 

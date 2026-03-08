@@ -1,7 +1,7 @@
 // src/components/response-modes/ResponseModeSelector.tsx
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
-import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
@@ -537,7 +537,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 					{warning && (
 						<WarningChip $level={warning.level}>
-							{warning.level === 'error' ? <FiAlertTriangle size={12} /> : <FiInfo size={12} />}
+							{warning.level === 'error' ? <span style={{ fontSize: '12px' }}>⚠️</span> : <span style={{ fontSize: '12px' }}>ℹ️</span>}
 							{warning.reason}
 						</WarningChip>
 					)}
@@ -568,7 +568,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 					{selectedMode === 'fragment' && <RecommendedBadge>Recommended</RecommendedBadge>}
 				</HeaderTitle>
 				<CollapseIcon $collapsed={collapsed}>
-					<FiChevronDown size={16} />
+					<span style={{ fontSize: '16px' }}>⬇️</span>
 				</CollapseIcon>
 			</Header>
 

@@ -12,7 +12,7 @@
  * />
  */
 
-import { FiInfo, FiUser } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
@@ -104,7 +104,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

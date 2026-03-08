@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-import { FiAlertCircle, FiEye, FiEyeOff, FiLock, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -271,11 +271,11 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<IconContainer>
-						<FiLock />
+						<span>🔒</span>
 					</IconContainer>
 					<Title>Password Change Required</Title>
 					<CloseButton onClick={handleClose} disabled={isLoading}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -283,7 +283,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
 				{error && (
 					<ErrorMessage>
-						<FiAlertCircle />
+						<span>⚠️</span>
 						{error}
 					</ErrorMessage>
 				)}
@@ -306,7 +306,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowOldPassword(!showOldPassword)}
 								disabled={isLoading}
 							>
-								{showOldPassword ? <FiEyeOff /> : <FiEye />}
+								{showOldPassword ? <span>🙈</span> : <span>👁️</span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>
@@ -327,7 +327,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowNewPassword(!showNewPassword)}
 								disabled={isLoading}
 							>
-								{showNewPassword ? <FiEyeOff /> : <FiEye />}
+								{showNewPassword ? <span>🙈</span> : <span>👁️</span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>
@@ -348,7 +348,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 								disabled={isLoading}
 							>
-								{showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+								{showConfirmPassword ? <span>🙈</span> : <span>👁️</span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>

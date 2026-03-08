@@ -13,7 +13,7 @@
  * - Expiry time formatting
  */
 
-import { FiCheck, FiCode, FiCopy, FiKey } from '@icons';
+
 import React, { useState } from 'react';
 import { type DecodedJWT, TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
@@ -124,7 +124,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 							color: '#1e40af',
 						}}
 					>
-						<FiKey size={16} />
+						<span style={{ fontSize: '16px' }}>🔑</span>
 						<span>{label}</span>
 						{isJWT && (
 							<span
@@ -172,7 +172,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 									}
 								}}
 							>
-								<FiCode size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 								{isDecoded ? 'Hide Decode' : 'Decode JWT'}
 							</button>
 						)}
@@ -206,7 +206,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 									}
 								}}
 							>
-								{isCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+								{isCopied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</button>
 						)}

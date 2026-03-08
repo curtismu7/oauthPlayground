@@ -6,7 +6,7 @@
  * @since 2026-02-06
  */
 
-import { FiAlertTriangle, FiExternalLink, FiTrash2 } from '@icons';
+
 import React from 'react';
 
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
@@ -164,7 +164,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 							e.currentTarget.style.backgroundColor = '#dc2626';
 						}}
 					>
-						<FiTrash2 size={16} />
+						<span style={{ fontSize: '16px' }}>🗑️</span>
 						Delete Devices to Continue
 					</button>
 
@@ -199,7 +199,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 							e.currentTarget.style.backgroundColor = '#f3f4f6';
 						}}
 					>
-						<FiExternalLink size={16} />
+						<span style={{ fontSize: '16px' }}>🔗</span>
 						Manage Devices
 					</button>
 				</div>

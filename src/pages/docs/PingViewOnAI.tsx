@@ -1,16 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiBookOpen,
-	FiCheckCircle,
-	FiCode,
-	FiCpu,
-	FiExternalLink,
-	FiGlobe,
-	FiKey,
-	FiShield,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -120,7 +108,7 @@ const PingViewOnAI: React.FC = () => {
 				{PageHeader && <PageHeader />}
 				<Header>
 					<h1>
-						<FiCpu />
+						<span>🖥️</span>
 						Ping View on AI
 					</h1>
 					<p>
@@ -132,7 +120,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Resources & Documentation"
 					subtitle="Comprehensive resources for implementing AI-powered identity solutions"
-					icon={<FiBookOpen />}
+					icon={<span>❓</span>}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -155,7 +143,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiCode />
+									<span>❓</span>
 									Identity for AI (Developer Guide)
 								</ExternalLink>
 							</li>
@@ -167,7 +155,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiBookOpen />
+									<span>❓</span>
 									PingOne AI Documentation
 								</ExternalLink>
 							</li>
@@ -179,7 +167,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiCpu />
+									<span>🖥️</span>
 									Agentic AI Guide
 								</ExternalLink>
 							</li>
@@ -191,7 +179,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiShield />
+									<span>🛡️</span>
 									Adaptive Authentication
 								</ExternalLink>
 							</li>
@@ -203,7 +191,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiExternalLink />
+									<span>🔗</span>
 									AI Security Best Practices
 								</ExternalLink>
 							</li>
@@ -215,7 +203,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiShield />
+									<span>🛡️</span>
 									Google Threat Intelligence: AI Tools Misuse Report
 								</ExternalLink>
 							</li>
@@ -227,7 +215,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiCpu />
+									<span>🖥️</span>
 									Ping on AI Group (Atlassian Wiki)
 								</ExternalLink>
 							</li>
@@ -239,7 +227,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiCpu />
+									<span>🖥️</span>
 									AI Identity Architecture Diagram (Lucidchart)
 								</ExternalLink>
 							</li>
@@ -251,14 +239,14 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<FiCpu />
+									<span>🖥️</span>
 									AI Identity Flow Diagram (Lucidchart)
 								</ExternalLink>
 							</li>
 						</ul>
 
 						<InfoBox $variant="info" style={{ marginTop: '2rem', padding: '1.5rem' }}>
-							<FiCpu size={24} />
+							<span style={{ fontSize: '24px' }}>🖥️</span>
 							<div style={{ fontSize: '1.1rem' }}>
 								<strong>Getting Started:</strong> Begin with our AI readiness assessment to
 								understand your organization's current capabilities and identify the best starting
@@ -271,7 +259,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI in Identity & Access Management"
 					subtitle="How AI is transforming the identity landscape and Ping's strategic approach"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -282,7 +270,7 @@ const PingViewOnAI: React.FC = () => {
 						</p>
 
 						<InfoBox $variant="info">
-							<FiCpu size={20} />
+							<span style={{ fontSize: '20' }}>🖥️</span>
 							<div>
 								<strong>Ping's AI Vision:</strong> We believe AI should enhance security while
 								maintaining user privacy and regulatory compliance. Our approach focuses on
@@ -293,7 +281,7 @@ const PingViewOnAI: React.FC = () => {
 						<FeatureGrid>
 							<FeatureCard>
 								<h3>
-									<FiShield />
+									<span>🛡️</span>
 									AI-Enhanced Security
 								</h3>
 								<p>
@@ -304,7 +292,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiUsers />
+									<span>👥</span>
 									Intelligent User Experience
 								</h3>
 								<p>
@@ -315,7 +303,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiKey />
+									<span>🔑</span>
 									Smart Identity Verification
 								</h3>
 								<p>
@@ -330,7 +318,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI-Powered Identity Solutions"
 					subtitle="Ping's comprehensive AI-driven identity management capabilities"
-					icon={<FiZap />}
+					icon={<span>⚡</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -339,7 +327,7 @@ const PingViewOnAI: React.FC = () => {
 						<FeatureGrid>
 							<FeatureCard>
 								<h3>
-									<FiShield />
+									<span>🛡️</span>
 									Adaptive Authentication
 								</h3>
 								<p>
@@ -351,7 +339,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiCpu />
+									<span>🖥️</span>
 									Behavioral Analytics
 								</h3>
 								<p>
@@ -362,7 +350,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiGlobe />
+									<span>🌐</span>
 									Intelligent Access Management
 								</h3>
 								<p>
@@ -373,7 +361,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiUsers />
+									<span>👥</span>
 									Personalized User Experience
 								</h3>
 								<p>
@@ -384,7 +372,7 @@ const PingViewOnAI: React.FC = () => {
 						</FeatureGrid>
 
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
+							<span style={{ fontSize: '20' }}>✅</span>
 							<div>
 								<strong>Enterprise Ready:</strong> All AI capabilities are designed for enterprise
 								environments with built-in compliance, audit trails, and governance controls.
@@ -396,7 +384,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Security & Privacy Considerations"
 					subtitle="Ensuring AI implementations maintain security and privacy standards"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -405,7 +393,7 @@ const PingViewOnAI: React.FC = () => {
 						<FeatureGrid>
 							<FeatureCard>
 								<h3>
-									<FiShield />
+									<span>🛡️</span>
 									Data Protection
 								</h3>
 								<p>
@@ -416,7 +404,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiKey />
+									<span>🔑</span>
 									Model Security
 								</h3>
 								<p>
@@ -427,7 +415,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiGlobe />
+									<span>🌐</span>
 									Privacy by Design
 								</h3>
 								<p>
@@ -438,7 +426,7 @@ const PingViewOnAI: React.FC = () => {
 
 							<FeatureCard>
 								<h3>
-									<FiUsers />
+									<span>👥</span>
 									Transparent AI
 								</h3>
 								<p>
@@ -449,7 +437,7 @@ const PingViewOnAI: React.FC = () => {
 						</FeatureGrid>
 
 						<InfoBox $variant="warning">
-							<FiAlertTriangle size={20} />
+							<span style={{ fontSize: '20' }}>⚠️</span>
 							<div>
 								<strong>Compliance Ready:</strong> All AI features are designed to meet GDPR, CCPA,
 								and other privacy regulations with built-in data protection and user rights
@@ -462,7 +450,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Implementation Strategy"
 					subtitle="How to successfully implement AI-powered identity solutions"
-					icon={<FiBookOpen />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<Card>

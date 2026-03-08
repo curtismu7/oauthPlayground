@@ -1,6 +1,6 @@
 // src/components/FlowWalkthrough.tsx
 
-import { FiChevronDown, FiGlobe } from '@icons';
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import { themeService } from '../services/themeService';
@@ -164,11 +164,11 @@ export const FlowWalkthrough = ({
 		<Container>
 			<Header $isCollapsible={true} onClick={toggleCollapsed}>
 				<HeaderContent>
-					<HeaderIcon>{icon || <FiGlobe size={24} />}</HeaderIcon>
+					<HeaderIcon>{icon || <span style={{ fontSize: '24px' }}>🌐</span>}</HeaderIcon>
 					<Title>{title}</Title>
 				</HeaderContent>
 				<ChevronIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
+					<span>⬇️</span>
 				</ChevronIcon>
 			</Header>
 			<StepsContainer $collapsed={isCollapsed}>

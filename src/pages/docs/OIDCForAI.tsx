@@ -1,4 +1,4 @@
-import { FiBookOpen, FiCode, FiExternalLink, FiShield, FiUsers } from '@icons';
+
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -92,7 +92,7 @@ const OIDCForAI = () => {
 				<CollapsibleHeader
 					title="Industry Resources"
 					subtitle="Comprehensive guides and resources for implementing OAuth 2.0 and OpenID Connect for AI applications"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -103,7 +103,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								Ping Identity - OAuth & OIDC for AI
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Comprehensive guide on implementing OAuth 2.0 and OpenID Connect for AI applications
@@ -118,7 +118,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								OpenID Foundation - Connect
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Official OpenID Connect resources and specifications from the OpenID Foundation.
@@ -132,7 +132,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								Auth0 - OAuth 2.0 for AI Applications
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Best practices and implementation patterns for securing AI applications with OAuth
@@ -147,7 +147,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								Microsoft Azure AI Services - Authentication
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Microsoft's comprehensive guide to authentication and authorization for AI services,
@@ -160,7 +160,7 @@ const OIDCForAI = () => {
 				<CollapsibleHeader
 					title="Research & Standards"
 					subtitle="Official specifications and research papers for OAuth 2.0 and OpenID Connect"
-					icon={<FiCode />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -171,7 +171,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								RFC 6749 - OAuth 2.0 Authorization Framework
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>The core OAuth 2.0 specification that forms the foundation for OpenID Connect.</p>
 						</ExternalLink>
@@ -183,7 +183,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								RFC 7636 - PKCE (Proof Key for Code Exchange)
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Security extension for OAuth 2.0, essential for public clients and AI applications.
@@ -197,7 +197,7 @@ const OIDCForAI = () => {
 						>
 							<h3>
 								RFC 7519 - JSON Web Token (JWT)
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>The JWT specification used for ID tokens and access tokens in OpenID Connect.</p>
 						</ExternalLink>
@@ -207,7 +207,7 @@ const OIDCForAI = () => {
 				<CollapsibleHeader
 					title="AI Authentication Training"
 					subtitle="Comprehensive training content for AI authentication and authorization"
-					icon={<FiUsers />}
+					icon={<span>👥</span>}
 					defaultCollapsed={false}
 				>
 					<SpecCard title="AI Authentication Fundamentals">
@@ -391,7 +391,7 @@ audience=https://downstream-api.example.com`}
 				<CollapsibleHeader
 					title="Implementation Guides"
 					subtitle="Step-by-step guides for implementing OAuth 2.0 and OpenID Connect in AI applications"
-					icon={<FiBookOpen />}
+					icon={<span>❓</span>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -402,7 +402,7 @@ audience=https://downstream-api.example.com`}
 						>
 							<h3>
 								Google OAuth 2.0 for AI
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Google's implementation guide for OAuth 2.0 in AI and machine learning applications.
@@ -416,7 +416,7 @@ audience=https://downstream-api.example.com`}
 						>
 							<h3>
 								Microsoft Azure AD - Client Credentials
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>
 								Microsoft's guide for implementing client credentials flow for service-to-service
@@ -431,7 +431,7 @@ audience=https://downstream-api.example.com`}
 						>
 							<h3>
 								AWS - OAuth 2.0 for API Access
-								<FiExternalLink size={16} />
+								<span style={{ fontSize: '16px' }}>🔗</span>
 							</h3>
 							<p>AWS implementation patterns for OAuth 2.0 in cloud-based AI applications.</p>
 						</ExternalLink>

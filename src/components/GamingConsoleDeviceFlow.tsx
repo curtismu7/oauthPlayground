@@ -1,20 +1,12 @@
 // src/components/GamingConsoleDeviceFlow.tsx
 // Gaming Console Style Device Authorization Flow Interface
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiRefreshCw,
-	FiTv,
-	FiXCircle,
-} from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sony PlayStation 5 Console Main Container - Authentic PS5 Design
@@ -339,31 +331,31 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('GamingConsoleDeviceFlow', 'User code copied to clipboard');
+		log.info('GamingConsoleDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('GamingConsoleDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('GamingConsoleDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('GamingConsoleDeviceFlow', 'Verification URI opened in new tab');
+		log.info('GamingConsoleDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'authorized':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'denied':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			case 'expired':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			default:
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 		}
 	};
 
@@ -432,16 +424,16 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 				{/* Controller Buttons */}
 				<ControllerButtons>
 					<ControllerButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy
+						<span>📋</span> Copy
 					</ControllerButton>
 					<ControllerButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<FiCopy /> URI
+						<span>📋</span> URI
 					</ControllerButton>
 					<ControllerButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open
+						<span>🔗</span> Open
 					</ControllerButton>
 					<ControllerButton $variant="success" onClick={() => window.location.reload()}>
-						<FiRefreshCw /> Reset
+						<span>🔄</span> Reset
 					</ControllerButton>
 				</ControllerButtons>
 

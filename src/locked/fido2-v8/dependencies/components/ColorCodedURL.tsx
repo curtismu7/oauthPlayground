@@ -1,4 +1,4 @@
-import { FiInfo, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -387,7 +387,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({
 				<URLText>{urlParts.map(renderURLPart)}</URLText>
 				{showInfoButton && (
 					<InfoButton onClick={() => setShowModal(true)}>
-						<FiInfo />
+						<span>ℹ️</span>
 						Info
 					</InfoButton>
 				)}
@@ -399,7 +399,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({
 						<ModalHeader>
 							<ModalTitle>URL Parameter Descriptions</ModalTitle>
 							<CloseButton onClick={() => setShowModal(false)}>
-								<FiX />
+								<span>❌</span>
 							</CloseButton>
 						</ModalHeader>
 						{urlParts.map(renderDescription)}

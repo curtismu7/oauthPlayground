@@ -9,7 +9,7 @@
  * to obtain an access token that can be used as a "User Token" in MFA flows.
  */
 
-import { FiEye, FiEyeOff, FiInfo } from '@icons';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U.tsx';
@@ -1314,7 +1314,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									(e.currentTarget as HTMLElement).style.background = '#3b82f6';
 								}}
 							>
-								<FiInfo size={14} />
+								<span style={{ fontSize: '14px' }}>ℹ️</span>
 								Required Config!
 							</button>
 						</div>
@@ -1546,7 +1546,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}}
 									aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
 								>
-									{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+									{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 								</button>
 							</div>
 							<small

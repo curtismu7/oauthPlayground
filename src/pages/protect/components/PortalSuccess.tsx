@@ -9,7 +9,7 @@
  * risk evaluation summary, and OIDC token display.
  */
 
-import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../utils/logger';
@@ -426,7 +426,7 @@ const KeyPoint = styled.li`
   line-height: 1.4;
 `;
 
-const KeyPointIcon = styled(FiCheckCircle)`
+const KeyPointIcon = styled.span`
   color: var(--brand-success);
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -477,7 +477,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 			setCopiedToken(tokenType);
 			setTimeout(() => setCopiedToken(null), 2000);
 		} catch (err) {
-			logger.error('PortalSuccess', 'Failed to copy token:', undefined, err as Error);
+			log.error('PortalSuccess', 'Failed to copy token:', undefined, err as Error);
 		}
 	}, []);
 
@@ -558,7 +558,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 			<CompanyLogoHeader size="small" />
 			<SuccessContainer>
 				<SuccessTitle>
-					<FiCheckCircle />
+					<span>✅</span>
 					Login Successful
 				</SuccessTitle>
 				<SuccessMessage>
@@ -602,7 +602,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				<RiskSummaryCard riskLevel={riskEvaluation.result.level}>
 					<RiskHeader riskLevel={riskEvaluation.result.level}>
 						<RiskTitle riskLevel={riskEvaluation.result.level}>
-							<FiShield />
+							<span>🛡️</span>
 							Security Evaluation
 						</RiskTitle>
 						<RiskBadge riskLevel={riskEvaluation.result.level}>{riskInfo.title}</RiskBadge>
@@ -634,11 +634,11 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				<TokenSection>
 					<TokenHeader>
 						<TokenTitle>
-							<FiInfo />
+							<span>ℹ️</span>
 							OAuth & OIDC Tokens
 						</TokenTitle>
 						<TokenToggle onClick={handleToggleTokens}>
-							{showFullTokens ? <FiEyeOff /> : <FiEye />}
+							{showFullTokens ? <span>🙈</span> : <span>👁️</span>}
 							{showFullTokens ? 'Hide Tokens' : 'Show Tokens'}
 						</TokenToggle>
 					</TokenHeader>
@@ -654,14 +654,14 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 							<TokenFull>
 								{tokens.accessToken}
 								<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-									{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+									{copiedToken === 'access' ? 'Copied!' : <span>📋</span>}
 								</CopyButton>
 							</TokenFull>
 						) : (
 							<TokenPreview>
 								{formatTokenPreview(tokens.accessToken)}
 								<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-									{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+									{copiedToken === 'access' ? 'Copied!' : <span>📋</span>}
 								</CopyButton>
 							</TokenPreview>
 						)}
@@ -678,14 +678,14 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 									<TokenFull>
 										{tokens.idToken}
 										<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-											{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+											{copiedToken === 'id' ? 'Copied!' : <span>📋</span>}
 										</CopyButton>
 									</TokenFull>
 								) : (
 									<TokenPreview>
 										{formatTokenPreview(tokens.idToken)}
 										<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-											{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+											{copiedToken === 'id' ? 'Copied!' : <span>📋</span>}
 										</CopyButton>
 									</TokenPreview>
 								)}
@@ -769,7 +769,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				{/* Action Buttons */}
 				<ActionButtons>
 					<Button onClick={onLogout}>
-						<FiLogOut />
+						<span>❓</span>
 						Logout
 					</Button>
 				</ActionButtons>

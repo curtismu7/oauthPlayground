@@ -1,7 +1,7 @@
-import { FiCheck, FiCopy } from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface JsonEditorProps {
 	value: unknown;
@@ -114,7 +114,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			logger.error('JsonEditor', 'Failed to copy JSON:', undefined, err as Error);
+			log.error('JsonEditor', 'Failed to copy JSON:', undefined, err as Error);
 		}
 	};
 
@@ -129,7 +129,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			onChange?.(parsed);
 			setIsEditing(false);
 		} catch (err) {
-			logger.error('JsonEditor', 'Invalid JSON:', undefined, err as Error);
+			log.error('JsonEditor', 'Invalid JSON:', undefined, err as Error);
 			// Could show error message to user
 		}
 	};
@@ -278,7 +278,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 						</button>
 					)}
 					<CopyButton copied={copied} onClick={handleCopy}>
-						{copied ? <FiCheck size={12} /> : <FiCopy size={12} />}
+						{copied ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 						{copied ? 'Copied!' : 'Copy'}
 					</CopyButton>
 				</div>

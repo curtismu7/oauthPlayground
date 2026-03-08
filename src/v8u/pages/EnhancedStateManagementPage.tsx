@@ -1,21 +1,4 @@
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiBell,
-	FiBellOff,
-	FiCheckCircle,
-	FiClock,
-	FiDatabase,
-	FiDownload,
-	FiKey,
-	FiRefreshCw,
-	FiRotateCcw,
-	FiSettings,
-	FiTrash2,
-	FiUpload,
-	FiWifi,
-	FiZap,
-} from '@icons';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -387,7 +370,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Export state
 	const handleExport = async () => {
-		logger.debug('handleExport called');
+		log.debug('handleExport called');
 		await exportSpinner.executeWithSpinner(
 			async () => {
 				const stateData = stateUtils.exportAllState();
@@ -415,7 +398,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					logger.error('Failed to export state:', error);
+					log.error('Failed to export state:', error);
 					setMessage(
 						`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -461,7 +444,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Reset all state
 	const handleResetAll = () => {
-		logger.debug('handleResetAll called');
+		log.debug('handleResetAll called');
 		stateUtils.resetAllState();
 		setMessage('All state has been reset to defaults');
 		setMessageType('info');
@@ -542,7 +525,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<StatsGrid>
 				<StatCard>
 					<StatIcon $color="#3b82f6">
-						<FiDatabase />
+						<span>🗄️</span>
 					</StatIcon>
 					<StatValue>{stats?.unifiedFlow?.tokenCount || 0}</StatValue>
 					<StatLabel>Total Tokens</StatLabel>
@@ -550,7 +533,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#8b5cf6">
-						<FiSettings />
+						<span>⚙️</span>
 					</StatIcon>
 					<StatValue>
 						{(() => {
@@ -568,7 +551,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#3b82f6">
-						<FiKey />
+						<span>🔑</span>
 					</StatIcon>
 					<StatValue>
 						{(() => {
@@ -586,7 +569,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<FiRotateCcw />
+						<span>❓</span>
 					</StatIcon>
 					<StatValue>
 						{(() => {
@@ -604,7 +587,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#10b981">
-						<FiCheckCircle />
+						<span>✅</span>
 					</StatIcon>
 					<StatValue>
 						{(() => {
@@ -622,7 +605,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#10b981">
-						<FiCheckCircle />
+						<span>✅</span>
 					</StatIcon>
 					<StatValue>{stats?.unifiedFlow?.featureCount || 0}</StatValue>
 					<StatLabel>Active Features</StatLabel>
@@ -630,7 +613,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</StatIcon>
 					<StatValue>{stats?.unifiedFlow?.errorCount || 0}</StatValue>
 					<StatLabel>Active Errors</StatLabel>
@@ -638,7 +621,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#8b5cf6">
-						<FiClock />
+						<span>🕐</span>
 					</StatIcon>
 					<StatValue>
 						{stats?.performance?.lastActivity
@@ -650,7 +633,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#8b5cf6">
-						<FiActivity />
+						<span>🔄</span>
 					</StatIcon>
 					<StatValue>{stats?.unifiedFlow?.apiCallCount || 0}</StatValue>
 					<StatLabel>API Calls</StatLabel>
@@ -658,7 +641,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#8b5cf6">
-						<FiWifi />
+						<span>📶</span>
 					</StatIcon>
 					<StatValue>
 						<StatusIndicator $status={stats?.offline?.isOnline ? 'online' : 'offline'}>
@@ -673,7 +656,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiWifi />
+						<span>📶</span>
 					</SectionIcon>
 					<SectionTitle>Offline Status</SectionTitle>
 				</SectionHeader>
@@ -728,7 +711,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiDatabase />
+						<span>🗄️</span>
 					</SectionIcon>
 					<SectionTitle>Worker Token Status</SectionTitle>
 				</SectionHeader>
@@ -818,7 +801,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiDatabase />
+						<span>🗄️</span>
 					</SectionIcon>
 					<SectionTitle>All Token Status</SectionTitle>
 				</SectionHeader>
@@ -973,7 +956,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiActivity />
+						<span>🔄</span>
 					</SectionIcon>
 					<SectionTitle>Performance Metrics</SectionTitle>
 				</SectionHeader>
@@ -1038,7 +1021,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiZap />
+						<span>⚡</span>
 					</SectionIcon>
 					<SectionTitle>Available Features</SectionTitle>
 				</SectionHeader>
@@ -1046,7 +1029,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				<FeatureList>
 					<FeatureItem>
 						<FeatureIcon $color="#10b981">
-							<FiDatabase />
+							<span>🗄️</span>
 						</FeatureIcon>
 						<FeatureText>Comprehensive state management for all OAuth flows</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1054,7 +1037,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#8b5cf6">
-							<FiRotateCcw />
+							<span>❓</span>
 						</FeatureIcon>
 						<FeatureText>Undo/Redo functionality with history tracking</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1062,7 +1045,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#3b82f6">
-							<FiWifi />
+							<span>📶</span>
 						</FeatureIcon>
 						<FeatureText>Offline capability with pending action queue</FeatureText>
 						<FeatureStatus $enabled={stats?.offline?.isOnline || false}>Active</FeatureStatus>
@@ -1070,7 +1053,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#10b981">
-							<FiRefreshCw />
+							<span>🔄</span>
 						</FeatureIcon>
 						<FeatureText>Automatic state persistence to localStorage</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1078,7 +1061,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#8b5cf6">
-							<FiActivity />
+							<span>🔄</span>
 						</FeatureIcon>
 						<FeatureText>Performance metrics and activity tracking</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1086,7 +1069,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#ef4444">
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</FeatureIcon>
 						<FeatureText>Error handling and recovery mechanisms</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1098,14 +1081,14 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			<SectionContainer>
 				<SectionHeader>
 					<SectionIcon>
-						<FiDatabase />
+						<span>🗄️</span>
 					</SectionIcon>
 					<SectionTitle>Data Management</SectionTitle>
 				</SectionHeader>
 
 				<ExportImportControls>
 					<ExportImportButton onClick={handleExport} disabled={isExporting}>
-						<FiDownload /> {isExporting ? 'Exporting...' : 'Export State'}
+						<span>📥</span> {isExporting ? 'Exporting...' : 'Export State'}
 					</ExportImportButton>
 
 					<input
@@ -1122,7 +1105,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 						disabled={isImporting}
 						style={{ cursor: isImporting ? 'not-allowed' : 'pointer' }}
 					>
-						<FiUpload /> {isImporting ? 'Importing...' : 'Import State'}
+						<span>📤</span> {isImporting ? 'Importing...' : 'Import State'}
 					</ExportImportButton>
 				</ExportImportControls>
 
@@ -1145,23 +1128,23 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			{/* Action Buttons */}
 			<ActionButtons>
 				<ActionButton onClick={handleResetAll} $variant="danger">
-					<FiTrash2 /> Reset All State
+					<span>🗑️</span> Reset All State
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
-						logger.debug('Theme reset button clicked');
+						log.debug('Theme reset button clicked');
 						try {
 							actions.setTheme('auto');
 							setMessage('Theme set to auto');
 							setMessageType('info');
 						} catch (error) {
-							logger.error('Failed to reset theme:', error);
+							log.error('Failed to reset theme:', error);
 							setMessage('Failed to reset theme');
 							setMessageType('error');
 						}
 					}}
 				>
-					<FiSettings /> Reset Theme
+					<span>⚙️</span> Reset Theme
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
@@ -1170,7 +1153,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 						setMessageType('info');
 					}}
 				>
-					{state.notifications ? <FiBell /> : <FiBellOff />} Toggle Notifications
+					{state.notifications ? <span>❓</span> : <span>❓</span>} Toggle Notifications
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
@@ -1179,7 +1162,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 						setMessageType('success');
 					}}
 				>
-					<FiRefreshCw /> Update Real Metrics
+					<span>🔄</span> Update Real Metrics
 				</ActionButton>
 			</ActionButtons>
 		</PageContainer>

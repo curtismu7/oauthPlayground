@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiHome, FiRefreshCw } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -118,7 +118,7 @@ export const UserFriendlyError: React.FC<UserFriendlyErrorProps> = ({
 	return (
 		<ErrorContainer>
 			<ErrorIcon>
-				<FiAlertCircle />
+				<span>⚠️</span>
 			</ErrorIcon>
 
 			<ErrorTitle>{title}</ErrorTitle>
@@ -135,14 +135,14 @@ export const UserFriendlyError: React.FC<UserFriendlyErrorProps> = ({
 			<ButtonGroup>
 				{onRetry && (
 					<RetryButton onClick={onRetry}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Try Again
 					</RetryButton>
 				)}
 
 				{onGoHome && (
 					<HomeButton onClick={onGoHome}>
-						<FiHome />
+						<span>🏠</span>
 						Go Home
 					</HomeButton>
 				)}

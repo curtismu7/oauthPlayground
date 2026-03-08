@@ -1,4 +1,4 @@
-import { FiBookOpen, FiCpu, FiExternalLink, FiKey, FiShield, FiUsers } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -182,7 +182,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 				<Header>
 					<h1>
-						<FiCpu />
+						<span>🖥️</span>
 						AI Agent Authentication &amp; Authorization
 					</h1>
 					<p>
@@ -203,7 +203,7 @@ const AIAgentAuthDraft: React.FC = () => {
 				<CollapsibleHeader
 					title="Document Summary"
 					subtitle="What this draft is about and why it matters"
-					icon={<FiBookOpen />}
+					icon={<span>❓</span>}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -252,7 +252,7 @@ const AIAgentAuthDraft: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<FiExternalLink />
+							<span>🔗</span>
 							View Full Specification on IETF Datatracker
 						</DraftLink>
 					</Card>
@@ -262,14 +262,14 @@ const AIAgentAuthDraft: React.FC = () => {
 				<CollapsibleHeader
 					title="Key Concepts"
 					subtitle="Core components of the AI agent identity framework"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					theme="blue"
 					defaultCollapsed={false}
 				>
 					<SectionGrid>
 						<SectionCard>
 							<h3>
-								<FiCpu /> Agent as Workload
+								<span>🖥️</span> Agent as Workload
 							</h3>
 							<p>
 								AI agents are modeled as autonomous workloads that iteratively interact with an LLM
@@ -281,7 +281,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<FiKey /> Agent Identity &amp; Credentials
+								<span>🔑</span> Agent Identity &amp; Credentials
 							</h3>
 							<p>
 								Each agent MUST be assigned a WIMSE/SPIFFE URI as its stable identifier. Credentials
@@ -293,7 +293,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<FiShield /> Authentication Layers
+								<span>🛡️</span> Authentication Layers
 							</h3>
 							<p>
 								Authentication operates at both the transport layer (mTLS with SPIFFE/WIMSE workload
@@ -305,7 +305,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<FiUsers /> OAuth 2.0 Authorization
+								<span>👥</span> OAuth 2.0 Authorization
 							</h3>
 							<p>
 								OAuth 2.0 is used as the delegation authorization framework. Agents obtain access
@@ -318,7 +318,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<FiShield /> Human in the Loop
+								<span>🛡️</span> Human in the Loop
 							</h3>
 							<p>
 								When elevated authorization is required, the draft specifies integration with OpenID
@@ -330,7 +330,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<FiBookOpen /> Monitoring &amp; Observability
+								<span>❓</span> Monitoring &amp; Observability
 							</h3>
 							<p>
 								Deployments MUST maintain tamper-evident audit logs covering agent identifier,
@@ -346,7 +346,7 @@ const AIAgentAuthDraft: React.FC = () => {
 				<CollapsibleHeader
 					title="Standards Referenced"
 					subtitle="Existing specifications this draft builds upon"
-					icon={<FiExternalLink />}
+					icon={<span>🔗</span>}
 					theme="blue"
 					defaultCollapsed={true}
 				>
@@ -627,7 +627,7 @@ const AIAgentAuthDraft: React.FC = () => {
 						rel="noopener noreferrer"
 						style={{ fontSize: '1.1rem' }}
 					>
-						<FiExternalLink />
+						<span>🔗</span>
 						Read the full draft on IETF Datatracker
 					</ExternalLink>
 				</InfoBox>

@@ -1,7 +1,7 @@
 // src/v7/pages/V7MROPCV9.tsx
 /* eslint-disable no-alert */
 
-import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
@@ -231,7 +231,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 				</p>
 			</div>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FiUser /> {title}
+				<span>👤</span> {title}
 			</h1>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
@@ -308,7 +308,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 						gap: 8,
 					}}
 				>
-					<FiUser /> Step 1: Request Access Token with User Credentials
+					<span>👤</span> Step 1: Request Access Token with User Credentials
 					<V7MInfoIcon
 						label=""
 						title="About Resource Owner Password Credentials"
@@ -318,7 +318,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<FiUser /> Username
+							<span>👤</span> Username
 							<V7MInfoIcon
 								label=""
 								title="The resource owner's username or email"
@@ -332,7 +332,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 							/>
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
-							<FiLock /> Password
+							<span>🔒</span> Password
 							<V7MInfoIcon label="" title="The resource owner's password" onClick={() => {}} />
 							<input
 								type={showPassword ? 'text' : 'password'}
@@ -354,11 +354,11 @@ export const V7MROPCV9: React.FC<Props> = ({
 								}}
 								type="button"
 							>
-								{showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+								{showPassword ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
 							</button>
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<FiKey /> Client ID
+							<span>🔑</span> Client ID
 							<V7MInfoIcon
 								label=""
 								title="Your application's unique identifier"
@@ -371,7 +371,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 							/>
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<FiKey /> Client Secret
+							<span>🔑</span> Client Secret
 							<V7MInfoIcon
 								label="Client authentication"
 								title="Basic vs POST client auth"
@@ -471,7 +471,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 											transition: 'all 0.2s',
 										}}
 									>
-										{copiedRequestUrl ? <FiCheck size={14} /> : <FiCopy size={14} />}
+										{copiedRequestUrl ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
 										{copiedRequestUrl ? 'Copied!' : 'Copy'}
 									</button>
 								</div>

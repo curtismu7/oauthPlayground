@@ -4,12 +4,12 @@
  * Provides UI for configuring and managing DPoP (Demonstration of Proof of Possession)
  */
 
-import { FiAlertCircle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;
@@ -233,7 +233,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'DPoPConfiguration',
 				'Failed to generate DPoP key pair:',
 				undefined,
@@ -342,7 +342,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 									</>
 								) : (
 									<>
-										<FiKey />
+										<span>🔑</span>
 										Generate Key Pair
 									</>
 								)}

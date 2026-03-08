@@ -1,6 +1,6 @@
 // src/components/JwksKeySourceSelector.tsx
 
-import { FiCopy, FiEye, FiEyeOff, FiKey } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { buildJWKSUri } from '../utils/jwks';
@@ -351,7 +351,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								{resolvedJwksUrl || 'Provide environment details to compute JWKS URL'}
 							</UrlCode>
 							<CopyButton type="button" onClick={handleCopyJwksUrl} title="Copy JWKS Endpoint URL">
-								<FiCopy size={14} />
+								<span style={{ fontSize: '14px' }}>📋</span>
 								{copyButtonLabel}
 							</CopyButton>
 						</JwksUrlBox>
@@ -375,7 +375,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								</>
 							) : (
 								<>
-									<FiKey size={14} />
+									<span style={{ fontSize: '14px' }}>🔑</span>
 									{generateKeyLabel}
 								</>
 							)}
@@ -398,7 +398,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 							onClick={onTogglePrivateKey}
 							title={showPrivateKey ? 'Hide private key' : 'Show private key'}
 						>
-							{showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showPrivateKey ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</ToggleSecretButton>
 						{onCopyPrivateKey && privateKey && (
 							<CopyPrivateKeyButton
@@ -406,7 +406,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								onClick={onCopyPrivateKey}
 								title="Copy Private Key"
 							>
-								<FiCopy size={16} />
+								<span style={{ fontSize: '16px' }}>📋</span>
 							</CopyPrivateKeyButton>
 						)}
 					</PrivateKeyWrapper>

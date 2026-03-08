@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowHeader.tsx
 // V7.1 Flow Header - Header component with variant selector and flow information
 
-import { FiChevronDown, FiInfo } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
@@ -235,14 +235,14 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
 						Step {currentStep + 1} of {totalSteps}
 					</StepIndicator>
 					<InfoButton title="Flow Information">
-						<FiInfo />
+						<span>ℹ️</span>
 					</InfoButton>
 					<CollapseButton
 						$collapsed={isCollapsed}
 						onClick={onToggleCollapse}
 						title={isCollapsed ? 'Expand' : 'Collapse'}
 					>
-						<FiChevronDown />
+						<span>⬇️</span>
 					</CollapseButton>
 				</HeaderRight>
 			</HeaderContainer>

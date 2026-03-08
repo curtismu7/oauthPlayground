@@ -1,6 +1,6 @@
 // src/components/ColoredTokenDisplay.tsx
 
-import { FiExternalLink, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -367,7 +367,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 				{label}
 				{showInfoButton && (
 					<ActionButton onClick={() => setShowInfo(true)} $variant="secondary">
-						<FiInfo size={14} />
+						<span style={{ fontSize: '14px' }}>ℹ️</span>
 						Explain Tokens
 					</ActionButton>
 				)}
@@ -386,7 +386,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 					)}
 					{showOpenButton && (
 						<ActionButton onClick={handleOpen} $variant="secondary">
-							<FiExternalLink size={14} />
+							<span style={{ fontSize: '14px' }}>🔗</span>
 							Open
 						</ActionButton>
 					)}

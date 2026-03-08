@@ -1,4 +1,4 @@
-import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -364,10 +364,10 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<button className="close-button" onClick={onClose} disabled={isLoading}>
-						<FiX />
+						<span>❌</span>
 					</button>
 					<IconBadge>
-						<FiShield />
+						<span>🛡️</span>
 					</IconBadge>
 					<h2>{title}</h2>
 					<p>{subtitle}</p>
@@ -377,7 +377,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 					<ModalBody>
 						<FormGroup>
 							<label htmlFor="username">
-								<FiUser size={14} />
+								<span style={{ fontSize: '14px' }}>👤</span>
 								Username
 							</label>
 							<InputContainer>
@@ -399,7 +399,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 
 						<FormGroup>
 							<label htmlFor="password">
-								<FiLock size={14} />
+								<span style={{ fontSize: '14px' }}>🔒</span>
 								Password
 							</label>
 							<InputContainer>
@@ -422,20 +422,20 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 									onClick={() => setShowPassword(!showPassword)}
 									disabled={isLoading}
 								>
-									{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 								</button>
 							</InputContainer>
 						</FormGroup>
 
 						{displayError && (
 							<ErrorMessage>
-								<FiX size={16} />
+								<span style={{ fontSize: '16px' }}>❌</span>
 								<span>{displayError}</span>
 							</ErrorMessage>
 						)}
 
 						<SecurityNote>
-							<FiShield size={14} />
+							<span style={{ fontSize: '14px' }}>🛡️</span>
 							<span>
 								Your credentials are sent securely to PingOne via HTTPS. This app does not store
 								your password.
@@ -455,7 +455,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 								</>
 							) : (
 								<>
-									<FiShield />
+									<span>🛡️</span>
 									Sign In
 								</>
 							)}

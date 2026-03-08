@@ -4,17 +4,7 @@
  * Guides users through selecting PingOne app + policy settings based on risk posture
  */
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronLeft,
-	FiChevronRight,
-	FiSettings,
-	FiShield,
-	FiTrendingUp,
-	FiUsers,
-	FiWifi,
-} from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -56,7 +46,7 @@ const QUESTIONS: Question[] = [
 		title: 'What type of application are you configuring?',
 		description:
 			'Pinpoint the OAuth client profile so we can lock down flows, secrets, and redirect handling.',
-		icon: <FiUsers />,
+		icon: <span>👥</span>,
 		options: [
 			{
 				value: 'browser',
@@ -80,7 +70,7 @@ const QUESTIONS: Question[] = [
 		title: 'What sensitivity level best matches the data this app touches?',
 		description:
 			'Higher sensitivity requires stricter token lifetimes, MFA, and risk-based controls.',
-		icon: <FiShield />,
+		icon: <span>🛡️</span>,
 		options: [
 			{
 				value: 'never',
@@ -103,7 +93,7 @@ const QUESTIONS: Question[] = [
 		id: 'mfaRequirement',
 		title: 'Do you require MFA for sign-in or step-up?',
 		description: 'We will map to PingOne MFA policies and factors automatically.',
-		icon: <FiWifi />,
+		icon: <span>📶</span>,
 		options: [
 			{
 				value: 'never',
@@ -126,7 +116,7 @@ const QUESTIONS: Question[] = [
 		id: 'apiUsage',
 		title: 'Will this app call PingOne Management APIs or other resource APIs?',
 		description: 'Determines if we issue worker tokens, SCIM access, and refresh semantics.',
-		icon: <FiTrendingUp />,
+		icon: <span>📈</span>,
 		options: [
 			{
 				value: 'no',
@@ -399,7 +389,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.clientType === 'browser' || answers.clientType === 'native') {
 		items.push({
 			title: 'Require PKCE & Proof-of-Possession',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			description:
 				'Public clients must enable Proof Key for Code Exchange and avoid client secrets. Enable token binding where possible.',
 			actions: [
@@ -414,7 +404,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.clientType === 'server') {
 		items.push({
 			title: 'Use Mutual TLS or private_key_jwt',
-			icon: <FiSettings />,
+			icon: <span>⚙️</span>,
 			description:
 				'Backend services can protect client secrets. Harden token exchange with signed client assertions or mTLS.',
 			actions: [
@@ -429,7 +419,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.dataSensitivity === 'required') {
 		items.push({
 			title: 'Tighten Session Controls',
-			icon: <FiAlertTriangle />,
+			icon: <span>⚠️</span>,
 			description: 'Shorten token lifetimes and add risk policies to match high-sensitivity data.',
 			actions: [
 				'Set ID token lifetime ≤ 5 minutes; reduce refresh token TTL to ≤ 1 day.',
@@ -443,7 +433,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.mfaRequirement === 'optional' || answers.mfaRequirement === 'required') {
 		items.push({
 			title: 'PingOne MFA Policy Mapping',
-			icon: <FiWifi />,
+			icon: <span>📶</span>,
 			description: 'Create dynamic MFA policies to match risk and user experience needs.',
 			actions: [
 				'Configure PingOne MFA policy with primary factors (Push, TOTP, SMS fallback).',
@@ -457,7 +447,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.apiUsage === 'optional' || answers.apiUsage === 'required') {
 		items.push({
 			title: 'Scoped Worker Tokens & Least Privilege',
-			icon: <FiTrendingUp />,
+			icon: <span>📈</span>,
 			description: 'Issue worker tokens with limited scopes and rotate credentials automatically.',
 			actions: [
 				'Create PingOne worker app and restrict scopes to exact API needs.',
@@ -471,7 +461,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.apiUsage === 'required' && answers.dataSensitivity === 'required') {
 		items.push({
 			title: 'Segregate Duties with Environments',
-			icon: <FiUsers />,
+			icon: <span>👥</span>,
 			description:
 				'Separate automation apps per environment (prod vs. sandbox) and enforce approvals.',
 			actions: [
@@ -486,7 +476,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (items.length === 0) {
 		items.push({
 			title: 'Baseline Best Practices',
-			icon: <FiCheckCircle />,
+			icon: <span>✅</span>,
 			description:
 				'Even low-risk apps should adopt these security fundamentals to avoid common pitfalls.',
 			actions: [
@@ -548,7 +538,7 @@ const PolicyWizard: React.FC = () => {
 		<WizardContainer>
 			<Header>
 				<Title>
-					<FiSettings size={28} />
+					<span style={{ fontSize: '28px' }}>⚙️</span>
 					Policy Wizard: PingOne Config Helper
 				</Title>
 				<Intro>
@@ -589,13 +579,13 @@ const PolicyWizard: React.FC = () => {
 								onClick={handleBack}
 								disabled={step === 0}
 							>
-								<FiChevronLeft />
+								<span>⬅️</span>
 								Back
 							</NavButton>
 							{step < totalSteps - 1 ? (
 								<NavButton type="button" onClick={handleNext} disabled={!isStepComplete}>
 									Next
-									<FiChevronRight />
+									<span>➡️</span>
 								</NavButton>
 							) : (
 								<NavButton type="button" onClick={handleReset} disabled={!isComplete}>
@@ -607,7 +597,7 @@ const PolicyWizard: React.FC = () => {
 
 					{!isStepComplete && (
 						<WarningBanner>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							Select an option to continue. Each answer tunes the recommendations.
 						</WarningBanner>
 					)}
@@ -617,7 +607,7 @@ const PolicyWizard: React.FC = () => {
 					{isComplete ? (
 						<>
 							<StatusBanner>
-								<FiCheckCircle />
+								<span>✅</span>
 								All answers captured. Tailored policy blueprint ready below.
 							</StatusBanner>
 							<RecommendationGroup>
@@ -640,7 +630,7 @@ const PolicyWizard: React.FC = () => {
 					) : (
 						<>
 							<StatusBanner>
-								<FiSettings />
+								<span>⚙️</span>
 								Answer all questions to unlock your configuration blueprint.
 							</StatusBanner>
 							<RecommendationDescription>

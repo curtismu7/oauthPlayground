@@ -11,18 +11,7 @@
  * - Configuration before device registration
  */
 
-import {
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronUp,
-	FiInfo,
-	FiKey,
-	FiSettings,
-	FiShield,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -467,7 +456,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-						<FiKey size={32} color="white" />
+						<span style={{ fontSize: 32, color: 'white' }}>🔑</span>
 						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 							{getDeviceTypeDisplayName()} / WebAuthn Configuration
 						</h1>
@@ -492,7 +481,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							gap: '12px',
 						}}
 					>
-						<FiInfo size={20} color="#dc2626" />
+						<span style={{ fontSize: 20, color: '#dc2626' }}>ℹ️</span>
 						<div>
 							<p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#991b1b' }}>
 								WebAuthn Not Supported
@@ -716,7 +705,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<FiBook size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>📖</span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								About FIDO2 & WebAuthn
 							</h2>
@@ -835,13 +824,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								}}
 							>
 								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<FiBook size={18} />
+									<span style={{ fontSize: '18px' }}>📖</span>
 									Advanced Concepts: Passkeys, Device Binding & Biometrics
 								</span>
 								{collapsedSections.advancedConcepts ? (
-									<FiChevronDown size={20} />
+									<span style={{ fontSize: '20px' }}>⬇️</span>
 								) : (
-									<FiChevronUp size={20} />
+									<span style={{ fontSize: '20px' }}>⬆️</span>
 								)}
 							</button>
 
@@ -987,13 +976,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								}}
 							>
 								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<FiShield size={18} />
+									<span style={{ fontSize: '18px' }}>🛡️</span>
 									WebAuthn vs Device Binding/JWS Verification Comparison
 								</span>
 								{collapsedSections.comparisonTable ? (
-									<FiChevronDown size={20} />
+									<span style={{ fontSize: '20px' }}>⬇️</span>
 								) : (
-									<FiChevronUp size={20} />
+									<span style={{ fontSize: '20px' }}>⬆️</span>
 								)}
 							</button>
 
@@ -1174,7 +1163,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 							>
-								<FiCheckCircle size={20} color="#10b981" />
+								<span style={{ fontSize: 20, color: '#10b981' }}>✅</span>
 								<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 									Browser Capabilities
 								</h2>
@@ -1183,9 +1172,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.platformAuthenticator ? (
-										<FiCheckCircle size={16} color="#10b981" />
+										<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 									) : (
-										<FiX size={16} color="#ef4444" />
+										<span style={{ fontSize: 16, color: '#ef4444' }}>❌</span>
 									)}
 									<span style={{ fontSize: '14px' }}>
 										Platform Authenticator (Touch ID, Face ID, Windows Hello)
@@ -1193,9 +1182,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.crossPlatformAuthenticator ? (
-										<FiCheckCircle size={16} color="#10b981" />
+										<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 									) : (
-										<FiX size={16} color="#ef4444" />
+										<span style={{ fontSize: 16, color: '#ef4444' }}>❌</span>
 									)}
 									<span style={{ fontSize: '14px' }}>
 										Cross-Platform Authenticator (Security Keys)
@@ -1203,17 +1192,17 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.passkeySupport ? (
-										<FiCheckCircle size={16} color="#10b981" />
+										<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 									) : (
-										<FiX size={16} color="#ef4444" />
+										<span style={{ fontSize: 16, color: '#ef4444' }}>❌</span>
 									)}
 									<span style={{ fontSize: '14px' }}>Passkey Support</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.conditionalUI ? (
-										<FiCheckCircle size={16} color="#10b981" />
+										<span style={{ fontSize: 16, color: '#10b981' }}>✅</span>
 									) : (
-										<FiX size={16} color="#ef4444" />
+										<span style={{ fontSize: 16, color: '#ef4444' }}>❌</span>
 									)}
 									<span style={{ fontSize: '14px' }}>Conditional UI (Autofill)</span>
 								</div>
@@ -1236,7 +1225,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<FiSettings size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>⚙️</span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								FIDO2 Policy Configuration
 							</h2>
@@ -1382,7 +1371,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<FiShield size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								Device Authentication Policy
 							</h2>
@@ -1469,7 +1458,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<FiSettings size={20} color="#3b82f6" />
+							<span style={{ fontSize: 20, color: '#3b82f6' }}>⚙️</span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								FIDO2 Advanced Configuration
 							</h2>
@@ -2078,7 +2067,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						}}
 					>
 						Proceed to Device Registration
-						<FiArrowRight size={18} />
+						<span style={{ fontSize: '18px' }}>➡️</span>
 					</button>
 				</div>
 			</div>

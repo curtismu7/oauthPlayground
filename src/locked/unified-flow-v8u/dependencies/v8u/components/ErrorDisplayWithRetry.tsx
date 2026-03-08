@@ -12,7 +12,7 @@
  * - Suggested fixes from OAuth error codes service
  */
 
-import { FiAlertCircle, FiExternalLink, FiRefreshCw } from '@icons';
+
 import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '../../v8/services/oauthErrorCodesServiceV8.ts';
 
@@ -293,7 +293,7 @@ export const ErrorDisplayWithRetry: React.FC<ErrorDisplayWithRetryProps> = ({
 							title="View specification reference"
 						>
 							Spec
-							<FiExternalLink size={12} />
+							<span style={{ fontSize: '12px' }}>🔗</span>
 						</a>
 					</div>
 

@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiSearch, FiX } from '@icons';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8.tsx';
 import { AppDiscoveryServiceV8 } from '../../v8/services/appDiscoveryServiceV8.ts';
@@ -191,7 +191,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 						title="Search and select PingOne application to auto-fill credentials"
 						aria-label="Search and select PingOne application to auto-fill credentials"
 					>
-						{isLoading ? '🔄' : <FiSearch size={16} />}
+						{isLoading ? '🔄' : <span style={{ fontSize: '16px' }}>🔍</span>}
 					</button>
 					{/* Tooltip on hover */}
 					<div
@@ -290,7 +290,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 							}}
 							aria-label="Close search"
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 

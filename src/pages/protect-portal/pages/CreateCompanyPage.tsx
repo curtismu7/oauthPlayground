@@ -7,7 +7,7 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
  * @since 2026-02-15
  */
 
-import { FiAlertCircle, FiCheck, FiEye, FiImage, FiPlus, FiSave, FiUpload, FiX } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -577,7 +577,7 @@ export const CreateCompanyPage: React.FC = () => {
 		if (typeof error === 'string') {
 			return (
 				<ErrorMessage>
-					<FiAlertCircle size={14} />
+					<span style={{ fontSize: '14px' }}>⚠️</span>
 					{error}
 				</ErrorMessage>
 			);
@@ -595,7 +595,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 		return (
 			<ErrorMessage>
-				<FiAlertCircle size={14} />
+				<span style={{ fontSize: '14px' }}>⚠️</span>
 				{error}
 			</ErrorMessage>
 		);
@@ -610,28 +610,28 @@ export const CreateCompanyPage: React.FC = () => {
 
 			{state.saveStatus === 'success' && (
 				<StatusAlert type="success">
-					<FiCheck size={20} />
+					<span style={{ fontSize: '20px' }}>✅</span>
 					Company configuration saved successfully!
 				</StatusAlert>
 			)}
 
 			{state.saveStatus === 'error' && (
 				<StatusAlert type="error">
-					<FiX size={20} />
+					<span style={{ fontSize: '20px' }}>❌</span>
 					Failed to save: {state.lastError}
 				</StatusAlert>
 			)}
 
 			{state.createStatus === 'success' && (
 				<StatusAlert type="success">
-					<FiCheck size={20} />
+					<span style={{ fontSize: '20px' }}>✅</span>
 					Company created successfully!
 				</StatusAlert>
 			)}
 
 			{state.createStatus === 'error' && (
 				<StatusAlert type="error">
-					<FiX size={20} />
+					<span style={{ fontSize: '20px' }}>❌</span>
 					Failed to create company: {state.lastError}
 				</StatusAlert>
 			)}
@@ -710,13 +710,13 @@ export const CreateCompanyPage: React.FC = () => {
 									<ImagePreview>
 										<PreviewLogo src={state.config.assets.logoUrl} alt="Company Logo" />
 										<div>
-											<FiImage size={24} />
+											<span style={{ fontSize: '24px' }}>🖼️</span>
 											<p>Logo uploaded</p>
 										</div>
 									</ImagePreview>
 								) : (
 									<div>
-										<FiUpload size={24} />
+										<span style={{ fontSize: '24px' }}>📤</span>
 										<p>Click to upload logo</p>
 										<small>JPG, PNG, GIF, WebP, SVG (Max 5MB)</small>
 									</div>
@@ -743,13 +743,13 @@ export const CreateCompanyPage: React.FC = () => {
 									<ImagePreview>
 										<PreviewImage src={state.config.assets.footerUrl} alt="Footer Image" />
 										<div>
-											<FiImage size={24} />
+											<span style={{ fontSize: '24px' }}>🖼️</span>
 											<p>Footer image uploaded</p>
 										</div>
 									</ImagePreview>
 								) : (
 									<div>
-										<FiUpload size={24} />
+										<span style={{ fontSize: '24px' }}>📤</span>
 										<p>Click to upload footer image</p>
 										<small>JPG, PNG, GIF, WebP, SVG (Max 5MB)</small>
 									</div>
@@ -827,7 +827,7 @@ export const CreateCompanyPage: React.FC = () => {
 				<div>
 					<PreviewContainer>
 						<SectionTitle>
-							<FiEye size={16} /> Live Preview
+							<span style={{ fontSize: '16px' }}>👁️</span> Live Preview
 						</SectionTitle>
 
 						<PreviewHeader>
@@ -884,7 +884,7 @@ export const CreateCompanyPage: React.FC = () => {
 					onClick={handleSave}
 					disabled={!state.validation.isValid || state.isSaving}
 				>
-					<FiSave size={16} />
+					<span style={{ fontSize: '16px' }}>💾</span>
 					{state.isSaving ? 'Saving...' : 'Save Draft'}
 				</Button>
 
@@ -893,7 +893,7 @@ export const CreateCompanyPage: React.FC = () => {
 					onClick={handleCreate}
 					disabled={!state.validation.isValid || state.isCreating}
 				>
-					<FiPlus size={16} />
+					<span style={{ fontSize: '16px' }}>➕</span>
 					{state.isCreating ? 'Creating...' : 'Create Company'}
 				</Button>
 			</ActionButtons>

@@ -2,7 +2,7 @@
 // Learning Mode Tooltip Component - Explains OAuth concepts inline
 // Used throughout flows to help users understand OAuth/OIDC concepts
 
-import { FiAlertCircle, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -183,15 +183,15 @@ const TooltipText = styled.div`
 const getIcon = (variant: TooltipVariant) => {
 	switch (variant) {
 		case 'security':
-			return <FiShield size={16} />;
+			return <span style={{ fontSize: '16px' }}>🛡️</span>;
 		case 'warning':
-			return <FiAlertCircle size={16} />;
+			return <span style={{ fontSize: '16px' }}>⚠️</span>;
 		case 'success':
-			return <FiCheckCircle size={16} />;
+			return <span style={{ fontSize: '16px' }}>✅</span>;
 		case 'learning':
-			return <FiBook size={16} />;
+			return <span style={{ fontSize: '16px' }}>📖</span>;
 		default:
-			return <FiInfo size={16} />;
+			return <span style={{ fontSize: '16px' }}>ℹ️</span>;
 	}
 };
 

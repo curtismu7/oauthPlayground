@@ -1,7 +1,7 @@
 // src/components/ExportImportPanel.tsx
 // Export/Import UI components for the Application Generator
 
-import { FiAlertTriangle, FiCheck, FiDownload, FiFile, FiUpload, FiX } from '@icons';
+
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -12,7 +12,7 @@ import {
 } from '../services/exportImportService';
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
 import { FileDropHandler, validateFile } from '../utils/fileHandling';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
@@ -321,7 +321,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				});
 			}
 		} catch (error) {
-			logger.error('ExportImportPanel', '[ExportImport] Import failed:', undefined, error as Error);
+			log.error('ExportImportPanel', '[ExportImport] Import failed:', undefined, error as Error);
 			setDropError(error instanceof Error ? error.message : 'Import failed');
 		} finally {
 			setIsProcessing(false);
@@ -369,7 +369,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error('ExportImportPanel', '[ExportImport] Export failed:', undefined, error as Error);
+			log.error('ExportImportPanel', '[ExportImport] Export failed:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -412,7 +412,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 	return (
 		<Container>
 			<Header>
-				<FiFile />
+				<span>❓</span>
 				<Title>Export & Import Configuration</Title>
 			</Header>
 
@@ -425,7 +425,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				{/* Export Section */}
 				<ActionSection>
 					<ActionTitle>
-						<FiDownload />
+						<span>📥</span>
 						Export Configuration
 					</ActionTitle>
 					<ActionDescription>
@@ -434,7 +434,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 					</ActionDescription>
 
 					<Button variant="primary" onClick={handleExport} disabled={!canExport}>
-						<FiDownload />
+						<span>📥</span>
 						Export as JSON
 					</Button>
 
@@ -458,7 +458,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				{/* Import Section */}
 				<ActionSection>
 					<ActionTitle>
-						<FiUpload />
+						<span>📤</span>
 						Import Configuration
 					</ActionTitle>
 					<ActionDescription>
@@ -473,7 +473,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 						onClick={handleDropZoneClick}
 					>
 						<DropZoneIcon hasError={!!dropError}>
-							{isProcessing ? <div className="spinner" /> : dropError ? <FiX /> : <FiUpload />}
+							{isProcessing ? <div className="spinner" /> : dropError ? <span>❌</span> : <span>📤</span>}
 						</DropZoneIcon>
 
 						<DropZoneText>
@@ -501,7 +501,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 							{importResult.isValid ? (
 								<ValidationResult type="success">
 									<ValidationTitle>
-										<FiCheck />
+										<span>✅</span>
 										Configuration Valid
 									</ValidationTitle>
 									<div>Configuration imported successfully and applied to the form.</div>
@@ -526,7 +526,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 							) : (
 								<ValidationResult type="error">
 									<ValidationTitle>
-										<FiX />
+										<span>❌</span>
 										Configuration Invalid
 									</ValidationTitle>
 									{importResult.errors.length > 0 && (
@@ -542,7 +542,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 							{importResult.warnings && importResult.warnings.length > 0 && (
 								<ValidationResult type="warning">
 									<ValidationTitle>
-										<FiAlertTriangle />
+										<span>⚠️</span>
 										Warnings
 									</ValidationTitle>
 									<ValidationList>

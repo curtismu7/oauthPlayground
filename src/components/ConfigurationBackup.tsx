@@ -4,7 +4,7 @@
  * Provides UI for exporting and importing flow configurations
  */
 
-import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from '@icons';
+
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import configurationBackupService, {
@@ -224,7 +224,7 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 		<Container>
 			<Header>
 				<HeaderIcon>
-					<FiFile size={20} />
+					<span style={{ fontSize: '20px' }}>❓</span>
 				</HeaderIcon>
 				<Title>Configuration Backup</Title>
 			</Header>
@@ -236,12 +236,12 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 
 			<ButtonRow>
 				<Button $variant="primary" onClick={handleExport} disabled={!hasCredentials}>
-					<FiDownload size={16} />
+					<span style={{ fontSize: '16px' }}>📥</span>
 					Export Configuration
 				</Button>
 
 				<Button $variant="secondary" onClick={handleImportClick} disabled={isImporting}>
-					<FiUpload size={16} />
+					<span style={{ fontSize: '16px' }}>📤</span>
 					{isImporting ? 'Importing...' : 'Import Configuration'}
 				</Button>
 
@@ -255,16 +255,16 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 
 			{message && (
 				<Message $type={message.type}>
-					{message.type === 'success' && <FiCheckCircle size={16} />}
-					{message.type === 'error' && <FiAlertCircle size={16} />}
-					{message.type === 'info' && <FiAlertCircle size={16} />}
+					{message.type === 'success' && <span style={{ fontSize: '16px' }}>✅</span>}
+					{message.type === 'error' && <span style={{ fontSize: '16px' }}>⚠️</span>}
+					{message.type === 'info' && <span style={{ fontSize: '16px' }}>⚠️</span>}
 					{message.text}
 				</Message>
 			)}
 
 			{!hasCredentials && (
 				<Message $type="info">
-					<FiAlertCircle size={16} />
+					<span style={{ fontSize: '16px' }}>⚠️</span>
 					Fill in your credentials above to enable configuration export.
 				</Message>
 			)}

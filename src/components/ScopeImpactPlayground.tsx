@@ -4,15 +4,7 @@
  * Interactive explorer showing how OAuth/OIDC scopes translate to real permissions and APIs
  */
 
-import {
-	FiAlertTriangle,
-	FiChevronRight,
-	FiInfo,
-	FiServer,
-	FiShield,
-	FiTarget,
-	FiUserCheck,
-} from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -734,7 +726,7 @@ const ScopeImpactPlayground: React.FC = () => {
 		<PlaygroundContainer>
 			<Header>
 				<Title>
-					<FiTarget size={28} />
+					<span style={{ fontSize: '28px' }}>❓</span>
 					Scope Impact Playground
 				</Title>
 				<Intro>
@@ -755,21 +747,21 @@ const ScopeImpactPlayground: React.FC = () => {
 							setSelectedScopes([]);
 						}}
 					>
-						<FiShield />
+						<span>🛡️</span>
 						{item.label}
 					</ProviderButton>
 				))}
 			</ProviderSwitch>
 
 			<AssistiveHint>
-				<FiInfo />
+				<span>ℹ️</span>
 				{providerConfig.tagline}
 			</AssistiveHint>
 
 			<ContentLayout>
 				<ScopeLibraryPanel>
 					<PanelTitle>
-						<FiUserCheck />
+						<span>❓</span>
 						Scope Library
 					</PanelTitle>
 
@@ -797,7 +789,7 @@ const ScopeImpactPlayground: React.FC = () => {
 				<DetailsPanel>
 					<RiskSummaryCard>
 						<ScopeHeading>
-							<FiAlertTriangle />
+							<span>⚠️</span>
 							Risk Summary
 						</ScopeHeading>
 
@@ -828,14 +820,14 @@ const ScopeImpactPlayground: React.FC = () => {
 					{recommendedBundle && (
 						<AppliedBundle>
 							<BundleTitle>
-								<FiChevronRight />
+								<span>➡️</span>
 								Bundle Match: {recommendedBundle.name}
 							</BundleTitle>
 							<p>{recommendedBundle.description}</p>
 							<BundleScopes>
 								{recommendedBundle.scopes.map((scope) => (
 									<BundleBadge key={scope}>
-										<FiShield size={14} />
+										<span style={{ fontSize: '14px' }}>🛡️</span>
 										{scope}
 									</BundleBadge>
 								))}
@@ -846,7 +838,7 @@ const ScopeImpactPlayground: React.FC = () => {
 					{scopeDetails.map((scope) => (
 						<ScopeDetailCard key={scope.name}>
 							<ScopeHeading>
-								<FiServer />
+								<span>🖥️</span>
 								{scope.name}
 							</ScopeHeading>
 							<ScopeDescription>{scope.description}</ScopeDescription>
@@ -863,13 +855,13 @@ const ScopeImpactPlayground: React.FC = () => {
 							</ApiExampleList>
 
 							<BestPractice>
-								<FiTarget size={18} />
+								<span style={{ fontSize: '18px' }}>❓</span>
 								<div>{scope.bestPractice}</div>
 							</BestPractice>
 
 							{scope.dependsOn?.length ? (
 								<DependencyNotice>
-									<FiInfo size={18} />
+									<span style={{ fontSize: '18px' }}>ℹ️</span>
 									<div>
 										This scope depends on:{' '}
 										{scope.dependsOn.map((dep) => (

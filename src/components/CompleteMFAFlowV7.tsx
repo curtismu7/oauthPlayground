@@ -2,24 +2,7 @@
 // Modern V7 MFA Flow - Complete PingOne MFA implementation with modern V7 UI
 // Implements the full 8-step specification with real API integration
 
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiExternalLink,
-	FiHash,
-	FiInfo,
-	FiKey,
-	FiLogIn,
-	FiPackage,
-	FiRefreshCw,
-	FiSend,
-	FiShield,
-	FiSmartphone,
-	FiZap,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
@@ -75,7 +58,7 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import credentialManager from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
 
 export interface CompleteMFAFlowProps {
@@ -800,7 +783,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			// Clear any previous error details on success
 			setErrorDetails(null);
 		} catch (error: unknown) {
-			logger.error('❌ [MFA Flow V7] Failed to get worker token:', error);
+			log.error('❌ [MFA Flow V7] Failed to get worker token:', error);
 
 			// Use the new OAuth Error Handling Service
 			const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
@@ -831,7 +814,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Log detailed troubleshooting info to console for developers
 			console.group('🔧 Worker Token Error - Troubleshooting Guide');
-			logger.error('Original Error:', error);
+			log.error('Original Error:', error);
 			console.log('Error Details:', errorDetails);
 			console.groupEnd();
 		} finally {
@@ -906,7 +889,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						console.log('🔐 [MFA Flow V7] Generated new PKCE codes');
 					}
 				} catch (error) {
-					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
+					log.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -978,12 +961,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					if (validationErrors.length > 0) {
 						isSuccess = false;
 						errorMessage = validationErrors.join('; ');
-						logger.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
+						log.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
 					} else {
 						console.log(`✅ [MFA Flow V7] Authorization URL validation passed`);
 					}
 				} catch (error) {
-					logger.error(`❌ [MFA Flow V7] URL validation error:`, error);
+					log.error(`❌ [MFA Flow V7] URL validation error:`, error);
 					isSuccess = false;
 					errorMessage = `URL validation error: ${error instanceof Error ? error.message : 'Unknown error'}`;
 				}
@@ -1056,7 +1039,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 			} catch (error: unknown) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				logger.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
+				log.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1102,7 +1085,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 			console.log('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
 		} catch (error) {
-			logger.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
+			log.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1183,7 +1166,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth');
 						}
 					} catch (error) {
-						logger.error(
+						log.error(
 							'🔐 [MFA Flow V7] Failed to generate PKCE codes for redirectless auth:',
 							error
 						);
@@ -1338,7 +1321,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					if (!response.ok) {
-						logger.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
+						log.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
@@ -1426,7 +1409,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									console.log(`🔐 [MFA Flow V7] Extracted userId from id_token:`, extractedUserId);
 								}
 							} catch (error) {
-								logger.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+								log.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 							}
 						}
 
@@ -1447,7 +1430,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								return newContext;
 							});
 						} else {
-							logger.warn(
+							log.warn(
 								`⚠️ [MFA Flow V7] No userId found in flow response. User must complete authentication first.`
 							);
 							// Don't set userId - it will be extracted after flow completes
@@ -1679,7 +1662,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							duration: 4000,
 						});
 					} else {
-						logger.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
+						log.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
 						modernMessaging.showBanner({
 							type: 'warning',
 							title: 'Warning',
@@ -1689,7 +1672,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				} catch (authError: unknown) {
 					const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
-					logger.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
+					log.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1749,7 +1732,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth');
 					}
 				} catch (error) {
-					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
+					log.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1769,7 +1752,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				// Validate PKCE codes before building URL
 				if (!codeChallenge || codeChallenge.length === 0) {
-					logger.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
+					log.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1780,7 +1763,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				if (!codeVerifier || codeVerifier.length === 0) {
-					logger.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
+					log.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1944,7 +1927,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-			logger.error('Authentication Error:', error);
+			log.error('Authentication Error:', error);
 			setError(errorMessage);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -2037,12 +2020,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					setFlowContext((prev) => ({ ...prev, userId: effectiveUserId! }));
 				}
 			} catch (error) {
-				logger.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+				log.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 			}
 		}
 
 		if (!effectiveUserId) {
-			logger.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
+			log.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2118,7 +2101,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			if (!deviceRegistrationResponse.ok) {
 				const errorData = await deviceRegistrationResponse.json();
-				logger.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
+				log.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
 				throw new Error(
 					`Device registration failed: ${errorData.message || errorData.error || 'Unknown error'}`
 				);
@@ -2203,7 +2186,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			console.log(`✅ [MFA Flow V7] Device registered:`, newDevice);
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`❌ [MFA Flow V7] Device registration failed:`, error);
+			log.error(`❌ [MFA Flow V7] Device registration failed:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2316,7 +2299,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 				}, 1000);
 			} catch (error) {
-				logger.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
+				log.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2435,7 +2418,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				logger.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
+				log.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2570,7 +2553,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				logger.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
+				log.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2667,7 +2650,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					userId = payload.sub || payload.user_id || payload.id || '';
 					console.log(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`);
 				} catch (error) {
-					logger.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
+					log.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
 				}
 			}
 
@@ -2726,7 +2709,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			onStepChange?.('success');
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error('❌ [MFA Flow V7] Token exchange failed:', error);
+			log.error('❌ [MFA Flow V7] Token exchange failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2761,7 +2744,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						<CollapsibleHeaderService.CollapsibleHeader
 							title="⚠️ Important: PingOne Configuration Requirements"
 							subtitle="Understanding the two different authentication flows and their requirements"
-							icon={<FiAlertTriangle />}
+							icon={<span>⚠️</span>}
 							theme="orange"
 							defaultCollapsed={true}
 						>
@@ -2991,7 +2974,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						<CollapsibleHeaderService.CollapsibleHeader
 							title="Step 1: Get Worker Token"
 							subtitle="Obtain a worker token for MFA operations"
-							icon={<FiKey />}
+							icon={<span>🔑</span>}
 							theme="blue"
 						>
 							<div style={{ marginBottom: '1rem' }}>
@@ -3051,13 +3034,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												{isLoading ? (
 													<>
 														<SpinningIcon>
-															<FiRefreshCw size={16} />
+															<span style={{ fontSize: '16px' }}>🔄</span>
 														</SpinningIcon>
 														Getting New Token...
 													</>
 												) : (
 													<>
-														<FiRefreshCw size={16} />
+														<span style={{ fontSize: '16px' }}>🔄</span>
 														Get New Worker Token
 													</>
 												)}
@@ -3103,13 +3086,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											{isLoading ? (
 												<>
 													<SpinningIcon>
-														<FiRefreshCw size={16} />
+														<span style={{ fontSize: '16px' }}>🔄</span>
 													</SpinningIcon>
 													Getting Token...
 												</>
 											) : (
 												<>
-													<FiKey size={16} />
+													<span style={{ fontSize: '16px' }}>🔑</span>
 													Get Worker Token
 												</>
 											)}
@@ -3123,7 +3106,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						<CollapsibleHeaderService.CollapsibleHeader
 							title="🔐 USER AUTHENTICATION"
 							subtitle="Choose between Redirect or Redirectless Authentication • Uses Authorization Code Configuration Above"
-							icon={<FiLogIn />}
+							icon={<span>❓</span>}
 							theme="green"
 							defaultCollapsed={false}
 						>
@@ -3298,7 +3281,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										>
 											Default
 										</div>
-										<FiZap size={28} />
+										<span style={{ fontSize: '28px' }}>⚡</span>
 										<div>
 											<div
 												style={{ fontWeight: '700', marginBottom: '0.25rem', fontSize: '1.1rem' }}
@@ -3334,7 +3317,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											textAlign: 'center',
 										}}
 									>
-										<FiExternalLink size={24} />
+										<span style={{ fontSize: '24px' }}>🔗</span>
 										<div>
 											<div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>
 												Redirect Authentication
@@ -3428,7 +3411,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<CollapsibleHeaderService.CollapsibleHeader
 						title="MFA Device Enrollment"
 						subtitle="Set up your multi-factor authentication device"
-						icon={<FiSmartphone />}
+						icon={<span>📱</span>}
 						theme="green"
 						defaultCollapsed={false}
 					>
@@ -3485,7 +3468,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<FiArrowRight size={16} />
+									<span style={{ fontSize: '16px' }}>➡️</span>
 									response_mode=pi.flow
 								</button>
 
@@ -3510,7 +3493,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<FiExternalLink size={16} />
+									<span style={{ fontSize: '16px' }}>🔗</span>
 									redirect
 								</button>
 
@@ -3535,7 +3518,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<FiSend size={16} />
+									<span style={{ fontSize: '16px' }}>📤</span>
 									form_post
 								</button>
 
@@ -3560,7 +3543,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<FiHash size={16} />
+									<span style={{ fontSize: '16px' }}>❓</span>
 									fragment
 								</button>
 							</div>
@@ -3608,7 +3591,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
 							>
-								<FiArrowLeft />
+								<span>⬅️</span>
 								Back to Login
 							</NavigationButton>
 							<NavigationButton
@@ -3617,7 +3600,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									onStepChange?.('device_pairing');
 								}}
 							>
-								<FiArrowRight />
+								<span>➡️</span>
 								Continue to Device Registration
 							</NavigationButton>
 						</div>
@@ -3629,7 +3612,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<CollapsibleHeaderService.CollapsibleHeader
 						title="Device Registration"
 						subtitle="Register your MFA device with PingOne"
-						icon={<FiSmartphone />}
+						icon={<span>📱</span>}
 						theme="yellow"
 						defaultCollapsed={false}
 					>
@@ -3918,7 +3901,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													gap: '0.5rem',
 												}}
 											>
-												<FiKey size={16} />
+												<span style={{ fontSize: '16px' }}>🔑</span>
 												Setup Authenticator App
 											</button>
 										</div>
@@ -4023,7 +4006,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													gap: '0.5rem',
 												}}
 											>
-												<FiShield size={16} />
+												<span style={{ fontSize: '16px' }}>🛡️</span>
 												Setup Passkey/FIDO2
 											</button>
 										</div>
@@ -4105,7 +4088,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										</>
 									) : (
 										<>
-											<FiCheckCircle size={16} />
+											<span style={{ fontSize: '16px' }}>✅</span>
 											Register Device
 										</>
 									)}
@@ -4130,7 +4113,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									}}
 									style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
 								>
-									<FiArrowLeft />
+									<span>⬅️</span>
 									Back to MFA Enrollment
 								</NavigationButton>
 								<NavigationButton
@@ -4139,7 +4122,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										onStepChange?.('mfa_challenge');
 									}}
 								>
-									<FiArrowRight />
+									<span>➡️</span>
 									Continue to MFA Challenge
 								</NavigationButton>
 							</div>
@@ -4152,7 +4135,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<CollapsibleHeaderService.CollapsibleHeader
 						title="MFA Challenge"
 						subtitle="Complete multi-factor authentication"
-						icon={<FiShield />}
+						icon={<span>🛡️</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
@@ -4282,7 +4265,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											marginBottom: '0.5rem',
 										}}
 									>
-										<FiShield size={16} color="#0ea5e9" />
+										<span style={{ fontSize: 16, color: '#0ea5e9' }}>🛡️</span>
 										<span
 											style={{
 												fontSize: '0.875rem',
@@ -4376,7 +4359,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									gap: '0.75rem',
 								}}
 							>
-								<FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />
+								<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
 								<div>
 									<div
 										style={{
@@ -4438,7 +4421,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
 							>
-								<FiArrowLeft />
+								<span>⬅️</span>
 								Back to Device Registration
 							</NavigationButton>
 							{mfaChallenge.challengeStatus === 'completed' && (
@@ -4448,7 +4431,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										onStepChange?.('token_retrieval');
 									}}
 								>
-									<FiArrowRight />
+									<span>➡️</span>
 									Continue to Token Retrieval
 								</NavigationButton>
 							)}
@@ -4461,7 +4444,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<CollapsibleHeaderService.CollapsibleHeader
 						title="Token Retrieval"
 						subtitle="Retrieve access tokens and complete session"
-						icon={<FiPackage />}
+						icon={<span>📦</span>}
 						theme="highlight"
 						defaultCollapsed={false}
 					>
@@ -4504,7 +4487,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
 							>
-								<FiArrowLeft />
+								<span>⬅️</span>
 								Back to MFA Challenge
 							</NavigationButton>
 							{!flowContext.tokens ? (
@@ -4524,7 +4507,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									}}
 									style={{ backgroundColor: 'V9_COLORS.PRIMARY.GREEN' }}
 								>
-									<FiArrowRight />
+									<span>➡️</span>
 									Complete Flow
 								</NavigationButton>
 							)}
@@ -4537,7 +4520,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<CollapsibleHeaderService.CollapsibleHeader
 						title="Authentication Complete"
 						subtitle="MFA authentication successful"
-						icon={<FiCheckCircle />}
+						icon={<span>✅</span>}
 						theme="green"
 						defaultCollapsed={false}
 					>
@@ -4577,7 +4560,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						<div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 							{retryCount < maxRetries && (
 								<Button $variant="primary" onClick={handleRetry}>
-									<FiRefreshCw size={16} />
+									<span style={{ fontSize: '16px' }}>🔄</span>
 									Try Again ({maxRetries - retryCount} attempts left)
 								</Button>
 							)}

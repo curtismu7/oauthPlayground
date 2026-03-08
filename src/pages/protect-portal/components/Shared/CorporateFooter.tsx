@@ -8,16 +8,7 @@
  * Professional footer with industry-specific links and company information.
  */
 
-import {
-	FiFacebook,
-	FiInstagram,
-	FiLinkedin,
-	FiMail,
-	FiMapPin,
-	FiPhone,
-	FiTwitter,
-	FiYoutube,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
@@ -339,15 +330,15 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							{industry === 'banking' && (
 								<>
 									<ContactItem $industry={industry}>
-										<FiPhone />
+										<span>📞</span>
 										<span>1-800-432-1000</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMail />
+										<span>📧</span>
 										<span>support@bankofamerica.com</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMapPin />
+										<span>📍</span>
 										<span>Find a Branch</span>
 									</ContactItem>
 								</>
@@ -355,15 +346,15 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							{industry === 'aviation' && (
 								<>
 									<ContactItem $industry={industry}>
-										<FiPhone />
+										<span>📞</span>
 										<span>1-800-UNITED-1</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMail />
+										<span>📧</span>
 										<span>customercare@united.com</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMapPin />
+										<span>📍</span>
 										<span>Airport Locations</span>
 									</ContactItem>
 								</>
@@ -371,15 +362,15 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							{industry === 'logistics' && (
 								<>
 									<ContactItem $industry={industry}>
-										<FiPhone />
+										<span>📞</span>
 										<span>1-800-GO-FEDEX</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMail />
+										<span>📧</span>
 										<span>support@fedex.com</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMapPin />
+										<span>📍</span>
 										<span>Find a Location</span>
 									</ContactItem>
 								</>
@@ -387,15 +378,15 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							{industry === 'tech' && (
 								<>
 									<ContactItem $industry={industry}>
-										<FiPhone />
+										<span>📞</span>
 										<span>1-888-PING-ID</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMail />
+										<span>📧</span>
 										<span>support@pingidentity.com</span>
 									</ContactItem>
 									<ContactItem $industry={industry}>
-										<FiMapPin />
+										<span>📍</span>
 										<span>Global Offices</span>
 									</ContactItem>
 								</>
@@ -434,10 +425,10 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							$industry={industry}
 							aria-label="Facebook"
 						>
-							<FiFacebook />
+							<span>📘</span>
 						</SocialLink>
 						<SocialLink href="#" $brandColor={brandColor} $industry={industry} aria-label="Twitter">
-							<FiTwitter />
+							<span>🐦</span>
 						</SocialLink>
 						<SocialLink
 							href="#"
@@ -445,7 +436,7 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							$industry={industry}
 							aria-label="LinkedIn"
 						>
-							<FiLinkedin />
+							<span>💼</span>
 						</SocialLink>
 						<SocialLink
 							href="#"
@@ -453,10 +444,10 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							$industry={industry}
 							aria-label="Instagram"
 						>
-							<FiInstagram />
+							<span>❓</span>
 						</SocialLink>
 						<SocialLink href="#" $brandColor={brandColor} $industry={industry} aria-label="YouTube">
-							<FiYoutube />
+							<span>❓</span>
 						</SocialLink>
 					</SocialLinks>
 				</FooterBottom>

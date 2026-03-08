@@ -6,17 +6,7 @@
  * @since 2026-02-05
  */
 
-import {
-	FiBook,
-	FiCheckCircle,
-	FiClock,
-	FiDownload,
-	FiExternalLink,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
@@ -311,7 +301,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 		<SuccessContainer>
 			<SuccessHeader>
 				<SuccessTitle>
-					<FiCheckCircle size={48} />
+					<span style={{ fontSize: '48px' }}>✅</span>
 					Flow Completed Successfully!
 				</SuccessTitle>
 				<SuccessSubtitle>
@@ -321,13 +311,13 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<Section>
 				<SectionTitle>
-					<FiUser />
+					<span>👤</span>
 					User Information & Credentials
 				</SectionTitle>
 				<GridContainer>
 					<InfoCard>
 						<InfoCardTitle>
-							<FiKey />
+							<span>🔑</span>
 							Credentials Used
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -348,7 +338,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 					<InfoCard>
 						<InfoCardTitle>
-							<FiShield />
+							<span>🛡️</span>
 							Security Features
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -401,7 +391,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 				{tokens && (
 					<div style={{ marginTop: '2rem' }}>
 						<SectionTitle>
-							<FiKey />
+							<span>🔑</span>
 							Received Tokens
 						</SectionTitle>
 						<TokenDisplayV8U tokens={tokens} flowType={flowType} specVersion={specVersion} />
@@ -411,12 +401,12 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<Section>
 				<SectionTitle>
-					<FiBook />
+					<span>📖</span>
 					What You Learned
 				</SectionTitle>
 				<LearningSection>
 					<LearningTitle>
-						<FiBook />
+						<span>📖</span>
 						Key Concepts Mastered
 					</LearningTitle>
 					<LearningContent>
@@ -429,7 +419,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 				<GridContainer style={{ marginTop: '2rem' }}>
 					<InfoCard>
 						<InfoCardTitle>
-							<FiClock />
+							<span>🕐</span>
 							Next Steps
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -448,7 +438,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 					<InfoCard>
 						<InfoCardTitle>
-							<FiExternalLink />
+							<span>🔗</span>
 							Additional Resources
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -469,11 +459,11 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<ActionButtonsContainer>
 				<ActionButton onClick={handleExportData}>
-					<FiDownload />
+					<span>📥</span>
 					Export Flow Data
 				</ActionButton>
 				<ActionButton $variant="secondary" onClick={onFlowReset}>
-					<FiRefreshCw />
+					<span>🔄</span>
 					Start New Flow
 				</ActionButton>
 			</ActionButtonsContainer>

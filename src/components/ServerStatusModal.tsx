@@ -1,7 +1,7 @@
-import { FiCheckCircle, FiGlobe, FiRefreshCw, FiServer, FiX, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface ServerStatusModalProps {
 	isOpen: boolean;
@@ -290,7 +290,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 			const updatedServers = await Promise.all(servers.map((server) => checkServerStatus(server)));
 			setServers(updatedServers);
 		} catch (error) {
-			logger.error('ServerStatusModal', 'Error refreshing servers:', undefined, error as Error);
+			log.error('ServerStatusModal', 'Error refreshing servers:', undefined, error as Error);
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -307,15 +307,15 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
 		switch (status) {
 			case 'online':
-				return <FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>;
 			case 'offline':
-				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
 			case 'checking':
 				return (
 					<FiRefreshCw size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" className="animate-spin" />
 				);
 			default:
-				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
+				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
 		}
 	};
 
@@ -337,11 +337,11 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiServer size={24} />
+						<span style={{ fontSize: '24px' }}>🖥️</span>
 						Server Status
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX />
+						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -368,9 +368,9 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 							<ServerHeader>
 								<ServerName>
 									{server.name === 'Frontend Server' ? (
-										<FiGlobe size={20} />
+										<span style={{ fontSize: '20px' }}>🌐</span>
 									) : (
-										<FiServer size={20} />
+										<span style={{ fontSize: '20px' }}>🖥️</span>
 									)}
 									{server.name}
 								</ServerName>

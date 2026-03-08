@@ -1,9 +1,9 @@
-import { FiCheckCircle, FiLoader, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -94,7 +94,7 @@ const HybridCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('HybridCallback');
-				logger.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
+				log.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
 
 				// #region agent log - Use safe analytics fetch
 				(async () => {
@@ -169,7 +169,7 @@ const HybridCallback: React.FC = () => {
 				// #endregion
 
 				// Log what we found for debugging
-				logger.info('HybridCallback', 'Parsing hybrid callback', {
+				log.info('HybridCallback', 'Parsing hybrid callback', {
 					hasCode: !!code,
 					hasIdToken: !!idToken,
 					hasAccessToken: !!accessToken,
@@ -185,7 +185,7 @@ const HybridCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Hybrid flow failed');
 					setError(errorDescription || error);
-					logger.error('HybridCallback', 'OAuth error in hybrid callback', {
+					log.error('HybridCallback', 'OAuth error in hybrid callback', {
 						error,
 						errorDescription,
 					});
@@ -267,7 +267,7 @@ const HybridCallback: React.FC = () => {
 						setMessage('ID token received! Redirecting to flow...');
 					}
 
-					logger.success('HybridCallback', 'Hybrid flow successful, stored tokens', {
+					log.success('HybridCallback', 'Hybrid flow successful, stored tokens', {
 						hasCode: !!code,
 						hasIdToken: !!idToken,
 						hasAccessToken: !!accessToken,
@@ -284,7 +284,7 @@ const HybridCallback: React.FC = () => {
 					if (isUnifiedFlow) {
 						// Unified flow - redirect to step 3 (callback handling step)
 						targetRoute = '/v8u/unified/hybrid/3';
-						logger.info('HybridCallback', 'Detected unified flow, redirecting to unified route', {
+						log.info('HybridCallback', 'Detected unified flow, redirecting to unified route', {
 							state,
 							targetRoute,
 						});
@@ -298,7 +298,7 @@ const HybridCallback: React.FC = () => {
 							sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
 						}
 
-						logger.info('HybridCallback', 'Detected legacy flow, redirecting to legacy route', {
+						log.info('HybridCallback', 'Detected legacy flow, redirecting to legacy route', {
 							targetRoute,
 						});
 					}
@@ -315,7 +315,7 @@ const HybridCallback: React.FC = () => {
 						if (isUnifiedFlow && window.location.hash) {
 							// Preserve fragment for unified flow (tokens are in fragment)
 							const redirectUrl = `${targetRoute}${window.location.hash}`;
-							logger.info('HybridCallback', 'Redirecting with fragment preserved', {
+							log.info('HybridCallback', 'Redirecting with fragment preserved', {
 								redirectUrl: redirectUrl.substring(0, 200),
 							});
 
@@ -335,7 +335,7 @@ const HybridCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('No authorization code or ID token found');
 					setError('Expected authorization code and/or ID token in callback URL');
-					logger.error('HybridCallback', 'No code or id_token in hybrid callback', {
+					log.error('HybridCallback', 'No code or id_token in hybrid callback', {
 						hasCode: !!code,
 						hasIdToken: !!idToken,
 						hasAccessToken: !!accessToken,
@@ -348,7 +348,7 @@ const HybridCallback: React.FC = () => {
 				setStatus('error');
 				setMessage('Hybrid flow failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error('HybridCallback', 'Error processing hybrid callback', err);
+				log.error('HybridCallback', 'Error processing hybrid callback', err);
 			}
 		};
 
@@ -358,9 +358,9 @@ const HybridCallback: React.FC = () => {
 	const getStatusIcon = () => {
 		switch (status) {
 			case 'success':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			default:
 				return <FiLoader className="animate-spin" />;
 		}

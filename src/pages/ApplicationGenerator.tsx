@@ -2,19 +2,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
-import {
-	FiArrowLeft,
-	FiChevronLeft,
-	FiChevronRight,
-	FiCloud,
-	FiCode,
-	FiGlobe,
-	FiInfo,
-	FiServer,
-	FiSettings,
-	FiShield,
-	FiSmartphone,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -45,7 +33,7 @@ import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
 import '../utils/testConfigChecker';
-import { logger } from '../utils/logger'; // Auto-run config checker tests in development
+import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Auto-run config checker tests in development
 
 const Container = styled.div`
   max-width: 1200px;
@@ -519,7 +507,7 @@ const ApplicationGenerator: React.FC = () => {
 		try {
 			localStorage.setItem('app-generator-current-step', currentStep.toString());
 		} catch (error) {
-			logger.warn('ApplicationGenerator', 'Failed to save current step:', { error });
+			log.warn('ApplicationGenerator', 'Failed to save current step:', { error });
 		}
 	}, [currentStep]);
 
@@ -570,7 +558,7 @@ const ApplicationGenerator: React.FC = () => {
 				console.log('[ApplicationGenerator] No tokens found to clear');
 			}
 		} else {
-			logger.error(
+			log.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Token clearing completed with errors:',
 				{ errors: result.errors }
@@ -598,7 +586,7 @@ const ApplicationGenerator: React.FC = () => {
 
 			console.log('[ApplicationGenerator] Additional token cleanup completed');
 		} catch (error) {
-			logger.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
+			log.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
 				error,
 			});
 		}
@@ -650,7 +638,7 @@ const ApplicationGenerator: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			logger.warn(
+			log.warn(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to load saved configuration:',
 				{ error }
@@ -668,38 +656,38 @@ const ApplicationGenerator: React.FC = () => {
 	}[] = [
 		{
 			type: 'OIDC_WEB_APP',
-			icon: <FiGlobe />,
+			icon: <span>🌐</span>,
 			title: 'OIDC Web App',
 			description:
 				'Traditional web applications using authorization code flow with server-side processing.',
 		},
 		{
 			type: 'OIDC_NATIVE_APP',
-			icon: <FiSmartphone />,
+			icon: <span>📱</span>,
 			title: 'OIDC Native App',
 			description: 'Mobile and desktop applications using OAuth 2.0 and OpenID Connect.',
 		},
 		{
 			type: 'SINGLE_PAGE_APP',
-			icon: <FiCode />,
+			icon: <span>❓</span>,
 			title: 'Single Page App',
 			description: 'JavaScript-based applications running entirely in the browser.',
 		},
 		{
 			type: 'WORKER',
-			icon: <FiServer />,
+			icon: <span>🖥️</span>,
 			title: 'Worker App',
 			description: 'Server-to-server applications using client credentials flow.',
 		},
 		{
 			type: 'SERVICE',
-			icon: <FiCloud />,
+			icon: <span>☁️</span>,
 			title: 'Service App',
 			description: 'Machine-to-machine applications with automated authentication.',
 		},
 		{
 			type: 'SAML_APP',
-			icon: <FiShield />,
+			icon: <span>🛡️</span>,
 			title: 'SAML App',
 			description: 'SAML-based applications for enterprise SSO and federated authentication.',
 		},
@@ -865,7 +853,7 @@ const ApplicationGenerator: React.FC = () => {
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to apply preset:',
 				undefined,
@@ -900,7 +888,7 @@ const ApplicationGenerator: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to apply imported configuration:',
 				undefined,
@@ -1199,7 +1187,7 @@ const ApplicationGenerator: React.FC = () => {
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Application creation failed:',
 				undefined,
@@ -1285,7 +1273,7 @@ const ApplicationGenerator: React.FC = () => {
 					return (
 						<FormContainer>
 							<FormTitle>
-								<FiInfo /> Select an application type to continue
+								<span>ℹ️</span> Select an application type to continue
 							</FormTitle>
 							<p style={{ color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.6 }}>
 								Step 2 customizes settings for the application type you choose on Step 1. Please
@@ -1293,7 +1281,7 @@ const ApplicationGenerator: React.FC = () => {
 								appropriate configuration fields.
 							</p>
 							<Button onClick={() => setCurrentStep(1)} variant="secondary">
-								<FiChevronLeft /> Back to application types
+								<span>⬅️</span> Back to application types
 							</Button>
 						</FormContainer>
 					);
@@ -1894,7 +1882,7 @@ const ApplicationGenerator: React.FC = () => {
 			<BackButton
 				onClick={() => navigate('/client-generator', { state: { workerToken, environmentId } })}
 			>
-				<FiArrowLeft /> Back to Credentials
+				<span>⬅️</span> Back to Credentials
 			</BackButton>
 
 			{/* Worker Token Display */}
@@ -1905,7 +1893,7 @@ const ApplicationGenerator: React.FC = () => {
 						subtitle="Authentication token for PingOne API operations"
 						theme="blue"
 						defaultCollapsed={true}
-						icon={<FiSettings />}
+						icon={<span>⚙️</span>}
 					>
 						{/* display service receives worker token for revealable token viewer */}
 						{UnifiedTokenDisplayService.showTokens(
@@ -1951,7 +1939,7 @@ const ApplicationGenerator: React.FC = () => {
 						disabled={currentStep === 1}
 						style={{ opacity: currentStep === 1 ? 0.5 : 1 }}
 					>
-						<FiChevronLeft /> Previous
+						<span>⬅️</span> Previous
 					</NavigationButton>
 
 					<div style={{ flex: 1 }} />
@@ -1972,7 +1960,7 @@ const ApplicationGenerator: React.FC = () => {
 									: 1,
 						}}
 					>
-						Next <FiChevronRight />
+						Next <span>➡️</span>
 					</NavigationButton>
 				</StepNavigation>
 			</StepContainer>

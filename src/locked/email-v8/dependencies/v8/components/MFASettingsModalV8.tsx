@@ -1,4 +1,4 @@
-import { FiSettings, FiX } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { useDraggableModal } from '../hooks/useDraggableModal.ts';
 import { MFAServiceV8, type MFASettings } from '../services/mfaServiceV8.ts';
@@ -101,7 +101,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 						className="close-button"
 						aria-label="Close modal"
 					>
-						<FiX />
+						<span>❌</span>
 					</button>
 				</div>
 

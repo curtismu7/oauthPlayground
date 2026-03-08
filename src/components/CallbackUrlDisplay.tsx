@@ -1,11 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiChevronDown,
-	FiChevronRight,
-	FiCopy,
-	FiExternalLink,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -13,7 +6,7 @@ import {
 	getCallbackDescription,
 	getCallbackUrlForFlow,
 } from '../utils/callbackUrls';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CallbackUrlContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 50%, V9_COLORS.BG.GRAY_LIGHT 100%);
@@ -220,19 +213,19 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(callbackUrl);
 			setCopied(true);
-			logger.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', {
+			log.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', {
 				flowType,
 				callbackUrl,
 			});
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			logger.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
+			log.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
 		}
 	};
 
 	const handleOpenInNewTab = () => {
 		window.open(callbackUrl, '_blank');
-		logger.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
+		log.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
 	};
 
 	if (!requiresRedirect) {
@@ -243,7 +236,7 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
 				</CallbackUrlHeader>
 				<WarningBox>
 					<WarningIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</WarningIcon>
 					<WarningContent>
 						<WarningTitle>No Redirect URI Required</WarningTitle>
@@ -261,7 +254,7 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
 		<CallbackUrlContainer>
 			<CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
 				<CallbackUrlTitle>Set the Redirect URI in PingOne</CallbackUrlTitle>
-				<ChevronIcon>{isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}</ChevronIcon>
+				<ChevronIcon>{isSetupExpanded ? <span>⬇️</span> : <span>➡️</span>}</ChevronIcon>
 			</CallbackUrlHeader>
 			<CallbackUrlContent $isExpanded={isSetupExpanded}>
 				<Description>{description}</Description>
@@ -269,11 +262,11 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
 				<UrlDisplay>
 					<UrlText>{callbackUrl}</UrlText>
 					<ActionButton $variant="copy" onClick={handleCopy} disabled={copied}>
-						{copied ? <FiCheck /> : <FiCopy />}
+						{copied ? <span>✅</span> : <span>📋</span>}
 						{copied ? 'Copied!' : 'Copy'}
 					</ActionButton>
 					<ActionButton $variant="external" onClick={handleOpenInNewTab}>
-						<FiExternalLink />
+						<span>🔗</span>
 						Open
 					</ActionButton>
 				</UrlDisplay>

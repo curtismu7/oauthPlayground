@@ -1,4 +1,7 @@
 import React from 'react';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
+
+const log = createModuleLogger('pages/CodeEditorDemo.tsx');
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
 
@@ -171,7 +174,7 @@ async function initiateAuthorizationFlow() {
     window.location.href = authUrl.toString();
     
   } catch (error) {
-    logger.error('CodeEditorDemo', 'Authorization flow failed:', undefined, error as Error);
+    log.error('CodeEditorDemo', 'Authorization flow failed:', undefined, error as Error);
     throw error;
   }
 }

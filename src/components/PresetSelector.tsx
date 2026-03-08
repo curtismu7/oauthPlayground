@@ -1,7 +1,7 @@
 // src/components/PresetSelector.tsx
 // Preset selection component for the Application Generator
 
-import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -9,7 +9,7 @@ import {
 	type ConfigurationPreset,
 	presetManagerService,
 } from '../services/presetManagerService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { performAutoMigration } from '../utils/presetMigration';
 
 const Container = styled.div`
@@ -292,7 +292,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 			// Perform auto-migration if needed
 			const migrationResult = performAutoMigration();
 			if (!migrationResult.success) {
-				logger.warn('PresetSelector', '[PresetSelector] Migration warnings:', {
+				log.warn('PresetSelector', '[PresetSelector] Migration warnings:', {
 					warnings: migrationResult.warnings,
 				});
 			}
@@ -301,7 +301,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 			const allPresets = presetManagerService.getAllPresets();
 			setPresets(allPresets);
 		} catch (error) {
-			logger.error(
+			log.error(
 				'PresetSelector',
 				'[PresetSelector] Failed to load presets:',
 				undefined,
@@ -357,7 +357,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 		return (
 			<Container>
 				<Header>
-					<FiSettings />
+					<span>⚙️</span>
 					<Title>Configuration Presets</Title>
 				</Header>
 				<Description>Loading presets...</Description>
@@ -368,7 +368,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 	return (
 		<Container>
 			<Header>
-				<FiSettings />
+				<span>⚙️</span>
 				<Title>Configuration Presets</Title>
 			</Header>
 
@@ -412,7 +412,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 
 			{filteredPresets.length === 0 ? (
 				<EmptyState>
-					<FiSettings />
+					<span>⚙️</span>
 					<div>
 						{selectedAppType
 							? `No presets available for ${selectedAppType.replace(/_/g, ' ')}`
@@ -428,7 +428,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 				Object.entries(groupedPresets).map(([category, categoryPresets]) => (
 					<CategorySection key={category}>
 						<CategoryTitle>
-							{category === 'built-in' ? <FiStar /> : <FiUser />}
+							{category === 'built-in' ? <span>⭐</span> : <span>👤</span>}
 							{category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
 							<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 'normal' }}>
 								({categoryPresets.length})
@@ -446,7 +446,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 									<PresetHeader>
 										<PresetName>{preset.name}</PresetName>
 										<PresetBadge category={preset.category}>
-											{preset.category === 'built-in' ? <FiStar size={12} /> : <FiUser size={12} />}
+											{preset.category === 'built-in' ? <span style={{ fontSize: '12px' }}>⭐</span> : <span style={{ fontSize: '12px' }}>👤</span>}
 											{preset.category === 'built-in' ? 'Built-in' : 'Custom'}
 										</PresetBadge>
 									</PresetHeader>
@@ -473,7 +473,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 										>
 											{selectedPreset === preset.id ? (
 												<>
-													<FiCheck size={16} />
+													<span style={{ fontSize: '16px' }}>✅</span>
 													Selected
 												</>
 											) : (
@@ -489,7 +489,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 											}}
 											title="View preset details"
 										>
-											<FiInfo size={16} />
+											<span style={{ fontSize: '16px' }}>ℹ️</span>
 										</InfoButton>
 									</PresetActions>
 								</PresetCard>

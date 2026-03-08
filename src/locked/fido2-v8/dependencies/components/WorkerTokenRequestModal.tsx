@@ -1,19 +1,7 @@
 // src/components/WorkerTokenRequestModal.tsx
 // Educational modal showing worker token API request details
 
-import {
-	FiCheck,
-	FiCheckCircle,
-	FiCode,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiX,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
@@ -538,7 +526,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 				<ModalHeader>
 					<HeaderContent>
 						<HeaderIcon>
-							<FiKey size={24} />
+							<span style={{ fontSize: '24px' }}>🔑</span>
 						</HeaderIcon>
 						<HeaderText>
 							<ModalTitle>Worker Token API Request</ModalTitle>
@@ -546,7 +534,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 						</HeaderText>
 					</HeaderContent>
 					<CloseButton onClick={onClose} title="Close">
-						<FiX size={20} />
+						<span style={{ fontSize: '20px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
 
@@ -554,12 +542,12 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 					{isTokenStep ? (
 						<Section>
 							<SectionTitle>
-								<FiKey size={14} />
+								<span style={{ fontSize: '14px' }}>🔑</span>
 								Generated Access Token
 							</SectionTitle>
 							<InfoBox>
 								<InfoIcon>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 								</InfoIcon>
 								<InfoText>
 									<strong>Token Generated Successfully!</strong> This token will be used for API
@@ -580,14 +568,14 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										onClick={() => setShowToken(!showToken)}
 										title={showToken ? 'Hide token' : 'Show token'}
 									>
-										{showToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+										{showToken ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 									</PasswordToggle>
 								</div>
 							</FormField>
 
 							<Section>
 								<SectionTitle>
-									<FiCode size={14} />
+									<span style={{ fontSize: '14px' }}>❓</span>
 									Token Details
 								</SectionTitle>
 								<CodeBlock>
@@ -595,7 +583,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								</CodeBlock>
 								<ButtonGroup>
 									<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
-										<FiCopy size={12} />
+										<span style={{ fontSize: '12px' }}>📋</span>
 										Copy Token
 									</ActionButton>
 								</ButtonGroup>
@@ -605,7 +593,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 						<>
 							<InfoBox>
 								<InfoIcon>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 								</InfoIcon>
 								<InfoText>
 									<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges
@@ -615,7 +603,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<FiShield size={14} />
+									<span style={{ fontSize: '14px' }}>🛡️</span>
 									Token Endpoint URL
 								</SectionTitle>
 								<ColoredUrlDisplay
@@ -632,7 +620,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<FiCheckCircle size={14} />
+									<span style={{ fontSize: '14px' }}>✅</span>
 									Request Parameters
 								</SectionTitle>
 								<ParameterGrid>
@@ -653,7 +641,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 											onClick={() => setShowSecret(!showSecret)}
 											title={showSecret ? 'Hide secret' : 'Show secret'}
 										>
-											{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+											{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 										</ToggleSecretButton>
 									</ParameterValue>
 
@@ -675,12 +663,12 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<FiKey size={14} />
+									<span style={{ fontSize: '14px' }}>🔑</span>
 									cURL Command
 								</SectionTitle>
 								<CodeBlock>{generateCurlCommand()}</CodeBlock>
 								<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-									{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
+									{copiedCurl ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
 									{copiedCurl ? 'Copied!' : 'Copy cURL'}
 								</CopyButton>
 							</Section>
@@ -693,7 +681,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								}}
 							>
 								<InfoIcon style={{ color: '#d97706' }}>
-									<FiInfo size={14} />
+									<span style={{ fontSize: '14px' }}>ℹ️</span>
 								</InfoIcon>
 								<InfoText style={{ color: '#92400e' }}>
 									<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
@@ -719,12 +707,12 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							</>
 						) : isTokenStep ? (
 							<>
-								<FiCheck size={14} />
+								<span style={{ fontSize: '14px' }}>✅</span>
 								Use Token
 							</>
 						) : (
 							<>
-								<FiKey size={14} />
+								<span style={{ fontSize: '14px' }}>🔑</span>
 								Send Request
 							</>
 						)}

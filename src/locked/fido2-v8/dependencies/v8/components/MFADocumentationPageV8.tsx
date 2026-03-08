@@ -7,16 +7,7 @@
  * Displays API calls, JSON bodies, rules, and allows download as PDF/MD
  */
 
-import {
-	FiBook,
-	FiChevronDown,
-	FiChevronUp,
-	FiDownload,
-	FiFileText,
-	FiHome,
-	FiInfo,
-	FiPackage,
-} from '@icons';
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -1441,7 +1432,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						marginBottom: '12px',
 					}}
 				>
-					<FiBook size={32} color="#E31837" />
+					<span style={{ fontSize: 32, color: '#E31837' }}>📖</span>
 					<h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: '#1f2937' }}>
 						Ping Identity
 					</h1>
@@ -1466,7 +1457,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-					<FiInfo size={18} color="#3b82f6" />
+					<span style={{ fontSize: 18, color: '#3b82f6' }}>ℹ️</span>
 					<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
 						Complete Data Model Reference
 					</span>
@@ -1495,7 +1486,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						e.currentTarget.style.textDecoration = 'none';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					View {deviceInfo.deviceName} Device Registration Data Model →
 				</a>
 			</div>
@@ -1528,7 +1519,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<FiHome size={18} />
+					<span style={{ fontSize: '18px' }}>🏠</span>
 					Back to Hub
 				</button>
 				<button
@@ -1549,7 +1540,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
 					}}
 				>
-					<FiFileText size={18} />
+					<span style={{ fontSize: '18px' }}>📄</span>
 					Download as Markdown
 				</button>
 				<button
@@ -1570,7 +1561,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
 					}}
 				>
-					<FiDownload size={18} />
+					<span style={{ fontSize: '18px' }}>📥</span>
 					Download as PDF
 				</button>
 				<button
@@ -1591,7 +1582,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
 					}}
 				>
-					<FiPackage size={18} />
+					<span style={{ fontSize: '18px' }}>📦</span>
 					Download Postman Collection
 				</button>
 			</div>
@@ -1617,7 +1608,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						gap: '8px',
 					}}
 				>
-					<FiInfo size={20} color="#3b82f6" />
+					<span style={{ fontSize: 20, color: '#3b82f6' }}>ℹ️</span>
 					Flow Rules
 				</h3>
 				<div style={{ display: 'grid', gap: '16px' }}>
@@ -1725,9 +1716,9 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 										</div>
 									</div>
 									{isExpanded ? (
-										<FiChevronUp size={20} color="#6b7280" />
+										<span style={{ fontSize: 20, color: '#6b7280' }}>⬆️</span>
 									) : (
-										<FiChevronDown size={20} color="#6b7280" />
+										<span style={{ fontSize: 20, color: '#6b7280' }}>⬇️</span>
 									)}
 								</button>
 								{isExpanded && (
@@ -1900,7 +1891,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						gap: '8px',
 					}}
 				>
-					<FiBook size={20} color="#10b981" />
+					<span style={{ fontSize: 20, color: '#10b981' }}>📖</span>
 					API References
 				</h3>
 				<ul style={{ margin: 0, paddingLeft: '20px', color: '#065f46', fontSize: '14px' }}>
@@ -1965,7 +1956,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<FiHome size={18} />
+					<span style={{ fontSize: '18px' }}>🏠</span>
 					Back to Hub
 				</button>
 			</div>

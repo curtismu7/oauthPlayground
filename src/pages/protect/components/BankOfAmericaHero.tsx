@@ -9,7 +9,7 @@
  * their actual online banking portal with proper branding and customer focus.
  */
 
-import { FiDollarSign, FiLock, FiShield, FiUser } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
@@ -217,7 +217,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 				<SecurityFeatures>
 					<SecurityFeature>
 						<FeatureIcon>
-							<FiShield />
+							<span>🛡️</span>
 						</FeatureIcon>
 						<FeatureTitle>Advanced Security</FeatureTitle>
 						<FeatureDescription>
@@ -227,7 +227,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 
 					<SecurityFeature>
 						<FeatureIcon>
-							<FiLock />
+							<span>🔒</span>
 						</FeatureIcon>
 						<FeatureTitle>Encrypted Access</FeatureTitle>
 						<FeatureDescription>
@@ -237,7 +237,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 
 					<SecurityFeature>
 						<FeatureIcon>
-							<FiUser />
+							<span>👤</span>
 						</FeatureIcon>
 						<FeatureTitle>Identity Protection</FeatureTitle>
 						<FeatureDescription>
@@ -247,7 +247,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 
 					<SecurityFeature>
 						<FeatureIcon>
-							<FiDollarSign />
+							<span>💵</span>
 						</FeatureIcon>
 						<FeatureTitle>Secure Transactions</FeatureTitle>
 						<FeatureDescription>
@@ -264,7 +264,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 								: 'Sign in to access your secure employee portal with enhanced security features'}
 						</LoginDescription>
 						<LoginButton onClick={onLoginStart}>
-							<FiLock />
+							<span>🔒</span>
 							{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 						</LoginButton>
 					</LoginSection>

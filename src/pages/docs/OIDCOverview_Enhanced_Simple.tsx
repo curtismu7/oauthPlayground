@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiSearch, FiShield } from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
@@ -90,7 +90,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchIcon = styled(FiSearch)`
+const SearchIcon = styled.span`
   position: absolute;
   left: 1rem;
   top: 50%;
@@ -303,7 +303,7 @@ const OIDCOverviewEnhancedSimple = () => {
 				{/* Enhanced Header */}
 				<Header>
 					<h1>
-						<FiShield />
+						<span>🛡️</span>
 						OpenID Connect Overview - Enhanced
 					</h1>
 					<p>

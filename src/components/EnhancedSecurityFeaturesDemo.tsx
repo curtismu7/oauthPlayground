@@ -1,18 +1,6 @@
 // src/components/EnhancedSecurityFeaturesDemo.tsx
 
-import {
-	FiClock,
-	FiDownload,
-	FiExternalLink,
-	FiEye,
-	FiGlobe,
-	FiKey,
-	FiPlay,
-	FiSettings,
-	FiShield,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -670,14 +658,14 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			<FeatureGrid>
 				<FeatureCard>
 					<FeatureTitle>
-						<FiClock size={20} />
+						<span style={{ fontSize: '20px' }}>🕐</span>
 						Token Expiration Validation
 					</FeatureTitle>
 					<FeatureDescription>
 						Validate token expiration times and check for expired tokens
 					</FeatureDescription>
 					<ActionButton onClick={validateTokenExpiration} disabled={isValidating || !tokens}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Validating...' : 'Validate Expiration'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!expirationResults}>
@@ -687,14 +675,14 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						Token Signature Validation
 					</FeatureTitle>
 					<FeatureDescription>
 						Validate JWT token signatures and verify token integrity
 					</FeatureDescription>
 					<ActionButton onClick={validateTokenSignature} disabled={isValidating || !tokens}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Validating...' : 'Validate Signatures'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!signatureResults}>
@@ -704,14 +692,14 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiGlobe size={20} />
+						<span style={{ fontSize: '20px' }}>🌐</span>
 						Session Termination
 					</FeatureTitle>
 					<FeatureDescription>
 						Terminate the current session and log out the user
 					</FeatureDescription>
 					<ActionButton onClick={handleTerminateSession} $variant="danger">
-						<FiTrash2 size={16} />
+						<span style={{ fontSize: '16px' }}>🗑️</span>
 						Terminate Session
 					</ActionButton>
 					<ActionButton
@@ -723,7 +711,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 							border: '1px solid V9_COLORS.PRIMARY.BLUE',
 						}}
 					>
-						<FiEye size={16} />
+						<span style={{ fontSize: '16px' }}>👁️</span>
 						{showLogoutUrl ? 'Hide' : 'Show'} Logout URL
 					</ActionButton>
 
@@ -764,7 +752,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 										window.open(logoutUrl, '_blank');
 									}}
 								>
-									<FiExternalLink /> Execute Logout URL
+									<span>🔗</span> Execute Logout URL
 								</ActionButton>
 								<ActionButton
 									$variant="secondary"
@@ -780,7 +768,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 										});
 									}}
 								>
-									<FiDownload /> Copy URL
+									<span>📥</span> Copy URL
 								</ActionButton>
 							</div>
 						</InfoBox>
@@ -789,28 +777,28 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiKey size={20} />
+						<span style={{ fontSize: '20px' }}>🔑</span>
 						Token Revocation
 					</FeatureTitle>
 					<FeatureDescription>
 						Revoke all tokens and invalidate the current session
 					</FeatureDescription>
 					<ActionButton onClick={handleRevokeTokens} $variant="danger">
-						<FiX size={16} />
+						<span style={{ fontSize: '16px' }}>❌</span>
 						Revoke Tokens
 					</ActionButton>
 				</FeatureCard>
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						Request Parameter Signature
 					</FeatureTitle>
 					<FeatureDescription>
 						Validate HMAC-SHA256 signatures on OAuth requests to prevent tampering
 					</FeatureDescription>
 					<ActionButton onClick={validateRequestSignature} disabled={isValidating}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Validating...' : 'Validate Request Signature'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!signatureValidationResults}>
@@ -821,18 +809,18 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiKey size={20} />
+						<span style={{ fontSize: '20px' }}>🔑</span>
 						Certificate Validation (x5t)
 					</FeatureTitle>
 					<FeatureDescription>
 						Validate X.509 certificate thumbprints in JWT headers for enhanced security
 					</FeatureDescription>
 					<ActionButton onClick={validateCertificate} disabled={!tokens}>
-						<FiShield size={16} />
+						<span style={{ fontSize: '16px' }}>🛡️</span>
 						Verify Certificate
 					</ActionButton>
 					<ActionButton onClick={showX5tDemo} $variant="secondary">
-						<FiEye size={16} />
+						<span style={{ fontSize: '16px' }}>👁️</span>
 						View x5t in Tokens
 					</ActionButton>
 					<CodeBlock $isVisible={!!x5tResults}>
@@ -842,14 +830,14 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiGlobe size={20} />
+						<span style={{ fontSize: '20px' }}>🌐</span>
 						CORS Testing
 					</FeatureTitle>
 					<FeatureDescription>
 						Test Cross-Origin Resource Sharing configuration and security
 					</FeatureDescription>
 					<ActionButton onClick={testCORS} disabled={isValidating}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Testing...' : 'Test CORS Configuration'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!corsResults}>
@@ -859,18 +847,18 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiDownload size={20} />
+						<span style={{ fontSize: '20px' }}>📥</span>
 						Security Analysis
 					</FeatureTitle>
 					<FeatureDescription>
 						Generate comprehensive security report and run automated tests
 					</FeatureDescription>
 					<ActionButton onClick={generateSecurityReport}>
-						<FiDownload size={16} />
+						<span style={{ fontSize: '16px' }}>📥</span>
 						Export Security Report
 					</ActionButton>
 					<ActionButton onClick={runSecurityTests} $variant="secondary">
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						Run Security Test Suite
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityReportResults}>
@@ -887,12 +875,12 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			<FeatureGrid>
 				<FeatureCard>
 					<FeatureTitle>
-						<FiDownload size={20} />
+						<span style={{ fontSize: '20px' }}>📥</span>
 						Security Report
 					</FeatureTitle>
 					<FeatureDescription>Generate a comprehensive security analysis report</FeatureDescription>
 					<ActionButton onClick={generateSecurityReport} disabled={isValidating}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Generating...' : 'Generate Report'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityReportResults}>
@@ -902,14 +890,14 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 				<FeatureCard>
 					<FeatureTitle>
-						<FiShield size={20} />
+						<span style={{ fontSize: '20px' }}>🛡️</span>
 						Security Tests
 					</FeatureTitle>
 					<FeatureDescription>
 						Run automated security tests on your configuration
 					</FeatureDescription>
 					<ActionButton onClick={runSecurityTests} disabled={isValidating}>
-						<FiPlay size={16} />
+						<span style={{ fontSize: '16px' }}>❓</span>
 						{isValidating ? 'Testing...' : 'Run Tests'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityTestResults}>
@@ -926,7 +914,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 				{!hideHeader && (
 					<Header $primaryColor={colors.primary}>
 						<HeaderTitle $fontSize={fontSize === 'large' ? '2rem' : '1.5rem'}>
-							<FiShield size={fontSize === 'large' ? 32 : 24} />
+							<span style={{ fontSize: fontSize === 'large' ? 32 : 24 }}>🛡️</span>
 							Enhanced Security Features
 						</HeaderTitle>
 						<HeaderSubtitle>
@@ -943,7 +931,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 								$tabType="config"
 								onClick={() => setActiveTab('config')}
 							>
-								<FiSettings size={16} />
+								<span style={{ fontSize: '16px' }}>⚙️</span>
 								Configuration
 							</Tab>
 							<Tab
@@ -951,7 +939,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 								$tabType="demo"
 								onClick={() => setActiveTab('demo')}
 							>
-								<FiPlay size={16} />
+								<span style={{ fontSize: '16px' }}>❓</span>
 								Demo & Testing
 								<span
 									style={{
@@ -972,7 +960,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 								$tabType="analysis"
 								onClick={() => setActiveTab('analysis')}
 							>
-								<FiShield size={16} />
+								<span style={{ fontSize: '16px' }}>🛡️</span>
 								Analysis
 								<span
 									style={{
