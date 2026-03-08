@@ -1,16 +1,4 @@
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheck,
-	FiClock,
-	FiDownload,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiRefreshCw,
-	FiTrash2,
-	FiX,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
@@ -434,15 +422,15 @@ export const TokenMonitoringDashboard: React.FC<TokenMonitoringDashboardProps> =
 	const getStatusIcon = (status: TokenInfo['status']) => {
 		switch (status) {
 			case 'active':
-				return <FiCheck />;
+				return <span>✅</span>;
 			case 'expiring':
-				return <FiAlertTriangle />;
+				return <span>⚠️</span>;
 			case 'expired':
-				return <FiX />;
+				return <span>❌</span>;
 			case 'error':
-				return <FiX />;
+				return <span>❌</span>;
 			default:
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 		}
 	};
 
@@ -508,11 +496,11 @@ export const TokenMonitoringDashboard: React.FC<TokenMonitoringDashboardProps> =
 
 				<DashboardActions>
 					<ActionButton onClick={refreshAllTokens} $variant="secondary">
-						<FiRefreshCw />
+						<span>🔄</span>
 						Refresh All
 					</ActionButton>
 					<ActionButton onClick={exportTokenData} $variant="secondary">
-						<FiDownload />
+						<span>📥</span>
 						Export
 					</ActionButton>
 				</DashboardActions>
@@ -615,24 +603,24 @@ export const TokenMonitoringDashboard: React.FC<TokenMonitoringDashboardProps> =
 
 						<TokenActions>
 							<TokenActionButton onClick={() => toggleTokenVisibility(token.id)}>
-								{token.isVisible ? <FiEyeOff /> : <FiEye />}
+								{token.isVisible ? <span>🙈</span> : <span>👁️</span>}
 								{token.isVisible ? 'Hide' : 'Show'}
 							</TokenActionButton>
 
 							<TokenActionButton onClick={() => handleIntrospect(token)} $variant="primary">
-								<FiEye />
+								<span>👁️</span>
 								Introspect
 							</TokenActionButton>
 
 							{(token.status === 'expired' || token.status === 'expiring') && (
 								<TokenActionButton onClick={() => onTokenRefresh?.(token.id)} $variant="primary">
-									<FiRefreshCw />
+									<span>🔄</span>
 									Refresh
 								</TokenActionButton>
 							)}
 
 							<TokenActionButton onClick={() => onTokenRevoke?.(token.id)} $variant="danger">
-								<FiTrash2 />
+								<span>🗑️</span>
 								Revoke
 							</TokenActionButton>
 						</TokenActions>

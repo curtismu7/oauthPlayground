@@ -1,7 +1,7 @@
-import { FiAlertTriangle, FiHome, FiRefreshCw } from '@icons';
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Error boundary state interface
 interface ErrorBoundaryState {
@@ -167,7 +167,7 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 		const { errorId } = this.state;
 
 		// Log the error
-		logger.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
+		log.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
 			error: error.message,
 			stack: error.stack,
 			componentStack: errorInfo.componentStack,
@@ -227,7 +227,7 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 		};
 
 		// Log error report
-		logger.error(`[ErrorReporting] Error report generated:`, errorReport);
+		log.error(`[ErrorReporting] Error report generated:`, errorReport);
 
 		// TODO: Implement external error reporting service
 		// Example: Sentry.captureException(error, { extra: errorReport });
@@ -264,7 +264,7 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 			return (
 				<ErrorContainer>
 					<ErrorIcon>
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</ErrorIcon>
 
 					<ErrorTitle>Something went wrong</ErrorTitle>
@@ -287,12 +287,12 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 
 					<ButtonGroup>
 						<RetryButton onClick={this.handleRetry}>
-							<FiRefreshCw size={16} />
+							<span style={{ fontSize: '16px' }}>🔄</span>
 							Try Again
 						</RetryButton>
 
 						<HomeButton onClick={this.handleGoHome}>
-							<FiHome size={16} />
+							<span style={{ fontSize: '16px' }}>🏠</span>
 							Go Home
 						</HomeButton>
 					</ButtonGroup>

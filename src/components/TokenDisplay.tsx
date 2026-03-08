@@ -1,8 +1,8 @@
-import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TokenDisplayProps {
 	tokens: {
@@ -312,7 +312,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 				setCopiedStates((prev) => ({ ...prev, [key]: false }));
 			}, 2000);
 		} catch (err) {
-			logger.error('TokenDisplay', 'Failed to copy text: ', undefined, err as Error);
+			log.error('TokenDisplay', 'Failed to copy text: ', undefined, err as Error);
 			announce('Failed to copy to clipboard', 'assertive');
 		}
 	};

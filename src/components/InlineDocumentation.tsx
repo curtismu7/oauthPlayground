@@ -1,6 +1,6 @@
 // src/components/InlineDocumentation.tsx - Enhanced inline documentation
 
-import { FiBook, FiChevronDown, FiChevronRight, FiCode, FiExternalLink, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -158,9 +158,9 @@ export const InlineDocumentation: React.FC<InlineDocumentationProps> = ({
 		<DocContainer>
 			<DocHeader onClick={() => setIsExpanded(!isExpanded)}>
 				<span style={{ fontSize: '1.1em' }}>{getTypeIcon()}</span>
-				<FiInfo />
+				<span>ℹ️</span>
 				<DocTitle>{title}</DocTitle>
-				<DocChevron>{isExpanded ? <FiChevronDown /> : <FiChevronRight />}</DocChevron>
+				<DocChevron>{isExpanded ? <span>⬇️</span> : <span>➡️</span>}</DocChevron>
 			</DocHeader>
 
 			<DocContent $isExpanded={isExpanded}>
@@ -169,7 +169,7 @@ export const InlineDocumentation: React.FC<InlineDocumentationProps> = ({
 				{specLink && (
 					<DocSection>
 						<DocLink href={specLink} target="_blank" rel="noopener noreferrer">
-							<FiExternalLink />
+							<span>🔗</span>
 							View Specification
 						</DocLink>
 					</DocSection>
@@ -330,7 +330,7 @@ export const SpecificationReference: React.FC<SpecificationReferenceProps> = ({
 			</DocSectionTitle>
 			<DocText>{description}</DocText>
 			<DocLink href={link} target="_blank" rel="noopener noreferrer">
-				<FiExternalLink />
+				<span>🔗</span>
 				Read Specification
 			</DocLink>
 		</DocSection>

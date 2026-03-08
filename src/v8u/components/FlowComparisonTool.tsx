@@ -1,16 +1,4 @@
-import {
-	FiArrowRight,
-	FiBarChart2,
-	FiCheck,
-	FiClock,
-	FiDatabase,
-	FiInfo,
-	FiLock,
-	FiShield,
-	FiUsers,
-	FiX,
-	FiZap,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';
@@ -268,7 +256,7 @@ const MatrixCell = styled.td<{ $rating?: 'excellent' | 'good' | 'fair' | 'poor' 
 const FlowMetrics = {
 	'oauth-authz': {
 		name: 'Authorization Code',
-		icon: <FiShield />,
+		icon: <span>🛡️</span>,
 		description: 'Most secure flow for web applications',
 		security: 'excellent',
 		complexity: 'fair',
@@ -291,7 +279,7 @@ const FlowMetrics = {
 	},
 	implicit: {
 		name: 'Implicit',
-		icon: <FiZap />,
+		icon: <span>⚡</span>,
 		description: 'Fast but less secure for single-page apps',
 		security: 'poor',
 		complexity: 'excellent',
@@ -315,7 +303,7 @@ const FlowMetrics = {
 	},
 	'client-credentials': {
 		name: 'Client Credentials',
-		icon: <FiDatabase />,
+		icon: <span>🗄️</span>,
 		description: 'Machine-to-machine communication',
 		security: 'excellent',
 		complexity: 'excellent',
@@ -334,7 +322,7 @@ const FlowMetrics = {
 	},
 	'device-code': {
 		name: 'Device Code',
-		icon: <FiUsers />,
+		icon: <span>👥</span>,
 		description: 'For devices with limited input capabilities',
 		security: 'excellent',
 		complexity: 'fair',
@@ -358,7 +346,7 @@ const FlowMetrics = {
 	},
 	hybrid: {
 		name: 'Hybrid',
-		icon: <FiArrowRight />,
+		icon: <span>➡️</span>,
 		description: 'Combination of authorization code and implicit',
 		security: 'good',
 		complexity: 'poor',
@@ -382,7 +370,7 @@ const FlowMetrics = {
 	},
 	ropc: {
 		name: 'Resource Owner Password',
-		icon: <FiLock />,
+		icon: <span>🔒</span>,
 		description: 'Direct username/password authentication',
 		security: 'poor',
 		complexity: 'excellent',
@@ -556,7 +544,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<FiShield /> Security
+										<span>🛡️</span> Security
 									</MetricLabel>
 									<MetricValue $rating={metrics.security}>
 										<RatingBadge $rating={metrics.security}>{metrics.security}</RatingBadge>
@@ -565,7 +553,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<FiClock /> Performance
+										<span>🕐</span> Performance
 									</MetricLabel>
 									<MetricValue $rating={metrics.performance}>
 										<RatingBadge $rating={metrics.performance}>{metrics.performance}</RatingBadge>
@@ -574,7 +562,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<FiDatabase /> Complexity
+										<span>🗄️</span> Complexity
 									</MetricLabel>
 									<MetricValue $rating={metrics.complexity}>
 										<RatingBadge $rating={metrics.complexity}>{metrics.complexity}</RatingBadge>
@@ -583,7 +571,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<FiUsers /> User Experience
+										<span>👥</span> User Experience
 									</MetricLabel>
 									<MetricValue $rating={metrics.userExperience}>
 										<RatingBadge $rating={metrics.userExperience}>
@@ -594,7 +582,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<FiLock /> Token Security
+										<span>🔒</span> Token Security
 									</MetricLabel>
 									<MetricValue $rating={metrics.tokenSecurity}>
 										<RatingBadge $rating={metrics.tokenSecurity}>

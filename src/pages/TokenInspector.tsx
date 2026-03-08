@@ -280,7 +280,7 @@ const TokenInspector: React.FC = () => {
 								onClick={() => setMaskInput(!maskInput)}
 								variant="secondary"
 							>
-								{maskInput ? 👁️‍🗨️ : 👁️} {maskInput ? 'Show Token' : 'Hide Token'}
+								{maskInput ? <span>👁️‍🗨️</span> : <span>👁️</span>} {maskInput ? 'Show Token' : 'Hide Token'}
 							</ActionButton>
 							<ActionButton
 								onClick={() => {

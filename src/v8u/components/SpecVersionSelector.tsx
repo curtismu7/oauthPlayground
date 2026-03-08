@@ -7,7 +7,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  * @since 2024-11-16
  */
 
-import { FiHelpCircle, FiX } from '@icons';
+
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -76,7 +76,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newSpec = event.target.value as SpecVersion;
-		logger.debug(`Spec version changed`, { from: specVersion, to: newSpec });
+		log.debug(`Spec version changed`, { from: specVersion, to: newSpec });
 		onChange(newSpec);
 	};
 
@@ -158,7 +158,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							: 'Show guidance for all spec versions'
 					}
 				>
-					<FiHelpCircle size={16} />
+					<span style={{ fontSize: '16px' }}>❓</span>
 				</button>
 			</div>
 
@@ -198,7 +198,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								color: V9_COLORS.PRIMARY.BLUE_DARK,
 							}}
 						>
-							<FiX size={16} />
+							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					</div>
 					<ul style={{ margin: '0', paddingLeft: '20px', color: V9_COLORS.PRIMARY.BLUE_DARK }}>
@@ -272,7 +272,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
                 color: V9_COLORS.TEXT.GRAY_DARK,
               }}
             >
-              <FiX size={16} />
+              <span style={{ fontSize: '16px' }}>❌</span>
             </button>
           </div>
           <div>
@@ -351,7 +351,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 										: `Get guidance for ${SPEC_VERSION_BUTTON_LABELS[spec]}`
 								}
 							>
-								<FiHelpCircle size={14} />
+								<span style={{ fontSize: '14px' }}>❓</span>
 							</button>
 						</div>
 					);

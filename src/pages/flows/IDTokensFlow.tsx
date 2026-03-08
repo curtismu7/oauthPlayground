@@ -740,7 +740,7 @@ console.log('ID token is valid!');`,
 								gap: '0.5rem',
 							}}
 						>
-							✅ style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+							<span>✅</span>
 							<div>
 								<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>ID Token Available:</strong>
 								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
@@ -813,7 +813,7 @@ console.log('ID token is valid!');`,
 							<h4>Validation Results:</h4>
 							{Object.entries(validationResults).map(([key, result]) => (
 								<div key={key} className={`validation-item ${result.valid ? 'valid' : 'invalid'}`}>
-									✅ size={16} />
+									<span>✅</span>
 									<span>
 										<strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {result.message}
 									</span>

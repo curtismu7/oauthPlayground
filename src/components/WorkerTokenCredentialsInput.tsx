@@ -2,18 +2,7 @@
 // Worker Token Credentials Input Component - Specialized UI for PingOne Worker Token configuration
 // Provides a clean, focused interface for machine-to-machine authentication setup
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -22,7 +11,7 @@ import {
 	type WorkerTokenValidationResult,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;
@@ -372,7 +361,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'WorkerTokenCredentialsInput',
 				'[WorkerTokenCredentialsInput] Save failed:',
 				undefined,
@@ -397,7 +386,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				<HeaderLeft>
 					<div>
 						<HeaderTitle>
-							<FiKey size={20} />🔑 Worker Token Configuration
+							<span style={{ fontSize: '20px' }}>🔑</span>🔑 Worker Token Configuration
 						</HeaderTitle>
 						<HeaderSubtitle>
 							Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI
@@ -406,7 +395,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					</div>
 				</HeaderLeft>
 				<ToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown size={20} />
+					<span style={{ fontSize: '20px' }}>⬇️</span>
 				</ToggleIcon>
 			</Header>
 
@@ -427,7 +416,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					<FormGrid>
 						<FormField>
 							<FormLabel>
-								<FiGlobe size={16} />
+								<span style={{ fontSize: '16px' }}>🌐</span>
 								Environment ID <RequiredIndicator>*</RequiredIndicator>
 							</FormLabel>
 							<Input
@@ -442,7 +431,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 
 						<FormField>
 							<FormLabel>
-								<FiKey size={16} />
+								<span style={{ fontSize: '16px' }}>🔑</span>
 								Region
 							</FormLabel>
 							<Select
@@ -462,7 +451,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 
 						<FormField>
 							<FormLabel>
-								<FiKey size={16} />
+								<span style={{ fontSize: '16px' }}>🔑</span>
 								Client ID <RequiredIndicator>*</RequiredIndicator>
 							</FormLabel>
 							<Input
@@ -477,7 +466,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 
 						<FormField>
 							<FormLabel>
-								<FiKey size={16} />
+								<span style={{ fontSize: '16px' }}>🔑</span>
 								Client Secret <RequiredIndicator>*</RequiredIndicator>
 							</FormLabel>
 							<InputGroup>
@@ -494,7 +483,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 									onClick={() => setShowClientSecret(!showClientSecret)}
 									disabled={false}
 								>
-									{showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{showClientSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 								</PasswordToggle>
 							</InputGroup>
 						</FormField>
@@ -532,13 +521,13 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 						<ValidationContainer>
 							{validation.errors.map((error, index) => (
 								<ValidationItem key={index} $type="error">
-									<FiAlertCircle size={16} />
+									<span style={{ fontSize: '16px' }}>⚠️</span>
 									{error}
 								</ValidationItem>
 							))}
 							{validation.warnings.map((warning, index) => (
 								<ValidationItem key={index} $type="warning">
-									<FiInfo size={16} />
+									<span style={{ fontSize: '16px' }}>ℹ️</span>
 									{warning}
 								</ValidationItem>
 							))}
@@ -566,12 +555,12 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 								</>
 							) : isSaved ? (
 								<>
-									<FiCheckCircle size={16} />
+									<span style={{ fontSize: '16px' }}>✅</span>
 									Saved
 								</>
 							) : (
 								<>
-									<FiSave size={16} />
+									<span style={{ fontSize: '16px' }}>💾</span>
 									Save Credentials
 								</>
 							)}

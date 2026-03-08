@@ -1,7 +1,7 @@
-import { FiArrowLeft, FiArrowRight, FiPlay, FiRotateCcw } from '@icons';
+
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -362,7 +362,7 @@ const MemoizedStep = React.memo<{
 
 				{!isLast && (
 					<StepButton $variant="secondary" onClick={handleNext} disabled={!isCompleted}>
-						<FiArrowRight />
+						<span>➡️</span>
 						Next Step
 					</StepButton>
 				)}
@@ -419,7 +419,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 					}, 500); // Small delay to show the result before advancing
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'StepByStepFlow',
 					`Failed to execute step ${currentStep + 1}:`,
 					undefined,
@@ -466,7 +466,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 
 				{status === 'idle' && (
 					<FlowButton $variant="primary" onClick={onStart} disabled={disabled}>
-						<FiPlay />
+						<span>❓</span>
 						Start {title}
 					</FlowButton>
 				)}
@@ -485,7 +485,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 							}}
 							disabled={currentStep >= steps.length - 1}
 						>
-							<FiArrowRight />
+							<span>➡️</span>
 							{currentStep >= steps.length - 1 ? 'Done!' : 'Next Step'}
 						</FlowButton>
 
@@ -494,14 +494,14 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 							onClick={goToPreviousStep}
 							disabled={currentStep === 0}
 						>
-							<FiArrowLeft />
+							<span>⬅️</span>
 							Previous Step
 						</FlowButton>
 					</>
 				)}
 
 				<FlowButton $variant="secondary" onClick={onReset} disabled={status === 'idle'}>
-					<FiRotateCcw />
+					<span>❓</span>
 					Reset
 				</FlowButton>
 

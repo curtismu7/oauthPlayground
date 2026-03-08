@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail, FiShield, FiX } from '@icons';
+
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
@@ -1914,7 +1914,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									zIndex: 1,
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3
@@ -2689,7 +2689,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<FiShield />
+									<span>🛡️</span>
 									View Session Details
 								</button>
 							</div>
@@ -3001,7 +3001,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<span style={{ fontSize: '18px' }}>❌</span>
 							</button>
 							<PingIdentityLogo size={36} />
 							<h3

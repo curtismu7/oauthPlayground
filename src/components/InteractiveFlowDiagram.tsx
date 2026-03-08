@@ -1,18 +1,4 @@
-import {
-	FiAlertCircle,
-	FiArrowDown,
-	FiArrowRight,
-	FiCheckCircle,
-	FiCode,
-	FiInfo,
-	FiKey,
-	FiPause,
-	FiPlay,
-	FiRotateCcw,
-	FiServer,
-	FiShield,
-	FiUser,
-} from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -928,34 +914,34 @@ const InteractiveFlowDiagram: React.FC = () => {
 	const getActorIcon = (actor: string) => {
 		switch (actor) {
 			case 'user':
-				return <FiUser />;
+				return <span>👤</span>;
 			case 'client':
-				return <FiCode />;
+				return <span>❓</span>;
 			case 'auth-server':
 				return <PingOneIcon />;
 			case 'server':
-				return <FiServer />;
+				return <span>🖥️</span>;
 			default:
-				return <FiUser />;
+				return <span>👤</span>;
 		}
 	};
 
 	const getFlowIcon = (flowId: string) => {
 		switch (flowId) {
 			case 'authorization-code':
-				return <FiKey />;
+				return <span>🔑</span>;
 			case 'implicit':
-				return <FiArrowRight />;
+				return <span>➡️</span>;
 			case 'client-credentials':
-				return <FiCode />;
+				return <span>❓</span>;
 			case 'device-code':
-				return <FiServer />;
+				return <span>🖥️</span>;
 			case 'resource-owner-password':
-				return <FiShield />;
+				return <span>🛡️</span>;
 			case 'par':
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 			default:
-				return <FiKey />;
+				return <span>🔑</span>;
 		}
 	};
 
@@ -1050,17 +1036,17 @@ const InteractiveFlowDiagram: React.FC = () => {
 				/>
 
 				<ControlButton $variant="primary" onClick={handlePlay} disabled={isPlaying}>
-					<FiPlay />
+					<span>❓</span>
 					{currentStep >= steps.length - 1 ? 'Restart' : 'Play'}
 				</ControlButton>
 
 				<ControlButton onClick={handlePause} disabled={!isPlaying}>
-					<FiPause />
+					<span>❓</span>
 					Pause
 				</ControlButton>
 
 				<ControlButton onClick={handleReset}>
-					<FiRotateCcw />
+					<span>❓</span>
 					Reset
 				</ControlButton>
 
@@ -1074,7 +1060,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 						marginLeft: '0.5rem',
 					}}
 				>
-					<FiInfo />
+					<span>ℹ️</span>
 					Step {currentStep + 1} of {steps.length}
 				</div>
 			</ControlsPanel>
@@ -1093,9 +1079,9 @@ const InteractiveFlowDiagram: React.FC = () => {
 							.map((step, index) => (
 								<StepCard key={step.id} $status={step.status} $delay={index * 200}>
 									<div className="step-title">
-										{step.status === 'active' && <FiCheckCircle />}
-										{step.status === 'completed' && <FiCheckCircle />}
-										{step.status === 'error' && <FiAlertCircle />}
+										{step.status === 'active' && <span>✅</span>}
+										{step.status === 'completed' && <span>✅</span>}
+										{step.status === 'error' && <span>⚠️</span>}
 										<span
 											style={{
 												background: 'V9_COLORS.PRIMARY.BLUE',
@@ -1138,7 +1124,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								opacity: 0.7,
 							}}
 						>
-							<FiArrowRight />
+							<span>➡️</span>
 						</div>
 						<div
 							style={{
@@ -1151,7 +1137,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								opacity: 0.7,
 							}}
 						>
-							<FiArrowRight />
+							<span>➡️</span>
 						</div>
 						<div
 							style={{
@@ -1164,7 +1150,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								opacity: 0.7,
 							}}
 						>
-							<FiArrowRight />
+							<span>➡️</span>
 						</div>
 					</>
 				)}

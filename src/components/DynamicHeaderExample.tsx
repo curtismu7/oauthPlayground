@@ -1,7 +1,7 @@
 // src/components/DynamicHeaderExample.tsx
 // Example component demonstrating dynamic header colors based on security features
 
-import { FiGlobe, FiKey, FiSettings, FiShield } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createSecurityFeaturesConfig, FlowHeader } from '../services/flowHeaderService';
@@ -140,7 +140,7 @@ const DynamicHeaderExample: React.FC = () => {
 						<ToggleSlider />
 					</ToggleSwitch>
 					<ControlLabel>
-						<FiKey size={16} />
+						<span style={{ fontSize: '16px' }}>🔑</span>
 						JWKS (JSON Web Key Set)
 					</ControlLabel>
 					<StatusIndicator $enabled={pingOneConfig.enableJWKS}>
@@ -158,7 +158,7 @@ const DynamicHeaderExample: React.FC = () => {
 						<ToggleSlider />
 					</ToggleSwitch>
 					<ControlLabel>
-						<FiGlobe size={16} />
+						<span style={{ fontSize: '16px' }}>🌐</span>
 						PAR (Pushed Authorization Request)
 					</ControlLabel>
 					<StatusIndicator $enabled={pingOneConfig.requirePushedAuthorizationRequest}>
@@ -182,7 +182,7 @@ const DynamicHeaderExample: React.FC = () => {
 						<ToggleSlider />
 					</ToggleSwitch>
 					<ControlLabel>
-						<FiShield size={16} />
+						<span style={{ fontSize: '16px' }}>🛡️</span>
 						JAR (JWT Secured Authorization Request)
 					</ControlLabel>
 					<StatusIndicator
@@ -204,7 +204,7 @@ const DynamicHeaderExample: React.FC = () => {
 						<ToggleSlider />
 					</ToggleSwitch>
 					<ControlLabel>
-						<FiSettings size={16} />
+						<span style={{ fontSize: '16px' }}>⚙️</span>
 						DPoP (Demonstration of Proof of Possession)
 					</ControlLabel>
 					<StatusIndicator $enabled={pingOneConfig.enableDPoP}>

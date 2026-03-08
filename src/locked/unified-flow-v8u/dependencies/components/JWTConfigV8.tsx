@@ -2,16 +2,7 @@
 // V8 JWT Configuration Component - Clean UI matching V8 style
 // Supports both Client Secret JWT and Private Key JWT configuration and generation
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCode,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiKey,
-	FiRefreshCw,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -409,7 +400,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							onClick={() => setShowSecret(!showSecret)}
 							aria-label={showSecret ? 'Hide secret' : 'Show secret'}
 						>
-							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
 						</button>
 					</PasswordInputWrapper>
 					<ButtonGroup>
@@ -423,7 +414,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								padding: '0.5rem 0.75rem',
 							}}
 						>
-							<FiRefreshCw size={14} />
+							<span style={{ fontSize: '14px' }}>🔄</span>
 							{isGeneratingKey ? 'Generating...' : 'Generate Secret'}
 						</Button>
 					</ButtonGroup>
@@ -450,7 +441,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 									padding: '0.5rem 0.75rem',
 								}}
 							>
-								<FiRefreshCw size={14} />
+								<span style={{ fontSize: '14px' }}>🔄</span>
 								{isGeneratingKey ? 'Generating...' : 'Generate Key Pair'}
 							</Button>
 						</ButtonGroup>
@@ -502,7 +493,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 			<ButtonGroup>
 				<Button onClick={handleGenerate} disabled={isGenerating}>
-					<FiKey size={16} />
+					<span style={{ fontSize: '16px' }}>🔑</span>
 					{isGenerating ? 'Generating...' : 'Generate JWT'}
 				</Button>
 			</ButtonGroup>
@@ -530,13 +521,13 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 									color: '#166534',
 								}}
 							>
-								<FiCheckCircle size={16} />
+								<span style={{ fontSize: '16px' }}>✅</span>
 								JWT Generated Successfully
 							</div>
 							<JWTDisplay>{result.jwt}</JWTDisplay>
 							<ButtonGroup>
 								<CopyButton onClick={handleCopyJWT}>
-									<FiCopy size={14} />
+									<span style={{ fontSize: '14px' }}>📋</span>
 									Copy JWT
 								</CopyButton>
 							</ButtonGroup>
@@ -571,7 +562,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								color: '#991b1b',
 							}}
 						>
-							<FiAlertCircle size={16} />
+							<span style={{ fontSize: '16px' }}>⚠️</span>
 							Generation Failed
 							{result.error && (
 								<span style={{ fontWeight: 'normal', marginLeft: '0.5rem' }}>{result.error}</span>

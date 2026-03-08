@@ -10,7 +10,7 @@
  * previously scattered across MFAConfigurationStepV8.
  */
 
-import { FiLogIn, FiRefreshCw, FiUser } from '@icons';
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -112,7 +112,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			<div style={sectionStyle}>
 				{/* Header */}
 				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-					<FiUser size={20} color="#10b981" />
+					<span style={{ fontSize: 20, color: '#10b981' }}>👤</span>
 					<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 						User Token (User Flow)
 					</h3>
@@ -232,7 +232,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 								e.currentTarget.style.transform = 'translateY(0)';
 							}}
 						>
-							<FiLogIn size={16} />
+							<span style={{ fontSize: '16px' }}>❓</span>
 							User Login
 						</button>
 					) : (
@@ -263,7 +263,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 									e.currentTarget.style.transform = 'translateY(0)';
 								}}
 							>
-								<FiUser size={16} />
+								<span style={{ fontSize: '16px' }}>👤</span>
 								Update Token
 							</button>
 							<button

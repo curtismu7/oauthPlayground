@@ -1,7 +1,7 @@
 // src/services/copyButtonService.tsx
 // Standardized copy button service with black popup and green checkmark
 
-import { FiCheck, FiCopy } from '@icons';
+
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -168,7 +168,7 @@ const CopyButton = styled.button<{
 
 // Icon component that switches between copy and check
 const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
-	return copied ? <FiCheck /> : <FiCopy />;
+	return copied ? <span>✅</span> : <span>📋</span>;
 };
 
 // Main copy button component

@@ -1,8 +1,8 @@
-import { FiCopy, FiExternalLink, FiGrid, FiRefreshCw, FiXCircle } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import JSONHighlighter from './JSONHighlighter';
 
 const DeviceFlowContainer = styled.div`
@@ -305,18 +305,18 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 	const handleCopyUserCode = async () => {
 		try {
 			await navigator.clipboard.writeText(state.userCode);
-			logger.info('DeviceFlowDisplay', 'User code copied to clipboard');
+			log.info('DeviceFlowDisplay', 'User code copied to clipboard');
 		} catch (error) {
-			logger.error('DeviceFlowDisplay', 'Failed to copy user code', error);
+			log.error('DeviceFlowDisplay', 'Failed to copy user code', error);
 		}
 	};
 
 	const handleCopyVerificationUri = async () => {
 		try {
 			await navigator.clipboard.writeText(state.verificationUri);
-			logger.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
+			log.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
 		} catch (error) {
-			logger.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
+			log.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
 		}
 	};
 
@@ -329,19 +329,19 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 				: state.verificationUri);
 
 		if (!uriToOpen) {
-			logger.error('DeviceFlowDisplay', 'No verification URI available to open');
+			log.error('DeviceFlowDisplay', 'No verification URI available to open');
 			return;
 		}
 
 		window.open(uriToOpen, '_blank');
-		logger.info('DeviceFlowDisplay', 'Verification URI opened in new tab', { uri: uriToOpen });
+		log.info('DeviceFlowDisplay', 'Verification URI opened in new tab', { uri: uriToOpen });
 	};
 
 	const handleStartPolling = () => {
 		if (isPolling) return;
 
 		setIsPolling(true);
-		logger.info('DeviceFlowDisplay', 'Starting device flow polling');
+		log.info('DeviceFlowDisplay', 'Starting device flow polling');
 
 		// Note: In a real implementation, you would need the environment ID and client credentials
 		// For demo purposes, we'll simulate the polling
@@ -392,7 +392,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 		<DeviceFlowContainer>
 			<DeviceFlowHeader>
 				<DeviceFlowTitle>
-					<FiGrid />
+					<span>❓</span>
 					Device Authorization
 				</DeviceFlowTitle>
 				<StatusBadge $status={state.status}>{state.status}</StatusBadge>
@@ -406,7 +406,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 						<UserCodeLabel>Enter this code on your device:</UserCodeLabel>
 						<UserCodeValue>{deviceFlowService.formatUserCode(state.userCode)}</UserCodeValue>
 						<Button $variant="secondary" onClick={handleCopyUserCode}>
-							<FiCopy />
+							<span>📋</span>
 							Copy Code
 						</Button>
 					</UserCodeSection>
@@ -416,7 +416,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 							<VerificationLabel>Verification URI</VerificationLabel>
 							<VerificationValue>{state.verificationUri}</VerificationValue>
 							<Button $variant="secondary" onClick={handleCopyVerificationUri}>
-								<FiCopy />
+								<span>📋</span>
 								Copy URI
 							</Button>
 						</VerificationItem>
@@ -424,7 +424,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 							<VerificationLabel>Complete URI</VerificationLabel>
 							<VerificationValue>{state.verificationUriComplete}</VerificationValue>
 							<Button $variant="primary" onClick={handleOpenVerificationUri}>
-								<FiExternalLink />
+								<span>🔗</span>
 								Open
 							</Button>
 						</VerificationItem>
@@ -496,7 +496,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 			<div>
 				{state.status === 'pending' && !isPolling && (
 					<Button $variant="primary" onClick={handleStartPolling}>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Start Polling
 					</Button>
 				)}
@@ -509,7 +509,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 				)}
 
 				<Button $variant="danger" onClick={handleClearState}>
-					<FiXCircle />
+					<span>❌</span>
 					Clear State
 				</Button>
 			</div>

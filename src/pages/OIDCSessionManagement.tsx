@@ -1,24 +1,11 @@
-import {
-	FiArrowRight,
-	FiCheck,
-	FiCode,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiLogOut,
-	FiMonitor,
-	FiPlay,
-	FiRefreshCw,
-	FiShield,
-	FiUsers,
-} from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
@@ -384,7 +371,7 @@ const OIDCSessionManagement = () => {
 			setCopiedCode(id);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			logger.error('OIDCSessionManagement', 'Failed to copy text: ', undefined, err as Error);
+			log.error('OIDCSessionManagement', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -392,11 +379,11 @@ const OIDCSessionManagement = () => {
 		<CodeExample>
 			<CodeHeader>
 				<CodeTitle>
-					<FiCode />
+					<span>❓</span>
 					{title}
 				</CodeTitle>
 				<CopyButton onClick={() => copyToClipboard(code, id)}>
-					<FiCopy />
+					<span>📋</span>
 					{copiedCode === id ? 'Copied!' : 'Copy'}
 				</CopyButton>
 			</CodeHeader>
@@ -450,7 +437,7 @@ const OIDCSessionManagement = () => {
 					<CollapsibleHeader
 						title="What is OpenID Connect Session Management?"
 						subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User."
-						icon={<FiUsers />}
+						icon={<span>👥</span>}
 						defaultCollapsed={false}
 					>
 						<div style={{ padding: '1.5rem' }}>
@@ -704,7 +691,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											OpenID Connect Session Management 1.0
 										</a>
 										<a
@@ -732,7 +719,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											Front-Channel Logout 1.0
 										</a>
 										<a
@@ -760,7 +747,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											Back-Channel Logout 1.0
 										</a>
 										<a
@@ -788,7 +775,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<FiExternalLink />
+											<span>🔗</span>
 											PingOne API Documentation
 										</a>
 									</div>
@@ -810,7 +797,7 @@ const OIDCSessionManagement = () => {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiUsers />
+											<span>👥</span>
 										</FlowIcon>
 										<FlowTitle>
 											Creating and Updating Sessions
@@ -823,8 +810,8 @@ const OIDCSessionManagement = () => {
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'User', role: 'End User', icon: <FiUsers /> },
-											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{ name: 'User', role: 'End User', icon: <span>👥</span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
 											{
 												name: 'PingOne',
 												role: 'OpenID Provider',
@@ -850,7 +837,7 @@ const OIDCSessionManagement = () => {
 												setActiveDemo(activeDemo === 'session-creation' ? null : 'session-creation')
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'session-creation' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -924,7 +911,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 										)}
 
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Configuration</h4>
 												<p>
@@ -941,7 +928,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiMonitor />
+											<span>🖥️</span>
 										</FlowIcon>
 										<FlowTitle>Session Status Change Notification</FlowTitle>
 										<FlowDescription>
@@ -1018,8 +1005,8 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 										</div>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-											{ name: 'OP iframe', role: 'Session Monitor', icon: <FiShield /> },
+											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'OP iframe', role: 'Session Monitor', icon: <span>🛡️</span> },
 											{
 												name: 'OP',
 												role: 'OpenID Provider',
@@ -1047,7 +1034,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 												)
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'session-notification' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1137,7 +1124,7 @@ window.addEventListener('message', function(event) {
         style="display:none">
 </iframe>`}</CodeBlock>
 										<SecurityNote>
-											<FiShield />
+											<span>🛡️</span>
 											<div>
 												<h4>Security Consideration</h4>
 												<p>
@@ -1153,7 +1140,7 @@ window.addEventListener('message', function(event) {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiLogOut />
+											<span>❓</span>
 										</FlowIcon>
 										<FlowTitle>RP-Initiated Logout</FlowTitle>
 										<FlowDescription>
@@ -1163,8 +1150,8 @@ window.addEventListener('message', function(event) {
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-											{ name: 'User', role: 'End User', icon: <FiUsers /> },
+											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'User', role: 'End User', icon: <span>👥</span> },
 											{
 												name: 'OP',
 												role: 'OpenID Provider',
@@ -1188,7 +1175,7 @@ window.addEventListener('message', function(event) {
 										<DemoButton
 											onClick={() => setActiveDemo(activeDemo === 'rp-logout' ? null : 'rp-logout')}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'rp-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1282,7 +1269,7 @@ GET /endsession?
   &post_logout_redirect_uri=https://rp.example.com/logged_out
   &state=xyz789`}</CodeBlock>
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Support</h4>
 												<p>
@@ -1298,7 +1285,7 @@ GET /endsession?
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiRefreshCw />
+											<span>🔄</span>
 										</FlowIcon>
 										<FlowTitle>Front-Channel Logout</FlowTitle>
 										<FlowDescription>
@@ -1326,8 +1313,8 @@ GET /endsession?
 													</div>
 												),
 											},
-											{ name: 'User Agent', role: 'Browser', icon: <FiMonitor /> },
-											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{ name: 'User Agent', role: 'Browser', icon: <span>🖥️</span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
 										])}
 
 										<DemoButton
@@ -1337,7 +1324,7 @@ GET /endsession?
 												)
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'front-channel-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1451,7 +1438,7 @@ GET /logout?
   &sid=abc123def456
   &iat=1516239022`}</CodeBlock>
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Support</h4>
 												<p>
@@ -1467,7 +1454,7 @@ GET /logout?
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiShield />
+											<span>🛡️</span>
 										</FlowIcon>
 										<FlowTitle>Back-Channel Logout</FlowTitle>
 										<FlowDescription>
@@ -1495,8 +1482,8 @@ GET /logout?
 													</div>
 												),
 											},
-											{ name: 'RP1', role: 'Relying Party 1', icon: <FiMonitor /> },
-											{ name: 'RP2', role: 'Relying Party 2', icon: <FiMonitor /> },
+											{ name: 'RP1', role: 'Relying Party 1', icon: <span>🖥️</span> },
+											{ name: 'RP2', role: 'Relying Party 2', icon: <span>🖥️</span> },
 										])}
 
 										<DemoButton
@@ -1506,7 +1493,7 @@ GET /logout?
 												)
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'back-channel-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1572,10 +1559,10 @@ async function sendBackchannelLogout(rpEndpoint, logoutToken) {
     if (response.ok) {
       console.log('Back-channel logout successful');
     } else {
-      logger.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
+      log.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
     }
   } catch (error) {
-    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
   }
 }
 
@@ -1604,7 +1591,7 @@ app.post('/backchannel_logout', async (req, res) => {
     
     res.status(200).send('OK');
   } catch (error) {
-    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     res.status(400).send('Invalid logout token');
   }
 });`,
@@ -1624,7 +1611,7 @@ Content-Type: application/json
   "jti": "logout_token_123"
 }`}</CodeBlock>
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Support</h4>
 												<p>
@@ -1640,7 +1627,7 @@ Content-Type: application/json
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<FiCheck />
+											<span>✅</span>
 										</FlowIcon>
 										<FlowTitle>Session Validation</FlowTitle>
 										<FlowDescription>
@@ -1650,8 +1637,8 @@ Content-Type: application/json
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-											{ name: 'Session State', role: 'Validation', icon: <FiCheck /> },
+											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'Session State', role: 'Validation', icon: <span>✅</span> },
 											{
 												name: 'OP',
 												role: 'OpenID Provider',
@@ -1679,7 +1666,7 @@ Content-Type: application/json
 												)
 											}
 										>
-											<FiPlay />
+											<span>❓</span>
 											{activeDemo === 'session-validation' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1793,7 +1780,7 @@ if (sessionState !== expectedSessionState) {
   redirectToLogin();
 }`}</CodeBlock>
 										<SecurityNote>
-											<FiShield />
+											<span>🛡️</span>
 											<div>
 												<h4>Security Note</h4>
 												<p>
@@ -2315,7 +2302,7 @@ class SessionMonitor {
           this.handleSessionExpired();
         }
       } catch (error) {
-        logger.error('OIDCSessionManagement', 'Session monitoring error:', undefined, error as Error);
+        log.error('OIDCSessionManagement', 'Session monitoring error:', undefined, error as Error);
       }
     }, this.interval);
   }
@@ -2491,12 +2478,12 @@ if (returnedState === storedState) {
   // Show confirmation message
   console.log('User logged out successfully');
 } else {
-  logger.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
+  log.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
 }`,
 											'pingone-rp-initiated-logout'
 										)}
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Configuration</h4>
 												<p>
@@ -2633,7 +2620,7 @@ app.get('/logout', (req, res) => {
   // Terminate user session using session ID (sid)
   req.session.destroy((err) => {
     if (err) {
-      logger.error('OIDCSessionManagement', 'Error destroying session:', undefined, err as Error);
+      log.error('OIDCSessionManagement', 'Error destroying session:', undefined, err as Error);
       return res.status(500).send('Logout failed');
     }
     
@@ -2662,7 +2649,7 @@ app.get('/logout', (req, res) => {
 											'front-channel-logout-implementation'
 										)}
 										<SecurityNote>
-											<FiShield />
+											<span>🛡️</span>
 											<div>
 												<h4>Security Considerations</h4>
 												<p>
@@ -2675,7 +2662,7 @@ app.get('/logout', (req, res) => {
 											</div>
 										</SecurityNote>
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Configuration</h4>
 												<p>
@@ -2826,7 +2813,7 @@ app.post('/backchannel_logout', async (req, res) => {
       audience: process.env.PINGONE_CLIENT_ID,
     }, (err, decoded) => {
       if (err) {
-        logger.error('OIDCSessionManagement', 'Logout token verification failed:', undefined, err as Error);
+        log.error('OIDCSessionManagement', 'Logout token verification failed:', undefined, err as Error);
         return res.status(400).json({ error: 'Invalid logout token' });
       }
       
@@ -2848,7 +2835,7 @@ app.post('/backchannel_logout', async (req, res) => {
       res.status(200).send('OK');
     });
   } catch (error) {
-    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     // Still return 200 OK to prevent PingOne from retrying
     res.status(200).send('OK');
   }
@@ -2866,7 +2853,7 @@ async function terminateSessionBySid(sessionId) {
 											'back-channel-logout-implementation'
 										)}
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Configuration</h4>
 												<p>
@@ -3037,7 +3024,7 @@ setInterval(checkSessionState, 30000);`,
 											'session-monitoring-implementation'
 										)}
 										<SecurityNote>
-											<FiShield />
+											<span>🛡️</span>
 											<div>
 												<h4>Browser Limitations</h4>
 												<p>
@@ -3049,7 +3036,7 @@ setInterval(checkSessionState, 30000);`,
 											</div>
 										</SecurityNote>
 										<PingOneNote>
-											<FiInfo />
+											<span>ℹ️</span>
 											<div>
 												<h4>PingOne Configuration</h4>
 												<p>
@@ -3214,7 +3201,7 @@ setInterval(checkSessionState, 30000);`,
 									</div>
 
 									<PingOneNote>
-										<FiInfo />
+										<span>ℹ️</span>
 										<div>
 											<h4>Best Practice</h4>
 											<p>
@@ -3735,7 +3722,7 @@ setInterval(checkSessionState, 30000);`,
 									</div>
 
 									<SecurityNote>
-										<FiShield />
+										<span>🛡️</span>
 										<div>
 											<h4>Security Warning</h4>
 											<p>

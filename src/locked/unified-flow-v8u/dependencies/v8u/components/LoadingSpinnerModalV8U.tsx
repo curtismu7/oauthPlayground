@@ -8,7 +8,7 @@
  * Used for showing loading states during API calls and async operations.
  */
 
-import { FiLoader } from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -110,7 +110,7 @@ export const LoadingSpinnerModalV8U: React.FC<LoadingSpinnerModalV8UProps> = ({
 		<>
 			<Backdrop />
 			<Modal $theme={theme}>
-				{icon || <FiLoader />}
+				{icon || <span>❓</span>}
 				{message}
 			</Modal>
 		</>

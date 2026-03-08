@@ -9,15 +9,7 @@
  * showing progress and educational content about risk-based authentication.
  */
 
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiInfo,
-	FiLoader,
-	FiShield,
-	FiXCircle,
-} from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
@@ -157,7 +149,7 @@ const StepDescription = styled.div`
   color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
-const LoadingSpinner = styled(FiLoader)`
+const LoadingSpinner = styled.span`
   animation: spin 1s linear infinite;
   font-size: 1.5rem;
   color: V9_COLORS.PRIMARY.BLUE;
@@ -315,7 +307,7 @@ const KeyPoint = styled.li`
   line-height: 1.4;
 `;
 
-const KeyPointIcon = styled(FiCheckCircle)`
+const KeyPointIcon = styled.span`
   color: V9_COLORS.PRIMARY.GREEN;
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -624,7 +616,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			onComplete(evaluationResponse.data);
 		} catch (err) {
-			logger.error(
+			log.error(
 				'RiskEvaluationDisplay',
 				'[🛡️ RISK-EVALUATION] Evaluation failed:',
 				undefined,
@@ -688,11 +680,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			case 'active':
 				return <LoadingSpinner />;
 			case 'complete':
-				return <FiCheckCircle />;
+				return <span>✅</span>;
 			case 'error':
-				return <FiXCircle />;
+				return <span>❌</span>;
 			default:
-				return <FiInfo />;
+				return <span>ℹ️</span>;
 		}
 	};
 
@@ -714,7 +706,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 
 			{error && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span>⚠️</span>
 					{error}
 				</ErrorMessage>
 			)}
@@ -733,7 +725,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						</>
 					) : (
 						<>
-							<FiShield />
+							<span>🛡️</span>
 							<ProgressTitle>🔒 Security Analysis Ready</ProgressTitle>
 						</>
 					)}
@@ -900,7 +892,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						rel="noopener noreferrer"
 					>
 						Learn More About Risk-Based Authentication
-						<FiArrowRight />
+						<span>➡️</span>
 					</LearnMoreLink>
 				)}
 			</EducationalSection>

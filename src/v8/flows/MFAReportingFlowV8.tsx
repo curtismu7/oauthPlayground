@@ -16,7 +16,7 @@
  * <MFAReportingFlowV8 />
  */
 
-import { FiPackage } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

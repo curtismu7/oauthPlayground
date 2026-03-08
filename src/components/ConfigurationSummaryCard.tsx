@@ -1,11 +1,11 @@
 // src/components/ConfigurationSummaryCard.tsx
 
-import { FiCheckCircle, FiChevronDown } from '@icons';
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled Components
 const Card = styled.div`
@@ -201,7 +201,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			console.log('✅ [ConfigurationSummaryCard] Export completed successfully');
 			showGlobalSuccess('Configuration exported successfully!');
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigurationSummaryCard',
 				'❌ [ConfigurationSummaryCard] Export failed:',
 				undefined,
@@ -239,7 +239,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 							delete importedConfig.isEncrypted;
 							console.log('✅ [ConfigurationSummaryCard] Client secret decrypted successfully');
 						} catch (error) {
-							logger.error(
+							log.error(
 								'ConfigurationSummaryCard',
 								'❌ [ConfigurationSummaryCard] Failed to decrypt secret:',
 								undefined,
@@ -254,7 +254,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					onLoadConfiguration?.(importedConfig);
 					showGlobalSuccess('Configuration imported successfully!');
 				} catch (error) {
-					logger.error(
+					log.error(
 						'ConfigurationSummaryCard',
 						'❌ [ConfigurationSummaryCard] Import processing failed:',
 						undefined,
@@ -265,7 +265,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			};
 			input.click();
 		} catch (error) {
-			logger.error(
+			log.error(
 				'ConfigurationSummaryCard',
 				'❌ [ConfigurationSummaryCard] Import failed:',
 				undefined,
@@ -336,11 +336,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					style={{ display: isSummaryExpanded ? 'block' : 'none' }}
 				>
 					<SectionTitle>
-						<FiCheckCircle size={14} />
+						<span style={{ fontSize: '14px' }}>✅</span>
 						Saved Configuration Summary
 					</SectionTitle>
 					<ChevronIcon $collapsed={!isSummaryExpanded}>
-						<FiChevronDown size={16} />
+						<span style={{ fontSize: '16px' }}>⬇️</span>
 					</ChevronIcon>
 				</SectionHeader>
 				<SectionContent $isExpanded={isSummaryExpanded}>
@@ -549,7 +549,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 			<StatusSection>
 				<StatusTitle>
-					<FiCheckCircle size={14} />
+					<span style={{ fontSize: '14px' }}>✅</span>
 					Configuration Status
 				</StatusTitle>
 				<StatusText>

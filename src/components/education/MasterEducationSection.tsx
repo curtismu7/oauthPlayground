@@ -9,7 +9,7 @@
  * with support for different display modes (full, compact, hidden).
  */
 
-import { FiBook, FiChevronRight, FiInfo, FiShield } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -242,15 +242,15 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 			section.title.toLowerCase().includes('security') ||
 			section.title.toLowerCase().includes('consideration')
 		) {
-			return <FiShield size={16} />;
+			return <span style={{ fontSize: '16px' }}>🛡️</span>;
 		}
 		if (
 			section.title.toLowerCase().includes('overview') ||
 			section.title.toLowerCase().includes('introduction')
 		) {
-			return <FiInfo size={16} />;
+			return <span style={{ fontSize: '16px' }}>ℹ️</span>;
 		}
-		return <FiBook size={16} />;
+		return <span style={{ fontSize: '16px' }}>📖</span>;
 	};
 
 	// Hidden mode - show nothing
@@ -293,11 +293,11 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 		<MasterSectionContainer className={className}>
 			<SectionHeader onClick={toggleSection}>
 				<HeaderContent>
-					<FiBook size={20} />
+					<span style={{ fontSize: '20px' }}>📖</span>
 					<span>Educational Content</span>
 				</HeaderContent>
 				<ToggleIcon $isExpanded={isExpanded}>
-					<FiChevronRight size={20} />
+					<span style={{ fontSize: '20px' }}>➡️</span>
 				</ToggleIcon>
 			</SectionHeader>
 			<CollapsibleContent $isExpanded={isExpanded}>

@@ -2,20 +2,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiServer,
-	FiShield,
-	FiUsers,
-	FiZap,
-} from '@icons';
+
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
@@ -229,7 +216,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 		<PageContainer>
 			<Header>
 				<h1>
-					<FiShield />
+					<span>🛡️</span>
 					SPIFFE & SPIRE with PingOne SSO
 				</h1>
 				<p>
@@ -241,7 +228,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiInfo />
+					<span>ℹ️</span>
 					What is SPIFFE?
 				</SectionTitle>
 				<InfoCard $color="V9_COLORS.PRIMARY.BLUE">
@@ -259,7 +246,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<FiKey />
+								<span>🔑</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -291,7 +278,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<FiShield />
+								<span>🛡️</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -313,7 +300,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<FiGlobe />
+								<span>🌐</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -336,7 +323,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiServer />
+					<span>🖥️</span>
 					What is SPIRE?
 				</SectionTitle>
 				<InfoCard $color="V9_COLORS.PRIMARY.GREEN">
@@ -354,7 +341,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<FiZap />
+								<span>⚡</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -376,7 +363,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<FiServer />
+								<span>🖥️</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -399,7 +386,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<FiLock />
+								<span>🔒</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -422,7 +409,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiUsers />
+					<span>👥</span>
 					Why Integrate SPIFFE/SPIRE with PingOne?
 				</SectionTitle>
 				<Alert $type="info">
@@ -467,7 +454,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiArrowRight />
+					<span>➡️</span>
 					Integration Architecture
 				</SectionTitle>
 				<InfoCard $color="#8b5cf6">
@@ -525,7 +512,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<FiKey />
+					<span>🔑</span>
 					Implementation Steps
 				</SectionTitle>
 				<StepList>
@@ -619,14 +606,14 @@ POST /v1/environments/{envId}/serviceAccounts
 
 			<Section>
 				<SectionTitle>
-					<FiCheckCircle />
+					<span>✅</span>
 					Best Practices
 				</SectionTitle>
 				<FeatureGrid>
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<FiLock />
+								<span>🔒</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -648,7 +635,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<FiShield />
+								<span>🛡️</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -670,7 +657,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<FiServer />
+								<span>🖥️</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -692,7 +679,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="#8b5cf6">
-								<FiGlobe />
+								<span>🌐</span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -715,7 +702,7 @@ POST /v1/environments/{envId}/serviceAccounts
 
 			<Section>
 				<SectionTitle>
-					<FiExternalLink />
+					<span>🔗</span>
 					Additional Resources
 				</SectionTitle>
 				<InfoCard $color="V9_COLORS.PRIMARY.BLUE">
@@ -729,7 +716,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								<Link href="https://spiffe.io/" target="_blank" rel="noopener noreferrer">
 									SPIFFE Official Documentation
 								</Link>
@@ -742,7 +729,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								<Link
 									href="https://spiffe.io/docs/latest/spire/"
 									target="_blank"
@@ -759,7 +746,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								<Link
 									href="https://spiffe.io/docs/latest/architecture/federation/"
 									target="_blank"
@@ -776,7 +763,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								<Link
 									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
 									target="_blank"
@@ -793,7 +780,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<span>🔗</span>
 								<Link
 									href="https://github.com/spiffe/spire"
 									target="_blank"

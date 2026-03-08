@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiDownload, FiUpload } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import {
@@ -1197,7 +1197,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												}}
 												title="Export credentials to JSON file"
 											>
-												<FiDownload size={14} />
+												<span style={{ fontSize: '14px' }}>📥</span>
 												Export
 											</button>
 											<button
@@ -1262,7 +1262,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												}}
 												title="Import credentials from JSON file"
 											>
-												<FiUpload size={14} />
+												<span style={{ fontSize: '14px' }}>📤</span>
 												Import
 											</button>
 										</div>

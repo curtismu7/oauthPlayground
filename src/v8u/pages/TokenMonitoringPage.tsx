@@ -1,20 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronUp,
-	FiClock,
-	FiCopy,
-	FiDatabase,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiTrash2,
-} from '@icons';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -432,11 +416,11 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
-		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
+		log.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
 
 		// Debug: Log token details
 		initialTokens.forEach((token, index) => {
-			logger.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
+			log.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
 				id: token.id,
 				type: token.type,
 				status: token.status,
@@ -449,7 +433,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
-			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
+			log.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
 
 			try {
 				const tokenCount = newTokens.length;
@@ -460,26 +444,26 @@ export const TokenMonitoringPage: React.FC = () => {
 					featureCount,
 					lastApiCall: Date.now(),
 				});
-				logger.debug(
+				log.debug(
 					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
 				);
 			} catch (enhancedErr) {
-				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
+				log.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
 					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),
 				});
 			}
 		});
 
 		freshService.manualSyncWorkerToken().catch((err) => {
-			logger.warn('[TokenMonitoringPage] Initial worker token sync failed', {
+			log.warn('[TokenMonitoringPage] Initial worker token sync failed', {
 				error: err instanceof Error ? err.message : String(err),
 			});
 		});
 
 		setTimeout(() => {
-			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...');
+			log.debug('[TokenMonitoringPage] Attempting second worker token sync...');
 			freshService.manualSyncWorkerToken().catch((err) => {
-				logger.warn('[TokenMonitoringPage] Second worker token sync failed', {
+				log.warn('[TokenMonitoringPage] Second worker token sync failed', {
 					error: err instanceof Error ? err.message : String(err),
 				});
 			});
@@ -492,18 +476,18 @@ export const TokenMonitoringPage: React.FC = () => {
 					'../../services/unifiedWorkerTokenService'
 				);
 				const status = await unifiedWorkerTokenService.getStatus();
-				logger.debug(
+				log.debug(
 					'[TokenMonitoringPage] Direct worker token status check:',
 					status as unknown as Record<string, unknown>
 				);
 
 				const token = await unifiedWorkerTokenService.getToken();
-				logger.debug('[TokenMonitoringPage] Direct worker token get result:', {
+				log.debug('[TokenMonitoringPage] Direct worker token get result:', {
 					hasToken: !!token,
 					tokenLength: token?.length || 0,
 				} as Record<string, unknown>);
 			} catch (err) {
-				logger.error(
+				log.error(
 					'[TokenMonitoringPage] Direct worker token check failed:',
 					err as Record<string, unknown>
 				);
@@ -521,7 +505,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				const decoded = TokenDisplayService.decodeJWT(token.value);
 				if (decoded) {
 					nextDecoded[token.id] = decoded;
-					logger.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
+					log.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
 						tokenType: token.type,
 						tokenSource: token.source,
 						hasHeader: !!decoded.header,
@@ -529,7 +513,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 				}
 			} else {
-				logger.debug(`[TokenMonitoringPage] Token ${token.id} is not a JWT`, {
+				log.debug(`[TokenMonitoringPage] Token ${token.id} is not a JWT`, {
 					tokenType: token.type,
 					tokenSource: token.source,
 					tokenLength: token.value.length,
@@ -565,7 +549,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					logger.error('Failed to refresh token:', {
+					log.error('Failed to refresh token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to refresh token');
@@ -587,7 +571,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				const flowSource = localStorage.getItem('flow_source');
 
 				if (accessToken && tokenType) {
-					logger.info('Found token in localStorage:', {
+					log.info('Found token in localStorage:', {
 						tokenType,
 						flowSource,
 						tokenLength: accessToken.length,
@@ -595,7 +579,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessage(`Found ${tokenType} in localStorage`);
 					setMessageType('success');
 				} else {
-					logger.info('No tokens found in localStorage');
+					log.info('No tokens found in localStorage');
 					setMessage('No tokens found in localStorage');
 					setMessageType('info');
 				}
@@ -606,7 +590,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('info');
 				},
 				onError: (error) => {
-					logger.error('Manual sync failed:', {
+					log.error('Manual sync failed:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Manual sync failed');
@@ -639,7 +623,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					logger.error('Failed to revoke token:', {
+					log.error('Failed to revoke token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to revoke token');
@@ -665,7 +649,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					// Success handled in the main function
 				},
 				onError: (error) => {
-					logger.error('Failed to copy token:', {
+					log.error('Failed to copy token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to copy token');
@@ -759,24 +743,24 @@ export const TokenMonitoringPage: React.FC = () => {
 				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
 					{!hasWorkerTokens && (
 						<ActionButton onClick={() => setShowWorkerTokenModal(true)}>
-							<FiSettings />
+							<span>⚙️</span>
 							Get Worker Token
 						</ActionButton>
 					)}
 					<ActionButton
 						onClick={() => {
-							logger.debug('[TokenMonitoringPage] Manual refresh triggered');
+							log.debug('[TokenMonitoringPage] Manual refresh triggered');
 							TokenMonitoringService.resetInstance();
 							const freshService = TokenMonitoringService.getInstance();
 							freshService.manualSyncWorkerToken().catch((err) => {
-								logger.warn('[TokenMonitoringPage] Manual refresh failed', {
+								log.warn('[TokenMonitoringPage] Manual refresh failed', {
 									error: err instanceof Error ? err.message : String(err),
 								});
 							});
 						}}
 						style={{ background: '#3b82f6' }}
 					>
-						<FiRefreshCw />
+						<span>🔄</span>
 						Refresh Tokens
 					</ActionButton>
 				</div>
@@ -784,9 +768,9 @@ export const TokenMonitoringPage: React.FC = () => {
 
 			{message && (
 				<MessageContainer $type={messageType}>
-					{messageType === 'success' && <FiCheckCircle />}
-					{messageType === 'error' && <FiAlertTriangle />}
-					{messageType === 'info' && <FiInfo />}
+					{messageType === 'success' && <span>✅</span>}
+					{messageType === 'error' && <span>⚠️</span>}
+					{messageType === 'info' && <span>ℹ️</span>}
 					{message}
 				</MessageContainer>
 			)}
@@ -794,28 +778,28 @@ export const TokenMonitoringPage: React.FC = () => {
 			<StatsGrid>
 				<StatCard>
 					<StatIcon $color="#10b981">
-						<FiCheckCircle />
+						<span>✅</span>
 					</StatIcon>
 					<StatValue>{activeTokens}</StatValue>
 					<StatLabel>Active Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<FiClock />
+						<span>🕐</span>
 					</StatIcon>
 					<StatValue>{expiringTokens}</StatValue>
 					<StatLabel>Expiring Soon</StatLabel>
 				</StatCard>
 				<StatCard>
 					<StatIcon $color="#ef4444">
-						<FiAlertTriangle />
+						<span>⚠️</span>
 					</StatIcon>
 					<StatValue>{expiredTokens}</StatValue>
 					<StatLabel>Expired</StatLabel>
 				</StatCard>
 				<StatCard>
 					<StatIcon $color="#3b82f6">
-						<FiDatabase />
+						<span>🗄️</span>
 					</StatIcon>
 					<StatValue>{filteredTokens.length}</StatValue>
 					<StatLabel>Total Tokens</StatLabel>
@@ -824,14 +808,14 @@ export const TokenMonitoringPage: React.FC = () => {
 
 			<div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 				<ActionButton onClick={handleManualSync} $variant="secondary">
-					<FiRefreshCw />
+					<span>🔄</span>
 					Manual Sync
 				</ActionButton>
 
 				<DropdownContainer>
 					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
 						<span>{getFlowTypeLabel(selectedFlowType)}</span>
-						{isFlowDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+						{isFlowDropdownOpen ? <span>⬆️</span> : <span>⬇️</span>}
 					</DropdownButton>
 					<DropdownMenu $isOpen={isFlowDropdownOpen}>
 						<DropdownItem
@@ -840,7 +824,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsFlowDropdownOpen(false);
 							}}
 						>
-							<FiDatabase /> ALL Flows
+							<span>🗄️</span> ALL Flows
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -848,7 +832,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsFlowDropdownOpen(false);
 							}}
 						>
-							<FiShield /> OAuth Flow
+							<span>🛡️</span> OAuth Flow
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -856,7 +840,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsFlowDropdownOpen(false);
 							}}
 						>
-							<FiSettings /> Worker Token Flow
+							<span>⚙️</span> Worker Token Flow
 						</DropdownItem>
 					</DropdownMenu>
 				</DropdownContainer>
@@ -868,7 +852,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								? 'ALL Token Types'
 								: getTokenTypeLabel(selectedTokenType)}
 						</span>
-						{isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+						{isDropdownOpen ? <span>⬆️</span> : <span>⬇️</span>}
 					</DropdownButton>
 					<DropdownMenu $isOpen={isDropdownOpen}>
 						<DropdownItem
@@ -877,7 +861,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsDropdownOpen(false);
 							}}
 						>
-							<FiDatabase /> ALL Token Types
+							<span>🗄️</span> ALL Token Types
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -885,7 +869,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsDropdownOpen(false);
 							}}
 						>
-							<FiShield /> Access Tokens
+							<span>🛡️</span> Access Tokens
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -893,7 +877,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsDropdownOpen(false);
 							}}
 						>
-							<FiRefreshCw /> Refresh Tokens
+							<span>🔄</span> Refresh Tokens
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -901,7 +885,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsDropdownOpen(false);
 							}}
 						>
-							<FiInfo /> ID Tokens
+							<span>ℹ️</span> ID Tokens
 						</DropdownItem>
 						<DropdownItem
 							onClick={() => {
@@ -909,7 +893,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								setIsDropdownOpen(false);
 							}}
 						>
-							<FiSettings /> Worker Tokens
+							<span>⚙️</span> Worker Tokens
 						</DropdownItem>
 					</DropdownMenu>
 				</DropdownContainer>
@@ -917,7 +901,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 			{filteredTokens.length === 0 ? (
 				<EmptyState>
-					<FiDatabase />
+					<span>🗄️</span>
 					<h3>No tokens found</h3>
 					<p>
 						No{' '}
@@ -931,7 +915,7 @@ export const TokenMonitoringPage: React.FC = () => {
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{ marginTop: '1rem' }}
 						>
-							<FiSettings />
+							<span>⚙️</span>
 							Get Worker Token
 						</ActionButton>
 					)}
@@ -986,7 +970,7 @@ export const TokenMonitoringPage: React.FC = () => {
 									onClick={() => handleCopyToken(token.value, token.id)}
 									$variant="secondary"
 								>
-									{copiedTokenId === token.id ? <FiCheck /> : <FiCopy />}
+									{copiedTokenId === token.id ? <span>✅</span> : <span>📋</span>}
 									{copiedTokenId === token.id ? 'Copied!' : 'Copy'}
 								</ActionButton>
 
@@ -999,18 +983,18 @@ export const TokenMonitoringPage: React.FC = () => {
 										}
 										$variant="secondary"
 									>
-										{decodedTokens[token.id] ? <FiEyeOff /> : <FiEye />}
+										{decodedTokens[token.id] ? <span>🙈</span> : <span>👁️</span>}
 										{decodedTokens[token.id] ? 'Hide' : 'Decode'}
 									</ActionButton>
 								)}
 
 								<ActionButton onClick={() => handleRefreshToken(token.id)} $variant="primary">
-									<FiRefreshCw />
+									<span>🔄</span>
 									Refresh
 								</ActionButton>
 
 								<ActionButton onClick={() => handleRevokeToken(token.id)} $variant="danger">
-									<FiTrash2 />
+									<span>🗑️</span>
 									Revoke
 								</ActionButton>
 							</TokenActions>

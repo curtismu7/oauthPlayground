@@ -1,7 +1,7 @@
 // src/components/CompactApplicationPicker.tsx
 // Compact version of application picker for use in modals
 
-import { FiAlertCircle, FiRefreshCw, FiSearch } from '@icons';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
@@ -19,7 +19,7 @@ const SearchBox = styled.div`
 	align-items: center;
 `;
 
-const SearchIcon = styled(FiSearch)`
+const SearchIcon = styled.span`
 	position: absolute;
 	left: 0.75rem;
 	color: V9_COLORS.TEXT.GRAY_LIGHT;
@@ -266,11 +266,11 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 		return (
 			<Container>
 				<ErrorState>
-					<FiAlertCircle size={16} />
+					<span style={{ fontSize: '16px' }}>⚠️</span>
 					{error}
 				</ErrorState>
 				<RefreshButton onClick={loadApplications}>
-					<FiRefreshCw size={14} />
+					<span style={{ fontSize: '14px' }}>🔄</span>
 					Retry
 				</RefreshButton>
 			</Container>
@@ -282,7 +282,7 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 			<Header>
 				<Title>Select Application</Title>
 				<RefreshButton onClick={loadApplications} disabled={loading}>
-					<FiRefreshCw size={14} />
+					<span style={{ fontSize: '14px' }}>🔄</span>
 					Refresh
 				</RefreshButton>
 			</Header>

@@ -1,18 +1,10 @@
-import {
-	FiAlertTriangle,
-	FiClock,
-	FiDownload,
-	FiRefreshCw,
-	FiShield,
-	FiTrendingUp,
-	FiUsers,
-} from '@icons';
+
 import { BarChart3 } from 'lucide-react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -356,7 +348,7 @@ export const AnalyticsDashboard: React.FC = () => {
 				announceToScreenReader('Analytics data refreshed successfully');
 			}, 1000);
 		} catch (error) {
-			logger.error('AnalyticsDashboard', 'Failed to refresh analytics:', undefined, error as Error);
+			log.error('AnalyticsDashboard', 'Failed to refresh analytics:', undefined, error as Error);
 			setIsRefreshing(false);
 			announceToScreenReader('Failed to refresh analytics data');
 		}
@@ -433,7 +425,7 @@ export const AnalyticsDashboard: React.FC = () => {
 						onClick={handleExport}
 						aria-label="Export analytics data"
 					>
-						<FiDownload />
+						<span>📥</span>
 						Export Data
 					</ActionButton>
 				</DashboardActions>
@@ -444,12 +436,12 @@ export const AnalyticsDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricTitle>Total Users</MetricTitle>
 						<MetricIcon $metric="users">
-							<FiUsers />
+							<span>👥</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{analyticsData.totalUsers.toLocaleString()}</MetricValue>
 					<MetricChange $positive={true}>
-						<FiTrendingUp />
+						<span>📈</span>
 						+12.5% from last week
 					</MetricChange>
 				</MetricCard>
@@ -458,12 +450,12 @@ export const AnalyticsDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricTitle>Avg Load Time</MetricTitle>
 						<MetricIcon $metric="performance">
-							<FiClock />
+							<span>🕐</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{analyticsData.avgLoadTime}s</MetricValue>
 					<MetricChange $positive={true}>
-						<FiTrendingUp />
+						<span>📈</span>
 						-0.3s from last week
 					</MetricChange>
 				</MetricCard>
@@ -472,12 +464,12 @@ export const AnalyticsDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricTitle>Security Events</MetricTitle>
 						<MetricIcon $metric="security">
-							<FiShield />
+							<span>🛡️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{analyticsData.securityEvents}</MetricValue>
 					<MetricChange $positive={true}>
-						<FiTrendingUp />
+						<span>📈</span>
 						-2 from last week
 					</MetricChange>
 				</MetricCard>
@@ -486,12 +478,12 @@ export const AnalyticsDashboard: React.FC = () => {
 					<MetricHeader>
 						<MetricTitle>Error Rate</MetricTitle>
 						<MetricIcon $metric="errors">
-							<FiAlertTriangle />
+							<span>⚠️</span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{analyticsData.errorRate}%</MetricValue>
 					<MetricChange $positive={true}>
-						<FiTrendingUp />
+						<span>📈</span>
 						-0.2% from last week
 					</MetricChange>
 				</MetricCard>

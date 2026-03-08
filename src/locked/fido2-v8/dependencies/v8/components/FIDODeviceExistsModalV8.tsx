@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import { FiAlertCircle, FiArrowLeft, FiInfo, FiTrash2, FiX } from '@icons';
+
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
@@ -320,10 +320,10 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 				style={modalStyle}
 			>
 				<CloseButton type="button" aria-label="Close modal" onClick={onClose}>
-					<FiX size={18} />
+					<span style={{ fontSize: '18px' }}>❌</span>
 				</CloseButton>
 				<ModalHeader onMouseDown={handleMouseDown}>
-					<FiAlertCircle size={28} color="#f59e0b" />
+					<span style={{ fontSize: 28, color: '#f59e0b' }}>⚠️</span>
 					<div>
 						<ModalTitle id={modalTitleId}>FIDO Device Already Registered</ModalTitle>
 						<p
@@ -347,7 +347,7 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 
 					<InfoCallout>
 						<InfoIcon>
-							<FiInfo size={20} color="#2563eb" />
+							<span style={{ fontSize: 20, color: '#2563eb' }}>ℹ️</span>
 						</InfoIcon>
 						<InfoContent>
 							<InfoTitle>What you can do:</InfoTitle>
@@ -376,12 +376,12 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 					)}
 					{environmentId && username && deviceId && (
 						<DangerButton type="button" onClick={handleDeleteDevice} disabled={isDeleting}>
-							<FiTrash2 size={16} />
+							<span style={{ fontSize: '16px' }}>🗑️</span>
 							{isDeleting ? 'Deleting...' : 'Delete Device'}
 						</DangerButton>
 					)}
 					<PrimaryButton type="button" onClick={onBackToSelection}>
-						<FiArrowLeft size={16} />
+						<span style={{ fontSize: '16px' }}>⬅️</span>
 						Back to Registration
 					</PrimaryButton>
 				</ModalFooter>

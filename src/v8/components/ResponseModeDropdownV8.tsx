@@ -14,7 +14,7 @@
  * />
  */
 
-import { FiChevronDown, FiInfo } from '@icons';
+
 import React, { useState } from 'react';
 import type { ResponseMode } from '@/services/responseModeService';
 
@@ -162,7 +162,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 						e.currentTarget.style.background = '#eff6ff';
 					}}
 				>
-					<FiInfo size={14} />
+					<span style={{ fontSize: '14px' }}>ℹ️</span>
 					{showInfo ? 'Hide Info' : 'What is this?'}
 				</button>
 			</div>

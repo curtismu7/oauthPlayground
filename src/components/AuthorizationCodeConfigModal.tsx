@@ -1,7 +1,7 @@
 // src/components/AuthorizationCodeConfigModal.tsx
 // Simple modal for configuring Authorization Code flow credentials
 
-import { FiDownload, FiInfo, FiSave, FiUpload } from '@icons';
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -12,7 +12,7 @@ import {
 	importCredentials,
 	triggerFileImport,
 } from '../services/credentialExportImportService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 
@@ -216,7 +216,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				});
 			}
 		} catch (error) {
-			logger.error(
+			log.error(
 				'AuthorizationCodeConfigModal',
 				'[AuthorizationCodeConfigModal] Error saving credentials:',
 				undefined,
@@ -263,7 +263,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error(
+			log.error(
 				'AuthorizationCodeConfigModal',
 				'[AuthorizationCodeConfigModal] Export error:',
 				undefined,
@@ -318,7 +318,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					});
 				}
 			} catch (error) {
-				logger.error(
+				log.error(
 					'AuthorizationCodeConfigModal',
 					'[AuthorizationCodeConfigModal] Import error:',
 					undefined,
@@ -455,7 +455,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					}}
 					title="Export credentials to JSON file"
 				>
-					<FiDownload size={14} />
+					<span style={{ fontSize: '14px' }}>📥</span>
 					Export
 				</button>
 				<button
@@ -492,7 +492,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					}}
 					title="Import credentials from JSON file"
 				>
-					<FiUpload size={14} />
+					<span style={{ fontSize: '14px' }}>📤</span>
 					Import
 				</button>
 			</div>
@@ -502,7 +502,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					Cancel
 				</ActionButton>
 				<ActionButton onClick={handleSave} disabled={isSaving}>
-					<FiSave />
+					<span>💾</span>
 					{isSaving ? 'Saving...' : 'Save Credentials'}
 				</ActionButton>
 			</ButtonGroup>

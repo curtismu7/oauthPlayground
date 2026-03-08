@@ -756,7 +756,7 @@ const Dashboard = () => {
 							<ul>
 								{recentActivity.length === 0 ? (
 									<li className="empty-state">
-										<Icon name="chart-line" size="xl" style={{ fontSize: 48 }} />
+										<Icon name="chart-line" size="xl" style={{ fontSize: '48px' }} />
 										<p>No recent activity</p>
 										<p className="text-small">Complete an OAuth flow to see activity here</p>
 									</li>

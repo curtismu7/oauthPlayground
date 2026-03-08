@@ -1,12 +1,12 @@
 // src/components/FitnessTrackerDeviceFlow.tsx
 // Fitness Tracker Style Device Authorization Flow Interface
 
-import { FiCheckCircle, FiCopy, FiExternalLink } from '@icons';
+
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Fitbit Main Container - Authentic Fitbit Design
@@ -293,17 +293,17 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		logger.info('FitnessTrackerDeviceFlow', 'User code copied to clipboard');
+		log.info('FitnessTrackerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const _handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('FitnessTrackerDeviceFlow', 'Verification URI copied to clipboard');
+		log.info('FitnessTrackerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		logger.info('FitnessTrackerDeviceFlow', 'Verification URI opened in new tab');
+		log.info('FitnessTrackerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusText = () => {
@@ -360,10 +360,10 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 				{/* Control Buttons */}
 				<ControlButtons>
 					<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<FiCopy /> Copy
+						<span>📋</span> Copy
 					</ControlButton>
 					<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<FiExternalLink /> Open
+						<span>🔗</span> Open
 					</ControlButton>
 				</ControlButtons>
 
