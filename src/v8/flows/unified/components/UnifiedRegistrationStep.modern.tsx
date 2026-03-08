@@ -20,7 +20,6 @@ import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
-import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '@icons';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
@@ -36,7 +35,12 @@ const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-MODERN]';
 
 export interface UnifiedRegistrationStepModernProps extends MFAFlowBaseRenderProps {
 	config: DeviceFlowConfig;
-	controller: MFAFlowController;
+	controller: {
+		registerDevice: (
+			deviceType: string,
+			fields: Record<string, string>
+		) => Promise<{ deviceId: string; status: string; [key: string]: unknown }>;
+	};
 	deviceFields: Record<string, string>;
 	setDeviceFields: (fields: Record<string, string>) => void;
 	errors: Record<string, string>;
