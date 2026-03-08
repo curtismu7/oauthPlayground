@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/PingOneIdentityMetrics.tsx
 // Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
 // Updated with unified worker token management
@@ -22,7 +23,6 @@ import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const styles = {
 	pageContainer: {

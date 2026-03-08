@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 import {
 	FiAlertTriangle,
@@ -22,7 +23,6 @@ import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

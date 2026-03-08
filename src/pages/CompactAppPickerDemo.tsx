@@ -9,7 +9,6 @@ import { CompactApplicationPicker } from '../components/CompactApplicationPicker
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 90rem;

@@ -19,7 +19,6 @@ import { fedexTheme } from './fedex.theme';
 import { pingidentityTheme } from './pingidentity.theme';
 import { southwestAirlinesTheme } from './southwest-airlines.theme';
 import { unitedAirlinesTheme } from './united-airlines.theme';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Available themes - American Airlines first as requested
 const availableThemes: BrandTheme[] = [

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { AuthCodeState } from '../types/flowTypes';
 import { logger } from '../../../../utils/logger';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 export const useAuthCodeManagement = () => {
 	const [authCode, setAuthCode] = useState<string | null>(null);

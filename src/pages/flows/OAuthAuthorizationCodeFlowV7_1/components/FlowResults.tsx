@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
 import { logger } from '../../../../utils/logger';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowResultsProps {
 	tokens: TokenResponse | null;
