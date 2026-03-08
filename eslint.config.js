@@ -1,5 +1,6 @@
 import tsplugin from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 export default [
 	{
@@ -19,6 +20,7 @@ export default [
 		},
 		plugins: {
 			'@typescript-eslint': tsplugin,
+			'react-hooks': reactHooksPlugin,
 		},
 		rules: {
 			...tsplugin.configs.recommended.rules,
@@ -39,6 +41,7 @@ export default [
 			// '@typescript-eslint/promise-function-async': 'warn',
 			'no-async-promise-executor': 'error',
 			'require-atomic-updates': 'error',
+			'react-hooks/exhaustive-deps': 'warn',
 		},
 	},
 	{
