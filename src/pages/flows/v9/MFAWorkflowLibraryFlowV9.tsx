@@ -2,18 +2,6 @@
 // V9 PingOne MFA Workflow Library Flow — Steps 11-20 (Authorization Code + MFA)
 // V9 improvements: V9CredentialStorageService, CompactAppPickerV8U, modernMessaging, no WorkerTokenModal
 
-import {
-	FiCheckCircle,
-	FiInfo,
-	FiKey,
-	FiPackage,
-	FiRefreshCw,
-	FiSend,
-	FiSettings,
-	FiShield,
-	FiSmartphone,
-	FiUser,
-} from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -679,7 +667,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 					<>
 						<CollapsibleHeader
 							title="Application Configuration & Credentials"
-							icon={<FiSettings />}
+							icon={<span>⚙️</span>}
 							theme="orange"
 							defaultCollapsed={false}
 						>
@@ -713,13 +701,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 
 						<CollapsibleHeader
 							title="Step 11: Register/Select Mobile Phone"
-							icon={<FiSmartphone />}
+							icon={<span>📱</span>}
 							theme="blue"
 							defaultCollapsed={false}
 						>
 							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
+								<span>ℹ️</span><div>
 									<InfoTitle>Register or Select Mobile Phone for MFA</InfoTitle>
 									<InfoText>
 										Select an existing SMS device or register a new mobile phone number for
@@ -754,7 +741,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 											color: 'V9_COLORS.TEXT.WHITE',
 										}}
 									>
-										{workerToken ? <FiCheckCircle /> : <FiKey />}
+										{workerToken ? <span>✅</span>: <span>🔑</span>}
 										{workerToken ? 'Worker Token Active ✓' : 'Get Worker Token →'}
 									</Button>
 								</ParameterValue>
@@ -767,8 +754,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										disabled={isLoadingDevices}
 										style={{ marginTop: '1rem', marginBottom: '1rem' }}
 									>
-										<FiRefreshCw />
-										{isLoadingDevices ? 'Loading...' : 'Refresh Devices'}
+										<span>🔄</span>{isLoadingDevices ? 'Loading...' : 'Refresh Devices'}
 									</Button>
 
 									{existingDevices.length > 0 && (
@@ -795,8 +781,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 													}}
 												>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-														<FiSmartphone style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
-														<div style={{ flex: 1 }}>
+														<span>📱</span><div style={{ flex: 1 }}>
 															<div style={{ fontWeight: 600 }}>
 																{device.phone || device.phoneNumber || device.name || 'SMS Device'}
 															</div>
@@ -806,8 +791,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 															</div>
 														</div>
 														{selectedExistingDeviceId === device.id && (
-															<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
-														)}
+															<span>✅</span>)}
 													</div>
 												</button>
 											))}
@@ -853,7 +837,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 												onClick={handleRegisterMobilePhone}
 												disabled={isLoading || !phoneNumber}
 											>
-												{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
+												{isLoading ? <span>🔄</span>: <span>📱</span>}
 												Register Mobile Phone
 											</Button>
 										</>
@@ -863,8 +847,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										existingDevices.length === 0 &&
 										!isLoadingDevices && (
 											<InfoBox $variant="warning">
-												<FiInfo />
-												<div>
+												<span>ℹ️</span><div>
 													<InfoTitle>No Existing Devices Found</InfoTitle>
 													<InfoText>No SMS devices found. Use "Register New" to add one.</InfoText>
 												</div>
@@ -879,8 +862,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									<JSONHighlighter data={apiResponses[11]} />
 									{deviceId && (
 										<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-											<FiCheckCircle />
-											<div>
+											<span>✅</span><div>
 												<InfoTitle>Device Selected/Registered</InfoTitle>
 												<InfoText>Device ID: {deviceId}</InfoText>
 											</div>
@@ -896,13 +878,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 11b: Enable User MFA"
-						icon={<FiShield />}
+						icon={<span>🛡️</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Enable User MFA Device</InfoTitle>
 								<InfoText>
 									Enable the registered MFA device for the user. API: PUT /environments/
@@ -931,7 +912,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
-							{isLoading ? <FiRefreshCw /> : <FiShield />}
+							{isLoading ? <span>🔄</span>: <span>🛡️</span>}
 							Enable MFA Device
 						</Button>
 						{(apiResponses[11] as Record<string, unknown>)?.enabled && (
@@ -939,8 +920,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<ResultsHeading>Step 11b Response:</ResultsHeading>
 								<JSONHighlighter data={apiResponses[11]} />
 								<InfoBox $variant="success">
-									<FiCheckCircle />
-									<div>
+									<span>✅</span><div>
 										<InfoTitle>MFA Device Enabled Successfully</InfoTitle>
 									</div>
 								</InfoBox>
@@ -953,13 +933,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 12: Send Authorize Request"
-						icon={<FiSend />}
+						icon={<span>➡️</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Initiate Authorization Code Flow</InfoTitle>
 								<InfoText>
 									Send an authorization request with response_mode=pi.flow to initiate the flow.
@@ -968,7 +947,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
-							{isLoading ? <FiRefreshCw /> : <FiSend />}
+							{isLoading ? <span>🔄</span>: <span>➡️</span>}
 							Send Authorize Request
 						</Button>
 						{apiResponses[12] && (
@@ -977,8 +956,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<JSONHighlighter data={apiResponses[12]} />
 								{flowId && (
 									<InfoBox $variant="success">
-										<FiCheckCircle />
-										<div>
+										<span>✅</span><div>
 											<InfoTitle>Flow ID:</InfoTitle>
 											<InfoText>{flowId}</InfoText>
 										</div>
@@ -993,13 +971,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 13: Get the Flow"
-						icon={<FiPackage />}
+						icon={<span>📦</span>}
 						theme="highlight"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Retrieve Flow Details</InfoTitle>
 								<InfoText>
 									Get the current state of the flow from PingOne to see what actions are available.
@@ -1007,7 +984,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGetFlow} disabled={isLoading}>
-							{isLoading ? <FiRefreshCw /> : <FiPackage />}
+							{isLoading ? <span>🔄</span>: <span>📦</span>}
 							Get Flow
 						</Button>
 						{apiResponses[13] && (
@@ -1023,13 +1000,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 14: Submit Login Credentials"
-						icon={<FiUser />}
+						icon={<span>👤</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Authenticate with Username/Password</InfoTitle>
 								<InfoText>
 									Submit user login credentials to advance the flow to the MFA challenge.
@@ -1062,7 +1038,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							onClick={handleSubmitLoginCredentials}
 							disabled={isLoading || !username || !password}
 						>
-							{isLoading ? <FiRefreshCw /> : <FiUser />}
+							{isLoading ? <span>🔄</span>: <span>👤</span>}
 							Submit Login Credentials
 						</Button>
 						{apiResponses[14] && (
@@ -1078,13 +1054,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 15: Submit MFA Credentials"
-						icon={<FiSmartphone />}
+						icon={<span>📱</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Complete MFA Challenge</InfoTitle>
 								<InfoText>Submit the MFA code received via SMS to complete the challenge.</InfoText>
 							</div>
@@ -1102,7 +1077,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
-							{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
+							{isLoading ? <span>🔄</span>: <span>📱</span>}
 							Submit MFA Credentials
 						</Button>
 						{apiResponses[15] && (
@@ -1118,13 +1093,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 16: Call Resume Endpoint"
-						icon={<FiCheckCircle />}
+						icon={<span>✅</span>}
 						theme="green"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Get Authorization Code</InfoTitle>
 								<InfoText>
 									After successful authentication and MFA, call the resume endpoint to get the
@@ -1133,7 +1107,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
-							{isLoading ? <FiRefreshCw /> : <FiCheckCircle />}
+							{isLoading ? <span>🔄</span>: <span>✅</span>}
 							Call Resume Endpoint
 						</Button>
 						{apiResponses[16] && (
@@ -1142,8 +1116,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<JSONHighlighter data={apiResponses[16]} />
 								{authorizationCode && (
 									<InfoBox $variant="success">
-										<FiCheckCircle />
-										<div>
+										<span>✅</span><div>
 											<InfoTitle>Authorization Code:</InfoTitle>
 											<InfoText>{String(authorizationCode)}</InfoText>
 										</div>
@@ -1158,13 +1131,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 17: Generate Access Token"
-						icon={<FiKey />}
+						icon={<span>🔑</span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<FiInfo />
-							<div>
+							<span>ℹ️</span><div>
 								<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
 								<InfoText>
 									Exchange the code for access token, refresh token, and ID token.
@@ -1172,7 +1144,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
-							{isLoading ? <FiRefreshCw /> : <FiKey />}
+							{isLoading ? <span>🔄</span>: <span>🔑</span>}
 							Generate Access Token
 						</Button>
 						{apiResponses[17] && (
@@ -1188,13 +1160,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Steps 18-20: Flow Complete"
-						icon={<FiCheckCircle />}
+						icon={<span>✅</span>}
 						theme="green"
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="success">
-							<FiCheckCircle />
-							<div>
+							<span>✅</span><div>
 								<InfoTitle>Flow Completed Successfully</InfoTitle>
 								<InfoText>
 									The authorization code flow with MFA has been completed. All tokens received.

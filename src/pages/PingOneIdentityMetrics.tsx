@@ -4,16 +4,6 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // Updated with unified worker token management
 // Cache bust: 2025-02-17-11:32
 
-import {
-	FiAlertCircle,
-	FiBarChart2,
-	FiCalendar,
-	FiClock,
-	FiDatabase,
-	FiInfo,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
@@ -591,8 +581,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 		<div style={styles.pageContainer}>
 			<div style={styles.headerCard}>
 				<div style={styles.titleRow}>
-					<FiBarChart2 size={24} />
-					<h1 style={styles.title}>PingOne Identity Counts</h1>
+					<span>[FiBarChart2]</span><h1 style={styles.title}>PingOne Identity Counts</h1>
 				</div>
 				<p style={styles.subtitle}>
 					Query PingOne active identity counts with time-series data and sampling periods. Requires{' '}
@@ -601,8 +590,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 				{!hasWorkerToken && (
 					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-							<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-							<div style={{ flex: 1 }}>
+							<span>⚠️</span><div style={{ flex: 1 }}>
 								<strong>Worker Token Required</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
 									Click "Get Worker Token" below to generate a token with your PingOne credentials.
@@ -616,7 +604,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 			<div style={styles.layoutGrid}>
 				<div style={styles.card}>
 					<h2 style={styles.sectionTitle}>
-						<FiShield /> Authentication & Worker Token
+						<span>🛡️</span>Authentication & Worker Token
 					</h2>
 
 					<WorkerTokenSectionV8 compact />
@@ -637,7 +625,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 				<div style={styles.card}>
 					<h2 style={styles.sectionTitle}>
-						<FiCalendar /> Metrics Configuration
+						<span>[FiCalendar]</span>Metrics Configuration
 					</h2>
 
 					<div style={styles.fieldGroup}>
@@ -769,24 +757,23 @@ const PingOneIdentityMetrics: React.FC = () => {
 						>
 							{loading ? (
 								<>
-									<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} /> Fetching…
+									<span>🔄</span>Fetching…
 								</>
 							) : (
 								<>
-									<FiBarChart2 /> Retrieve counts
+									<span>[FiBarChart2]</span>Retrieve counts
 								</>
 							)}
 						</button>
 
 						<button type="button" style={styles.secondaryButton} onClick={resetDates}>
-							<FiClock /> Reset dates
+							<span>⏰</span>Reset dates
 						</button>
 					</div>
 
 					{error && (
 						<div style={styles.errorBanner}>
-							<FiInfo size={18} style={{ marginTop: '0.2rem' }} />
-							<span>{error}</span>
+							<span>ℹ️</span><span>{error}</span>
 						</div>
 					)}
 
@@ -802,7 +789,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 										}}
 									>
 										<h2 style={styles.sectionTitle}>
-											<FiBarChart2 /> Summary Statistics
+											<span>[FiBarChart2]</span>Summary Statistics
 										</h2>
 										<div
 											style={{
@@ -940,7 +927,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: 'V9_COLORS.TEXT.WHITE' }}>
 									<h2 style={styles.sectionTitle}>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
-											<FiDatabase /> Full API Response
+											<span>[FiDatabase]</span>Full API Response
 										</div>
 										{formattedMetrics && (
 											<div
@@ -1017,8 +1004,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 							</>
 						) : (
 							<div style={styles.emptyState}>
-								<FiBarChart2 size={22} />
-								<span>Run the request to see active identity counts returned by PingOne.</span>
+								<span>[FiBarChart2]</span><span>Run the request to see active identity counts returned by PingOne.</span>
 							</div>
 						)}
 					</div>
@@ -1036,8 +1022,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 						onKeyDown={(e) => e.key === 'Escape' && setShowPermissionsErrorModal(false)}
 					>
 						<h2 style={styles.permissionsModalTitle}>
-							<FiAlertCircle size={24} style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-							403 Forbidden - Missing Roles
+							<span>⚠️</span>403 Forbidden - Missing Roles
 						</h2>
 						<p style={styles.permissionsModalMessage}>
 							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a

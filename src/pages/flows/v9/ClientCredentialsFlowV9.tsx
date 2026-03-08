@@ -3,18 +3,6 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-} from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -421,10 +409,9 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.credentials}
 						>
 							<CollapsibleTitle>
-								<FiSettings /> Credentials & Configuration
+								<span>⚙️</span>Credentials & Configuration
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.credentials && (
 							<CollapsibleContent>
 								<CompactAppPickerV8U
@@ -491,15 +478,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.authMethod}
 						>
 							<CollapsibleTitle>
-								<FiShield /> Authentication Method
+								<span>🛡️</span>Authentication Method
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.authMethod && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
+									<span>ℹ️</span><div>
 										<InfoTitle>
 											<LearningTooltip
 												variant="learning"
@@ -573,7 +558,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 											});
 										}}
 									>
-										<FiKey />{' '}
+										<span>🔑</span>{' '}
 										<LearningTooltip
 											variant="learning"
 											title="client_secret_post"
@@ -600,7 +585,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 											});
 										}}
 									>
-										<FiShield />{' '}
+										<span>🛡️</span>{' '}
 										<LearningTooltip
 											variant="learning"
 											title="client_secret_basic"
@@ -624,15 +609,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.tokenRequest}
 						>
 							<CollapsibleTitle>
-								<FiCode /> Token Request
+								<span>[FiCode]</span>Token Request
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.tokenRequest && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
+									<span>ℹ️</span><div>
 										<InfoTitle>
 											<LearningTooltip
 												variant="learning"
@@ -691,7 +674,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 										onClick={controller.requestToken}
 										loading={controller.isLoading}
 									>
-										<FiRefreshCw /> Request{' '}
+										<span>🔄</span>Request{' '}
 										<LearningTooltip
 											variant="learning"
 											title="Access Token"
@@ -729,17 +712,15 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.tokenResponse}
 						>
 							<CollapsibleTitle>
-								<FiCheckCircle /> Token Response
+								<span>✅</span>Token Response
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.tokenResponse && (
 							<CollapsibleContent>
 								{controller.tokens ? (
 									<>
 										<InfoBox $variant="success">
-											<FiCheckCircle size={20} />
-											<div>
+											<span>✅</span><div>
 												<InfoTitle>
 													<LearningTooltip
 														variant="learning"
@@ -796,8 +777,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 									</>
 								) : (
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
+										<span>⚠️</span><div>
 											<InfoTitle>No Token Received</InfoTitle>
 											<InfoText>
 												Complete the token request in step 2 to receive an access token.
@@ -818,15 +798,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.apiCall}
 						>
 							<CollapsibleTitle>
-								<FiExternalLink /> API Call
+								<span>🔗</span>API Call
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.apiCall && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
+									<span>ℹ️</span><div>
 										<InfoTitle>
 											Using the{' '}
 											<LearningTooltip
@@ -889,15 +867,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.introspection}
 						>
 							<CollapsibleTitle>
-								<FiShield /> Token Introspection
+								<span>🛡️</span>Token Introspection
 							</CollapsibleTitle>
-							<FiChevronDown />
-						</CollapsibleHeaderButton>
+							<span>🔽</span></CollapsibleHeaderButton>
 						{!collapsedSections.introspection && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
+									<span>ℹ️</span><div>
 										<InfoTitle>Token Validation</InfoTitle>
 										<InfoText>
 											<LearningTooltip
@@ -928,7 +904,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 										onClick={controller.introspectToken}
 										loading={controller.isLoading}
 									>
-										<FiShield /> Introspect Token
+										<span>🛡️</span>Introspect Token
 									</Button>
 								</ActionRow>
 
@@ -954,8 +930,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 				return (
 					<>
 						<InfoBox $variant="success">
-							<FiCheckCircle size={20} />
-							<div>
+							<span>✅</span><div>
 								<InfoTitle>
 									<LearningTooltip
 										variant="learning"
@@ -1022,7 +997,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 						{
 							id: 'client-credentials-overview',
 							title: 'Client Credentials Flow Overview',
-							icon: <FiInfo />,
+							icon: <span>ℹ️</span>,
 							summary: 'Machine-to-machine authentication without user interaction',
 							content: (
 								<div>
@@ -1054,7 +1029,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 						{
 							id: 'security-considerations',
 							title: 'Security Considerations',
-							icon: <FiShield />,
+							icon: <span>🛡️</span>,
 							summary: 'Client secret must be kept secure - never expose in frontend code',
 							content: (
 								<div>

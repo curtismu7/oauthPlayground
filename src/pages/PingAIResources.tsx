@@ -1,17 +1,6 @@
 // src/pages/PingAIResources.tsx
 // Ping Identity AI Resources - Comprehensive collection of AI-related documentation and resources
 
-import {
-	FiBookOpen,
-	FiCode,
-	FiCpu,
-	FiDatabase,
-	FiExternalLink,
-	FiHelpCircle,
-	FiShield,
-	FiTool,
-	FiUsers,
-} from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -134,8 +123,7 @@ const PingAIResources: React.FC = () => {
 
 				<Header>
 					<h1>
-						<FiCpu />
-						Ping Identity AI Resources
+						<span>[FiCpu]</span>Ping Identity AI Resources
 					</h1>
 					<p>
 						Comprehensive collection of Ping Identity's AI-related documentation, guides, and
@@ -146,7 +134,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Agent Types & Architecture"
 					subtitle="Understanding different types of AI agents and their identity requirements"
-					icon={<FiCpu />}
+					icon={<span>[FiCpu]</span>}
 					theme="purple"
 					defaultCollapsed={false}
 				>
@@ -158,20 +146,17 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiDatabase />
-								</div>
+									<span>[FiDatabase]</span></div>
 								<h3>
 									Types of Agents
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Comprehensive guide to different types of AI agents and their specific identity
 									and authentication requirements. Learn about agent architectures, capabilities,
 									and how OAuth/OIDC applies to each type.
 								</p>
 								<span className="external-link">
-									View Document <FiExternalLink size={14} />
-								</span>
+									View Document <span>🔗</span></span>
 							</ResourceCard>
 						</ResourceGrid>
 					</Card>
@@ -180,7 +165,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Identity Documentation"
 					subtitle="Official Ping Identity documentation for AI-powered identity solutions"
-					icon={<FiBookOpen />}
+					icon={<span>📖</span>}
 					theme="blue"
 					defaultCollapsed={false}
 				>
@@ -192,19 +177,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiBookOpen />
-								</div>
+									<span>📖</span></div>
 								<h3>
 									PingOne AI-Powered Identity
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Official PingOne documentation for AI-powered identity solutions, including
 									configuration, best practices, and implementation guides.
 								</p>
 								<span className="external-link">
-									View Documentation <FiExternalLink size={14} />
-								</span>
+									View Documentation <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -213,19 +195,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCode />
-								</div>
+									<span>[FiCode]</span></div>
 								<h3>
 									Identity for AI Developer Guide
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Developer-focused guide for implementing identity solutions in AI applications,
 									including code samples, API references, and integration patterns.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -234,19 +213,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCpu />
-								</div>
+									<span>[FiCpu]</span></div>
 								<h3>
 									Ping on AI Group (Atlassian Wiki)
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Internal Ping Identity wiki page covering AI group perspectives, strategies, and
 									resources for AI-powered identity solutions.
 								</p>
 								<span className="external-link">
-									View Wiki <FiExternalLink size={14} />
-								</span>
+									View Wiki <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -255,19 +231,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCpu />
-								</div>
+									<span>[FiCpu]</span></div>
 								<h3>
 									AI Identity Architecture Diagram
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Visual architecture diagram showing AI identity system components, flows, and
 									integration patterns in Lucidchart.
 								</p>
 								<span className="external-link">
-									View Diagram <FiExternalLink size={14} />
-								</span>
+									View Diagram <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -276,19 +249,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCpu />
-								</div>
+									<span>[FiCpu]</span></div>
 								<h3>
 									AI Identity Flow Diagram
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Detailed flow diagram illustrating AI identity authentication and authorization
 									processes in Lucidchart.
 								</p>
 								<span className="external-link">
-									View Diagram <FiExternalLink size={14} />
-								</span>
+									View Diagram <span>🔗</span></span>
 							</ResourceCard>
 						</ResourceGrid>
 					</Card>
@@ -297,7 +267,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Security & Best Practices"
 					subtitle="Security considerations and best practices for AI identity implementations"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					theme="red"
 					defaultCollapsed={false}
 				>
@@ -309,19 +279,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiShield />
-								</div>
+									<span>🛡️</span></div>
 								<h3>
 									Adaptive Authentication
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Learn how PingOne uses AI and machine learning to provide adaptive authentication,
 									dynamically adjusting security measures based on risk assessment.
 								</p>
 								<span className="external-link">
-									View Documentation <FiExternalLink size={14} />
-								</span>
+									View Documentation <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -330,19 +297,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiShield />
-								</div>
+									<span>🛡️</span></div>
 								<h3>
 									AI Identity Security Best Practices
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Security best practices and guidelines for implementing identity solutions in
 									AI-powered applications and protecting AI systems from identity-based attacks.
 								</p>
 								<span className="external-link">
-									View Article <FiExternalLink size={14} />
-								</span>
+									View Article <span>🔗</span></span>
 							</ResourceCard>
 						</ResourceGrid>
 					</Card>
@@ -351,7 +315,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="Agentic AI & Identity"
 					subtitle="Resources for understanding and implementing agentic AI with proper identity management"
-					icon={<FiUsers />}
+					icon={<span>👥</span>}
 					theme="green"
 					defaultCollapsed={false}
 				>
@@ -363,19 +327,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiUsers />
-								</div>
+									<span>👥</span></div>
 								<h3>
 									Agentic AI Guide
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Comprehensive guide to agentic AI, understanding how autonomous AI agents work and
 									how identity and access management applies to agentic AI systems.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 						</ResourceGrid>
 					</Card>
@@ -384,7 +345,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="Ping Identity Developer Resources"
 					subtitle="Essential Ping Identity documentation, APIs, SDKs, and configuration guides"
-					icon={<FiTool />}
+					icon={<span>🔧</span>}
 					theme="orange"
 					defaultCollapsed={false}
 				>
@@ -396,20 +357,17 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCode />
-								</div>
+									<span>[FiCode]</span></div>
 								<h3>
 									PingOne API Documentation
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Complete API reference for PingOne authentication services, including OAuth 2.0
 									and OpenID Connect endpoints, request/response formats, and authentication
 									methods.
 								</p>
 								<span className="external-link">
-									View API Docs <FiExternalLink size={14} />
-								</span>
+									View API Docs <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -418,19 +376,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiCode />
-								</div>
+									<span>[FiCode]</span></div>
 								<h3>
 									PingOne SDKs
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Official PingOne SDKs for multiple programming languages and platforms, including
 									JavaScript, Python, Java, .NET, and mobile SDKs for iOS and Android.
 								</p>
 								<span className="external-link">
-									View SDKs <FiExternalLink size={14} />
-								</span>
+									View SDKs <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -439,19 +394,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiShield />
-								</div>
+									<span>🛡️</span></div>
 								<h3>
 									PingOne OAuth 2.0 Documentation
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Comprehensive guide to configuring and implementing OAuth 2.0 with PingOne,
 									including grant types, token management, and security best practices.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -460,19 +412,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiShield />
-								</div>
+									<span>🛡️</span></div>
 								<h3>
 									PingOne OpenID Connect Documentation
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Complete OpenID Connect implementation guide for PingOne, covering ID tokens, user
 									information, discovery, and OIDC-specific features.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -481,19 +430,16 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiTool />
-								</div>
+									<span>🔧</span></div>
 								<h3>
 									Configure OAuth/OpenID Connect
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Step-by-step configuration guide for setting up OAuth 2.0 and OpenID Connect in
 									PingOne, including application creation, scope configuration, and endpoint setup.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -502,20 +448,17 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiShield />
-								</div>
+									<span>🛡️</span></div>
 								<h3>
 									PingOne SSO Configuration Guide
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Complete guide to configuring Single Sign-On (SSO) with PingOne, including
 									application integration, identity provider setup, and user experience
 									configuration.
 								</p>
 								<span className="external-link">
-									View Guide <FiExternalLink size={14} />
-								</span>
+									View Guide <span>🔗</span></span>
 							</ResourceCard>
 
 							<ResourceCard
@@ -524,27 +467,23 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<FiHelpCircle />
-								</div>
+									<span>[FiHelpCircle]</span></div>
 								<h3>
 									Ping Identity Support
-									<FiExternalLink size={16} />
-								</h3>
+									<span>🔗</span></h3>
 								<p>
 									Access Ping Identity's support portal for technical assistance, knowledge base
 									articles, community forums, and support ticket submission.
 								</p>
 								<span className="external-link">
-									Visit Support <FiExternalLink size={14} />
-								</span>
+									Visit Support <span>🔗</span></span>
 							</ResourceCard>
 						</ResourceGrid>
 					</Card>
 				</CollapsibleHeader>
 
 				<InfoBox $variant="info" style={{ marginTop: '2rem' }}>
-					<FiCpu size={20} />
-					<div>
+					<span>[FiCpu]</span><div>
 						<strong>Getting Started:</strong> Begin with the "Types of Agents" document to
 						understand different AI agent architectures. Then explore the PingOne AI-powered
 						identity documentation for implementation guidance and best practices. Use the developer

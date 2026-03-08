@@ -5,17 +5,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // Uses response_mode=pi.flow for server-to-server token exchange
 // Enhanced with fresh PKCE generation and improved error handling
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCode,
-	FiExternalLink,
-	FiEye,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -1103,8 +1092,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
-								Authorization URL with response_mode=pi.flow (V9)
+								<span>🔗</span>Authorization URL with response_mode=pi.flow (V9)
 							</h3>
 							<div
 								style={{
@@ -1175,8 +1163,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiEye />
-								Mock Custom Login UI (What Your Users Would See) - V9
+								<span>[FiEye]</span>Mock Custom Login UI (What Your Users Would See) - V9
 							</h3>
 							<p style={{ margin: '0 0 1.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								This is what your custom authentication UI might look like. Instead of redirecting
@@ -1316,8 +1303,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiCheckCircle />
-								Direct Token Response (No Redirect!) - V9
+								<span>✅</span>Direct Token Response (No Redirect!) - V9
 							</h3>
 							<p style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>
 								Instead of a redirect, PingOne returns tokens directly in the API response:
@@ -1379,7 +1365,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					<>
 						<CollapsibleHeader
 							title="PKCE Parameters (V9 Enhanced)"
-							icon={<FiCheckCircle />}
+							icon={<span>✅</span>}
 							defaultCollapsed={shouldCollapseAll}
 						>
 							<div style={{ marginBottom: '1rem' }}>
@@ -1412,7 +1398,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								{controller.pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiRefreshCw />}{' '}
+								{controller.pkceCodes.codeVerifier ? <span>✅</span>: <span>🔄</span>}{' '}
 								{controller.pkceCodes.codeVerifier
 									? 'PKCE Parameters Generated'
 									: 'Generate PKCE Parameters'}
@@ -1464,7 +1450,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 						<CollapsibleHeader
 							title="Authorization URL Generation (V9)"
-							icon={<FiCheckCircle />}
+							icon={<span>✅</span>}
 							defaultCollapsed={shouldCollapseAll}
 						>
 							<div style={{ marginBottom: '1rem' }}>
@@ -1500,7 +1486,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								{controller.authUrl ? <FiCheckCircle /> : <FiCode />}{' '}
+								{controller.authUrl ? <span>✅</span>: <span>[FiCode]</span>}{' '}
 								{controller.authUrl ? 'Authorization URL Generated' : 'Generate Authorization URL'}
 								<HighlightBadge>2</HighlightBadge>
 							</button>
@@ -1541,7 +1527,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												gap: '0.5rem',
 											}}
 										>
-											<FiExternalLink /> Open Authorization URL
+											<span>🔗</span>Open Authorization URL
 										</button>
 									</div>
 								</div>
@@ -1554,7 +1540,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Token Exchange (V9 Enhanced)"
-						icon={<FiRefreshCw />}
+						icon={<span>🔄</span>}
 						defaultCollapsed={shouldCollapseAll}
 					>
 						<div style={{ marginBottom: '1rem' }}>
@@ -1580,13 +1566,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							>
 								{isLoading || isAuthenticating ? (
 									<>
-										<FiRefreshCw className="animate-spin" />
-										{isLoading ? 'Starting Flow...' : 'Authenticating...'}
+										<span>🔄</span>{isLoading ? 'Starting Flow...' : 'Authenticating...'}
 									</>
 								) : (
 									<>
-										<FiShield />
-										Start Redirectless Authentication
+										<span>🛡️</span>Start Redirectless Authentication
 									</>
 								)}
 							</SignInButton>
@@ -1642,8 +1626,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							</div>
 						) : (
 							<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-								<FiInfo style={{ marginBottom: '0.5rem' }} />
-								<p>Complete the token exchange step to receive tokens</p>
+								<span>ℹ️</span><p>Complete the token exchange step to receive tokens</p>
 							</div>
 						)}
 					</CollapsibleHeader>
@@ -1653,7 +1636,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Token Management (V9)"
-						icon={<FiEye />}
+						icon={<span>[FiEye]</span>}
 						defaultCollapsed={shouldCollapseAll}
 					>
 						<div style={{ marginBottom: '1rem' }}>
@@ -1680,7 +1663,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiEye /> Token Management
+							<span>[FiEye]</span>Token Management
 							<HighlightBadge>1</HighlightBadge>
 						</button>
 
@@ -1746,7 +1729,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				{apiCalls.length > 0 && (
 					<StepSection>
 						<ExplanationHeading>
-							<FiCode /> API Calls & Responses (V9)
+							<span>[FiCode]</span>API Calls & Responses (V9)
 						</ExplanationHeading>
 						<ExplanationSection>
 							<HelperText>
@@ -1805,8 +1788,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				<LoginFormOverlay>
 					<LoginFormModal>
 						<LoginFormTitle>
-							<FiShield style={{ marginRight: '0.5rem' }} />
-							Sign In to Continue
+							<span>🛡️</span>Sign In to Continue
 						</LoginFormTitle>
 
 						<div
@@ -1870,8 +1852,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiAlertCircle style={{ flexShrink: 0 }} />
-								<span>{_error}</span>
+								<span>⚠️</span><span>{_error}</span>
 							</div>
 						)}
 
@@ -1907,13 +1888,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							>
 								{isAuthenticating ? (
 									<>
-										<FiRefreshCw className="animate-spin" />
-										Authenticating...
+										<span>🔄</span>Authenticating...
 									</>
 								) : (
 									<>
-										<FiKey />
-										Sign In
+										<span>🔑</span>Sign In
 									</>
 								)}
 							</LoginFormButton>

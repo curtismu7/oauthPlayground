@@ -3,19 +3,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // SAML 2.0 Service Provider Flow with Dynamic ACS URL Support
 // Demonstrates PingOne's new "Always accept ACS URL in signed SAML 2.0 AuthnRequest" feature
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiGlobe,
-	FiInfo,
-	FiPackage,
-	FiRefreshCw,
-	FiSave,
-	FiSend,
-	FiSettings,
-	FiShield,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -700,13 +687,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="SAML SP Configuration"
-				icon={<FiSettings />}
+				icon={<span>⚙️</span>}
 				defaultCollapsed={collapsedSections.config}
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<FiInfo size={20} />
-					<div>
+					<span>ℹ️</span><div>
 						<InfoTitle>SAML 2.0 Service Provider Configuration</InfoTitle>
 						<InfoText>
 							Configure your SAML SP application settings. The new PingOne feature allows accepting
@@ -781,8 +767,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						<CheckboxLabel htmlFor="enableDynamicAcs">
 							<strong>Always accept ACS URL in signed SAML 2.0 AuthnRequest</strong>
 							<TooltipIcon title="PingOne only honors the embedded ACS URL when this toggle is on and the AuthnRequest signature matches the configured IdP certificate.">
-								<FiInfo size={16} />
-							</TooltipIcon>
+								<span>ℹ️</span></TooltipIcon>
 						</CheckboxLabel>
 						<Helper style={{ marginTop: '0.25rem' }}>
 							When enabled, the SP will accept ACS URLs specified in signed AuthnRequests, even if
@@ -792,8 +777,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				</CheckboxGroup>
 
 				<InfoBox $variant="warning" style={{ marginTop: '1.5rem' }}>
-					<FiAlertTriangle size={20} />
-					<div>
+					<span>⚠️</span><div>
 						<InfoTitle>PingOne configuration checklist</InfoTitle>
 						<InfoText>
 							Make sure these settings are in place before testing dynamic ACS URLs:
@@ -821,7 +805,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					}}
 				>
 					<Button onClick={handleSaveConfiguration} $variant="primary" disabled={isSaving}>
-						{isSaving ? <FiRefreshCw className="animate-spin" /> : <FiSave />}
+						{isSaving ? <span>🔄</span>: <span>[FiSave]</span>}
 						{isSaving ? 'Saving...' : 'Save Configuration'}
 					</Button>
 					{hasSavedConfig && lastSavedAt && (
@@ -837,13 +821,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	const renderPingOneSetup = () => (
 		<CollapsibleHeader
 			title="PingOne Console Setup"
-			icon={<FiShield />}
+			icon={<span>🛡️</span>}
 			defaultCollapsed={collapsedSections.pingoneSetup}
 			showArrow={true}
 		>
 			<InfoBox $variant="info">
-				<FiInfo size={20} />
-				<div>
+				<span>ℹ️</span><div>
 					<InfoTitle>Sync with PingOne SAML Application</InfoTitle>
 					<InfoText>
 						Use your PingOne admin credentials to load or update the SAML application that should
@@ -910,11 +893,11 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			<Button onClick={handleSavePingOneAdmin} $variant="primary" disabled={isSavingAdmin}>
 				{isSavingAdmin ? (
 					<>
-						<FiRefreshCw className="rotate" /> Saving…
+						<span>🔄</span>Saving…
 					</>
 				) : (
 					<>
-						<FiSave /> Save Admin Credentials
+						<span>[FiSave]</span>Save Admin Credentials
 					</>
 				)}
 			</Button>
@@ -922,8 +905,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			<SectionDivider />
 
 			<InfoBox $variant="warning">
-				<FiAlertTriangle size={20} />
-				<div>
+				<span>⚠️</span><div>
 					<InfoTitle>PingOne Application</InfoTitle>
 					<InfoText>
 						Enter the SAML application ID you want to manage. Once loaded you can verify or toggle
@@ -954,11 +936,11 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				>
 					{isFetchingPingOneApp ? (
 						<>
-							<FiRefreshCw className="rotate" /> Loading…
+							<span>🔄</span>Loading…
 						</>
 					) : (
 						<>
-							<FiGlobe /> Load Application
+							<span>🌐</span>Load Application
 						</>
 					)}
 				</Button>
@@ -969,11 +951,11 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				>
 					{isSyncingPingOne ? (
 						<>
-							<FiRefreshCw className="rotate" /> Updating…
+							<span>🔄</span>Updating…
 						</>
 					) : (
 						<>
-							<FiSend /> Sync Dynamic ACS Toggle
+							<span>➡️</span>Sync Dynamic ACS Toggle
 						</>
 					)}
 				</Button>
@@ -1008,14 +990,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="SAML AuthnRequest Processing"
-				icon={<FiSend />}
+				icon={<span>➡️</span>}
 				theme="blue"
 				defaultCollapsed={collapsedSections.authnRequest}
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<FiGlobe size={20} />
-					<div>
+					<span>🌐</span><div>
 						<InfoTitle>SAML AuthnRequest with Dynamic ACS URL</InfoTitle>
 						<InfoText>
 							The AuthnRequest contains an embedded ACS URL. With the new PingOne feature enabled,
@@ -1036,14 +1017,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 					<Button onClick={generateSampleAuthnRequest} $variant="secondary">
-						<FiRefreshCw /> Generate Sample AuthnRequest
+						<span>🔄</span>Generate Sample AuthnRequest
 					</Button>
 					<Button
 						onClick={processAuthnRequest}
 						$variant="primary"
 						disabled={!authnRequestXml.trim() || isProcessing}
 					>
-						{isProcessing ? <FiRefreshCw className="animate-spin" /> : <FiSend />}
+						{isProcessing ? <span>🔄</span>: <span>➡️</span>}
 						{isProcessing ? 'Processing...' : 'Process AuthnRequest'}
 					</Button>
 				</div>
@@ -1052,7 +1033,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			{parsedAuthnRequest && (
 				<CollapsibleHeader
 					title="✅ Parsed AuthnRequest"
-					icon={<FiCheckCircle />}
+					icon={<span>✅</span>}
 					theme="green"
 					defaultCollapsed={false}
 					showArrow={true}
@@ -1089,13 +1070,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			{validationResult && (
 				<CollapsibleHeader
 					title="ACS URL Validation"
-					icon={<FiShield />}
+					icon={<span>🛡️</span>}
 					theme={validationResult.isValid ? 'green' : 'orange'}
 					defaultCollapsed={collapsedSections.validation}
 					showArrow={true}
 				>
 					<InfoBox $variant={validationResult.isValid ? 'success' : 'warning'}>
-						{validationResult.isValid ? <FiCheckCircle size={20} /> : <FiAlertTriangle size={20} />}
+						{validationResult.isValid ? <span>✅</span>: <span>⚠️</span>}
 						<div>
 							<InfoTitle>
 								{validationResult.isValid ? 'ACS URL Accepted' : 'ACS URL Validation Issues'}
@@ -1183,13 +1164,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			{validationResult?.isValid && (
 				<CollapsibleHeader
 					title="Generate SAML Response"
-					icon={<FiPackage />}
+					icon={<span>📦</span>}
 					defaultCollapsed={collapsedSections.response}
 					showArrow={true}
 				>
 					<InfoBox $variant="info">
-						<FiPackage size={20} />
-						<div>
+						<span>📦</span><div>
 							<InfoTitle>SAML Response Generation</InfoTitle>
 							<InfoText>
 								Generate a SAML Response to complete the authentication flow. The response will be
@@ -1200,7 +1180,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 					<div style={{ marginBottom: '1rem' }}>
 						<Button onClick={generateSamlResponse} $variant="success">
-							<FiPackage /> Generate SAML Response
+							<span>📦</span>Generate SAML Response
 						</Button>
 					</div>
 
@@ -1236,7 +1216,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 									$variant="secondary"
 									style={{ fontSize: '0.75rem' }}
 								>
-									<FiCopy /> Copy Response
+									<span>📋</span>Copy Response
 								</Button>
 							</div>
 						</GeneratedContentBox>

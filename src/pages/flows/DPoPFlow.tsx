@@ -3,18 +3,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // DPoP (Demonstration of Proof-of-Possession) Flow - Educational/Mock Implementation
 // RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
 
-import {
-	FiAlertTriangle,
-	FiBook,
-	FiCheckCircle,
-	FiCopy,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSend,
-	FiShield,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
@@ -335,8 +323,7 @@ const DPoPFlow: React.FC = () => {
 
 			<WarningBox>
 				<WarningIcon>
-					<FiAlertTriangle />
-				</WarningIcon>
+					<span>⚠️</span></WarningIcon>
 				<WarningContent>
 					<h4>Educational/Mock Implementation</h4>
 					<p>
@@ -351,7 +338,7 @@ const DPoPFlow: React.FC = () => {
 			<CollapsibleHeader
 				title="What is DPoP?"
 				theme="blue"
-				icon={<FiBook />}
+				icon={<span>📚</span>}
 				defaultExpanded={true}
 			>
 				<MainCard>
@@ -389,8 +376,7 @@ const DPoPFlow: React.FC = () => {
 
 						<InfoBox>
 							<InfoIcon>
-								<FiInfo />
-							</InfoIcon>
+								<span>ℹ️</span></InfoIcon>
 							<InfoContent>
 								<h4>How DPoP Works</h4>
 								<p>
@@ -408,7 +394,7 @@ const DPoPFlow: React.FC = () => {
 			<CollapsibleHeader
 				title="Step 1: Generate DPoP Key Pair"
 				theme="green"
-				icon={<FiKey />}
+				icon={<span>🔑</span>}
 				defaultExpanded={true}
 			>
 				<MainCard>
@@ -422,11 +408,11 @@ const DPoPFlow: React.FC = () => {
 						<ActionButton onClick={handleGenerateKeyPair} disabled={isGenerating}>
 							{isGenerating ? (
 								<>
-									<FiRefreshCw /> Generating...
+									<span>🔄</span>Generating...
 								</>
 							) : (
 								<>
-									<FiKey /> Generate DPoP Key Pair
+									<span>🔑</span>Generate DPoP Key Pair
 								</>
 							)}
 						</ActionButton>
@@ -446,16 +432,14 @@ const DPoPFlow: React.FC = () => {
 												handleCopyCode(JSON.stringify(keyPair.jwk, null, 2), 'Public Key JWK')
 											}
 										>
-											<FiCopy size={12} />
-											Copy
+											<span>📋</span>Copy
 										</CopyButton>
 									</CodeBlockHeader>
 									<CodeBlock>{JSON.stringify(keyPair.jwk, null, 2)}</CodeBlock>
 								</KeyPairInfo>
 								<InfoBox>
 									<InfoIcon>
-										<FiInfo />
-									</InfoIcon>
+										<span>ℹ️</span></InfoIcon>
 									<InfoContent>
 										<p>
 											<strong>Note:</strong> The private key is kept secret and never shared. Only
@@ -488,8 +472,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`,
 									)
 								}
 							>
-								<FiCopy size={12} />
-								Copy
+								<span>📋</span>Copy
 							</CopyButton>
 						</CodeBlockHeader>
 						<CodeBlock>{`// Generate DPoP key pair
@@ -511,7 +494,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 			<CollapsibleHeader
 				title="Step 2: Create DPoP Proof"
 				theme="blue"
-				icon={<FiShield />}
+				icon={<span>🛡️</span>}
 				defaultExpanded={true}
 			>
 				<MainCard>
@@ -559,11 +542,11 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 						<ActionButton onClick={handleCreateProof} disabled={isCreatingProof || !keyPair}>
 							{isCreatingProof ? (
 								<>
-									<FiRefreshCw /> Creating Proof...
+									<span>🔄</span>Creating Proof...
 								</>
 							) : (
 								<>
-									<FiShield /> Create DPoP Proof
+									<span>🛡️</span>Create DPoP Proof
 								</>
 							)}
 						</ActionButton>
@@ -613,8 +596,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 											handleCopyCode(JSON.stringify(decoded, null, 2), 'Decoded proof');
 										}}
 									>
-										<FiCopy size={12} />
-										Copy
+										<span>📋</span>Copy
 									</CopyButton>
 								</CodeBlockHeader>
 								<CodeBlock>
@@ -648,7 +630,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 			<CollapsibleHeader
 				title="Step 3: Use DPoP Proof in API Request"
 				theme="highlight"
-				icon={<FiSend />}
+				icon={<span>➡️</span>}
 				defaultExpanded={true}
 			>
 				<MainCard>
@@ -669,8 +651,7 @@ DPoP: ${proof.jwt}`;
 										handleCopyCode(request, 'API request');
 									}}
 								>
-									<FiCopy size={12} />
-									Copy
+									<span>📋</span>Copy
 								</CopyButton>
 							</CodeBlockHeader>
 						)}
@@ -700,8 +681,7 @@ const response = await fetch('${httpUri}', {
 									handleCopyCode(code, 'Fetch example');
 								}}
 							>
-								<FiCopy size={12} />
-								Copy
+								<span>📋</span>Copy
 							</CopyButton>
 						</CodeBlockHeader>
 						<CodeBlock>{`// Make API request with DPoP proof
@@ -720,7 +700,7 @@ const response = await fetch('${httpUri}', {
 			<CollapsibleHeader
 				title="DPoP Integration with OAuth Flows"
 				theme="orange"
-				icon={<FiGlobe />}
+				icon={<span>🌐</span>}
 				defaultExpanded={false}
 			>
 				<MainCard>
@@ -754,8 +734,7 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`;
 									handleCopyCode(code, 'Token request with DPoP');
 								}}
 							>
-								<FiCopy size={12} />
-								Copy
+								<span>📋</span>Copy
 							</CopyButton>
 						</CodeBlockHeader>
 						<CodeBlock>{`POST https://auth.pingone.com/{environmentId}/as/token
@@ -776,8 +755,7 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 
 						<InfoBox>
 							<InfoIcon>
-								<FiInfo />
-							</InfoIcon>
+								<span>ℹ️</span></InfoIcon>
 							<InfoContent>
 								<h4>PingOne Support</h4>
 								<p>
@@ -794,7 +772,7 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 			<CollapsibleHeader
 				title="Security Benefits Summary"
 				theme="green"
-				icon={<FiCheckCircle />}
+				icon={<span>✅</span>}
 				defaultExpanded={false}
 			>
 				<MainCard>

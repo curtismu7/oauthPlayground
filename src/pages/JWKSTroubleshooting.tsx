@@ -1,18 +1,10 @@
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiCopy,
-	FiExternalLink,
-	FiPlay,
-} from '@icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -312,16 +304,35 @@ const Link = styled.a`
 `;
 
 interface CommandResult {
-	command: string;
-	output: string;
-	status: 'success' | 'error';
-	timestamp: Date;
-}
+command: string;
+output: string;
+status: 'success' | 'error';
+timestamp: Date;
+};
+
+const log = createModuleLogger('src/pages/JWKSTroubleshooting.tsx');
 
 const JWKSTroubleshooting: React.FC = () => {
-	const environmentInputId = useId();
-	const [environmentId, setEnvironmentId] = useState(() => {
-		// Auto-populate from worker token credentials
+const environmentInputId = useId();
+const [environmentId, setEnvironmentId] = useState(() => {
+// Auto-populate from worker token credentials
+try {
+// Try synchronous check from localStorage for worker token credentials
+const stored = localStorage.getItem('unified_worker_token');
+if (stored) {
+const data = JSON.parse(stored);
+if (data.credentials?.environmentId) {
+return data.credentials.environmentId;
+}
+}
+} catch {
+return '';
+}
+return '';
+});
+const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
+const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
+const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 		try {
 			// Try synchronous check from localStorage for worker token credentials
 			const stored = localStorage.getItem('unified_worker_token');
