@@ -425,18 +425,18 @@ const URLDecoder: React.FC = () => {
 						{isDecoding ? (
 							<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} />
 						) : (
-							<FiSearch />
+							🔍
 						)}
 						{isDecoding ? 'Decoding...' : 'Decode URL'}
 					</Button>
 
 					<Button onClick={loadSample} $variant="secondary">
-						<FiLink />
+						🔗
 						Load Sample
 					</Button>
 
 					<Button onClick={clearAll} $variant="danger">
-						<FiRefreshCw />
+						🔄
 						Clear All
 					</Button>
 				</ButtonGroup>
@@ -446,7 +446,7 @@ const URLDecoder: React.FC = () => {
 				<ContentCard>
 					<CardHeader>
 						<CardTitle>
-							<FiCheck />
+							✅
 							Decoded Result
 						</CardTitle>
 						<CardDescription>
@@ -464,7 +464,7 @@ const URLDecoder: React.FC = () => {
 
 					<ButtonGroup>
 						<Button onClick={copyResult} $variant="success">
-							<FiCopy />
+							📋
 							Copy Result
 						</Button>
 					</ButtonGroup>
@@ -474,7 +474,7 @@ const URLDecoder: React.FC = () => {
 			<ContentCard>
 				<CardHeader>
 					<CardTitle>
-						<FiAlertTriangle />
+						⚠️
 						Usage Tips
 					</CardTitle>
 					<CardDescription>
@@ -486,7 +486,7 @@ const URLDecoder: React.FC = () => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<FiAlertTriangle />
+						⚠️
 						<strong>Security Note:</strong>
 					</div>
 					<p style={{ margin: 0 }}>
