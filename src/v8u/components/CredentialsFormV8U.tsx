@@ -5163,7 +5163,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												<option value="login">login (force authentication)</option>
 												<option value="consent">consent (force consent)</option>
 											</select>
-											<FiChevronDown className="select-icon" />
+											<span className="select-icon">▼</span>
 										</div>
 										<small>Contextualizes the re-authentication and consent experience</small>
 									</div>

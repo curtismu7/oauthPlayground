@@ -8,6 +8,8 @@ import {
 } from '../services/errorHandlingService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
+const log = createModuleLogger('ErrorBoundary');
+
 const ErrorContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -151,7 +153,7 @@ class ErrorBoundary extends Component<Props, State> {
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		// Log additional error context
-		log.error('ErrorBoundary', '[ErrorBoundary] Caught error:', {
+		log.error('[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
 			componentStack: errorInfo.componentStack,
@@ -197,12 +199,10 @@ class ErrorBoundary extends Component<Props, State> {
 						this.resetError();
 					})
 					.catch((recoveryError) => {
-						log.error(
-							'ErrorBoundary',
-							'[ErrorBoundary] Recovery action failed:',
-							undefined,
-							recoveryError as Error
-						);
+						log.error('[ErrorBoundary] Recovery action failed:', {
+							action: option.action,
+							recoveryError: recoveryError as Error
+						});
 						// Could show additional error message here
 					});
 			} else {
@@ -210,12 +210,10 @@ class ErrorBoundary extends Component<Props, State> {
 				this.resetError();
 			}
 		} catch (error) {
-			log.error(
-				'ErrorBoundary',
-				'[ErrorBoundary] Recovery action threw error:',
-				undefined,
-				error as Error
-			);
+			log.error('[ErrorBoundary] Recovery action threw error:', {
+				action: option.action,
+				error: error as Error
+			});
 			// Could show additional error message here
 		}
 	};
