@@ -2,25 +2,6 @@
 // Visual explorer for PingOne Audit Activities API
 // Cache bust: 2025-02-17-11:32viewer with filtering - matching Identity Metrics page design
 
-import {
-	FiActivity,
-	FiAlertCircle,
-	FiBarChart2,
-	FiCheck,
-	FiCheckCircle,
-	FiClock,
-	FiCopy,
-	FiDatabase,
-	FiEye,
-	FiFilter,
-	FiGlobe,
-	FiInfo,
-	FiRefreshCw,
-	FiServer,
-	FiShield,
-	FiUser,
-	FiX,
-} from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
@@ -942,8 +923,7 @@ const PingOneAuditActivities: React.FC = () => {
 		<div style={styles.pageContainer}>
 			<div style={styles.headerCard}>
 				<div style={styles.titleRow}>
-					<FiActivity size={24} />
-					<h1 style={styles.title}>PingOne Audit Activities</h1>
+					<span>[FiActivity]</span><h1 style={styles.title}>PingOne Audit Activities</h1>
 				</div>
 				<p style={styles.subtitle}>
 					Query and analyze audit events from your PingOne environment. Retrieve activities by ID,
@@ -953,8 +933,7 @@ const PingOneAuditActivities: React.FC = () => {
 				{!hasWorkerToken && (
 					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-							<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-							<div style={{ flex: 1 }}>
+							<span>⚠️</span><div style={{ flex: 1 }}>
 								<strong>Worker Token Required</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
 									Use the Worker Token section below to generate a token with your PingOne
@@ -969,7 +948,7 @@ const PingOneAuditActivities: React.FC = () => {
 			<div style={styles.layoutGrid}>
 				<div style={styles.card}>
 					<h2 style={styles.sectionTitle}>
-						<FiShield /> Authentication & Configuration
+						<span>🛡️</span>Authentication & Configuration
 					</h2>
 
 					<div style={styles.fieldGroup}>
@@ -1022,7 +1001,7 @@ const PingOneAuditActivities: React.FC = () => {
 					<div style={styles.buttonRow}>
 						{hasWorkerToken && (
 							<button style={styles.dangerButton} onClick={handleClearWorkerToken} type="button">
-								<FiX /> Clear Token
+								<span>❌</span>Clear Token
 							</button>
 						)}
 					</div>
@@ -1030,7 +1009,7 @@ const PingOneAuditActivities: React.FC = () => {
 
 				<div style={styles.card}>
 					<h2 style={styles.sectionTitle}>
-						<FiFilter /> Query Configuration
+						<span>[FiFilter]</span>Query Configuration
 					</h2>
 
 					<div style={styles.fieldGroup}>
@@ -1269,15 +1248,15 @@ const PingOneAuditActivities: React.FC = () => {
 						>
 							{loading ? (
 								<>
-									<FiRefreshCw className="spin" /> Fetching…
+									<span>🔄</span>Fetching…
 								</>
 							) : viewMode === 'single' ? (
 								<>
-									<FiEye /> Get Activity
+									<span>[FiEye]</span>Get Activity
 								</>
 							) : (
 								<>
-									<FiActivity /> Retrieve Activities
+									<span>[FiActivity]</span>Retrieve Activities
 								</>
 							)}
 						</button>
@@ -1297,14 +1276,13 @@ const PingOneAuditActivities: React.FC = () => {
 								}
 							}}
 						>
-							<FiX /> {viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
+							<span>❌</span>{viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
 						</button>
 					</div>
 
 					{error && (
 						<div style={styles.errorBanner}>
-							<FiInfo size={18} style={{ marginTop: '0.2rem' }} />
-							<span>{error}</span>
+							<span>ℹ️</span><span>{error}</span>
 						</div>
 					)}
 
@@ -1320,7 +1298,7 @@ const PingOneAuditActivities: React.FC = () => {
 										}}
 									>
 										<h2 style={styles.sectionTitle}>
-											<FiBarChart2 /> Summary Statistics
+											<span>[FiBarChart2]</span>Summary Statistics
 										</h2>
 										<div
 											style={{
@@ -1453,7 +1431,7 @@ const PingOneAuditActivities: React.FC = () => {
 										style={{ ...styles.card, border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER', background: 'V9_COLORS.TEXT.WHITE' }}
 									>
 										<h2 style={styles.sectionTitle}>
-											<FiActivity /> Activity Details{' '}
+											<span>[FiActivity]</span>Activity Details{' '}
 											{totalCount > activities.length
 												? `(${activities.length} of ${totalCount})`
 												: `(${activities.length})`}
@@ -1514,36 +1492,30 @@ const PingOneAuditActivities: React.FC = () => {
 																		)}
 																	>
 																		{activity.result.status === 'success' ? (
-																			<FiCheckCircle size={12} />
-																		) : (
-																			<FiAlertCircle size={12} />
-																		)}
+																			<span>✅</span>) : (
+																			<span>⚠️</span>)}
 																		{activity.result.status.toUpperCase()}
 																	</span>
 																)}
 																{activity.actors?.user?.name && (
 																	<span style={styles.detailBadge('#dbeafe')}>
-																		<FiUser size={12} />
-																		{activity.actors.user.name}
+																		<span>👤</span>{activity.actors.user.name}
 																	</span>
 																)}
 																{activity.actors?.client?.name && (
 																	<span style={styles.detailBadge('V9_COLORS.BG.GRAY_LIGHT')}>
-																		<FiServer size={12} />
-																		{activity.actors.client.name}
+																		<span>[FiServer]</span>{activity.actors.client.name}
 																	</span>
 																)}
 																{activity.resources && activity.resources.length > 0 && (
 																	<span style={styles.detailBadge('V9_COLORS.BG.WARNING')}>
-																		<FiDatabase size={12} />
-																		{activity.resources.length} resource
+																		<span>[FiDatabase]</span>{activity.resources.length} resource
 																		{activity.resources.length !== 1 ? 's' : ''}
 																	</span>
 																)}
 																{activity.ipAddress && (
 																	<span style={styles.detailBadge()}>
-																		<FiGlobe size={12} />
-																		{activity.ipAddress}
+																		<span>🌐</span>{activity.ipAddress}
 																	</span>
 																)}
 															</div>
@@ -1552,8 +1524,7 @@ const PingOneAuditActivities: React.FC = () => {
 															<div
 																style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
 															>
-																<FiClock size={12} />
-																{formatTimestamp(activity.createdAt)}
+																<span>⏰</span>{formatTimestamp(activity.createdAt)}
 															</div>
 															<div
 																style={{
@@ -1564,8 +1535,7 @@ const PingOneAuditActivities: React.FC = () => {
 																	color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 																}}
 															>
-																<FiEye size={12} />
-																<span style={{ fontSize: '0.7rem' }}>View Details</span>
+																<span>[FiEye]</span><span style={{ fontSize: '0.7rem' }}>View Details</span>
 															</div>
 														</div>
 													</div>
@@ -1577,7 +1547,7 @@ const PingOneAuditActivities: React.FC = () => {
 
 								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: 'V9_COLORS.TEXT.WHITE' }}>
 									<h2 style={styles.sectionTitle}>
-										<FiDatabase /> Full API Response
+										<span>[FiDatabase]</span>Full API Response
 									</h2>
 									{formattedResponse && (
 										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
@@ -1588,8 +1558,7 @@ const PingOneAuditActivities: React.FC = () => {
 							</>
 						) : (
 							<div style={styles.emptyState}>
-								<FiActivity size={22} />
-								<span>Run the request to see audit activities returned by PingOne.</span>
+								<span>[FiActivity]</span><span>Run the request to see audit activities returned by PingOne.</span>
 							</div>
 						)}
 					</div>
@@ -1608,18 +1577,16 @@ const PingOneAuditActivities: React.FC = () => {
 						<>
 							<div style={styles.detailModalHeader}>
 								<h2 style={styles.detailModalTitle}>
-									<FiActivity size={24} />
-									Activity Details
+									<span>[FiActivity]</span>Activity Details
 								</h2>
 								<button type="button" style={styles.closeButton} onClick={handleCloseDetailModal}>
-									<FiX />
-								</button>
+									<span>❌</span></button>
 							</div>
 							<div style={styles.detailModalBody}>
 								{/* Basic Information */}
 								<div style={styles.detailSection}>
 									<h3 style={styles.detailSectionTitle}>
-										<FiInfo /> Basic Information
+										<span>ℹ️</span>Basic Information
 									</h3>
 									<div style={styles.detailGrid}>
 										<div style={styles.detailLabel}>Activity ID</div>
@@ -1643,7 +1610,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{selectedActivity.result && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiCheckCircle /> Result
+											<span>✅</span>Result
 										</h3>
 										<div style={styles.detailGrid}>
 											<div style={styles.detailLabel}>Status</div>
@@ -1681,7 +1648,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{selectedActivity.actors && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiUser /> Actors
+											<span>👤</span>Actors
 										</h3>
 										<div style={styles.detailGrid}>
 											{selectedActivity.actors.user && (
@@ -1758,7 +1725,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{selectedActivity.resources && selectedActivity.resources.length > 0 && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiDatabase /> Resources ({selectedActivity.resources.length})
+											<span>[FiDatabase]</span>Resources ({selectedActivity.resources.length})
 										</h3>
 										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 											{selectedActivity.resources.map((resource, idx) => (
@@ -1803,7 +1770,7 @@ const PingOneAuditActivities: React.FC = () => {
 									selectedActivity.correlationId) && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiGlobe /> Request Context
+											<span>🌐</span>Request Context
 										</h3>
 										<div style={styles.detailGrid}>
 											{selectedActivity.ipAddress && (
@@ -1832,7 +1799,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{(selectedActivity.environment || selectedActivity.organization) && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiShield /> Context
+											<span>🛡️</span>Context
 										</h3>
 										<div style={styles.detailGrid}>
 											{selectedActivity.environment && (
@@ -1877,7 +1844,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{selectedActivity.target && (
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<FiDatabase /> Target
+											<span>[FiDatabase]</span>Target
 										</h3>
 										<div style={styles.detailGrid}>
 											{selectedActivity.target.type && (
@@ -1905,7 +1872,7 @@ const PingOneAuditActivities: React.FC = () => {
 								{/* Raw JSON */}
 								<div style={styles.detailSection}>
 									<h3 style={styles.detailSectionTitle}>
-										<FiDatabase /> Complete JSON
+										<span>[FiDatabase]</span>Complete JSON
 									</h3>
 									<div
 										style={{
@@ -1923,7 +1890,7 @@ const PingOneAuditActivities: React.FC = () => {
 							</div>
 							<div style={styles.detailModalFooter}>
 								<button type="button" style={styles.copyButton} onClick={handleCopyJson}>
-									{copiedJson ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									{copiedJson ? <span>[FiCheck]</span>: <span>📋</span>}
 									{copiedJson ? 'Copied!' : 'Copy JSON'}
 								</button>
 								<button
@@ -1931,7 +1898,7 @@ const PingOneAuditActivities: React.FC = () => {
 									style={styles.secondaryButton}
 									onClick={handleCloseDetailModal}
 								>
-									<FiX /> Close
+									<span>❌</span>Close
 								</button>
 							</div>
 						</>

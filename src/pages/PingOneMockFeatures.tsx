@@ -1,4 +1,3 @@
-import { FiAlertTriangle, FiBookOpen, FiExternalLink, FiShield, FiTool } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -357,9 +356,9 @@ const PingOneMockFeatures: React.FC = () => {
 				</div>
 
 				<WarningBanner>
-					<FiAlertTriangle
+					<span
 						style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
-					/>
+					>⚠️</span>
 					<div style={{ flex: 1 }}>
 						<h3
 							style={{
@@ -392,8 +391,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									JWT Bearer Token Flow
 								</h3>
 							</div>
@@ -435,8 +433,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try JWT Bearer Demo
+									<span>🔧</span>Try JWT Bearer Demo
 								</a>
 								<a
 									href="/flows/jwt-bearer-v5"
@@ -454,8 +451,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try JWT Bearer V5
+									<span>🔧</span>Try JWT Bearer V5
 								</a>
 							</div>
 						</FeatureCard>
@@ -469,8 +465,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									SAML Bearer Assertion Flow
 								</h3>
 							</div>
@@ -512,8 +507,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try SAML Bearer Demo
+									<span>🔧</span>Try SAML Bearer Demo
 								</a>
 							</div>
 						</FeatureCard>
@@ -527,8 +521,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									DPoP (Demonstration of Proof-of-Possession)
 								</h3>
 							</div>
@@ -570,8 +563,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try DPoP Demo
+									<span>🔧</span>Try DPoP Demo
 								</a>
 								<a
 									href="https://tools.ietf.org/rfc/rfc9449.html"
@@ -591,8 +583,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiExternalLink />
-									RFC 9449
+									<span>🔗</span>RFC 9449
 								</a>
 							</div>
 						</FeatureCard>
@@ -606,8 +597,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									Dynamic Client Registration (DCR)
 								</h3>
 							</div>
@@ -649,8 +639,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try DCR Demo
+									<span>🔧</span>Try DCR Demo
 								</a>
 								<a
 									href="https://tools.ietf.org/rfc/rfc7591.html"
@@ -670,8 +659,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiExternalLink />
-									RFC 7591
+									<span>🔗</span>RFC 7591
 								</a>
 							</div>
 						</FeatureCard>
@@ -685,8 +673,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									Resource Owner Password Credentials
 								</h3>
 							</div>
@@ -728,8 +715,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try ROPC Demo
+									<span>🔧</span>Try ROPC Demo
 								</a>
 							</div>
 						</FeatureCard>
@@ -748,8 +734,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiTool style={{ fontSize: '1.5rem', color: '#7c3aed' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#581c87' }}>
+								<span>🔧</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#581c87' }}>
 									Advanced OAuth Parameters Demo
 								</h3>
 							</div>
@@ -791,8 +776,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try Parameters Demo
+									<span>🔧</span>Try Parameters Demo
 								</a>
 							</div>
 						</FeatureCard>
@@ -806,8 +790,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: '#7c3aed' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#581c87' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#581c87' }}>
 									Rich Authorization Requests (RAR)
 								</h3>
 							</div>
@@ -849,8 +832,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Try RAR Demo
+									<span>🔧</span>Try RAR Demo
 								</a>
 							</div>
 						</FeatureCard>
@@ -869,8 +851,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiShield style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
+								<span>🛡️</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
 									OAuth 2.1 Security Features
 								</h3>
 							</div>
@@ -911,8 +892,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Learn OAuth 2.1
+									<span>🔧</span>Learn OAuth 2.1
 								</a>
 							</div>
 						</FeatureCard>
@@ -926,8 +906,7 @@ const PingOneMockFeatures: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<FiTool style={{ fontSize: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
-								<h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
+								<span>🔧</span><h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '700', color: '#14532d' }}>
 									Interactive Learning
 								</h3>
 							</div>
@@ -968,8 +947,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiTool />
-									Interactive Tutorials
+									<span>🔧</span>Interactive Tutorials
 								</a>
 								<a
 									href="/oauth-oidc-training"
@@ -987,8 +965,7 @@ const PingOneMockFeatures: React.FC = () => {
 										fontWeight: 500,
 									}}
 								>
-									<FiBookOpen />
-									OAuth Training
+									<span>📖</span>OAuth Training
 								</a>
 							</div>
 						</FeatureCard>
@@ -1005,9 +982,9 @@ const PingOneMockFeatures: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-						<FiShield
+						<span
 							style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
-						/>
+						>🛡️</span>
 						<div style={{ flex: 1 }}>
 							<h3
 								style={{
@@ -1054,9 +1031,9 @@ const PingOneMockFeatures: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-						<FiAlertTriangle
+						<span
 							style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}
-						/>
+						>⚠️</span>
 						<div style={{ flex: 1 }}>
 							<h3
 								style={{

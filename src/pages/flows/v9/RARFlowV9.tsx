@@ -2,15 +2,6 @@
 // lint-file-disable: token-value-in-jsx
 // V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
-import {
-	FiArrowRight,
-	FiCheckCircle,
-	FiChevronDown,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSettings,
-} from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -395,7 +386,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('overview')}>
 							<CollapsibleTitle>
-								<FiInfo /> Rich Authorization Requests Overview
+								<span>ℹ️</span>Rich Authorization Requests Overview
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.overview} />
 						</CollapsibleHeaderButton>
@@ -449,7 +440,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('configuration')}>
 							<CollapsibleTitle>
-								<FiSettings /> RAR Configuration
+								<span>⚙️</span>RAR Configuration
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.configuration} />
 						</CollapsibleHeaderButton>
@@ -589,7 +580,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('authorization')}>
 							<CollapsibleTitle>
-								<FiKey /> Generate Authorization Request
+								<span>🔑</span>Generate Authorization Request
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.authorization} />
 						</CollapsibleHeaderButton>
@@ -606,7 +597,7 @@ const RARFlowV9: React.FC = () => {
 										marginBottom: '1rem',
 									}}
 								>
-									<FiArrowRight /> Generate Authorization URL
+									<span>➡️</span>Generate Authorization URL
 								</Button>
 
 								{authorizationUrl && (
@@ -654,7 +645,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchange')}>
 							<CollapsibleTitle>
-								<FiRefreshCw /> Token Exchange
+								<span>🔄</span>Token Exchange
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.tokenExchange} />
 						</CollapsibleHeaderButton>
@@ -675,7 +666,7 @@ const RARFlowV9: React.FC = () => {
 										'Exchanging Token...'
 									) : (
 										<>
-											<FiRefreshCw /> Exchange Authorization Code for Tokens
+											<span>🔄</span>Exchange Authorization Code for Tokens
 										</>
 									)}
 								</Button>
@@ -714,7 +705,7 @@ const RARFlowV9: React.FC = () => {
 
 										<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
 											<InfoTitle>
-												<FiCheckCircle /> Token Exchange Successful
+												<span>✅</span>Token Exchange Successful
 											</InfoTitle>
 											<InfoText>
 												The token includes RAR authorization details that grant specific permissions
@@ -744,7 +735,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('completion')}>
 							<CollapsibleTitle>
-								<FiCheckCircle /> Flow Completion
+								<span>✅</span>Flow Completion
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.completion} />
 						</CollapsibleHeaderButton>
@@ -932,19 +923,18 @@ const RARFlowV9: React.FC = () => {
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							<FiKey style={{ fontSize: '20px', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }} />
-							<span style={{ fontSize: '16px', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+							<span>🔑</span><span style={{ fontSize: '16px', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 								Worker Token Status
 							</span>
 						</div>
-						<FiChevronDown
+						<span
 							style={{
 								fontSize: '16px',
 								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
 								transition: 'all 0.3s ease',
 							}}
-						/>
+						>🔽</span>
 					</button>
 
 					{/* Worker Token Status Content */}
@@ -976,7 +966,7 @@ const RARFlowV9: React.FC = () => {
 								fontWeight: '600',
 							}}
 						>
-							<FiSettings /> Credential Management
+							<span>⚙️</span>Credential Management
 						</h3>
 						<StandardizedCredentialExportImport
 							appName="RAR Flow V9"

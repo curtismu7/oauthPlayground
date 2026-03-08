@@ -3,23 +3,6 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
 
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiPackage,
-	FiRefreshCw,
-	FiSend,
-	FiSettings,
-	FiShield,
-} from '@icons';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -2198,7 +2181,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
 							subtitle="Learn the fundamentals of this flow"
 							defaultCollapsed={false}
-							icon={<FiBook />}
+							icon={<span>📚</span>}
 							theme="green"
 						>
 							<div style={{ padding: '0' }}>
@@ -2212,8 +2195,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									}}
 								>
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
+										<span>ℹ️</span><div>
 											<InfoTitle>What You'll Get</InfoTitle>
 											<InfoText>
 												{flowVariant === 'oidc'
@@ -2223,8 +2205,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</div>
 									</InfoBox>
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
-										<div>
+										<span>✅</span><div>
 											<InfoTitle>Perfect For</InfoTitle>
 											<InfoText>
 												• Web apps with secure backends
@@ -2237,8 +2218,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 								{/* Requirements Notice */}
 								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
-									<FiAlertCircle size={20} />
-									<div>
+									<span>⚠️</span><div>
 										<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
 										<InfoText>
 											<strong>Client Secret:</strong> Required for token introspection and refresh
@@ -2311,14 +2291,12 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
 							>
 								<CollapsibleTitle>
-									<FiSettings />
-									<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
+									<span>⚙️</span><span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
 										🔧 Configuration & Setup - All Settings in One Place
 									</span>
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!collapsedSections.configuration && (
 								<CollapsibleContent>
@@ -2440,10 +2418,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 									<ActionRow style={{ marginTop: '1rem' }}>
 										<Button onClick={handleSaveConfiguration} $variant="success">
-											<FiSettings /> Save Configuration
+											<span>⚙️</span>Save Configuration
 										</Button>
 										<Button onClick={handleClearConfiguration} $variant="danger">
-											<FiRefreshCw /> Clear Configuration
+											<span>🔄</span>Clear Configuration
 										</Button>
 									</ActionRow>
 								</CollapsibleContent>
@@ -2468,17 +2446,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.pkceOverview}
 							>
 								<CollapsibleTitle>
-									<FiBook /> What is PKCE?
+									<span>📚</span>What is PKCE?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.pkceOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiShield size={20} />
-										<div>
+										<span>🛡️</span><div>
 											<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 											<InfoText>
 												PKCE is a security extension for OAuth 2.0 that prevents authorization code
@@ -2489,8 +2465,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
+										<span>⚠️</span><div>
 											<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
 											<InfoText>
 												Without PKCE, if an attacker intercepts your authorization code (through app
@@ -2510,18 +2485,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.pkceDetails}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Understanding Code Verifier & Code Challenge
+									<span>📚</span>Understanding Code Verifier & Code Challenge
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</YellowHeaderButton>
 							{!collapsedSections.pkceDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
 										<InfoBox $variant="success">
-											<FiKey size={20} />
-											<div>
+											<span>🔑</span><div>
 												<InfoTitle>Code Verifier</InfoTitle>
 												<InfoText>
 													A high-entropy cryptographic random string (43-128 chars) that stays
@@ -2538,8 +2511,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</InfoBox>
 
 										<InfoBox $variant="info">
-											<FiShield size={20} />
-											<div>
+											<span>🛡️</span><div>
 												<InfoTitle>Code Challenge</InfoTitle>
 												<InfoText>
 													A SHA256 hash of the code verifier, encoded in base64url format. This is
@@ -2557,8 +2529,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</ParameterGrid>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
+										<span>⚠️</span><div>
 											<InfoTitle>Security Best Practices</InfoTitle>
 											<InfoList>
 												<li>
@@ -2587,7 +2558,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						<SectionDivider />
 						<ResultsSection>
 							<ResultsHeading>
-								<FiCheckCircle size={18} /> Generate PKCE Parameters
+								<span>✅</span>Generate PKCE Parameters
 							</ResultsHeading>
 							<HelperText>
 								Generate fresh PKCE values for this authorization request. These will be used to
@@ -2614,17 +2585,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.authRequestOverview}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Understanding Authorization Requests
+									<span>📚</span>Understanding Authorization Requests
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.authRequestOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<FiGlobe size={20} />
-										<div>
+										<span>🌐</span><div>
 											<InfoTitle>What is an Authorization Request?</InfoTitle>
 											<InfoText>
 												An authorization request redirects users to PingOne's authorization server
@@ -2635,8 +2604,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
+										<span>⚠️</span><div>
 											<InfoTitle>Critical Security Considerations</InfoTitle>
 											<InfoList>
 												<li>
@@ -2668,18 +2636,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.authRequestDetails}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Authorization URL Parameters Deep Dive
+									<span>📚</span>Authorization URL Parameters Deep Dive
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</YellowHeaderButton>
 							{!collapsedSections.authRequestDetails && (
 								<CollapsibleContent>
 									{/* Response Type Configuration */}
 									<InfoBox $variant="info" style={{ marginBottom: '1rem' }}>
-										<FiSettings size={20} />
-										<div>
+										<span>⚙️</span><div>
 											<InfoTitle>Response Type Configuration</InfoTitle>
 											<div style={{ marginTop: '0.5rem' }}>
 												<label
@@ -2720,8 +2686,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 									<ParameterGrid>
 										<InfoBox $variant="info">
-											<FiKey size={20} />
-											<div>
+											<span>🔑</span><div>
 												<InfoTitle>Required Parameters</InfoTitle>
 												<InfoList>
 													<li>
@@ -2747,8 +2712,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</InfoBox>
 
 										<InfoBox $variant="success">
-											<FiShield size={20} />
-											<div>
+											<span>🛡️</span><div>
 												<InfoTitle>Security Parameters</InfoTitle>
 												<InfoList>
 													<li>
@@ -2771,8 +2735,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</ParameterGrid>
 
 									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
+										<span>⚠️</span><div>
 											<InfoTitle>Optional But Recommended Parameters</InfoTitle>
 											<InfoList>
 												<li>
@@ -2796,8 +2759,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
+										<span>ℹ️</span><div>
 											<InfoTitle>Authorization URL Parameters</InfoTitle>
 											<InfoText>The authorization URL includes these key parameters:</InfoText>
 											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
@@ -2835,7 +2797,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						<SectionDivider />
 						<ResultsSection>
 							<ResultsHeading>
-								<FiCheckCircle size={18} /> Build Your Authorization URL
+								<span>✅</span>Build Your Authorization URL
 							</ResultsHeading>
 							<HelperText>
 								Generate the authorization URL with all required parameters. Review it carefully
@@ -2872,7 +2834,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										onClick={() => setCustomLoginOpen(true)}
 										disabled={isRedirectlessRunning}
 									>
-										<FiExternalLink />{' '}
+										<span>🔗</span>{' '}
 										{isRedirectlessRunning ? 'Running…' : 'Run Redirectless Inline'}
 									</Button>
 								)}
@@ -2899,7 +2861,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 													: 'Generate authorization URL'
 									}
 								>
-									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
+									{controller.authUrl ? <span>✅</span>: <span>🔗</span>}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
 										: useRedirectless
@@ -2914,7 +2876,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								{controller.authUrl && (
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 										<HighlightedActionButton onClick={handleOpenAuthUrl} $priority="success">
-											<FiExternalLink /> Redirect to PingOne
+											<span>🔗</span>Redirect to PingOne
 											<HighlightBadge>2</HighlightBadge>
 										</HighlightedActionButton>
 										<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>
@@ -2968,17 +2930,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.authResponseOverview}
 							>
 								<CollapsibleTitle>
-									<FiCheckCircle /> Authorization Response Overview
+									<span>✅</span>Authorization Response Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
-										<div>
+										<span>✅</span><div>
 											<InfoTitle>Authorization Response</InfoTitle>
 											<InfoText>
 												After authentication, PingOne returns you to the redirect URI with an
@@ -2996,17 +2956,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.authResponseDetails}
 							>
 								<CollapsibleTitle>
-									<FiPackage /> Authorization Code Details
+									<span>📦</span>Authorization Code Details
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</HighlightHeaderButton>
 							{!collapsedSections.authResponseDetails && (
 								<CollapsibleContent>
 									<ResultsSection>
 										<ResultsHeading>
-											<FiCheckCircle size={18} /> Authorization Code
+											<span>✅</span>Authorization Code
 										</ResultsHeading>
 										<HelperText>
 											Use the authorization code immediately—it expires quickly. Copy it if you need
@@ -3042,15 +3001,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 														{isStepValid(currentStep)
 															? 'Continue to Token Exchange'
 															: 'Complete above action'}{' '}
-														<FiArrowRight />
-													</HighlightedActionButton>
+														<span>➡️</span></HighlightedActionButton>
 												</ActionRow>
 											</GeneratedContentBox>
 										) : (
 											<EmptyState>
 												<EmptyIcon>
-													<FiAlertCircle />
-												</EmptyIcon>
+													<span>⚠️</span></EmptyIcon>
 												<EmptyTitle>Authorization Code Not Received</EmptyTitle>
 												<EmptyText>
 													No authorization code detected. You can paste one manually for testing.
@@ -3108,17 +3065,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.tokenExchangeOverview}
 							>
 								<CollapsibleTitle>
-									<FiBook /> Token Exchange Overview
+									<span>📚</span>Token Exchange Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.tokenExchangeOverview && (
 								<CollapsibleContent>
 									<ExplanationSection>
 										<ExplanationHeading>
-											<FiKey /> Exchange Authorization Code for Tokens
+											<span>🔑</span>Exchange Authorization Code for Tokens
 										</ExplanationHeading>
 										<InfoText>
 											Call the backend token exchange endpoint to swap the authorization code for
@@ -3135,11 +3091,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								aria-expanded={!collapsedSections.tokenExchangeDetails}
 							>
 								<CollapsibleTitle>
-									<FiSend /> Token Exchange Details
+									<span>➡️</span>Token Exchange Details
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<span>🔽</span></CollapsibleToggleIcon>
 							</BlueHeaderButton>
 							{!collapsedSections.tokenExchangeDetails && (
 								<CollapsibleContent>
@@ -3147,7 +3102,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									{(controller.authCode || localAuthCode) && (
 										<ResultsSection>
 											<ResultsHeading>
-												<FiCheckCircle size={18} /> Authorization Code Received
+												<span>✅</span>Authorization Code Received
 											</ResultsHeading>
 											<HelperText>
 												The authorization code has been received and is ready for token exchange.
@@ -3179,7 +3134,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 											$priority="primary"
 											disabled={!(controller.authCode || localAuthCode)}
 										>
-											<FiRefreshCw /> Exchange Authorization Code for Tokens
+											<span>🔄</span>Exchange Authorization Code for Tokens
 										</HighlightedActionButton>
 									</ActionRow>
 
@@ -3221,17 +3176,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												aria-expanded={!collapsedSections.mockTokenDisplay}
 											>
 												<CollapsibleTitle>
-													<FiPackage /> Mock Token Response (Educational)
+													<span>📦</span>Mock Token Response (Educational)
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
-													<FiChevronDown />
-												</CollapsibleToggleIcon>
+													<span>🔽</span></CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
 											{!collapsedSections.mockTokenDisplay && (
 												<CollapsibleContent>
 													<ResultsSection>
 														<ResultsHeading>
-															<FiInfo size={18} /> Example Token Response
+															<span>ℹ️</span>Example Token Response
 														</ResultsHeading>
 														<HelperText>
 															This shows what a typical OAuth token response looks like. The actual
@@ -3273,17 +3227,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												aria-expanded={!collapsedSections.apiCallExamples}
 											>
 												<CollapsibleTitle>
-													<FiCode /> Code Examples
+													<span>[FiCode]</span>Code Examples
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
-													<FiChevronDown />
-												</CollapsibleToggleIcon>
+													<span>🔽</span></CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
 											{!collapsedSections.apiCallExamples && (
 												<CollapsibleContent>
 													<ResultsSection>
 														<ResultsHeading>
-															<FiCode size={18} /> Test Your Access Token
+															<span>[FiCode]</span>Test Your Access Token
 														</ResultsHeading>
 														<HelperText>
 															Use the access token to make authenticated API calls. Use the code
@@ -3389,17 +3342,16 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									aria-expanded={!collapsedSections.apiCallExamples}
 								>
 									<CollapsibleTitle>
-										<FiCode /> Code Examples
+										<span>[FiCode]</span>Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
-										<FiChevronDown />
-									</CollapsibleToggleIcon>
+										<span>🔽</span></CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								{!collapsedSections.apiCallExamples && (
 									<CollapsibleContent>
 										<ResultsSection>
 											<ResultsHeading>
-												<FiCode size={18} /> Test Your Access Token
+												<span>[FiCode]</span>Test Your Access Token
 											</ResultsHeading>
 											<HelperText>
 												Use the access token to make authenticated API calls. Use the code examples
@@ -3466,8 +3418,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			case 7:
 				return (
 					<InfoBox $variant="success">
-						<FiCheckCircle size={20} />
-						<div>
+						<span>✅</span><div>
 							<InfoTitle>Flow Complete</InfoTitle>
 							<InfoText>
 								You've completed the Authorization Code flow. Tokens are available above and you can
@@ -3562,8 +3513,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					{!isStepValid(currentStep) && currentStep !== 0 && (
 						<RequirementsIndicator>
 							<RequirementsIcon>
-								<FiAlertCircle />
-							</RequirementsIcon>
+								<span>⚠️</span></RequirementsIcon>
 							<RequirementsText>
 								<strong>Complete this step to continue:</strong>
 								<ul>

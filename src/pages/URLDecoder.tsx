@@ -425,18 +425,18 @@ const URLDecoder: React.FC = () => {
 						{isDecoding ? (
 							<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} />
 						) : (
-							🔍
+							<span>🔍</span>
 						)}
 						{isDecoding ? 'Decoding...' : 'Decode URL'}
 					</Button>
 
 					<Button onClick={loadSample} $variant="secondary">
-						🔗
+						<span>🔗</span>
 						Load Sample
 					</Button>
 
 					<Button onClick={clearAll} $variant="danger">
-						🔄
+						<span>🔄</span>
 						Clear All
 					</Button>
 				</ButtonGroup>
@@ -446,7 +446,7 @@ const URLDecoder: React.FC = () => {
 				<ContentCard>
 					<CardHeader>
 						<CardTitle>
-							✅
+							<span>✅</span>
 							Decoded Result
 						</CardTitle>
 						<CardDescription>
@@ -456,7 +456,7 @@ const URLDecoder: React.FC = () => {
 
 					<ResultCard>
 						<ResultTitle>
-							📝
+							<span>📝</span>
 							Decoded URL Details
 						</ResultTitle>
 						<ResultContent>{decodedResult}</ResultContent>
@@ -464,7 +464,7 @@ const URLDecoder: React.FC = () => {
 
 					<ButtonGroup>
 						<Button onClick={copyResult} $variant="success">
-							📋
+							<span>📋</span>
 							Copy Result
 						</Button>
 					</ButtonGroup>
@@ -474,7 +474,7 @@ const URLDecoder: React.FC = () => {
 			<ContentCard>
 				<CardHeader>
 					<CardTitle>
-						⚠️
+						<span>⚠️</span>
 						Usage Tips
 					</CardTitle>
 					<CardDescription>
