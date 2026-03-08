@@ -224,9 +224,9 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' | 'o
 
 // Types
 interface TokenIntrospectionStepProps {
-	tokens?: any;
-	credentials?: any;
-	introspectionResults?: any;
+	tokens?: Record<string, unknown>;
+	credentials?: Record<string, unknown>;
+	introspectionResults?: Record<string, unknown>;
 	onIntrospectToken: () => void;
 	onResetFlow: () => void;
 	onNavigateToTokenManagement: () => void;
@@ -236,15 +236,15 @@ interface TokenIntrospectionStepProps {
 
 const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 	tokens,
-	credentials,
+	_credentials,
 	introspectionResults,
 	onIntrospectToken,
-	onResetFlow,
-	onNavigateToTokenManagement,
+	_onResetFlow,
+	_onNavigateToTokenManagement,
 	isIntrospecting = false,
 	flowType = 'oauth',
 }) => {
-	const { primaryColor, secondaryColor } = useUISettings();
+	const { primaryColor, secondaryColor: _secondaryColor } = useUISettings();
 	const [collapsedSections, setCollapsedSections] = useState({
 		completionOverview: false,
 		completionDetails: false,

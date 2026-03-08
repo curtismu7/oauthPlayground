@@ -25,9 +25,9 @@ export interface EnhancedFlowStep {
 	description: string;
 	code?: string;
 	// biome-ignore lint/suspicious/noExplicitAny: Execute function can return various types
-	execute?: () => Promise<any>;
+	execute?: () => Promise<unknown>;
 	// biome-ignore lint/suspicious/noExplicitAny: Result can be various types depending on step
-	result?: any;
+	result?: unknown;
 	error?: string;
 	timestamp?: number;
 	duration?: number;
@@ -36,7 +36,7 @@ export interface EnhancedFlowStep {
 	dependencies?: string[]; // Step IDs this step depends on
 	category?: 'preparation' | 'authorization' | 'token-exchange' | 'validation' | 'cleanup';
 	// biome-ignore lint/suspicious/noExplicitAny: Debug info can contain various types
-	debugInfo?: Record<string, any>;
+	debugInfo?: Record<string, unknown>;
 	tips?: string[];
 	securityNotes?: string[];
 }
@@ -45,7 +45,7 @@ interface StepHistory {
 	stepId: string;
 	timestamp: number;
 	// biome-ignore lint/suspicious/noExplicitAny: Result can be various types
-	result?: any;
+	result?: unknown;
 	error?: string;
 	duration: number;
 }
@@ -54,10 +54,10 @@ interface EnhancedStepFlowProps {
 	steps: EnhancedFlowStep[];
 	title: string;
 	// biome-ignore lint/suspicious/noExplicitAny: Result can be various types
-	onStepComplete?: (stepId: string, result: any) => void;
+	onStepComplete?: (stepId: string, result: unknown) => void;
 	onStepError?: (stepId: string, error: string) => void;
 	// biome-ignore lint/suspicious/noExplicitAny: Results can be various types
-	onFlowComplete?: (results: Record<string, any>) => void;
+	onFlowComplete?: (results: Record<string, unknown>) => void;
 	persistKey?: string; // Key for localStorage persistence
 	autoAdvance?: boolean;
 	showDebugInfo?: boolean;
@@ -408,7 +408,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 }) => {
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);
 	// biome-ignore lint/suspicious/noExplicitAny: Step results can be various types
-	const [stepResults, setStepResults] = useState<Record<string, any>>({});
+	const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
 	const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
 	const [executingStep, setExecutingStep] = useState<string | null>(null);
 	const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);

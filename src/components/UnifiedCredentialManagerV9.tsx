@@ -220,7 +220,7 @@ export interface UnifiedCredentialManagerV9Props {
 	grantType?: string; // Optional filter for specific grant types
 	disabled?: boolean; // Manual disable override
 	defaultExpanded?: boolean; // Whether to start expanded
-	compact?: boolean; // Use compact styling
+	compact?: boolean; // Use compact styling (reserved for future use)
 	showImportExport?: boolean; // Show import/export section
 	showAppPicker?: boolean; // Show app picker section
 }
@@ -252,7 +252,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	grantType,
 	disabled = false,
 	defaultExpanded = false,
-	compact = false,
+	compact: _compact = false,
 	showImportExport = true,
 	showAppPicker = true,
 }) => {

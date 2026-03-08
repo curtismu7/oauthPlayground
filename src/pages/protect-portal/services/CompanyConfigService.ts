@@ -13,7 +13,6 @@ import type {
 	Industry,
 } from '../types/CompanyConfig';
 import {
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 	COMPANY_CONFIG_STORAGE_KEY,
 	COMPANY_REGISTRY_KEY,
 	INDUSTRIES,
