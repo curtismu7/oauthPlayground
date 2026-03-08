@@ -230,24 +230,39 @@
 /* Ensure ALL inactive menu text and icon are white (override global nav a color) */
 .sidebar-ping__nav .sidebar-ping__item,
 .sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-label,
-.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-icon {
+.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-icon,
+.sidebar-ping__nav .sidebar-ping__item a,
+.sidebar-ping__nav .sidebar-ping__item span,
+.sidebar-ping__nav .sidebar-ping__item div,
+.sidebar-ping__nav .sidebar-ping__item i,
+.sidebar-ping__nav .sidebar-ping__item svg {
 	color: #ffffff !important;
-	font-weight: 500 !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+	font-weight: 600 !important;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* Force dark text for any sidebar elements */
-.sidebar-ping * {
+/* Force dark text for any sidebar elements - SUPER AGGRESSIVE */
+.sidebar-ping *,
+.sidebar-ping * *,
+.sidebar-ping * * *,
+.sidebar-ping a,
+.sidebar-ping span,
+.sidebar-ping div,
+.sidebar-ping i,
+.sidebar-ping svg {
 	color: #ffffff !important;
 }
 
 /* Ensure selected menu text and icon are white (override global nav a color) */
 .sidebar-ping__nav .sidebar-ping__item--active,
 .sidebar-ping__nav .sidebar-ping__item--active .sidebar-ping__item-label,
-.sidebar-ping__nav .sidebar-ping__item--active .sidebar-ping__item-icon {
+.sidebar-ping__nav .sidebar-ping__item--active .sidebar-ping__item-icon,
+.sidebar-ping__nav .sidebar-ping__item--active a,
+.sidebar-ping__nav .sidebar-ping__item--active span,
+.sidebar-ping__nav .sidebar-ping__item--active div {
 	color: #ffffff !important;
-	font-weight: 600 !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+	font-weight: 700 !important;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
 }
 
 .sidebar-ping__item--active:hover {
