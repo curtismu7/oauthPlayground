@@ -12,6 +12,7 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
 export type NotificationActionVariant = 'primary' | 'secondary';

@@ -24,6 +24,7 @@ import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
+import { FiLoader } from '@icons';
 
 export interface WorkerTokenUIServiceV8Props {
 	/** Display mode for the status display */

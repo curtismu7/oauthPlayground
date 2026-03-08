@@ -14,6 +14,7 @@
 
 
 import React, { useState } from 'react';
+import { FiChevronDown } from '@icons';
 
 const MODULE_TAG = '[🖥️ DISPLAY-MODE-V8]';
 

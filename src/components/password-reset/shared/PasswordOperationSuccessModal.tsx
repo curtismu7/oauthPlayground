@@ -13,6 +13,7 @@ import {
 	FiX,
 } from '../../../services/commonImportsService';
 import type { PingOneUser } from './useUserLookup';
+import { FiCheckCircle, FiInfo, FiKey, FiMail, FiUnlock, FiUser } from '@icons';
 
 export type OperationType =
 	| 'check'

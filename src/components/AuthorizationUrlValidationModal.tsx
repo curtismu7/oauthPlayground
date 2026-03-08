@@ -1,6 +1,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { FiAlertTriangle, FiCheckCircle, FiExternalLink } from '@icons';
 
 interface ValidationResult {
 	isValid: boolean;

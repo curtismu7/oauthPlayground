@@ -23,6 +23,7 @@ import {
 } from '../services/v9/V9WorkerTokenStatusService';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 import WorkerTokenModalV9Styled from './WorkerTokenModalV9Styled';
+import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '@icons';
 
 // ---------------------------------------------------------------------------
 // Styled components — V9 blue palette

@@ -20,6 +20,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { FiBook } from '@icons';
 
 export const V7MClientCredentialsV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-client-credentials');

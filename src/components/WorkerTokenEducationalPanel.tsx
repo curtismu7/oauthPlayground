@@ -8,6 +8,7 @@ FiAlertCircle,
 	FiShield,
 	FiXCircle,
 } from '../services/commonImportsService'
+import { FiAlertCircle, FiCheckCircle, FiKey, FiShield, FiXCircle } from '@icons';
 
 /**
  * Props for WorkerTokenEducationalPanel component

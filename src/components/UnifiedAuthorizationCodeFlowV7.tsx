@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { logger } from '../utils/logger';
+import { FiCheck, FiExternalLink, FiInfo, FiKey, FiSettings, FiShield } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

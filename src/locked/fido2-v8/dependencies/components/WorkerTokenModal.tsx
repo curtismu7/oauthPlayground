@@ -11,6 +11,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
+import { FiAlertTriangle, FiInfo } from '@icons';
 
 type RequestDetails = {
 	tokenEndpoint: string;

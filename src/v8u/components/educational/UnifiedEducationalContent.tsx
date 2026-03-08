@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { useUnifiedFlowStore } from '../../services/UnifiedFlowStateManager';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 
 // Educational section styles
 const sectionStyle: React.CSSProperties = {

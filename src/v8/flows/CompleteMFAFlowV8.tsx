@@ -28,6 +28,7 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {

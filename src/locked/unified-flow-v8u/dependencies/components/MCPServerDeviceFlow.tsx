@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
+import { FiDatabase, FiLink, FiServer } from '@icons';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`

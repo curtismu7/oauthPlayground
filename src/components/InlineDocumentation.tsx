@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiBook, FiCode } from '@icons';
 
 const DocContainer = styled.div`
   margin: 1rem 0;

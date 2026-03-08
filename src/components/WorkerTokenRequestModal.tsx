@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Temporarily commented - not used
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import { FiRefreshCw } from '@icons';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {

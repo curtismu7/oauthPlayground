@@ -4,6 +4,7 @@
 
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
+import { FiCheck } from '@icons';
 
 interface NicknamePromptModalV8Props {
 	isOpen: boolean;

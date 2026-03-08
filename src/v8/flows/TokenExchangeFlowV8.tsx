@@ -14,6 +14,7 @@ import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigSer
 import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
+import { FiAlertCircle, FiCheckCircle, FiLock, FiShield, FiUsers } from '@icons';
 
 type TokenExchangeScenario =
 	| 'delegation'
