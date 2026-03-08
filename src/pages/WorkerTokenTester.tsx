@@ -1,13 +1,12 @@
 // src/pages/WorkerTokenTester.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiClock, FiGlobe, FiKey, FiUser, FiXCircle } from '@icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TokenPayload {
 	client_id?: string;
@@ -287,6 +286,8 @@ const styles = {
 	}),
 };
 
+const log = createModuleLogger('src/pages/WorkerTokenTester.tsx');
+
 const _WorkerTokenTester: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [token, setToken] = useState('');
@@ -320,7 +321,7 @@ const _WorkerTokenTester: React.FC = () => {
 
 			return decoded;
 		} catch (err) {
-			logger.error('WorkerTokenTester', 'Failed to decode token:', undefined, err as Error);
+			log.error('WorkerTokenTester', 'Failed to decode token:', undefined, err as Error);
 			return null;
 		}
 	};
@@ -676,7 +677,7 @@ const _WorkerTokenTester: React.FC = () => {
 				/>
 				{error && (
 					<div style={styles.errorMessage}>
-						<FiXCircle /> {error}
+						❌ {error}
 					</div>
 				)}
 			</div>
@@ -684,186 +685,6 @@ const _WorkerTokenTester: React.FC = () => {
 			{payload && (
 				<>
 					<div style={styles.section}>
-						<h2 style={styles.sectionTitle}>Token Information</h2>
-						<div style={styles.tokenInfo}>
-							<div style={styles.infoGrid}>
-								<div style={styles.infoCard}>
-									<div style={styles.infoIcon(isExpired ? 'error' : 'success')}>
-										<FiClock size={24} />
-									</div>
-									<div style={styles.infoContent}>
-										<div style={styles.infoLabel}>Status</div>
-										<div style={styles.infoValue(isExpired ? 'error' : 'success')}>
-											{isExpired ? 'EXPIRED' : 'VALID'}
-										</div>
-										{timeRemaining !== null && (
-											<div style={styles.infoDetail}>
-												{isExpired ? 'Expired ' : 'Expires in '}
-												{formatTimeRemaining(timeRemaining)}
-											</div>
-										)}
-									</div>
-								</div>
-
-								<div style={styles.infoCard}>
-									<div style={styles.infoIcon('info')}>
-										<FiKey size={24} />
-									</div>
-									<div style={styles.infoContent}>
-										<div style={styles.infoLabel}>Client ID</div>
-										<div style={styles.infoValue()}>{payload.client_id || 'N/A'}</div>
-										<div style={styles.infoDetail}>OAuth Client Identifier</div>
-									</div>
-								</div>
-
-								<div style={styles.infoCard}>
-									<div style={styles.infoIcon('info')}>
-										<FiGlobe size={24} />
-									</div>
-									<div style={styles.infoContent}>
-										<div style={styles.infoLabel}>Environment ID</div>
-										<div style={styles.infoValue()}>{payload.env || 'N/A'}</div>
-										<div style={styles.infoDetail}>PingOne Environment</div>
-									</div>
-								</div>
-
-								<div style={styles.infoCard}>
-									<div style={styles.infoIcon('info')}>
-										<FiUser size={24} />
-									</div>
-									<div style={styles.infoContent}>
-										<div style={styles.infoLabel}>Organization ID</div>
-										<div style={styles.infoValue()}>{payload.org || 'N/A'}</div>
-										<div style={styles.infoDetail}>PingOne Organization</div>
-									</div>
-								</div>
-							</div>
-
-							<div style={styles.detailsList}>
-								<div style={styles.detailsRow}>
-									<div style={styles.detailsLabel}>Issued At:</div>
-									<div style={styles.detailsValue}>
-										{payload.iat ? formatDate(payload.iat) : 'N/A'}
-									</div>
-								</div>
-								<div style={styles.detailsRow}>
-									<div style={styles.detailsLabel}>Expires At:</div>
-									<div style={styles.detailsValue}>
-										{payload.exp ? formatDate(payload.exp) : 'N/A'}
-									</div>
-								</div>
-								<div style={styles.detailsRow}>
-									<div style={styles.detailsLabel}>Issuer:</div>
-									<div style={styles.detailsValue}>{payload.iss || 'N/A'}</div>
-								</div>
-								<div style={styles.detailsRow}>
-									<div style={styles.detailsLabel}>Audience:</div>
-									<div style={styles.detailsValue}>
-										{Array.isArray(payload.aud) ? payload.aud.join(', ') : payload.aud || 'N/A'}
-									</div>
-								</div>
-								{payload.scope && (
-									<div style={styles.detailsRow}>
-										<div style={styles.detailsLabel}>Scope:</div>
-										<div style={styles.detailsValue}>{payload.scope}</div>
-									</div>
-								)}
-								<div style={styles.detailsRow}>
-									<div style={styles.detailsLabel}>JWT ID:</div>
-									<div style={styles.detailsValue}>{payload.jti || 'N/A'}</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{environmentData && (
-						<div style={styles.section}>
-							<h2 style={styles.sectionTitle}>Environment Details</h2>
-							<div style={styles.environmentInfo}>
-								<table style={styles.envTable}>
-									<tbody>
-										<tr style={styles.envTableRow}>
-											<td style={styles.envTableLabel}>Environment Name</td>
-											<td style={styles.envTableValue(true)}>{environmentData.name || 'N/A'}</td>
-										</tr>
-										<tr style={styles.envTableRow}>
-											<td style={styles.envTableLabel}>Environment Type</td>
-											<td style={styles.envTableValue()}>
-												{environmentData.type ? (
-													<span style={styles.typeBadge(environmentData.type)}>
-														{environmentData.type}
-													</span>
-												) : (
-													'N/A'
-												)}
-											</td>
-										</tr>
-										<tr style={styles.envTableRow}>
-											<td style={styles.envTableLabel}>Region</td>
-											<td style={styles.envTableValue()}>
-												{environmentData.region === 'NA' && 'U0001f1faU0001f1f8 NA (North America)'}
-												{environmentData.region === 'EU' && 'U0001f1eaU0001f1fa EU (Europe)'}
-												{environmentData.region === 'AP' && 'U0001f30f AP (Asia Pacific)'}
-												{environmentData.region === 'CA' && 'U0001f1e8U0001f1e6 CA (Canada)'}
-												{!['NA', 'EU', 'AP', 'CA'].includes(environmentData.region || '') &&
-													(environmentData.region || 'N/A')}
-											</td>
-										</tr>
-										{environmentData.description && (
-											<tr style={styles.envTableRow}>
-												<td style={styles.envTableLabel}>Description</td>
-												<td style={styles.envTableValue()}>{environmentData.description}</td>
-											</tr>
-										)}
-										{environmentData.license?.name && (
-											<tr style={styles.envTableRow}>
-												<td style={styles.envTableLabel}>License</td>
-												<td style={styles.envTableValue()}>{environmentData.license.name}</td>
-											</tr>
-										)}
-										<tr style={styles.envTableRow}>
-											<td style={styles.envTableLabel}>Environment ID</td>
-											<td style={styles.envTableValue(undefined, true)}>{payload?.env || 'N/A'}</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					)}
-
-					<div style={styles.section}>
-						<h2 style={styles.sectionTitle}>API Validation</h2>
-						<button
-							type="button"
-							style={{
-								...styles.testButton,
-								...(isTesting || isExpired ? { background: '#ccc', cursor: 'not-allowed' } : {}),
-							}}
-							onClick={testToken}
-							disabled={isTesting || isExpired}
-						>
-							{isTesting ? 'Testing...' : 'Test Token Against PingOne API'}
-						</button>
-
-						{isExpired && (
-							<div style={styles.warningMessage}>
-								<FiAlertCircle /> This token is expired and will fail API validation
-							</div>
-						)}
-
-						{testResults.length > 0 && (
-							<div style={styles.testResults}>
-								{testResults.map((result, index) => (
-									<div key={index} style={styles.testResultCard(result.status)}>
-										<div style={styles.testResultHeader}>
-											<div style={styles.testResultIcon(result.status)}>
-												{result.status === 'success' && <FiCheckCircle size={20} />}
-												{result.status === 'error' && <FiXCircle size={20} />}
-												{result.status === 'warning' && <FiAlertCircle size={20} />}
-											</div>
-											<div style={styles.testResultTitle}>{result.test}</div>
-											{result.statusCode && (
-												<div style={styles.statusCode(result.status)}>{result.statusCode}</div>
 											)}
 										</div>
 										<div style={styles.testResultMessage}>{result.message}</div>

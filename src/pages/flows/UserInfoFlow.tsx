@@ -1,4 +1,3 @@
-import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -14,7 +13,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
-import { logger } from '../../utils/logger';
+import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
@@ -267,6 +266,8 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 		</div>
 	);
 };
+
+const log = createModuleLogger('src/pages/flows/UserInfoFlow.tsx');
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();

@@ -38,7 +38,7 @@ import {
 	HybridFlowResponseTypeManager,
 	HybridFlowTokenProcessor,
 } from '../../../services/hybridFlowSharedService';
-import { createModuleLogger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
