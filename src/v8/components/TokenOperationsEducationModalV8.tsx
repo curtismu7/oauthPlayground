@@ -23,7 +23,7 @@
 
 import React from 'react';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
-import { FiCheckCircle, FiInfo, FiXCircle } from '@icons';
+// import { FiCheckCircle, FiInfo, FiXCircle } from '@icons'; // Replaced with emojis
 
 interface TokenOperationsEducationModalV8Props {
 	isOpen: boolean;
@@ -109,7 +109,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<FiInfo size={24} style={{ color: '#ffffff' }} />
+						<span style={{ color: '#ffffff', fontSize: '24px' }}>ℹ️</span>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
 							Token Operations Guide
 						</h2>
@@ -209,9 +209,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canIntrospectAccessToken ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<span style={{ color: '#16a34a', flexShrink: 0, fontSize: '18px' }}>✅</span>
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<span style={{ color: '#dc2626', flexShrink: 0, fontSize: '18px' }}>❌</span>
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>
@@ -238,9 +238,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canIntrospectRefreshToken ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<span style={{ color: '#16a34a', flexShrink: 0, fontSize: '18px' }}>✅</span>
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<span style={{ color: '#dc2626', flexShrink: 0, fontSize: '18px' }}>❌</span>
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>
@@ -265,9 +265,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canCallUserInfo ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<span style={{ color: '#16a34a', flexShrink: 0, fontSize: '18px' }}>✅</span>
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<span style={{ color: '#dc2626', flexShrink: 0, fontSize: '18px' }}>❌</span>
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>
