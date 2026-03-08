@@ -4,12 +4,6 @@
 import React from 'react';
 import { FiAlertCircle, FiBook, FiExternalLink } from '../../../services/commonImportsService';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../../../services/v9/V9ColorStandards');
 Alert,
 	Card,
 	DocumentationLink,
