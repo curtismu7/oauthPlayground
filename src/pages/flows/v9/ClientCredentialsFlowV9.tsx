@@ -31,7 +31,7 @@ import FlowUIService from '../../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { logger } from '../../../utils/logger';
+import { createModuleLogger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
@@ -288,6 +288,8 @@ const STEP_METADATA = [
 	},
 ];
 
+const log = createModuleLogger('src/pages/flows/v9/ClientCredentialsFlowV9.tsx');
+
 const ClientCredentialsFlowV9Complete: React.FC = () => {
 	const [currentStep, _setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
@@ -334,7 +336,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		[controller]
 	);
 
-	const { clearBackup } = useCredentialBackup({
+	const { clearBackup: _clearBackup } = useCredentialBackup({
 		flowKey: 'client-credentials-v9',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
@@ -387,7 +389,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			logger.info('ClientCredentialsFlowV9', 'Saving credentials to flow-specific storage', {
+			log.info('ClientCredentialsFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'client-credentials-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -561,7 +563,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											logger.info(
+											log.info(
 												'ClientCredentialsFlowV9',
 												'Setting auth method to client_secret_post'
 											);
@@ -588,7 +590,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											logger.info(
+											log.info(
 												'ClientCredentialsFlowV9',
 												'Setting auth method to client_secret_basic'
 											);
