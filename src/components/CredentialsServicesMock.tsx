@@ -7,12 +7,6 @@ import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
 type DiscoveryData
 ,
 type DiscoveryResult
