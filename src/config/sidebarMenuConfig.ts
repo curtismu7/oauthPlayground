@@ -113,7 +113,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'admin-configuration',
 		label: 'Admin & Configuration',
 		items: items([
-			['/api-status', 'API Status'],
+			['/api-status', 'API Status', true],
 			['/custom-domain-test', 'Custom Domain & API Test'],
 			['/v8/mfa-feature-flags', 'MFA Feature Flags'],
 			['/environments', 'Environment Management'],

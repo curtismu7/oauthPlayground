@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiArrowRight } from 'react-icons/fi';
+// Arrow icon replaced with emoji - no more react-icons/fi dependency
 import { type FlowType } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { V9_COLORS, getStepStyles } from '../../services/v9/V9ColorStandards';
@@ -313,7 +313,7 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 					}}
 				>
 					<span>Next Step</span>
-					<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+					<span style={{ marginLeft: '4px' }}>→</span>
 				</button>
 			</div>
 		</div>

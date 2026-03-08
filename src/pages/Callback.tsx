@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { logger } from '../utils/logger';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -102,8 +102,6 @@ const Button = styled.button`
   }
 `;
 
-const log = createModuleLogger('src/pages/Callback.tsx');
-
 const Callback = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
@@ -157,7 +155,7 @@ const Callback = () => {
 
 				// Check for error in the URL (e.g., user denied permission)
 				if (urlParams.error) {
-					log.error('Callback', ' [Callback] OAuth error in URL:', {
+					logger.error('Callback', ' [Callback] OAuth error in URL:', {
 						error: urlParams.error,
 						errorDescription: urlParams.error_description,
 					});
@@ -220,8 +218,8 @@ const Callback = () => {
 
 				// Check if we have the required parameters
 				if (!urlParams.code) {
-					log.error('Callback', ' [Callback] No authorization code in URL parameters');
-					log.error('Callback', ' [Callback] Available parameters:', {
+					logger.error('Callback', ' [Callback] No authorization code in URL parameters');
+					logger.error('Callback', ' [Callback] Available parameters:', {
 						params: Object.keys(urlParams),
 					});
 
@@ -290,7 +288,7 @@ const Callback = () => {
 					navigate(redirectUrl, { replace: true });
 				}, 1500);
 			} catch (err) {
-				log.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
+					logger.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
 				setStatus('error');
 				const errorMessage =
 					err instanceof Error ? err.message : 'An error occurred during authentication';

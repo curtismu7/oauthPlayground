@@ -24,8 +24,8 @@ import {
 } from '../types/oauthErrors';
 import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { oauthStorage } from '../utils/storage';
+import { logger } from '../utils/logger';
 
 /**
  * Utility function to mask tokens for security
@@ -51,8 +51,6 @@ type TokenInspectionResult = {
 	claims: ClaimEntry[];
 	error: TokenValidationError | null;
 };
-
-const log = createModuleLogger('src/pages/TokenInspector.tsx');
 
 const TokenInspector: React.FC = () => {
 	const [token, setToken] = useState<string>('');
@@ -88,7 +86,7 @@ const TokenInspector: React.FC = () => {
 			}
 			return String(obj);
 		} catch (err) {
-			log.error('TokenInspector', 'Error formatting JSON:', undefined, err as Error);
+			logger.error('TokenInspector', 'Error formatting JSON:', undefined, err as Error);
 			return `[Error: ${err instanceof Error ? err.message : 'Unknown error formatting JSON'}]`;
 		}
 	}, []);
@@ -174,7 +172,7 @@ const TokenInspector: React.FC = () => {
 							}),
 				});
 			} catch (err) {
-				log.error('TokenInspector', 'Error analyzing token:', undefined, err as Error);
+				logger.error('TokenInspector', 'Error analyzing token:', undefined, err as Error);
 
 				const error = isTokenError(err)
 					? err
@@ -206,7 +204,7 @@ const TokenInspector: React.FC = () => {
 				return () => clearTimeout(timer);
 			})
 			.catch((err) => {
-				log.error('TokenInspector', 'Failed to copy text:', undefined, err as Error);
+				logger.error('TokenInspector', 'Failed to copy text:', undefined, err as Error);
 				// Could show a toast notification here
 			});
 	}, []);
@@ -229,7 +227,7 @@ const TokenInspector: React.FC = () => {
 				URL.revokeObjectURL(url);
 			}, 100);
 		} catch (err) {
-			log.error('TokenInspector', 'Failed to download file:', undefined, err as Error);
+			logger.error('TokenInspector', 'Failed to download file:', undefined, err as Error);
 			// Could show a toast notification here
 		}
 	}, []);

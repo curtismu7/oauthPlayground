@@ -1,4 +1,4 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { logger } from '../../utils/logger';
 /**
  * @file PingOneLogoutFlow.tsx
  * @module pages/flows
@@ -22,7 +22,6 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { pingOneLogoutService } from '../../services/pingOneLogoutService';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
 
 const FlowContainer = styled.div`
@@ -219,8 +218,6 @@ interface PingOneLogoutFlowProps {
 	};
 }
 
-const log = createModuleLogger('src/pages/flows/PingOneLogoutFlow.tsx');
-
 const PingOneLogoutFlow: React.FC<PingOneLogoutFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -251,7 +248,7 @@ const logoutConfig = {
 
 console.log('Logout configuration:', logoutConfig);`,
 			execute: async () => {
-				log.info('PingOneLogoutFlow', 'Configuring logout settings');
+				logger.info('PingOneLogoutFlow', 'Configuring logout settings');
 			},
 		},
 		{
@@ -270,7 +267,7 @@ const logoutUrl = buildPingOneLogoutUrl(environmentId, {
 console.log('Logout URL:', logoutUrl);
 // Example: https://auth.pingone.com/{envId}/as/logout?id_token_hint=...&post_logout_redirect_uri=...&state=...`,
 			execute: async () => {
-				log.info('PingOneLogoutFlow', 'Building logout URL');
+				logger.info('PingOneLogoutFlow', 'Building logout URL');
 				setDemoStatus('loading');
 
 				try {
@@ -327,12 +324,12 @@ const result = await pingOneLogoutService.logout({
 });
 
 if (result.success) {
-  console.log('Logout initiated:', result.message);
+  logger.info('PingOneLogoutFlow', 'Logout initiated:', result.message);
 } else {
-  log.error('PingOneLogoutFlow', 'Logout failed:', { error: result.error });
+  logger.error('PingOneLogoutFlow', 'Logout failed:', { error: result.error });
 }`,
 			execute: async () => {
-				log.info('PingOneLogoutFlow', 'Initiating logout');
+				logger.info('PingOneLogoutFlow', 'Initiating logout');
 				setDemoStatus('loading');
 
 				try {
@@ -381,7 +378,7 @@ const returnedState = urlParams.get('state');
 const storedState = sessionStorage.getItem('logout_state');
 
 if (returnedState !== storedState) {
-  log.error('PingOneLogoutFlow', 'Logout state mismatch - possible CSRF attack');
+  logger.error('PingOneLogoutFlow', 'Logout state mismatch - possible CSRF attack');
   return;
 }
 
@@ -396,10 +393,10 @@ sessionStorage.removeItem('logout_state');
 // ... your cleanup code ...
 
 // 4. Redirect to login or show confirmation
-console.log('User logged out successfully');
+logger.info('PingOneLogoutFlow', 'User logged out successfully');
 window.location.href = '/login'; // or show logout confirmation`,
 			execute: async () => {
-				log.info('PingOneLogoutFlow', 'Processing post-logout redirect');
+				logger.info('PingOneLogoutFlow', 'Processing post-logout redirect');
 				setResponse((prev) => ({
 					...prev,
 					postLogoutHandled: true,
@@ -420,15 +417,15 @@ window.location.href = '/login'; // or show logout confirmation`,
 // Check if user is still authenticated
 const idToken = localStorage.getItem('id_token');
 if (idToken) {
-  log.warn('PingOneLogoutFlow', 'ID token still exists - logout may not have completed');
+  logger.warn('PingOneLogoutFlow', 'ID token still exists - logout may not have completed');
 } else {
-  console.log('✅ Logout successful - all tokens cleared');
+  logger.info('PingOneLogoutFlow', 'Logout successful - all tokens cleared');
 }
 
 // Optional: Verify PingOne session termination
 // Try to access a protected resource to confirm session is ended`,
 			execute: async () => {
-				log.info('PingOneLogoutFlow', 'Completing logout flow');
+				logger.info('PingOneLogoutFlow', 'Completing logout flow');
 				setResponse((prev) => ({
 					...prev,
 					completed: true,
@@ -446,7 +443,7 @@ if (idToken) {
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		log.info('PingOneLogoutFlow', `Step ${step + 1} completed`, result);
+		logger.info('PingOneLogoutFlow', `Step ${step + 1} completed`, result);
 	}, []);
 
 	const handleBuildLogoutUrl = async () => {
@@ -521,7 +518,7 @@ if (idToken) {
 	const handleCopyUrl = () => {
 		if (logoutUrl) {
 			navigator.clipboard.writeText(logoutUrl);
-			log.info('PingOneLogoutFlow', 'Logout URL copied to clipboard');
+			logger.info('PingOneLogoutFlow', 'Logout URL copied to clipboard');
 		}
 	};
 
