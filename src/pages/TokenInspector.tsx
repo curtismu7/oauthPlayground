@@ -1,4 +1,3 @@
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiDownload, FiEye, FiEyeOff, FiXCircle } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import {
@@ -25,7 +24,7 @@ import {
 } from '../types/oauthErrors';
 import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
-import { logger } from '../utils/logger';
+import { createModuleLogger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
 
 /**
@@ -52,6 +51,8 @@ type TokenInspectionResult = {
 	claims: ClaimEntry[];
 	error: TokenValidationError | null;
 };
+
+const log = createModuleLogger('src/pages/TokenInspector.tsx');
 
 const TokenInspector: React.FC = () => {
 	const [token, setToken] = useState<string>('');
@@ -87,7 +88,7 @@ const TokenInspector: React.FC = () => {
 			}
 			return String(obj);
 		} catch (err) {
-			logger.error('TokenInspector', 'Error formatting JSON:', undefined, err as Error);
+			log.error('TokenInspector', 'Error formatting JSON:', undefined, err as Error);
 			return `[Error: ${err instanceof Error ? err.message : 'Unknown error formatting JSON'}]`;
 		}
 	}, []);
@@ -173,7 +174,7 @@ const TokenInspector: React.FC = () => {
 							}),
 				});
 			} catch (err) {
-				logger.error('TokenInspector', 'Error analyzing token:', undefined, err as Error);
+				log.error('TokenInspector', 'Error analyzing token:', undefined, err as Error);
 
 				const error = isTokenError(err)
 					? err
@@ -205,7 +206,7 @@ const TokenInspector: React.FC = () => {
 				return () => clearTimeout(timer);
 			})
 			.catch((err) => {
-				logger.error('TokenInspector', 'Failed to copy text:', undefined, err as Error);
+				log.error('TokenInspector', 'Failed to copy text:', undefined, err as Error);
 				// Could show a toast notification here
 			});
 	}, []);
@@ -228,7 +229,7 @@ const TokenInspector: React.FC = () => {
 				URL.revokeObjectURL(url);
 			}, 100);
 		} catch (err) {
-			logger.error('TokenInspector', 'Failed to download file:', undefined, err as Error);
+			log.error('TokenInspector', 'Failed to download file:', undefined, err as Error);
 			// Could show a toast notification here
 		}
 	}, []);
@@ -273,13 +274,13 @@ const TokenInspector: React.FC = () => {
 								}}
 								variant="secondary"
 							>
-								<FiEye /> Load from Storage
+								👁️ Load from Storage
 							</ActionButton>
 							<ActionButton
 								onClick={() => setMaskInput(!maskInput)}
 								variant="secondary"
 							>
-								{maskInput ? <FiEyeOff /> : <FiEye />} {maskInput ? 'Show Token' : 'Hide Token'}
+								{maskInput ? 👁️‍🗨️ : 👁️} {maskInput ? 'Show Token' : 'Hide Token'}
 							</ActionButton>
 							<ActionButton
 								onClick={() => {
@@ -296,6 +297,7 @@ const TokenInspector: React.FC = () => {
 								Clear
 							</ActionButton>
 						</div>
+					</div>
 					</CardBody>
 				</TokenPartCard>
 
@@ -319,7 +321,7 @@ const TokenInspector: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<FiAlertTriangle style={{ flexShrink: 0, marginTop: '0.2rem' }} />
+						⚠️ style={{ flexShrink: 0, marginTop: '0.2rem' }} />
 						<div>
 							<div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
 								{TokenErrorMessages[error.code as keyof typeof TokenErrorMessages] ||
@@ -361,12 +363,12 @@ const TokenInspector: React.FC = () => {
 									<ValidationStatus valid={validation.valid}>
 										{validation.valid ? (
 											<>
-												<FiCheckCircle />
+												✅
 												<span>Token is valid</span>
 											</>
 										) : (
 											<>
-												<FiXCircle />
+												❌
 												<span>Token is invalid</span>
 											</>
 										)}
@@ -401,7 +403,7 @@ const TokenInspector: React.FC = () => {
 											onClick={() => handleCopy(JSON.stringify(formattedToken.header, null, 2))}
 											variant="secondary"
 										>
-											<FiCopy /> {copied ? 'Copied!' : 'Copy'}
+											📋 {copied ? 'Copied!' : 'Copy'}
 										</ActionButton>
 										<ActionButton
 											onClick={() =>
@@ -412,7 +414,7 @@ const TokenInspector: React.FC = () => {
 											}
 											variant="secondary"
 										>
-											<FiDownload /> Save
+											⬇️ Save
 										</ActionButton>
 									</div>
 								</div>
@@ -427,7 +429,7 @@ const TokenInspector: React.FC = () => {
 											onClick={() => handleCopy(JSON.stringify(formattedToken.payload, null, 2))}
 											variant="secondary"
 										>
-											<FiCopy /> {copied ? 'Copied!' : 'Copy'}
+											📋 {copied ? 'Copied!' : 'Copy'}
 										</ActionButton>
 										<ActionButton
 											onClick={() =>
@@ -438,7 +440,7 @@ const TokenInspector: React.FC = () => {
 											}
 											variant="secondary"
 										>
-											<FiDownload /> Save
+											⬇️ Save
 										</ActionButton>
 									</div>
 								</div>
@@ -454,7 +456,7 @@ const TokenInspector: React.FC = () => {
 												onClick={() => handleCopy(formattedToken.signature || '')}
 												variant="secondary"
 											>
-												<FiCopy /> {copied ? 'Copied!' : 'Copy'}
+												📋 {copied ? 'Copied!' : 'Copy'}
 											</ActionButton>
 										</div>
 									)}
