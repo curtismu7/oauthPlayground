@@ -56,7 +56,7 @@ import FlowCredentialService from '../../../services/flowCredentialService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import FlowStorageService from '../../../services/flowStorageService';
 import FlowUIService from '../../../services/flowUIService';
-import { logger } from '../../../services/loggingService';
+import { createModuleLogger } from '../../../utils/logger';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../../services/pkceGenerationService';
 import { themeService } from '../../../services/themeService';
@@ -69,14 +69,16 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import {
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import {
 	DEFAULT_APP_CONFIG,
 	type IntroSectionKey,
 	STEP_METADATA,
 } from '../config/OAuthAuthzCodeFlowV9.config';
 
-type StepCompletionState = Record<number, boolean>;
+const log = createModuleLogger('src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx');
+
+type _StepCompletionState = Record<number, boolean>;
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -594,7 +596,7 @@ const EmptyText = styled.p`
 `;
 
 const OAuthAuthorizationCodeFlowV9: React.FC = () => {
-	logger.info('OAuthAuthorizationCodeFlowV9', 'V7.2 Flow loaded!', {
+	log.info('OAuthAuthorizationCodeFlowV9', 'V7.2 Flow loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
@@ -650,7 +652,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 			// Only sync if credentials have actually changed
 			if (credentialsHash !== lastSyncedCredentials) {
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Syncing credentials to comprehensive service');
+				log.info('OAuthAuthorizationCodeFlowV9', 'Syncing credentials to comprehensive service');
 				try {
 					comprehensiveFlowDataService.saveFlowCredentialsIsolated(
 						'oauth-authorization-code-v9',
@@ -658,12 +660,12 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						{ backupToEnv: true }
 					);
 					setLastSyncedCredentials(credentialsHash);
-					logger.info(
+					log.info(
 						'OAuthAuthorizationCodeFlowV9',
 						'Credentials synced to comprehensive service'
 					);
 				} catch (error) {
-					logger.error('OAuthAuthorizationCodeFlowV9', 'Failed to sync credentials', error);
+					log.error('OAuthAuthorizationCodeFlowV9', 'Failed to sync credentials', error);
 				}
 			}
 		}
@@ -710,7 +712,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			FlowCredentialService.loadSharedCredentials(`oauth-authorization-code-v9-${nextVariant}`)
 				.then((reloadedCredentials) => {
 					if (reloadedCredentials && Object.keys(reloadedCredentials).length > 0) {
-						logger.info(
+						log.info(
 							'OAuthAuthorizationCodeFlowV9',
 							`Loading saved ${nextVariant.toUpperCase()} credentials`,
 							reloadedCredentials
@@ -722,7 +724,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					}
 				})
 				.catch((error) => {
-					logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to load shared credentials', error);
+					log.warn('OAuthAuthorizationCodeFlowV9', 'Failed to load shared credentials', error);
 				});
 
 			// PingOne requires openid scope for both OAuth and OIDC variants
@@ -749,7 +751,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 			// Restore PKCE codes and auth state to prevent mismatch errors
 			if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge) {
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Preserving PKCE codes during variant switch');
+				log.info('OAuthAuthorizationCodeFlowV9', 'Preserving PKCE codes during variant switch');
 				controller.setPkceCodes(currentPkceCodes);
 			}
 
@@ -809,7 +811,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v9') ?? 'oauth-authz-v7';
 		const saved = FlowStorageService.AdvancedParameters.get(flowId);
 		if (saved) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Loading saved advanced parameters', saved);
+			log.info('OAuthAuthorizationCodeFlowV9', 'Loading saved advanced parameters', saved);
 			setAudience(saved.audience || '');
 			setResources(saved.resources || []);
 			setPromptValues(saved.promptValues || []);
@@ -824,11 +826,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			try {
 				const parsedPkce = JSON.parse(storedPkce);
 				if (parsedPkce.codeVerifier && parsedPkce.codeChallenge) {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Restoring PKCE codes from session storage');
+					log.info('OAuthAuthorizationCodeFlowV9', 'Restoring PKCE codes from session storage');
 					controller.setPkceCodes(parsedPkce);
 				}
 			} catch (error) {
-				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PKCE codes', error);
+				log.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PKCE codes', error);
 			}
 		}
 	}, [controller.persistKey, controller.pkceCodes, controller.setPkceCodes]);
@@ -836,7 +838,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Update flow config when advanced parameters change
 	useEffect(() => {
 		if (audience || promptValues.length > 0) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Updating flow config with advanced parameters', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Updating flow config with advanced parameters', {
 				audience,
 				promptValues,
 			});
@@ -884,7 +886,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 		// Restore tokenEndpointAuthMethod from flowConfig or flowCredentials
 		if (flowData.flowConfig?.tokenEndpointAuthMethod) {
-			logger.info(
+			log.info(
 				'OAuthAuthorizationCodeFlowV9',
 				'Restoring tokenEndpointAuthMethod from flowConfig',
 				{ method: flowData.flowConfig.tokenEndpointAuthMethod }
@@ -894,7 +896,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				clientAuthMethod: flowData.flowConfig.tokenEndpointAuthMethod as string,
 			});
 		} else if (flowData.flowCredentials?.tokenEndpointAuthMethod) {
-			logger.info(
+			log.info(
 				'OAuthAuthorizationCodeFlowV9',
 				'Restoring tokenEndpointAuthMethod from flowCredentials',
 				{ method: flowData.flowCredentials.tokenEndpointAuthMethod }
@@ -933,13 +935,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				};
 				controller.setCredentials(updatedCredentials);
 			} catch (error) {
-				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PingOne config', error);
+				log.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PingOne config', error);
 			}
 		}
 	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
-	logger.info('OAuthAuthorizationCodeFlowV9', 'Current controller.authCode', {
+	log.info('OAuthAuthorizationCodeFlowV9', 'Current controller.authCode', {
 		hasAuthCode: !!controller.authCode,
 		authCodeLength: controller.authCode?.length || 0,
 		authCodePreview: controller.authCode ? `${controller.authCode.substring(0, 10)}...` : 'Not set',
@@ -951,7 +953,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Handle successful authorization code reception
 	const handleAuthCodeSuccess = useCallback((code: string) => {
 		// Show success modal (guarded so it only shows once per auth code)
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Opening LoginSuccessModal');
+		log.info('OAuthAuthorizationCodeFlowV9', 'Opening LoginSuccessModal');
 		if (
 			loginModalGuardRef.current !== code &&
 			sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true'
@@ -986,7 +988,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		const sessionAuthCode =
 			sessionStorage.getItem('oauth_auth_code') || sessionStorage.getItem('oauth_v7_auth_code');
 
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Initialization check', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'Initialization check', {
 			hasCode: !!authCode,
 			hasError: !!error,
 			hasUrlStep: !!urlStep,
@@ -1004,7 +1006,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				message: `OAuth Error: ${error}`,
 				dismissible: true,
 			});
-			logger.error('OAuthAuthorizationCodeFlowV9', 'OAuth error in URL', { error });
+			log.error('OAuthAuthorizationCodeFlowV9', 'OAuth error in URL', { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1021,7 +1023,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		// Handle OAuth callback with authorization code - PRIORITY 1
 		const finalAuthCode = authCode || sessionAuthCode;
 		if (finalAuthCode) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Authorization code found', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Authorization code found', {
 				source: authCode ? 'URL' : 'sessionStorage',
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
@@ -1038,7 +1040,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				controller.credentials?.clientSecret &&
 				controller.credentials?.environmentId;
 
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Credential validation', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Credential validation', {
 				hasClientId: !!controller.credentials?.clientId,
 				hasClientSecret: !!controller.credentials?.clientSecret,
 				hasEnvironmentId: !!controller.credentials?.environmentId,
@@ -1053,7 +1055,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			});
 
 			if (!hasRequiredCredentials) {
-				logger.info(
+				log.info(
 					'OAuthAuthorizationCodeFlowV9',
 					'Waiting 500ms for credentials to load, then re-checking'
 				);
@@ -1065,7 +1067,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						controller.credentials?.clientSecret &&
 						controller.credentials?.environmentId;
 
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Credential re-validation after delay', {
+					log.info('OAuthAuthorizationCodeFlowV9', 'Credential re-validation after delay', {
 						hasClientId: !!controller.credentials?.clientId,
 						hasClientSecret: !!controller.credentials?.clientSecret,
 						hasEnvironmentId: !!controller.credentials?.environmentId,
@@ -1088,7 +1090,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					}
 
 					// Credentials loaded successfully - proceed with normal flow
-					logger.info(
+					log.info(
 						'OAuthAuthorizationCodeFlowV9',
 						'Credentials loaded, proceeding with callback handling'
 					);
@@ -1111,7 +1113,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		if (urlStep) {
 			const stepIndex = parseInt(urlStep, 10);
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Using URL step parameter', { stepIndex });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Using URL step parameter', { stepIndex });
 				setCurrentStep(stepIndex);
 				sessionStorage.setItem('oauth-authorization-code-v9-current-step', stepIndex.toString());
 				return;
@@ -1122,14 +1124,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		if (storedStep) {
 			const stepIndex = parseInt(storedStep, 10);
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Using stored step', { stepIndex });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Using stored step', { stepIndex });
 				setCurrentStep(stepIndex);
 				return;
 			}
 		}
 
 		// Default to step 0 for fresh start - PRIORITY 4
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Fresh start - going to step 0');
+		log.info('OAuthAuthorizationCodeFlowV9', 'Fresh start - going to step 0');
 		setCurrentStep(0);
 		sessionStorage.setItem('oauth-authorization-code-v9-current-step', '0');
 	}, [
@@ -1157,7 +1159,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			if (urlStep && !authCode && !error) {
 				const stepIndex = parseInt(urlStep, 10);
 				if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-					logger.info(
+					log.info(
 						'OAuthAuthorizationCodeFlowV9',
 						'URL step parameter detected (no OAuth callback), updating step to',
 						{ stepIndex }
@@ -1174,13 +1176,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		// Event-based URL monitoring (replaces polling interval for better performance)
 		// Listen for browser navigation (back/forward buttons)
 		const handlePopState = () => {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Browser navigation detected, checking URL step');
+			log.info('OAuthAuthorizationCodeFlowV9', 'Browser navigation detected, checking URL step');
 			checkUrlStep();
 		};
 
 		// Listen for hash changes (in case of hash-based routing)
 		const handleHashChange = () => {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Hash change detected, checking URL step');
+			log.info('OAuthAuthorizationCodeFlowV9', 'Hash change detected, checking URL step');
 			checkUrlStep();
 		};
 
@@ -1197,7 +1199,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	useEffect(() => {
 		// If we just received an auth code from the controller and haven't shown the modal yet
 		if (controller.authCode && !showLoginSuccessModal && !localAuthCode) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Auth code detected from controller', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Auth code detected from controller', {
 				authCodePreview: `${controller.authCode.substring(0, 10)}...`,
 			});
 
@@ -1241,7 +1243,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			};
 
 			controller.setCredentials(updatedCredentials);
-			setCredentials(updatedCredentials);
 
 			const snapshot = {
 				hasClientId: !!updatedCredentials.clientId,
@@ -1249,7 +1250,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				hasEnvironmentId: !!updatedCredentials.environmentId,
 			};
 
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Credentials updated', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Credentials updated', {
 				field,
 				valuePreview:
 					field === 'clientSecret'
@@ -1274,11 +1275,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	);
 
 	const handleSaveConfiguration = useCallback(async () => {
-		logger.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Starting save process');
-		logger.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Current credentials', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Starting save process');
+		log.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Current credentials', {
 			credentials: controller.credentials,
 		});
-		logger.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Current flowConfig', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Current flowConfig', {
 			flowConfig: controller.flowConfig,
 		});
 
@@ -1293,7 +1294,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			return !value || (typeof value === 'string' && !value.trim());
 		});
 
-		logger.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Missing fields', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'handleSaveConfiguration - Missing fields', {
 			missing,
 		});
 
@@ -1309,12 +1310,12 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		}
 
 		try {
-			logger.info(
+			log.info(
 				'OAuthAuthorizationCodeFlowV9',
 				'handleSaveConfiguration - Calling controller.saveCredentials()'
 			);
 			await controller.saveCredentials();
-			logger.info(
+			log.info(
 				'OAuthAuthorizationCodeFlowV9',
 				'handleSaveConfiguration - Save completed successfully'
 			);
@@ -1402,7 +1403,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	);
 
 	const handleGeneratePkce = useCallback(async () => {
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Generating PKCE codes', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'Generating PKCE codes', {
 			clientId: controller.credentials.clientId,
 			environmentId: controller.credentials.environmentId,
 			flowKey: 'oauth-authorization-code-v9',
@@ -1414,10 +1415,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			controller
 		);
 
-		logger.info('OAuthAuthorizationCodeFlowV9', 'PKCE generation result', { success });
+		log.info('OAuthAuthorizationCodeFlowV9', 'PKCE generation result', { success });
 
 		if (success) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'PKCE codes after generation', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'PKCE codes after generation', {
 				codeVerifier: controller.pkceCodes.codeVerifier
 					? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...`
 					: 'none',
@@ -1455,7 +1456,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			}
 
 			setIsRedirectlessRunning(true);
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Starting redirectless flow');
+			log.info('OAuthAuthorizationCodeFlowV9', 'Starting redirectless flow');
 			try {
 				const envId = controller.credentials.environmentId?.trim();
 				const clientId = controller.credentials.clientId?.trim();
@@ -1489,7 +1490,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				}
 
 				// Step 1: start flow (response_mode=pi.flow)
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 1: Starting authorization request');
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 1: Starting authorization request');
 				const authorizeBody = {
 					environmentId: envId,
 					clientId,
@@ -1500,7 +1501,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					codeChallenge,
 					codeChallengeMethod: 'S256',
 				};
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Authorization request body', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Authorization request body', {
 					authorizeBody,
 				});
 
@@ -1509,7 +1510,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(authorizeBody),
 				});
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 1 response status', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 1 response status', {
 					status: step1.status,
 				});
 
@@ -1518,7 +1519,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					throw new Error(`Authorize failed (${step1.status}): ${errorText}`);
 				}
 				const step1Json = await step1.json();
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 1 response data', { step1Json });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 1 response data', { step1Json });
 				const sessionId = step1Json._sessionId as string | undefined;
 				const flowCheckUrl = step1Json?._links?.['usernamePassword.check']?.href as
 					| string
@@ -1526,14 +1527,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				if (!flowCheckUrl) throw new Error('Missing usernamePassword.check link');
 
 				// Step 2: send credentials to PingOne
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 2: Checking username/password');
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 2: Checking username/password');
 				const step2Body = {
 					flowUrl: flowCheckUrl,
 					username: creds.username,
 					password: creds.password,
 					sessionId,
 				};
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 2 request body', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 2 request body', {
 					...step2Body,
 					password: '[REDACTED]',
 				});
@@ -1543,7 +1544,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(step2Body),
 				});
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 2 response status', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 2 response status', {
 					status: step2.status,
 				});
 
@@ -1552,13 +1553,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					throw new Error(`Credential check failed (${step2.status}): ${errorText}`);
 				}
 				const step2Json = await step2.json();
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 2 response data', { step2Json });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 2 response data', { step2Json });
 				const resumeUrl = step2Json.resumeUrl as string | undefined;
 				const effectiveSessionId = (step2Json._sessionId as string | undefined) || sessionId;
 				if (!resumeUrl) throw new Error('Missing resumeUrl');
 
 				// Step 3: resume to obtain authorization code
-				logger.info(
+				log.info(
 					'OAuthAuthorizationCodeFlowV9',
 					'Step 3: Resuming flow to get authorization code'
 				);
@@ -1569,7 +1570,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					codeVerifier: controller.pkceCodes.codeVerifier,
 					sessionId: effectiveSessionId,
 				};
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 3 request body', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 3 request body', {
 					...resumeBody,
 					clientSecret: '[REDACTED]',
 					codeVerifier: '[REDACTED]',
@@ -1580,7 +1581,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(resumeBody),
 				});
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 3 response status', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 3 response status', {
 					status: step3.status,
 				});
 
@@ -1589,18 +1590,18 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					throw new Error(`Resume failed (${step3.status}): ${errorText}`);
 				}
 				const step3Json = await step3.json();
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 3 response data', { step3Json });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 3 response data', { step3Json });
 				const authorizationCode =
 					(step3Json.code as string) || (step3Json?.authorizeResponse?.code as string);
 				if (!authorizationCode) {
 					throw new Error('No authorization code returned by resume');
 				}
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Authorization code received', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Authorization code received', {
 					authCodePreview: `${authorizationCode.substring(0, 20)}...`,
 				});
 
 				// Step 4: backend token exchange (reuse existing endpoint)
-				logger.info(
+				log.info(
 					'OAuthAuthorizationCodeFlowV9',
 					'Step 4: Exchanging authorization code for tokens'
 				);
@@ -1615,7 +1616,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					token_endpoint_auth_method:
 						controller.credentials.clientAuthMethod || 'client_secret_post',
 				};
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 4 request body', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 4 request body', {
 					...tokenExchangeBody,
 					client_secret: '[REDACTED]',
 					code_verifier: '[REDACTED]',
@@ -1626,7 +1627,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(tokenExchangeBody),
 				});
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 4 response status', {
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 4 response status', {
 					status: tokenResp.status,
 				});
 
@@ -1635,11 +1636,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					throw new Error(`Token exchange failed (${tokenResp.status}): ${errorText}`);
 				}
 				const tokens = await tokenResp.json();
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 4 response data (tokens)', { tokens });
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 4 response data (tokens)', { tokens });
 				controller.setTokens(tokens);
 				// Set the auth code for UI display purposes (even though it's been consumed)
 				// This enables the "Exchange Authorization Code for Tokens" button to show it worked
-				logger.info(
+				log.info(
 					'OAuthAuthorizationCodeFlowV9',
 					'Setting authorization code in controller for UI display',
 					{
@@ -1648,7 +1649,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				);
 				controller.setAuthCodeManually(authorizationCode);
 				setLocalAuthCode(authorizationCode);
-				logger.info(
+				log.info(
 					'OAuthAuthorizationCodeFlowV9',
 					'Tokens obtained successfully, advancing to step 4 (Token Exchange)'
 				);
@@ -1664,28 +1665,28 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				if (!hasOAuthCallback) {
 					currentUrl.searchParams.set('step', '4');
 					window.history.replaceState({}, '', currentUrl.toString());
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Step 4 set, URL updated', {
+					log.info('OAuthAuthorizationCodeFlowV9', 'Step 4 set, URL updated', {
 						url: currentUrl.toString(),
 					});
 				} else {
-					logger.info(
+					log.info(
 						'OAuthAuthorizationCodeFlowV9',
 						'Step 4 set, but skipping URL update due to OAuth callback parameters'
 					);
 				}
 				// Multiple timeouts to ensure step advancement sticks
 				setTimeout(() => {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Timeout 0ms: Setting step to 4');
+					log.info('OAuthAuthorizationCodeFlowV9', 'Timeout 0ms: Setting step to 4');
 					setCurrentStep(4);
 					sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 				}, 0);
 				setTimeout(() => {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Timeout 100ms: Setting step to 4');
+					log.info('OAuthAuthorizationCodeFlowV9', 'Timeout 100ms: Setting step to 4');
 					setCurrentStep(4);
 					sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 				}, 100);
 				setTimeout(() => {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Timeout 500ms: Setting step to 4');
+					log.info('OAuthAuthorizationCodeFlowV9', 'Timeout 500ms: Setting step to 4');
 					setCurrentStep(4);
 					sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 				}, 500);
@@ -1713,7 +1714,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Opening authentication modal');
+			log.info('OAuthAuthorizationCodeFlowV9', 'Opening authentication modal');
 			setShowRedirectModal(true);
 			// Modal will handle its own countdown and closing
 		}
@@ -1747,7 +1748,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 		if (missingFields.length > 0) {
 			controller.setCredentials(normalizedCredentials);
-			setCredentials(normalizedCredentials);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1764,7 +1764,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			normalizedCredentials.environmentId !== controller.credentials.environmentId
 		) {
 			controller.setCredentials(normalizedCredentials);
-			setCredentials(normalizedCredentials);
 		}
 
 		// If we have a local auth code but not in controller, set it first
@@ -1980,7 +1979,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'oauth-authorization-code-v9');
-			logger.info(
+			log.info(
 				'OAuthAuthorizationCodeFlowV9',
 				'Passing access token to Token Management via localStorage'
 			);
@@ -2005,7 +2004,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			// Use credentials from the controller (same as the flow uses for token exchange)
 			const credentials = controller.credentials;
 
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Using flow credentials for introspection', {
+			log.info('OAuthAuthorizationCodeFlowV9', 'Using flow credentials for introspection', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
@@ -2128,7 +2127,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	}, [currentStep, isStepValid]);
 
 	const handleNext = useCallback(() => {
-		logger.info('OAuthAuthorizationCodeFlowV9', 'handleNext called', {
+		log.info('OAuthAuthorizationCodeFlowV9', 'handleNext called', {
 			currentStep,
 			canNavigate: canNavigateNext(),
 			isStepValid: isStepValid(currentStep),
@@ -2148,7 +2147,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			controller,
 			isStepValid,
 			() => {
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Navigation allowed, moving to next step');
+				log.info('OAuthAuthorizationCodeFlowV9', 'Navigation allowed, moving to next step');
 				const next = currentStep + 1;
 				setCurrentStep(next);
 			}
@@ -2167,7 +2166,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 	// Handle next button click with feedback even when disabled
 	const handleNextClick = useCallback(() => {
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Next button clicked');
+		log.info('OAuthAuthorizationCodeFlowV9', 'Next button clicked');
 
 		if (!canNavigateNext()) {
 			modernMessaging.showBanner({
@@ -2330,7 +2329,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<ComprehensiveCredentialsService
 										// Discovery props
 										onDiscoveryComplete={(result) => {
-											logger.info('OAuthAuthorizationCodeFlowV9', 'Discovery completed', {
+											log.info('OAuthAuthorizationCodeFlowV9', 'Discovery completed', {
 												result,
 											});
 											if (result.issuerUrl) {
@@ -2339,7 +2338,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												);
 												if (extractedEnvId) {
 													handleFieldChange('environmentId', extractedEnvId);
-													logger.info(
+													log.info(
 														'OAuthAuthorizationCodeFlowV9',
 														'Auto-extracted Environment ID',
 														{ extractedEnvId }
@@ -2599,7 +2598,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								credentials={controller.credentials}
 								flowType="oauth"
 								onPKCEGenerated={() => {
-									logger.info('OAuthAuthorizationCodeFlowV9', 'PKCE codes generated successfully');
+									log.info('OAuthAuthorizationCodeFlowV9', 'PKCE codes generated successfully');
 								}}
 							/>
 						</ResultsSection>
@@ -3439,7 +3438,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						credentials={controller.credentials as unknown as Record<string, unknown>}
 						pingOneConfig={pingOneConfig}
 						onTerminateSession={() => {
-							logger.info(
+							log.info(
 								'OAuthAuthorizationCodeFlowV9',
 								'Session terminated via EnhancedSecurityFeaturesDemo'
 							);
@@ -3450,7 +3449,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							});
 						}}
 						onRevokeTokens={() => {
-							logger.info(
+							log.info(
 								'OAuthAuthorizationCodeFlowV9',
 								'Tokens revoked via EnhancedSecurityFeaturesDemo'
 							);
@@ -3582,11 +3581,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			{AuthenticationModalService.showModal(
 				showRedirectModal,
 				() => {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Modal cancelled by user');
+					log.info('OAuthAuthorizationCodeFlowV9', 'Modal cancelled by user');
 					setShowRedirectModal(false);
 				},
 				() => {
-					logger.info(
+					log.info(
 						'OAuthAuthorizationCodeFlowV9',
 						'User confirmed - continuing to PingOne authentication'
 					);
@@ -3610,7 +3609,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
 				onClose={() => {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Closing LoginSuccessModal', {
+					log.info('OAuthAuthorizationCodeFlowV9', 'Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
 						storedStep: sessionStorage.getItem('oauth-authorization-code-v9-current-step'),
@@ -3618,7 +3617,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
-						logger.info('OAuthAuthorizationCodeFlowV9', 'Correcting step to 4 after modal close');
+						log.info('OAuthAuthorizationCodeFlowV9', 'Correcting step to 4 after modal close');
 						setCurrentStep(4);
 						sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 					}
