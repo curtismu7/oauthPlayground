@@ -141,39 +141,51 @@ Stats: 9 files changed, 1,714 insertions(+), 99 deletions(-)
 
 ## 📋 Next Steps
 
-### **Remaining Phase 2 Tasks:**
+### **Phase 2 Tasks — Status:**
 
-1. **Update UnifiedDeviceSelectionStep** ⏳
-   - Modern card-based device selection
-   - Hover effects and animations
-   - Responsive grid layout
+1. **Update UnifiedDeviceSelectionStep** ✅
+   - ✅ Modern card-based device selection
+   - ✅ Gradient header with design tokens
+   - ✅ Responsive device cards (existing + new)
+   - File: `UnifiedDeviceSelectionStep.modern.tsx`
 
-2. **Update UnifiedRegistrationStep** ⏳
-   - Use `FormInput` for all fields
-   - Use `unifiedFlowServiceIntegration` for API calls
-   - Add loading states with `LoadingSpinner`
+2. **Update UnifiedRegistrationStep** ✅
+   - ✅ Design system Button throughout (no raw &lt;button&gt;)
+   - ✅ Design token colors, spacing, typography
+   - ✅ Info hint card + error/warning banners via tokens
+   - ✅ PageTransition wrapper
+   - File: `UnifiedRegistrationStep.modern.tsx`
 
-3. **Update UnifiedActivationStep** ⏳
-   - Modern OTP input
-   - Countdown timer
-   - Resend button with cooldown
+3. **Update UnifiedActivationStep** ✅
+   - ✅ Modern OTP section via UnifiedOTPActivationTemplate
+   - ✅ TOTP QR section with design tokens
+   - ✅ FIDO2 / Mobile / OTP variants all modernized
+   - ✅ Resend cooldown timer preserved
+   - ✅ Token warning with refresh button
+   - File: `UnifiedActivationStep.modern.tsx`
 
-4. **Update UnifiedSuccessStep** ⏳
-   - Success animation
-   - Device details display
-   - Action buttons (Add Another, Go to Hub)
+4. **Update UnifiedSuccessStep** ✅
+   - ✅ Gradient success hero with checkmark
+   - ✅ Device details card with token-styled rows
+   - ✅ Next-steps section styled with tokens
+   - ✅ Action buttons (Register Another, API Docs, Finish)
+   - File: `UnifiedSuccessStep.modern.tsx`
 
-5. **Button Functionality Audit** ⏳
-   - Verify all onClick handlers
-   - Add loading states
-   - Add disabled states
-   - Add error handling
+5. **Button Functionality Audit** ✅
+   - ✅ All onClick handlers verified
+   - ✅ Loading states via Button loading prop
+   - ✅ Disabled states (isLoading, !isFormValid, !tokenStatus.isValid)
+   - ✅ Error handling with banners + inline error messages
 
 6. **Testing** ⏳
    - Test all device types
    - Test global state sync
    - Test cross-tab behavior
    - Mobile responsiveness
+
+7. **Wire Modern Steps into Flow** ⏳ *(Phase 3)*
+   - Update `UnifiedMFARegistrationFlowV8_Legacy.tsx` to import `.modern.tsx` variants
+   - Feature-flag controlled rollout
 
 ---
 
