@@ -183,9 +183,11 @@ Stats: 9 files changed, 1,714 insertions(+), 99 deletions(-)
    - Test cross-tab behavior
    - Mobile responsiveness
 
-7. **Wire Modern Steps into Flow** ⏳ *(Phase 3)*
-   - Update `UnifiedMFARegistrationFlowV8_Legacy.tsx` to import `.modern.tsx` variants
-   - Feature-flag controlled rollout
+7. **Wire Modern Steps into Flow** ✅ *(Phase 3 complete)*
+   - `renderStep0` → `UnifiedRegistrationStepModern` (field-mapping adapter + `mfa_modern_ui` flag)
+   - `renderStep1` → `UnifiedActivationStepModern` (feature-flag controlled)
+   - `renderStep3` → `UnifiedSuccessStepModern` (feature-flag controlled)
+   - All steps behind `MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')` (enabled 100%)
 
 ---
 
