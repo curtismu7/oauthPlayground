@@ -10,7 +10,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataServiceTest } from '../utils/comprehensiveFlowDataServiceTest';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const TestRunnerContainer = styled.div`
   padding: 20px;

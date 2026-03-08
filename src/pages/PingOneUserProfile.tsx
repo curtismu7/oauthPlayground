@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/PingOneUserProfile.tsx
 // PingOne User Profile viewer with worker token management
 // Cache bust: 2025-02-17-11:32
@@ -19,7 +20,6 @@ import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheck
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface PingOneConsentRecord {
 	id?: string;

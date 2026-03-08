@@ -38,7 +38,6 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const Container = styled.div`

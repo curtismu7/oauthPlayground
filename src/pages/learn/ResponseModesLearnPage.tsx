@@ -11,7 +11,6 @@ import ResponseModeSelector, {
 	type ResponseModeSelectorProps,
 } from '../../components/response-modes/ResponseModeSelector';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const Container = styled.div`

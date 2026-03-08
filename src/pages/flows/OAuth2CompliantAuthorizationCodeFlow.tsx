@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/OAuth2CompliantAuthorizationCodeFlow.tsx
 /**
  * RFC 6749 Compliant OAuth 2.0 Authorization Code Flow
@@ -36,7 +37,6 @@ import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security

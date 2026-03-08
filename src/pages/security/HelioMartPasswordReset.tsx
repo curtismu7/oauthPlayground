@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
@@ -43,7 +44,6 @@ import { PageLayoutService } from '../../services/pageLayoutService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Create layout components at module level so styled.header is never created inside a hook.
 // styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.

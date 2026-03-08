@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 /**
  * @file SpecVersionSelector.tsx
  * @module v8u/components
@@ -10,7 +11,6 @@ import { FiHelpCircle, FiX } from '@icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;

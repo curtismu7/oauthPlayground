@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/DeviceAuthorizationFlowV9_New.tsx
 // lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
@@ -77,7 +78,6 @@ import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { createModuleLogger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security

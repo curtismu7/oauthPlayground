@@ -13,7 +13,6 @@ import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 export const PasskeyManager: React.FC = () => {
 	usePageScroll({ pageName: 'Passkey Manager', force: true });

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/docs/OAuthAndOIDCForAI.tsx
 // Comprehensive OAuth 2.0 & OpenID Connect for AI/Agentic Systems Guide
 
@@ -15,7 +16,6 @@ import {
 } from '../../services/commonImportsService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const LinkGrid = styled.div`
   display: grid;

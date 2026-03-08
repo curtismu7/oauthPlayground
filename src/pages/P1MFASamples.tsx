@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 export const P1MFASamples: React.FC = () => {
 	return (

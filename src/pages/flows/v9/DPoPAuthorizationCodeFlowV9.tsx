@@ -5,7 +5,6 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // V9 Flow Components
 const {

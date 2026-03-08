@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/v9/PingOnePARFlowV9.tsx
 // V9.0.0 PingOne PAR (Pushed Authorization Request) Flow - Modern V9 Architecture
 
@@ -23,7 +24,6 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Step metadata for V9
 const STEP_METADATA = [

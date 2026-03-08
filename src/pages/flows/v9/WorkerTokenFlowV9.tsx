@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/v9/WorkerTokenFlowV9.tsx
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
@@ -26,7 +27,6 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
 	max-width: 1200px;

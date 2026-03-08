@@ -1,4 +1,5 @@
 import type React from 'react';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 // lint-file-disable: json-parse-no-try
 import { useCallback, useEffect, useState } from 'react';
@@ -11,7 +12,6 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

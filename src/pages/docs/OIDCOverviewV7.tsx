@@ -27,7 +27,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 /**
  * @file DpopAuthorizationCodeFlowV8.tsx
  * @module pages
@@ -32,7 +33,6 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Styled components
 

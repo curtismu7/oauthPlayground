@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 /**
  * @file PostmanCollectionGenerator.tsx
  * @module pages
@@ -35,7 +36,6 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 

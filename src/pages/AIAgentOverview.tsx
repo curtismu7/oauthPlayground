@@ -15,7 +15,6 @@ import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1400px;

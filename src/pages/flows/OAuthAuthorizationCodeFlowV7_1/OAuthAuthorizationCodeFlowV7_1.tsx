@@ -23,7 +23,6 @@ import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 import { logger } from '../../../utils/logger';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const _FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {

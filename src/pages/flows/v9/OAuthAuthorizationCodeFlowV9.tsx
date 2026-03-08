@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/OAuthAuthorizationCodeFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
@@ -69,7 +70,6 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import {
 	DEFAULT_APP_CONFIG,
 	type IntroSectionKey,

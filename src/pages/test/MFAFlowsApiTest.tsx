@@ -9,7 +9,6 @@ import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Test Configuration for MFA flows
 interface MFATestConfig {

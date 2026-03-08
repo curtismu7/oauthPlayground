@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 /**
  * @file PingOneLogoutFlow.tsx
  * @module pages/flows
@@ -24,7 +25,6 @@ import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { pingOneLogoutService } from '../../services/pingOneLogoutService';
 import { logger } from '../../utils/logger';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const FlowContainer = styled.div`
 	max-width: 1200px;

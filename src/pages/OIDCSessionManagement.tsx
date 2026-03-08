@@ -19,7 +19,6 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
