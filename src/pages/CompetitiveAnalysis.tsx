@@ -12,7 +12,6 @@ import {
 import React, { useState } from 'react';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Button = FlowUIService.getButton();
 

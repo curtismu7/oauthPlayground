@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 /**
  * Dashboard — home page: API status, endpoints, quick access flows, recent activity.
  * Follows migrate_cursor.md consistency (Ping headers, V9_COLORS.TEXT.GRAY_DARK/V9_COLORS.TEXT.GRAY_DARK text, collapsible sections).
@@ -9,7 +10,6 @@ import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatusOptional } from '../components/ServerStatusProvider';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import {
 	getAppUrlForDomain,
 	getCustomDomain,

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
@@ -45,7 +46,6 @@ import '../utils/testExportImport'; // Auto-run export/import tests in developme
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
 import '../utils/testConfigChecker';
 import { logger } from '../utils/logger'; // Auto-run config checker tests in development
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;

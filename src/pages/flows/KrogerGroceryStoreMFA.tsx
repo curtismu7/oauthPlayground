@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/KrogerGroceryStoreMFA.tsx
 // Kroger Grocery Store Mockup - Real-world MFA authentication experience
 // This page demonstrates PingOne MFA in a realistic grocery store website context
@@ -21,7 +22,6 @@ import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';

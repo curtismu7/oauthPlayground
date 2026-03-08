@@ -11,7 +11,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {

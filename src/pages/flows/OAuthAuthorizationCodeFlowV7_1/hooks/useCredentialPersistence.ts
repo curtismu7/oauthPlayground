@@ -6,7 +6,6 @@ import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials } from '../types/flowTypes';
 import { saveFlowCredentialsIsolated } from '../../../../services/flowCredentialService';
 import { logger } from '../../../../utils/logger';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface UseCredentialPersistenceProps {
 	credentials: FlowCredentials;

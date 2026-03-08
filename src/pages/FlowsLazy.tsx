@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { LazyLoadingFallback } from '../components/LazyLoadingFallback';
 import { useLazyLoading, usePreloadFlows } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Page = styled.div`
   display: flex;

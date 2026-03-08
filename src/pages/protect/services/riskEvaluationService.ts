@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 /**
  * @file riskEvaluationService.ts
  * @module protect-portal/services
@@ -22,7 +23,6 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import { PingOneSignalsService } from './pingOneSignalsService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
 
