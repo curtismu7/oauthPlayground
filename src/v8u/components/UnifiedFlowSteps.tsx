@@ -1,4 +1,3 @@
-import { logger } from '../../utils/logger';
 /**
  * @file UnifiedFlowSteps.tsx
  * @module v8u/components
@@ -305,7 +304,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	onStepChange,
 	onCompletedStepsChange,
 	onFlowReset,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	appConfig: _appConfig, // Unused but kept for API compatibility
 }) => {
 	// Generate flowKey dynamically (matches parent component's logic)
@@ -428,10 +426,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [passwordChangeUserId, setPasswordChangeUserId] = useState<string | null>(null);
 	// Note: passwordChangeFlowId and passwordChangeState are reserved for future use
 	// @ts-expect-error - Reserved for future use
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [_passwordChangeFlowId, setPasswordChangeFlowId] = useState<string | null>(null);
 	// @ts-expect-error - Reserved for future use
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [_passwordChangeState, setPasswordChangeState] = useState<string | null>(null);
 	const [, setPasswordChangeUsername] = useState<string | null>(null);
 	const [showPingOneRequestModal, setShowPingOneRequestModal] = useState(false);
@@ -899,7 +895,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Generate unique IDs for form inputs and modals (accessibility)
 	// Note: callbackUrlDisplayId is reserved for future use
 	// @ts-expect-error - Reserved for future use
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const _callbackUrlDisplayId = useId();
 	const fragmentUrlInputId = useId();
 	const callbackSuccessModalTitleId = useId();
@@ -927,7 +922,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							`OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) only returns access_token and refresh_token when used without OpenID Connect. ` +
 							`ID tokens are only part of OpenID Connect Core 1.0.`
 					);
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 					const { id_token: _idToken, ...filteredTokens } = tokens;
 					return filteredTokens as TokenResponse;
 				}
@@ -1116,7 +1110,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const userInfo = responseData as Record<string, unknown>;
 				return userInfo;
 			} catch {
-				logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
+				log.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 				return null;
 			} finally {
 				setIsFetchingUserInfo(false);
@@ -1196,7 +1190,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		 * and are preserved across restarts.
 		 */
 		PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
-			logger.error(
+			log.error(
 				'UnifiedFlowSteps',
 				`Failed to clear PKCE codes from all storage`,
 				undefined,
@@ -1340,7 +1334,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Clear PKCE codes for the previous flow type
 			const prevFlowKey = `${prevFlowTypeRef.current}-${specVersion}-v8u`;
 			PKCEStorageServiceV8U.clearPKCECodes(prevFlowKey).catch((err) => {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`Failed to clear PKCE codes for previous flow type`,
 					undefined,
@@ -1360,16 +1354,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (onStepChange) {
 			onStepChange(currentStep);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentStep, onStepChange]);
+		}, [currentStep, onStepChange]);
 
 	// Notify parent of completed steps changes
 	useEffect(() => {
 		if (onCompletedStepsChange) {
 			onCompletedStepsChange(completedSteps);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [completedSteps, onCompletedStepsChange]);
+		}, [completedSteps, onCompletedStepsChange]);
 
 	// Note: nav object is already created above using useMemo - duplicate removed
 
@@ -1577,7 +1569,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			console.log(`${MODULE_TAG} Validation Errors Found:`, errors.length);
 			// Set validation errors if any are found
 			if (errors.length > 0) {
-				logger.warn('UnifiedFlowSteps', `Missing required fields on token exchange step`, {
+				log.warn('UnifiedFlowSteps', `Missing required fields on token exchange step`, {
 					usePKCE: isPKCERequired,
 					pkceEnforcement: credentials.pkceEnforcement,
 					hasAuthorizationCode: !!flowState.authorizationCode,
@@ -1710,10 +1702,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 					console.log(`${MODULE_TAG} Enhanced state management updated with new tokens`);
 				} catch {
-					logger.warn('UnifiedFlowSteps', `Failed to update enhanced state management`);
+					log.warn('UnifiedFlowSteps', `Failed to update enhanced state management`);
 				}
 			} catch (err) {
-				logger.error('UnifiedFlowSteps', `Failed to save tokens to sessionStorage`, undefined, err);
+				log.error('UnifiedFlowSteps', `Failed to save tokens to sessionStorage`, undefined, err);
 			}
 		}
 	}, [flowState.tokens, flowType, enhancedStateActions]);
@@ -1744,7 +1736,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasVerificationUri: !!flowState.verificationUri,
 				});
 			} catch (err) {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`Failed to save device code data to sessionStorage`,
 					undefined,
@@ -1792,7 +1784,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasState: !!flowState.state,
 				});
 			} catch (err) {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`Failed to save authorization code to sessionStorage`,
 					undefined,
@@ -1881,7 +1873,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							hasIdToken: !!fragmentTokens?.id_token,
 						});
 					} catch (err) {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to parse callback for hybrid flow`,
 							undefined,
@@ -1911,7 +1903,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Don't remove from sessionStorage yet - we'll do it after parsing
 					}
 				} catch (err) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`Failed to parse callback data from sessionStorage`,
 						undefined,
@@ -1971,7 +1963,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const hasState = url.searchParams.has('state');
 
 					if (!hasCode || !hasState) {
-						logger.warn(
+						log.warn(
 							'UnifiedFlowSteps',
 							`Fallback callback URL does not contain required OAuth parameters`,
 							{
@@ -2003,7 +1995,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						);
 					} catch (err) {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to parse authorization code for hybrid flow`,
 							undefined,
@@ -2036,7 +2028,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						);
 						console.log(`${MODULE_TAG} Hybrid flow: Tokens saved to sessionStorage`);
 					} catch (err) {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to save hybrid tokens to sessionStorage`,
 							undefined,
@@ -2061,7 +2053,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								allParams[key] = value;
 							});
 						} catch {
-							logger.warn('UnifiedFlowSteps', `Failed to parse callback URL for allParams`);
+							log.warn('UnifiedFlowSteps', `Failed to parse callback URL for allParams`);
 						}
 					}
 
@@ -2119,7 +2111,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					return;
 				} else {
 					// If no updates, log what we found for debugging
-					logger.warn('UnifiedFlowSteps', `Hybrid flow: No updates applied`, {
+					log.warn('UnifiedFlowSteps', `Hybrid flow: No updates applied`, {
 						hasDetectedCode: !!detectedCode,
 						hasCallbackUrl: !!callbackUrl,
 						hasFragmentTokens: !!fragmentTokens,
@@ -2143,7 +2135,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const hasState = url.searchParams.has('state');
 
 				if (!hasCode || !hasState) {
-					logger.warn(
+					log.warn(
 						'UnifiedFlowSteps',
 						`Callback URL does not contain required OAuth parameters`,
 						{
@@ -2207,7 +2199,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					console.log(`${MODULE_TAG} Authorization code extracted - showing success modal`);
 				} catch (err) {
-					logger.error('UnifiedFlowSteps', `Failed to auto-parse callback URL`, undefined, err);
+					log.error('UnifiedFlowSteps', `Failed to auto-parse callback URL`, undefined, err);
 					// If auto-parsing fails, just set the URL so user can manually parse
 					setFlowState((prev) => ({
 						...prev,
@@ -2330,7 +2322,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						hasIdToken: !!tokens.idToken,
 					});
 				} catch (err) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`Failed to save tokens to sessionStorage`,
 						undefined,
@@ -2361,7 +2353,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setShowUserInfoModal(true);
 						}
 					} catch {
-						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
+						log.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 
 						// Still show modal if we have ID token with user info
 						if (tokens.idToken) {
@@ -2446,7 +2438,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					}
 				} catch (err) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`Failed to parse callback data from sessionStorage`,
 						undefined,
@@ -2573,7 +2565,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								})
 							);
 						} catch (err) {
-							logger.error(
+							log.error(
 								'UnifiedFlowSteps',
 								`Failed to save tokens to sessionStorage`,
 								undefined,
@@ -2588,7 +2580,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							duration: 3000,
 						});
 					} catch (err) {
-						logger.error('UnifiedFlowSteps', `Failed to auto-parse fragment`, undefined, err);
+						log.error('UnifiedFlowSteps', `Failed to auto-parse fragment`, undefined, err);
 						// Fall back to manual parsing via handleParseFragment
 						handleParseFragment();
 					}
@@ -2613,7 +2605,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							duration: 3000,
 						});
 					} catch (err) {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to restore tokens from sessionStorage`,
 							undefined,
@@ -3394,7 +3386,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				SharedCredentialsServiceV8.saveSharedCredentials(
 																					sharedCreds
 																				).catch(() => {
-																					logger.warn(
+																					log.warn(
 																						'UnifiedFlowSteps',
 																						`Background disk save failed (non-critical):`
 																					);
@@ -3462,7 +3454,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			}
 																		}
 																	} catch (error) {
-																		logger.error(
+																		log.error(
 																			'UnifiedFlowSteps',
 																			`Error fixing errors:`,
 																			undefined,
@@ -3638,7 +3630,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					codeChallengeMethod: codes.codeChallengeMethod || 'S256',
 				});
 			} else {
-				logger.warn('UnifiedFlowSteps', `handlePKCEChange called but codes are incomplete`);
+				log.warn('UnifiedFlowSteps', `handlePKCEChange called but codes are incomplete`);
 			}
 		};
 
@@ -3977,7 +3969,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				if (!authCode) {
 					// Log full response for debugging
-					logger.error('UnifiedFlowSteps', `Authorization code not found in resume response`, {
+					log.error('UnifiedFlowSteps', `Authorization code not found in resume response`, {
 						responseKeys: Object.keys(resumeData),
 						hasCode: !!resumeData.code,
 						hasFlow: !!resumeData.flow,
@@ -4390,7 +4382,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								throw new Error('Failed to lookup user');
 							}
 						} catch (lookupError) {
-							logger.error('UnifiedFlowSteps', `Failed to lookup user:`, undefined, lookupError);
+							log.error('UnifiedFlowSteps', `Failed to lookup user:`, undefined, lookupError);
 							const errorMsg =
 								'Password change is required, but user ID could not be determined. Please contact your administrator.';
 							setRedirectlessAuthError(errorMsg);
@@ -4519,7 +4511,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							await handleResumeRedirectlessFlow(flowId, stateValue, resumeUrl);
 						} else {
 							// COMPLETED but no code, tokens, or resumeUrl - log full response for debugging
-							logger.warn(
+							log.warn(
 								'UnifiedFlowSteps',
 								`Flow COMPLETED but no code, tokens, or resumeUrl found`,
 								{
@@ -4544,7 +4536,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-				logger.error('UnifiedFlowSteps', `Failed to submit credentials:`, undefined, errorMessage);
+				log.error('UnifiedFlowSteps', `Failed to submit credentials:`, undefined, errorMessage);
 				setRedirectlessAuthError(errorMessage);
 				modernMessaging.showBanner({
 					type: 'error',
@@ -4627,7 +4619,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Re-open the login modal so user can try again
 				setShowRedirectlessModal(true);
 			} catch (error) {
-				logger.error('UnifiedFlowSteps', `Password change failed:`, undefined, error);
+				log.error('UnifiedFlowSteps', `Password change failed:`, undefined, error);
 				throw error; // Re-throw to let modal handle the error display
 			}
 		},
@@ -4638,7 +4630,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const handleStartRedirectlessAuth = useCallback(async () => {
 		const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 		if (!isRedirectless || !flowState.authorizationUrl) {
-			logger.warn(
+			log.warn(
 				'UnifiedFlowSteps',
 				`Cannot start redirectless auth - missing URL or not in redirectless mode`
 			);
@@ -4754,13 +4746,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							`${parRequestUri.substring(0, 50)}...`
 						);
 					} else {
-						logger.warn(
+						log.warn(
 							'UnifiedFlowSteps',
 							`PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`
 						);
 					}
 				} catch {
-					logger.warn('UnifiedFlowSteps', `Failed to parse authorization URL for PAR request_uri:`);
+					log.warn('UnifiedFlowSteps', `Failed to parse authorization URL for PAR request_uri:`);
 				}
 			}
 
@@ -4944,7 +4936,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Fallback: If we have a flowId but unexpected status, still show modal for manual entry
 			// This handles edge cases where PingOne might return a different status format
 			if (flowId) {
-				logger.warn(
+				log.warn(
 					'UnifiedFlowSteps',
 					`Unexpected flow status "${flowStatus}" but have flowId - showing modal as fallback to allow manual credential entry`
 				);
@@ -4954,7 +4946,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// If we don't have a flowId, something went wrong
-			logger.error('UnifiedFlowSteps', `No flowId in redirectless response:`, undefined, flowData);
+			log.error('UnifiedFlowSteps', `No flowId in redirectless response:`, undefined, flowData);
 			throw new Error(`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`);
 		} catch (err) {
 			const message =
@@ -5131,7 +5123,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						await new Promise((resolve) => setTimeout(resolve, 500));
 						workerToken = await workerTokenServiceV8.getToken();
 					} catch {
-						logger.warn('UnifiedFlowSteps', `Silent worker token retrieval failed:`);
+						log.warn('UnifiedFlowSteps', `Silent worker token retrieval failed:`);
 						// Continue without worker token - validation will show warnings
 					}
 				}
@@ -5281,7 +5273,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 									// Also save to disk asynchronously (non-blocking)
 									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(() => {
-										logger.warn('UnifiedFlowSteps', `Background disk save failed (non-critical):`);
+										log.warn('UnifiedFlowSteps', `Background disk save failed (non-critical):`);
 									});
 								}
 
@@ -5561,7 +5553,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 				}
 			} catch (validationError) {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`Pre-flight validation error:`,
 					undefined,
@@ -5600,7 +5592,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} finally {
 				// Ensure spinner is always cleared, even if something unexpected happens
 				if (isPreFlightValidating) {
-					logger.warn(
+					log.warn(
 						'UnifiedFlowSteps',
 						`Pre-flight validation spinner still active in finally block - clearing it`
 					);
@@ -5681,7 +5673,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// CRITICAL: Always use 'S256' - if stored codes have 'plain', they're from an old version and should be regenerated
 					// Using 'plain' would cause PKCE mismatch errors during token exchange
 					if (storedPKCE?.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
-						logger.warn(
+						log.warn(
 							'UnifiedFlowSteps',
 							`Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
 								`Using 'S256' for authorization URL. If you get PKCE mismatch errors, please regenerate PKCE codes in Step 1.`
@@ -5993,7 +5985,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														// Don't show warning here - let the modal handle it
 													}
 												} catch (error) {
-													logger.error(
+													log.error(
 														'UnifiedFlowSteps',
 														`Error retrieving worker token:`,
 														undefined,
@@ -6581,37 +6573,33 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								</InfoBox>
 
 								<ParameterGrid>
-									<ParameterCard>
+									<InfoBox $variant="info">
 										<ParameterName>response_type</ParameterName>
 										<ParameterDesc>Determines the OAuth flow type</ParameterDesc>
 										<ParameterValues>
 											<strong>code:</strong> Authorization Code Flow
 											<br />
-											<strong>id_token:</strong> Implicit Flow (OIDC)
-											<br />
-											<strong>code id_token:</strong> Hybrid Flow
-											<br />
 											<strong>token:</strong> Deprecated Implicit Flow
 										</ParameterValues>
-									</ParameterCard>
+									</InfoBox>
 
-									<ParameterCard>
+									<InfoBox $variant="info">
 										<ParameterName>client_id</ParameterName>
 										<ParameterDesc>Your application's unique identifier</ParameterDesc>
 										<ParameterValues>
 											Must match the client ID registered with the authorization server
 										</ParameterValues>
-									</ParameterCard>
+									</InfoBox>
 
-									<ParameterCard>
+									<InfoBox $variant="info">
 										<ParameterName>redirect_uri</ParameterName>
 										<ParameterDesc>Where the authorization server sends the response</ParameterDesc>
 										<ParameterValues>
 											Must exactly match one of the registered redirect URIs for your client
 										</ParameterValues>
-									</ParameterCard>
+									</InfoBox>
 
-									<ParameterCard>
+									<InfoBox $variant="info">
 										<ParameterName>scope</ParameterName>
 										<ParameterDesc>Requested permissions and access levels</ParameterDesc>
 										<ParameterValues>
@@ -6619,11 +6607,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											<br />
 											<strong>profile:</strong> User profile information
 											<br />
-											<strong>email:</strong> User email address
-											<br />
 											<strong>Custom scopes:</strong> API-specific permissions
 										</ParameterValues>
-									</ParameterCard>
+									</InfoBox>
 								</ParameterGrid>
 							</CollapsibleContent>
 						)}
@@ -6965,7 +6951,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														});
 													}
 												} catch (error) {
-													logger.error(
+													log.error(
 														'UnifiedFlowSteps',
 														`Error fixing errors:`,
 														undefined,
@@ -7837,7 +7823,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const isRedirectlessCallback =
 			credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 		if (isRedirectlessCallback) {
-			logger.warn(
+			log.warn(
 				'UnifiedFlowSteps',
 				`Redirectless mode (response_mode=pi.flow) is enabled but user is on callback step - this shouldn't happen in redirectless mode`
 			);
@@ -7954,7 +7940,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const hasState = url.searchParams.has('state');
 
 					if (!hasCode || !hasState) {
-						logger.warn(
+						log.warn(
 							'UnifiedFlowSteps',
 							`Manual parse callback URL does not contain required OAuth parameters`,
 							{
@@ -8007,7 +7993,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								updates.tokens = tokens;
 							}
 						} catch {
-							logger.warn('UnifiedFlowSteps', `Failed to parse fragment for hybrid flow`);
+							log.warn('UnifiedFlowSteps', `Failed to parse fragment for hybrid flow`);
 						}
 					}
 
@@ -8038,7 +8024,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const hasState = url.searchParams.has('state');
 
 						if (!hasCode || !hasState) {
-							logger.warn(
+							log.warn(
 								'UnifiedFlowSteps',
 								`Authorization code flow callback URL does not contain required OAuth parameters`,
 								{
@@ -8106,10 +8092,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (callbackData.error) {
 					callbackError = callbackData.error;
 					callbackErrorDescription = callbackData.errorDescription || callbackData.error;
-					logger.error('UnifiedFlowSteps', `Error in callback:`);
+					log.error('UnifiedFlowSteps', `Error in callback:`);
 				}
 			} catch (err) {
-				logger.error('UnifiedFlowSteps', `Failed to parse callback data:`, undefined, err);
+				log.error('UnifiedFlowSteps', `Failed to parse callback data:`, undefined, err);
 			}
 		}
 
@@ -9292,7 +9278,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 			}
 		} catch (validationError) {
-			logger.error('UnifiedFlowSteps', `Pre-flight validation error:`, undefined, validationError);
+			log.error('UnifiedFlowSteps', `Pre-flight validation error:`, undefined, validationError);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -9718,7 +9704,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Validate device code before sending
 					if (!currentDeviceCode || currentDeviceCode === '') {
-						logger.error('UnifiedFlowSteps', `Device code is missing or empty`, {
+						log.error('UnifiedFlowSteps', `Device code is missing or empty`, {
 							deviceCode: currentDeviceCode,
 							hasDeviceCode: !!currentDeviceCode,
 							refValue: deviceCodeRef.current,
@@ -9805,7 +9791,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// Debug response details
 						if (!response.ok) {
-							logger.error('UnifiedFlowSteps', `Polling response error (attempt ${pollCount}):`, {
+							log.error('UnifiedFlowSteps', `Polling response error (attempt ${pollCount}):`, {
 								status: response.status,
 								statusText: response.statusText,
 								responseData: responseData4,
@@ -9826,7 +9812,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						);
 					} catch (fetchError) {
 						// Log to console with full details
-						logger.error('UnifiedFlowSteps', `Fetch error during polling (attempt ${pollCount}):`, {
+						log.error('UnifiedFlowSteps', `Fetch error during polling (attempt ${pollCount}):`, {
 							error: fetchError,
 							tokenEndpoint,
 							windowLocation: window.location.href,
@@ -9874,7 +9860,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						errorData = JSON.parse(responseText);
 					} catch {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to parse error response:`,
 							undefined,
@@ -9934,7 +9920,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Handle access_denied (user denied authorization) - RFC 8628 Section 3.5
 					if (errorData.error === 'access_denied') {
-						logger.error('UnifiedFlowSteps', `User denied authorization`, {
+						log.error('UnifiedFlowSteps', `User denied authorization`, {
 							error: errorData.error,
 							description: errorData.error_description,
 						});
@@ -9945,7 +9931,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Handle expired_token or invalid_grant (device code expired/invalid) - RFC 8628 Section 3.5
 					if (errorData.error === 'expired_token' || errorData.error === 'invalid_grant') {
-						logger.error('UnifiedFlowSteps', `Device code expired or invalid`, {
+						log.error('UnifiedFlowSteps', `Device code expired or invalid`, {
 							error: errorData.error,
 							description: errorData.error_description,
 						});
@@ -9955,7 +9941,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Other errors (unknown errors)
-					logger.error('UnifiedFlowSteps', `Token polling error`, {
+					log.error('UnifiedFlowSteps', `Token polling error`, {
 						error: errorData.error,
 						description: errorData.error_description,
 					});
@@ -9966,7 +9952,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (error instanceof Error && error.message.includes('Token polling failed')) {
 						throw error;
 					}
-					logger.warn('UnifiedFlowSteps', `Polling error (attempt ${pollCount}/${maxAttempts})`);
+					log.warn('UnifiedFlowSteps', `Polling error (attempt ${pollCount}/${maxAttempts})`);
 					return null; // Retry on network errors
 				}
 			};
@@ -10090,7 +10076,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setShowUserInfoModal(true);
 								}
 							} catch {
-								logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
+								log.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 								if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
 								}
@@ -10406,7 +10392,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
 										}}
 										onError={(error: string) => {
-											logger.error(
+											log.error(
 												'UnifiedFlowSteps',
 												`Device authorization error`,
 												undefined,
@@ -10417,7 +10403,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									/>
 								);
 							} catch (error) {
-								logger.error(
+								log.error(
 									'UnifiedFlowSteps',
 									`Error rendering DynamicDeviceFlow:`,
 									undefined,
@@ -10868,7 +10854,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								};
 							}
 						} catch {
-							logger.warn(
+							log.warn(
 								'UnifiedFlowSteps',
 								`Could not fetch app config for fixable error analysis:`
 							);
@@ -11129,7 +11115,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						});
 					}
 				} catch (validationError) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`Pre-flight validation error:`,
 						undefined,
@@ -11554,8 +11540,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								params.append('client_secret', credentials.clientSecret?.trim() || '');
 							}
 
-							// @ts-expect-error - Reserved for future use
-							// eslint-disable-next-line @typescript-eslint/no-unused-vars
 							const _requestBody = params.toString();
 							const hasAuthHeader = authMethod === 'client_secret_basic';
 
@@ -11673,7 +11657,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Using 'plain' would cause PKCE mismatch errors since we now always generate with S256
 				// If the stored method is 'plain', we should regenerate codes, but for now force S256 to avoid immediate errors
 				if (storedPKCE.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
-					logger.warn(
+					log.warn(
 						'UnifiedFlowSteps',
 						`Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
 							`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
@@ -11701,17 +11685,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}));
 				}
 			} else {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`CRITICAL: No PKCE codes found in ANY of 4 storage locations!`
 				);
 				// If PKCE is enabled but codes are missing, this is a critical error
 				if (isPKCERequired) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`CRITICAL: PKCE enabled but no codes found in sessionStorage or flowState`
 					);
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`User must either: 1) Go to Step 0 (Configuration) and generate PKCE codes in Advanced Options, or 2) Disable PKCE in configuration`
 					);
@@ -11750,7 +11734,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Validate required fields before attempting token exchange
 			if (!flowState.authorizationCode) {
-				logger.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing authorization code`);
+				log.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing authorization code`);
 				setError('Authorization code is required. Please complete the callback step first.');
 				setValidationErrors(['Authorization code is required']);
 				return;
@@ -11759,7 +11743,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// CRITICAL: If PKCE is required, we MUST have a code verifier
 			// The service layer will reject the request if PKCE is required but no verifier is provided
 			if (isPKCERequired && !effectiveCodeVerifier) {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`VALIDATION FAILED: PKCE required but code verifier missing`
 				);
@@ -11783,12 +11767,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Validate credentials are present
 			if (!credentials.clientId || !credentials.clientId.trim()) {
-				logger.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing client ID`);
+				log.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing client ID`);
 				const errorMsg =
 					'Client ID is required for token exchange. Credentials may have been lost. Please check your configuration.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				logger.error('UnifiedFlowSteps', `Missing clientId in credentials:`, {
+				log.error('UnifiedFlowSteps', `Missing clientId in credentials:`, {
 					credentials,
 					hasClientId: !!credentials.clientId,
 					clientIdValue: credentials.clientId,
@@ -11797,12 +11781,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			if (!credentials.environmentId || !credentials.environmentId.trim()) {
-				logger.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing environment ID`);
+				log.error('UnifiedFlowSteps', `VALIDATION FAILED: Missing environment ID`);
 				const errorMsg =
 					'Environment ID is required for token exchange. Please check your configuration.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				logger.error('UnifiedFlowSteps', `Missing environmentId in credentials:`, {
+				log.error('UnifiedFlowSteps', `Missing environmentId in credentials:`, {
 					credentials,
 					hasEnvironmentId: !!credentials.environmentId,
 				});
@@ -11811,7 +11795,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Redirect URI is only required when PKCE is NOT required
 			if (!isPKCERequired && (!credentials.redirectUri || !credentials.redirectUri.trim())) {
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`VALIDATION FAILED: PKCE not required and missing redirect URI`
 				);
@@ -11819,7 +11803,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				logger.error(
+				log.error(
 					'UnifiedFlowSteps',
 					`Missing redirectUri in credentials (PKCE not required):`,
 					{
@@ -11894,7 +11878,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					}
 				} catch {
-					logger.warn(
+					log.warn(
 						'UnifiedFlowSteps',
 						`Failed to fetch app config before token exchange (continuing with current auth method):`
 					);
@@ -11943,7 +11927,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Warn if refresh token was expected but not received
 				if (credentials.enableRefreshToken && !tokens.refresh_token) {
-					logger.warn('UnifiedFlowSteps', `Refresh token expected but not received`, {
+					log.warn('UnifiedFlowSteps', `Refresh token expected but not received`, {
 						enableRefreshToken: credentials.enableRefreshToken,
 						scopesRequested: credentials.scopes,
 						hasOfflineAccessScope: credentials.scopes?.includes('offline_access'),
@@ -12012,7 +11996,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 					} catch {
-						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
+						log.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 						modernMessaging.showBanner({
 							type: 'warning',
 							title: 'Warning',
@@ -12048,7 +12032,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					message.includes('plain code_challenge_method') ||
 					(message.includes('code_verifier') && message.includes('plain'))
 				) {
-					logger.error(
+					log.error(
 						'UnifiedFlowSteps',
 						`PKCE mismatch detected: Authorization URL was generated with 'plain' method`
 					);
@@ -12062,9 +12046,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Also clear from flowState by creating new state without PKCE properties
 							setFlowState((prev) => {
 								const {
-									// eslint-disable-next-line @typescript-eslint/no-unused-vars
 									codeVerifier: _codeVerifier,
-									// eslint-disable-next-line @typescript-eslint/no-unused-vars
 									codeChallenge: _codeChallenge,
 									...rest
 								} = prev;
@@ -12073,7 +12055,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							console.log(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
 						}
 					} catch (clearError) {
-						logger.error(
+						log.error(
 							'UnifiedFlowSteps',
 							`Failed to clear old PKCE codes:`,
 							undefined,
@@ -12213,7 +12195,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (!canCallUserInfo) {
 			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
 			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
-			logger.warn('UnifiedFlowSteps', `${errorMsg}`);
+			log.warn('UnifiedFlowSteps', `${errorMsg}`);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -12310,7 +12292,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} else {
 					errorMsg = `Access token introspection is not available for this flow. ${rules.introspectionReason}`;
 				}
-				logger.warn('UnifiedFlowSteps', `${errorMsg}`);
+				log.warn('UnifiedFlowSteps', `${errorMsg}`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -12325,7 +12307,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (credentials.clientAuthMethod === 'none') {
 				const errorMsg =
 					'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
-				logger.warn('UnifiedFlowSteps', `${errorMsg}`);
+				log.warn('UnifiedFlowSteps', `${errorMsg}`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -12361,7 +12343,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				!tokenToIntrospect
 			) {
 				const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
-				logger.error('UnifiedFlowSteps', `${errorMsg}`, {
+				log.error('UnifiedFlowSteps', `${errorMsg}`, {
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret ? 'present' : 'missing',
@@ -12398,7 +12380,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Fallback to standard endpoint if discovery fails or endpoint not found
 				if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
 					introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-					logger.warn(
+					log.warn(
 						'UnifiedFlowSteps',
 						`Discovery failed or no introspection endpoint, using fallback`,
 						{
@@ -12508,7 +12490,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (!response.ok) {
 					const errorData = responseData5 as { error?: string; message?: string };
 					const errorText = errorData.error || errorData.message || 'Unknown error';
-					logger.error('UnifiedFlowSteps', `Introspection error response:`, undefined, errorText);
+					log.error('UnifiedFlowSteps', `Introspection error response:`, undefined, errorText);
 					throw new Error(
 						`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
 					);
@@ -12527,7 +12509,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to introspect token';
-				logger.error('UnifiedFlowSteps', `Introspection error:`, undefined, err);
+				log.error('UnifiedFlowSteps', `Introspection error:`, undefined, err);
 				setIntrospectionError(message);
 				modernMessaging.showBanner({
 					type: 'error',
@@ -12650,7 +12632,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			});
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to refresh token';
-			logger.error('UnifiedFlowSteps', `Token refresh failed`, { error: message });
+			log.error('UnifiedFlowSteps', `Token refresh failed`, { error: message });
 			setRefreshError(message);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -15500,7 +15482,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									});
 								}
 							} catch (error) {
-								logger.error(
+								log.error(
 									'UnifiedFlowSteps',
 									`Error re-running validation after token retrieval:`,
 									undefined,
