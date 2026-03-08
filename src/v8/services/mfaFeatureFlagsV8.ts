@@ -31,7 +31,8 @@ export type MFAFeatureFlag =
 	| 'mfa_unified_mobile'
 	| 'mfa_unified_whatsapp'
 	| 'mfa_unified_totp'
-	| 'mfa_unified_fido2';
+	| 'mfa_unified_fido2'
+	| 'mfa_modern_ui';
 
 export type RolloutPercentage = 0 | 10 | 50 | 100;
 
@@ -48,6 +49,8 @@ const DEFAULT_FLAGS: Record<MFAFeatureFlag, FeatureFlagState> = {
 	mfa_unified_whatsapp: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
 	mfa_unified_totp: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
 	mfa_unified_fido2: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	// Phase 2: Modern design-system UI for activation/success/registration/device-selection steps
+	mfa_modern_ui: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
 };
 
 /**
