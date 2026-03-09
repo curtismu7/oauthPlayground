@@ -12,6 +12,7 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel
 const KioskContainer = styled.div`
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
@@ -510,12 +511,12 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
+		logger.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

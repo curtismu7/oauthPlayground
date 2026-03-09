@@ -8,6 +8,7 @@
 
 import { unifiedLoggerV8 } from './unifiedLoggerV8';
 
+import { logger } from '../../../../utils/logger';
 // Canonical states from spec
 export type UnifiedMFAState =
 	| 'INIT'
@@ -332,7 +333,7 @@ class UnifiedStateServiceV8 {
 			try {
 				listener(state);
 			} catch (error) {
-				console.error('State change listener error:', error);
+				logger.error('State change listener error:', error);
 			}
 		});
 	}

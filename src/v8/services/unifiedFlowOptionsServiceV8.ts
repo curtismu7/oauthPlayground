@@ -19,6 +19,7 @@
 import { type FlowOptions, FlowOptionsServiceV8 } from './flowOptionsServiceV8';
 import { type FlowType, type SpecVersion, SpecVersionServiceV8 } from './specVersionServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-OPTIONS-V8]';
 
 export interface FieldVisibility {
@@ -53,7 +54,7 @@ export class UnifiedFlowOptionsServiceV8 {
 	 * @returns Flow options with spec-aware modifications
 	 */
 	static getOptionsForFlow(specVersion: SpecVersion, flowType: FlowType): FlowOptions {
-		console.log(`${MODULE_TAG} Getting options for flow`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Getting options for flow`, { specVersion, flowType });
 
 		// Get base flow options
 		const baseOptions = FlowOptionsServiceV8.getOptionsForFlow(`${flowType}-v8`);
@@ -81,7 +82,7 @@ export class UnifiedFlowOptionsServiceV8 {
 	 * @returns Field visibility configuration
 	 */
 	static getFieldVisibility(specVersion: SpecVersion, flowType: FlowType): FieldVisibility {
-		console.log(`${MODULE_TAG} Getting field visibility`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Getting field visibility`, { specVersion, flowType });
 
 		// Start with defaults
 		const visibility: FieldVisibility = {
@@ -138,7 +139,7 @@ export class UnifiedFlowOptionsServiceV8 {
 		specVersion: SpecVersion,
 		flowType: FlowType
 	): CheckboxAvailability {
-		console.log(`${MODULE_TAG} Getting checkbox availability`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Getting checkbox availability`, { specVersion, flowType });
 
 		const availability: CheckboxAvailability = {
 			showPKCE: false,
@@ -182,7 +183,7 @@ export class UnifiedFlowOptionsServiceV8 {
 	 * @returns Array of error messages for critical violations
 	 */
 	static getComplianceErrors(specVersion: SpecVersion, flowType: FlowType): string[] {
-		console.log(`${MODULE_TAG} Getting compliance errors`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Getting compliance errors`, { specVersion, flowType });
 
 		const errors: string[] = [];
 
@@ -210,7 +211,7 @@ export class UnifiedFlowOptionsServiceV8 {
 	 * @returns Array of warning messages
 	 */
 	static getComplianceWarnings(specVersion: SpecVersion, flowType: FlowType): string[] {
-		console.log(`${MODULE_TAG} Getting compliance warnings`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Getting compliance warnings`, { specVersion, flowType });
 
 		const warnings: string[] = [];
 

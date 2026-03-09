@@ -54,7 +54,7 @@ export const AuthScreen = () => {
 
       if (result.type === 'success') {
         const { code } = result.params;
-        console.log('Authorization code:', code);
+        logger.info('Authorization code:', code);
         // Exchange code for tokens
       }
     } catch (error) {
@@ -103,7 +103,7 @@ export const getWorkerToken = async (): Promise<string> => {
     await AsyncStorage.setItem('worker_token', data.access_token);
     return data.access_token;
   } catch (error) {
-    console.error('Failed to get worker token:', error);
+    logger.error('Failed to get worker token:', error);
     throw error;
   }
 };`;
@@ -144,7 +144,7 @@ export const DeviceList = ({ userId, accessToken, onSelect }: any) => {
       const data = await response.json();
       setDevices(data._embedded?.devices || []);
     } catch (error) {
-      console.error('Failed to fetch devices:', error);
+      logger.error('Failed to fetch devices:', error);
     } finally {
       setLoading(false);
     }
@@ -275,6 +275,7 @@ export const MFAVerification = ({ userId, deviceId, accessToken, onSuccess }: an
 import React, { useState } from 'react';
 import { View, TextInput, Button, Picker, Alert } from 'react-native';
 
+import { logger } from '../../../utils/logger';
 export const DeviceRegistration = ({ userId, accessToken, onSuccess }: any) => {
   const [type, setType] = useState('SMS');
   const [phone, setPhone] = useState('');

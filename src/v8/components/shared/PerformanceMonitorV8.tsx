@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { logger } from '../../utils/logger';
 interface PerformanceMetrics {
 	componentLoadTime: number;
 	memoryUsage: number;
@@ -79,10 +80,10 @@ export const PerformanceMonitorV8: React.FC<PerformanceMonitorV8Props> = ({
 		// Check for performance alerts
 		if (showAlerts) {
 			if (memory && memory.used > memory.total * 0.8) {
-				console.warn('⚠️ High memory usage detected:', memory);
+				logger.warn('⚠️ High memory usage detected:', memory);
 			}
 			if (networkRequests > 50) {
-				console.warn('⚠️ High network request count:', networkRequests);
+				logger.warn('⚠️ High network request count:', networkRequests);
 			}
 		}
 	}, [getMemoryUsage, getNetworkRequests, maxHistory, onMetricsUpdate, showAlerts]);

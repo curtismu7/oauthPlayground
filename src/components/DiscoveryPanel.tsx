@@ -8,6 +8,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { credentialManager } from '../utils/credentialManager';
 import CopyIcon from './CopyIcon';
 
+import { logger } from '../utils/logger';
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;
 	onClose: () => void;
@@ -322,7 +323,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const workerCreds = await unifiedWorkerTokenService.loadCredentials();
 				if (workerCreds?.environmentId) {
 					setEnvironmentId(workerCreds.environmentId);
-					log.info('DiscoveryPanel', 'Pre-populated Environment ID from worker token', {
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from worker token', {
 						environmentId: workerCreds.environmentId,
 					});
 					return;
@@ -332,7 +333,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const oauthCreds = await unifiedWorkerTokenService.storageService?.getOAuthCredentials();
 				if (oauthCreds?.environmentId) {
 					setEnvironmentId(oauthCreds.environmentId as string);
-					log.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
 						environmentId: oauthCreds.environmentId,
 					});
 					return;
@@ -348,14 +349,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 							if (prefs.region) {
 								setRegion(prefs.region);
 							}
-							log.info('DiscoveryPanel', 'Pre-populated from legacy discovery preferences', {
+							logger.info('DiscoveryPanel', 'Pre-populated from legacy discovery preferences', {
 								environmentId: prefs.environmentId,
 								region: prefs.region,
 							});
 						}
 					}
 				} catch (error) {
-					log.warn(
+					logger.warn(
 						'DiscoveryPanel',
 						'Failed to load legacy discovery preferences',
 						undefined,
@@ -363,7 +364,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					);
 				}
 			} catch (error) {
-				log.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
+				logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
 			}
 		};
 
@@ -377,12 +378,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				const credentials = await unifiedWorkerTokenService.loadCredentials();
 				if (credentials?.environmentId && !environmentId.trim()) {
 					setEnvironmentId(credentials.environmentId);
-					log.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token update', {
+					logger.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token update', {
 						environmentId: credentials.environmentId,
 					});
 				}
 			} catch (error) {
-				log.error('DiscoveryPanel', 'Failed to update environment ID from worker token:', error);
+				logger.error('DiscoveryPanel', 'Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -459,7 +460,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message: 'saveConfigurationSuccess',
 					duration: 4000,
 				});
-				log.success('DiscoveryPanel', 'Configuration discovered successfully', {
+				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
 					environmentId,
 					issuer: result.configuration.issuer,
 				});
@@ -476,7 +477,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				});
 			}
 		} catch (error) {
-			log.error('DiscoveryPanel', ' [DiscoveryPanel] Discovery failed:', undefined, error as Error);
+			logger.error('DiscoveryPanel', ' [DiscoveryPanel] Discovery failed:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -514,7 +515,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message: 'stepError',
 					dismissible: true,
 				});
-				log.error('DiscoveryPanel', 'Failed to apply configuration', error);
+				logger.error('DiscoveryPanel', 'Failed to apply configuration', error);
 			}
 		} else {
 			modernMessaging.showBanner({
@@ -537,7 +538,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			});
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			log.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
+			logger.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

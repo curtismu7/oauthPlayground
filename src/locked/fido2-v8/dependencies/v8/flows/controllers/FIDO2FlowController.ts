@@ -14,6 +14,7 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-CONTROLLER]';
 
 /**
@@ -157,7 +158,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		// If publicKeyCredentialCreationOptions not provided, we need to get it from the device
 		// This should have been returned from registerDevice, but if not, we'll need to fetch it
 		if (!publicKeyCredentialCreationOptions) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} publicKeyCredentialCreationOptions not provided, device may have been created without it`
 			);
 			throw new Error(
@@ -171,7 +172,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		try {
 			creationOptions = JSON.parse(publicKeyCredentialCreationOptions);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to parse publicKeyCredentialCreationOptions:`, error);
+			logger.error(`${MODULE_TAG} Failed to parse publicKeyCredentialCreationOptions:`, error);
 			throw new Error('Invalid device configuration. Please try registering again.');
 		}
 
@@ -213,7 +214,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		const rpIdMatchesOrigin = rpId && (rpId === originHost || originHost.endsWith(`.${rpId}`));
 
 		if (rpId && !rpIdMatchesOrigin) {
-			console.warn(`${MODULE_TAG} RP ID validation warning:`, {
+			logger.warn(`${MODULE_TAG} RP ID validation warning:`, {
 				rpId,
 				originHost,
 				origin: currentOrigin,
@@ -240,7 +241,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		if (authenticatorPrefs.authenticatorAttachment) {
 			creationOptions.authenticatorSelection.authenticatorAttachment =
 				authenticatorPrefs.authenticatorAttachment;
-			console.log(
+			logger.info(
 				`${MODULE_TAG} ✅ Preferring platform authenticator (TouchID/FaceID):`,
 				authenticatorPrefs
 			);
@@ -300,7 +301,7 @@ export class FIDO2FlowController extends MFAFlowController {
 			creationOptions.attestation = fido2Config.attestationRequest;
 		}
 
-		console.log(`${MODULE_TAG} Using PingOne's publicKeyCredentialCreationOptions:`, {
+		logger.info(`${MODULE_TAG} Using PingOne's publicKeyCredentialCreationOptions:`, {
 			rpId: creationOptions.rp?.id,
 			rpName: creationOptions.rp?.name,
 			origin: currentOrigin,
@@ -321,14 +322,14 @@ export class FIDO2FlowController extends MFAFlowController {
 		// Call navigator.credentials.create with PingOne's options (modified to prefer platform authenticators)
 		let credential: PublicKeyCredential | null;
 		try {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔐 Calling navigator.credentials.create() - TouchID/FaceID should prompt now...`
 			);
 			credential = (await navigator.credentials.create({
 				publicKey: creationOptions,
 			})) as PublicKeyCredential | null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} WebAuthn credential creation failed:`, error);
+			logger.error(`${MODULE_TAG} WebAuthn credential creation failed:`, error);
 			if (error instanceof Error) {
 				if (error.name === 'NotAllowedError') {
 					throw new Error(
@@ -402,13 +403,13 @@ export class FIDO2FlowController extends MFAFlowController {
 
 		// Validate origin format (per fido2.md section 1)
 		if (!origin.match(/^https?:\/\/[^/]+/)) {
-			console.warn(`${MODULE_TAG} Origin format validation:`, {
+			logger.warn(`${MODULE_TAG} Origin format validation:`, {
 				origin,
 				message: 'Origin should match format: <scheme>://<host>[:port]',
 			});
 		}
 
-		console.log(`${MODULE_TAG} Activating FIDO2 device with attestation:`, {
+		logger.info(`${MODULE_TAG} Activating FIDO2 device with attestation:`, {
 			origin,
 			originHost: new URL(origin).hostname,
 			rpId: creationOptions.rp?.id,

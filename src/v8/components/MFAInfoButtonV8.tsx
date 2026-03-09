@@ -16,6 +16,7 @@
 import React, { useMemo, useState } from 'react';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';
 
 /**
@@ -166,17 +167,17 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 			event.preventDefault();
 			event.stopPropagation();
 		}
-		console.log(`${MODULE_TAG} Info button clicked`, { contentKey, displayMode, isOpen });
+		logger.info(`${MODULE_TAG} Info button clicked`, { contentKey, displayMode, isOpen });
 		if (displayMode === 'modal') {
 			setIsOpen((prev) => {
-				console.log(`${MODULE_TAG} Setting isOpen to`, !prev);
+				logger.info(`${MODULE_TAG} Setting isOpen to`, !prev);
 				return !prev;
 			});
 		}
 	};
 
 	const handleClose = React.useCallback(() => {
-		console.log(`${MODULE_TAG} Closing modal`);
+		logger.info(`${MODULE_TAG} Closing modal`);
 		setIsOpen(false);
 	}, []);
 

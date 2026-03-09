@@ -8,6 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';
 
 interface CreatePolicyModalV8Props {
@@ -66,7 +67,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 			// Form will be reset by useEffect when modal closes
 		} catch (error) {
 			// Error handling is done in parent component
-			console.error(`${MODULE_TAG} Failed to create policy:`, error);
+			logger.error(`${MODULE_TAG} Failed to create policy:`, error);
 		}
 	};
 

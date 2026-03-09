@@ -25,6 +25,7 @@
 import { ERROR_MESSAGES, MODULE_TAGS } from '@/v8/config/constants';
 import type { IErrorHandlerService } from '@/v8/types/services';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = MODULE_TAGS.ERROR_HANDLER;
 
 /**
@@ -102,7 +103,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 		};
 
 		ErrorHandlerV8.addLogEntry(entry);
-		console.error(`${MODULE_TAG} ${message}`, {
+		logger.error(`${MODULE_TAG} ${message}`, {
 			error: error?.message,
 			context,
 			stack: error?.stack,
@@ -127,7 +128,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 		};
 
 		ErrorHandlerV8.addLogEntry(entry);
-		console.warn(`${MODULE_TAG} ${message}`, context);
+		logger.warn(`${MODULE_TAG} ${message}`, context);
 	}
 
 	/**
@@ -148,7 +149,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 		};
 
 		ErrorHandlerV8.addLogEntry(entry);
-		console.log(`${MODULE_TAG} ${message}`, context);
+		logger.info(`${MODULE_TAG} ${message}`, context);
 	}
 
 	/**
@@ -202,7 +203,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 	 */
 	static clearLogHistory(): void {
 		ErrorHandlerV8.logHistory = [];
-		console.log(`${MODULE_TAG} Log history cleared`);
+		logger.info(`${MODULE_TAG} Log history cleared`);
 	}
 
 	/**

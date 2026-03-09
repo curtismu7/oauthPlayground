@@ -15,6 +15,7 @@
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🖥️ DISPLAY-MODE-V8]';
 
 export type DisplayMode = 'page' | 'popup' | 'touch' | 'wap';
@@ -77,7 +78,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 	const selectedOption = value ? DISPLAY_MODE_OPTIONS[value] : null;
 
 	const handleChange = (newMode: string) => {
-		console.log(`${MODULE_TAG} Display mode changed`, { from: value, to: newMode });
+		logger.info(`${MODULE_TAG} Display mode changed`, { from: value, to: newMode });
 		onChange(newMode === '' ? undefined : (newMode as DisplayMode));
 	};
 

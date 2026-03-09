@@ -14,6 +14,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔄 CREDENTIAL-RELOAD-V8U]';
 
 /**
@@ -60,7 +61,7 @@ const MODULE_TAG = '[🔄 CREDENTIAL-RELOAD-V8U]';
  * @throws Never throws - always returns valid credentials object (may be minimal defaults)
  */
 export function reloadCredentialsAfterReset(flowKey: string): UnifiedFlowCredentials {
-	console.log(`${MODULE_TAG} Reloading credentials from storage for flow reset`, { flowKey });
+	logger.info(`${MODULE_TAG} Reloading credentials from storage for flow reset`, { flowKey });
 
 	try {
 		/**
@@ -175,7 +176,7 @@ export function reloadCredentialsAfterReset(flowKey: string): UnifiedFlowCredent
 			...(flowSpecific.prompt ? { prompt: flowSpecific.prompt } : {}),
 		};
 
-		console.log(`${MODULE_TAG} ✅ Credentials reloaded from storage`, {
+		logger.info(`${MODULE_TAG} ✅ Credentials reloaded from storage`, {
 			flowKey,
 			hasEnvId: !!merged.environmentId?.trim(),
 			hasClientId: !!merged.clientId?.trim(),
@@ -188,7 +189,7 @@ export function reloadCredentialsAfterReset(flowKey: string): UnifiedFlowCredent
 
 		return merged;
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error reloading credentials from storage`, {
+		logger.error(`${MODULE_TAG} ❌ Error reloading credentials from storage`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});
@@ -216,7 +217,7 @@ export function saveCredentialsBeforeReset(
 	flowKey: string,
 	credentials: UnifiedFlowCredentials
 ): void {
-	console.log(`${MODULE_TAG} Saving credentials before flow reset`, { flowKey });
+	logger.info(`${MODULE_TAG} Saving credentials before flow reset`, { flowKey });
 
 	try {
 		// Save flow-specific credentials
@@ -243,9 +244,9 @@ export function saveCredentialsBeforeReset(
 		};
 		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 
-		console.log(`${MODULE_TAG} ✅ Credentials saved before reset`);
+		logger.info(`${MODULE_TAG} ✅ Credentials saved before reset`);
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
+		logger.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});

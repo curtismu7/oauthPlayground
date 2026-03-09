@@ -5,6 +5,7 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,
@@ -471,17 +472,17 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('AppleTVDeviceFlow', 'User code copied to clipboard');
+		logger.info('AppleTVDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('AppleTVDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('AppleTVDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

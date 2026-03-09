@@ -1,5 +1,6 @@
 import { showGlobalInfo } from '../contexts/NotificationSystem';
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/errorRecovery.ts - Enhanced Error Handling and Recovery System
 
 export interface ErrorRecoveryConfig {
@@ -197,7 +198,7 @@ export class EnhancedErrorRecovery {
 					icon: '',
 					action: async () => {
 						// Implement token refresh logic
-						console.log(' Attempting token refresh...');
+						logger.info(' Attempting token refresh...');
 					},
 					priority: 'high',
 				});
@@ -233,8 +234,8 @@ export class EnhancedErrorRecovery {
 			description: 'Check console logs for detailed error information',
 			icon: '',
 			action: () => {
-				console.log(' Error Context:', context);
-				console.log(' Error Info:', errorInfo);
+				logger.info(' Error Context:', context);
+				logger.info(' Error Info:', errorInfo);
 			},
 			priority: 'low',
 		});
@@ -247,7 +248,7 @@ export class EnhancedErrorRecovery {
 			action: () => {
 				const errorReport = `Error: ${errorInfo.message}\nContext: ${JSON.stringify(context, null, 2)}`;
 				navigator.clipboard?.writeText(errorReport);
-				alert('Error details copied to clipboard. Please contact support.');
+				showGlobalInfo('Error details copied to clipboard. Please contact support.');
 			},
 			priority: 'low',
 		});
@@ -282,7 +283,7 @@ export class EnhancedErrorRecovery {
 			this.config.maxDelay
 		);
 
-		console.log(
+		logger.info(
 			` [ErrorRecovery] Attempting retry ${this.retryCount}/${this.config.maxRetries} after ${delay}ms delay`
 		);
 
@@ -290,7 +291,7 @@ export class EnhancedErrorRecovery {
 			setTimeout(async () => {
 				try {
 					await retryFunction();
-					console.log(' [ErrorRecovery] Retry successful');
+					logger.info(' [ErrorRecovery] Retry successful');
 					this.retryCount = 0; // Reset on success
 					resolve();
 				} catch (retryError) {
@@ -324,7 +325,7 @@ export class EnhancedErrorRecovery {
 			url: context.url,
 		};
 
-		console.log(' [ErrorRecovery] Analytics data:', analyticsData);
+		logger.info(' [ErrorRecovery] Analytics data:', analyticsData);
 
 		// Store for later analysis
 		const errorHistory = JSON.parse(localStorage.getItem('error_history') || '[]');

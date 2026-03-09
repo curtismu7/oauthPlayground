@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import JSONHighlighter from './JSONHighlighter';
 
+import { logger } from '../utils/logger';
 const DeviceFlowContainer = styled.div`
   background: white;
   border-radius: 0.5rem;
@@ -303,18 +304,18 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 	const handleCopyUserCode = async () => {
 		try {
 			await navigator.clipboard.writeText(state.userCode);
-			log.info('DeviceFlowDisplay', 'User code copied to clipboard');
+			logger.info('DeviceFlowDisplay', 'User code copied to clipboard');
 		} catch (error) {
-			log.error('DeviceFlowDisplay', 'Failed to copy user code', error);
+			logger.error('DeviceFlowDisplay', 'Failed to copy user code', error);
 		}
 	};
 
 	const handleCopyVerificationUri = async () => {
 		try {
 			await navigator.clipboard.writeText(state.verificationUri);
-			log.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
+			logger.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
 		} catch (error) {
-			log.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
+			logger.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
 		}
 	};
 
@@ -327,19 +328,19 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 				: state.verificationUri);
 
 		if (!uriToOpen) {
-			log.error('DeviceFlowDisplay', 'No verification URI available to open');
+			logger.error('DeviceFlowDisplay', 'No verification URI available to open');
 			return;
 		}
 
 		window.open(uriToOpen, '_blank');
-		log.info('DeviceFlowDisplay', 'Verification URI opened in new tab', { uri: uriToOpen });
+		logger.info('DeviceFlowDisplay', 'Verification URI opened in new tab', { uri: uriToOpen });
 	};
 
 	const handleStartPolling = () => {
 		if (isPolling) return;
 
 		setIsPolling(true);
-		log.info('DeviceFlowDisplay', 'Starting device flow polling');
+		logger.info('DeviceFlowDisplay', 'Starting device flow polling');
 
 		// Note: In a real implementation, you would need the environment ID and client credentials
 		// For demo purposes, we'll simulate the polling

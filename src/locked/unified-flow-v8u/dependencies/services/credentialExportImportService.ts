@@ -1,4 +1,5 @@
 // src/services/credentialExportImportService.ts
+import { logger } from '../../../utils/logger';
 // Service for exporting and importing credentials
 
 export interface AuthzCredentials {
@@ -55,7 +56,7 @@ export function exportAuthzCredentials(credentials: AuthzCredentials): void {
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	} catch (error) {
-		console.error('[CredentialExportImport] Error exporting authz credentials:', error);
+		logger.error('[CredentialExportImport] Error exporting authz credentials:', error);
 		throw new Error('Failed to export credentials');
 	}
 }
@@ -82,7 +83,7 @@ export function exportWorkerTokenCredentials(credentials: WorkerTokenCredentials
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	} catch (error) {
-		console.error('[CredentialExportImport] Error exporting worker token credentials:', error);
+		logger.error('[CredentialExportImport] Error exporting worker token credentials:', error);
 		throw new Error('Failed to export credentials');
 	}
 }
@@ -112,7 +113,7 @@ export async function importCredentials(
 					workerToken: parsed.workerToken,
 				});
 			} catch (error) {
-				console.error('[CredentialExportImport] Error parsing credential file:', error);
+				logger.error('[CredentialExportImport] Error parsing credential file:', error);
 				reject(
 					new Error('Failed to parse credential file. Please ensure it is a valid JSON file.')
 				);

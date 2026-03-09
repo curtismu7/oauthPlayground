@@ -13,6 +13,7 @@
 
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 KEY-GENERATION]';
 
 export interface GeneratedKeyPair {
@@ -38,7 +39,7 @@ export const generateClientSecret = (
 	length: number = 32,
 	encoding: 'hex' | 'base64' = 'hex'
 ): GeneratedSecret => {
-	console.log(`${MODULE_TAG} Generating client secret (${length} bytes, ${encoding})`);
+	logger.info(`${MODULE_TAG} Generating client secret (${length} bytes, ${encoding})`);
 
 	const array = new Uint8Array(length);
 	window.crypto.getRandomValues(array);
@@ -52,7 +53,7 @@ export const generateClientSecret = (
 
 	const entropy = length * 8; // 8 bits per byte
 
-	console.log(`${MODULE_TAG} ✅ Generated client secret (${entropy} bits entropy)`);
+	logger.info(`${MODULE_TAG} ✅ Generated client secret (${entropy} bits entropy)`);
 
 	return {
 		secret,
@@ -69,7 +70,7 @@ export const generateClientSecret = (
 export const generateRSAKeyPair = async (
 	keySize: 2048 | 4096 = 2048
 ): Promise<GeneratedKeyPair> => {
-	console.log(`${MODULE_TAG} Generating RSA key pair (${keySize} bits)`);
+	logger.info(`${MODULE_TAG} Generating RSA key pair (${keySize} bits)`);
 
 	try {
 		// Generate RSA key pair
@@ -97,7 +98,7 @@ export const generateRSAKeyPair = async (
 		// Generate key ID
 		const keyId = generateKeyId();
 
-		console.log(`${MODULE_TAG} ✅ Generated RSA key pair (keyId: ${keyId})`);
+		logger.info(`${MODULE_TAG} ✅ Generated RSA key pair (keyId: ${keyId})`);
 
 		return {
 			privateKey,

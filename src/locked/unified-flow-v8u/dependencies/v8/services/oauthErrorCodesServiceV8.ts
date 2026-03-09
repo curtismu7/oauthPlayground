@@ -1,4 +1,5 @@
 // src/v8/services/oauthErrorCodesServiceV8.ts
+import { logger } from '../../../../utils/logger';
 /**
  * @file oauthErrorCodesServiceV8.ts
  * @module v8/services
@@ -271,11 +272,11 @@ export class OAuthErrorCodesServiceV8 {
 		const errorInfo = OAUTH_ERROR_CODES[normalizedCode];
 
 		if (errorInfo) {
-			console.log(`${MODULE_TAG} Found error info for code: ${normalizedCode}`);
+			logger.info(`${MODULE_TAG} Found error info for code: ${normalizedCode}`);
 			return errorInfo;
 		}
 
-		console.warn(`${MODULE_TAG} Unknown error code: ${normalizedCode}`);
+		logger.warn(`${MODULE_TAG} Unknown error code: ${normalizedCode}`);
 		return null;
 	}
 

@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file authHeaderUtilsV8.ts
  * @module v8/utils
  * @description Centralized authorization header utilities for consistent token handling
@@ -35,7 +36,7 @@ export function createAuthHeader(
 	const { validate = false, trim = true } = options || {};
 
 	if (!token) {
-		console.warn(`${MODULE_TAG} No token provided to createAuthHeader`);
+		logger.warn(`${MODULE_TAG} No token provided to createAuthHeader`);
 		return '';
 	}
 

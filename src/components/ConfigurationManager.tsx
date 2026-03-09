@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	showGlobalInfo,
 } from '../contexts/NotificationSystem';
@@ -344,7 +345,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
 			setHasUnsavedChanges(false);
 		} catch (error) {
-			log.error('ConfigurationManager', 'Failed to load configuration:', undefined, error as Error);
+			logger.error('ConfigurationManager', 'Failed to load configuration:', undefined, error as Error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -388,9 +389,9 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			);
 
 			setHasUnsavedChanges(false);
-			console.log('Configuration saved successfully');
+			logger.info('Configuration saved successfully');
 		} catch (error) {
-			log.error('ConfigurationManager', 'Failed to save configuration:', undefined, error as Error);
+			logger.error('ConfigurationManager', 'Failed to save configuration:', undefined, error as Error);
 		}
 	}, [config, selectedFlowType, selectedEnvironment]);
 
@@ -440,13 +441,13 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						);
 					}
 				} catch (error) {
-					log.error(
+					logger.error(
 						'ConfigurationManager',
 						'Failed to import configuration:',
 						undefined,
 						error as Error
 					);
-					console.error('Failed to import configuration:', error);
+					logger.error('Failed to import configuration:', error);
 				}
 			};
 			reader.readAsText(file);
@@ -504,7 +505,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						try {
 							handleConfigChange(field, JSON.parse(e.target.value) as BaseFlowConfig[K]);
 						} catch (error) {
-							log.error('ConfigurationManager', 'Invalid JSON input:', undefined, error as Error);
+							logger.error('ConfigurationManager', 'Invalid JSON input:', undefined, error as Error);
 						}
 					}}
 				/>

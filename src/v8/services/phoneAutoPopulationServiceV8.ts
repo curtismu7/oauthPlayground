@@ -7,6 +7,7 @@
 
 import { MFAServiceV8, type UserLookupResult } from './mfaServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📞 PHONE-AUTO-POPULATION-V8]';
 
 /**
@@ -47,7 +48,7 @@ export function extractPhoneFromUser(user: UserLookupResult): string | null {
 
 		return null;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Error extracting phone from user object:`, error);
+		logger.error(`${MODULE_TAG} Error extracting phone from user object:`, error);
 		return null;
 	}
 }
@@ -66,7 +67,7 @@ export async function fetchPhoneFromPingOne(
 		const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
 		return extractPhoneFromUser(user);
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
+		logger.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
 		return null;
 	}
 }

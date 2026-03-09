@@ -1,6 +1,7 @@
 // src/utils/tokenDebug.ts
 import { oauthStorage } from './storage';
 
+import { logger } from '../utils/logger';
 /**
  * Debug utility for token validation and troubleshooting
  */
@@ -53,7 +54,7 @@ export async function checkTokenState(): Promise<{
 				: 'none',
 		};
 	} catch (error) {
-		console.error('TokenDebugger: Failed to check token state', error);
+		logger.error('TokenDebugger: Failed to check token state', error);
 		return {
 			hasTokens: false,
 			tokenCount: 0,

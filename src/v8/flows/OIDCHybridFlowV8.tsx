@@ -25,6 +25,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
 
+import { logger } from '../utils/logger';
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
 	max-width: 1200px;
@@ -400,7 +401,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 
 			await hybridFlow.generateAuthorizationUrl(credentials);
 		} catch (error) {
-			console.error('Failed to generate URL:', error);
+			logger.error('Failed to generate URL:', error);
 		}
 	}, [formData, hybridFlow]);
 

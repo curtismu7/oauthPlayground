@@ -35,6 +35,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
@@ -233,7 +234,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						conditionalUI: false, // Conditional UI detection would require additional checks
 					});
 				} catch (error) {
-					console.warn('Failed to check platform authenticator availability:', error);
+					logger.warn('Failed to check platform authenticator availability:', error);
 					// Fallback to basic capabilities
 					setEnhancedCapabilities({
 						webAuthnSupported: capabilities.webAuthnSupported,
@@ -299,14 +300,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
 				// #region agent log
 				// #endregion
-				console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
+				logger.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
 				throw new Error(errorMessage);
 			}
 
 			const data = await response.json();
 			// #region agent log
 			// #endregion
-			console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
+			logger.info(`${MODULE_TAG} FIDO2 policies response:`, data);
 
 			// Handle different response structures
 			let policiesList: Array<{
@@ -337,7 +338,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				// #region agent log
 				// #endregion
 			} else {
-				console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
+				logger.warn(`${MODULE_TAG} Unexpected response structure:`, data);
 				// #region agent log
 				// #endregion
 				// Try to extract any array from the response
@@ -364,7 +365,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				}
 			} else {
 				// No policies found - this is not an error, just empty result
-				console.log(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
+				logger.info(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
@@ -372,7 +373,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			// #endregion
 			setPoliciesError(errorMessage);
 			setFido2Policies([]); // Clear policies on error
-			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+			logger.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 		} finally {
 			setIsLoadingPolicies(false);
 		}
@@ -406,7 +407,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to load device authentication policies';
 				setDeviceAuthPoliciesError(errorMessage);
-				console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
+				logger.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
 			} finally {
 				setIsLoadingDeviceAuthPolicies(false);
 			}
@@ -445,7 +446,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
+		logger.info(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
 
 		// Navigate to actual registration flow with policy ID and FIDO2 config in state
 		// Always use FIDO2 route (PLATFORM and SECURITY_KEY are deprecated)
@@ -626,7 +627,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										if (newValue) {
 											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 											if (!currentStatus.isValid) {
-												console.log(
+												logger.info(
 													'[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...'
 												);
 												const { handleShowWorkerTokenModal } = await import(
@@ -2156,7 +2157,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						onClick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
-							console.log(`${MODULE_TAG} Button clicked`, {
+							logger.info(`${MODULE_TAG} Button clicked`, {
 								selectedFido2PolicyId,
 								registrationFlowType,
 								tokenStatusValid: tokenStatus.isValid,

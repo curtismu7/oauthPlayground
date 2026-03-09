@@ -8,6 +8,7 @@
 
 import { LogLevel, logger } from '@/services/loggingService';
 
+import { logger } from '../utils/logger';
 /**
  * Mapping of console methods to logging service methods
  */
@@ -49,20 +50,20 @@ export function createModuleLogger(filePath: string) {
  */
 export const consoleReplacements = {
 	// Error logging
-	'console.error(': 'logger.error(',
-	'console.error(`': 'logger.error(',
-	'console.warn(': 'logger.warn(',
-	'console.warn(`': 'logger.warn(',
+	'logger.error(': 'logger.error(',
+	'logger.error(`': 'logger.error(',
+	'logger.warn(': 'logger.warn(',
+	'logger.warn(`': 'logger.warn(',
 
 	// Info logging
-	'console.log(': 'logger.info(',
-	'console.log(`': 'logger.info(',
-	'console.info(': 'logger.info(',
-	'console.info(`': 'logger.info(',
+	'logger.info(': 'logger.info(',
+	'logger.info(`': 'logger.info(',
+	'logger.info(': 'logger.info(',
+	'logger.info(`': 'logger.info(',
 
 	// Debug logging
-	'console.debug(': 'logger.debug(',
-	'console.debug(`': 'logger.debug(',
+	'logger.debug(': 'logger.debug(',
+	'logger.debug(`': 'logger.debug(',
 };
 
 /**
@@ -71,20 +72,20 @@ export const consoleReplacements = {
 export function generateReplacements(moduleName: string) {
 	return {
 		// Error patterns
-		'console.error(': `logger.error('${moduleName}', `,
-		'console.error(`': `logger.error('${moduleName}', `,
-		'console.warn(': `logger.warn('${moduleName}', `,
-		'console.warn(`': `logger.warn('${moduleName}', `,
+		'logger.error(': `logger.error('${moduleName}', `,
+		'logger.error(`': `logger.error('${moduleName}', `,
+		'logger.warn(': `logger.warn('${moduleName}', `,
+		'logger.warn(`': `logger.warn('${moduleName}', `,
 
 		// Info patterns
-		'console.log(': `logger.info('${moduleName}', `,
-		'console.log(`': `logger.info('${moduleName}', `,
-		'console.info(': `logger.info('${moduleName}', `,
-		'console.info(`': `logger.info('${moduleName}', `,
+		'logger.info(': `logger.info('${moduleName}', `,
+		'logger.info(`': `logger.info('${moduleName}', `,
+		'logger.info(': `logger.info('${moduleName}', `,
+		'logger.info(`': `logger.info('${moduleName}', `,
 
 		// Debug patterns
-		'console.debug(': `logger.debug('${moduleName}', `,
-		'console.debug(`': `logger.debug('${moduleName}', `,
+		'logger.debug(': `logger.debug('${moduleName}', `,
+		'logger.debug(`': `logger.debug('${moduleName}', `,
 	};
 }
 
@@ -107,12 +108,12 @@ export function replaceConsoleStatements(code: string, moduleName: string): stri
  * Example usage:
  *
  * Before:
- * console.log('User logged in', { userId: 123 });
+ * logger.info('User logged in', { userId: 123 });
  *
  * After:
  * logger.info('AuthContext', 'User logged in', { userId: 123 });
  *
  * Or with module logger:
  * const log = createModuleLogger('src/contexts/AuthContext.tsx');
- * log.info('User logged in', { userId: 123 });
+ * logger.info('User logged in', { userId: 123 });
  */

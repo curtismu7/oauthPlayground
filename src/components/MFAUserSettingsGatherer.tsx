@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 
+import { logger } from '../utils/logger';
 // Types
 interface MFAUserSettings {
 	username: string;
@@ -488,7 +489,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'MFAUserSettingsGatherer',
 				'Failed to get worker token:',
 				undefined,

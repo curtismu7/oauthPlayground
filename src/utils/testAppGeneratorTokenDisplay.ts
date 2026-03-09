@@ -3,6 +3,7 @@
 
 import TokenDisplayService from '../services/tokenDisplayService';
 
+import { logger } from '../utils/logger';
 export function testAppGeneratorTokenDisplay() {
 	try {
 		// Test with a mock JWT token (similar to what PingOne might return)
@@ -34,7 +35,7 @@ export function testAppGeneratorTokenDisplay() {
 
 		return true;
 	} catch (error) {
-		console.error('❌ App Generator Token Display test failed:', error);
+		logger.error('❌ App Generator Token Display test failed:', error);
 		return false;
 	}
 }

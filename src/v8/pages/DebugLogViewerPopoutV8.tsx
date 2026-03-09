@@ -10,6 +10,7 @@ import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
+import { logger } from '../utils/logger';
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
@@ -370,7 +371,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 						const db = request.result;
 						const availableStores = Array.from(db.objectStoreNames);
 						if (availableStores.length === 0) {
-							console.warn(
+							logger.warn(
 								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`
 							);
 							db.close();

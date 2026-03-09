@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 
+import { logger } from '../utils/logger';
 interface LogoutUriReferenceProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -260,7 +261,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 				});
 			}, 2000);
 		} catch (err) {
-			log.error('LogoutUriReference', 'Failed to copy URI:', undefined, err as Error);
+			logger.error('LogoutUriReference', 'Failed to copy URI:', undefined, err as Error);
 		}
 	};
 
@@ -273,7 +274,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 		try {
 			await navigator.clipboard.writeText(allUris);
 		} catch (err) {
-			log.error('LogoutUriReference', 'Failed to copy all URIs:', undefined, err as Error);
+			logger.error('LogoutUriReference', 'Failed to copy all URIs:', undefined, err as Error);
 		}
 	};
 

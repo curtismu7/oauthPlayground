@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../utils/logger';
  * @file keyGeneration.ts
  * @description Key and secret generation utilities for OAuth client authentication
  * @version 8.0.0
@@ -36,7 +37,7 @@ export const generateClientSecret = (
 	length: number = 32,
 	encoding: 'hex' | 'base64' = 'hex'
 ): GeneratedSecret => {
-	console.log(`${MODULE_TAG} Generating client secret (${length} bytes, ${encoding})`);
+	logger.info(`${MODULE_TAG} Generating client secret (${length} bytes, ${encoding})`);
 
 	const array = new Uint8Array(length);
 	window.crypto.getRandomValues(array);
@@ -50,7 +51,7 @@ export const generateClientSecret = (
 
 	const entropy = length * 8; // 8 bits per byte
 
-	console.log(`${MODULE_TAG} ✅ Generated client secret (${entropy} bits entropy)`);
+	logger.info(`${MODULE_TAG} ✅ Generated client secret (${entropy} bits entropy)`);
 
 	return {
 		secret,
@@ -67,7 +68,7 @@ export const generateClientSecret = (
 export const generateRSAKeyPair = async (
 	keySize: 2048 | 4096 = 2048
 ): Promise<GeneratedKeyPair> => {
-	console.log(`${MODULE_TAG} Generating RSA key pair (${keySize} bits)`);
+	logger.info(`${MODULE_TAG} Generating RSA key pair (${keySize} bits)`);
 
 	try {
 		// Generate RSA key pair
@@ -95,7 +96,7 @@ export const generateRSAKeyPair = async (
 		// Generate key ID
 		const keyId = generateKeyId();
 
-		console.log(`${MODULE_TAG} ✅ Generated RSA key pair (keyId: ${keyId})`);
+		logger.info(`${MODULE_TAG} ✅ Generated RSA key pair (keyId: ${keyId})`);
 
 		return {
 			privateKey,
@@ -104,7 +105,7 @@ export const generateRSAKeyPair = async (
 			algorithm: 'RS256',
 		};
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Failed to generate RSA key pair:`, error);
+		logger.error(`${MODULE_TAG} ❌ Failed to generate RSA key pair:`, error);
 		throw new Error(
 			`Failed to generate RSA key pair: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);
@@ -227,7 +228,7 @@ export const validatePrivateKey = (privateKey: string): boolean => {
 
 		return true;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Private key validation failed:`, error);
+		logger.error(`${MODULE_TAG} Private key validation failed:`, error);
 		return false;
 	}
 };
@@ -270,7 +271,7 @@ export const extractPublicKey = async (privateKey: string): Promise<string> => {
 
 		return publicKey;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to extract public key:`, error);
+		logger.error(`${MODULE_TAG} Failed to extract public key:`, error);
 		throw new Error(
 			`Failed to extract public key: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);

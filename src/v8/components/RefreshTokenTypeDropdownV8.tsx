@@ -23,6 +23,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { TooltipV8 } from './TooltipV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 REFRESH-TOKEN-TYPE-DROPDOWN-V8]';
 
 export type RefreshTokenType = 'JWT' | 'OPAQUE';
@@ -102,7 +103,7 @@ export const RefreshTokenTypeDropdownV8: React.FC<RefreshTokenTypeDropdownV8Prop
 }) => {
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newValue = event.target.value as RefreshTokenType;
-		console.log(`${MODULE_TAG} Refresh token type changed:`, {
+		logger.info(`${MODULE_TAG} Refresh token type changed:`, {
 			from: value,
 			to: newValue,
 		});

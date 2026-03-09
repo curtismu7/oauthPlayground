@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file ropcIntegrationServiceV8.ts
  * @module v8/services
  * @description Real OAuth Resource Owner Password Credentials Flow integration with PingOne APIs
@@ -58,7 +59,7 @@ export class ROPCIntegrationServiceV8 {
 		username: string,
 		password: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Requesting access token`, {
+		logger.info(`${MODULE_TAG} Requesting access token`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			username, // Don't log password
@@ -103,7 +104,7 @@ export class ROPCIntegrationServiceV8 {
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Access token received successfully`, {
+			logger.info(`${MODULE_TAG} Access token received successfully`, {
 				hasAccessToken: !!tokens.access_token,
 				hasIdToken: !!tokens.id_token,
 				hasRefreshToken: !!tokens.refresh_token,
@@ -113,7 +114,7 @@ export class ROPCIntegrationServiceV8 {
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error requesting access token`, { error });
+			logger.error(`${MODULE_TAG} Error requesting access token`, { error });
 			throw error;
 		}
 	}
@@ -124,7 +125,7 @@ export class ROPCIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -137,11 +138,11 @@ export class ROPCIntegrationServiceV8 {
 			const payload = JSON.parse(ROPCIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			logger.error(`${MODULE_TAG} Error decoding token`, { error });
 			throw error;
 		}
 	}

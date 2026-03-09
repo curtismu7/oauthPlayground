@@ -332,7 +332,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				const serializable = createSerializableGroups(groups);
 				localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 				localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-				console.log('💾 Menu layout saved to localStorage:', serializable);
+				logger.info('💾 Menu layout saved to localStorage:', serializable);
 
 				// Update save button state
 				setSaveButtonState('saved');
@@ -2155,7 +2155,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const serializable = createSerializableGroups(menuGroups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-			console.log('💾 Menu layout saved to localStorage:', serializable);
+			logger.info('💾 Menu layout saved to localStorage:', serializable);
 
 			setSaveButtonState('saved');
 

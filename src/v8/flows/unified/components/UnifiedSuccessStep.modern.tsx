@@ -24,6 +24,7 @@ import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[✅ UNIFIED-SUCCESS-MODERN]';
 
 // ============================================================================
@@ -98,7 +99,7 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 	onComplete,
 	onRegisterAnother,
 }) => {
-	console.log(`${MODULE_TAG} Rendering for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering for:`, config.deviceType);
 
 	// -------------------------------------------------------------------------
 	// Effects

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   background: V9_COLORS.BG.GRAY_LIGHT;
   border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -87,7 +88,7 @@ const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
 
 			return formatted;
 		} catch (error) {
-			log.error(
+			logger.error(
 				'SAMLAssertionDisplay',
 				'Error formatting SAML assertion:',
 				undefined,

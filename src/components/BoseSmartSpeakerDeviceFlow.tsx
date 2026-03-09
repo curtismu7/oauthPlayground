@@ -12,6 +12,7 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
 const BoseSpeakerContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
@@ -331,12 +332,12 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
+		logger.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

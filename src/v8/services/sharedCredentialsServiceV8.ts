@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file sharedCredentialsServiceV8.ts
  * @module v8/services
  * @description Service for managing shared credentials across all V8U flow types
@@ -40,20 +41,20 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		console.log(`${MODULE_TAG} Loading shared credentials from localStorage`);
+		logger.info(`${MODULE_TAG} Loading shared credentials from localStorage`);
 
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				const credentials = JSON.parse(stored) as SharedCredentials;
-				console.log(`${MODULE_TAG} Loaded shared credentials from localStorage`);
+				logger.info(`${MODULE_TAG} Loaded shared credentials from localStorage`);
 				return credentials;
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to load from localStorage`, error);
+			logger.warn(`${MODULE_TAG} Failed to load from localStorage`, error);
 		}
 
-		console.log(`${MODULE_TAG} No shared credentials found`);
+		logger.info(`${MODULE_TAG} No shared credentials found`);
 		return {};
 	}
 
@@ -62,20 +63,20 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static loadSharedCredentialsSync(): SharedCredentials {
-		console.log(`${MODULE_TAG} Loading shared credentials from browser storage (sync)`);
+		logger.info(`${MODULE_TAG} Loading shared credentials from browser storage (sync)`);
 
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				const parsed = JSON.parse(stored) as SharedCredentials;
-				console.log(`${MODULE_TAG} Shared credentials loaded from browser`, {
+				logger.info(`${MODULE_TAG} Shared credentials loaded from browser`, {
 					hasEnvId: !!parsed.environmentId,
 					hasClientId: !!parsed.clientId,
 				});
 				return parsed;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error loading shared credentials from browser`, { error });
+			logger.error(`${MODULE_TAG} Error loading shared credentials from browser`, { error });
 		}
 
 		return {};
@@ -88,7 +89,7 @@ export class SharedCredentialsServiceV8 {
 	 * @param credentials - Shared credentials to save
 	 */
 	static async saveSharedCredentials(credentials: SharedCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving shared credentials to browser storage`, {
+		logger.info(`${MODULE_TAG} Saving shared credentials to browser storage`, {
 			hasEnvId: !!credentials.environmentId,
 			hasClientId: !!credentials.clientId,
 			hasClientSecret: !!credentials.clientSecret,
@@ -111,11 +112,11 @@ export class SharedCredentialsServiceV8 {
 			// Save to browser storage only (includes client secret)
 			// Note: Disk storage is disabled for security - client secrets should never be on disk
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Shared credentials saved to browser storage (client secret included)`
 			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving shared credentials`, { error });
+			logger.error(`${MODULE_TAG} Error saving shared credentials`, { error });
 		}
 	}
 
@@ -124,7 +125,7 @@ export class SharedCredentialsServiceV8 {
 	 * @param credentials - Shared credentials to save
 	 */
 	static saveSharedCredentialsSync(credentials: SharedCredentials): void {
-		console.log(`${MODULE_TAG} Saving shared credentials to browser storage (sync)`, {
+		logger.info(`${MODULE_TAG} Saving shared credentials to browser storage (sync)`, {
 			hasEnvId: !!credentials.environmentId,
 			hasClientId: !!credentials.clientId,
 		});
@@ -144,9 +145,9 @@ export class SharedCredentialsServiceV8 {
 			};
 
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			console.log(`${MODULE_TAG} Shared credentials saved to browser storage`);
+			logger.info(`${MODULE_TAG} Shared credentials saved to browser storage`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving shared credentials to browser`, { error });
+			logger.error(`${MODULE_TAG} Error saving shared credentials to browser`, { error });
 		}
 	}
 
@@ -232,12 +233,12 @@ export class SharedCredentialsServiceV8 {
 	 * Clear shared credentials from storage (localStorage)
 	 */
 	static async clearSharedCredentials(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing shared credentials from localStorage`);
+		logger.info(`${MODULE_TAG} Clearing shared credentials from localStorage`);
 		try {
 			localStorage.removeItem(BROWSER_STORAGE_KEY);
-			console.log(`${MODULE_TAG} Shared credentials cleared successfully`);
+			logger.info(`${MODULE_TAG} Shared credentials cleared successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error clearing shared credentials`, { error });
+			logger.error(`${MODULE_TAG} Error clearing shared credentials`, { error });
 		}
 	}
 }

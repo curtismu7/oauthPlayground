@@ -3,6 +3,7 @@
 import { tokenLifecycleManager } from './tokenLifecycle';
 import { getOAuthTokens } from './tokenStorage';
 
+import { logger } from '../utils/logger';
 export interface SecurityVulnerability {
 	id: string;
 	severity: 'low' | 'medium' | 'high' | 'critical';
@@ -479,7 +480,7 @@ class SecurityAuditor {
 
 			localStorage.setItem(this.AUDIT_HISTORY_KEY, JSON.stringify(existingReports));
 		} catch (error) {
-			console.error('Failed to store audit report:', error);
+			logger.error('Failed to store audit report:', error);
 		}
 	}
 
@@ -497,7 +498,7 @@ class SecurityAuditor {
 				timestamp: new Date(report.timestamp),
 			}));
 		} catch (error) {
-			console.error('Failed to get audit history:', error);
+			logger.error('Failed to get audit history:', error);
 			return [];
 		}
 	}

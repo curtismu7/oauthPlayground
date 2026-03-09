@@ -5,6 +5,7 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,
@@ -399,12 +400,12 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('TeslaCarDisplayDeviceFlow', 'User code copied to clipboard');
+		logger.info('TeslaCarDisplayDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('TeslaCarDisplayDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
@@ -416,12 +417,12 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 				: state.verificationUri);
 
 		if (!uriToOpen) {
-			log.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
+			logger.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
 			return;
 		}
 
 		window.open(uriToOpen, '_blank');
-		log.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', {
+		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', {
 			uri: uriToOpen,
 		});
 	};

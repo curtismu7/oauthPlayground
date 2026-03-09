@@ -25,6 +25,7 @@ import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDispl
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 export interface WorkerTokenUIServiceV8Props {
 	/** Display mode for the status display */
 	mode?: 'compact' | 'detailed' | 'minimal' | 'wide';
@@ -239,7 +240,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error('[WorkerTokenUIServiceV8] Failed to check token status:', error);
+				logger.error('[WorkerTokenUIServiceV8] Failed to check token status:', error);
 			}
 		};
 
@@ -280,7 +281,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 
 					if (credentials?.environmentId) {
 						effectiveId = credentials.environmentId;
-						console.log('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
+						logger.info('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
 							environmentId: effectiveId,
 						});
 					} else {
@@ -288,7 +289,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						const syncCredentials = workerTokenServiceV8.loadCredentialsSync();
 						if (syncCredentials?.environmentId) {
 							effectiveId = syncCredentials.environmentId;
-							console.log(
+							logger.info(
 								'[WorkerTokenUIServiceV8] Extracted environment ID from worker token (sync)',
 								{ environmentId: effectiveId }
 							);
@@ -298,14 +299,14 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 							const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 							if (globalEnvId) {
 								effectiveId = globalEnvId;
-								console.log('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
+								logger.info('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
 									environmentId: effectiveId,
 								});
 							}
 						}
 					}
 				} catch (error) {
-					console.error('[WorkerTokenUIServiceV8] Error extracting environment ID:', error);
+					logger.error('[WorkerTokenUIServiceV8] Error extracting environment ID:', error);
 				}
 			}
 
@@ -319,7 +320,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	useEffect(() => {
 		const handleConfigUpdate = () => {
 			// Configuration is automatically updated by the centralized hook
-			console.log('[WorkerTokenUIServiceV8] Configuration update event received');
+			logger.info('[WorkerTokenUIServiceV8] Configuration update event received');
 		};
 
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
@@ -348,7 +349,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				setIsGettingWorkerToken // Pass loading state setter
 			);
 		} catch (error) {
-			console.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);
+			logger.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -377,7 +378,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[WorkerTokenUIServiceV8] Error clearing worker token:', error);
+			logger.error('[WorkerTokenUIServiceV8] Error clearing worker token:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -414,7 +415,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						undefined // No loading state setter needed
 					);
 				} catch (error) {
-					console.error('[WorkerTokenUIServiceV8] Error in silent retrieval:', error);
+					logger.error('[WorkerTokenUIServiceV8] Error in silent retrieval:', error);
 				}
 			}
 		},
@@ -443,7 +444,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 
 				if (credentials?.environmentId) {
 					effectiveEnvironmentId = credentials.environmentId;
-					console.log('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
+					logger.info('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
 						environmentId: effectiveEnvironmentId,
 					});
 				} else {
@@ -451,7 +452,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					const syncCredentials = workerTokenServiceV8.loadCredentialsSync();
 					if (syncCredentials?.environmentId) {
 						effectiveEnvironmentId = syncCredentials.environmentId;
-						console.log(
+						logger.info(
 							'[WorkerTokenUIServiceV8] Extracted environment ID from worker token (sync)',
 							{ environmentId: effectiveEnvironmentId }
 						);
@@ -461,14 +462,14 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 						if (globalEnvId) {
 							effectiveEnvironmentId = globalEnvId;
-							console.log('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
+							logger.info('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
 								environmentId: effectiveEnvironmentId,
 							});
 						}
 					}
 				}
 			} catch (error) {
-				console.error(
+				logger.error(
 					'[WorkerTokenUIServiceV8] Failed to extract environment ID from worker token',
 					{
 						error: error instanceof Error ? error.message : String(error),
@@ -495,7 +496,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	// Handle app selection from discovery modal
 	const handleAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			console.log('[WorkerTokenUIServiceV8] App selected', {
+			logger.info('[WorkerTokenUIServiceV8] App selected', {
 				appId: app.id,
 				appName: app.name,
 				context,

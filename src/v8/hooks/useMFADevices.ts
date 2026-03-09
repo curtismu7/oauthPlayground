@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../utils/logger';
 // Device type from PingOne API
 export type MFADevice = Record<string, unknown>;
 
@@ -135,7 +136,7 @@ export const useMFADevices = (config: UseMFADevicesConfig = {}): UseMFADevicesRe
 				setError(errorMessage);
 			}
 
-			console.error(`${MODULE_TAG} Failed to load user devices:`, err);
+			logger.error(`${MODULE_TAG} Failed to load user devices:`, err);
 		} finally {
 			setIsLoading(false);
 		}

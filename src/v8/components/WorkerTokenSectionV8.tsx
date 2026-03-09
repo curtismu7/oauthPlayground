@@ -20,6 +20,7 @@ import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8'
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 
 interface WorkerTokenSectionV8Props {
@@ -84,7 +85,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(MODULE_TAG, 'Error refreshing worker token:', error);
+			logger.error(MODULE_TAG, 'Error refreshing worker token:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -106,7 +107,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(MODULE_TAG, 'Error clearing worker token:', error);
+			logger.error(MODULE_TAG, 'Error clearing worker token:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

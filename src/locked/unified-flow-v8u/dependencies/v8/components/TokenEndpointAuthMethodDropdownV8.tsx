@@ -18,6 +18,7 @@
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '../services/specVersionServiceV8.ts';
+import { logger } from '../../../../utils/logger';
 import {
 	type TokenEndpointAuthMethod,
 	TokenEndpointAuthMethodServiceV8,
@@ -126,7 +127,7 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 	const selectedOption = AUTH_METHOD_OPTIONS[value];
 
 	const handleChange = (newMethod: TokenEndpointAuthMethod) => {
-		console.log(`${MODULE_TAG} Auth method changed`, {
+		logger.info(`${MODULE_TAG} Auth method changed`, {
 			from: value,
 			to: newMethod,
 			flowType,

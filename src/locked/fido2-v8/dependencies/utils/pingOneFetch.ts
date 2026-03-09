@@ -7,6 +7,7 @@
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
+import { logger } from '../../../utils/logger';
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
 export interface PingOneFetchRetryOptions {
@@ -80,7 +81,7 @@ const fetchBackendCallsById = async (callId: string) => {
 			!errorMessage.includes('ERR_CONNECTION_REFUSED') &&
 			!errorMessage.includes('Failed to fetch')
 		) {
-			console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
+			logger.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
 		}
 		return null;
 	}
@@ -155,7 +156,7 @@ const logBackendPingOneCalls = async (response: Response) => {
 			processBackendCalls(decoded);
 			return;
 		} catch (error) {
-			console.warn('[pingOneFetch] Failed to parse inline backend call metadata', error);
+			logger.warn('[pingOneFetch] Failed to parse inline backend call metadata', error);
 		}
 	}
 	const callId = response.headers.get('x-pingone-calls-id');

@@ -101,7 +101,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 		totalSteps,
 		stepTitles,
 		setStep: (step: number, reason?: string) => {
-			console.log(`[CIBA-V7] Step change: ${currentStep} → ${step}${reason ? ` (${reason})` : ''}`);
+			logger.info(`[CIBA-V7] Step change: ${currentStep} → ${step}${reason ? ` (${reason})` : ''}`);
 			setCurrentStep(step);
 		},
 		next: () => {
@@ -228,7 +228,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				}
 
 				try {
-					console.log(
+					logger.info(
 						'[CIBA-V7] Polling for tokens with auth_req_id:',
 						`${authRequest.auth_req_id.substring(0, 20)}...`
 					);
@@ -257,7 +257,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						if (errorCode === 'authorization_pending') {
 							// User hasn't approved yet - continue polling
 							const recommendedInterval = data.interval || authRequest.interval;
-							console.log(
+							logger.info(
 								`[CIBA-V7] Authorization pending, continue polling with interval: ${recommendedInterval}s`
 							);
 							currentInterval = recommendedInterval;
@@ -272,7 +272,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						if (errorCode === 'slow_down') {
 							// Polling too fast - increase interval
 							const newInterval = (data.interval || currentInterval) + 5;
-							console.log(`[CIBA-V7] Slow down - increasing interval to ${newInterval}s`);
+							logger.info(`[CIBA-V7] Slow down - increasing interval to ${newInterval}s`);
 							currentInterval = newInterval;
 							if (pollingIntervalRef.current) {
 								clearInterval(pollingIntervalRef.current);
@@ -337,7 +337,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					}
 
 					// Success - tokens received!
-					console.log('[CIBA-V7] Tokens received successfully');
+					logger.info('[CIBA-V7] Tokens received successfully');
 					if (pollingIntervalRef.current) {
 						clearInterval(pollingIntervalRef.current);
 						pollingIntervalRef.current = null;
@@ -412,8 +412,8 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 			setStage('initiating');
 
 			try {
-				console.log('[CIBA-V7] Initiating CIBA backchannel authentication request...');
-				console.log('[CIBA-V7] Config:', {
+				logger.info('[CIBA-V7] Initiating CIBA backchannel authentication request...');
+				logger.info('[CIBA-V7] Config:', {
 					environmentId: config.environmentId,
 					clientId: config.clientId,
 					hasClientSecret: !!config.clientSecret,
@@ -495,7 +495,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					throw new Error('Missing auth_req_id in backchannel response');
 				}
 
-				console.log('[CIBA-V7] Backchannel request successful:', {
+				logger.info('[CIBA-V7] Backchannel request successful:', {
 					auth_req_id: `${auth_req_id.substring(0, 20)}...`,
 					expires_in,
 					interval,
@@ -572,7 +572,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 	}, [config, validateConfig, initiateAuthRequest]);
 
 	const resetFlow = useCallback(() => {
-		console.log('[CIBA-V7] Resetting flow...');
+		logger.info('[CIBA-V7] Resetting flow...');
 
 		// Clear intervals and timeouts
 		if (pollingIntervalRef.current) {

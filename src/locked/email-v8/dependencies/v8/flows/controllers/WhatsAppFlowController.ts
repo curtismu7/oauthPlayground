@@ -16,6 +16,7 @@ import { validateAndNormalizePhone } from '../../utils/phoneValidationV8.ts';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
+import { logger } from '../../../../../utils/logger';
 /**
  * Get full phone number with country code (PingOne format: +1.5125201234)
  * Uses phone validation utility to handle multiple input formats
@@ -120,7 +121,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 		if (credentials.deviceAuthenticationPolicyId?.trim()) {
 			const policyId = credentials.deviceAuthenticationPolicyId.trim();
 			params.policy = { id: policyId };
-			console.log(
+			logger.info(
 				'[📲 WHATSAPP-CONTROLLER] ✅ Policy included in registration params (from dropdown selection):',
 				{
 					policyId: policyId,
@@ -131,7 +132,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 				}
 			);
 		} else {
-			console.warn(
+			logger.warn(
 				'[📲 WHATSAPP-CONTROLLER] ⚠️ Policy not included - deviceAuthenticationPolicyId is missing:',
 				{
 					hasDeviceAuthenticationPolicyId: !!credentials.deviceAuthenticationPolicyId,
@@ -142,7 +143,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 		}
 
 		// Log final params for debugging
-		console.log('[📲 WHATSAPP-CONTROLLER] Final registration params:', {
+		logger.info('[📲 WHATSAPP-CONTROLLER] Final registration params:', {
 			hasType: false, // Type is added by base controller
 			hasPhone: !!params.phone,
 			phone: params.phone,

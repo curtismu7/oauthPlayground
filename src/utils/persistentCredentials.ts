@@ -1,6 +1,7 @@
 // src/utils/persistentCredentials.ts
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 export interface FlowCredentials {
 	environmentId?: string;
 	clientId?: string;
@@ -81,7 +82,7 @@ class PersistentCredentialsManager {
 				return config.useGlobalConfig === true;
 			}
 		} catch (error) {
-			console.log(' [PersistentCredentials] Could not check global config setting:', error);
+			logger.info(' [PersistentCredentials] Could not check global config setting:', error);
 		}
 		return false;
 	}
@@ -94,7 +95,7 @@ class PersistentCredentialsManager {
 		try {
 			// Check if global config is enabled - if so, always use global credentials
 			if (this.isGlobalConfigEnabled()) {
-				console.log(
+				logger.info(
 					' [PersistentCredentials] Global config enabled - using global credentials for all flows'
 				);
 				return this.loadGlobalCredentials();

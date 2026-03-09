@@ -1,4 +1,5 @@
 // src/utils/credentialDebugger.ts
+import { logger } from '../utils/logger';
 /**
  * Credential Debugging Utilities
  *
@@ -31,14 +32,14 @@ export class CredentialDebugger {
 				key.includes('credential')
 		);
 
-		console.log(`📋 All relevant storage keys:`, allKeys);
+		logger.info(`📋 All relevant storage keys:`, allKeys);
 
 		// Check flow-specific storage
 		const flowSpecificKey = flowKey;
 		const flowSpecificData = localStorage.getItem(flowSpecificKey);
 		const hasFlowSpecificCredentials = !!flowSpecificData;
 
-		console.log(`📋 Flow-specific key (${flowSpecificKey}):`, flowSpecificData);
+		logger.info(`📋 Flow-specific key (${flowSpecificKey}):`, flowSpecificData);
 
 		// Check shared credential storage
 		const sharedKeys = [
@@ -62,7 +63,7 @@ export class CredentialDebugger {
 			}
 		});
 
-		console.log(`📋 Shared credential data:`, sharedData);
+		logger.info(`📋 Shared credential data:`, sharedData);
 
 		// Determine credential source
 		let credentialSource: 'flow-specific' | 'shared-fallback' | 'none' = 'none';
@@ -72,7 +73,7 @@ export class CredentialDebugger {
 			credentialSource = 'shared-fallback';
 		}
 
-		console.log(`📋 Credential source: ${credentialSource}`);
+		logger.info(`📋 Credential source: ${credentialSource}`);
 		console.groupEnd();
 
 		return {
@@ -116,8 +117,8 @@ export class CredentialDebugger {
 			.map(([flowKey, _]) => flowKey);
 
 		if (flowsUsingSharedCredentials.length > 0) {
-			console.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
-			console.warn(`📋 Flows using shared credentials:`, flowsUsingSharedCredentials);
+			logger.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
+			logger.warn(`📋 Flows using shared credentials:`, flowsUsingSharedCredentials);
 		}
 
 		console.groupEnd();
@@ -137,7 +138,7 @@ export class CredentialDebugger {
 
 		keysToRemove.forEach((key) => {
 			localStorage.removeItem(key);
-			console.log(`🗑️ Removed: ${key}`);
+			logger.info(`🗑️ Removed: ${key}`);
 		});
 
 		// Also clear session storage
@@ -147,10 +148,10 @@ export class CredentialDebugger {
 
 		sessionKeysToRemove.forEach((key) => {
 			sessionStorage.removeItem(key);
-			console.log(`🗑️ Removed from session: ${key}`);
+			logger.info(`🗑️ Removed from session: ${key}`);
 		});
 
-		console.log(
+		logger.info(
 			`✅ Cleared ${keysToRemove.length} localStorage keys and ${sessionKeysToRemove.length} sessionStorage keys`
 		);
 		console.groupEnd();
@@ -162,22 +163,22 @@ export class CredentialDebugger {
 	static dumpAllStorage(): void {
 		console.group(`📋 [CREDENTIAL DEBUGGER] Dumping all credential storage`);
 
-		console.log(`📋 localStorage keys:`, Object.keys(localStorage));
-		console.log(`📋 sessionStorage keys:`, Object.keys(sessionStorage));
+		logger.info(`📋 localStorage keys:`, Object.keys(localStorage));
+		logger.info(`📋 sessionStorage keys:`, Object.keys(sessionStorage));
 
 		// Dump all PingOne-related data
 		const pingoneKeys = Object.keys(localStorage).filter((key) => key.includes('pingone'));
-		console.log(`📋 PingOne localStorage data:`);
+		logger.info(`📋 PingOne localStorage data:`);
 		pingoneKeys.forEach((key) => {
 			const data = localStorage.getItem(key);
-			console.log(`  ${key}:`, data);
+			logger.info(`  ${key}:`, data);
 		});
 
 		const pingoneSessionKeys = Object.keys(sessionStorage).filter((key) => key.includes('pingone'));
-		console.log(`📋 PingOne sessionStorage data:`);
+		logger.info(`📋 PingOne sessionStorage data:`);
 		pingoneSessionKeys.forEach((key) => {
 			const data = sessionStorage.getItem(key);
-			console.log(`  ${key}:`, data);
+			logger.info(`  ${key}:`, data);
 		});
 
 		console.groupEnd();
@@ -208,7 +209,7 @@ export class CredentialDebugger {
 			})
 		);
 
-		console.log(`📋 Set credentials for ${flow1Key}:`, flow1Credentials);
+		logger.info(`📋 Set credentials for ${flow1Key}:`, flow1Credentials);
 
 		// Set credentials for flow 2
 		const flow2Credentials = {
@@ -226,14 +227,14 @@ export class CredentialDebugger {
 			})
 		);
 
-		console.log(`📋 Set credentials for ${flow2Key}:`, flow2Credentials);
+		logger.info(`📋 Set credentials for ${flow2Key}:`, flow2Credentials);
 
 		// Test loading
 		const flow1Result = CredentialDebugger.auditFlowCredentials(flow1Key);
 		const flow2Result = CredentialDebugger.auditFlowCredentials(flow2Key);
 
-		console.log(`📋 Flow 1 result:`, flow1Result);
-		console.log(`📋 Flow 2 result:`, flow2Result);
+		logger.info(`📋 Flow 1 result:`, flow1Result);
+		logger.info(`📋 Flow 2 result:`, flow2Result);
 
 		// Check for isolation
 		const flow1Isolated =
@@ -244,9 +245,9 @@ export class CredentialDebugger {
 			flow2Result.flowSpecificData?.credentials?.clientId === 'test-client-2';
 
 		if (flow1Isolated && flow2Isolated) {
-			console.log(`✅ ISOLATION TEST PASSED: Both flows have their own credentials`);
+			logger.info(`✅ ISOLATION TEST PASSED: Both flows have their own credentials`);
 		} else {
-			console.error(`❌ ISOLATION TEST FAILED: Credential bleeding detected`);
+			logger.error(`❌ ISOLATION TEST FAILED: Credential bleeding detected`);
 		}
 
 		console.groupEnd();
