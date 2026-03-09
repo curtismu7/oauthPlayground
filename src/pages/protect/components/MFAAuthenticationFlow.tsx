@@ -12,6 +12,7 @@
 import { FiAlertTriangle, FiCheckCircle, FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { showGlobalInfo } from '../../../contexts/NotificationSystem';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
 	EducationalContent,
@@ -495,7 +496,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	const handleStartRegistration = useCallback(() => {
 		// Redirect to MFA registration or show registration modal
 		// For now, we'll show an alert with instructions
-		alert(
+		showGlobalInfo(
 			'MFA Registration: Please visit the MFA registration page to set up your authentication devices.'
 		);
 	}, []);
