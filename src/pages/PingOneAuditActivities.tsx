@@ -1014,7 +1014,8 @@ const PingOneAuditActivities: React.FC = () => {
 
 					<div style={styles.card}>
 						<h2 style={styles.sectionTitle}>
-							<i className="bi bi-funnel" />Query Configuration
+							<i className="bi bi-funnel" />
+							Query Configuration
 						</h2>
 
 						<div style={styles.fieldGroup}>
@@ -1258,11 +1259,13 @@ const PingOneAuditActivities: React.FC = () => {
 									</>
 								) : viewMode === 'single' ? (
 									<>
-										<i className="bi bi-eye" />Get Activity
+										<i className="bi bi-eye" />
+										Get Activity
 									</>
 								) : (
 									<>
-										<i className="bi bi-activity" />Retrieve Activities
+										<i className="bi bi-activity" />
+										Retrieve Activities
 									</>
 								)}
 							</button>
@@ -1306,7 +1309,8 @@ const PingOneAuditActivities: React.FC = () => {
 											}}
 										>
 											<h2 style={styles.sectionTitle}>
-												<i className="bi bi-bar-chart-line" />Summary Statistics
+												<i className="bi bi-bar-chart-line" />
+												Summary Statistics
 											</h2>
 											<div
 												style={{
@@ -1463,7 +1467,8 @@ const PingOneAuditActivities: React.FC = () => {
 											style={{ ...styles.card, border: '1px solid #e5e7eb', background: '#ffffff' }}
 										>
 											<h2 style={styles.sectionTitle}>
-												<i className="bi bi-activity" />Activity Details{' '}
+												<i className="bi bi-activity" />
+												Activity Details{' '}
 												{totalCount > activities.length
 													? `(${activities.length} of ${totalCount})`
 													: `(${activities.length})`}
@@ -1589,7 +1594,8 @@ const PingOneAuditActivities: React.FC = () => {
 										style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}
 									>
 										<h2 style={styles.sectionTitle}>
-											<i className="bi bi-database" />Full API Response
+											<i className="bi bi-database" />
+											Full API Response
 										</h2>
 										{formattedResponse && (
 											<div style={{ maxHeight: '600px', overflow: 'auto' }}>
@@ -1620,7 +1626,8 @@ const PingOneAuditActivities: React.FC = () => {
 							<>
 								<div style={styles.detailModalHeader}>
 									<h2 style={styles.detailModalTitle}>
-										<i className="bi bi-activity" />Activity Details
+										<i className="bi bi-activity" />
+										Activity Details
 									</h2>
 									<button type="button" style={styles.closeButton} onClick={handleCloseDetailModal}>
 										<span>❌</span>
@@ -1769,7 +1776,8 @@ const PingOneAuditActivities: React.FC = () => {
 									{selectedActivity.resources && selectedActivity.resources.length > 0 && (
 										<div style={styles.detailSection}>
 											<h3 style={styles.detailSectionTitle}>
-												<i className="bi bi-database" />Resources ({selectedActivity.resources.length})
+												<i className="bi bi-database" />
+												Resources ({selectedActivity.resources.length})
 											</h3>
 											<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 												{selectedActivity.resources.map((resource, idx) => (
@@ -1888,7 +1896,8 @@ const PingOneAuditActivities: React.FC = () => {
 									{selectedActivity.target && (
 										<div style={styles.detailSection}>
 											<h3 style={styles.detailSectionTitle}>
-												<i className="bi bi-database" />Target
+												<i className="bi bi-database" />
+												Target
 											</h3>
 											<div style={styles.detailGrid}>
 												{selectedActivity.target.type && (
@@ -1916,7 +1925,8 @@ const PingOneAuditActivities: React.FC = () => {
 									{/* Raw JSON */}
 									<div style={styles.detailSection}>
 										<h3 style={styles.detailSectionTitle}>
-											<i className="bi bi-database" />Complete JSON
+											<i className="bi bi-database" />
+											Complete JSON
 										</h3>
 										<div
 											style={{

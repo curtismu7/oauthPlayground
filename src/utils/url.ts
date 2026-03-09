@@ -56,7 +56,9 @@ export const buildUrl = (baseUrl: string, params: QueryParams = {}): string => {
 	Object.entries(params).forEach(([key, value]) => {
 		if (value !== undefined && value !== null) {
 			if (Array.isArray(value)) {
-				value.forEach((v) => url.searchParams.append(key, String(v)));
+				value.forEach((v) => {
+					url.searchParams.append(key, String(v));
+				});
 			} else {
 				url.searchParams.append(key, String(value));
 			}
@@ -80,7 +82,9 @@ export const addQueryParams = (url: string, params: QueryParams = {}): string =>
 			if (Array.isArray(value)) {
 				// Remove existing parameters with the same name
 				urlObj.searchParams.delete(key);
-				value.forEach((v) => urlObj.searchParams.append(key, String(v)));
+				value.forEach((v) => {
+					urlObj.searchParams.append(key, String(v));
+				});
 			} else {
 				urlObj.searchParams.set(key, String(value));
 			}

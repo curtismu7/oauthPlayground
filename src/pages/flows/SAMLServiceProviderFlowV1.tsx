@@ -900,7 +900,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					</>
 				) : (
 					<>
-						<i className="bi bi-floppy" />Save Admin Credentials
+						<i className="bi bi-floppy" />
+						Save Admin Credentials
 					</>
 				)}
 			</Button>

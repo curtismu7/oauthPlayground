@@ -1025,7 +1025,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			{/* API Endpoints Section - Full Width */}
 			<div style={styles.apiEndpointsSection}>
 				<h3 style={styles.apiEndpointsHeader}>
-					<i className="bi bi-code-slash" />Enterprise API Operations
+					<i className="bi bi-code-slash" />
+					Enterprise API Operations
 				</h3>
 				<p style={styles.apiEndpointsDescription}>
 					MasterFlow API provides comprehensive environment management capabilities with full audit
@@ -1114,7 +1115,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={styles.button('secondary')}
 						onClick={handleExportEnvironments}
 					>
-						<i className="bi bi-download" />Export
+						<i className="bi bi-download" />
+						Export
 					</button>
 					<button
 						type="button"
@@ -1124,7 +1126,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<span>⬆️</span>Import
 					</button>
 					<button type="button" style={styles.button('primary')} onClick={handleCreateEnvironment}>
-						<i className="bi bi-plus-circle" />Create Environment
+						<i className="bi bi-plus-circle" />
+						Create Environment
 					</button>
 				</div>
 			</div>
@@ -1422,7 +1425,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showEditModal)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<i className="bi bi-pencil" />Edit Environment
+						<i className="bi bi-pencil" />
+						Edit Environment
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
 						×
@@ -1564,7 +1568,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showApiDisplay)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<i className="bi bi-code-slash" />API Call History
+						<i className="bi bi-code-slash" />
+						API Call History
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={() => setShowApiDisplay(false)}>
 						×
