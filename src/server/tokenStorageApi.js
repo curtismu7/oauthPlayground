@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
  * @file tokenStorageApi.js
  * @description Backend API endpoints for unified token storage with SQLite
  * @version 1.0.0

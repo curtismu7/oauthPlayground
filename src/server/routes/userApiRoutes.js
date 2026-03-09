@@ -13,7 +13,7 @@
 
 import { userDatabaseService } from '../services/userDatabaseService.js';
 
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 const MODULE_TAG = '[🔍 USER-API]';
 
