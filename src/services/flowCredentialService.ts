@@ -289,7 +289,7 @@ export const saveFlowCredentials = async <T = unknown>(
 ): Promise<boolean> => {
 	try {
 		// 🔍 INSTRUMENTATION: Track credential saving behavior
-		console.group(`🔍 [CREDENTIAL AUDIT] Saving credentials for flow: ${flowKey}`);
+		logger.info('FlowCredentialService', `[CREDENTIAL AUDIT] Saving credentials for flow: ${flowKey}`);
 		logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
 		logger.info(`📋 Credentials to Save:`, credentials);
 		logger.info(`📋 Flow Config:`, flowConfig);
@@ -330,7 +330,6 @@ export const saveFlowCredentials = async <T = unknown>(
 		}
 
 		logger.info(`📋 Overall Save Success:`, success);
-		console.groupEnd();
 
 		return success;
 	} catch (error) {
@@ -362,7 +361,7 @@ export const loadFlowCredentials = async <T = unknown>(
 	const { flowKey, defaultCredentials, disableSharedFallback } = config;
 
 	// 🔍 INSTRUMENTATION: Track credential loading behavior
-	console.group(`🔍 [CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
+	logger.info('FlowCredentialService', `[CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
 	logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
 	logger.info(`📋 Default Credentials:`, defaultCredentials);
 
@@ -413,7 +412,6 @@ export const loadFlowCredentials = async <T = unknown>(
 
 	logger.info(`📋 Final Credentials Source: ${credentialSource}`, "Logger info");
 	logger.info(`📋 Final Credentials:`, finalCredentials);
-	console.groupEnd();
 
 	return {
 		credentials: finalCredentials,
@@ -456,7 +454,7 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 	} = { showToast: true, useSharedFallback: false }
 ): Promise<boolean> => {
 	try {
-		console.group(`🔒 [ISOLATED CREDENTIALS] Saving credentials for flow: ${flowKey}`);
+		logger.info('FlowCredentialService', `[ISOLATED CREDENTIALS] Saving credentials for flow: ${flowKey}`);
 		logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
 		logger.info(`📋 Credentials:`, credentials);
 		logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, "Logger info");
@@ -484,7 +482,6 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 		}
 
 		logger.info(`📋 Overall Save Success:`, success);
-		console.groupEnd();
 
 		return success;
 	} catch (error) {
