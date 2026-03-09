@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -125,7 +124,11 @@ const PingViewOnAI: React.FC = () => {
 					defaultCollapsed={false}
 				>
 					<Card
-						style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', border: '2px solid V9_COLORS.PRIMARY.BLUE', padding: '2rem' }}
+						style={{
+							backgroundColor: '#f8fafc',
+							border: '2px solid V9_COLORS.PRIMARY.BLUE',
+							padding: '2rem',
+						}}
 					>
 						<ul
 							style={{
@@ -460,7 +463,8 @@ const PingViewOnAI: React.FC = () => {
 							<div
 								style={{
 									padding: '1.5rem',
-									background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 									border: '2px solid #0ea5e9',
 									borderRadius: '0.75rem',
 								}}
@@ -470,16 +474,16 @@ const PingViewOnAI: React.FC = () => {
 										fontSize: '1.125rem',
 										fontWeight: '600',
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.PRIMARY.BLUE',
+										color: '#3b82f6',
 									}}
 								>
 									Phase 1: Foundation
 								</h4>
-								<p style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '1rem' }}>
+								<p style={{ color: '#3b82f6', marginBottom: '1rem' }}>
 									Establish data governance, privacy controls, and baseline security measures before
 									implementing AI features.
 								</p>
-								<ul style={{ color: 'V9_COLORS.PRIMARY.BLUE', paddingLeft: '1.25rem' }}>
+								<ul style={{ color: '#3b82f6', paddingLeft: '1.25rem' }}>
 									<li>Data classification and governance policies</li>
 									<li>Privacy impact assessments</li>
 									<li>Security baseline establishment</li>
@@ -520,7 +524,8 @@ const PingViewOnAI: React.FC = () => {
 							<div
 								style={{
 									padding: '1.5rem',
-									background: 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
 									border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 									borderRadius: '0.75rem',
 								}}
@@ -530,16 +535,16 @@ const PingViewOnAI: React.FC = () => {
 										fontSize: '1.125rem',
 										fontWeight: '600',
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 									}}
 								>
 									Phase 3: Full Deployment
 								</h4>
-								<p style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '1rem' }}>
+								<p style={{ color: '#d97706', marginBottom: '1rem' }}>
 									Roll out AI capabilities across the organization with comprehensive monitoring and
 									governance.
 								</p>
-								<ul style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', paddingLeft: '1.25rem' }}>
+								<ul style={{ color: '#d97706', paddingLeft: '1.25rem' }}>
 									<li>Enterprise-wide AI deployment</li>
 									<li>Continuous monitoring and optimization</li>
 									<li>User training and adoption</li>

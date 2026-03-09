@@ -656,7 +656,10 @@ export class EnhancedConfigurationService {
 		};
 	}
 
-	private static getChangeType(oldValue: unknown, newValue: unknown): 'added' | 'removed' | 'modified' {
+	private static getChangeType(
+		oldValue: unknown,
+		newValue: unknown
+	): 'added' | 'removed' | 'modified' {
 		if (oldValue === undefined) return 'added';
 		if (newValue === undefined) return 'removed';
 		return 'modified';

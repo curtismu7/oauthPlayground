@@ -341,28 +341,28 @@ export class RiskEvaluationService {
 				return {
 					title: 'Low Risk',
 					description: 'Your login appears to be from a trusted source and location.',
-					color: 'V9_COLORS.PRIMARY.GREEN', // Green
+					color: '#10b981', // Green
 					icon: '✅',
 				};
 			case 'MEDIUM':
 				return {
 					title: 'Medium Risk',
 					description: 'Additional verification is recommended to protect your account.',
-					color: 'V9_COLORS.PRIMARY.YELLOW', // Amber
+					color: '#f59e0b', // Amber
 					icon: '⚠️',
 				};
 			case 'HIGH':
 				return {
 					title: 'High Risk',
 					description: 'This login attempt shows suspicious patterns and has been blocked.',
-					color: 'V9_COLORS.PRIMARY.RED', // Red
+					color: '#ef4444', // Red
 					icon: '🚫',
 				};
 			default:
 				return {
 					title: 'Unknown Risk',
 					description: 'Risk level could not be determined.',
-					color: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Gray
+					color: '#6b7280', // Gray
 					icon: '❓',
 				};
 		}

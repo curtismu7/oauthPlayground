@@ -5,9 +5,8 @@
  * @version 9.1.0
  */
 
-
-import { Component, ErrorInfo, ReactNode } from 'react';
 import { FiAlertTriangle } from '@icons';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
 	children: ReactNode;

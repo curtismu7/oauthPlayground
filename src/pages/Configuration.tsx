@@ -12,11 +12,47 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
+import {
+	getDefaultRegion,
+	loadRegion,
+	PINGONE_REGION_MAP,
+	type PingOneRegion,
+	REGION_LABELS,
+	saveRegion,
+	VALID_REGIONS,
+} from '../services/regionService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
+}) => {
+	const iconMap: Record<string, string> = {
+		FiSettings: 'mdi-cog',
+		FiKey: 'mdi-key',
+		FiInfo: 'mdi-information',
+		FiPackage: 'mdi-package',
+		FiCheckCircle: 'mdi-check-circle',
+		FiTerminal: 'mdi-console',
+		FiSave: 'mdi-content-save',
+		FiPlay: 'mdi-play',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiExternalLink: 'mdi-open-in-new',
+		FiGithub: 'mdi-github',
+		FiDownload: 'mdi-download',
+		FiCopy: 'mdi-content-copy',
+	};
+
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
+};
 
 const styles = {
 	container: {
@@ -33,7 +69,8 @@ const styles = {
 		border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 	} as React.CSSProperties,
 	stepCard: {
-		background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+		background:
+			'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 		border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.75rem',
 		padding: '1.5rem',
@@ -48,7 +85,7 @@ const styles = {
 	stepNumber: {
 		width: '32px',
 		height: '32px',
-		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: '#2563eb',
 		color: 'white',
 		borderRadius: '50%',
 		display: 'flex',
@@ -61,11 +98,11 @@ const styles = {
 	stepTitle: {
 		fontSize: '1.125rem',
 		fontWeight: '600',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		margin: 0,
 	} as React.CSSProperties,
 	codeBlock: {
-		backgroundColor: 'V9_COLORS.TEXT.GRAY_DARK',
+		backgroundColor: '#1f2937',
 		color: '#f9fafb',
 		borderRadius: '0.5rem',
 		padding: '1.5rem',
@@ -103,7 +140,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.75rem',
 		padding: '0.75rem',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		background: '#f8fafc',
 		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 	} as React.CSSProperties,
@@ -115,8 +152,8 @@ const styles = {
 	uriHeaderCell: {
 		textAlign: 'left',
 		padding: '0.75rem 1rem',
-		background: 'V9_COLORS.BG.GRAY_MEDIUM',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		background: '#f1f5f9',
+		color: '#1f2937',
 		fontSize: '0.9rem',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
@@ -137,17 +174,17 @@ const styles = {
 	uriCode: {
 		fontFamily:
 			'"Fira Code", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, "Courier New", monospace',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		background: '#f8fafc',
 		padding: '0.35rem 0.5rem',
 		borderRadius: '0.5rem',
 		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		wordBreak: 'break-all',
 	} as React.CSSProperties,
 	uriDescription: {
 		margin: '0.35rem 0 0',
 		fontSize: '0.85rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	} as React.CSSProperties,
 	uriActionRow: {
 		display: 'flex',
@@ -161,14 +198,14 @@ const styles = {
 		padding: '0.65rem 0.75rem',
 		borderRadius: '0.6rem',
 		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.TEXT.WHITE',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		background: '#ffffff',
+		color: '#1f2937',
 		fontSize: '0.9rem',
 	} as React.CSSProperties,
 	uriHelper: {
 		margin: '0.35rem 0 0',
 		fontSize: '0.8rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	} as React.CSSProperties,
 };
 
@@ -181,13 +218,13 @@ const _getInfoBoxStyle = (type?: 'info' | 'warning' | 'success' | 'error'): Reac
 	};
 	switch (type) {
 		case 'warning':
-			return { ...base, backgroundColor: 'V9_COLORS.BG.WARNING', borderLeftColor: 'V9_COLORS.PRIMARY.YELLOW', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' };
+			return { ...base, backgroundColor: '#fef3c7', borderLeftColor: '#f59e0b', color: '#d97706' };
 		case 'success':
-			return { ...base, backgroundColor: 'V9_COLORS.BG.SUCCESS', borderLeftColor: 'V9_COLORS.PRIMARY.GREEN', color: 'V9_COLORS.PRIMARY.GREEN_DARK' };
+			return { ...base, backgroundColor: '#ecfdf5', borderLeftColor: '#10b981', color: '#059669' };
 		case 'error':
-			return { ...base, backgroundColor: 'V9_COLORS.BG.ERROR', borderLeftColor: 'V9_COLORS.PRIMARY.RED', color: 'V9_COLORS.PRIMARY.RED_DARK' };
+			return { ...base, backgroundColor: '#fef2f2', borderLeftColor: '#ef4444', color: '#dc2626' };
 		default:
-			return { ...base, backgroundColor: '#dbeafe', borderLeftColor: 'V9_COLORS.PRIMARY.BLUE', color: 'V9_COLORS.PRIMARY.BLUE_DARK' };
+			return { ...base, backgroundColor: '#dbeafe', borderLeftColor: '#3b82f6', color: '#2563eb' };
 	}
 };
 
@@ -196,9 +233,9 @@ const _getUriActionButtonStyle = (variant?: 'primary' | 'secondary'): React.CSSP
 	padding: '0.65rem 1rem',
 	fontWeight: '600',
 	cursor: 'pointer',
-	border: `1px solid ${variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
-	background: variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.WHITE',
-	color: variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK',
+	border: `1px solid ${variant === 'primary' ? '#2563eb' : '#e5e7eb'}`,
+	background: variant === 'primary' ? '#2563eb' : '#ffffff',
+	color: variant === 'primary' ? '#ffffff' : '#1f2937',
 });
 
 const _getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProperties => ({
@@ -207,13 +244,15 @@ const _getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProp
 	borderRadius: '0.5rem',
 	fontSize: '0.75rem',
 	fontWeight: '600',
-	background: variant === 'override' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
-	color: variant === 'override' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK',
+	background: variant === 'override' ? '#1f2937' : '#e5e7eb',
+	color: variant === 'override' ? '#ffffff' : '#1f2937',
 });
 
 const Configuration: React.FC = () => {
 	usePageScroll({ pageName: 'Configuration & Setup', force: true });
 	const [copiedText, setCopiedText] = useState<string>('');
+	const [selectedRegion, setSelectedRegion] = useState<PingOneRegion | null>(null);
+	const [isLoadingRegion, setIsLoadingRegion] = useState(true);
 
 	const buildUriEditState = useCallback(
 		(catalog: ReturnType<typeof callbackUriService.getRedirectUriCatalog>) =>
@@ -258,7 +297,7 @@ const Configuration: React.FC = () => {
 						element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
 						// Highlight the row temporarily
-						element.style.backgroundColor = 'V9_COLORS.BG.WARNING'; // Light yellow
+						element.style.backgroundColor = '#fef3c7'; // Light yellow
 						setTimeout(() => {
 							element.style.backgroundColor = '';
 						}, 2000);
@@ -480,6 +519,48 @@ const Configuration: React.FC = () => {
 		loadCredentials();
 	}, []);
 
+	// Load PingOne region on mount
+	useEffect(() => {
+		const loadPingOneRegion = async () => {
+			try {
+				setIsLoadingRegion(true);
+				const region = await loadRegion();
+				// If no region is set, use the default (US/North America)
+				setSelectedRegion(region || getDefaultRegion());
+			} catch (error) {
+				logger.error('Configuration', 'Failed to load PingOne region:', undefined, error as Error);
+				// Fallback to default region on error
+				setSelectedRegion(getDefaultRegion());
+			} finally {
+				setIsLoadingRegion(false);
+			}
+		};
+
+		loadPingOneRegion();
+	}, []);
+
+	// Handle region change
+	const handleRegionChange = async (region: PingOneRegion) => {
+		try {
+			await saveRegion(region);
+			setSelectedRegion(region);
+			modernMessaging.showBanner({
+				type: 'success',
+				title: 'Region Updated',
+				message: `PingOne region set to ${REGION_LABELS[region]}`,
+				dismissible: true,
+			});
+		} catch (error) {
+			logger.error('Configuration', 'Failed to save PingOne region:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save region configuration',
+				dismissible: true,
+			});
+		}
+	};
+
 	// Load existing PingOne configuration on mount
 	useEffect(() => {
 		const loadPingOneConfig = async () => {
@@ -557,7 +638,8 @@ const Configuration: React.FC = () => {
 
 			<div
 				style={{
-					background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+					background:
+						'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 					borderRadius: '1rem',
 					padding: '2rem',
 					marginBottom: '2rem',
@@ -593,6 +675,107 @@ const Configuration: React.FC = () => {
 				</p>
 			</div>
 
+			{/* PingOne Region Configuration */}
+			<div style={styles.card}>
+				<div style={styles.stepHeader}>
+					<span style={{ fontSize: '24px' }}>🌍</span>
+					<h2 style={{ margin: 0, color: '#1f2937' }}>PingOne Region</h2>
+				</div>
+
+				{isLoadingRegion ? (
+					<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+						Loading region configuration...
+					</div>
+				) : (
+					<div>
+						<p style={{ marginBottom: '1.5rem', color: '#1f2937' }}>
+							Select your PingOne region to ensure API calls are routed to the correct PingOne
+							servers. This setting is used across all OAuth flows and API interactions.
+						</p>
+
+						{selectedRegion ? (
+							<div
+								style={{
+									background: '#ecfdf5',
+									border: '1px solid V9_COLORS.PRIMARY.GREEN',
+									borderRadius: '0.5rem',
+									padding: '1rem',
+									marginBottom: '1.5rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontSize: '18px' }}>✅</span>
+									<strong>Region Configured:</strong> {REGION_LABELS[selectedRegion]}
+								</div>
+								<div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
+									API Base URL: {PINGONE_REGION_MAP[selectedRegion]}
+								</div>
+							</div>
+						) : (
+							<div
+								style={{
+									background: '#fef3c7',
+									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+									borderRadius: '0.5rem',
+									padding: '1rem',
+									marginBottom: '1.5rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontSize: '18px' }}>⚠️</span>
+									<strong>PingOne region is not configured</strong>
+								</div>
+								<div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
+									Please select your region below to continue.
+								</div>
+							</div>
+						)}
+
+						<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+							<label htmlFor="region-select" style={{ fontWeight: '600', color: '#1f2937' }}>
+								Region:
+							</label>
+							<select
+								id="region-select"
+								value={selectedRegion || ''}
+								onChange={(e) => handleRegionChange(e.target.value as PingOneRegion)}
+								style={{
+									padding: '0.75rem',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									borderRadius: '0.5rem',
+									background: 'white',
+									color: '#1f2937',
+									fontSize: '1rem',
+									minWidth: '350px',
+								}}
+							>
+								{Object.entries(REGION_LABELS)
+									.filter(([region]) => VALID_REGIONS.includes(region as PingOneRegion))
+									.map(([value, label]) => (
+										<option key={value} value={value}>
+											{label}
+										</option>
+									))}
+							</select>
+						</div>
+					</div>
+				)}
+			</div>
+
 			{/* Worker Token Section - First Step */}
 			<CollapsibleHeader
 				title="Worker Token Credentials"
@@ -616,7 +799,7 @@ const Configuration: React.FC = () => {
 					<p
 						style={{
 							marginBottom: '1rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							lineHeight: 1.6,
 						}}
 					>
@@ -672,7 +855,7 @@ const Configuration: React.FC = () => {
 										<UriCell>
 											<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-													<strong style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{entry.flowType}</strong>
+													<strong style={{ color: '#1f2937' }}>{entry.flowType}</strong>
 													<UriStatusBadge $variant={flowOverride ? 'override' : 'default'}>
 														{flowOverride ? 'Override' : 'Default'}
 													</UriStatusBadge>
@@ -790,39 +973,39 @@ const Configuration: React.FC = () => {
 								style={{
 									fontSize: '2rem',
 									fontWeight: '700',
-									color: 'V9_COLORS.PRIMARY.BLUE',
+									color: '#3b82f6',
 									marginBottom: '0.5rem',
 								}}
 							>
 								{packageJson.version}
 							</div>
-							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Version</div>
+							<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Version</div>
 						</div>
 						<div style={{ textAlign: 'center', padding: '1rem' }}>
 							<div
 								style={{
 									fontSize: '2rem',
 									fontWeight: '700',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 									marginBottom: '0.5rem',
 								}}
 							>
 								Node.js 16+
 							</div>
-							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Requirement</div>
+							<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Requirement</div>
 						</div>
 						<div style={{ textAlign: 'center', padding: '1rem' }}>
 							<div
 								style={{
 									fontSize: '2rem',
 									fontWeight: '700',
-									color: 'V9_COLORS.PRIMARY.YELLOW',
+									color: '#f59e0b',
 									marginBottom: '0.5rem',
 								}}
 							>
 								React + Vite
 							</div>
-							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Framework</div>
+							<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Framework</div>
 						</div>
 					</div>
 
@@ -867,7 +1050,7 @@ const Configuration: React.FC = () => {
 							<div className="step-number">1</div>
 							<h3>Clone the Repository</h3>
 						</StepHeader>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 							Clone the OAuth Playground repository to your local machine.
 						</p>
 						<CodeBlockWithCopy label="clone">
@@ -881,7 +1064,7 @@ cd oauthPlayground`}
 							<div className="step-number">2</div>
 							<h3>Install Dependencies</h3>
 						</StepHeader>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 							Install all required Node.js dependencies.
 						</p>
 						<CodeBlockWithCopy label="install">{`npm install`}</CodeBlockWithCopy>
@@ -913,7 +1096,7 @@ cd oauthPlayground`}
 							<div className="step-number">4</div>
 							<h3>Configure PAR (Pushed Authorization Request)</h3>
 						</StepHeader>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Configure PAR settings for enhanced security. PAR allows you to push authorization
 							requests to PingOne via back-channel, safeguarding sensitive data from end-user
 							devices.
@@ -946,7 +1129,7 @@ cd oauthPlayground`}
 								type="button"
 								onClick={savePingOneConfig}
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									border: '1px solid V9_COLORS.TEXT.WHITE',
 									borderRadius: '0.5rem',
@@ -960,12 +1143,12 @@ cd oauthPlayground`}
 									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.GREEN_DARK';
-									e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.WHITE';
+									e.currentTarget.style.backgroundColor = '#059669';
+									e.currentTarget.style.borderColor = '#ffffff';
 								}}
 								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.GREEN';
-									e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.WHITE';
+									e.currentTarget.style.backgroundColor = '#10b981';
+									e.currentTarget.style.borderColor = '#ffffff';
 								}}
 							>
 								<MDIIcon icon="FiSave" size={16} />
@@ -979,7 +1162,7 @@ cd oauthPlayground`}
 							<div className="step-number">5</div>
 							<h3>Start the Application</h3>
 						</StepHeader>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 							Start the full-stack application with frontend and backend services.
 						</p>
 						<CodeBlockWithCopy label="start">{`npm start`}</CodeBlockWithCopy>
@@ -1003,7 +1186,8 @@ cd oauthPlayground`}
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+								background:
+									'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 								border: '2px solid #0ea5e9',
 								borderRadius: '0.75rem',
 							}}
@@ -1017,7 +1201,7 @@ cd oauthPlayground`}
 							>
 								Development Mode
 							</h3>
-							<p style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '1rem' }}>
+							<p style={{ color: '#3b82f6', marginBottom: '1rem' }}>
 								For active development with hot reloading and detailed error messages.
 							</p>
 							<CodeBlockWithCopy label="dev">{`npm run dev`}</CodeBlockWithCopy>
@@ -1049,7 +1233,8 @@ cd oauthPlayground`}
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+								background:
+									'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
 								border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.75rem',
 							}}
@@ -1063,7 +1248,7 @@ cd oauthPlayground`}
 							>
 								Individual Servers
 							</h3>
-							<p style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '1rem' }}>
+							<p style={{ color: '#d97706', marginBottom: '1rem' }}>
 								Start frontend and backend servers separately.
 							</p>
 							<div
@@ -1101,7 +1286,7 @@ cd oauthPlayground`}
 						<CodeBlockWithCopy label="redirect-script">{`./redirect-servers.sh`}</CodeBlockWithCopy>
 						<p
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								fontSize: '0.85rem',
 								marginTop: '0.75rem',
 							}}
@@ -1165,7 +1350,7 @@ cd oauthPlayground`}
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.75rem 1.5rem',
-								backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
+								backgroundColor: '#3b82f6',
 								color: 'white',
 								textDecoration: 'none',
 								borderRadius: '0.5rem',
@@ -1175,12 +1360,12 @@ cd oauthPlayground`}
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE_DARK';
-								e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.WHITE';
+								e.currentTarget.style.backgroundColor = '#2563eb';
+								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE';
-								e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.WHITE';
+								e.currentTarget.style.backgroundColor = '#3b82f6';
+								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 						>
 							<MDIIcon icon="FiGithub" />
@@ -1197,7 +1382,7 @@ cd oauthPlayground`}
 								gap: '0.5rem',
 								padding: '0.75rem 1.5rem',
 								backgroundColor: 'white',
-								color: 'V9_COLORS.PRIMARY.BLUE',
+								color: '#3b82f6',
 								textDecoration: 'none',
 								borderRadius: '0.5rem',
 								fontWeight: '600',
@@ -1206,12 +1391,12 @@ cd oauthPlayground`}
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.GRAY_LIGHT';
-								e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.BLUE_DARK';
+								e.currentTarget.style.backgroundColor = '#f8fafc';
+								e.currentTarget.style.borderColor = '#2563eb';
 							}}
 							onMouseLeave={(e) => {
 								e.currentTarget.style.backgroundColor = 'white';
-								e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.BLUE';
+								e.currentTarget.style.borderColor = '#3b82f6';
 							}}
 						>
 							<MDIIcon icon="FiExternalLink" />
@@ -1228,7 +1413,7 @@ cd oauthPlayground`}
 								gap: '0.5rem',
 								padding: '0.75rem 1.5rem',
 								backgroundColor: 'white',
-								color: 'V9_COLORS.PRIMARY.BLUE',
+								color: '#3b82f6',
 								textDecoration: 'none',
 								borderRadius: '0.5rem',
 								fontWeight: '600',
@@ -1237,12 +1422,12 @@ cd oauthPlayground`}
 								transition: 'all 0.2s',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.GRAY_LIGHT';
-								e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.BLUE_DARK';
+								e.currentTarget.style.backgroundColor = '#f8fafc';
+								e.currentTarget.style.borderColor = '#2563eb';
 							}}
 							onMouseLeave={(e) => {
 								e.currentTarget.style.backgroundColor = 'white';
-								e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.BLUE';
+								e.currentTarget.style.borderColor = '#3b82f6';
 							}}
 						>
 							<MDIIcon icon="FiDownload" />

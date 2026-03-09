@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const log = createModuleLogger('pages/HybridCallback.tsx');
+
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -47,7 +48,7 @@ const IconContainer = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 	font-size: 4rem;
 	margin-bottom: 1.5rem;
 	color: ${({ $status }) =>
-		$status === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : $status === 'error' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE'};
+		$status === 'success' ? '#10b981' : $status === 'error' ? '#ef4444' : '#3b82f6'};
 	
 	${({ $status }) =>
 		$status === 'loading' &&

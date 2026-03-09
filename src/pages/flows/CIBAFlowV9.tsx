@@ -183,15 +183,15 @@ const StatusCard = styled.div<{ status: string }>`
 	background: ${(props) => {
 		switch (props.status) {
 			case 'pending':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'approved':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'denied':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'expired':
 				return '#f3f4f6';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f9fafb';
 		}
@@ -199,17 +199,17 @@ const StatusCard = styled.div<{ status: string }>`
 	border: 1px solid ${(props) => {
 		switch (props.status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'approved':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 8px;
@@ -767,7 +767,7 @@ const CIBAFlowV9: React.FC = () => {
 						{!credentials.clientId || !credentials.environmentId || !credentials.loginHint ? (
 							<small
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									fontSize: '0.875rem',
 									marginTop: '0.25rem',
 									display: 'block',
@@ -778,7 +778,7 @@ const CIBAFlowV9: React.FC = () => {
 						) : (
 							<small
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									fontSize: '0.875rem',
 									marginTop: '0.25rem',
 									display: 'block',
@@ -826,7 +826,7 @@ const CIBAFlowV9: React.FC = () => {
 						style={{
 							background: 'none',
 							border: 'none',
-							color: 'V9_COLORS.PRIMARY.BLUE',
+							color: '#3b82f6',
 							cursor: 'pointer',
 							fontWeight: '500',
 							marginBottom: '1rem',
@@ -906,7 +906,7 @@ const CIBAFlowV9: React.FC = () => {
 						spinnerSize={16}
 						spinnerPosition="left"
 						style={{
-							background: 'V9_COLORS.PRIMARY.BLUE',
+							background: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -922,7 +922,7 @@ const CIBAFlowV9: React.FC = () => {
 						type="button"
 						onClick={handleReset}
 						style={{
-							background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							background: '#6b7280',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -992,7 +992,7 @@ const CIBAFlowV9: React.FC = () => {
 					{/* Authentication Request Details */}
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							padding: '1rem',
 							borderRadius: '6px',
 							marginBottom: '1rem',
@@ -1032,7 +1032,7 @@ const CIBAFlowV9: React.FC = () => {
 							spinnerSize={16}
 							spinnerPosition="left"
 							style={{
-								background: 'V9_COLORS.PRIMARY.GREEN',
+								background: '#10b981',
 								color: 'white',
 								border: 'none',
 								padding: '0.75rem 1.5rem',
@@ -1072,7 +1072,8 @@ const CIBAFlowV9: React.FC = () => {
 							>
 								<TokenContent>{maskToken(cibaFlow.tokens.refresh_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.refresh_token)}>
-									<span>📋</span></CopyButton>
+									<span>📋</span>
+								</CopyButton>
 							</div>
 						</TokenDisplay>
 					)}
@@ -1085,7 +1086,8 @@ const CIBAFlowV9: React.FC = () => {
 							>
 								<TokenContent>{maskToken(cibaFlow.tokens.id_token)}</TokenContent>
 								<CopyButton onClick={() => copyToken(cibaFlow.tokens.id_token)}>
-									<span>📋</span></CopyButton>
+									<span>📋</span>
+								</CopyButton>
 							</div>
 						</TokenDisplay>
 					)}
@@ -1093,7 +1095,7 @@ const CIBAFlowV9: React.FC = () => {
 					{/* Token Metadata */}
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							padding: '1rem',
 							borderRadius: '6px',
 							marginTop: '1rem',
@@ -1153,7 +1155,7 @@ const CIBAFlowV9: React.FC = () => {
 						<li>Secure transaction approval on mobile devices</li>
 					</ul>
 
-					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
 						How it works:
 					</h4>
 					<ol style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
@@ -1163,7 +1165,7 @@ const CIBAFlowV9: React.FC = () => {
 						<li>Client polls token endpoint to retrieve results</li>
 					</ol>
 
-					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
 						Token Delivery Modes:
 					</h4>
 					<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>

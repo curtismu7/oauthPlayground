@@ -1,7 +1,6 @@
 // src/components/QRCodeServiceDemo.tsx
 // Demo component showcasing QRCodeService functionality
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult, type TOTPConfig } from '../services/qrCodeService';
@@ -296,7 +295,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 		<Container>
 			<Header>
 				<Title>QR Code Service Demo</Title>
-				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
+				<p style={{ color: '#6b7280', margin: 0 }}>
 					Interactive demonstration of TOTP QR code generation and validation
 				</p>
 			</Header>
@@ -436,7 +435,7 @@ export const QRCodeServiceDemo: React.FC = () => {
 									style={{
 										margin: '1rem 0 0 0',
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
 									Scan with your authenticator app

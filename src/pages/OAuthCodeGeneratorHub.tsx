@@ -8,7 +8,6 @@
  * - Inline Code Examples
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
@@ -250,7 +249,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 				>
 					<h2
 						style={{
-							color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+							color: '#059669',
 							fontSize: '1.75rem',
 							marginBottom: '1rem',
 						}}
@@ -259,7 +258,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 					</h2>
 					<p
 						style={{
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							fontSize: '1.1rem',
 							lineHeight: '1.7',
 							maxWidth: '700px',
@@ -277,7 +276,8 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							rel="noopener noreferrer"
 							style={{
 								padding: '1rem 2rem',
-								background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+								background:
+									'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 								color: 'white',
 								borderRadius: '0.75rem',
 								textDecoration: 'none',
@@ -298,7 +298,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							style={{
 								padding: '1rem 2rem',
 								background: 'white',
-								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								color: '#059669',
 								border: '2px solid V9_COLORS.PRIMARY.GREEN',
 								borderRadius: '0.75rem',
 								textDecoration: 'none',

@@ -9,12 +9,11 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { useBrandTheme } from '../themes/theme-provider';
 import BrandDropdownSelector from './BrandDropdownSelector';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -203,7 +202,11 @@ const AmericanAirlinesNavigation: React.FC<AmericanAirlinesNavigationProps> = ({
 					</UserMenu>
 
 					<MobileMenuButton onClick={toggleMobileMenu}>
-						{mobileMenuOpen ? <span style={{ fontSize: '24px' }}>❌</span> : <span style={{ fontSize: '24px' }}>❓</span>}
+						{mobileMenuOpen ? (
+							<span style={{ fontSize: '24px' }}>❌</span>
+						) : (
+							<span style={{ fontSize: '24px' }}>❓</span>
+						)}
 					</MobileMenuButton>
 				</RightSection>
 			</NavigationContent>

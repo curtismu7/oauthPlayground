@@ -13,7 +13,6 @@
  * All outbound WhatsApp messages are sent by PingOne using its configured sender.
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';

@@ -1,7 +1,7 @@
 // src/components/WorkerTokenModal.tsx
 // Modal for configuring worker token when not available
 
-
+import { FiAlertTriangle, FiInfo } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,7 +11,6 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
-import { FiAlertTriangle, FiInfo } from '@icons';
 
 type RequestDetails = {
 	tokenEndpoint: string;
@@ -1536,7 +1535,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}
 										/>
 										<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+											{showPassword ? (
+												<span style={{ fontSize: '16px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16px' }}>👁️</span>
+											)}
 										</PasswordToggle>
 									</PasswordInput>
 								</FormField>

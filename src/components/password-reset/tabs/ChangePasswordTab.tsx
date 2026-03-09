@@ -1,6 +1,7 @@
 // src/components/password-reset/tabs/ChangePasswordTab.tsx
 // Change Password Tab Component
 
+import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiLogIn } from '@icons';
 import React from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
@@ -17,7 +18,7 @@ import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
-Alert,
+	Alert,
 	Button,
 	Card,
 	DocumentationLink,
@@ -32,8 +33,7 @@ Alert,
 	UserAvatar,
 	UserCard,
 	UserInfo,
-} from '../shared/PasswordResetSharedComponents'
-import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiLogIn } from '@icons';
+} from '../shared/PasswordResetSharedComponents';
 
 interface ChangePasswordTabProps {
 	environmentId: string;
@@ -291,7 +291,7 @@ export const ChangePasswordTab: React.FC<ChangePasswordTabProps> = ({
 							<div
 								style={{
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontFamily: 'monospace',
 									background: 'rgba(255, 255, 255, 0.7)',
 									padding: '0.5rem',

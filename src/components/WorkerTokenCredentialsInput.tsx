@@ -2,7 +2,7 @@
 // Worker Token Credentials Input Component - Specialized UI for PingOne Worker Token configuration
 // Provides a clean, focused interface for machine-to-machine authentication setup
 
-
+import { FiInfo, FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -12,7 +12,6 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiInfo, FiRefreshCw } from '@icons';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;
@@ -273,9 +272,9 @@ const ValidationItem = styled.div<{ $type: 'error' | 'warning' }>`
   padding: 0.5rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  background: ${({ $type }) => ($type === 'error' ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.WARNING')};
-  color: ${({ $type }) => ($type === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
-  border: 1px solid ${({ $type }) => ($type === 'error' ? 'V9_COLORS.BG.ERROR_BORDER' : '#fed7aa')};
+  background: ${({ $type }) => ($type === 'error' ? '#fef2f2' : '#fef3c7')};
+  color: ${({ $type }) => ($type === 'error' ? '#dc2626' : '#d97706')};
+  border: 1px solid ${({ $type }) => ($type === 'error' ? '#ef4444' : '#fed7aa')};
 `;
 
 const InfoBox = styled.div`
@@ -484,7 +483,11 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 									onClick={() => setShowClientSecret(!showClientSecret)}
 									disabled={false}
 								>
-									{showClientSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+									{showClientSecret ? (
+										<span style={{ fontSize: '16px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '16px' }}>👁️</span>
+									)}
 								</PasswordToggle>
 							</InputGroup>
 						</FormField>
@@ -538,7 +541,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					<ActionsContainer>
 						<div>
 							{hasUnsavedChanges && (
-								<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '0.875rem' }}>
+								<span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
 									You have unsaved changes
 								</span>
 							)}

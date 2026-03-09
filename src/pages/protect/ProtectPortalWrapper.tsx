@@ -10,9 +10,9 @@
  */
 
 import React from 'react';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { getPortalAppConfig } from './config/protectPortalAppConfig';
 import ProtectPortalApp from './ProtectPortalApp';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // PROTECT PORTAL WRAPPER

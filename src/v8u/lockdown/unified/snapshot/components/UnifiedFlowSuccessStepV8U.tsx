@@ -6,7 +6,6 @@
  * @since 2026-02-05
  */
 
-
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';

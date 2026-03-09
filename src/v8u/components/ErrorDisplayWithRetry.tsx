@@ -12,10 +12,9 @@
  * - Suggested fixes from OAuth error codes service
  */
 
-
+import { FiAlertCircle } from '@icons';
 import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '@/v8/services/oauthErrorCodesServiceV8';
-import { FiAlertCircle } from '@icons';
 
 const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';
 
@@ -75,7 +74,7 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 				while (true) {
 					match = urlRegex.exec(displayText);
 					if (match === null) break;
-					
+
 					if (match.index > lastIndex) {
 						parts.push({ text: displayText.substring(lastIndex, match.index), isUrl: false });
 					}

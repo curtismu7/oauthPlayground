@@ -8,9 +8,9 @@
  * Delta Air Lines brand theme with their signature red and blue colors.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const deltaConfig: CorporatePortalConfig = {
 	company: {
@@ -44,7 +44,7 @@ export const deltaConfig: CorporatePortalConfig = {
 			info: '#3498db',
 			light: '#ecf0f1',
 			dark: '#2c3e50',
-			white: 'V9_COLORS.TEXT.WHITE',
+			white: '#ffffff',
 			gray100: '#f8f9fa',
 			gray200: '#e9ecef',
 			gray300: '#dee2e6',
@@ -54,7 +54,7 @@ export const deltaConfig: CorporatePortalConfig = {
 			gray700: '#495057',
 			gray800: '#343a40',
 			gray900: '#212529',
-			black: 'V9_COLORS.TEXT.BLACK',
+			black: '#000000',
 		},
 		typography: {
 			fontFamily: {
@@ -180,19 +180,19 @@ export const deltaTheme: BrandTheme = {
 		primary: '#c8102e',
 		primaryDark: '#a91b0d',
 		primaryLight: '#f8d7da',
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK',
-		secondaryLight: 'V9_COLORS.TEXT.GRAY_LIGHTER',
-		secondaryDark: 'V9_COLORS.TEXT.GRAY_DARK',
+		secondary: '#1f2937',
+		secondaryLight: '#e5e7eb',
+		secondaryDark: '#1f2937',
 		accent: '#ff6b35',
-		background: 'V9_COLORS.TEXT.WHITE',
-		surface: 'V9_COLORS.TEXT.WHITE',
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		background: '#ffffff',
+		surface: '#ffffff',
+		muted: '#6b7280',
+		border: '#e5e7eb',
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31937',
 		errorLight: '#f8d7da',
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		successLight: '#d4edda',
 		warning: '#D97706',
 		warningLight: 'V9_COLORS.TEXT.WHITE3cd',

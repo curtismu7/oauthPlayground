@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -366,7 +365,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 			case 'success':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   font-weight: 600;
@@ -627,7 +626,7 @@ export const FlowComparisonTools: React.FC = () => {
 												margin: '0 0 0.5rem 0',
 												fontSize: '0.875rem',
 												fontWeight: '600',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 											}}
 										>
 											Key Features:
@@ -637,7 +636,7 @@ export const FlowComparisonTools: React.FC = () => {
 												margin: 0,
 												paddingLeft: '1rem',
 												fontSize: '0.875rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 											}}
 										>
 											{flow.features.map((feature, index) => (
@@ -671,9 +670,7 @@ export const FlowComparisonTools: React.FC = () => {
 												<TableCell>
 													<strong>{flow.name}</strong>
 													<br />
-													<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-														{flow.description}
-													</small>
+													<small style={{ color: '#6b7280' }}>{flow.description}</small>
 												</TableCell>
 												<TableCell>{flow.security}/10</TableCell>
 												<TableCell>{flow.complexity}/10</TableCell>

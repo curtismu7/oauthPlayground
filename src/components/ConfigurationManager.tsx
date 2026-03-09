@@ -2,7 +2,6 @@
 // Interactive configuration management component
 // Allows developers to view, edit, and validate flow configurations
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -343,12 +342,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
 			setHasUnsavedChanges(false);
 		} catch (error) {
-			log.error(
-				'ConfigurationManager',
-				'Failed to load configuration:',
-				undefined,
-				error as Error
-			);
+			log.error('ConfigurationManager', 'Failed to load configuration:', undefined, error as Error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -394,12 +388,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			setHasUnsavedChanges(false);
 			console.log('Configuration saved successfully');
 		} catch (error) {
-			log.error(
-				'ConfigurationManager',
-				'Failed to save configuration:',
-				undefined,
-				error as Error
-			);
+			log.error('ConfigurationManager', 'Failed to save configuration:', undefined, error as Error);
 		}
 	}, [config, selectedFlowType, selectedEnvironment]);
 
@@ -513,12 +502,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						try {
 							handleConfigChange(field, JSON.parse(e.target.value) as BaseFlowConfig[K]);
 						} catch (error) {
-							log.error(
-								'ConfigurationManager',
-								'Invalid JSON input:',
-								undefined,
-								error as Error
-							);
+							log.error('ConfigurationManager', 'Invalid JSON input:', undefined, error as Error);
 						}
 					}}
 				/>

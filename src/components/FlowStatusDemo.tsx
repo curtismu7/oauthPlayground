@@ -26,15 +26,13 @@ const mockGetFlowStatus = (flowId: string) => {
 
 export const FlowStatusDemo: React.FC = () => {
 	return (
-		<div
-			style={{ padding: '2rem', backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', minHeight: '100vh' }}
-		>
+		<div style={{ padding: '2rem', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
 			<div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 				<h1
 					style={{
 						fontSize: '2rem',
 						fontWeight: '700',
-						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						color: '#2563eb',
 						marginBottom: '2rem',
 						textAlign: 'center',
 					}}
@@ -44,7 +42,7 @@ export const FlowStatusDemo: React.FC = () => {
 
 				<div
 					style={{
-						backgroundColor: 'V9_COLORS.TEXT.WHITE',
+						backgroundColor: '#ffffff',
 						borderRadius: '1rem',
 						padding: '2rem',
 						boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
@@ -58,15 +56,13 @@ export const FlowStatusDemo: React.FC = () => {
 					style={{
 						marginTop: '2rem',
 						padding: '1.5rem',
-						backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+						backgroundColor: '#f8fafc',
 						borderRadius: '0.75rem',
 						border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
-					<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>
-						Improvements Made:
-					</h3>
-					<ul style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
+					<h3 style={{ color: '#2563eb', marginBottom: '1rem' }}>Improvements Made:</h3>
+					<ul style={{ color: '#1f2937', lineHeight: '1.6' }}>
 						<li>
 							✅ <strong>Consistent Light Blue Theme:</strong> All tables now use light blue
 							(V9_COLORS.BG.GRAY_LIGHT) backgrounds instead of mixed red/green

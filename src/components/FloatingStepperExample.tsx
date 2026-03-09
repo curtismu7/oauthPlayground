@@ -11,7 +11,7 @@ import {
 	FloatingStepper,
 	FloatingStepperService,
 	type FloatingStepperStep,
-} from '../services/FloatingStepperService'
+} from '../services/FloatingStepperService';
 
 const FloatingStepperExample: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);

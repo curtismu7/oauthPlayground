@@ -8,7 +8,6 @@
  * Used for showing loading states during API calls and async operations.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
 

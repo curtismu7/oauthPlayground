@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
@@ -92,21 +91,21 @@ const StatusIcon = styled.div<{ $status: 'active' | 'inactive' | 'error' }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'inactive':
 				return '#f3f4f6';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 		}
 	}};
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'inactive':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
   font-size: 16px;
@@ -213,7 +212,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 			case 'danger':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   font-weight: 600;
@@ -227,7 +226,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 				case 'primary':
 					return theme.colors.primaryDark;
 				case 'danger':
-					return 'V9_COLORS.PRIMARY.RED_DARK';
+					return '#dc2626';
 				default:
 					return theme.colors.gray100;
 			}
@@ -262,13 +261,13 @@ const Notification = styled.div<{ type: 'info' | 'success' | 'warning' | 'error'
   border-left: 4px solid ${({ type }) => {
 		switch (type) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
   min-width: 300px;
@@ -290,13 +289,13 @@ const NotificationIcon = styled.div<{ type: 'info' | 'success' | 'warning' | 'er
   color: ${({ type }) => {
 		switch (type) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
   font-size: 18px;

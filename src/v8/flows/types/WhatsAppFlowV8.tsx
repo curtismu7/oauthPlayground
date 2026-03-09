@@ -9,7 +9,6 @@
  * This component reuses SMS patterns but uses WHATSAPP device type.
  */
 
-
 import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -1623,12 +1622,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			pendingDeviceId,
 			isUpdatingNickname,
 			MODULE_TAG,
-			deviceRegisteredActive,
 			setDeviceRegisteredActive,
 			setDeviceSelection,
 			setShowModal,
 			setShowValidationModal,
-			showModal,
 		]
 	);
 

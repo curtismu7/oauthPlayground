@@ -1,6 +1,5 @@
 // src/components/CredentialsInput.tsx
 
-
 import { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -265,7 +264,7 @@ const FormLabel = styled.label`
 const FormInput = styled.input<{ $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 0.875rem;
-	border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
@@ -280,12 +279,12 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	-webkit-user-select: text !important;
 
 	&:hover {
-		border-color: ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#9ca3af')};
 	}
 
 	&:focus {
 		outline: none;
-		border-color: ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#2563eb')};
 		box-shadow: 0 0 0 3px ${({ $hasError }) => ($hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)')} !important;
 		z-index: 20 !important;
 	}
@@ -502,7 +501,7 @@ export const CredentialsInput = ({
 						<FormGrid>
 							<FormField>
 								<FormLabel>
-									Environment ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+									Environment ID <span style={{ color: '#ef4444' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -534,7 +533,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: '#ffffff',
 										}}
 										onMouseDown={(e) => {
 											e.stopPropagation();
@@ -583,7 +582,7 @@ export const CredentialsInput = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -593,7 +592,7 @@ export const CredentialsInput = ({
 
 							<FormField>
 								<FormLabel>
-									Client ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+									Client ID <span style={{ color: '#ef4444' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -623,7 +622,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: '#ffffff',
 										}}
 										disabled={false}
 										readOnly={false}
@@ -664,7 +663,7 @@ export const CredentialsInput = ({
 							{showClientSecret && (
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
-										Client Secret <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+										Client Secret <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<SecretInputWrapper>
 										<FormInput
@@ -687,7 +686,7 @@ export const CredentialsInput = ({
 												cursor: 'text',
 												position: 'relative',
 												zIndex: 9999,
-												backgroundColor: 'V9_COLORS.TEXT.WHITE',
+												backgroundColor: '#ffffff',
 											}}
 											disabled={false}
 											readOnly={false}
@@ -722,7 +721,11 @@ export const CredentialsInput = ({
 											onClick={() => setShowClientSecretValue(!showClientSecretValue)}
 											title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showClientSecretValue ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+											{showClientSecretValue ? (
+												<span style={{ fontSize: '16px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16px' }}>👁️</span>
+											)}
 										</SecretToggleButton>
 									</SecretInputWrapper>
 								</FormField>
@@ -733,7 +736,7 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
@@ -750,7 +753,7 @@ export const CredentialsInput = ({
 							{showRedirectUri && (
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
-										Redirect URI <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+										Redirect URI <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<div
 										style={{
@@ -793,11 +796,11 @@ export const CredentialsInput = ({
 										style={{
 											marginTop: '0.5rem',
 											padding: '0.75rem',
-											backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+											backgroundColor: '#f8fafc',
 											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										<strong>
@@ -811,8 +814,8 @@ export const CredentialsInput = ({
 										<br />
 										<code
 											style={{
-												color: 'V9_COLORS.PRIMARY.BLUE_DARK',
-												backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+												color: '#2563eb',
+												backgroundColor: '#f8fafc',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '0.25rem',
 											}}
@@ -823,7 +826,7 @@ export const CredentialsInput = ({
 											}
 										</code>
 										<br />
-										<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
 											{
 												callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code')
 													.note
@@ -833,7 +836,7 @@ export const CredentialsInput = ({
 										<span
 											style={{
 												fontSize: '1rem',
-												color: 'V9_COLORS.PRIMARY.RED_DARK',
+												color: '#dc2626',
 												fontWeight: '600',
 											}}
 										>
@@ -848,7 +851,7 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											backgroundColor: '#f3f4f6',
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
@@ -864,7 +867,7 @@ export const CredentialsInput = ({
 
 							<FormField style={{ gridColumn: '1 / -1' }}>
 								<FormLabel>
-									Scopes <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+									Scopes <span style={{ color: '#ef4444' }}>*</span>
 								</FormLabel>
 								<div
 									style={{
@@ -897,7 +900,7 @@ export const CredentialsInput = ({
 											cursor: 'text',
 											position: 'relative',
 											zIndex: 9999,
-											backgroundColor: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: '#ffffff',
 										}}
 										disabled={false}
 										readOnly={false}
@@ -932,7 +935,7 @@ export const CredentialsInput = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -945,9 +948,7 @@ export const CredentialsInput = ({
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
 										Login Hint{' '}
-										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
-											(Optional)
-										</span>
+										<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
 									</FormLabel>
 									<div
 										style={{
@@ -982,7 +983,7 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											marginTop: '0.25rem',
 										}}
 									>
@@ -996,7 +997,7 @@ export const CredentialsInput = ({
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
 										🚪 Post-Logout Redirect URI{' '}
-										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
+										<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 											(Required for Logout)
 										</span>
 									</FormLabel>
@@ -1089,7 +1090,7 @@ export const CredentialsInput = ({
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.75rem 1.5rem',
-											backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+											backgroundColor: '#10b981',
 											color: 'white',
 											border: '1px solid V9_COLORS.PRIMARY.GREEN',
 											borderRadius: '0.5rem',
@@ -1127,7 +1128,7 @@ export const CredentialsInput = ({
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											fontStyle: 'italic',
 										}}
 									>

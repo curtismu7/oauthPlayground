@@ -1,7 +1,6 @@
 // src/components/IndustrialIoTControllerDeviceFlow.tsx
 // Industrial IoT Controller Style Device Authorization Flow Interface
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -70,7 +69,7 @@ const StatusIndicators = styled.div`
 
 const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   background: ${(props) => (props.$active ? props.$color : '#333333')};
-  color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : '#666666')};
+  color: ${(props) => (props.$active ? '#ffffff' : '#666666')};
   border: 2px solid ${(props) => (props.$active ? props.$color : '#555555')};
   border-radius: 0.25rem;
   padding: 0.5rem 1rem;

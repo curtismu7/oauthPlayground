@@ -1,11 +1,10 @@
 // src/components/WorkerTokenRequestModal.tsx
 // Educational modal showing worker token API request details
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
-import { FiRefreshCw } from '@icons';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
@@ -569,7 +568,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										onClick={() => setShowToken(!showToken)}
 										title={showToken ? 'Hide token' : 'Show token'}
 									>
-										{showToken ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+										{showToken ? (
+											<span style={{ fontSize: '16px' }}>🙈</span>
+										) : (
+											<span style={{ fontSize: '16px' }}>👁️</span>
+										)}
 									</PasswordToggle>
 								</div>
 							</FormField>
@@ -642,7 +645,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 											onClick={() => setShowSecret(!showSecret)}
 											title={showSecret ? 'Hide secret' : 'Show secret'}
 										>
-											{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+											{showSecret ? (
+												<span style={{ fontSize: '16px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16px' }}>👁️</span>
+											)}
 										</ToggleSecretButton>
 									</ParameterValue>
 
@@ -669,7 +676,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								</SectionTitle>
 								<CodeBlock>{generateCurlCommand()}</CodeBlock>
 								<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-									{copiedCurl ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+									{copiedCurl ? (
+										<span style={{ fontSize: '12px' }}>✅</span>
+									) : (
+										<span style={{ fontSize: '12px' }}>📋</span>
+									)}
 									{copiedCurl ? 'Copied!' : 'Copy cURL'}
 								</CopyButton>
 							</Section>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -42,7 +41,7 @@ const CopyButton = styled.button.withConfig({
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.copied ? '#059669' : '#1f2937')};
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -91,15 +90,15 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 
 	// Default scope colors
 	const defaultScopeColors = {
-		openid: 'V9_COLORS.PRIMARY.BLUE',
-		profile: 'V9_COLORS.PRIMARY.GREEN',
-		email: 'V9_COLORS.PRIMARY.YELLOW',
-		address: 'V9_COLORS.PRIMARY.RED',
+		openid: '#3b82f6',
+		profile: '#10b981',
+		email: '#f59e0b',
+		address: '#ef4444',
 		phone: '#8b5cf6',
 		offline_access: '#06b6d4',
 		read: '#84cc16',
 		write: '#f97316',
-		admin: 'V9_COLORS.PRIMARY.RED_DARK',
+		admin: '#dc2626',
 	};
 
 	const colors = { ...defaultScopeColors, ...scopeColors };
@@ -169,7 +168,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 				const scopes = match[2].split(' ');
 				scopes.forEach((scope, index) => {
 					if (index > 0) parts.push(' ');
-					const color = colors[scope] || 'V9_COLORS.TEXT.GRAY_MEDIUM';
+					const color = colors[scope] || '#6b7280';
 					parts.push(
 						<ScopeHighlight key={`${match.index}-${index}`} color={color}>
 							{scope}
@@ -206,7 +205,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleSave}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: 'V9_COLORS.PRIMARY.GREEN',
+								background: '#10b981',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -221,7 +220,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleCancel}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								background: '#6b7280',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -241,7 +240,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 						height: height,
 						border: 'none',
 						outline: 'none',
-						background: 'V9_COLORS.TEXT.GRAY_DARK',
+						background: '#1f2937',
 						color: '#f9fafb',
 						fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 						fontSize: '0.875rem',
@@ -266,7 +265,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							onClick={handleEdit}
 							style={{
 								padding: '0.5rem 0.75rem',
-								background: 'V9_COLORS.PRIMARY.BLUE',
+								background: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -278,7 +277,11 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 						</button>
 					)}
 					<CopyButton copied={copied} onClick={handleCopy}>
-						{copied ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+						{copied ? (
+							<span style={{ fontSize: '12px' }}>✅</span>
+						) : (
+							<span style={{ fontSize: '12px' }}>📋</span>
+						)}
 						{copied ? 'Copied!' : 'Copy'}
 					</CopyButton>
 				</div>

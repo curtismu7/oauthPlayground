@@ -6,7 +6,6 @@
  * is not applicable to the current OAuth/OIDC flow type.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
 

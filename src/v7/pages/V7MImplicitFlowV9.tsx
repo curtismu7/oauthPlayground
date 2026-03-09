@@ -1,7 +1,7 @@
 // src/v7/pages/V7MImplicitFlowV9.tsx
 /* eslint-disable no-alert */
 
-
+import { FiAlertTriangle } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
@@ -17,7 +17,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { FiAlertTriangle } from '@icons';
 
 type Props = {
 	oidc?: boolean;
@@ -375,7 +374,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 							</small>
 						</div>
 					</div>
-					<button type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
+					<button type="button" type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
 						<span>📤</span> Build Authorization URL
 					</button>
 					{authorizationUrl && (
@@ -526,7 +525,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 					</header>
 					<div style={{ padding: 12 }}>
 						<div style={{ display: 'flex', gap: 8 }}>
-							<button type="button" onClick={handleUserInfo} style={buttonStyle}>
+							<button type="button" type="button" onClick={handleUserInfo} style={buttonStyle}>
 								Call UserInfo Endpoint
 								<V7MInfoIcon
 									label=""
@@ -534,7 +533,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 									onClick={() => setShowUserInfoHelp(true)}
 								/>
 							</button>
-							<button type="button" onClick={handleIntrospect} style={buttonStyle}>
+							<button type="button" type="button" onClick={handleIntrospect} style={buttonStyle}>
 								Introspect Token
 								<V7MInfoIcon
 									label=""

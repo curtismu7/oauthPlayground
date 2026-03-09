@@ -1,14 +1,13 @@
 // src/components/SmartSpeakerDeviceFlow.tsx
 // Smart Speaker Style Device Authorization Flow Interface
 
-
+import { FiMic } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiMic } from '@icons';
 
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`
@@ -76,7 +75,7 @@ const AudioWaveIndicators = styled.div`
 const AudioWave = styled.div<{ $active: boolean; $color: string; $height: number }>`
   width: 4px;
   height: ${(props) => props.$height}px;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? props.$color : '#1f2937')};
   border-radius: 2px;
   animation: ${(props) => (props.$active ? 'audioWave 1.5s infinite' : 'none')};
   animation-delay: ${(_props) => Math.random() * 0.5}s;
@@ -174,13 +173,13 @@ const SpeakerControlButton = styled.button<{
 			case 'primary':
 				return '#22d3ee';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   color: white;
@@ -191,9 +190,9 @@ const SpeakerControlButton = styled.button<{
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
 				return '#4b5563';
 		}
@@ -241,11 +240,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -510,7 +509,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 							</div>
 							<div
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -657,7 +656,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								</div>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										padding: '0.25rem 0.5rem',
 										borderRadius: '0.25rem',
@@ -694,7 +693,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 								</div>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										padding: '0.25rem 0.5rem',
 										borderRadius: '0.25rem',
@@ -742,9 +741,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									}}
 								>
 									<div style={{ fontSize: '1rem' }}>🎵</div>
-									<div
-										style={{ flex: 1, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_LIGHTER' }}
-									>
+									<div style={{ flex: 1, fontSize: '0.875rem', color: '#e5e7eb' }}>
 										"Play relaxing music"
 									</div>
 									<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>2 min ago</div>
@@ -761,9 +758,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									}}
 								>
 									<div style={{ fontSize: '1rem' }}>💡</div>
-									<div
-										style={{ flex: 1, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_LIGHTER' }}
-									>
+									<div style={{ flex: 1, fontSize: '0.875rem', color: '#e5e7eb' }}>
 										"Turn off bedroom lights"
 									</div>
 									<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>5 min ago</div>

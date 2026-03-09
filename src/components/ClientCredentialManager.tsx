@@ -112,7 +112,7 @@ const AppName = styled.h4`
 
 const CredentialStatus = styled.div<{ $hasSecret: boolean }>`
   font-size: 0.75rem;
-  color: ${(props) => (props.$hasSecret ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  color: ${(props) => (props.$hasSecret ? '#059669' : '#d97706')};
   font-weight: 500;
 `;
 
@@ -276,13 +276,13 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 			{hasEnvCredentials && (
 				<div
 					style={{
-						background: 'V9_COLORS.BG.SUCCESS',
+						background: '#ecfdf5',
 						border: '1px solid V9_COLORS.BG.SUCCESS',
 						borderRadius: '0.375rem',
 						padding: '0.75rem',
 						marginBottom: '1rem',
 						fontSize: '0.875rem',
-						color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+						color: '#059669',
 					}}
 				>
 					<strong>Environment Variables Detected:</strong> Client credentials found in environment.
@@ -296,7 +296,7 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 						<AppHeader>
 							<div>
 								<AppName>{app.label}</AppName>
-								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 									Client ID: {app.clientId.substring(0, 12)}... • Env:{' '}
 									{app.environmentId.substring(0, 12)}...
 								</div>
@@ -354,7 +354,7 @@ export const ClientCredentialManager: React.FC<ClientCredentialManagerProps> = (
 						style={{
 							textAlign: 'center',
 							padding: '2rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							fontSize: '0.875rem',
 						}}
 					>

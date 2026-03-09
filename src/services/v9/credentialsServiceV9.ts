@@ -70,7 +70,7 @@ const ensureMigration = async (): Promise<void> => {
 			});
 		}
 		// eslint-disable-next-line require-atomic-updates
-	migrationCompleted = true;
+		migrationCompleted = true;
 	}
 };
 

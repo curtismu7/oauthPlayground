@@ -1,6 +1,5 @@
 // src/contexts/NotificationSystem.tsx
 
-
 import type { ReactNode } from 'react';
 import {
 	createContext,
@@ -12,7 +11,6 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { logger } from '../utils/logger';
 // Icons replaced with emojis - no more react-icons/fi dependency
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Not used in this file
 

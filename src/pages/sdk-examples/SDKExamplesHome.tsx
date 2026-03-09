@@ -121,7 +121,6 @@ const DocumentationSection = styled.div`
   margin-top: 3rem;
 `;
 
-
 const DocumentationTitle = styled.h2`
   color: #333;
   margin-bottom: 1.5rem;
@@ -146,7 +145,6 @@ const DocumentationItem = styled.li`
     }
   }
 `;
-
 
 const SDKExamplesHome: React.FC = () => {
 	// Worker token management
@@ -173,7 +171,7 @@ const SDKExamplesHome: React.FC = () => {
 						type="button"
 						onClick={() => setShowWorkerTokenModal(true)}
 						style={{
-							background: 'V9_COLORS.PRIMARY.BLUE',
+							background: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							padding: '0.75rem 1.5rem',
@@ -190,7 +188,7 @@ const SDKExamplesHome: React.FC = () => {
 				{hasValidToken && (
 					<div
 						style={{
-							background: 'V9_COLORS.PRIMARY.GREEN',
+							background: '#10b981',
 							color: 'white',
 							padding: '0.75rem 1rem',
 							borderRadius: '0.5rem',

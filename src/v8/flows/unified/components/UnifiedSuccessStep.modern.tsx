@@ -6,7 +6,7 @@
  * @since 2026-01-29
  *
  * Key Changes from UnifiedSuccessStep.tsx:
- * - Uses design system Button component (no raw <button> elements)
+ * - Uses design system Button component (no raw <button type="button"> elements)
  * - Uses design tokens for all colors, spacing, typography
  * - Uses PageTransition wrapper
  * - Modern success card with animated checkmark area
@@ -15,6 +15,7 @@
  * - All logic preserved unchanged
  */
 
+import { FiCheck, FiExternalLink, FiPlus } from '@icons';
 import React, { useCallback, useEffect } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -22,7 +23,6 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { FiCheck, FiExternalLink, FiPlus } from '@icons';
 
 const MODULE_TAG = '[✅ UNIFIED-SUCCESS-MODERN]';
 
@@ -42,7 +42,7 @@ export interface UnifiedSuccessStepModernProps extends MFAFlowBaseRenderProps {
 
 const getContactInfo = (
 	config: DeviceFlowConfig,
-	credentials: MFAFlowBaseRenderProps['credentials'],
+	credentials: MFAFlowBaseRenderProps['credentials']
 ): string | null => {
 	switch (config.deviceType) {
 		case 'SMS':
@@ -118,18 +118,12 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 					device_type: config.deviceType,
 					device_id: mfaState.deviceId,
 					flow_version: 'v9-unified-modern',
-				},
+				}
 			);
 		}
 
 		onComplete?.();
-	}, [
-		config.deviceType,
-		mfaState.deviceId,
-		mfaState.deviceStatus,
-		nav.markStepComplete,
-		onComplete,
-	]);
+	}, [config.deviceType, mfaState.deviceId, nav.markStepComplete, onComplete]);
 
 	// -------------------------------------------------------------------------
 	// Handlers
@@ -204,8 +198,15 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 					>
 						Device Registered!
 					</h2>
-					<p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)', fontSize: typography.fontSize.base }}>
-						Your {config.displayName} device is now active and ready for multi-factor authentication.
+					<p
+						style={{
+							margin: 0,
+							color: 'rgba(255, 255, 255, 0.9)',
+							fontSize: typography.fontSize.base,
+						}}
+					>
+						Your {config.displayName} device is now active and ready for multi-factor
+						authentication.
 					</p>
 				</div>
 
@@ -276,8 +277,11 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 													: colors.warning[700]
 												: colors.neutral[900],
 										fontWeight:
-											label === 'Status' ? typography.fontWeight.semibold : typography.fontWeight.normal,
-										fontFamily: label === 'Device ID' || label === 'Environment' ? 'monospace' : 'inherit',
+											label === 'Status'
+												? typography.fontWeight.semibold
+												: typography.fontWeight.normal,
+										fontFamily:
+											label === 'Device ID' || label === 'Environment' ? 'monospace' : 'inherit',
 										textAlign: 'right',
 										wordBreak: 'break-all',
 									}}
@@ -326,7 +330,9 @@ export const UnifiedSuccessStepModern: React.FC<UnifiedSuccessStepModernProps> =
 				</div>
 
 				{/* Action Buttons */}
-				<div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'center' }}>
+				<div
+					style={{ display: 'flex', flexWrap: 'wrap', gap: spacing.md, justifyContent: 'center' }}
+				>
 					<Button
 						variant="secondary"
 						size="md"

@@ -6,7 +6,7 @@
  * @since 2026-01-29
  *
  * Key Changes from UnifiedRegistrationStep.tsx:
- * - Uses design system Button component (no raw <button> elements)
+ * - Uses design system Button component (no raw <button type="button"> elements)
  * - Uses design tokens for all colors, spacing, typography
  * - Uses PageTransition wrapper
  * - Proper loading states via Button loading prop
@@ -14,6 +14,7 @@
  * - Device info hint card using tokens
  */
 
+import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -21,7 +22,6 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '@icons';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
@@ -108,7 +108,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 					result.status,
 					config.deviceType,
 					credentials.tokenType,
-					credentials.deviceStatus,
+					credentials.deviceStatus
 				),
 			}));
 
@@ -154,14 +154,14 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 				}));
 			}
 		},
-		[deviceFields, setDeviceFields, errors, setCredentials],
+		[deviceFields, setDeviceFields, errors, setCredentials]
 	);
 
 	const handleFieldTouch = useCallback(
 		(field: string) => {
 			touchField?.(field);
 		},
-		[touchField],
+		[touchField]
 	);
 
 	// -------------------------------------------------------------------------
@@ -179,11 +179,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 			disabled: isLoading,
 		};
 
-		return DeviceComponent ? (
-			<DeviceComponent {...props} />
-		) : (
-			<DynamicFormRenderer {...props} />
-		);
+		return DeviceComponent ? <DeviceComponent {...props} /> : <DynamicFormRenderer {...props} />;
 	};
 
 	// -------------------------------------------------------------------------
@@ -225,7 +221,13 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 					>
 						{config.icon} Register {config.displayName}
 					</h2>
-					<p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)', fontSize: typography.fontSize.sm }}>
+					<p
+						style={{
+							margin: 0,
+							color: 'rgba(255, 255, 255, 0.9)',
+							fontSize: typography.fontSize.sm,
+						}}
+					>
 						{config.description}
 					</p>
 				</div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
@@ -80,8 +79,8 @@ const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 	};
 
 	const tokenData = [
-		{ name: 'Access Token', value: tokens.access_token, color: 'V9_COLORS.BG.GRAY_LIGHT' },
-		{ name: 'ID Token', value: tokens.id_token, color: 'V9_COLORS.BG.SUCCESS' },
+		{ name: 'Access Token', value: tokens.access_token, color: '#f8fafc' },
+		{ name: 'ID Token', value: tokens.id_token, color: '#ecfdf5' },
 		{ name: 'Refresh Token', value: tokens.refresh_token, color: '#ffedd5' },
 	];
 

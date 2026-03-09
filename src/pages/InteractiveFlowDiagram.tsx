@@ -1,7 +1,6 @@
 // src/pages/InteractiveFlowDiagram.tsx
 // ⭐ V6 UPGRADE - Interactive OAuth/OIDC Flow Diagrams with Mermaid.js
 
-
 import React from 'react';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -120,12 +119,12 @@ const InteractiveFlowDiagram: React.FC = () => {
 					<div style={{ padding: '1.5rem' }}>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '8px',
 								padding: '1rem',
 								marginBottom: '1rem',
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 							}}
 						>
 							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not be
@@ -145,14 +144,14 @@ const InteractiveFlowDiagram: React.FC = () => {
 					<div style={{ padding: '1.5rem' }}>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '8px',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
 							}}
 						>
-							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>Flow Selection Guidelines</h3>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>Flow Selection Guidelines</h3>
 
 							<div
 								style={{
@@ -169,10 +168,10 @@ const InteractiveFlowDiagram: React.FC = () => {
 										border: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 									}}
 								>
-									<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: '#3b82f6', marginBottom: '0.5rem' }}>
 										✅ Use Authorization Code Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1f2937' }}>
 										<li>Web applications with backend servers</li>
 										<li>Mobile applications</li>
 										<li>SPAs with backend support</li>
@@ -188,10 +187,10 @@ const InteractiveFlowDiagram: React.FC = () => {
 										border: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 									}}
 								>
-									<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: '#3b82f6', marginBottom: '0.5rem' }}>
 										✅ Use Client Credentials Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1f2937' }}>
 										<li>Machine-to-machine communication</li>
 										<li>API access without user context</li>
 										<li>Server-to-server authentication</li>
@@ -207,10 +206,10 @@ const InteractiveFlowDiagram: React.FC = () => {
 										border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 									}}
 								>
-									<h4 style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginBottom: '0.5rem' }}>
+									<h4 style={{ color: '#dc2626', marginBottom: '0.5rem' }}>
 										❌ Avoid Implicit Flow
 									</h4>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#dc2626' }}>
 										<li>Deprecated in OAuth 2.1</li>
 										<li>Security vulnerabilities</li>
 										<li>Token exposure risks</li>
@@ -229,7 +228,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 							}}
 						>
 							<h3 style={{ color: '#14532d', marginBottom: '1rem' }}>Security Best Practices</h3>
-							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
 								<li>
 									<strong>Always use HTTPS:</strong> Encrypt all OAuth communications
 								</li>

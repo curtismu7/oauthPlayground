@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -74,7 +73,7 @@ const SearchResultItem = styled.div<{ $isActive?: boolean }>`
 	cursor: pointer;
 	transition: all 0.2s ease;
 	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
-	border: 1px solid ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
 	margin-bottom: 0.25rem;
 
 	&:hover {

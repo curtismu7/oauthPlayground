@@ -15,14 +15,13 @@
  * />
  */
 
-
+import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import {
 	type TokenEndpointAuthMethod,
 	TokenEndpointAuthMethodServiceV8,
 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
-import { FiChevronDown } from '@icons';
 
 const MODULE_TAG = '[🔐 TOKEN-AUTH-METHOD-V8]';
 

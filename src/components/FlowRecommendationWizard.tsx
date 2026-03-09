@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -501,9 +500,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 										<h3 className="recommendation-title">{rec.title}</h3>
 									</div>
 
-									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
-										{rec.description}
-									</p>
+									<p style={{ color: '#6b7280', marginBottom: '1rem' }}>{rec.description}</p>
 
 									<div className="recommendation-meta">
 										<div className="meta-item">
@@ -594,7 +591,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 							Previous
 						</button>
 
-						<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+						<span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
 							Step {currentStep + 1} of {wizardSteps.length}
 						</span>
 

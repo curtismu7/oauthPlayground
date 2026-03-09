@@ -5,12 +5,11 @@
  * @version 8.0.0
  */
 
-
+import { FiAlertTriangle, FiSearch } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { checkWorkerTokenStatusSync } from '@/v8/services/workerTokenStatusServiceV8';
-import { FiAlertTriangle, FiSearch } from '@icons';
 
 const _MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';
 

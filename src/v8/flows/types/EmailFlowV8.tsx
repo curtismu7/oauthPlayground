@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-
+import { FiMail } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -30,8 +30,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
-import { FiMail } from '@icons';
-
 
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
@@ -45,7 +43,6 @@ type OTPState = {
 	sendError: string | null;
 	sendRetryCount: number;
 };
-
 
 interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
 	controller: ReturnType<typeof MFAFlowControllerFactory.create>;
@@ -682,7 +679,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Ref to store pending tokenType changes (to avoid setState during render)
 	const pendingTokenTypeRef = React.useRef<string | undefined>(undefined);
-
 
 	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
 	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);

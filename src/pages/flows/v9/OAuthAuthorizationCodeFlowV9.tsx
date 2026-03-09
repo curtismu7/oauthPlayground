@@ -1,8 +1,10 @@
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+
 // src/pages/flows/OAuthAuthorizationCodeFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
 
+import { FiCode } from '@icons';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -40,7 +42,6 @@ import FlowCredentialService from '../../../services/flowCredentialService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import FlowStorageService from '../../../services/flowStorageService';
 import FlowUIService from '../../../services/flowUIService';
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../../services/pkceGenerationService';
 import { themeService } from '../../../services/themeService';
@@ -50,6 +51,7 @@ import {
 } from '../../../services/tokenIntrospectionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
@@ -58,7 +60,6 @@ import {
 	type IntroSectionKey,
 	STEP_METADATA,
 } from '../config/OAuthAuthzCodeFlowV9.config';
-import { FiCode } from '@icons';
 
 const log = createModuleLogger('src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx');
 
@@ -153,9 +154,9 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
 	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$selected ? '#2563eb' : '#6b7280')};
 	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
@@ -332,14 +333,14 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	align-items: flex-start;
 	border: 1px solid
 		${({ $variant }) => {
-			if ($variant === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
-			if ($variant === 'success') return 'V9_COLORS.PRIMARY.GREEN';
-			return 'V9_COLORS.PRIMARY.BLUE';
+			if ($variant === 'warning') return '#f59e0b';
+			if ($variant === 'success') return '#10b981';
+			return '#3b82f6';
 		}};
 	background-color:
 		${({ $variant }) => {
-			if ($variant === 'warning') return 'V9_COLORS.BG.WARNING';
-			if ($variant === 'success') return 'V9_COLORS.BG.SUCCESS';
+			if ($variant === 'warning') return '#fef3c7';
+			if ($variant === 'success') return '#ecfdf5';
 			return '#dbeafe';
 		}};
 `;
@@ -644,10 +645,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						{ backupToEnv: true }
 					);
 					setLastSyncedCredentials(credentialsHash);
-					log.info(
-						'OAuthAuthorizationCodeFlowV9',
-						'Credentials synced to comprehensive service'
-					);
+					log.info('OAuthAuthorizationCodeFlowV9', 'Credentials synced to comprehensive service');
 				} catch (error) {
 					log.error('OAuthAuthorizationCodeFlowV9', 'Failed to sync credentials', error);
 				}
@@ -1543,10 +1541,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				if (!resumeUrl) throw new Error('Missing resumeUrl');
 
 				// Step 3: resume to obtain authorization code
-				log.info(
-					'OAuthAuthorizationCodeFlowV9',
-					'Step 3: Resuming flow to get authorization code'
-				);
+				log.info('OAuthAuthorizationCodeFlowV9', 'Step 3: Resuming flow to get authorization code');
 				const resumeBody: Record<string, unknown> = {
 					resumeUrl,
 					clientId,
@@ -2196,7 +2191,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									}}
 								>
 									<InfoBox $variant="info">
-										<span>ℹ️</span><div>
+										<span>ℹ️</span>
+										<div>
 											<InfoTitle>What You'll Get</InfoTitle>
 											<InfoText>
 												{flowVariant === 'oidc'
@@ -2206,7 +2202,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</div>
 									</InfoBox>
 									<InfoBox $variant="success">
-										<span>✅</span><div>
+										<span>✅</span>
+										<div>
 											<InfoTitle>Perfect For</InfoTitle>
 											<InfoText>
 												• Web apps with secure backends
@@ -2219,7 +2216,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 								{/* Requirements Notice */}
 								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
-									<span>⚠️</span><div>
+									<span>⚠️</span>
+									<div>
 										<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
 										<InfoText>
 											<strong>Client Secret:</strong> Required for token introspection and refresh
@@ -2244,9 +2242,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										<div
 											style={{
 												padding: '1rem',
-												border: `2px solid ${flowVariant === 'oauth' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
+												border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e5e7eb'}`,
 												borderRadius: '0.5rem',
-												background: flowVariant === 'oauth' ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
+												background: flowVariant === 'oauth' ? '#f8fafc' : 'white',
 											}}
 										>
 											<h4>OAuth 2.0 Mode</h4>
@@ -2263,9 +2261,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										<div
 											style={{
 												padding: '1rem',
-												border: `2px solid ${flowVariant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
+												border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e5e7eb'}`,
 												borderRadius: '0.5rem',
-												background: flowVariant === 'oidc' ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
+												background: flowVariant === 'oidc' ? '#f8fafc' : 'white',
 											}}
 										>
 											<h4>OpenID Connect Mode</h4>
@@ -2289,15 +2287,17 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('configuration')}
 								aria-expanded={!collapsedSections.configuration}
-								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
+								style={{ background: '#3b82f6', color: 'white' }}
 							>
 								<CollapsibleTitle>
-									<span>⚙️</span><span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
+									<span>⚙️</span>
+									<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
 										🔧 Configuration & Setup - All Settings in One Place
 									</span>
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</CollapsibleHeaderButton>
 							{!collapsedSections.configuration && (
 								<CollapsibleContent>
@@ -2402,15 +2402,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										style={{
 											marginTop: '1rem',
 											padding: '1rem',
-											background: 'V9_COLORS.BG.WARNING',
+											background: '#fef3c7',
 											border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 											borderRadius: '0.5rem',
 										}}
 									>
-										<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: '#d97706' }}>
 											💡 Advanced Options
 										</h4>
-										<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+										<p style={{ margin: 0, fontSize: '0.875rem', color: '#d97706' }}>
 											PKCE, custom parameters, and response modes are auto-configured based on your
 											variant selection. Advanced OAuth parameters (audience, resources) can be
 											configured in the flow execution steps.
@@ -2450,12 +2450,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📚</span>What is PKCE?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.pkceOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<span>🛡️</span><div>
+										<span>🛡️</span>
+										<div>
 											<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 											<InfoText>
 												PKCE is a security extension for OAuth 2.0 that prevents authorization code
@@ -2466,7 +2468,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<span>⚠️</span><div>
+										<span>⚠️</span>
+										<div>
 											<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
 											<InfoText>
 												Without PKCE, if an attacker intercepts your authorization code (through app
@@ -2489,13 +2492,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📚</span>Understanding Code Verifier & Code Challenge
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</YellowHeaderButton>
 							{!collapsedSections.pkceDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
 										<InfoBox $variant="success">
-											<span>🔑</span><div>
+											<span>🔑</span>
+											<div>
 												<InfoTitle>Code Verifier</InfoTitle>
 												<InfoText>
 													A high-entropy cryptographic random string (43-128 chars) that stays
@@ -2512,7 +2517,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</InfoBox>
 
 										<InfoBox $variant="info">
-											<span>🛡️</span><div>
+											<span>🛡️</span>
+											<div>
 												<InfoTitle>Code Challenge</InfoTitle>
 												<InfoText>
 													A SHA256 hash of the code verifier, encoded in base64url format. This is
@@ -2530,7 +2536,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</ParameterGrid>
 
 									<InfoBox $variant="warning">
-										<span>⚠️</span><div>
+										<span>⚠️</span>
+										<div>
 											<InfoTitle>Security Best Practices</InfoTitle>
 											<InfoList>
 												<li>
@@ -2589,12 +2596,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📚</span>Understanding Authorization Requests
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.authRequestOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
-										<span>🌐</span><div>
+										<span>🌐</span>
+										<div>
 											<InfoTitle>What is an Authorization Request?</InfoTitle>
 											<InfoText>
 												An authorization request redirects users to PingOne's authorization server
@@ -2605,7 +2614,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="warning">
-										<span>⚠️</span><div>
+										<span>⚠️</span>
+										<div>
 											<InfoTitle>Critical Security Considerations</InfoTitle>
 											<InfoList>
 												<li>
@@ -2640,13 +2650,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📚</span>Authorization URL Parameters Deep Dive
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</YellowHeaderButton>
 							{!collapsedSections.authRequestDetails && (
 								<CollapsibleContent>
 									{/* Response Type Configuration */}
 									<InfoBox $variant="info" style={{ marginBottom: '1rem' }}>
-										<span>⚙️</span><div>
+										<span>⚙️</span>
+										<div>
 											<InfoTitle>Response Type Configuration</InfoTitle>
 											<div style={{ marginTop: '0.5rem' }}>
 												<label
@@ -2675,7 +2687,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 														code id_token - Authorization Code + ID Token (OIDC hybrid)
 													</option>
 												</select>
-												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
 													{selectedResponseType === 'code' &&
 														'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
 													{selectedResponseType === 'code id_token' &&
@@ -2687,7 +2699,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 									<ParameterGrid>
 										<InfoBox $variant="info">
-											<span>🔑</span><div>
+											<span>🔑</span>
+											<div>
 												<InfoTitle>Required Parameters</InfoTitle>
 												<InfoList>
 													<li>
@@ -2713,7 +2726,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										</InfoBox>
 
 										<InfoBox $variant="success">
-											<span>🛡️</span><div>
+											<span>🛡️</span>
+											<div>
 												<InfoTitle>Security Parameters</InfoTitle>
 												<InfoList>
 													<li>
@@ -2736,7 +2750,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</ParameterGrid>
 
 									<InfoBox $variant="warning">
-										<span>⚠️</span><div>
+										<span>⚠️</span>
+										<div>
 											<InfoTitle>Optional But Recommended Parameters</InfoTitle>
 											<InfoList>
 												<li>
@@ -2760,7 +2775,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<span>ℹ️</span><div>
+										<span>ℹ️</span>
+										<div>
 											<InfoTitle>Authorization URL Parameters</InfoTitle>
 											<InfoText>The authorization URL includes these key parameters:</InfoText>
 											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
@@ -2835,8 +2851,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										onClick={() => setCustomLoginOpen(true)}
 										disabled={isRedirectlessRunning}
 									>
-										<span>🔗</span>{' '}
-										{isRedirectlessRunning ? 'Running…' : 'Run Redirectless Inline'}
+										<span>🔗</span> {isRedirectlessRunning ? 'Running…' : 'Run Redirectless Inline'}
 									</Button>
 								)}
 							</div>
@@ -2862,7 +2877,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 													: 'Generate authorization URL'
 									}
 								>
-									{controller.authUrl ? <span>✅</span>: <span>🔗</span>}{' '}
+									{controller.authUrl ? <span>✅</span> : <span>🔗</span>}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
 										: useRedirectless
@@ -2880,7 +2895,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 											<span>🔗</span>Redirect to PingOne
 											<HighlightBadge>2</HighlightBadge>
 										</HighlightedActionButton>
-										<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>
+										<span style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic' }}>
 											(Open Authorization URL)
 										</span>
 									</div>
@@ -2934,12 +2949,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>✅</span>Authorization Response Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
-										<span>✅</span><div>
+										<span>✅</span>
+										<div>
 											<InfoTitle>Authorization Response</InfoTitle>
 											<InfoText>
 												After authentication, PingOne returns you to the redirect URI with an
@@ -2960,7 +2977,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📦</span>Authorization Code Details
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</HighlightHeaderButton>
 							{!collapsedSections.authResponseDetails && (
 								<CollapsibleContent>
@@ -3002,13 +3020,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 														{isStepValid(currentStep)
 															? 'Continue to Token Exchange'
 															: 'Complete above action'}{' '}
-														<span>➡️</span></HighlightedActionButton>
+														<span>➡️</span>
+													</HighlightedActionButton>
 												</ActionRow>
 											</GeneratedContentBox>
 										) : (
 											<EmptyState>
 												<EmptyIcon>
-													<span>⚠️</span></EmptyIcon>
+													<span>⚠️</span>
+												</EmptyIcon>
 												<EmptyTitle>Authorization Code Not Received</EmptyTitle>
 												<EmptyText>
 													No authorization code detected. You can paste one manually for testing.
@@ -3020,7 +3040,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 															display: 'block',
 															fontSize: '0.875rem',
 															fontWeight: '600',
-															color: 'V9_COLORS.TEXT.GRAY_DARK',
+															color: '#1f2937',
 															marginBottom: '0.5rem',
 														}}
 													>
@@ -3043,7 +3063,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 															border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 															borderRadius: '0.5rem',
 															fontSize: '0.875rem',
-															backgroundColor: 'V9_COLORS.TEXT.WHITE',
+															backgroundColor: '#ffffff',
 															marginBottom: '1rem',
 														}}
 													/>
@@ -3069,7 +3089,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>📚</span>Token Exchange Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</GreenHeaderButton>
 							{!collapsedSections.tokenExchangeOverview && (
 								<CollapsibleContent>
@@ -3095,7 +3116,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<span>➡️</span>Token Exchange Details
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-									<span>🔽</span></CollapsibleToggleIcon>
+									<span>🔽</span>
+								</CollapsibleToggleIcon>
 							</BlueHeaderButton>
 							{!collapsedSections.tokenExchangeDetails && (
 								<CollapsibleContent>
@@ -3180,7 +3202,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 													<span>📦</span>Mock Token Response (Educational)
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
-													<span>🔽</span></CollapsibleToggleIcon>
+													<span>🔽</span>
+												</CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
 											{!collapsedSections.mockTokenDisplay && (
 												<CollapsibleContent>
@@ -3231,7 +3254,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 													<span>[FiCode]</span>Code Examples
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
-													<span>🔽</span></CollapsibleToggleIcon>
+													<span>🔽</span>
+												</CollapsibleToggleIcon>
 											</CollapsibleHeaderButton>
 											{!collapsedSections.apiCallExamples && (
 												<CollapsibleContent>
@@ -3346,7 +3370,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										<span>[FiCode]</span>Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
-										<span>🔽</span></CollapsibleToggleIcon>
+										<span>🔽</span>
+									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								{!collapsedSections.apiCallExamples && (
 									<CollapsibleContent>
@@ -3419,7 +3444,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			case 7:
 				return (
 					<InfoBox $variant="success">
-						<span>✅</span><div>
+						<span>✅</span>
+						<div>
 							<InfoTitle>Flow Complete</InfoTitle>
 							<InfoText>
 								You've completed the Authorization Code flow. Tokens are available above and you can
@@ -3514,7 +3540,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					{!isStepValid(currentStep) && currentStep !== 0 && (
 						<RequirementsIndicator>
 							<RequirementsIcon>
-								<span>⚠️</span></RequirementsIcon>
+								<span>⚠️</span>
+							</RequirementsIcon>
 							<RequirementsText>
 								<strong>Complete this step to continue:</strong>
 								<ul>

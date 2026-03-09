@@ -11,7 +11,7 @@
  * - Generic OIDC provider URLs
  */
 
-
+import { FiSearch } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -23,7 +23,6 @@ import {
 	discoveryPersistenceService,
 	PersistedDiscoveryData,
 } from '../services/discoveryPersistenceService';
-import { FiSearch } from '@icons';
 
 interface ComprehensiveDiscoveryInputProps {
 	onDiscoveryComplete: (result: DiscoveryResult) => void;
@@ -599,7 +598,13 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 			{status && (
 				<StatusMessage $type={status.type}>
-					{status.type === 'success' ? <span>✅</span> : status.type === 'error' ? <span>❌</span> : <span>ℹ️</span>}
+					{status.type === 'success' ? (
+						<span>✅</span>
+					) : status.type === 'error' ? (
+						<span>❌</span>
+					) : (
+						<span>ℹ️</span>
+					)}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -654,7 +659,11 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			{discoveryResult?.success && discoveryResult.document && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
-						{showResults ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+						{showResults ? (
+							<span style={{ fontSize: '16px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '16px' }}>👁️</span>
+						)}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
 					<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>

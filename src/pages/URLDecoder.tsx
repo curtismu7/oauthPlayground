@@ -1,13 +1,14 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
 // src/pages/URLDecoder.tsx - URL Decoder Utility
 
+import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiRefreshCw } from '@icons';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
@@ -387,10 +388,7 @@ const URLDecoder: React.FC = () => {
 
 			<ContentCard>
 				<CardHeader>
-					<CardTitle>
-						📝
-						URL Input
-					</CardTitle>
+					<CardTitle>📝 URL Input</CardTitle>
 					<CardDescription>
 						Paste or type a URL to decode. This tool works with complete URLs, URL-encoded strings,
 						and OAuth authorization URLs.
@@ -505,24 +503,24 @@ const URLDecoder: React.FC = () => {
 					}}
 				>
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>OAuth URLs</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>OAuth URLs</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
 							Perfect for analyzing OAuth authorization URLs, callback URLs, and token exchange
 							requests. Helps debug parameter issues and understand URL structure.
 						</p>
 					</div>
 
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Parameter Analysis</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Parameter Analysis</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
 							Breaks down query parameters and hash fragments into readable key-value pairs. Useful
 							for debugging redirect URI mismatches and parameter validation.
 						</p>
 					</div>
 
 					<div>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>URL Structure</h4>
-						<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>URL Structure</h4>
+						<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
 							Shows the complete URL structure including protocol, host, path, and all components.
 							Helps understand the full context of the URL.
 						</p>

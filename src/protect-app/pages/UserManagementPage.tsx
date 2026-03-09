@@ -12,15 +12,13 @@
  * - Open/Closed: Extensible for new user operations
  */
 
-
+import { FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { User, UserRole, UserStatus, userService } from '../services/UserService';
-import { FiUser } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -51,7 +49,10 @@ const PageDescription = styled.p<{ theme: BrandTheme }>`
 	margin: 0;
 `;
 
-const ActionButton = styled.button<{ theme: BrandTheme; variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{
+	theme: BrandTheme;
+	variant?: 'primary' | 'secondary' | 'danger';
+}>`
 	padding: 0.75rem 1.5rem;
 	border-radius: ${({ theme }) => theme.borderRadius.md};
 	font-weight: 600;
@@ -423,7 +424,6 @@ interface UserFormData {
 	phone: string;
 	department: string;
 }
-
 
 // ============================================================================
 // COMPONENT

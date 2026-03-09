@@ -2,7 +2,7 @@
 // V8 JWT Configuration Component - Clean UI matching V8 style
 // Supports both Client Secret JWT and Private Key JWT configuration and generation
 
-
+import { FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -12,6 +12,7 @@ import {
 	jwtAuthServiceV8,
 	type PrivateKeyJWTConfig,
 } from '../services/jwtAuthServiceV8';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import {
 	assessSecurityStrength,
 	type GeneratedKeyPair,
@@ -19,8 +20,6 @@ import {
 	generateClientSecret,
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCode } from '@icons';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
@@ -466,7 +465,11 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							onClick={() => setShowSecret(!showSecret)}
 							aria-label={showSecret ? 'Hide secret' : 'Show secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</button>
 					</PasswordInputWrapper>
 					<ButtonGroup>
@@ -474,8 +477,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							onClick={handleGenerateSecret}
 							disabled={isGeneratingKey}
 							style={{
-								background: 'V9_COLORS.PRIMARY.GREEN',
-								borderColor: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								background: '#10b981',
+								borderColor: '#059669',
 								fontSize: '0.75rem',
 								padding: '0.5rem 0.75rem',
 							}}
@@ -501,8 +504,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								onClick={handleGenerateKeyPair}
 								disabled={isGeneratingKey}
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
-									borderColor: 'V9_COLORS.PRIMARY.GREEN_DARK',
+									background: '#10b981',
+									borderColor: '#059669',
 									fontSize: '0.75rem',
 									padding: '0.5rem 0.75rem',
 								}}
@@ -570,8 +573,8 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 						marginTop: '1rem',
 						padding: '1rem',
 						borderRadius: '0.5rem',
-						background: result.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR',
-						border: `1px solid ${result.success ? '#86efac' : 'V9_COLORS.BG.ERROR_BORDER'}`,
+						background: result.success ? '#f0fdf4' : '#fef2f2',
+						border: `1px solid ${result.success ? '#86efac' : '#ef4444'}`,
 					}}
 				>
 					{result.success && result.jwt ? (
@@ -584,7 +587,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 									marginBottom: '0.75rem',
 									fontWeight: '600',
 									fontSize: '0.875rem',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 								}}
 							>
 								<span style={{ fontSize: '16px' }}>✅</span>
@@ -625,7 +628,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								marginBottom: '0.75rem',
 								fontWeight: '600',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 							}}
 						>
 							<span style={{ fontSize: '16px' }}>⚠️</span>
