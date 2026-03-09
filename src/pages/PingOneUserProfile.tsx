@@ -1282,10 +1282,12 @@ const PingOneUserProfile: React.FC = () => {
 		}
 
 		try {
+			const region = credentialManager.loadDiscoveryPreferences().region || undefined;
 			const lookupResult = await lookupPingOneUser({
 				environmentId: trimmedEnvironment,
 				accessToken: trimmedAccessToken,
 				identifier: trimmedIdentifier,
+				region,
 			});
 			const matchedUser = lookupResult.user as Partial<PingOneUserProfileData> | undefined;
 			const resolvedId = matchedUser?.id;
