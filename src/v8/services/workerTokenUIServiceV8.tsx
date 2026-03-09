@@ -319,7 +319,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	useEffect(() => {
 		const handleConfigUpdate = () => {
 			// Configuration is automatically updated by the centralized hook
-			logger.info('[WorkerTokenUIServiceV8] Configuration update event received', "Logger info");
+			logger.info('[WorkerTokenUIServiceV8] Configuration update event received', 'Logger info');
 		};
 
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);

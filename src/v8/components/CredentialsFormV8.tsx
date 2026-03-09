@@ -118,7 +118,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	// OIDC Discovery Modal
 	const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
-	const [discoveryResult, setDiscoveryResult] = useState<OidcDiscoveryResult | null>(null);
+	const [discoveryResult, _setDiscoveryResult] = useState<OidcDiscoveryResult | null>(null);
 
 	const config = CredentialsServiceV8.getFlowConfig(flowKey);
 	const flowType = providedFlowType || config?.flowType || 'oauth';
@@ -155,11 +155,6 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 		[specVersion, effectiveFlowType]
 	);
 
-	if (!config) {
-		logger.error(`${MODULE_TAG} Unknown flow key`, { flowKey });
-		return <div>Error: Unknown flow type</div>;
-	}
-
 	// Initialize redirect URIs for the flow if not already set
 	useEffect(() => {
 		if (!credentials.redirectUri || !credentials.postLogoutRedirectUri) {
@@ -170,29 +165,25 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 			);
 
 			if (redirectUri && !credentials.redirectUri) {
-				logger.info(`${MODULE_TAG} Auto-setting redirect URI for flow`, { flowKey, redirectUri });
+				logger.info(`${MODULE_TAG} Auto-setting redirect URI for flow`, JSON.stringify({ flowKey, redirectUri }), 'Auto-setting redirect URI');
 				onChange({ ...credentials, redirectUri });
 			}
 
 			if (postLogoutRedirectUri && !credentials.postLogoutRedirectUri) {
-				logger.info(`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`, {
-					flowKey,
-					postLogoutRedirectUri,
-				});
+				logger.info(`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`, JSON.stringify({ flowKey, postLogoutRedirectUri }), 'Auto-setting post-logout redirect URI');
 				onChange({ ...credentials, postLogoutRedirectUri });
 			}
 		}
 	}, [flowKey, credentials, onChange]); // Only run when flowKey changes
 
-	logger.info(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
-
 	const handleChange = useCallback(
 		(field: string, value: string) => {
-			logger.info(`${MODULE_TAG} Credential changed`, { field, flowKey });
+			logger.info(`${MODULE_TAG} Credential changed: ${field}`, JSON.stringify({ flowKey }), 'Credential field changed');
 			const updated = { ...credentials, [field]: value };
 			onChange(updated);
 
 			// Note: Redirect URI and Logout URI change callbacks removed - functionality can be handled by parent via onChange
+			return;
 		},
 		[credentials, onChange, flowKey]
 	);
@@ -210,29 +201,25 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 		setIsDiscovering(true);
 		try {
-			logger.info(`${MODULE_TAG} Starting OIDC discovery`, { input: discoveryInput });
-			const result = await OidcDiscoveryServiceV8.discoverFromInput(discoveryInput);
-
-			if (result.success && result.data) {
-				logger.info(`${MODULE_TAG} Discovery successful`, result.data);
-				setDiscoveryResult(result.data);
-				setShowDiscoveryModal(true);
-				onDiscoveryComplete?.(result.data);
+			const result = await OidcDiscoveryServiceV8.discover(discoveryInput.trim());
+			if (result.success) {
+				logger.info(`${MODULE_TAG} Discovery successful`, `Discovery successful for: ${discoveryInput}`, { result });
+				onDiscoveryComplete(result);
 			} else {
-				logger.error(`${MODULE_TAG} Discovery failed`, result.error);
+				logger.error(`${MODULE_TAG} Discovery failed`, `Discovery failed for: ${discoveryInput}`, { error: result.error });
 				modernMessaging.showBanner({
 					type: 'error',
-					title: 'Error',
-					message: result.error || 'Discovery failed',
+					title: 'Discovery Failed',
+					message: result.error || 'Failed to discover OIDC configuration',
 					dismissible: true,
 				});
 			}
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, `Discovery error for: ${discoveryInput}`, { error });
 			modernMessaging.showBanner({
 				type: 'error',
-				title: 'Error',
-				message: 'Discovery failed - check the issuer URL',
+				title: 'Discovery Error',
+				message: 'An error occurred during OIDC discovery',
 				dismissible: true,
 			});
 		} finally {
@@ -242,7 +229,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleApplyDiscovery = useCallback(
 		(result: OidcDiscoveryResult) => {
-			logger.info(`${MODULE_TAG} Applying discovery result`, result);
+			logger.info(`${MODULE_TAG} Applying discovery result`, JSON.stringify({ result }), 'Applying discovery result');
 			const updated = {
 				...credentials,
 				issuerUrl: result.issuer,
@@ -261,7 +248,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			logger.info(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
+			logger.info(`${MODULE_TAG} App selected`, JSON.stringify({ appId: app.id, appName: app.name }), 'App selected');
 			const updated = {
 				...credentials,
 				clientId: app.id,
@@ -272,6 +259,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 		},
 		[credentials, onChange]
 	);
+
+	if (!config) {
+		logger.error(`${MODULE_TAG} Unknown flow key`, JSON.stringify({ flowKey }), 'Unknown flow key');
+		return <div>Error: Unknown flow type</div>;
+	}
 
 	const defaultTitle = title || 'OAuth 2.0 Configure App & Environment';
 	const defaultSubtitle = subtitle || `Configure credentials for ${flowType} flow`;
@@ -322,11 +314,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							{/* Client Type */}
 							<div className="form-group">
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-									<div
-									style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
-								>
-									Client Type
-								</div>
+									<div style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}>
+										Client Type
+									</div>
 									<TooltipV8
 										title={TooltipContentServiceV8.CLIENT_TYPE.title}
 										content={TooltipContentServiceV8.CLIENT_TYPE.content}
@@ -375,11 +365,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							{/* Application Type */}
 							<div className="form-group">
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-									<div
-									style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
-								>
-									Application Type
-								</div>
+									<div style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}>
+										Application Type
+									</div>
 									<TooltipV8
 										title={TooltipContentServiceV8.APPLICATION_TYPE.title}
 										content={TooltipContentServiceV8.APPLICATION_TYPE.content}
@@ -517,7 +505,10 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 							{/* Flow Type Dropdown */}
 							<div className="form-group">
-								<label htmlFor="flow-type-select" style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+								<label
+									htmlFor="flow-type-select"
+									style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}
+								>
 									Flow Type
 								</label>
 								<select
@@ -940,7 +931,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* PKCE Enforcement Info */}
 								{flowOptions.responseTypes.length > 0 && (
 									<div className="form-group">
-										<label>PKCE Enforcement</label>
+										<div style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+											PKCE Enforcement
+										</div>
 										<div
 											style={{
 												padding: '8px 12px',
@@ -1005,10 +998,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 								{/* Issuer URL */}
 								<div className="form-group">
-									<label>
+									<label htmlFor="issuer-url-input">
 										Issuer URL <span className="optional">(optional)</span>
 									</label>
 									<input
+										id="issuer-url-input"
 										type="text"
 										placeholder="https://auth.example.com"
 										value={credentials.issuerUrl || ''}
@@ -1030,10 +1024,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							<div className="section-content">
 								{flowOptions.supportsLoginHint && showLoginHint && (
 									<div className="form-group">
-										<label>
+										<label htmlFor="login-hint-input">
 											Login Hint <span className="optional">(optional)</span>
 										</label>
 										<input
+											id="login-hint-input"
 											type="text"
 											placeholder="user@example.com"
 											value={credentials.loginHint || ''}
@@ -1058,7 +1053,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 									message: 'Credentials saved successfully',
 									duration: 3000,
 								});
-								logger.info(`${MODULE_TAG} Credentials saved`, { flowKey });
+								logger.info(`${MODULE_TAG} Credentials saved`, JSON.stringify({ flowKey }), 'Credentials saved');
 							}}
 						>
 							💾 Save Credentials

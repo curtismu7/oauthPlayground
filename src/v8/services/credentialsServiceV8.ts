@@ -41,7 +41,7 @@ import { logger } from '../../utils/logger';
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-	logger.info(...args, "Logger info");
+	logger.info(...args, 'Logger info');
 };
 
 // Re-export types for backward compatibility
@@ -61,7 +61,7 @@ let migrationCompleted = false;
 const ensureMigration = async (): Promise<void> => {
 	if (!migrationCompleted) {
 		if (CredentialsServiceV8Migration.needsMigration()) {
-			logger.info(`${MODULE_TAG} Starting automatic credentials migration...`, "Logger info");
+			logger.info(`${MODULE_TAG} Starting automatic credentials migration...`, 'Logger info');
 			const result = await CredentialsServiceV8Migration.migrateAll();
 			logger.info(`${MODULE_TAG} Credentials migration completed`, result);
 		}

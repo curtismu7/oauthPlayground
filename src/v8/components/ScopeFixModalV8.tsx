@@ -47,7 +47,8 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 				});
 				setFixResult(result);
 			} catch (error) {
-				logger.error('Error analyzing scopes:', error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.error('Error analyzing scopes', errorMessage, { error });
 			} finally {
 				setIsAnalyzing(false);
 			}

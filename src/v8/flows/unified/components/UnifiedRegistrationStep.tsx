@@ -133,7 +133,10 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 		// Check token validity based on token type
 		if (requiresWorkerToken && !tokenStatus.isValid) {
-			logger.info(`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`,
+				'Logger info'
+			);
 			return false;
 		}
 
@@ -158,7 +161,10 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 	// Handle device registration
 	const handleRegisterDevice = useCallback(async () => {
-		logger.info(`${MODULE_TAG} Starting device registration for ${config.deviceType}`, "Logger info");
+		logger.info(
+			`${MODULE_TAG} Starting device registration for ${config.deviceType}`,
+			'Logger info'
+		);
 
 		try {
 			setIsLoading(true);
@@ -166,7 +172,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 			// Validate form
 			if (!validate()) {
-				logger.warn(`${MODULE_TAG} Validation failed`, "Logger warning");
+				logger.warn(`${MODULE_TAG} Validation failed`, 'Logger warning');
 				return;
 			}
 

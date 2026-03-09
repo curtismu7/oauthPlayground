@@ -115,7 +115,8 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			logger.error('Failed to download documentation:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error('Failed to download documentation', errorMessage, { error });
 			showGlobalError('Failed to download documentation. Please try again.');
 		}
 	};
@@ -262,7 +263,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 				{/* Category Selection */}
 				<div style={{ marginBottom: '24px' }}>
-					<label
+					<div
 						style={{
 							display: 'block',
 							fontSize: '14px',
@@ -272,7 +273,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 						}}
 					>
 						Select Category
-					</label>
+					</div>
 					<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 						{[
 							{ value: 'all', label: 'All Use Cases' },
@@ -305,7 +306,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				{/* Use Case Selection */}
 				{selectedCategory === 'specific' && (
 					<div style={{ marginBottom: '24px' }}>
-						<label
+						<div
 							style={{
 								display: 'block',
 								fontSize: '14px',
@@ -315,7 +316,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							}}
 						>
 							Select Use Cases ({selectedUseCases.size} selected)
-						</label>
+						</div>
 						<div
 							style={{
 								maxHeight: '300px',
@@ -389,7 +390,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 				{/* Download Format Selection */}
 				<div style={{ marginBottom: '24px' }}>
-					<label
+					<div
 						style={{
 							display: 'block',
 							fontSize: '14px',
@@ -399,7 +400,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 						}}
 					>
 						Download Format
-					</label>
+					</div>
 					<div style={{ display: 'flex', gap: '12px' }}>
 						{[
 							{ value: 'md', label: 'Markdown (.md)', icon: FiFileText },

@@ -279,7 +279,7 @@ const STEP_METADATA = [
 const log = createModuleLogger('src/pages/flows/v9/ClientCredentialsFlowV9.tsx');
 
 const ClientCredentialsFlowV9Complete: React.FC = () => {
-	const [currentStep, _setCurrentStep] = useState(0);
+	const [currentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		credentials: false,
 		authMethod: false,
@@ -324,7 +324,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		[controller]
 	);
 
-	const { clearBackup: _clearBackup } = useCredentialBackup({
+	useCredentialBackup({
 		flowKey: 'client-credentials-v9',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
@@ -338,8 +338,8 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		}));
 	}, []);
 
-	// Step validation with enhanced error messages
-	const _isStepValid = useCallback(
+	// Step validation (unused — kept as reference)
+	const isStepValid = useCallback(
 		(step: number): boolean => {
 			switch (step) {
 				case 0:

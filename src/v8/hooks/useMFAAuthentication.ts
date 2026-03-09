@@ -101,7 +101,7 @@ export const useMFAAuthentication = (
 	// Reset authentication state
 	const resetAuthState = useCallback(() => {
 		setAuthState(INITIAL_AUTH_STATE);
-		logger.info(`${MODULE_TAG} Authentication state reset`, "Logger info");
+		logger.info(`${MODULE_TAG} Authentication state reset`, 'Logger info');
 	}, []);
 
 	// Close all modals
@@ -112,7 +112,7 @@ export const useMFAAuthentication = (
 		setShowEmailModal(false);
 		setShowRegistrationModal(false);
 		setShowUsernameDecisionModal(false);
-		logger.info(`${MODULE_TAG} All modals closed`, "Logger info");
+		logger.info(`${MODULE_TAG} All modals closed`, 'Logger info');
 	}, []);
 
 	// Computed values

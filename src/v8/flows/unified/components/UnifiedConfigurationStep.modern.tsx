@@ -159,8 +159,9 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 			if (DIRECT_REGISTRATION_DEVICES.includes(deviceType)) {
 				logger.info(
-					`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`
-				, "Logger info");
+					`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`,
+					'Logger info'
+				);
 
 				// Map device type to field name
 				const fieldMap: Record<string, string> = {
@@ -198,7 +199,10 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 				// CRITICAL VALIDATION: Ensure activation flow is followed correctly
 				if (result.status === 'ACTIVATION_REQUIRED' && selectedFlowType === 'admin-active') {
-					logger.error(`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`, "Logger error");
+					logger.error(
+						`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`,
+						'Logger error'
+					);
 					throw new Error('Device registration flow mismatch - expected ACTIVE device');
 				}
 
@@ -228,7 +232,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 					nav.goToStep(2); // Skip activation, go to success
 				} else {
 					// ACTIVATION_REQUIRED or User Flow - MUST go through activation
-					logger.info(`${MODULE_TAG} Activation required: Going to activation step`, "Logger info");
+					logger.info(`${MODULE_TAG} Activation required: Going to activation step`, 'Logger info');
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: `${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`,
@@ -238,7 +242,10 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				}
 			} else {
 				// For FIDO2, MOBILE - go to device selection/registration form
-				logger.info(`${MODULE_TAG} Navigating to device selection for ${deviceType}`, "Logger info");
+				logger.info(
+					`${MODULE_TAG} Navigating to device selection for ${deviceType}`,
+					'Logger info'
+				);
 
 				// Mark step complete
 				nav.markStepComplete();

@@ -10,6 +10,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[💾 JWKS-CACHE-V8]';
 
 export interface CachedJWKS {
@@ -44,7 +45,7 @@ async function initDB(): Promise<IDBDatabase> {
 		};
 
 		request.onsuccess = () => {
-			logger.info(`${MODULE_TAG} ✅ JWKS cache database opened`, "Logger info");
+			logger.info(`${MODULE_TAG} ✅ JWKS cache database opened`, 'Logger info');
 			resolve(request.result);
 		};
 
@@ -58,7 +59,7 @@ async function initDB(): Promise<IDBDatabase> {
 				store.createIndex('jwksUri', 'jwksUri', { unique: false });
 				store.createIndex('issuer', 'issuer', { unique: false });
 				store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				logger.info(`${MODULE_TAG} ✅ JWKS cache object store created`, "Logger info");
+				logger.info(`${MODULE_TAG} ✅ JWKS cache object store created`, 'Logger info');
 			}
 		};
 	});
@@ -203,7 +204,7 @@ export async function clearExpiredCache(): Promise<void> {
 					cursor.delete();
 					cursor.continue();
 				} else {
-					logger.info(`${MODULE_TAG} ✅ Expired JWKS cache entries cleared`, "Logger info");
+					logger.info(`${MODULE_TAG} ✅ Expired JWKS cache entries cleared`, 'Logger info');
 					resolve();
 				}
 			};
@@ -227,7 +228,7 @@ export async function clearAllCache(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
 			const request = store.clear();
 			request.onsuccess = () => {
-				logger.info(`${MODULE_TAG} ✅ All JWKS cache cleared`, "Logger info");
+				logger.info(`${MODULE_TAG} ✅ All JWKS cache cleared`, 'Logger info');
 				resolve();
 			};
 			request.onerror = () => reject(request.error);

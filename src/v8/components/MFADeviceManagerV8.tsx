@@ -105,7 +105,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					username,
 				});
 				setDevices(deviceList);
-				logger.info(`${MODULE_TAG} Loaded ${deviceList.length} devices`, "Logger info");
+				logger.info(`${MODULE_TAG} Loaded ${deviceList.length} devices`, 'Logger info');
 			},
 			{
 				onSuccess: () => {

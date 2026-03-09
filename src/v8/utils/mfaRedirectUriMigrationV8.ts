@@ -28,7 +28,7 @@ const FLOW_KEY_TO_FLOW_TYPE: Record<string, string> = {
  * This should be run on app startup to ensure all old mfa-hub URIs are updated
  */
 export function migrateAllMFARedirectUris(): void {
-	logger.info(`${MODULE_TAG} Starting redirect URI migration...`, "Logger info");
+	logger.info(`${MODULE_TAG} Starting redirect URI migration...`, 'Logger info');
 
 	let migratedCount = 0;
 
@@ -69,7 +69,10 @@ export function migrateAllMFARedirectUris(): void {
 			`${MODULE_TAG} ✅ Migration complete! Updated ${migratedCount} credential store(s)`
 		);
 	} else {
-		logger.info(`${MODULE_TAG} ✅ No migration needed - all credentials are up to date`, "Logger info");
+		logger.info(
+			`${MODULE_TAG} ✅ No migration needed - all credentials are up to date`,
+			'Logger info'
+		);
 	}
 }
 
@@ -78,7 +81,7 @@ export function migrateAllMFARedirectUris(): void {
  * This is a more aggressive cleanup that removes any lingering old data
  */
 export function clearOldMFAHubData(): void {
-	logger.info(`${MODULE_TAG} Clearing old mfa-hub data...`, "Logger info");
+	logger.info(`${MODULE_TAG} Clearing old mfa-hub data...`, 'Logger info');
 
 	try {
 		// Get all localStorage keys
@@ -99,7 +102,7 @@ export function clearOldMFAHubData(): void {
 			}
 		}
 
-		logger.info(`${MODULE_TAG} ✅ Old mfa-hub data cleared`, "Logger info");
+		logger.info(`${MODULE_TAG} ✅ Old mfa-hub data cleared`, 'Logger info');
 	} catch (error) {
 		logger.warn(`${MODULE_TAG} Failed to clear old mfa-hub data:`, error);
 	}

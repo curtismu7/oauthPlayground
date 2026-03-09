@@ -159,8 +159,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
 		if (resolutionResult.step === 0) {
 			logger.error(
-				`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`
-			, "Logger error");
+				`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`,
+				'Logger error'
+			);
 			// Force fallback to Step 2
 			nav.goToStep(2);
 			return;
@@ -202,8 +203,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				});
 				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
 					logger.info(
-						`${MODULE_TAG} ✅ Initial sync: User token from user-login-v8 to mfa-flow-v8`
-					, "Logger info");
+						`${MODULE_TAG} ✅ Initial sync: User token from user-login-v8 to mfa-flow-v8`,
+						'Logger info'
+					);
 					// Update stored to include the user token
 					stored.userToken = userLoginCreds.userToken;
 					stored.tokenType = 'user';
@@ -406,7 +408,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// Save to localStorage for persistence
 		try {
 			localStorage.setItem(FLOW_KEY, JSON.stringify(credentials));
-			logger.info('[MFA-FLOW-BASE] Credentials saved to localStorage', "Logger info");
+			logger.info('[MFA-FLOW-BASE] Credentials saved to localStorage', 'Logger info');
 		} catch (error) {
 			logger.warn('[MFA-FLOW-BASE] Failed to save credentials to localStorage:', error);
 		}
@@ -433,8 +435,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
 					if (!credentials.userToken || credentials.userToken !== userLoginCreds.userToken) {
 						logger.info(
-							`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`
-						, "Logger info");
+							`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`,
+							'Logger info'
+						);
 						setCredentials((prev) => ({
 							...prev,
 							userToken: userLoginCreds.userToken,
@@ -465,7 +468,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		});
 
 		if (confirmed) {
-			logger.info(`${MODULE_TAG} Restarting flow - clearing all state`, "Logger info");
+			logger.info(`${MODULE_TAG} Restarting flow - clearing all state`, 'Logger info');
 
 			// Clear all storage
 			sessionStorage.removeItem('mfa-flow-v8');
@@ -610,7 +613,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			const storedState = sessionStorage.getItem('oauth_state');
 
 			if (receivedState !== storedState) {
-				logger.error(`${MODULE_TAG} ❌ OAuth state mismatch - possible CSRF attack`, "Logger error");
+				logger.error(
+					`${MODULE_TAG} ❌ OAuth state mismatch - possible CSRF attack`,
+					'Logger error'
+				);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -624,7 +630,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				return;
 			}
 
-			logger.info(`${MODULE_TAG} ✅ OAuth state validation passed`, "Logger info");
+			logger.info(`${MODULE_TAG} ✅ OAuth state validation passed`, 'Logger info');
 
 			// #region agent log
 			sendAnalyticsLog({
@@ -741,8 +747,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					// For other steps, stay on current step and let user navigate manually
 					// This prevents unexpected navigation jumps
 					logger.info(
-						`${MODULE_TAG} Staying on current step ${nav.currentStep} for manual navigation`
-					, "Logger info");
+						`${MODULE_TAG} Staying on current step ${nav.currentStep} for manual navigation`,
+						'Logger info'
+					);
 				}
 			}, 500); // Small delay to ensure credentials are fully updated
 		}
@@ -804,7 +811,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					logger.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
 					// Default to not showing modal to be safe (user can manually trigger if needed)
-					logger.warn(`${MODULE_TAG} Config error - not showing modal automatically`, "Logger warning");
+					logger.warn(
+						`${MODULE_TAG} Config error - not showing modal automatically`,
+						'Logger warning'
+					);
 				}
 			})();
 		}
@@ -1080,7 +1090,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					errors={nav.validationErrors}
 					warnings={nav.validationWarnings}
 					onValidationRecheck={() => {
-						logger.info(`${MODULE_TAG} Rechecking validation after worker token refresh`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Rechecking validation after worker token refresh`,
+							'Logger info'
+						);
 						// Clear validation errors and revalidate current step
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
@@ -1095,16 +1108,20 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								includeRedirectUri: false,
 							};
 							if (validateStep0(credsToValidate, tokenStatus, nav)) {
-								logger.info(`${MODULE_TAG} Step 0 validation passed after worker token refresh`, "Logger info");
+								logger.info(
+									`${MODULE_TAG} Step 0 validation passed after worker token refresh`,
+									'Logger info'
+								);
 							} else {
 								logger.info(
-									`${MODULE_TAG} Step 0 validation still failed after worker token refresh`
-								, "Logger info");
+									`${MODULE_TAG} Step 0 validation still failed after worker token refresh`,
+									'Logger info'
+								);
 							}
 						}
 					}}
 					onWorkerTokenRefresh={async () => {
-						logger.info(`${MODULE_TAG} Worker token refresh callback triggered`, "Logger info");
+						logger.info(`${MODULE_TAG} Worker token refresh callback triggered`, 'Logger info');
 						// Trigger worker token refresh
 						window.dispatchEvent(new Event('workerTokenUpdated'));
 						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -1238,7 +1255,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							nav.goToPrevious();
 						} else {
 							// No valid previous step, this shouldn't happen (Previous button should be disabled)
-							logger.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`, "Logger warning");
+							logger.warn(
+								`${MODULE_TAG} Previous button clicked but canGoPrevious is false`,
+								'Logger warning'
+							);
 						}
 					}}
 					onNext={() => {
@@ -1308,8 +1328,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							// Don't allow Next button to go to registration if they have an existing device selected
 							if (mfaState.authenticationId) {
 								logger.warn(
-									`${MODULE_TAG} User has authenticationId but clicked Next - this should use "Use Selected Device" button instead`
-								, "Logger warning");
+									`${MODULE_TAG} User has authenticationId but clicked Next - this should use "Use Selected Device" button instead`,
+									'Logger warning'
+								);
 								nav.setValidationErrors([
 									'Please click "Use Selected Device" button to authenticate with the selected device, or select "Register New Device" to register a new one.',
 								]);
@@ -1342,8 +1363,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								// The QR code page (Step 3) should stay on Step 3
 								// Success page will be shown after device activation
 								logger.info(
-									`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`
-								, "Logger info");
+									`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`,
+									'Logger info'
+								);
 								return;
 							}
 							// For authentication flow, allow navigation to Step 4
@@ -1353,7 +1375,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						}
 					}}
 					onFinal={() => {
-						logger.info(`${MODULE_TAG} Starting new flow`, "Logger info");
+						logger.info(`${MODULE_TAG} Starting new flow`, 'Logger info');
 						nav.reset();
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
@@ -1509,8 +1531,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									// Navigate to validation step (Step 3 for Email, Step 4 for SMS/WhatsApp)
 									// The actual step number depends on the flow, but we'll let the flow component handle it
 									logger.info(
-										`${MODULE_TAG} Device requires activation - user should proceed to OTP validation`
-									, "Logger info");
+										`${MODULE_TAG} Device requires activation - user should proceed to OTP validation`,
+										'Logger info'
+									);
 								}
 
 								// Clean up stored state
@@ -1558,8 +1581,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 								if (isStep0Complete) {
 									logger.info(
-										`${MODULE_TAG} Step 0 is now complete after token receipt - user can proceed to next step`
-									, "Logger info");
+										`${MODULE_TAG} Step 0 is now complete after token receipt - user can proceed to next step`,
+										'Logger info'
+									);
 									// Don't auto-advance, let user click Next button
 									// But ensure they stay on the current page
 								}
@@ -1585,7 +1609,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								clientId: savedCreds.clientId || prev.clientId,
 								// Note: userToken is only set when actually received via onTokenReceived
 							}));
-							logger.info(`${MODULE_TAG} Synced saved credentials from User Login Modal`, "Logger info");
+							logger.info(
+								`${MODULE_TAG} Synced saved credentials from User Login Modal`,
+								'Logger info'
+							);
 						}
 					}}
 					environmentId={credentials.environmentId}

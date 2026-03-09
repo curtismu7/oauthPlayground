@@ -714,7 +714,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step'); // Clear after use
-			logger.info('DeviceAuthorizationFlowV9', 'Restoring to step', { step });
+			logger.info('DeviceAuthorizationFlowV9', 'Restoring to step', JSON.stringify({ step }), 'Step restoration');
 			return step;
 		}
 		return 0;
@@ -769,18 +769,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const deviceConfig = useMemo(
 		() => deviceTypeService.getDeviceType(selectedDevice),
-		[selectedDevice]
-	);
-	const _waitingMessage = useMemo(
-		() => deviceTypeService.getWaitingMessage(selectedDevice),
-		[selectedDevice]
-	);
-	const _welcomeMessage = useMemo(
-		() => deviceTypeService.getWelcomeMessage(selectedDevice),
-		[selectedDevice]
-	);
-	const _deviceApps = useMemo(
-		() => deviceTypeService.getDeviceApps(selectedDevice),
 		[selectedDevice]
 	);
 	const lastParsedErrorSignatureRef = useRef<string | null>(null);
@@ -843,11 +831,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	React.useEffect(() => {
 		localStorage.setItem('device_flow_selected_device', selectedDevice);
 	}, [selectedDevice]);
-	const _brandGradient = useMemo(
-		() => `linear-gradient(135deg, ${deviceConfig.color} 0%, ${deviceConfig.secondaryColor} 100%)`,
-		[deviceConfig.color, deviceConfig.secondaryColor]
-	);
-
 	usePageScroll({ pageName: 'Device Authorization Flow V9 - Unified', force: true });
 
 	// Check credentials on mount and show warning if missing
@@ -1095,7 +1078,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		credentials: deviceFlow.credentials ?? {},
 		currentStep,
 		onValidationFailure: (missingFields) => {
-			logger.warn('[Device Authorization V7] Missing required credentials:', missingFields);
+			logger.warn('[Device Authorization V7] Missing required credentials:', JSON.stringify(missingFields), 'Missing credentials validation');
 		},
 	});
 
@@ -3131,7 +3114,8 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								}}
 								onError={(error) => {
 									// Handle errors
-									logger.error('DynamicDeviceFlow', 'Authorization error', error);
+									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+									logger.error('DynamicDeviceFlow', 'Authorization error', errorMessage, 'Device flow authorization error');
 								}}
 							/>
 

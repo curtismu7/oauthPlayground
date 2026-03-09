@@ -142,9 +142,12 @@ class UINotificationServiceV8 {
 		logger.info(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
 
 		if (!this.confirmCallback) {
-			logger.error(`${MODULE_TAG} No confirmation handler registered! Falling back to console.`, "Logger error");
+			logger.error(
+				`${MODULE_TAG} No confirmation handler registered! Falling back to console.`,
+				'Logger error'
+			);
 			// Fallback: log to console and return false (safer default)
-			logger.warn(`${MODULE_TAG} Confirmation needed: ${confirmOptions.message}`, "Logger warning");
+			logger.warn(`${MODULE_TAG} Confirmation needed: ${confirmOptions.message}`, 'Logger warning');
 			return false;
 		}
 
@@ -170,9 +173,12 @@ class UINotificationServiceV8 {
 		logger.info(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
 
 		if (!this.promptCallback) {
-			logger.error(`${MODULE_TAG} No prompt handler registered! Falling back to console.`, "Logger error");
+			logger.error(
+				`${MODULE_TAG} No prompt handler registered! Falling back to console.`,
+				'Logger error'
+			);
 			// Fallback: log to console and return null
-			logger.warn(`${MODULE_TAG} Prompt needed: ${promptOptions.message}`, "Logger warning");
+			logger.warn(`${MODULE_TAG} Prompt needed: ${promptOptions.message}`, 'Logger warning');
 			return null;
 		}
 
@@ -223,7 +229,7 @@ class UINotificationServiceV8 {
 	 * Clear notification logs
 	 */
 	clearLogs(): void {
-		logger.info(`${MODULE_TAG} Clearing notification logs`, "Logger info");
+		logger.info(`${MODULE_TAG} Clearing notification logs`, 'Logger info');
 		this.logs = [];
 	}
 
