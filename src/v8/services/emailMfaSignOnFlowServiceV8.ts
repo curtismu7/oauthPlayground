@@ -8,6 +8,7 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-SERVICE-V8]';
 
 export interface CreateApplicationParams {
@@ -178,7 +179,7 @@ export class EmailMFASignOnFlowServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Application created successfully`, responseData);
+			logger.info(`${MODULE_TAG} Application created successfully`, responseData);
 			return responseData as Record<string, unknown>;
 		} catch (error) {
 			apiCallTrackerService.updateApiCallResponse(
@@ -190,7 +191,7 @@ export class EmailMFASignOnFlowServiceV8 {
 				},
 				Date.now() - startTime
 			);
-			console.error(`${MODULE_TAG} Error creating application:`, error);
+			logger.error(`${MODULE_TAG} Error creating application:`, error);
 			throw error;
 		}
 	}

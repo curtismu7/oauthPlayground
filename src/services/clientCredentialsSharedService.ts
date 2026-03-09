@@ -189,7 +189,7 @@ export class ClientCredentialsSync {
 	 * Sync credentials from controller
 	 */
 	static syncCredentials(credentials: StepCredentials): void {
-		log.info('Syncing credentials for client credentials flow', {
+		logger.info('Syncing credentials for client credentials flow', {
 			environmentId: credentials.environmentId,
 			clientId: `${credentials.clientId?.substring(0, 8)}...`,
 			scopes: credentials.scopes,
@@ -197,7 +197,7 @@ export class ClientCredentialsSync {
 
 		// Validate credentials
 		if (!credentials.clientId || !credentials.clientSecret) {
-			log.warn('Missing required credentials for client credentials flow');
+			logger.warn('Missing required credentials for client credentials flow');
 			return;
 		}
 	}
@@ -278,7 +278,7 @@ export class ClientCredentialsTokenRequest {
 
 		const body = new URLSearchParams(bodyParams).toString();
 
-		log.info('Built token request', {
+		logger.info('Built token request', {
 			url: tokenEndpoint,
 			authMethod,
 			hasScope: !!credentials.scopes,
@@ -301,7 +301,7 @@ export class ClientCredentialsTokenRequest {
 		} = ClientCredentialsTokenRequest.buildTokenRequest(credentials, authMethod);
 
 		try {
-			log.info('Making token request', {
+			logger.info('Making token request', {
 				url: '/api/token-exchange',
 				headers: { ...headers, Authorization: headers.Authorization ? '[REDACTED]' : 'NONE' },
 				bodyLength: body.length,
@@ -316,7 +316,7 @@ export class ClientCredentialsTokenRequest {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				log.error('Token request failed', {
+				logger.error('Token request failed', {
 					status: response.status,
 					statusText: response.statusText,
 					errorText,
@@ -361,7 +361,7 @@ export class ClientCredentialsTokenRequest {
 
 			const tokenData = await response.json();
 
-			log.success('Token request successful', {
+			logger.success('Token request successful', {
 				hasAccessToken: !!tokenData.access_token,
 				tokenType: tokenData.token_type,
 				expiresIn: tokenData.expires_in,
@@ -369,7 +369,7 @@ export class ClientCredentialsTokenRequest {
 
 			return tokenData;
 		} catch (error) {
-			log.error('Token request failed', error);
+			logger.error('Token request failed', error);
 			throw error;
 		}
 	}
@@ -411,7 +411,7 @@ export class ClientCredentialsCollapsibleSections {
 			...prev,
 			[key]: !prev[key],
 		}));
-		log.info('Toggled section', { key });
+		logger.info('Toggled section', { key });
 	}
 }
 

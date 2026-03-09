@@ -28,6 +28,7 @@ import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
+import { logger } from '../utils/logger';
 // Import types and config
 import type {
 	LoginContext,
@@ -345,7 +346,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		log.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
+		logger.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',

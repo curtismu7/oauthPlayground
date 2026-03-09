@@ -7,6 +7,7 @@ import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 
+import { logger } from '../../../utils/logger';
 // Mock services - these would be imported from actual services in real implementation
 const FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
@@ -46,7 +47,7 @@ export const useFlowVariantSwitching = (
 			setSwitchError(null);
 
 			try {
-				console.log(
+				logger.info(
 					`🔄 Switching from ${flowVariant.toUpperCase()} to ${newVariant.toUpperCase()}`
 				);
 
@@ -70,15 +71,15 @@ export const useFlowVariantSwitching = (
 						...reloadedCredentials,
 					};
 					onCredentialsChange(updatedCredentials);
-					console.log('📥 Loaded variant-specific credentials:', credentialKey);
+					logger.info('📥 Loaded variant-specific credentials:', credentialKey);
 				} else {
-					console.log('📝 No variant-specific credentials found, using current credentials');
+					logger.info('📝 No variant-specific credentials found, using current credentials');
 				}
 
 				// Preserve PKCE codes during variant switch
 				if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge && onPkceCodesChange) {
 					onPkceCodesChange(currentPkceCodes);
-					console.log('🔐 Preserved PKCE codes during variant switch');
+					logger.info('🔐 Preserved PKCE codes during variant switch');
 				}
 
 				// Update scope based on variant
@@ -108,7 +109,7 @@ export const useFlowVariantSwitching = (
 					duration: 4000,
 				});
 
-				console.log(`✅ Successfully switched to ${newVariant.toUpperCase()} variant`);
+				logger.info(`✅ Successfully switched to ${newVariant.toUpperCase()} variant`);
 			} catch (error) {
 				const errorMessage = `Failed to switch to ${newVariant} variant: ${error instanceof Error ? error.message : 'Unknown error'}`;
 				logger.error('❌ Variant switch error:', errorMessage);

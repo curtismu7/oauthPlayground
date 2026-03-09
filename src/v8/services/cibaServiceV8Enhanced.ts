@@ -27,6 +27,7 @@
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 CIBA-SERVICE-V8-ENHANCED]';
 
 // ============================================================================
@@ -121,14 +122,14 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaDiscoveryMetadata>
 	 */
 	async getDiscoveryMetadata(environmentId: string): Promise<CibaDiscoveryMetadata> {
-		console.log(`${MODULE_TAG} Fetching CIBA discovery metadata for environment: ${environmentId}`);
+		logger.info(`${MODULE_TAG} Fetching CIBA discovery metadata for environment: ${environmentId}`);
 
 		try {
 			// Construct the full PingOne OIDC discovery URL
 			const region = 'com'; // Default to North America, can be made configurable
 			const discoveryUrl = `https://auth.pingone.${region}/${environmentId}/as/.well-known/openid-configuration`;
 
-			console.log(`${MODULE_TAG} Discovery URL: ${discoveryUrl}`);
+			logger.info(`${MODULE_TAG} Discovery URL: ${discoveryUrl}`);
 
 			const response = await fetch(discoveryUrl, {
 				method: 'GET',
@@ -145,7 +146,7 @@ export const CibaServiceV8Enhanced = {
 
 			const metadata = await response.json();
 
-			console.log(`${MODULE_TAG} Discovery metadata received:`, {
+			logger.info(`${MODULE_TAG} Discovery metadata received:`, {
 				hasBackchannelEndpoint: !!metadata.backchannel_authentication_endpoint,
 				deliveryModes: metadata.backchannel_token_delivery_modes_supported,
 			});
@@ -160,7 +161,7 @@ export const CibaServiceV8Enhanced = {
 					metadata.backchannel_user_code_parameter_supported || false,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch discovery metadata:`, error);
+			logger.error(`${MODULE_TAG} Failed to fetch discovery metadata:`, error);
 			throw error;
 		}
 	},
@@ -248,7 +249,7 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaAuthRequest> - Authentication request details
 	 */
 	async initiateAuthentication(credentials: CibaCredentials): Promise<CibaAuthRequest> {
-		console.log(`${MODULE_TAG} Initiating OpenID Connect CIBA authentication request`);
+		logger.info(`${MODULE_TAG} Initiating OpenID Connect CIBA authentication request`);
 
 		// Validate credentials first
 		const validation = this.validateCredentials(credentials);
@@ -303,7 +304,7 @@ export const CibaServiceV8Enhanced = {
 				requestBody.backchannel_authentication_request_signing_alg = credentials.signingAlg;
 			}
 
-			console.log(`${MODULE_TAG} Sending CIBA request with parameters:`, {
+			logger.info(`${MODULE_TAG} Sending CIBA request with parameters:`, {
 				environment_id: requestBody.environment_id,
 				client_id: requestBody.client_id,
 				scope: requestBody.scope,
@@ -328,7 +329,7 @@ export const CibaServiceV8Enhanced = {
 			}
 
 			const authRequest = await response.json();
-			console.log(`${MODULE_TAG} CIBA authentication request initiated:`, {
+			logger.info(`${MODULE_TAG} CIBA authentication request initiated:`, {
 				auth_req_id: `${authRequest.auth_req_id?.substring(0, 20)}...`,
 				expires_in: authRequest.expires_in,
 				interval: authRequest.interval,
@@ -342,7 +343,7 @@ export const CibaServiceV8Enhanced = {
 			});
 			return authRequest;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
+			logger.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -360,7 +361,7 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaPollingResult> - Polling result with tokens or error
 	 */
 	async pollForTokens(authReqId: string, credentials: CibaCredentials): Promise<CibaPollingResult> {
-		console.log(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
+		logger.info(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
 
 		try {
 			const formData = new URLSearchParams();
@@ -397,7 +398,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Authorization pending - user hasn't approved yet
 				if (errorCode === 'authorization_pending') {
-					console.log(`${MODULE_TAG} Authorization pending - continue polling`);
+					logger.info(`${MODULE_TAG} Authorization pending - continue polling`);
 					return {
 						status: 'pending',
 						interval: data.interval || 5,
@@ -406,7 +407,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Slow down - polling too frequently
 				if (errorCode === 'slow_down') {
-					console.log(`${MODULE_TAG} Slow down - increase polling interval`);
+					logger.info(`${MODULE_TAG} Slow down - increase polling interval`);
 					return {
 						status: 'pending',
 						error: 'slow_down',
@@ -417,7 +418,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Request expired
 				if (errorCode === 'expired_token') {
-					console.log(`${MODULE_TAG} Request expired`);
+					logger.info(`${MODULE_TAG} Request expired`);
 					return {
 						status: 'expired',
 						error: 'expired_token',
@@ -427,7 +428,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Access denied by user
 				if (errorCode === 'access_denied') {
-					console.log(`${MODULE_TAG} Access denied by user`);
+					logger.info(`${MODULE_TAG} Access denied by user`);
 					return {
 						status: 'denied',
 						error: 'access_denied',
@@ -436,7 +437,7 @@ export const CibaServiceV8Enhanced = {
 				}
 
 				// Other errors
-				console.error(`${MODULE_TAG} CIBA polling error:`, data);
+				logger.error(`${MODULE_TAG} CIBA polling error:`, data);
 				return {
 					status: 'error',
 					error: errorCode || 'unknown_error',
@@ -446,7 +447,7 @@ export const CibaServiceV8Enhanced = {
 			}
 
 			// Success - tokens issued
-			console.log(`${MODULE_TAG} CIBA tokens received successfully`);
+			logger.info(`${MODULE_TAG} CIBA tokens received successfully`);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'CIBA authentication completed successfully',
@@ -458,7 +459,7 @@ export const CibaServiceV8Enhanced = {
 				tokens: data as CibaTokens,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to poll for CIBA tokens:`, error);
+			logger.error(`${MODULE_TAG} Failed to poll for CIBA tokens:`, error);
 			return {
 				status: 'error',
 				error: 'network_error',

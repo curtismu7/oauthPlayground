@@ -72,7 +72,7 @@ const DebugCredentials: React.FC = () => {
 				const allKeys = Object.keys(localStorage);
 				const pingoneKeys = allKeys.filter((key) => key.includes('pingone'));
 
-				console.log(' [DebugCredentials] Updating debug info...', { allKeys, pingoneKeys });
+				logger.info(' [DebugCredentials] Updating debug info...', { allKeys, pingoneKeys });
 
 				const info = {
 					allLocalStorageKeys: allKeys,
@@ -96,7 +96,7 @@ const DebugCredentials: React.FC = () => {
 					},
 				};
 
-				console.log(' [DebugCredentials] Debug info created:', info);
+				logger.info(' [DebugCredentials] Debug info created:', info);
 				setDebugInfo(info);
 			} catch (error) {
 				logger.error(

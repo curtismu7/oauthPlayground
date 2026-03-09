@@ -138,7 +138,7 @@ export class PingOneMfaService {
 		config: DeviceRegistrationConfig
 	): Promise<DeviceRegistrationResult> {
 		try {
-			console.log(`[PingOneMfaService] Registering ${config.type} device`);
+			logger.info(`[PingOneMfaService] Registering ${config.type} device`);
 
 			let device: MfaDevice;
 			let setupData: DeviceSetupData | undefined;
@@ -230,7 +230,7 @@ export class PingOneMfaService {
 				});
 			}
 
-			console.log(
+			logger.info(
 				`[PingOneMfaService] Successfully registered ${config.type} device: ${device.id}`
 			);
 
@@ -258,7 +258,7 @@ export class PingOneMfaService {
 		activationData: { otp?: string; totpCode?: string }
 	): Promise<ValidationResult> {
 		try {
-			console.log(`[PingOneMfaService] Activating device: ${deviceId}`);
+			logger.info(`[PingOneMfaService] Activating device: ${deviceId}`);
 
 			// Get device details first
 			const devices = await PingOneMfaService.getRegisteredDevices(credentials);
@@ -303,7 +303,7 @@ export class PingOneMfaService {
 			}
 
 			if (validationResult.valid) {
-				console.log(`[PingOneMfaService] Device activated successfully: ${deviceId}`);
+				logger.info(`[PingOneMfaService] Device activated successfully: ${deviceId}`);
 			}
 
 			return validationResult;
@@ -326,7 +326,7 @@ export class PingOneMfaService {
 		challengeType?: string
 	): Promise<ChallengeResult> {
 		try {
-			console.log(`[PingOneMfaService] Initiating challenge for device: ${deviceId}`);
+			logger.info(`[PingOneMfaService] Initiating challenge for device: ${deviceId}`);
 
 			const challengeResponse = await PingOneMfaService.sendChallenge(credentials, {
 				deviceId,
@@ -348,7 +348,7 @@ export class PingOneMfaService {
 					: undefined,
 			};
 
-			console.log(`[PingOneMfaService] Challenge initiated: ${result.challengeId}`);
+			logger.info(`[PingOneMfaService] Challenge initiated: ${result.challengeId}`);
 			return result;
 		} catch (error) {
 			logger.error('PingOneMfaService', 'Challenge initiation failed', undefined, error as Error);
@@ -367,7 +367,7 @@ export class PingOneMfaService {
 		_responseCode: string
 	): Promise<ValidationResult> {
 		try {
-			console.log(`[PingOneMfaService] Validating challenge: ${challengeId}`);
+			logger.info(`[PingOneMfaService] Validating challenge: ${challengeId}`);
 
 			// This would typically make an API call to PingOne to validate the challenge
 			// For now, implementing a mock validation that simulates real behavior
@@ -405,7 +405,7 @@ export class PingOneMfaService {
 				lockoutTime: validationData.lockoutTime ? new Date(validationData.lockoutTime) : undefined,
 			};
 
-			console.log(`[PingOneMfaService] Challenge validation result: ${result.valid}`);
+			logger.info(`[PingOneMfaService] Challenge validation result: ${result.valid}`);
 			return result;
 		} catch (error) {
 			logger.error('PingOneMfaService', 'Challenge validation failed', undefined, error as Error);
@@ -470,7 +470,7 @@ export class PingOneMfaService {
 
 			await PingOneMfaService.deleteDevice(credentials, deviceId);
 
-			console.log(`[PingOneMfaService] Device deleted: ${deviceId}`);
+			logger.info(`[PingOneMfaService] Device deleted: ${deviceId}`);
 			return { success: true };
 		} catch (error) {
 			logger.error('PingOneMfaService', 'Device deletion failed', undefined, error as Error);
@@ -718,11 +718,11 @@ export class PingOneMfaService {
 				period: 30,
 			};
 
-			console.log(`[PingOneMfaService] Generating QR code for TOTP device ${device.id}`);
+			logger.info(`[PingOneMfaService] Generating QR code for TOTP device ${device.id}`);
 
 			const qrResult = await QRCodeService.generateTOTPQRCode(totpConfig);
 
-			console.log(`[PingOneMfaService] QR code generated successfully for device ${device.id}`);
+			logger.info(`[PingOneMfaService] QR code generated successfully for device ${device.id}`);
 
 			return qrResult;
 		} catch (error) {
@@ -879,7 +879,7 @@ export class PingOneMfaService {
 				}
 			}
 
-			console.log(
+			logger.info(
 				`[PingOneMfaService] Generated setup data for ${device.type} device ${device.id}`
 			);
 
@@ -937,7 +937,7 @@ export class PingOneMfaService {
 				includeInstructions: true,
 			});
 
-			console.log(`[PingOneMfaService] Created TOTP device with QR code: ${device.id}`);
+			logger.info(`[PingOneMfaService] Created TOTP device with QR code: ${device.id}`);
 
 			return setupData;
 		} catch (error) {
@@ -972,7 +972,7 @@ export class PingOneMfaService {
 			const secret = device.secret || device.pairingKey || '';
 			const result = QRCodeService.validateTOTPCode(secret, code);
 
-			console.log(`[PingOneMfaService] TOTP validation for device ${device.id}: ${result.valid}`);
+			logger.info(`[PingOneMfaService] TOTP validation for device ${device.id}: ${result.valid}`);
 
 			return result;
 		} catch (error) {

@@ -13,6 +13,7 @@ import path from 'node:path';
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 CREDENTIALS-SQLITE-API]';
 
 // Database configuration
@@ -22,7 +23,7 @@ const DATA_DIR = path.dirname(DB_PATH);
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
 	fs.mkdirSync(DATA_DIR, { recursive: true });
-	console.log(`${MODULE_TAG} Created data directory: ${DATA_DIR}`);
+	logger.info(`${MODULE_TAG} Created data directory: ${DATA_DIR}`);
 }
 
 // Database connection pool
@@ -89,10 +90,10 @@ async function initializeDatabase() {
 			CREATE INDEX IF NOT EXISTS idx_interactions_timestamp ON user_interactions(timestamp);
 		`);
 
-		console.log(`${MODULE_TAG} Database initialized: ${DB_PATH}`);
+		logger.info(`${MODULE_TAG} Database initialized: ${DB_PATH}`);
 		return db;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Database initialization failed:`, error);
+		logger.error(`${MODULE_TAG} Database initialization failed:`, error);
 		throw error;
 	}
 }
@@ -107,7 +108,7 @@ function credentialsSqliteApi(app) {
 			await initializeDatabase();
 			res.status(200).json({ status: 'healthy', database: DB_PATH });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Health check failed:`, error);
+			logger.error(`${MODULE_TAG} Health check failed:`, error);
 			res.status(500).json({ error: 'Database unavailable' });
 		}
 	});
@@ -236,10 +237,10 @@ function credentialsSqliteApi(app) {
 				}
 			}
 
-			console.log(`${MODULE_TAG} Credentials saved: ${environmentId}`);
+			logger.info(`${MODULE_TAG} Credentials saved: ${environmentId}`);
 			res.json({ success: true, environmentId });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Save failed:`, error);
+			logger.error(`${MODULE_TAG} Save failed:`, error);
 			res.status(500).json({ error: 'Failed to save credentials' });
 		}
 	});
@@ -286,10 +287,10 @@ function credentialsSqliteApi(app) {
 				},
 			};
 
-			console.log(`${MODULE_TAG} Credentials loaded: ${environmentId}`);
+			logger.info(`${MODULE_TAG} Credentials loaded: ${environmentId}`);
 			res.json({ credentials });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Load failed:`, error);
+			logger.error(`${MODULE_TAG} Load failed:`, error);
 			res.status(500).json({ error: 'Failed to load credentials' });
 		}
 	});
@@ -323,10 +324,10 @@ function credentialsSqliteApi(app) {
 				},
 			}));
 
-			console.log(`${MODULE_TAG} Listed ${credentials.length} credentials`);
+			logger.info(`${MODULE_TAG} Listed ${credentials.length} credentials`);
 			res.json({ credentials });
 		} catch (error) {
-			console.error(`${MODULE_TAG} List failed:`, error);
+			logger.error(`${MODULE_TAG} List failed:`, error);
 			res.status(500).json({ error: 'Failed to list credentials' });
 		}
 	});
@@ -346,10 +347,10 @@ function credentialsSqliteApi(app) {
 			await db.run('DELETE FROM enhanced_credentials WHERE environment_id = ?', [environmentId]);
 			await db.run('DELETE FROM user_interactions WHERE environment_id = ?', [environmentId]);
 
-			console.log(`${MODULE_TAG} Credentials cleared: ${environmentId}`);
+			logger.info(`${MODULE_TAG} Credentials cleared: ${environmentId}`);
 			res.json({ success: true, environmentId });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Clear failed:`, error);
+			logger.error(`${MODULE_TAG} Clear failed:`, error);
 			res.status(500).json({ error: 'Failed to clear credentials' });
 		}
 	});
@@ -399,10 +400,10 @@ function credentialsSqliteApi(app) {
 
 			const analytics = await db.all(query, params);
 
-			console.log(`${MODULE_TAG} Analytics retrieved: ${analytics.length} records`);
+			logger.info(`${MODULE_TAG} Analytics retrieved: ${analytics.length} records`);
 			res.json({ analytics });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Analytics failed:`, error);
+			logger.error(`${MODULE_TAG} Analytics failed:`, error);
 			res.status(500).json({ error: 'Failed to get analytics' });
 		}
 	});
@@ -438,15 +439,15 @@ function credentialsSqliteApi(app) {
 				databaseSize: fs.statSync(DB_PATH).size,
 			};
 
-			console.log(`${MODULE_TAG} Stats retrieved`);
+			logger.info(`${MODULE_TAG} Stats retrieved`);
 			res.json({ stats: combinedStats });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Stats failed:`, error);
+			logger.error(`${MODULE_TAG} Stats failed:`, error);
 			res.status(500).json({ error: 'Failed to get stats' });
 		}
 	});
 
-	console.log(`${MODULE_TAG} API endpoints registered`);
+	logger.info(`${MODULE_TAG} API endpoints registered`);
 }
 
 /**
@@ -455,7 +456,7 @@ function credentialsSqliteApi(app) {
 async function shutdown() {
 	if (db) {
 		await db.close();
-		console.log(`${MODULE_TAG} Database connection closed`);
+		logger.info(`${MODULE_TAG} Database connection closed`);
 	}
 }
 

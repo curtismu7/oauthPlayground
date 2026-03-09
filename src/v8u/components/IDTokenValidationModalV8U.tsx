@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 
 export interface IDTokenValidationModalV8UProps {
@@ -38,7 +39,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	const [validationResult, setValidationResult] = useState<IDTokenValidationResult | null>(null);
 
 	const handleValidate = async () => {
-		console.log(`${MODULE_TAG} Starting ID token validation`);
+		logger.info(`${MODULE_TAG} Starting ID token validation`);
 		setIsValidating(true);
 		setValidationResult(null);
 
@@ -51,10 +52,10 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 				nonce,
 			});
 
-			console.log(`${MODULE_TAG} Validation complete`, { valid: result.valid });
+			logger.info(`${MODULE_TAG} Validation complete`, { valid: result.valid });
 			setValidationResult(result);
 		} catch (error) {
-			log.error('IDTokenValidationModalV8U', `Validation failed`, undefined, error);
+			logger.error('IDTokenValidationModalV8U', `Validation failed`, undefined, error);
 			setValidationResult({
 				valid: false,
 				errors: [`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`],

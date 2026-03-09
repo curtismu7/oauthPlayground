@@ -6,6 +6,7 @@ import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 
+import { logger } from '../../../utils/logger';
 interface FlowErrorWrapperProps {
 	children: React.ReactNode;
 	flowName?: string;
@@ -40,7 +41,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 	};
 
 	const handleRetry = () => {
-		console.log('Flow Error Wrapper: Retrying flow...');
+		logger.info('Flow Error Wrapper: Retrying flow...');
 
 		// Call the provided retry handler
 		if (onRetry) {
@@ -57,7 +58,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 	};
 
 	const handleReset = () => {
-		console.log('Flow Error Wrapper: Resetting flow...');
+		logger.info('Flow Error Wrapper: Resetting flow...');
 
 		// Call the provided reset handler
 		if (onReset) {

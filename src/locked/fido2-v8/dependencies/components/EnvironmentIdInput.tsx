@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
+import { logger } from '../../../utils/logger';
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
 	onEnvironmentIdChange?: (envId: string) => void;
@@ -451,7 +452,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					});
 				}
 			} catch (err) {
-				console.error('Failed to load saved OIDC discovery config:', err);
+				logger.error('Failed to load saved OIDC discovery config:', err);
 			}
 		}
 	}, []);
@@ -523,7 +524,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			console.error('Failed to copy issuer URL:', err);
+			logger.error('Failed to copy issuer URL:', err);
 		}
 	};
 
@@ -548,7 +549,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			// Reset saved state after 3 seconds
 			setTimeout(() => setIsSaved(false), 3000);
 		} catch (err) {
-			console.error('Failed to save OIDC discovery configuration:', err);
+			logger.error('Failed to save OIDC discovery configuration:', err);
 			setError('Failed to save configuration');
 		}
 	}, [discoveryResult, environmentId, selectedRegion, issuerUrl]);
@@ -582,7 +583,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				setIsApplying(false);
 			}, 3000);
 		} catch (err) {
-			console.error('Failed to save and apply OIDC discovery configuration:', err);
+			logger.error('Failed to save and apply OIDC discovery configuration:', err);
 			setError('Failed to save and apply configuration');
 			setIsApplying(false);
 		}
@@ -617,7 +618,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 	// Auto-discover when environment ID changes (debounced)
 	useEffect(() => {
-		console.log('[EnvironmentIdInput] Auto-discovery check:', {
+		logger.info('[EnvironmentIdInput] Auto-discovery check:', {
 			autoDiscover,
 			environmentId,
 			envIdLength: environmentId?.length,
@@ -627,9 +628,9 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 		// Trigger discovery if we have a valid environment ID, regardless of existing discovery result
 		if (autoDiscover && environmentId && environmentId.length > 10) {
-			console.log('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
+			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
 			const timeoutId = setTimeout(() => {
-				console.log(
+				logger.info(
 					'[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover'
 				);
 				handleDiscover();

@@ -7,20 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
 const log = {
 	info: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+		logger.info(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
 	},
 	error: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		log.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		logger.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
 	},
 	success: (message: string, ...args: any[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+		logger.info(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
 	},
 };
 
@@ -97,7 +98,7 @@ const validateIdToken = (idToken: string, expectedNonce: string): boolean => {
 	try {
 		const parts = idToken.split('.');
 		if (parts.length !== 3) {
-			log.error('Invalid ID token structure');
+			logger.error('Invalid ID token structure');
 			return false;
 		}
 
@@ -106,21 +107,21 @@ const validateIdToken = (idToken: string, expectedNonce: string): boolean => {
 
 		// Validate nonce
 		if (payload.nonce !== expectedNonce) {
-			log.error('Nonce mismatch', { expected: expectedNonce, received: payload.nonce });
+			logger.error('Nonce mismatch', { expected: expectedNonce, received: payload.nonce });
 			return false;
 		}
 
 		// Check expiration
 		const now = Math.floor(Date.now() / 1000);
 		if (payload.exp && payload.exp < now) {
-			log.error('ID token expired');
+			logger.error('ID token expired');
 			return false;
 		}
 
-		log.success('ID token validated successfully');
+		logger.success('ID token validated successfully');
 		return true;
 	} catch (err) {
-		log.error('ID token validation failed', err);
+		logger.error('ID token validation failed', err);
 		return false;
 	}
 };
@@ -134,7 +135,7 @@ const HybridCallback: React.FC = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				log.info('Processing hybrid flow callback');
+				logger.info('Processing hybrid flow callback');
 
 				// Parse fragment parameters (hybrid flow returns tokens in fragment)
 				const fragment = window.location.hash.substring(1);
@@ -156,7 +157,7 @@ const HybridCallback: React.FC = () => {
 				const scope = params.get('scope');
 				const state = params.get('state');
 
-				log.info('Callback parameters received', {
+				logger.info('Callback parameters received', {
 					hasCode: !!code,
 					hasIdToken: !!idToken,
 					hasAccessToken: !!accessToken,
@@ -169,7 +170,7 @@ const HybridCallback: React.FC = () => {
 					throw new Error('State mismatch - possible CSRF attack');
 				}
 
-				log.success('State validated successfully');
+				logger.success('State validated successfully');
 
 				// Validate ID token if present
 				if (idToken) {
@@ -197,7 +198,7 @@ const HybridCallback: React.FC = () => {
 				// Clear URL fragment for security
 				window.history.replaceState(null, '', window.location.pathname);
 
-				log.success('Callback processed successfully, redirecting to flow page');
+				logger.success('Callback processed successfully, redirecting to flow page');
 
 				setStatus('success');
 				setMessage('Authorization successful! Redirecting...');
@@ -212,7 +213,7 @@ const HybridCallback: React.FC = () => {
 					navigate('/flows/hybrid-v5');
 				}, 1500);
 			} catch (err: any) {
-				log.error('Callback processing failed', err);
+				logger.error('Callback processing failed', err);
 				setStatus('error');
 				setMessage('Authorization failed');
 				setErrorDetails(err.message || 'Unknown error occurred');

@@ -560,8 +560,8 @@ client_id=your_client_id&scope=openid profile`,
 			{
 				title: 'Device displays user code',
 				description: 'Device shows user-friendly code and verification URL',
-				code: `console.log('Go to:', verification_uri);
-console.log('Enter code:', user_code);`,
+				code: `logger.info('Go to:', verification_uri);
+logger.info('Enter code:', user_code);`,
 			},
 			{
 				title: 'User authenticates on separate device',

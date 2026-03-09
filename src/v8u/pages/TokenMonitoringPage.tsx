@@ -5,6 +5,7 @@ import TokenDisplayService from '../../services/tokenDisplayService';
 import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
+import { logger } from '../utils/logger';
 import {
 	type RevocationMethod,
 	type TokenInfo,
@@ -414,11 +415,11 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
-		log.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
+		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
 
 		// Debug: Log token details
 		initialTokens.forEach((token, index) => {
-			log.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
+			logger.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
 				id: token.id,
 				type: token.type,
 				status: token.status,
@@ -431,7 +432,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
-			log.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
+			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
 
 			try {
 				const tokenCount = newTokens.length;
@@ -442,24 +443,24 @@ export const TokenMonitoringPage: React.FC = () => {
 					featureCount,
 					lastApiCall: Date.now(),
 				});
-				log.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
+				logger.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
 			} catch (enhancedErr) {
-				log.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
+				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
 					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),
 				});
 			}
 		});
 
 		freshService.manualSyncWorkerToken().catch((err) => {
-			log.warn('[TokenMonitoringPage] Initial worker token sync failed', {
+			logger.warn('[TokenMonitoringPage] Initial worker token sync failed', {
 				error: err instanceof Error ? err.message : String(err),
 			});
 		});
 
 		setTimeout(() => {
-			log.debug('[TokenMonitoringPage] Attempting second worker token sync...');
+			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...');
 			freshService.manualSyncWorkerToken().catch((err) => {
-				log.warn('[TokenMonitoringPage] Second worker token sync failed', {
+				logger.warn('[TokenMonitoringPage] Second worker token sync failed', {
 					error: err instanceof Error ? err.message : String(err),
 				});
 			});
@@ -472,18 +473,18 @@ export const TokenMonitoringPage: React.FC = () => {
 					'../../services/unifiedWorkerTokenService'
 				);
 				const status = await unifiedWorkerTokenService.getStatus();
-				log.debug(
+				logger.debug(
 					'[TokenMonitoringPage] Direct worker token status check:',
 					status as unknown as Record<string, unknown>
 				);
 
 				const token = await unifiedWorkerTokenService.getToken();
-				log.debug('[TokenMonitoringPage] Direct worker token get result:', {
+				logger.debug('[TokenMonitoringPage] Direct worker token get result:', {
 					hasToken: !!token,
 					tokenLength: token?.length || 0,
 				} as Record<string, unknown>);
 			} catch (err) {
-				log.error(
+				logger.error(
 					'[TokenMonitoringPage] Direct worker token check failed:',
 					err as Record<string, unknown>
 				);
@@ -501,7 +502,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				const decoded = TokenDisplayService.decodeJWT(token.value);
 				if (decoded) {
 					nextDecoded[token.id] = decoded;
-					log.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
+					logger.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
 						tokenType: token.type,
 						tokenSource: token.source,
 						hasHeader: !!decoded.header,
@@ -509,7 +510,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 				}
 			} else {
-				log.debug(`[TokenMonitoringPage] Token ${token.id} is not a JWT`, {
+				logger.debug(`[TokenMonitoringPage] Token ${token.id} is not a JWT`, {
 					tokenType: token.type,
 					tokenSource: token.source,
 					tokenLength: token.value.length,
@@ -545,7 +546,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					log.error('Failed to refresh token:', {
+					logger.error('Failed to refresh token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to refresh token');
@@ -567,7 +568,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				const flowSource = localStorage.getItem('flow_source');
 
 				if (accessToken && tokenType) {
-					log.info('Found token in localStorage:', {
+					logger.info('Found token in localStorage:', {
 						tokenType,
 						flowSource,
 						tokenLength: accessToken.length,
@@ -575,7 +576,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessage(`Found ${tokenType} in localStorage`);
 					setMessageType('success');
 				} else {
-					log.info('No tokens found in localStorage');
+					logger.info('No tokens found in localStorage');
 					setMessage('No tokens found in localStorage');
 					setMessageType('info');
 				}
@@ -586,7 +587,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('info');
 				},
 				onError: (error) => {
-					log.error('Manual sync failed:', {
+					logger.error('Manual sync failed:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Manual sync failed');
@@ -619,7 +620,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					log.error('Failed to revoke token:', {
+					logger.error('Failed to revoke token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to revoke token');
@@ -645,7 +646,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					// Success handled in the main function
 				},
 				onError: (error) => {
-					log.error('Failed to copy token:', {
+					logger.error('Failed to copy token:', {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					setMessage('Failed to copy token');
@@ -745,11 +746,11 @@ export const TokenMonitoringPage: React.FC = () => {
 					)}
 					<ActionButton
 						onClick={() => {
-							log.debug('[TokenMonitoringPage] Manual refresh triggered');
+							logger.debug('[TokenMonitoringPage] Manual refresh triggered');
 							TokenMonitoringService.resetInstance();
 							const freshService = TokenMonitoringService.getInstance();
 							freshService.manualSyncWorkerToken().catch((err) => {
-								log.warn('[TokenMonitoringPage] Manual refresh failed', {
+								logger.warn('[TokenMonitoringPage] Manual refresh failed', {
 									error: err instanceof Error ? err.message : String(err),
 								});
 							});

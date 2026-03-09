@@ -1,4 +1,5 @@
 // src/v8/services/tokenDisplayServiceV8.ts
+import { logger } from '../../../../utils/logger';
 /**
  * @file tokenDisplayServiceV8.ts
  * @module v8/services
@@ -73,8 +74,8 @@ export class TokenDisplayServiceV8 {
 	 * @example
 	 * const decoded = TokenDisplayServiceV8.decodeJWT(token);
 	 * if (decoded) {
-	 *   console.log('Header:', decoded.header);
-	 *   console.log('Payload:', decoded.payload);
+	 *   logger.info('Header:', decoded.header);
+	 *   logger.info('Payload:', decoded.payload);
 	 * }
 	 */
 	public static decodeJWT(token: string): DecodedJWT | null {
@@ -91,7 +92,7 @@ export class TokenDisplayServiceV8 {
 			// Base64 URL decode payload
 			const payload = JSON.parse(TokenDisplayServiceV8.base64UrlDecode(parts[1]));
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return {
 				header,
@@ -99,7 +100,7 @@ export class TokenDisplayServiceV8 {
 				signature: parts[2],
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to decode JWT:`, error);
+			logger.error(`${MODULE_TAG} Failed to decode JWT:`, error);
 			return null;
 		}
 	}
@@ -143,11 +144,11 @@ export class TokenDisplayServiceV8 {
 		try {
 			await navigator.clipboard.writeText(text);
 			if (label) {
-				console.log(`${MODULE_TAG} Copied ${label} to clipboard`);
+				logger.info(`${MODULE_TAG} Copied ${label} to clipboard`);
 			}
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
+			logger.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
 
 			// Fallback for older browsers
 			try {
@@ -163,12 +164,12 @@ export class TokenDisplayServiceV8 {
 				document.body.removeChild(textArea);
 
 				if (successful && label) {
-					console.log(`${MODULE_TAG} Copied ${label} to clipboard (fallback method)`);
+					logger.info(`${MODULE_TAG} Copied ${label} to clipboard (fallback method)`);
 				}
 
 				return successful;
 			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
+				logger.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
 				return false;
 			}
 		}

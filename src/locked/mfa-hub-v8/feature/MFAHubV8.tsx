@@ -35,6 +35,7 @@ import WorkerTokenStatusServiceV8 from '../dependencies/v8/services/workerTokenS
 import { toastV8 } from '../dependencies/v8/utils/toastNotificationsV8.ts';
 import { handleShowWorkerTokenModal } from '../dependencies/v8/utils/workerTokenModalHelperV8.ts';
 
+import { logger } from '../../utils/logger';
 interface FeatureCard {
 	title: string;
 	description: string;
@@ -168,7 +169,7 @@ export const MFAHubV8: React.FC = () => {
 		if (value) {
 			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			if (!currentStatus.isValid) {
-				console.log('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
+				logger.info('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
 				await handleShowWorkerTokenModal(
 					setShowWorkerTokenModal,
 					setTokenStatus,
@@ -243,16 +244,16 @@ export const MFAHubV8: React.FC = () => {
 					});
 
 					if (logoutResult.success) {
-						console.log('[MFA-HUB-V8] PingOne session logout initiated:', logoutResult.message);
+						logger.info('[MFA-HUB-V8] PingOne session logout initiated:', logoutResult.message);
 						toastV8.info('PingOne session logout initiated in a new tab');
 					} else {
-						console.warn('[MFA-HUB-V8] PingOne logout failed:', logoutResult.error);
+						logger.warn('[MFA-HUB-V8] PingOne logout failed:', logoutResult.error);
 					}
 				} catch (error) {
-					console.warn('[MFA-HUB-V8] Could not end PingOne session:', error);
+					logger.warn('[MFA-HUB-V8] Could not end PingOne session:', error);
 				}
 			} else {
-				console.log('[MFA-HUB-V8] No ID token or environment ID available for PingOne logout', {
+				logger.info('[MFA-HUB-V8] No ID token or environment ID available for PingOne logout', {
 					hasIdToken: !!idToken,
 					hasEnvironmentId: !!environmentId,
 				});
@@ -261,22 +262,22 @@ export const MFAHubV8: React.FC = () => {
 			// Call auth context logout to clear local session state
 			try {
 				authContext.logout();
-				console.log('[MFA-HUB-V8] Auth context logout called');
+				logger.info('[MFA-HUB-V8] Auth context logout called');
 			} catch (error) {
-				console.warn('[MFA-HUB-V8] Could not call auth context logout:', error);
+				logger.warn('[MFA-HUB-V8] Could not call auth context logout:', error);
 			}
 
 			// Clear worker token
 			await workerTokenServiceV8.clearCredentials();
-			console.log('[MFA-HUB-V8] Worker token cleared');
+			logger.info('[MFA-HUB-V8] Worker token cleared');
 
 			// Clear OAuth tokens from auth context
 			try {
 				oauthStorage.clearTokens();
 				oauthStorage.clearUserInfo();
-				console.log('[MFA-HUB-V8] OAuth tokens cleared from auth context');
+				logger.info('[MFA-HUB-V8] OAuth tokens cleared from auth context');
 			} catch (error) {
-				console.warn('[MFA-HUB-V8] Could not clear OAuth tokens:', error);
+				logger.warn('[MFA-HUB-V8] Could not clear OAuth tokens:', error);
 			}
 
 			// Clear user tokens from MFA flow credentials
@@ -297,10 +298,10 @@ export const MFAHubV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					});
-					console.log('[MFA-HUB-V8] User token cleared from MFA flow credentials');
+					logger.info('[MFA-HUB-V8] User token cleared from MFA flow credentials');
 				}
 			} catch (error) {
-				console.warn('[MFA-HUB-V8] Could not clear user token from credentials:', error);
+				logger.warn('[MFA-HUB-V8] Could not clear user token from credentials:', error);
 			}
 
 			// Clear user login credentials
@@ -321,15 +322,15 @@ export const MFAHubV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					});
-					console.log('[MFA-HUB-V8] User token cleared from user login credentials');
+					logger.info('[MFA-HUB-V8] User token cleared from user login credentials');
 				}
 			} catch (error) {
-				console.warn('[MFA-HUB-V8] Could not clear user token from user login credentials:', error);
+				logger.warn('[MFA-HUB-V8] Could not clear user token from user login credentials:', error);
 			}
 
 			toastV8.success('All tokens cleared successfully!');
 		} catch (error) {
-			console.error('[MFA-HUB-V8] Failed to clear tokens:', error);
+			logger.error('[MFA-HUB-V8] Failed to clear tokens:', error);
 			toastV8.error('Failed to clear tokens. Please try again.');
 		} finally {
 			setIsClearingTokens(false);
@@ -447,7 +448,7 @@ export const MFAHubV8: React.FC = () => {
 										'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
 									);
 								} catch (error) {
-									console.error('Error generating MFA Postman collection:', error);
+									logger.error('Error generating MFA Postman collection:', error);
 									toastV8.error('Failed to generate Postman collection. Please try again.');
 								}
 							}}
@@ -530,7 +531,7 @@ export const MFAHubV8: React.FC = () => {
 										'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
 									);
 								} catch (error) {
-									console.error('Error generating complete Postman collection:', error);
+									logger.error('Error generating complete Postman collection:', error);
 									toastV8.error(
 										'Failed to generate complete Postman collection. Please try again.'
 									);

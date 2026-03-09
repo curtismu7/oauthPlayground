@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import type { UseWorkerTokenReturn } from '@/v8/hooks/useWorkerToken';
 
+import { logger } from '../../utils/logger';
 export interface WorkerTokenSectionProps {
 	/** Worker token hook return value */
 	workerToken: UseWorkerTokenReturn;
@@ -179,7 +180,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									checked={workerToken.silentApiRetrieval}
 									onChange={(e) => {
 										workerToken.setSilentApiRetrieval(e.target.checked);
-										console.log(
+										logger.info(
 											`${MODULE_TAG} Silent API retrieval ${e.target.checked ? 'enabled' : 'disabled'}`
 										);
 									}}
@@ -207,7 +208,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									checked={workerToken.showTokenAtEnd}
 									onChange={(e) => {
 										workerToken.setShowTokenAtEnd(e.target.checked);
-										console.log(
+										logger.info(
 											`${MODULE_TAG} Show token at end ${e.target.checked ? 'enabled' : 'disabled'}`
 										);
 									}}

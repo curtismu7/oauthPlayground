@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // Token source tracking utility
 export interface TokenSource {
 	source:
@@ -44,7 +45,7 @@ class TokenSourceTracker {
 
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
 
-			console.log(' [TokenSourceTracker] Stored token source:', source.source, source.description);
+			logger.info(' [TokenSourceTracker] Stored token source:', source.source, source.description);
 		} catch (error) {
 			logger.error('TokenSourceTracker', 'Error storing token source:', undefined, error as Error);
 		}
@@ -77,7 +78,7 @@ class TokenSourceTracker {
 	clearTokenSources(): void {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
-			console.log(' [TokenSourceTracker] Cleared all token sources');
+			logger.info(' [TokenSourceTracker] Cleared all token sources');
 		} catch (error) {
 			logger.error(
 				'TokenSourceTracker',

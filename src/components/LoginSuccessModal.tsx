@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface LoginSuccessModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -140,7 +141,7 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 	autoCloseDelay = 3000,
 }) => {
 	const handleClose = () => {
-		console.log('🔴 [LoginSuccessModal] Close button clicked');
+		logger.info('🔴 [LoginSuccessModal] Close button clicked');
 		onClose();
 	};
 	// Auto-close after delay
@@ -171,7 +172,7 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 	// Close on overlay click
 	const handleOverlayClick = (event: React.MouseEvent) => {
 		if (event.target === event.currentTarget) {
-			console.log('🔴 [LoginSuccessModal] Overlay clicked');
+			logger.info('🔴 [LoginSuccessModal] Overlay clicked');
 			onClose();
 		}
 	};

@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '../../../dependencies/v8/utils/analyticsLoggerV8.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 
 export const CallbackHandlerV8U: React.FC = () => {
@@ -31,7 +32,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			currentPath === '/user-mfa-login-callback' ||
 			currentPath.includes('user-mfa-login-callback');
 
-		console.log(`${MODULE_TAG} Checking callback path:`, {
+		logger.info(`${MODULE_TAG} Checking callback path:`, {
 			currentPath,
 			isUserLoginCallback,
 			searchParams: window.location.search,
@@ -54,15 +55,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 			});
 			// #endregion
 
-			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current pathname:`, window.location.pathname);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current search:`, window.location.search);
+			logger.info(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Current pathname:`, window.location.pathname);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Current search:`, window.location.search);
 
 			// DEBUG: Log all sessionStorage keys to help diagnose cache issues
 			const allKeys = Object.keys(sessionStorage);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Checking for user_login_return_to_mfa...`);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Checking for user_login_return_to_mfa...`);
 
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
@@ -79,16 +80,16 @@ export const CallbackHandlerV8U: React.FC = () => {
 			});
 			// #endregion
 
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
+			logger.info(`${MODULE_TAG} 🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
 
 			// DEBUG: Check for other related keys
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔍 DEBUG: user_login_state_v8:`,
 				sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING'
 			);
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔍 DEBUG: user_login_redirect_uri_v8:`,
 				sessionStorage.getItem('user_login_redirect_uri_v8')
 			);
@@ -97,11 +98,11 @@ export const CallbackHandlerV8U: React.FC = () => {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
 					const mfaPath = returnToMfaFlow.trim();
-					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
+					logger.info(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
 
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						console.error(
+						logger.error(
 							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
 						);
 						throw new Error(`Invalid return path: ${mfaPath}`);
@@ -120,8 +121,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 					// Use absolute URL to ensure redirect works reliably
 					const redirectUrl = `${window.location.origin}${redirectPath}`;
 
-					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
-					console.log(
+					logger.info(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
+					logger.info(
 						`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`
 					);
 
@@ -172,36 +173,36 @@ export const CallbackHandlerV8U: React.FC = () => {
 							hypothesisId: 'B',
 						});
 						// #endregion
-						console.error(
+						logger.error(
 							`${MODULE_TAG} ❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`
 						);
 					}, 100);
 
 					return; // CRITICAL: Exit early to prevent unified flow logic
 				} catch (error) {
-					console.error(`${MODULE_TAG} ❌ Failed to process return path:`, error);
-					console.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
+					logger.error(`${MODULE_TAG} ❌ Failed to process return path:`, error);
+					logger.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
 					// Fall through to MFA hub redirect
 				}
 			}
 
 			// If no return path, redirect to MFA hub as fallback
-			console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
-			console.warn(
+			logger.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
+			logger.warn(
 				`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
 			);
-			console.warn(`${MODULE_TAG} ⚠️ Redirecting to MFA hub as fallback`);
+			logger.warn(`${MODULE_TAG} ⚠️ Redirecting to MFA hub as fallback`);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = callbackParams.toString()
 				? `/v8/mfa-hub?${callbackParams.toString()}`
 				: '/v8/mfa-hub';
-			console.log(`${MODULE_TAG} 🚀 Redirecting to MFA hub: ${redirectUrl}`);
+			logger.info(`${MODULE_TAG} 🚀 Redirecting to MFA hub: ${redirectUrl}`);
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
 
 		// If we reach here, this is NOT a user-login-callback, continue with unified flow logic
-		console.log(`${MODULE_TAG} Not a user-login-callback, proceeding with unified flow logic`);
+		logger.info(`${MODULE_TAG} Not a user-login-callback, proceeding with unified flow logic`);
 
 		// Check for both query parameters (authorization code flow) and fragment (implicit/hybrid flow)
 		const fragment = window.location.hash.substring(1);
@@ -219,7 +220,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		const errorDescription =
 			fragmentParams?.get('error_description') || searchParams.get('error_description');
 
-		console.log(`${MODULE_TAG} Callback received`, {
+		logger.info(`${MODULE_TAG} Callback received`, {
 			url: window.location.href,
 			hasCode: searchParams.has('code'),
 			hasState: searchParams.has('state'),
@@ -237,13 +238,13 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		// CRITICAL: Check if we got a code when we expected tokens in fragment (implicit flow)
 		if (code && state && state.includes('v8u-implicit')) {
-			console.error(
+			logger.error(
 				`${MODULE_TAG} ❌ CONFIGURATION ERROR: Received authorization code for Implicit flow!`
 			);
-			console.error(
+			logger.error(
 				`${MODULE_TAG} This means your PingOne application is not configured for Implicit flow.`
 			);
-			console.error(
+			logger.error(
 				`${MODULE_TAG} Please enable Implicit grant type in your PingOne application settings.`
 			);
 		}
@@ -253,7 +254,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		let flowType = 'oauth-authz'; // Default
 		let detectedStep = 3; // Default to step 3 (callback handling)
 
-		console.log(`${MODULE_TAG} 🔍 Analyzing state parameter`, {
+		logger.info(`${MODULE_TAG} 🔍 Analyzing state parameter`, {
 			state,
 			stateLength: state?.length,
 			startsWithV8u: state?.startsWith('v8u-'),
@@ -262,8 +263,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		if (state?.startsWith('v8u-')) {
 			const parts = state.split('-');
-			console.log(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
-			console.log(
+			logger.info(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
+			logger.info(
 				`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`
 			);
 
@@ -287,7 +288,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					const twoPartFlowType = `${parts[1]}-${parts[2]}`;
 					if (knownFlowTypes.includes(twoPartFlowType)) {
 						detectedFlowType = twoPartFlowType;
-						console.log(`${MODULE_TAG} 🔍 Detected two-part flow type: "${detectedFlowType}"`);
+						logger.info(`${MODULE_TAG} 🔍 Detected two-part flow type: "${detectedFlowType}"`);
 					}
 				}
 
@@ -296,15 +297,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 					const singlePartFlowType = parts[1];
 					if (knownFlowTypes.includes(singlePartFlowType)) {
 						detectedFlowType = singlePartFlowType;
-						console.log(`${MODULE_TAG} 🔍 Detected single-part flow type: "${detectedFlowType}"`);
+						logger.info(`${MODULE_TAG} 🔍 Detected single-part flow type: "${detectedFlowType}"`);
 					}
 				}
 
 				if (detectedFlowType) {
 					flowType = detectedFlowType;
-					console.log(`${MODULE_TAG} ✅ Using detected flow type: "${flowType}"`);
+					logger.info(`${MODULE_TAG} ✅ Using detected flow type: "${flowType}"`);
 				} else {
-					console.warn(`${MODULE_TAG} ⚠️ Unknown flow type in state, using default:`, {
+					logger.warn(`${MODULE_TAG} ⚠️ Unknown flow type in state, using default:`, {
 						parts,
 						detectedFlowType,
 						defaultFlowType: flowType,
@@ -313,7 +314,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				}
 			}
 		} else {
-			console.warn(`${MODULE_TAG} ⚠️ No v8u state prefix found, using default flow type:`, {
+			logger.warn(`${MODULE_TAG} ⚠️ No v8u state prefix found, using default flow type:`, {
 				state,
 				stateIsNull: state === null,
 				stateIsUndefined: state === undefined,
@@ -325,17 +326,17 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// For implicit flow, tokens come in fragment, so redirect to step 2 (parse fragment)
 		// For hybrid flow, both code and tokens come, so redirect to step 3 (parse callback)
 		if (hasFragment) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔍 Fragment detected, determining step based on flow type "${flowType}"`
 			);
 			if (flowType === 'implicit') {
 				detectedStep = 2; // Parse fragment step for implicit
-				console.log(`${MODULE_TAG} ✅ Implicit flow - will redirect to step 2 (parse fragment)`);
+				logger.info(`${MODULE_TAG} ✅ Implicit flow - will redirect to step 2 (parse fragment)`);
 			} else if (flowType === 'hybrid') {
 				detectedStep = 3; // Parse callback step for hybrid
-				console.log(`${MODULE_TAG} ✅ Hybrid flow - will redirect to step 3 (parse callback)`);
+				logger.info(`${MODULE_TAG} ✅ Hybrid flow - will redirect to step 3 (parse callback)`);
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ Has fragment but flow type is "${flowType}" (not implicit or hybrid)`
 				);
 			}
@@ -357,30 +358,30 @@ export const CallbackHandlerV8U: React.FC = () => {
 		};
 
 		sessionStorage.setItem('v8u_callback_data', JSON.stringify(callbackData));
-		console.log(`${MODULE_TAG} Stored callback data in sessionStorage`, callbackData);
+		logger.info(`${MODULE_TAG} Stored callback data in sessionStorage`, callbackData);
 
 		// Redirect back to the flow at the appropriate step
 		// CRITICAL: For implicit/hybrid flows, preserve the fragment (hash) in the URL
 		const redirectPath = `/v8u/unified/${flowType}/${detectedStep}`;
 		const redirectUrl = hasFragment ? `${redirectPath}${window.location.hash}` : redirectPath;
 
-		console.log(`${MODULE_TAG} 🚀 ========== REDIRECTING TO FLOW ==========`);
-		console.log(`${MODULE_TAG} 🚀 Flow Type: "${flowType}"`);
-		console.log(`${MODULE_TAG} 🚀 Step: ${detectedStep}`);
-		console.log(`${MODULE_TAG} 🚀 Redirect Path: ${redirectPath}`);
-		console.log(`${MODULE_TAG} 🚀 Redirect URL: ${redirectUrl}`);
-		console.log(`${MODULE_TAG} 🚀 Has Fragment: ${hasFragment}`);
-		console.log(`${MODULE_TAG} 🚀 Will Preserve Fragment: ${hasFragment}`);
-		console.log(`${MODULE_TAG} 🚀 State Used for Detection: "${state}"`);
-		console.log(`${MODULE_TAG} 🚀 ========================================`);
+		logger.info(`${MODULE_TAG} 🚀 ========== REDIRECTING TO FLOW ==========`);
+		logger.info(`${MODULE_TAG} 🚀 Flow Type: "${flowType}"`);
+		logger.info(`${MODULE_TAG} 🚀 Step: ${detectedStep}`);
+		logger.info(`${MODULE_TAG} 🚀 Redirect Path: ${redirectPath}`);
+		logger.info(`${MODULE_TAG} 🚀 Redirect URL: ${redirectUrl}`);
+		logger.info(`${MODULE_TAG} 🚀 Has Fragment: ${hasFragment}`);
+		logger.info(`${MODULE_TAG} 🚀 Will Preserve Fragment: ${hasFragment}`);
+		logger.info(`${MODULE_TAG} 🚀 State Used for Detection: "${state}"`);
+		logger.info(`${MODULE_TAG} 🚀 ========================================`);
 
 		// Use window.location.replace to preserve the fragment
 		// React Router's navigate() doesn't preserve fragments reliably
 		if (hasFragment) {
-			console.log(`${MODULE_TAG} 🚀 Using window.location.replace() to preserve fragment`);
+			logger.info(`${MODULE_TAG} 🚀 Using window.location.replace() to preserve fragment`);
 			window.location.replace(redirectUrl);
 		} else {
-			console.log(`${MODULE_TAG} 🚀 Using React Router navigate()`);
+			logger.info(`${MODULE_TAG} 🚀 Using React Router navigate()`);
 			navigate(redirectPath, { replace: true });
 		}
 	}, [searchParams, navigate]);

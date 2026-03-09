@@ -3,9 +3,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { showGlobalInfo } from '../contexts/NotificationSystem';
 import FlowContextService from '../services/flowContextService';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -73,7 +75,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 			const state = urlParams.get('state');
 
 			if (code && state) {
-				console.log('OAuth callback detected, handling with RedirectStateManager...');
+				logger.info('OAuth callback detected, handling with RedirectStateManager...');
 
 				const callbackData = {
 					code,
@@ -144,7 +146,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 	const handleStep2Complete = useCallback(() => {
 		// Step 2: Simulate OAuth redirect (in real app, this would redirect to PingOne)
-		console.log('In a real app, this would redirect to:', authUrl);
+		logger.info('In a real app, this would redirect to:', authUrl);
 
 		// For demo purposes, simulate the callback
 		setTimeout(() => {
@@ -183,7 +185,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 			RedirectStateManager.preserveFlowState(flowId, updatedFlowState);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'OAuthFlowWithRedirectStateManager',
 				'Token exchange failed:',
 				undefined,

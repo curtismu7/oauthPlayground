@@ -12,6 +12,7 @@ import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -284,7 +285,7 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 				workerTokenEnvId = data.credentials?.environmentId || '';
 			}
 		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
+			logger.info('Failed to load environment ID from worker token:', error);
 		}
 
 		return {
@@ -317,7 +318,7 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 					}
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -339,7 +340,7 @@ const revocationConfig = {
   revocationReason: '${formData.revocationReason}'
 };
 
-console.log('Token revocation configured:', revocationConfig);`,
+logger.info('Token revocation configured:', revocationConfig);`,
 			execute: async () => {
 				logger.info('TokenRevocationFlow', 'Configuring token revocation settings');
 			},
@@ -374,7 +375,7 @@ const results = await Promise.allSettled(revocationPromises);
 const successful = results.filter(result => result.status === 'fulfilled').length;
 const failed = results.filter(result => result.status === 'rejected').length;
 
-console.log(\`Bulk revocation completed: \${successful} successful, \${failed} failed\`);`
+logger.info(\`Bulk revocation completed: \${successful} successful, \${failed} failed\`);`
 					: `// Single Token Revocation
 const revocationRequest: TokenRevocationRequest = {
   token: '${formData.tokenToRevoke}',
@@ -388,9 +389,9 @@ const tokenService = new TokenManagementService('${formData.environmentId}');
 const revoked = await tokenService.revokeToken(revocationRequest);
 
 if (revoked) {
-  console.log('Token revoked successfully');
+  logger.info('Token revoked successfully');
 } else {
-  console.log('Token revocation failed');
+  logger.info('Token revocation failed');
 }`,
 			execute: async () => {
 				logger.info('TokenRevocationFlow', 'Revoking token(s)', {
@@ -467,14 +468,14 @@ const verifyRevocation = async (token) => {
     });
     
     if (response.status === 401) {
-      console.log(' Token is revoked (401 Unauthorized)');
+      logger.info(' Token is revoked (401 Unauthorized)');
       return { revoked: true, reason: 'Token rejected by server' };
     } else if (response.ok) {
-      console.log(' Token is still valid');
+      logger.info(' Token is still valid');
       return { revoked: false, reason: 'Token accepted by server' };
     }
   } catch (error) {
-    console.log(' Token is revoked (Network error)');
+    logger.info(' Token is revoked (Network error)');
     return { revoked: true, reason: 'Token rejected by server' };
   }
 };
@@ -486,10 +487,10 @@ if (revocationResult.type === 'bulk') {
     .map(r => verifyRevocation(r.token));
   
   const verifications = await Promise.all(verificationPromises);
-  console.log('Bulk verification results:', verifications);
+  logger.info('Bulk verification results:', verifications);
 } else {
   const verification = await verifyRevocation(revocationResult.token);
-  console.log('Single verification result:', verification);
+  logger.info('Single verification result:', verification);
 }`,
 			execute: async () => {
 				logger.info('TokenRevocationFlow', 'Verifying token revocation');
@@ -526,7 +527,7 @@ const cleanupAfterRevocation = (revocationResult) => {
       delete storedTokens.refresh_token;
     }
     localStorage.setItem('oauth_tokens', JSON.stringify(storedTokens));
-    console.log('Single token removed from local storage');
+    logger.info('Single token removed from local storage');
   } else {
     // Remove multiple tokens from local storage
     const tokensToRemove = revocationResult.results
@@ -543,7 +544,7 @@ const cleanupAfterRevocation = (revocationResult) => {
       }
     });
     localStorage.setItem('oauth_tokens', JSON.stringify(storedTokens));
-    console.log(\`\${tokensToRemove.length} tokens removed from local storage\`);
+    logger.info(\`\${tokensToRemove.length} tokens removed from local storage\`);
   }
   
   // Clear any cached user data
@@ -553,7 +554,7 @@ const cleanupAfterRevocation = (revocationResult) => {
   // Redirect to login if no valid tokens remain
   const remainingTokens = JSON.parse(localStorage.getItem('oauth_tokens') || '{}');
   if (!remainingTokens.access_token && !remainingTokens.refresh_token) {
-    console.log('No valid tokens remaining, redirecting to login');
+    logger.info('No valid tokens remaining, redirecting to login');
     // window.location.href = '/login';
   }
 };
@@ -921,7 +922,7 @@ cleanupAfterRevocation(revocationResult);`,
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={(token) => {
 					// Handle token generation if needed
-					console.log('Worker token generated:', token);
+					logger.info('Worker token generated:', token);
 				}}
 			/>
 		</FlowContainer>

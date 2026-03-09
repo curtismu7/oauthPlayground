@@ -14,6 +14,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
@@ -40,7 +41,7 @@ interface Device {
 }
 
 export const MFADeviceOrderingFlowV8: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing device ordering flow`);
+	logger.info(`${MODULE_TAG} Initializing device ordering flow`);
 
 	usePageScroll({ pageName: 'MFA Device Ordering V8', force: true });
 
@@ -57,7 +58,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		const environmentId = stored.environmentId || globalEnvId || '';
 
-		console.log(`${MODULE_TAG} Loading credentials`, {
+		logger.info(`${MODULE_TAG} Loading credentials`, {
 			flowSpecificEnvId: stored.environmentId,
 			globalEnvId,
 			usingEnvId: environmentId,
@@ -152,7 +153,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log(`${MODULE_TAG} Environment ID saved globally`, {
+			logger.info(`${MODULE_TAG} Environment ID saved globally`, {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -257,7 +258,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load devices`, error);
+			logger.error(`${MODULE_TAG} Failed to load devices`, error);
 			setLoadError(error instanceof Error ? error.message : 'Failed to load devices from PingOne');
 			modernMessaging.showBanner({
 				type: 'error',
@@ -271,14 +272,14 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 	};
 
 	const handleDragEnd = (result: DropResult) => {
-		console.log(`${MODULE_TAG} Drag ended:`, {
+		logger.info(`${MODULE_TAG} Drag ended:`, {
 			source: result.source,
 			destination: result.destination,
 			draggableId: result.draggableId,
 		});
 
 		if (filtersActive) {
-			console.log(`${MODULE_TAG} Drag attempt ignored because filters are active`, {
+			logger.info(`${MODULE_TAG} Drag attempt ignored because filters are active`, {
 				typeFilter,
 				statusFilter,
 			});
@@ -291,12 +292,12 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		}
 
 		if (!result.destination) {
-			console.log(`${MODULE_TAG} Drag cancelled - no destination`);
+			logger.info(`${MODULE_TAG} Drag cancelled - no destination`);
 			return;
 		}
 
 		if (result.destination.index === result.source.index) {
-			console.log(`${MODULE_TAG} Drag ended at same position - no change`);
+			logger.info(`${MODULE_TAG} Drag ended at same position - no change`);
 			return;
 		}
 
@@ -304,7 +305,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		const [reordered] = items.splice(result.source.index, 1);
 		items.splice(result.destination.index, 0, reordered);
 
-		console.log(`${MODULE_TAG} Reordered devices:`, {
+		logger.info(`${MODULE_TAG} Reordered devices:`, {
 			from: result.source.index,
 			to: result.destination.index,
 			newOrder: items.map((d, i) => ({ index: i, id: d.id, type: d.type })),
@@ -382,7 +383,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				throw new Error('No valid device IDs found');
 			}
 
-			console.log(`${MODULE_TAG} Setting device order:`, {
+			logger.info(`${MODULE_TAG} Setting device order:`, {
 				userId: user.id,
 				deviceCount: deviceIds.length,
 				deviceIds: deviceIds.slice(0, 3), // Log first 3 for debugging
@@ -399,7 +400,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to set default device:`, error);
+			logger.error(`${MODULE_TAG} Failed to set default device:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -445,13 +446,13 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 			}
 
 			if (deviceIds.length !== devices.length) {
-				console.warn(`${MODULE_TAG} Some devices have invalid IDs:`, {
+				logger.warn(`${MODULE_TAG} Some devices have invalid IDs:`, {
 					totalDevices: devices.length,
 					validDeviceIds: deviceIds.length,
 				});
 			}
 
-			console.log(`${MODULE_TAG} Saving device order:`, {
+			logger.info(`${MODULE_TAG} Saving device order:`, {
 				userId: user.id,
 				deviceCount: deviceIds.length,
 				deviceIds: deviceIds.slice(0, 3), // Log first 3 for debugging
@@ -468,7 +469,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save device order`, error);
+			logger.error(`${MODULE_TAG} Failed to save device order`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -503,7 +504,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to remove device order`, error);
+			logger.error(`${MODULE_TAG} Failed to remove device order`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -682,7 +683,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 												const currentStatus =
 													WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 												if (!currentStatus.isValid) {
-													console.log(
+													logger.info(
 														'[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 													);
 													const { handleShowWorkerTokenModal } = await import(
@@ -1025,10 +1026,10 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 									}
 								}}
 								onDragStart={() => {
-									console.log(`${MODULE_TAG} Drag started`);
+									logger.info(`${MODULE_TAG} Drag started`);
 								}}
 								onDragUpdate={(update) => {
-									console.log(`${MODULE_TAG} Drag update:`, update);
+									logger.info(`${MODULE_TAG} Drag update:`, update);
 								}}
 							>
 								<Droppable droppableId="order-devices">

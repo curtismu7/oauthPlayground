@@ -3,6 +3,7 @@
 
 import { flowTestSuite } from './flowTestSuite';
 
+import { logger } from '../utils/logger';
 export interface PreCommitConfig {
 	enableAutomatedTesting: boolean;
 	enableLinting: boolean;
@@ -54,7 +55,7 @@ export class PreCommitSafeguards {
 	 * Run all pre-commit checks
 	 */
 	async runPreCommitChecks(): Promise<PreCommitResult> {
-		console.log('[Pre-Commit Safeguards] Running pre-commit checks...');
+		logger.info('[Pre-Commit Safeguards] Running pre-commit checks...');
 
 		const checks: Array<{
 			name: string;
@@ -141,13 +142,13 @@ export class PreCommitSafeguards {
 			timestamp: Date.now(),
 		};
 
-		console.log('[Pre-Commit Safeguards] Pre-commit checks completed:', this.results.summary);
+		logger.info('[Pre-Commit Safeguards] Pre-commit checks completed:', this.results.summary);
 
 		if (!this.results.passed) {
-			console.error('[Pre-Commit Safeguards] ❌ Pre-commit checks failed!');
+			logger.error('[Pre-Commit Safeguards] ❌ Pre-commit checks failed!');
 			this.logFailureDetails();
 		} else {
-			console.log('[Pre-Commit Safeguards] ✅ All pre-commit checks passed!');
+			logger.info('[Pre-Commit Safeguards] ✅ All pre-commit checks passed!');
 		}
 
 		return this.results;
@@ -168,7 +169,7 @@ export class PreCommitSafeguards {
 		try {
 			// In a real implementation, this would run ESLint
 			// For now, we'll simulate the check
-			console.log('[Pre-Commit Safeguards] Running linting check...');
+			logger.info('[Pre-Commit Safeguards] Running linting check...');
 
 			// Simulate linting process
 			await new Promise((resolve) => setTimeout(resolve, 100));
@@ -215,7 +216,7 @@ export class PreCommitSafeguards {
 		const name = 'Type Checking';
 
 		try {
-			console.log('[Pre-Commit Safeguards] Running type checking...');
+			logger.info('[Pre-Commit Safeguards] Running type checking...');
 
 			// Simulate type checking process
 			await new Promise((resolve) => setTimeout(resolve, 200));
@@ -262,7 +263,7 @@ export class PreCommitSafeguards {
 		const name = 'Flow Validation';
 
 		try {
-			console.log('[Pre-Commit Safeguards] Running flow validation...');
+			logger.info('[Pre-Commit Safeguards] Running flow validation...');
 
 			// Run flow test suite
 			const testResults = await flowTestSuite.runTestSuite();
@@ -307,7 +308,7 @@ export class PreCommitSafeguards {
 		const name = 'Automated Tests';
 
 		try {
-			console.log('[Pre-Commit Safeguards] Running automated tests...');
+			logger.info('[Pre-Commit Safeguards] Running automated tests...');
 
 			// Run critical flow tests
 			const criticalFlowResults = await Promise.all(
@@ -369,22 +370,22 @@ export class PreCommitSafeguards {
 	private logFailureDetails(): void {
 		if (!this.results) return;
 
-		console.error('\n[Pre-Commit Safeguards] Failure Details:');
-		console.error('=====================================');
+		logger.error('\n[Pre-Commit Safeguards] Failure Details:');
+		logger.error('=====================================');
 
 		this.results.checks.forEach((check) => {
 			if (!check.passed) {
-				console.error(`❌ ${check.name}: ${check.error || 'Failed'}`);
+				logger.error(`❌ ${check.name}: ${check.error || 'Failed'}`);
 			} else {
-				console.log(`✅ ${check.name}: Passed`);
+				logger.info(`✅ ${check.name}: Passed`);
 			}
 		});
 
-		console.error('\n[Pre-Commit Safeguards] Summary:');
-		console.error(`Total Checks: ${this.results.summary.totalChecks}`);
-		console.error(`Passed: ${this.results.summary.passedChecks}`);
-		console.error(`Failed: ${this.results.summary.failedChecks}`);
-		console.error(`Critical Failures: ${this.results.summary.criticalFailures}`);
+		logger.error('\n[Pre-Commit Safeguards] Summary:');
+		logger.error(`Total Checks: ${this.results.summary.totalChecks}`);
+		logger.error(`Passed: ${this.results.summary.passedChecks}`);
+		logger.error(`Failed: ${this.results.summary.failedChecks}`);
+		logger.error(`Critical Failures: ${this.results.summary.criticalFailures}`);
 	}
 
 	/**

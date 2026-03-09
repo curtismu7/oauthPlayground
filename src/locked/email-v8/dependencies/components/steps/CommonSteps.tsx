@@ -8,6 +8,7 @@ import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
 
+import { logger } from '../../../../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters
@@ -427,12 +428,12 @@ export const createCredentialsStep = (
 										: 'skip_credentials_step';
 									if (e.target.checked) {
 										localStorage.setItem(skipKey, 'true');
-										console.log(
+										logger.info(
 											` [CommonSteps] User chose to skip credentials step for ${flowSpecificPrefix || 'all flows'}`
 										);
 									} else {
 										localStorage.removeItem(skipKey);
-										console.log(
+										logger.info(
 											` [CommonSteps] User will see credentials step for ${flowSpecificPrefix || 'all flows'}`
 										);
 									}
@@ -484,7 +485,7 @@ export const createCredentialsStep = (
 				credentials.clientSecret &&
 				credentials.redirectUri
 		);
-		console.log(' [CommonSteps] Credentials canExecute check:', {
+		logger.info(' [CommonSteps] Credentials canExecute check:', {
 			environmentId: !!credentials.environmentId,
 			clientId: !!credentials.clientId,
 			clientSecret: !!credentials.clientSecret,
@@ -1050,7 +1051,7 @@ export const createTokenExchangeStep = (
 	},
 	canExecute: (() => {
 		const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
-		console.log(' [CommonSteps] Token exchange canExecute check:', {
+		logger.info(' [CommonSteps] Token exchange canExecute check:', {
 			authCode: !!authCode,
 			authCodeValue: `${authCode?.substring(0, 10)}...`,
 			environmentId: !!credentials.environmentId,

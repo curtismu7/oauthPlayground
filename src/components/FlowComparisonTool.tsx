@@ -16,6 +16,7 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
 import { Card, CardBody, CardHeader } from './Card';
 
+import { logger } from '../utils/logger';
 interface FlowComparison {
 	id: string;
 	title: string;
@@ -541,7 +542,7 @@ const FlowComparisonTool: React.FC = () => {
 
 			return flow.route;
 		} catch (error) {
-			log.error(
+			logger.error(
 				'FlowComparisonTool',
 				'Error generating flow URL with credentials:',
 				undefined,

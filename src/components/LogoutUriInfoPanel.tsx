@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 
+import { logger } from '../utils/logger';
 interface LogoutUriInfoPanelProps {
 	flowKey?:
 		| 'authorization_code'
@@ -178,7 +179,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			log.error('LogoutUriInfoPanel', 'Failed to copy logout URI:', undefined, err as Error);
+			logger.error('LogoutUriInfoPanel', 'Failed to copy logout URI:', undefined, err as Error);
 		}
 	};
 

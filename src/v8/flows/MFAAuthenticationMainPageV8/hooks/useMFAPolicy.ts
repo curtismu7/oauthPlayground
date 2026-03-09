@@ -19,6 +19,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import type { DeviceAuthenticationPolicy, DeviceType } from '../../shared/MFATypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useMFAPolicy]';
 const FLOW_KEY = 'mfa-flow-v8';
 
@@ -209,7 +210,7 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 				setPoliciesError(errorMessage);
 			}
 
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
+			logger.error(`${MODULE_TAG} Failed to load policies:`, error);
 			return [];
 		} finally {
 			isFetchingPoliciesRef.current = false;

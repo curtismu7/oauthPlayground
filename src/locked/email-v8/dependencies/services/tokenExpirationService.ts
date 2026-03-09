@@ -1,10 +1,11 @@
 // src/services/tokenExpirationService.ts
+import { logger } from '../../../utils/logger';
 // Unified service for checking worker token expiration and showing appropriate messages
 
 // Simple console fallback for locked components
 const modernMessaging = {
 	showBanner: (options: { type: string; title: string; message: string; dismissible: boolean }) => {
-		console.log(`[TokenExpirationService] ${options.type.toUpperCase()}: ${options.message}`);
+		logger.info(`[TokenExpirationService] ${options.type.toUpperCase()}: ${options.message}`);
 	},
 };
 
@@ -64,7 +65,7 @@ export const checkTokenExpiration = (
 			expiresAtFormatted: new Date(expiresAt).toLocaleString(),
 		};
 	} catch (error) {
-		console.warn('[TokenExpirationService] Error checking token expiration:', error);
+		logger.warn('[TokenExpirationService] Error checking token expiration:', error);
 		return null;
 	}
 };
@@ -151,7 +152,7 @@ export const getValidWorkerToken = (
 			expirationInfo,
 		};
 	} catch (error) {
-		console.error('[TokenExpirationService] Error getting valid worker token:', error);
+		logger.error('[TokenExpirationService] Error getting valid worker token:', error);
 		return {
 			isValid: false,
 			token: null,

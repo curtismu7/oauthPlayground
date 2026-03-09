@@ -3,6 +3,7 @@
 import { logger } from './logger';
 import { generateManagementApiUrl } from './workerToken';
 
+import { logger } from '../../../utils/logger';
 export interface PingOneClient {
 	token: string;
 	environmentId: string;
@@ -75,8 +76,8 @@ export async function makeApiRequest<T = any>(
 	const tokenPreview = client.token
 		? `${client.token.substring(0, 10)}...${client.token.substring(client.token.length - 10)}`
 		: 'NO TOKEN';
-	console.log('[API-CLIENT] Authorization token preview:', tokenPreview);
-	console.log('[API-CLIENT] Token length:', client.token?.length || 0);
+	logger.info('[API-CLIENT] Authorization token preview:', tokenPreview);
+	logger.info('[API-CLIENT] Token length:', client.token?.length || 0);
 
 	try {
 		const response = await fetch(url, {
@@ -93,7 +94,7 @@ export async function makeApiRequest<T = any>(
 			const errorData = await response.json().catch(() => ({}));
 
 			// Log full error details for debugging
-			console.error('[API-CLIENT] Full error response:', {
+			logger.error('[API-CLIENT] Full error response:', {
 				status: response.status,
 				statusText: response.statusText,
 				errorData: errorData,

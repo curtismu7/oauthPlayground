@@ -29,6 +29,7 @@ import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
+import { logger } from '../utils/logger';
 // Import types and config
 import type {
 	LoginContext,
@@ -355,7 +356,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 
 	const handleLoginStart = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Starting login flow');
+		logger.info('[🚀 PROTECT-PORTAL] Starting login flow');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'custom-login',
@@ -364,7 +365,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleLoginSuccess = useCallback((userContext: UserContext, loginContext: LoginContext) => {
-		console.log('[🚀 PROTECT-PORTAL] Login successful, starting risk evaluation');
+		logger.info('[🚀 PROTECT-PORTAL] Login successful, starting risk evaluation');
 		setPortalState((prev) => ({
 			...prev,
 			userContext,
@@ -375,7 +376,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleRiskEvaluationComplete = useCallback(async (result: RiskEvaluationResult) => {
-		console.log('[🚀 PROTECT-PORTAL] Risk evaluation completed:', result.result.level);
+		logger.info('[🚀 PROTECT-PORTAL] Risk evaluation completed:', result.result.level);
 
 		setPortalState((prev) => ({
 			...prev,
@@ -412,7 +413,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleMFAComplete = useCallback((tokens: TokenSet) => {
-		console.log('[🚀 PROTECT-PORTAL] MFA completed, proceeding to success');
+		logger.info('[🚀 PROTECT-PORTAL] MFA completed, proceeding to success');
 		setPortalState((prev) => ({
 			...prev,
 			tokens,
@@ -422,7 +423,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		log.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
+		logger.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',
@@ -432,7 +433,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleRetry = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Retrying from error state');
+		logger.info('[🚀 PROTECT-PORTAL] Retrying from error state');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'portal-home',
@@ -442,7 +443,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleReset = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Resetting to initial state');
+		logger.info('[🚀 PROTECT-PORTAL] Resetting to initial state');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: initialStep,
@@ -465,7 +466,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	const renderStep = () => {
 		const { currentStep, isLoading, error } = portalState;
 
-		console.log('[🚀 PROTECT-PORTAL-APP] Rendering step:', currentStep);
+		logger.info('[🚀 PROTECT-PORTAL-APP] Rendering step:', currentStep);
 
 		if (isLoading) {
 			return (
@@ -693,7 +694,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		console.log('[�️ PROTECT-PORTAL] Portal app initialized', {
+		logger.info('[�️ PROTECT-PORTAL] Portal app initialized', {
 			initialStep,
 			environmentId,
 			clientId,

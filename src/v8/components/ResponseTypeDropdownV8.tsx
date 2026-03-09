@@ -17,6 +17,7 @@
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🎯 RESPONSE-TYPE-V8]';
 
 export interface ResponseTypeDropdownV8Props {
@@ -185,7 +186,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 	const selectedOption = RESPONSE_TYPE_OPTIONS[value];
 
 	const handleChange = (newType: string) => {
-		console.log(`${MODULE_TAG} Response type changed`, {
+		logger.info(`${MODULE_TAG} Response type changed`, {
 			from: value,
 			to: newType,
 			flowType,

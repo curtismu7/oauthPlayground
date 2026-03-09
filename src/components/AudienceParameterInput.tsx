@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface AudienceParameterInputProps {
 	value: string;
 	onChange: (value: string) => void;
@@ -185,7 +186,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 			// Prefer issuer as audience (base URL), fallback to token endpoint
 			const discoveredAudience = issuer || tokenEndpoint;
 			if (discoveredAudience) {
-				console.log('[AudienceParameter] Auto-filling from OIDC discovery:', discoveredAudience);
+				logger.info('[AudienceParameter] Auto-filling from OIDC discovery:', discoveredAudience);
 				onChange(discoveredAudience);
 			}
 		}

@@ -26,6 +26,7 @@ import { ImplicitFlowV9Helpers } from '../../../services/implicitFlowSharedServi
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 
+import { logger } from '../../utils/logger';
 // Get UI components
 const { Container, ContentWrapper } = FlowUIService.getFlowUIComponents();
 
@@ -80,7 +81,7 @@ const ImplicitFlowV9: React.FC = () => {
 			grantType: '',
 			clientAuthMethod: 'none',
 		};
-		log.info('ImplicitFlowV9', 'Initial credentials from controller', { initialCreds });
+		logger.info('ImplicitFlowV9', 'Initial credentials from controller', { initialCreds });
 		return initialCreds;
 	});
 
@@ -92,7 +93,7 @@ const ImplicitFlowV9: React.FC = () => {
 		const tokenFromLocation = location.state?.workerToken;
 		if (tokenFromLocation) {
 			setWorkerToken(tokenFromLocation);
-			log.info('ImplicitFlowV9', 'Worker token loaded from location state');
+			logger.info('ImplicitFlowV9', 'Worker token loaded from location state');
 			return;
 		}
 
@@ -102,19 +103,19 @@ const ImplicitFlowV9: React.FC = () => {
 
 		if (savedToken && savedEnv) {
 			setWorkerToken(savedToken);
-			log.info('ImplicitFlowV9', 'Worker token loaded from localStorage');
+			logger.info('ImplicitFlowV9', 'Worker token loaded from localStorage');
 		} else {
-			log.info('ImplicitFlowV9', 'No worker token found in location state or localStorage');
+			logger.info('ImplicitFlowV9', 'No worker token found in location state or localStorage');
 		}
 	}, [location.state]);
 
 	// Process tokens from URL fragment on mount or when tokens change
 	useEffect(() => {
 		const hash = window.location.hash;
-		log.info('ImplicitFlowV9', 'Checking for tokens in URL fragment on mount', { hash });
+		logger.info('ImplicitFlowV9', 'Checking for tokens in URL fragment on mount', { hash });
 
 		if (hash?.includes('access_token') && !controller.tokens) {
-			log.info('ImplicitFlowV9', 'Found tokens in URL fragment, processing');
+			logger.info('ImplicitFlowV9', 'Found tokens in URL fragment, processing');
 			controller.setTokensFromFragment(hash);
 			// Clean up URL
 			window.history.replaceState({}, '', window.location.pathname);
@@ -124,7 +125,7 @@ const ImplicitFlowV9: React.FC = () => {
 	// Handle token reception and step advancement
 	useEffect(() => {
 		if (controller.tokens && currentStep < 2) {
-			log.info('ImplicitFlowV9', 'Tokens received, advancing to step 2');
+			logger.info('ImplicitFlowV9', 'Tokens received, advancing to step 2');
 			setCurrentStep(2);
 		}
 	}, [controller.tokens, currentStep]);
@@ -139,10 +140,10 @@ const ImplicitFlowV9: React.FC = () => {
 				controller.credentials.scope !== credentials.scope ||
 				controller.credentials.scopes !== credentials.scopes)
 		) {
-			log.info('ImplicitFlowV9', 'Syncing credentials from controller', {
+			logger.info('ImplicitFlowV9', 'Syncing credentials from controller', {
 				controllerCredentials: controller.credentials,
 			});
-			log.info('ImplicitFlowV9', 'Current local credentials', { credentials });
+			logger.info('ImplicitFlowV9', 'Current local credentials', { credentials });
 			setCredentials(controller.credentials);
 		}
 	}, [controller.credentials, credentials]); // Removed credentials dependencies to prevent infinite loop
@@ -150,7 +151,7 @@ const ImplicitFlowV9: React.FC = () => {
 	// Load credentials on mount using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			log.info('ImplicitFlowV9', 'Loading credentials on mount');
+			logger.info('ImplicitFlowV9', 'Loading credentials on mount');
 
 			try {
 				// Try V7 standardized storage first
@@ -161,7 +162,7 @@ const ImplicitFlowV9: React.FC = () => {
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-					log.info('ImplicitFlowV9', 'Found flow-specific credentials');
+					logger.info('ImplicitFlowV9', 'Found flow-specific credentials');
 					const updatedCredentials = {
 						environmentId: flowData.sharedEnvironment?.environmentId || '',
 						clientId: flowData.flowCredentials.clientId,
@@ -177,7 +178,7 @@ const ImplicitFlowV9: React.FC = () => {
 					setCredentials(updatedCredentials);
 					controller.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
-					log.info('ImplicitFlowV9', 'Using shared environment data only');
+					logger.info('ImplicitFlowV9', 'Using shared environment data only');
 					const updatedCredentials = {
 						...controller.credentials,
 						environmentId: flowData.sharedEnvironment.environmentId,
@@ -185,7 +186,7 @@ const ImplicitFlowV9: React.FC = () => {
 					setCredentials(updatedCredentials);
 					controller.setCredentials(updatedCredentials);
 				} else {
-					log.info('ImplicitFlowV9', 'No saved credentials found, using defaults');
+					logger.info('ImplicitFlowV9', 'No saved credentials found, using defaults');
 					const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-flow-v7');
 					setCredentials(initialCredentials);
 					controller.setCredentials(initialCredentials);
@@ -210,7 +211,7 @@ const ImplicitFlowV9: React.FC = () => {
 		const reloadedCredentials = loadInitialCredentials(selectedVariant, 'implicit-v9');
 		controller.setCredentials(reloadedCredentials);
 		setCredentials(reloadedCredentials);
-		log.info('ImplicitFlowV9', 'Variant changed, reloaded credentials', { reloadedCredentials });
+		logger.info('ImplicitFlowV9', 'Variant changed, reloaded credentials', { reloadedCredentials });
 	}, [selectedVariant, controller.setCredentials, controller.setFlowVariant]); // Only run when variant changes
 
 	// Sync credentials with variant
@@ -231,7 +232,7 @@ const ImplicitFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			log.info('ImplicitFlowV9', 'Saving credentials to flow-specific storage', {
+			logger.info('ImplicitFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'implicit-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,

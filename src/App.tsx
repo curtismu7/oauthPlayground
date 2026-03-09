@@ -489,7 +489,7 @@ const AppRoutes: React.FC = () => {
 		];
 
 		if (skipAutoScroll.some((path) => location.pathname.includes(path))) {
-			console.log('🌍 [GlobalScroll] Skipping auto-scroll for:', location.pathname);
+			logger.info('🌍 [GlobalScroll] Skipping auto-scroll for:', location.pathname);
 			return;
 		}
 
@@ -577,7 +577,7 @@ const AppRoutes: React.FC = () => {
 
 	const handleCredentialSetupComplete = () => {
 		setShowCredentialModal(false);
-		console.log('Credential setup completed, modal hidden');
+		logger.info('Credential setup completed, modal hidden');
 	};
 
 	return (
@@ -1545,7 +1545,7 @@ const AppRoutes: React.FC = () => {
 				isOpen={showCredentialModal}
 				onClose={handleCredentialSetupComplete}
 				onSave={(creds) => {
-					console.log(' [App] Credentials saved from startup modal:', creds);
+					logger.info(' [App] Credentials saved from startup modal:', creds);
 					// The modal will auto-close after save
 				}}
 				flowType="startup"
@@ -1748,22 +1748,22 @@ function AppContent() {
 
 	// Handle global worker token modal events
 	useEffect(() => {
-		console.log('[App] Setting up worker token modal event listener...');
+		logger.info('[App] Setting up worker token modal event listener...');
 
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
-			console.log('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
-			console.log('[App] Setting showWorkerTokenModal to true');
+			logger.info('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
+			logger.info('[App] Setting showWorkerTokenModal to true');
 			setShowWorkerTokenModal(true);
 		};
 
-		console.log('[App] Adding event listener for open-worker-token-modal');
+		logger.info('[App] Adding event listener for open-worker-token-modal');
 		window.addEventListener(
 			'open-worker-token-modal',
 			handleWorkerTokenModalEvent as EventListener
 		);
 
 		return () => {
-			console.log('[App] Cleaning up worker token modal event listener');
+			logger.info('[App] Cleaning up worker token modal event listener');
 			window.removeEventListener(
 				'open-worker-token-modal',
 				handleWorkerTokenModalEvent as EventListener
@@ -1835,15 +1835,15 @@ function AppContent() {
 			{/* Global Worker Token Modal */}
 			{showWorkerTokenModal && (
 				<>
-					{console.log('[App] Rendering WorkerTokenModal with isOpen:', showWorkerTokenModal)}
+					{logger.info('[App] Rendering WorkerTokenModal with isOpen:', showWorkerTokenModal)}
 					<WorkerTokenModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => {
-							console.log('[App] WorkerTokenModal onClose called');
+							logger.info('[App] WorkerTokenModal onClose called');
 							setShowWorkerTokenModal(false);
 						}}
 						onContinue={() => {
-							console.log('[App] Worker token modal closed');
+							logger.info('[App] Worker token modal closed');
 							setShowWorkerTokenModal(false);
 						}}
 						flowType="global"

@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UserLoginModalV8 } from './UserLoginModalV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
 
 interface UserLoginSectionV8Props {
@@ -52,7 +53,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(MODULE_TAG, 'Error refreshing user token:', error);
+			logger.error(MODULE_TAG, 'Error refreshing user token:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -80,7 +81,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(MODULE_TAG, 'Error logging out user:', error);
+			logger.error(MODULE_TAG, 'Error logging out user:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

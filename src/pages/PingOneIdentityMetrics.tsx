@@ -336,20 +336,20 @@ const PingOneIdentityMetrics: React.FC = () => {
 				const globalEnvId = localStorage.getItem('v8:global_environment_id');
 				if (globalEnvId) {
 					environmentId = globalEnvId;
-					console.log(
+					logger.info(
 						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall'
 					);
 				}
 			}
 		} catch (error) {
-			console.log('Failed to load credentials from unified worker token:', error);
+			logger.info('Failed to load credentials from unified worker token:', error);
 		}
 
 		setLoading(true);
 		setError(null);
 
-		console.log('[Identity Metrics] 🌍 Making API request with region:', region);
-		console.log('[Identity Metrics] 📦 Environment ID:', environmentId.trim());
+		logger.info('[Identity Metrics] 🌍 Making API request with region:', region);
+		logger.info('[Identity Metrics] 📦 Environment ID:', environmentId.trim());
 
 		try {
 			// Active Identity Counts - uses GET with query parameters
@@ -434,13 +434,13 @@ const PingOneIdentityMetrics: React.FC = () => {
 				const globalEnvId = localStorage.getItem('v8:global_environment_id');
 				if (globalEnvId) {
 					environmentId = globalEnvId;
-					console.log(
+					logger.info(
 						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch'
 					);
 				}
 			}
 		} catch (error) {
-			console.log('Failed to load credentials from unified worker token:', error);
+			logger.info('Failed to load credentials from unified worker token:', error);
 		}
 
 		if (!environmentId.trim()) {
@@ -450,7 +450,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 		const effectiveWorkerToken = workerToken || '';
 
-		console.log('[Identity Metrics] 🔍 Using token for API call:', {
+		logger.info('[Identity Metrics] 🔍 Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
 			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
 			environmentId: `${environmentId.substring(0, 20)}...`,

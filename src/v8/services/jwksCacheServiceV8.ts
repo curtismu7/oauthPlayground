@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file jwksCacheServiceV8.ts
  * @module v8/services
  * @description Caching service for JWKS (JSON Web Key Set)
@@ -38,12 +39,12 @@ async function initDB(): Promise<IDBDatabase> {
 		const request = indexedDB.open(DB_NAME, DB_VERSION);
 
 		request.onerror = () => {
-			console.error(`${MODULE_TAG} Failed to open database:`, request.error);
+			logger.error(`${MODULE_TAG} Failed to open database:`, request.error);
 			reject(request.error);
 		};
 
 		request.onsuccess = () => {
-			console.log(`${MODULE_TAG} ✅ JWKS cache database opened`);
+			logger.info(`${MODULE_TAG} ✅ JWKS cache database opened`);
 			resolve(request.result);
 		};
 
@@ -57,7 +58,7 @@ async function initDB(): Promise<IDBDatabase> {
 				store.createIndex('jwksUri', 'jwksUri', { unique: false });
 				store.createIndex('issuer', 'issuer', { unique: false });
 				store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				console.log(`${MODULE_TAG} ✅ JWKS cache object store created`);
+				logger.info(`${MODULE_TAG} ✅ JWKS cache object store created`);
 			}
 		};
 	});
@@ -99,13 +100,13 @@ export async function cacheJWKS(
 		await new Promise<void>((resolve, reject) => {
 			const request = store.put({ cacheKey, ...cached });
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ JWKS cached`, { jwksUri, keyCount: keys.length });
+				logger.info(`${MODULE_TAG} ✅ JWKS cached`, { jwksUri, keyCount: keys.length });
 				resolve();
 			};
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Failed to cache JWKS`, { jwksUri, error });
+		logger.warn(`${MODULE_TAG} ⚠️ Failed to cache JWKS`, { jwksUri, error });
 		// Don't throw - caching is non-critical
 	}
 }
@@ -129,14 +130,14 @@ export async function getCachedJWKS(
 				const result = request.result as (CachedJWKS & { cacheKey: string }) | undefined;
 
 				if (!result) {
-					console.log(`${MODULE_TAG} ⚠️ No cached JWKS found`, { jwksUri });
+					logger.info(`${MODULE_TAG} ⚠️ No cached JWKS found`, { jwksUri });
 					resolve(null);
 					return;
 				}
 
 				// Check if expired
 				if (Date.now() > result.expiresAt) {
-					console.log(`${MODULE_TAG} ⚠️ Cached JWKS expired`, {
+					logger.info(`${MODULE_TAG} ⚠️ Cached JWKS expired`, {
 						jwksUri,
 						age: Date.now() - result.cachedAt,
 					});
@@ -146,7 +147,7 @@ export async function getCachedJWKS(
 					return;
 				}
 
-				console.log(`${MODULE_TAG} ✅ Using cached JWKS`, {
+				logger.info(`${MODULE_TAG} ✅ Using cached JWKS`, {
 					jwksUri,
 					keyCount: result.keys.length,
 					age: Date.now() - result.cachedAt,
@@ -156,12 +157,12 @@ export async function getCachedJWKS(
 			};
 
 			request.onerror = () => {
-				console.warn(`${MODULE_TAG} ⚠️ Failed to get cached JWKS`, { jwksUri });
+				logger.warn(`${MODULE_TAG} ⚠️ Failed to get cached JWKS`, { jwksUri });
 				resolve(null); // Return null on error, don't reject
 			};
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error getting cached JWKS`, { jwksUri, error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error getting cached JWKS`, { jwksUri, error });
 		return null;
 	}
 }
@@ -202,7 +203,7 @@ export async function clearExpiredCache(): Promise<void> {
 					cursor.delete();
 					cursor.continue();
 				} else {
-					console.log(`${MODULE_TAG} ✅ Expired JWKS cache entries cleared`);
+					logger.info(`${MODULE_TAG} ✅ Expired JWKS cache entries cleared`);
 					resolve();
 				}
 			};
@@ -210,7 +211,7 @@ export async function clearExpiredCache(): Promise<void> {
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error clearing expired cache`, { error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error clearing expired cache`, { error });
 	}
 }
 
@@ -226,13 +227,13 @@ export async function clearAllCache(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
 			const request = store.clear();
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ All JWKS cache cleared`);
+				logger.info(`${MODULE_TAG} ✅ All JWKS cache cleared`);
 				resolve();
 			};
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error clearing cache`, { error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error clearing cache`, { error });
 	}
 }
 

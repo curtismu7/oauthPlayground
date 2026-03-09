@@ -16,6 +16,7 @@ import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const DEFAULT_SMS_BODY = JSON.stringify(
 	{
 		type: 'SMS',
@@ -102,7 +103,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					setSavedWorkerToken(token);
 				}
 			} catch (error) {
-				console.warn('[MFA Device Create Demo] Unable to preload worker token info', error);
+				logger.warn('[MFA Device Create Demo] Unable to preload worker token info', error);
 			}
 		};
 		void loadDefaults();

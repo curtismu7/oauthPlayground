@@ -17,6 +17,7 @@ import type {
 } from '../services/comprehensiveFlowDataService';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 
+import { logger } from '../utils/logger';
 export class ComprehensiveFlowDataServiceTest {
 	private testResults: Array<{
 		testName: string;
@@ -526,21 +527,21 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	 */
 	private async runTest(testName: string, testFn: () => Promise<unknown>): Promise<void> {
 		try {
-			console.log(`🧪 Running: ${testName}`);
+			logger.info(`🧪 Running: ${testName}`);
 			const result = await testFn();
 			this.testResults.push({
 				testName,
 				passed: true,
 				details: result,
 			});
-			console.log(`✅ Passed: ${testName}`);
+			logger.info(`✅ Passed: ${testName}`);
 		} catch (error) {
 			this.testResults.push({
 				testName,
 				passed: false,
 				error: error instanceof Error ? error.message : String(error),
 			});
-			console.error(`❌ Failed: ${testName} - ${error}`);
+			logger.error(`❌ Failed: ${testName} - ${error}`);
 		}
 	}
 
@@ -550,7 +551,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	private clearAllTestData(): void {
 		comprehensiveFlowDataService.clearAllFlowData();
 		comprehensiveFlowDataService.clearAllSharedData();
-		console.log('🧹 Cleared all test data');
+		logger.info('🧹 Cleared all test data');
 	}
 
 	/**
@@ -563,17 +564,17 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 		const failed = this.testResults.filter((r) => !r.passed).length;
 		const total = this.testResults.length;
 
-		console.log(`📈 Total Tests: ${total}`);
-		console.log(`✅ Passed: ${passed}`);
-		console.log(`❌ Failed: ${failed}`);
-		console.log(`📊 Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
+		logger.info(`📈 Total Tests: ${total}`);
+		logger.info(`✅ Passed: ${passed}`);
+		logger.info(`❌ Failed: ${failed}`);
+		logger.info(`📊 Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
 
 		if (failed > 0) {
 			console.group('❌ Failed Tests:');
 			this.testResults
 				.filter((r) => !r.passed)
 				.forEach((result) => {
-					console.error(`  - ${result.testName}: ${result.error}`);
+					logger.error(`  - ${result.testName}: ${result.error}`);
 				});
 			console.groupEnd();
 		}

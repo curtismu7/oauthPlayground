@@ -12,6 +12,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {
 	'mfa-feature-flags': {
@@ -160,7 +161,7 @@ export async function saveProductionAppCredentials(
 				CredentialsServiceV8.saveCredentials(config.flowKey, credentials);
 		}
 
-		console.log(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
+		logger.info(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
 	} catch (error) {
 		logger.warn(
 			'ProductionAppCredentialHelper',
@@ -421,7 +422,7 @@ export async function importProductionAppCredentials(
 				throw new Error(`Unsupported app type: ${config.appType}`);
 		}
 
-		console.log(
+		logger.info(
 			`[ProductionAppCredentialHelper] Successfully imported credentials for ${config.appName}`
 		);
 	} catch (error) {

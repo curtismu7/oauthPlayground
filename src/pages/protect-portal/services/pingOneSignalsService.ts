@@ -1,5 +1,6 @@
 import { logger } from '../../../utils/logger';
 
+import { logger } from '../../utils/logger';
 /**
  * @file pingOneSignalsService.ts
  * @module protect-portal/services
@@ -80,7 +81,7 @@ export class PingOneSignalsService {
 		const startTime = Date.now();
 
 		try {
-			console.log(`${PingOneSignalsService.MODULE_TAG} Initializing PingOne Signals SDK`, config);
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Initializing PingOne Signals SDK`, config);
 
 			// Check if SDK is already loaded
 			if (!PingOneSignalsService.isSdkLoaded()) {
@@ -102,7 +103,7 @@ export class PingOneSignalsService {
 				},
 			};
 
-			console.log(`${PingOneSignalsService.MODULE_TAG} SDK initialized successfully`, result);
+			logger.info(`${PingOneSignalsService.MODULE_TAG} SDK initialized successfully`, result);
 			return result;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -133,7 +134,7 @@ export class PingOneSignalsService {
 		const actualTimeout = timeout || PingOneSignalsService.DEFAULT_TIMEOUT;
 
 		try {
-			console.log(`${PingOneSignalsService.MODULE_TAG} Getting device payload`);
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Getting device payload`);
 
 			// Wait for SDK readiness
 			await PingOneSignalsService.waitForReadiness(actualTimeout);
@@ -159,7 +160,7 @@ export class PingOneSignalsService {
 				},
 			};
 
-			console.log(`${PingOneSignalsService.MODULE_TAG} Device payload collected successfully`, {
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Device payload collected successfully`, {
 				deviceId: payload.deviceId,
 				dataSize: result.metadata?.dataSize,
 				hasBehavioralData: result.metadata?.isBehavioralDataIncluded,
@@ -207,7 +208,7 @@ export class PingOneSignalsService {
 	static pauseBehavioralData(): void {
 		if (PingOneSignalsService.isSdkLoaded()) {
 			window._pingOneSignals.pauseBehavioralData();
-			console.log(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection paused`);
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection paused`);
 		}
 	}
 
@@ -217,7 +218,7 @@ export class PingOneSignalsService {
 	static resumeBehavioralData(): void {
 		if (PingOneSignalsService.isSdkLoaded()) {
 			window._pingOneSignals.resumeBehavioralData();
-			console.log(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection resumed`);
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection resumed`);
 		}
 	}
 
@@ -231,7 +232,7 @@ export class PingOneSignalsService {
 			script.async = true;
 
 			script.onload = () => {
-				console.log(`${PingOneSignalsService.MODULE_TAG} SDK script loaded`);
+				logger.info(`${PingOneSignalsService.MODULE_TAG} SDK script loaded`);
 				resolve();
 			};
 
@@ -273,7 +274,7 @@ export class PingOneSignalsService {
 		PingOneSignalsService.isInitialized = true;
 		PingOneSignalsService.config = config;
 
-		console.log(`${PingOneSignalsService.MODULE_TAG} SDK initialized with config`, initConfig);
+		logger.info(`${PingOneSignalsService.MODULE_TAG} SDK initialized with config`, initConfig);
 	}
 
 	/**
@@ -284,7 +285,7 @@ export class PingOneSignalsService {
 		window.dispatchEvent(new Event('PingOneCollectionReady'));
 		PingOneSignalsService.isReady = true;
 
-		console.log(`${PingOneSignalsService.MODULE_TAG} SDK ready for data collection`);
+		logger.info(`${PingOneSignalsService.MODULE_TAG} SDK ready for data collection`);
 	}
 
 	/**

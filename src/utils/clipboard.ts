@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // src/utils/clipboard.ts - Clipboard utilities
 
 /**
@@ -63,7 +64,7 @@ const showCopySuccess = (label: string) => {
 export const copyToClipboard = async (text: string, label?: string): Promise<void> => {
 	try {
 		await navigator.clipboard.writeText(text);
-		console.log(` [Clipboard] Copied ${label || 'text'} to clipboard`);
+		logger.info(` [Clipboard] Copied ${label || 'text'} to clipboard`);
 
 		// Show visual success feedback
 		const labelText = label || 'Text';
@@ -84,7 +85,7 @@ export const copyToClipboard = async (text: string, label?: string): Promise<voi
 			document.execCommand('copy');
 			textArea.remove();
 
-			console.log(` [Clipboard] Copied ${label || 'text'} using fallback method`);
+			logger.info(` [Clipboard] Copied ${label || 'text'} using fallback method`);
 			showCopySuccess(label || 'Text');
 		} catch (fallbackError) {
 			logger.error('Clipboard', 'Fallback copy failed:', undefined, fallbackError as Error);

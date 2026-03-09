@@ -7,6 +7,7 @@
 
 import React, { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
 
+import { logger } from '../utils/logger';
 export interface FlowStateContextType {
 	isActionInProgress: boolean;
 	currentAction: string | null;
@@ -21,13 +22,13 @@ export const FlowStateProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [currentAction, setCurrentAction] = useState<string | null>(null);
 
 	const startAction = useCallback((actionName: string) => {
-		console.log('[FlowState] Starting action:', actionName);
+		logger.info('[FlowState] Starting action:', actionName);
 		setIsActionInProgress(true);
 		setCurrentAction(actionName);
 	}, []);
 
 	const endAction = useCallback(() => {
-		console.log('[FlowState] Ending action:', currentAction);
+		logger.info('[FlowState] Ending action:', currentAction);
 		setIsActionInProgress(false);
 		setCurrentAction(null);
 	}, [currentAction]);

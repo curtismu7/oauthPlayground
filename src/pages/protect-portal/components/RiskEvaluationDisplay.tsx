@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import RiskEvaluationService from '../services/riskEvaluationService';
+import { logger } from '../../utils/logger';
 import type {
 	EducationalContent,
 	LoginContext,
@@ -615,7 +616,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			onComplete(evaluationResponse.data);
 		} catch (err) {
-			log.error(
+			logger.error(
 				'RiskEvaluationDisplay',
 				'[🛡️ RISK-EVALUATION] Evaluation failed:',
 				undefined,
@@ -657,7 +658,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		console.log('[🛡️ RISK-EVALUATION] Risk evaluation display initialized', {
+		logger.info('[🛡️ RISK-EVALUATION] Risk evaluation display initialized', {
 			userId: userContext.id,
 			protectCredentials: !!protectCredentials,
 		});

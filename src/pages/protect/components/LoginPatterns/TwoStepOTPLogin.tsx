@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -209,7 +210,7 @@ const TwoStepOTPLogin: React.FC<TwoStepOTPLoginProps> = ({
 	// Handle resend OTP
 	const handleResendOTP = () => {
 		// In a real implementation, this would resend OTP
-		console.log('Resending OTP to:', formData.username);
+		logger.info('Resending OTP to:', formData.username);
 	};
 
 	const brandColor = config.branding.colors.primary;

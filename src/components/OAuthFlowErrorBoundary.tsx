@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 // Error boundary state interface
 interface ErrorBoundaryState {
 	hasError: boolean;
@@ -165,7 +166,7 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 		const { errorId } = this.state;
 
 		// Log the error
-		log.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
+		logger.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
 			error: error.message,
 			stack: error.stack,
 			componentStack: errorInfo.componentStack,
@@ -225,7 +226,7 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 		};
 
 		// Log error report
-		log.error(`[ErrorReporting] Error report generated:`, errorReport);
+		logger.error(`[ErrorReporting] Error report generated:`, errorReport);
 
 		// TODO: Implement external error reporting service
 		// Example: Sentry.captureException(error, { extra: errorReport });

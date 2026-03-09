@@ -2,6 +2,7 @@
 // Integration tests for Password Reset Service with backend
 
 import { beforeAll, describe, expect, it } from 'vitest';
+import { logger } from '../utils/logger';
 import {
 	checkPassword,
 	readPasswordState,
@@ -29,8 +30,8 @@ describe('Password Reset Integration Tests', () => {
 
 	beforeAll(() => {
 		if (!config.environmentId || !config.workerToken || !config.testUserId) {
-			console.warn('⚠️  Integration tests skipped - missing environment variables');
-			console.warn('Set: VITE_PINGONE_ENVIRONMENT_ID, TEST_WORKER_TOKEN, TEST_USER_ID');
+			logger.warn('⚠️  Integration tests skipped - missing environment variables');
+			logger.warn('Set: VITE_PINGONE_ENVIRONMENT_ID, TEST_WORKER_TOKEN, TEST_USER_ID');
 		}
 	});
 
@@ -46,7 +47,7 @@ describe('Password Reset Integration Tests', () => {
 				});
 
 				expect(sendResult.success).toBe(true);
-				console.log('✅ Recovery code sent');
+				logger.info('✅ Recovery code sent');
 
 				// Note: In real test, you'd need to retrieve the actual code from email/SMS
 				// For now, we just verify the API call succeeded
@@ -68,7 +69,7 @@ describe('Password Reset Integration Tests', () => {
 				expect(result.success).toBe(false);
 				expect(result.errorDescription).toBeDefined();
 				expect(result.errorDescription).toContain('recovery code');
-				console.log('✅ Invalid recovery code handled correctly');
+				logger.info('✅ Invalid recovery code handled correctly');
 			},
 			30000
 		);
@@ -88,7 +89,7 @@ describe('Password Reset Integration Tests', () => {
 				// Result should be success regardless of whether password matches
 				expect(result.success).toBe(true);
 				expect(result.valid).toBeDefined();
-				console.log(`✅ Password check result: valid=${result.valid}`);
+				logger.info(`✅ Password check result: valid=${result.valid}`);
 			},
 			30000
 		);
@@ -105,7 +106,7 @@ describe('Password Reset Integration Tests', () => {
 
 				expect(result.success).toBe(false);
 				expect(result.errorDescription).toContain('empty');
-				console.log('✅ Empty password validation working');
+				logger.info('✅ Empty password validation working');
 			},
 			30000
 		);
@@ -124,7 +125,7 @@ describe('Password Reset Integration Tests', () => {
 				expect(result.success).toBe(true);
 				if (result.passwordState) {
 					expect(result.passwordState).toHaveProperty('status');
-					console.log('✅ Password state retrieved:', result.passwordState.status);
+					logger.info('✅ Password state retrieved:', result.passwordState.status);
 				}
 			},
 			30000
@@ -140,7 +141,7 @@ describe('Password Reset Integration Tests', () => {
 			});
 
 			expect(result.success).toBe(false);
-			console.log('✅ Invalid environment ID handled');
+			logger.info('✅ Invalid environment ID handled');
 		}, 30000);
 
 		it('should handle invalid user ID', async () => {
@@ -151,7 +152,7 @@ describe('Password Reset Integration Tests', () => {
 			});
 
 			expect(result.success).toBe(false);
-			console.log('✅ Invalid user ID handled');
+			logger.info('✅ Invalid user ID handled');
 		}, 30000);
 
 		it('should handle network errors gracefully', async () => {
@@ -159,7 +160,7 @@ describe('Password Reset Integration Tests', () => {
 			const result = await checkPassword('', '', '', '');
 
 			expect(result.success).toBe(false);
-			console.log('✅ Network errors handled gracefully');
+			logger.info('✅ Network errors handled gracefully');
 		}, 30000);
 	});
 });

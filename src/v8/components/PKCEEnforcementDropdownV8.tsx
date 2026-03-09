@@ -15,6 +15,7 @@
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 PKCE-ENFORCEMENT-V8]';
 
 export type PKCEEnforcement = 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
@@ -77,7 +78,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 	const selectedOption = PKCE_ENFORCEMENT_OPTIONS[value];
 
 	const handleChange = (newEnforcement: PKCEEnforcement) => {
-		console.log(`${MODULE_TAG} PKCE enforcement changed`, { from: value, to: newEnforcement });
+		logger.info(`${MODULE_TAG} PKCE enforcement changed`, { from: value, to: newEnforcement });
 		onChange(newEnforcement);
 	};
 

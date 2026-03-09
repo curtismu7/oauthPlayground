@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file unifiedErrorHandlerV8.ts
  * @module v8/utils
  * @description Standardized error handling for Unified MFA flows
@@ -49,7 +50,7 @@ export const unifiedErrorHandlerV8 = {
 
 		// Log error with context
 		if (logError) {
-			console.error(`${MODULE_TAG} ${contextMessage}:`, error);
+			logger.error(`${MODULE_TAG} ${contextMessage}:`, error);
 		}
 
 		// Show user feedback
@@ -66,7 +67,7 @@ export const unifiedErrorHandlerV8 = {
 				})
 				.catch(() => {
 					// Fallback if toast import fails
-					console.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`);
+					logger.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`);
 				});
 		}
 
@@ -119,7 +120,7 @@ export const unifiedErrorHandlerV8 = {
 		const errorMessage = extractErrorMessage(error);
 
 		// Log validation error
-		console.error(`${MODULE_TAG} Validation error in ${context.component}:`, {
+		logger.error(`${MODULE_TAG} Validation error in ${context.component}:`, {
 			error,
 			validationErrors,
 			context,
@@ -136,7 +137,7 @@ export const unifiedErrorHandlerV8 = {
 				});
 			})
 			.catch(() => {
-				console.error(`${MODULE_TAG} Failed to show validation toast`);
+				logger.error(`${MODULE_TAG} Failed to show validation toast`);
 			});
 	},
 

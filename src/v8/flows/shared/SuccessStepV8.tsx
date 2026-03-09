@@ -9,6 +9,7 @@ import { FiCpu, FiShield } from '@icons';
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';
 
 interface SuccessStepV8Props {
@@ -48,7 +49,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 
-		console.log(`${MODULE_TAG} Exported authentication data`);
+		logger.info(`${MODULE_TAG} Exported authentication data`);
 	};
 
 	const handleStartNewFlow = () => {

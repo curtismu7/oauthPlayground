@@ -95,7 +95,7 @@ export async function callbackHandler(req: NextApiRequest, res: NextApiResponse)
 
     res.redirect('/dashboard');
   } catch (error) {
-    console.error('Token exchange failed:', error);
+    logger.error('Token exchange failed:', error);
     res.status(500).json({ error: 'Authentication failed' });
   }
 }
@@ -177,7 +177,7 @@ export default async function handler(
       expires_in: data.expires_in,
     });
   } catch (error) {
-    console.error('Failed to get worker token:', error);
+    logger.error('Failed to get worker token:', error);
     res.status(500).json({ error: 'Failed to get worker token' });
   }
 }
@@ -265,7 +265,7 @@ export default async function handler(
 
     res.status(200).json({ devices });
   } catch (error) {
-    console.error('Failed to list devices:', error);
+    logger.error('Failed to list devices:', error);
     res.status(500).json({ error: 'Failed to list devices' });
   }
 }
@@ -295,7 +295,7 @@ export const DeviceList = ({ userId, accessToken }: { userId: string; accessToke
         const data = await response.json();
         setDevices(data.devices);
       } catch (error) {
-        console.error('Failed to fetch devices:', error);
+        logger.error('Failed to fetch devices:', error);
       } finally {
         setLoading(false);
       }
@@ -370,7 +370,7 @@ export default async function handler(
       expiresAt: data.expiresAt,
     });
   } catch (error) {
-    console.error('Failed to send challenge:', error);
+    logger.error('Failed to send challenge:', error);
     res.status(500).json({ error: 'Failed to send challenge' });
   }
 }
@@ -405,7 +405,7 @@ export const ChallengeButton = ({
         setSent(true);
       }
     } catch (error) {
-      console.error('Failed to send challenge:', error);
+      logger.error('Failed to send challenge:', error);
     } finally {
       setLoading(false);
     }
@@ -468,7 +468,7 @@ export default async function handler(
 
     res.status(200).json({ verified: isVerified });
   } catch (error) {
-    console.error('Failed to verify code:', error);
+    logger.error('Failed to verify code:', error);
     res.status(500).json({ error: 'Failed to verify code' });
   }
 }
@@ -597,7 +597,7 @@ export default async function handler(
 
     res.status(200).json({ device });
   } catch (error) {
-    console.error('Failed to register device:', error);
+    logger.error('Failed to register device:', error);
     res.status(500).json({ error: 'Failed to register device' });
   }
 }
@@ -607,6 +607,7 @@ export default async function handler(
 
 import { useState } from 'react';
 
+import { logger } from '../../../utils/logger';
 type DeviceType = 'SMS' | 'EMAIL' | 'TOTP';
 
 export const RegisterDeviceForm = ({ 
@@ -638,7 +639,7 @@ export const RegisterDeviceForm = ({
       const data = await response.json();
       onSuccess(data.device);
     } catch (error) {
-      console.error('Registration failed:', error);
+      logger.error('Registration failed:', error);
     } finally {
       setLoading(false);
     }

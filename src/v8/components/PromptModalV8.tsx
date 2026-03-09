@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type PromptOptions, uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📝 PROMPT-MODAL-V8]';
 
 export const PromptModalV8: React.FC = () => {
@@ -28,7 +29,7 @@ export const PromptModalV8: React.FC = () => {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleSubmit = useCallback(() => {
-		console.log(`${MODULE_TAG} User submitted:`, value);
+		logger.info(`${MODULE_TAG} User submitted:`, value);
 		if (resolver) {
 			resolver(value.trim() || null);
 		}
@@ -39,7 +40,7 @@ export const PromptModalV8: React.FC = () => {
 	}, [resolver, value]);
 
 	const handleCancel = useCallback(() => {
-		console.log(`${MODULE_TAG} User cancelled`);
+		logger.info(`${MODULE_TAG} User cancelled`);
 		if (resolver) {
 			resolver(null);
 		}
@@ -52,7 +53,7 @@ export const PromptModalV8: React.FC = () => {
 	useEffect(() => {
 		// Register handler with service
 		const handler = (opts: PromptOptions): Promise<string | null> => {
-			console.log(`${MODULE_TAG} Showing prompt:`, opts.message);
+			logger.info(`${MODULE_TAG} Showing prompt:`, opts.message);
 			return new Promise((resolve) => {
 				setOptions(opts);
 				setValue(opts.defaultValue || '');

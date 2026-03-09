@@ -40,6 +40,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
 const PUBLIC_KEY_OPTION_KEYS = [
@@ -102,7 +103,7 @@ const toUint8Array = (value: unknown): Uint8Array | null => {
 		try {
 			return decodeBase64ToUint8Array(value);
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to decode base64 string`, error);
+			logger.warn(`${MODULE_TAG} Failed to decode base64 string`, error);
 			return null;
 		}
 	}
@@ -188,7 +189,7 @@ const parseRawPublicKeyOptions = (raw: unknown): Record<string, unknown> | null 
 							.join('');
 			return JSON.parse(decodedString);
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Unable to parse publicKeyCredentialRequestOptions string`, error);
+			logger.warn(`${MODULE_TAG} Unable to parse publicKeyCredentialRequestOptions string`, error);
 			return null;
 		}
 	}
@@ -380,7 +381,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			const updated = { ...stored, ...updates } as MFACredentials;
 			CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
 			policiesMergedRef.current = true;
-			console.log(`${MODULE_TAG} Merged policies from location.state into credentials:`, {
+			logger.info(`${MODULE_TAG} Merged policies from location.state into credentials:`, {
 				deviceAuthPolicyId: updates.deviceAuthenticationPolicyId,
 				fido2PolicyId: (updates as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId,
 			});
@@ -569,7 +570,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						platformAuthenticator: platformAvailable,
 					});
 				} catch (error) {
-					console.warn('Failed to check platform authenticator availability:', error);
+					logger.warn('Failed to check platform authenticator availability:', error);
 					setWebAuthnCapabilities(capabilities);
 				}
 			}
@@ -703,7 +704,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
 				setFido2PoliciesError(errorMessage);
-				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+				logger.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 			} finally {
 				isFetchingFido2PoliciesRef.current = false;
 				setIsLoadingFido2Policies(false);
@@ -1023,7 +1024,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										if (newValue) {
 											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 											if (!currentStatus.isValid) {
-												console.log(
+												logger.info(
 													'[FIDO2-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 												);
 												const { handleShowWorkerTokenModal } = await import(
@@ -1523,7 +1524,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						showRegisterForm: devices.length === 0,
 					});
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					logger.error(`${MODULE_TAG} Failed to load devices`, error);
 					setDeviceSelection((prev) => ({
 						...prev,
 						loadingDevices: false,
@@ -1715,7 +1716,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						});
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+					logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 					const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
 						operation: 'authenticate',
 						deviceType: 'FIDO2',
@@ -1789,7 +1790,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 					if (hasExistingFIDODevice) {
 						const firstDevice = existingDevices[0] as Record<string, unknown>;
-						console.log(`${MODULE_TAG} User already has a FIDO device registered:`, {
+						logger.info(`${MODULE_TAG} User already has a FIDO device registered:`, {
 							deviceCount: existingDevices.length,
 							devices: existingDevices.map((d: Record<string, unknown>) => ({
 								id: d.id,
@@ -1810,7 +1811,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				} catch (checkError) {
 					// If checking for existing devices fails, log but don't block registration
 					// The backend will handle duplicate device errors
-					console.warn(`${MODULE_TAG} Failed to check for existing devices:`, checkError);
+					logger.warn(`${MODULE_TAG} Failed to check for existing devices:`, checkError);
 					// Continue with registration - backend will catch duplicate device errors
 				}
 
@@ -1824,7 +1825,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 				// Extract publicKeyCredentialCreationOptions from device result
 				// Per fido2-2.md section 4: Get WebAuthn options (challenge, RP ID, etc.) from PingOne
-				console.log(`${MODULE_TAG} Device creation result:`, {
+				logger.info(`${MODULE_TAG} Device creation result:`, {
 					deviceId: deviceResult.deviceId,
 					status: deviceResult.status,
 					type: deviceResult.type,
@@ -1852,7 +1853,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					undefined;
 
 				if (!publicKeyCredentialCreationOptions) {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} Missing publicKeyCredentialCreationOptions in device result:`,
 						{
 							deviceResult,
@@ -1869,7 +1870,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ Successfully extracted publicKeyCredentialCreationOptions:`, {
+				logger.info(`${MODULE_TAG} ✅ Successfully extracted publicKeyCredentialCreationOptions:`, {
 					length: publicKeyCredentialCreationOptions.length,
 					preview: publicKeyCredentialCreationOptions.substring(0, 100),
 				});
@@ -2053,7 +2054,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}
 
 				// Log the original error for debugging (but don't show to user)
-				console.error(`${MODULE_TAG} FIDO2 registration error:`, {
+				logger.error(`${MODULE_TAG} FIDO2 registration error:`, {
 					errorName,
 					errorMessage,
 					userFriendlyMessage,
@@ -2544,7 +2545,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					};
 
 					if (platformPreference.prefer) {
-						console.log(
+						logger.info(
 							`[🔑 FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`
 						);
 					}
@@ -2586,7 +2587,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						credentials.region // Pass region from credentials
 					);
 
-					console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
+					logger.info(`${MODULE_TAG} FIDO2 assertion checked`, {
 						status: assertionResult.status,
 						nextStep: assertionResult.nextStep,
 					});
@@ -2621,7 +2622,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-					console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
+					logger.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
 					setAssertionError(errorMessage);
 					modernMessaging.showBanner({
 						type: 'error',
@@ -2836,7 +2837,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			successData.deviceType = 'FIDO2' as DeviceType;
 
 			// Debug logging to verify data is being passed correctly
-			console.log('[FIDO2FlowV8] renderStep3 - Success page data:', {
+			logger.info('[FIDO2FlowV8] renderStep3 - Success page data:', {
 				deviceId: successData.deviceId,
 				deviceType: successData.deviceType,
 				deviceStatus: successData.deviceStatus,

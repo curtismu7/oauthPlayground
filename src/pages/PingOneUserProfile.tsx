@@ -84,7 +84,7 @@ const extractPopulation = (population: unknown): string => {
 			return extractPopulation(popObj.population);
 		}
 		// Log what we found for debugging
-		console.log('[extractPopulation] Unhandled population structure:', {
+		logger.info('[extractPopulation] Unhandled population structure:', {
 			population,
 			keys: Object.keys(popObj),
 			values: Object.values(popObj).slice(0, 3), // First 3 values for debugging
@@ -143,6 +143,7 @@ type PingOneMfaStatus = PingOneMfaDetails | null;
 import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 import type { CSSProperties } from 'react';
 
+import { logger } from '../utils/logger';
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
 		maxWidth: '1200px',
@@ -711,11 +712,11 @@ const PingOneUserProfile: React.FC = () => {
 						`/api/pingone/user/${encodeURIComponent(resolvedId)}/groups?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					)
 						.then((r) => {
-							console.log('[fetchUserBundle] Groups fetch response status:', r.status, r.ok);
+							logger.info('[fetchUserBundle] Groups fetch response status:', r.status, r.ok);
 							return r.ok ? r.json() : { _embedded: { groups: [] } };
 						})
 						.then((payload) => {
-							console.log(
+							logger.info(
 								'[fetchUserBundle] Groups payload received:',
 								JSON.stringify(payload, null, 2).substring(0, 1500)
 							);
@@ -934,38 +935,38 @@ const PingOneUserProfile: React.FC = () => {
 						.filter((role): role is PingOneUserRole => Boolean(role));
 				}
 
-				console.log('[fetchUserBundle] ===== GROUPS DEBUG =====');
-				console.log('[fetchUserBundle] Final groups count:', groups.length);
-				console.log('[fetchUserBundle] Groups payload keys:', Object.keys(groupsPayload || {}));
-				console.log(
+				logger.info('[fetchUserBundle] ===== GROUPS DEBUG =====');
+				logger.info('[fetchUserBundle] Final groups count:', groups.length);
+				logger.info('[fetchUserBundle] Groups payload keys:', Object.keys(groupsPayload || {}));
+				logger.info(
 					'[fetchUserBundle] Groups _embedded keys:',
 					groupsPayload._embedded ? Object.keys(groupsPayload._embedded) : 'NO _embedded'
 				);
-				console.log(
+				logger.info(
 					'[fetchUserBundle] Groups _embedded.groups:',
 					groupsPayload._embedded?.groups
 						? `Array of ${groupsPayload._embedded.groups.length}`
 						: 'NOT FOUND'
 				);
-				console.log(
+				logger.info(
 					'[fetchUserBundle] Groups _embedded.memberOfGroups:',
 					groupsPayload._embedded?.memberOfGroups
 						? `Array of ${groupsPayload._embedded.memberOfGroups.length}`
 						: 'NOT FOUND'
 				);
-				console.log(
+				logger.info(
 					'[fetchUserBundle] Groups _embedded.items:',
 					groupsPayload._embedded?.items
 						? `Array of ${groupsPayload._embedded.items.length}`
 						: 'NOT FOUND'
 				);
-				console.log(
+				logger.info(
 					'[fetchUserBundle] First group (if any):',
 					groups.length > 0 ? groups[0] : 'NONE'
 				);
-				console.log('[fetchUserBundle] ===== END GROUPS DEBUG =====');
+				logger.info('[fetchUserBundle] ===== END GROUPS DEBUG =====');
 
-				console.log('[fetchUserBundle] Groups, Roles, and Population:', {
+				logger.info('[fetchUserBundle] Groups, Roles, and Population:', {
 					groupsCount: groups.length,
 					rolesCount: roles.length,
 					groupsPayloadKeys: Object.keys(groupsPayload || {}),
@@ -1014,7 +1015,7 @@ const PingOneUserProfile: React.FC = () => {
 					);
 				}
 			} catch (additionalError) {
-				log.error(
+				logger.error(
 					'PingOneUserProfile',
 					'Failed to fetch additional user data:',
 					undefined,
@@ -1057,7 +1058,7 @@ const PingOneUserProfile: React.FC = () => {
 				setMfaStatus(bundle.mfa);
 				setUserConsents(bundle.consents);
 			} catch (err: unknown) {
-				log.error('PingOneUserProfile', 'Failed to fetch user profile:', undefined, err as Error);
+				logger.error('PingOneUserProfile', 'Failed to fetch user profile:', undefined, err as Error);
 				const status = (err as { status?: number })?.status;
 				const message = err instanceof Error ? err.message : 'Failed to load user profile';
 				if (status === 401 || message === 'Worker token unauthorized') {
@@ -1133,7 +1134,7 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				log.error(
+				logger.error(
 					'PingOneUserProfile',
 					'[Population] Failed to fetch population details:',
 					undefined,
@@ -1151,7 +1152,7 @@ const PingOneUserProfile: React.FC = () => {
 					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -1197,7 +1198,7 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				log.error(
+				logger.error(
 					'PingOneUserProfile',
 					'[Comparison Population] Failed to fetch population details:',
 					undefined,
@@ -1306,7 +1307,7 @@ const PingOneUserProfile: React.FC = () => {
 					localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, finalIdentifier);
 				}
 			} catch (storageError) {
-				log.warn('PingOneUserProfile', 'Unable to persist credentials to localStorage:', {
+				logger.warn('PingOneUserProfile', 'Unable to persist credentials to localStorage:', {
 					error: storageError,
 				});
 			}
@@ -1495,7 +1496,7 @@ const PingOneUserProfile: React.FC = () => {
 											localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
 										}
 									} catch (storageError) {
-										log.warn(
+										logger.warn(
 											'PingOneUserProfile',
 											'Unable to persist user identifier to localStorage:',
 											{ error: storageError }

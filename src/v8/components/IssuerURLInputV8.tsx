@@ -15,6 +15,7 @@
 
 import React, { useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🌐 ISSUER-URL-V8]';
 
 export interface IssuerURLInputV8Props {
@@ -38,7 +39,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newUrl = e.target.value;
-		console.log(`${MODULE_TAG} Issuer URL changed`, { from: value, to: newUrl });
+		logger.info(`${MODULE_TAG} Issuer URL changed`, { from: value, to: newUrl });
 		onChange(newUrl);
 	};
 

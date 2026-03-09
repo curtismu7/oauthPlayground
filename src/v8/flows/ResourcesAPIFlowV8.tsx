@@ -12,6 +12,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📚 RESOURCES-API-V8]';
 
 // Styled Components
@@ -274,7 +275,7 @@ interface ModalData {
 export const ResourcesAPIFlowV8: React.FC = () => {
 	const [activeModal, setActiveModal] = useState<string | null>(null);
 
-	console.log(`${MODULE_TAG} Initializing Resources API educational flow`);
+	logger.info(`${MODULE_TAG} Initializing Resources API educational flow`);
 
 	const modals: Record<string, ModalData> = {
 		overview: {

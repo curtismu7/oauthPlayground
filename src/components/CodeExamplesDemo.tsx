@@ -7,6 +7,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { CodeExamplesInline } from './CodeExamplesInline';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
 	padding: 2rem;
 	max-width: 1200px;
@@ -249,7 +250,7 @@ export const CodeExamplesDemo: React.FC = () => {
 							/>
 						</FormGroup>
 					</FormGrid>
-					<Button onClick={() => console.log('Config updated:', config)}>
+					<Button onClick={() => logger.info('Config updated:', config)}>
 						Update Configuration
 					</Button>
 				</ConfigForm>

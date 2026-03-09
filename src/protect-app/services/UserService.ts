@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 /**
  * @file UserService.ts
  * @module protect-app/services
@@ -200,7 +201,7 @@ class UserService {
 	 * Search users with filtering and pagination
 	 */
 	async searchUsers(request: UserSearchRequest): Promise<UserSearchResult> {
-		console.log(`${MODULE_TAG} Searching users:`, request);
+		logger.info(`${MODULE_TAG} Searching users:`, request);
 
 		try {
 			const {
@@ -247,7 +248,7 @@ class UserService {
 	 * Get user by ID
 	 */
 	async getUserById(id: string): Promise<User | null> {
-		console.log(`${MODULE_TAG} Getting user by ID: ${id}`);
+		logger.info(`${MODULE_TAG} Getting user by ID: ${id}`);
 		try {
 			const user = this.users.find((u) => u.id === id);
 			return user || null;
@@ -261,7 +262,7 @@ class UserService {
 	 * Create new user
 	 */
 	async createUser(request: CreateUserRequest): Promise<User> {
-		console.log(`${MODULE_TAG} Creating user:`, request);
+		logger.info(`${MODULE_TAG} Creating user:`, request);
 
 		try {
 			// Validate business rules
@@ -293,7 +294,7 @@ class UserService {
 	 * Update existing user
 	 */
 	async updateUser(id: string, request: UpdateUserRequest): Promise<User> {
-		console.log(`${MODULE_TAG} Updating user ${id}:`, request);
+		logger.info(`${MODULE_TAG} Updating user ${id}:`, request);
 
 		try {
 			const userIndex = this.users.findIndex((u) => u.id === id);
@@ -326,7 +327,7 @@ class UserService {
 	 * Delete user
 	 */
 	async deleteUser(id: string): Promise<void> {
-		console.log(`${MODULE_TAG} Deleting user: ${id}`);
+		logger.info(`${MODULE_TAG} Deleting user: ${id}`);
 
 		try {
 			const userIndex = this.users.findIndex((u) => u.id === id);
@@ -345,7 +346,7 @@ class UserService {
 	 * Get all available roles
 	 */
 	async getRoles(): Promise<UserRole[]> {
-		console.log(`${MODULE_TAG} Getting all roles`);
+		logger.info(`${MODULE_TAG} Getting all roles`);
 		try {
 			return [...this.roles];
 		} catch (error) {
@@ -358,7 +359,7 @@ class UserService {
 	 * Get all available statuses
 	 */
 	async getStatuses(): Promise<UserStatus[]> {
-		console.log(`${MODULE_TAG} Getting all statuses`);
+		logger.info(`${MODULE_TAG} Getting all statuses`);
 		try {
 			return [...this.statuses];
 		} catch (error) {

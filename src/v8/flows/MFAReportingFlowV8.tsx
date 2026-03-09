@@ -38,6 +38,7 @@ import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
 
@@ -290,7 +291,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 				const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 				const environmentId = stored.environmentId || globalEnvId || '';
 
-				console.log(`${MODULE_TAG} Loading credentials`, {
+				logger.info(`${MODULE_TAG} Loading credentials`, {
 					flowSpecificEnvId: stored.environmentId,
 					globalEnvId,
 					usingEnvId: environmentId,
@@ -302,7 +303,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 					username: stored.username || '',
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load credentials`, error);
+				logger.error(`${MODULE_TAG} Failed to load credentials`, error);
 			}
 		};
 
@@ -313,7 +314,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 	useEffect(() => {
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log(`${MODULE_TAG} Environment ID saved globally`, {
+			logger.info(`${MODULE_TAG} Environment ID saved globally`, {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -547,7 +548,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 					duration: 3000,
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load reports`, error);
+				logger.error(`${MODULE_TAG} Failed to load reports`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',

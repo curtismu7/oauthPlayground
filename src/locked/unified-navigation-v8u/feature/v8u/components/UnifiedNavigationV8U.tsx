@@ -25,6 +25,7 @@ import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { UnifiedDocumentationModalV8U } from '../../dependencies/v8u/components/UnifiedDocumentationModalV8U';
 import { PKCEStorageServiceV8U } from '../../dependencies/v8u/services/pkceStorageServiceV8U';
 
+import { logger } from '../../../../utils/logger';
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
 	currentFlowType?: FlowType;
@@ -105,7 +106,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			flowTypes.forEach((flow) => {
 				const flowKey = `${spec}-${flow}-v8u`;
 				PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
-					console.warn(`Failed to clear PKCE codes for ${flowKey}:`, err);
+					logger.warn(`Failed to clear PKCE codes for ${flowKey}:`, err);
 				});
 			});
 		});

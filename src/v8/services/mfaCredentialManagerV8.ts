@@ -15,7 +15,7 @@
  * // Subscribe to credential updates
  * const manager = MFACredentialManagerV8.getInstance();
  * const unsubscribe = manager.subscribe((creds) => {
- *   console.log('Credentials updated:', creds);
+ *   logger.info('Credentials updated:', creds);
  * });
  *
  * // Load credentials
@@ -29,6 +29,7 @@ import type { MFACredentials } from '../flows/shared/MFATypes';
 import { CredentialsServiceV8 } from './credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from './environmentIdServiceV8';
 
+import { logger } from '../utils/logger';
 export type CredentialUpdateCallback = (credentials: MFACredentials | null) => void;
 
 export interface ValidationResult {
@@ -61,7 +62,7 @@ export class MFACredentialManagerV8 {
 		this.subscribers = new Set();
 		this.credentials = null;
 
-		console.log('[MFACredentialManagerV8] Initialized');
+		logger.info('[MFACredentialManagerV8] Initialized');
 	}
 
 	/**
@@ -82,7 +83,7 @@ export class MFACredentialManagerV8 {
 			MFACredentialManagerV8.instance.subscribers.clear();
 			MFACredentialManagerV8.instance = null;
 		}
-		console.log('[MFACredentialManagerV8] Instance reset');
+		logger.info('[MFACredentialManagerV8] Instance reset');
 	}
 
 	/**
@@ -93,7 +94,7 @@ export class MFACredentialManagerV8 {
 	 */
 	subscribe(callback: CredentialUpdateCallback): () => void {
 		this.subscribers.add(callback);
-		console.log(`[MFACredentialManagerV8] Subscriber added (total: ${this.subscribers.size})`);
+		logger.info(`[MFACredentialManagerV8] Subscriber added (total: ${this.subscribers.size})`);
 
 		// Immediately notify with current state
 		callback(this.credentials);
@@ -112,7 +113,7 @@ export class MFACredentialManagerV8 {
 	unsubscribe(callback: CredentialUpdateCallback): void {
 		const removed = this.subscribers.delete(callback);
 		if (removed) {
-			console.log(`[MFACredentialManagerV8] Subscriber removed (total: ${this.subscribers.size})`);
+			logger.info(`[MFACredentialManagerV8] Subscriber removed (total: ${this.subscribers.size})`);
 		}
 	}
 
@@ -123,7 +124,7 @@ export class MFACredentialManagerV8 {
 	 * @returns Loaded credentials or defaults
 	 */
 	loadCredentials(flowKey: string = MFA_FLOW_KEY): MFACredentials {
-		console.log('[MFACredentialManagerV8] Loading credentials...', { flowKey });
+		logger.info('[MFACredentialManagerV8] Loading credentials...', { flowKey });
 
 		try {
 			// Load from existing service
@@ -162,10 +163,10 @@ export class MFACredentialManagerV8 {
 			// Update internal state
 			this.credentials = mfaCredentials;
 
-			console.log('[MFACredentialManagerV8] Credentials loaded successfully');
+			logger.info('[MFACredentialManagerV8] Credentials loaded successfully');
 			return mfaCredentials;
 		} catch (error) {
-			console.error('[MFACredentialManagerV8] Error loading credentials:', error);
+			logger.error('[MFACredentialManagerV8] Error loading credentials:', error);
 
 			// Return defaults
 			const defaults = this.getDefaultCredentials();
@@ -181,7 +182,7 @@ export class MFACredentialManagerV8 {
 	 * @returns Promise resolving to credentials
 	 */
 	async loadCredentialsWithBackup(flowKey: string = MFA_FLOW_KEY): Promise<MFACredentials> {
-		console.log('[MFACredentialManagerV8] Loading credentials with backup...', { flowKey });
+		logger.info('[MFACredentialManagerV8] Loading credentials with backup...', { flowKey });
 
 		try {
 			// Load from existing service with backup
@@ -221,10 +222,10 @@ export class MFACredentialManagerV8 {
 			this.credentials = mfaCredentials;
 			this.notify();
 
-			console.log('[MFACredentialManagerV8] Credentials loaded with backup successfully');
+			logger.info('[MFACredentialManagerV8] Credentials loaded with backup successfully');
 			return mfaCredentials;
 		} catch (error) {
-			console.error('[MFACredentialManagerV8] Error loading credentials with backup:', error);
+			logger.error('[MFACredentialManagerV8] Error loading credentials with backup:', error);
 
 			// Return defaults
 			const defaults = this.getDefaultCredentials();
@@ -241,7 +242,7 @@ export class MFACredentialManagerV8 {
 	 * @param credentials - Credentials to save
 	 */
 	saveCredentials(flowKey: string = MFA_FLOW_KEY, credentials: MFACredentials): void {
-		console.log('[MFACredentialManagerV8] Saving credentials...', { flowKey });
+		logger.info('[MFACredentialManagerV8] Saving credentials...', { flowKey });
 
 		try {
 			// Save using existing service
@@ -256,9 +257,9 @@ export class MFACredentialManagerV8 {
 			// Notify subscribers
 			this.notify();
 
-			console.log('[MFACredentialManagerV8] Credentials saved successfully');
+			logger.info('[MFACredentialManagerV8] Credentials saved successfully');
 		} catch (error) {
-			console.error('[MFACredentialManagerV8] Error saving credentials:', error);
+			logger.error('[MFACredentialManagerV8] Error saving credentials:', error);
 			throw error;
 		}
 	}
@@ -269,7 +270,7 @@ export class MFACredentialManagerV8 {
 	 * @param flowKey - Flow key (defaults to 'mfa-flow-v8')
 	 */
 	clearCredentials(flowKey: string = MFA_FLOW_KEY): void {
-		console.log('[MFACredentialManagerV8] Clearing credentials...', { flowKey });
+		logger.info('[MFACredentialManagerV8] Clearing credentials...', { flowKey });
 
 		try {
 			CredentialsServiceV8.clearCredentials(flowKey);
@@ -280,9 +281,9 @@ export class MFACredentialManagerV8 {
 			// Notify subscribers
 			this.notify();
 
-			console.log('[MFACredentialManagerV8] Credentials cleared successfully');
+			logger.info('[MFACredentialManagerV8] Credentials cleared successfully');
 		} catch (error) {
-			console.error('[MFACredentialManagerV8] Error clearing credentials:', error);
+			logger.error('[MFACredentialManagerV8] Error clearing credentials:', error);
 			throw error;
 		}
 	}
@@ -380,7 +381,7 @@ export class MFACredentialManagerV8 {
 	 * @param environmentId - Environment ID to set
 	 */
 	setEnvironmentId(environmentId: string): void {
-		console.log('[MFACredentialManagerV8] Setting environment ID:', environmentId);
+		logger.info('[MFACredentialManagerV8] Setting environment ID:', environmentId);
 
 		// Update global service
 		EnvironmentIdServiceV8.saveEnvironmentId(environmentId);
@@ -439,12 +440,12 @@ export class MFACredentialManagerV8 {
 	 * Notify all subscribers of credential change
 	 */
 	private notify(): void {
-		console.log(`[MFACredentialManagerV8] Notifying ${this.subscribers.size} subscribers`);
+		logger.info(`[MFACredentialManagerV8] Notifying ${this.subscribers.size} subscribers`);
 		this.subscribers.forEach((callback) => {
 			try {
 				callback(this.credentials);
 			} catch (error) {
-				console.error('[MFACredentialManagerV8] Error in subscriber callback:', error);
+				logger.error('[MFACredentialManagerV8] Error in subscriber callback:', error);
 			}
 		});
 	}
@@ -485,7 +486,7 @@ export class MFACredentialManagerV8 {
 			}
 			return parsed;
 		} catch (error) {
-			console.error('[MFACredentialManagerV8] Error importing credentials:', error);
+			logger.error('[MFACredentialManagerV8] Error importing credentials:', error);
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

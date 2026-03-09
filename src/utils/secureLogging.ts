@@ -1,4 +1,5 @@
 // src/utils/secureLogging.ts
+import { logger } from '../utils/logger';
 // Secure logging utility for V7 flows - prevents sensitive data exposure
 
 /**
@@ -54,7 +55,7 @@ export const sanitizeSensitiveData = (data: unknown): unknown => {
 export const secureLog = (message: string, data?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedData = data ? sanitizeSensitiveData(data) : undefined;
-		console.log(message, sanitizedData);
+		logger.info(message, sanitizedData);
 	}
 };
 
@@ -66,7 +67,7 @@ export const secureLog = (message: string, data?: unknown): void => {
 export const secureErrorLog = (message: string, error?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedError = error ? sanitizeSensitiveData(error) : undefined;
-		console.error(message, sanitizedError);
+		logger.error(message, sanitizedError);
 	}
 };
 
@@ -78,6 +79,6 @@ export const secureErrorLog = (message: string, error?: unknown): void => {
 export const secureWarnLog = (message: string, data?: unknown): void => {
 	if (process.env.NODE_ENV === 'development') {
 		const sanitizedData = data ? sanitizeSensitiveData(data) : undefined;
-		console.warn(message, sanitizedData);
+		logger.warn(message, sanitizedData);
 	}
 };

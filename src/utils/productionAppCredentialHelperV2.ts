@@ -12,6 +12,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {
 	'mfa-feature-flags': {
@@ -164,7 +165,7 @@ export async function saveProductionAppCredentialsWithSQLite(
 				throw new Error(`Unknown app type: ${config.appType}`);
 		}
 
-		console.log(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
+		logger.info(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
 	} catch (error) {
 		logger.warn(
 			'ProductionAppCredentialHelper',
@@ -330,7 +331,7 @@ export async function exportProductionAppCredentialsWithSQLite(
 		}
 
 		await exportStandardizedCredentials(credentials, metadata);
-		console.log(`✅ Exported ${config.appName} credentials with SQLite backup metadata`);
+		logger.info(`✅ Exported ${config.appName} credentials with SQLite backup metadata`);
 	} catch (error) {
 		logger.error(
 			'ProductionAppCredentialHelper',
@@ -370,7 +371,7 @@ export async function importProductionAppCredentialsWithSQLite(
 
 		// Save credentials with SQLite backup
 		await saveProductionAppCredentialsWithSQLite(appId, importedData.credentials);
-		console.log(`✅ Imported ${config.appName} credentials with SQLite backup`);
+		logger.info(`✅ Imported ${config.appName} credentials with SQLite backup`);
 	} catch (error) {
 		logger.error(
 			'ProductionAppCredentialHelper',

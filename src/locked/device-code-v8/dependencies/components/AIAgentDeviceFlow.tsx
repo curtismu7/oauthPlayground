@@ -12,6 +12,7 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -341,17 +342,17 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('AIAgentDeviceFlow', 'User code copied to clipboard');
+		logger.info('AIAgentDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('AIAgentDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('AIAgentDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('AIAgentDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('AIAgentDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

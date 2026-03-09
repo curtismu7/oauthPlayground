@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react';
+import { logger } from '../utils/logger';
 import {
 	FloatingStepper,
 	FloatingStepperService,
@@ -83,7 +84,7 @@ const FloatingStepperExample: React.FC = () => {
 	};
 
 	const handleComplete = () => {
-		console.log('Flow completed!');
+		logger.info('Flow completed!');
 		// Handle completion logic
 	};
 

@@ -16,6 +16,7 @@ import { V7SharedService } from '../services/v7SharedService';
 import { V7FlowVariantSelector } from '../templates/V7FlowVariants';
 import { V7ServicesTestSuite } from '../tests/v7ServicesTestSuite';
 
+import { logger } from '../utils/logger';
 // Get shared UI components
 const {
 	InfoBox,
@@ -132,7 +133,7 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 			<V7FlowVariantSelector
 				baseFlowName="oauth-authorization-code-v7"
 				onVariantChange={(variant) => {
-					console.log('Variant changed to:', variant);
+					logger.info('Variant changed to:', variant);
 				}}
 			/>
 		</>

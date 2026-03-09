@@ -18,6 +18,7 @@ import {
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
+import { logger } from '../utils/logger';
 import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
@@ -264,7 +265,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	// Handle app discovery
 	const handleDiscover = async () => {
 		if (!environmentId || !tokenStatus?.isValid) {
-			log.warn(_MODULE_TAG, 'Worker token required for app discovery');
+			logger.warn(_MODULE_TAG, 'Worker token required for app discovery');
 			return;
 		}
 
@@ -287,7 +288,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 				setStatusMessage({ type: 'warning', text: 'No applications found for this grant type' });
 			}
 		} catch (error) {
-			log.error(_MODULE_TAG, 'App discovery failed:', undefined, error as Error);
+			logger.error(_MODULE_TAG, 'App discovery failed:', undefined, error as Error);
 			setStatusMessage({ type: 'error', text: 'Failed to discover applications' });
 		} finally {
 			setIsSearching(false);

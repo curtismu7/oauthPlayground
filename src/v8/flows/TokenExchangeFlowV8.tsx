@@ -15,6 +15,7 @@ import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
 
+import { logger } from '../utils/logger';
 type TokenExchangeScenario =
 	| 'delegation'
 	| 'impersonation'
@@ -264,7 +265,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 						);
 					}
 				} catch (err) {
-					console.error(`${MODULE_TAG} Error checking admin enablement:`, err);
+					logger.error(`${MODULE_TAG} Error checking admin enablement:`, err);
 					setError(
 						new TokenExchangeError(
 							TokenExchangeErrorType.SERVER_ERROR,
@@ -305,7 +306,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 					}),
 				};
 
-				console.log(`${MODULE_TAG} Executing token exchange with params:`, {
+				logger.info(`${MODULE_TAG} Executing token exchange with params:`, {
 					...params,
 					subject_token: '[REDACTED]',
 					...(params.actor_token && { actor_token: '[REDACTED]' }),

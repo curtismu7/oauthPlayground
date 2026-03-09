@@ -11,6 +11,7 @@
 
 import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[⚙️ WORKER-TOKEN-CONFIG-V8]';
 
 export interface WorkerTokenConfig {
@@ -55,10 +56,10 @@ class WorkerTokenConfigService {
 			// Validate configuration consistency
 			this.validateConfigurationConsistency(mfaConfig);
 
-			console.log(`${MODULE_TAG} Initialized with MFA config:`, this.config);
+			logger.info(`${MODULE_TAG} Initialized with MFA config:`, this.config);
 			this.isInitialized = true;
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to initialize config, using defaults:`, error);
+			logger.warn(`${MODULE_TAG} Failed to initialize config, using defaults:`, error);
 			this.config = {
 				silentApiRetrieval: true, // Match MFAConfigurationServiceV8 default
 				showTokenAtEnd: true, // Match MFAConfigurationServiceV8 default
@@ -66,7 +67,7 @@ class WorkerTokenConfigService {
 			this.isInitialized = true;
 
 			// Log configuration source for debugging
-			console.log(`${MODULE_TAG} Initialized with fallback defaults:`, this.config);
+			logger.info(`${MODULE_TAG} Initialized with fallback defaults:`, this.config);
 		}
 	}
 
@@ -84,7 +85,7 @@ class WorkerTokenConfigService {
 		const defaultShowToken = true;
 
 		if (mfaSilentApi !== defaultSilentApi) {
-			console.log(`${MODULE_TAG} ⚠️ MFA silentApiRetrieval differs from default:`, {
+			logger.info(`${MODULE_TAG} ⚠️ MFA silentApiRetrieval differs from default:`, {
 				mfaValue: mfaSilentApi,
 				defaultValue: defaultSilentApi,
 				source: 'MFAConfigurationServiceV8',
@@ -92,7 +93,7 @@ class WorkerTokenConfigService {
 		}
 
 		if (mfaShowToken !== defaultShowToken) {
-			console.log(`${MODULE_TAG} ⚠️ MFA showTokenAtEnd differs from default:`, {
+			logger.info(`${MODULE_TAG} ⚠️ MFA showTokenAtEnd differs from default:`, {
 				mfaValue: mfaShowToken,
 				defaultValue: defaultShowToken,
 				source: 'MFAConfigurationServiceV8',
@@ -101,7 +102,7 @@ class WorkerTokenConfigService {
 
 		// Log final configuration source
 		if (this.config) {
-			console.log(`${MODULE_TAG} ✅ Configuration validated:`, {
+			logger.info(`${MODULE_TAG} ✅ Configuration validated:`, {
 				silentApiRetrieval: this.config.silentApiRetrieval,
 				showTokenAtEnd: this.config.showTokenAtEnd,
 				source: 'MFAConfigurationServiceV8',
@@ -136,7 +137,7 @@ class WorkerTokenConfigService {
 				if (silentApiChanged) {
 					this.config.silentApiRetrieval =
 						customEvent.detail.workerToken.silentApiRetrieval ?? false;
-					console.log(
+					logger.info(
 						`${MODULE_TAG} 🔄 Silent API retrieval updated:`,
 						this.config.silentApiRetrieval
 					);
@@ -144,12 +145,12 @@ class WorkerTokenConfigService {
 
 				if (showTokenChanged) {
 					this.config.showTokenAtEnd = customEvent.detail.workerToken.showTokenAtEnd ?? false;
-					console.log(`${MODULE_TAG} 🔄 Show token at end updated:`, this.config.showTokenAtEnd);
+					logger.info(`${MODULE_TAG} 🔄 Show token at end updated:`, this.config.showTokenAtEnd);
 				}
 
 				// Only notify if config actually changed
 				if (JSON.stringify(oldConfig) !== JSON.stringify(this.config)) {
-					console.log(`${MODULE_TAG} Config updated from MFA service:`, this.config);
+					logger.info(`${MODULE_TAG} Config updated from MFA service:`, this.config);
 					this.notifyListeners();
 					this.broadcastConfigUpdate();
 					this.syncBackToMFAService(); // Sync back to maintain consistency
@@ -180,10 +181,10 @@ class WorkerTokenConfigService {
 				};
 
 				MFAConfigurationServiceV8.saveConfiguration(mfaConfig);
-				console.log(`${MODULE_TAG} 🔄 Synced back to MFA service:`, this.config);
+				logger.info(`${MODULE_TAG} 🔄 Synced back to MFA service:`, this.config);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to sync back to MFA service:`, error);
+			logger.error(`${MODULE_TAG} Failed to sync back to MFA service:`, error);
 		}
 	}
 
@@ -230,7 +231,7 @@ class WorkerTokenConfigService {
 				this.broadcastConfigUpdate();
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
+			logger.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
 		}
 	}
 
@@ -253,7 +254,7 @@ class WorkerTokenConfigService {
 				this.broadcastConfigUpdate();
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
+			logger.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
 		}
 	}
 
@@ -284,7 +285,7 @@ class WorkerTokenConfigService {
 			try {
 				listener(this.config!);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error notifying listener:`, error);
+				logger.error(`${MODULE_TAG} Error notifying listener:`, error);
 			}
 		});
 	}

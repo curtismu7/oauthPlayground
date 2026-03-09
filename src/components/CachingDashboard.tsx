@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 
+import { logger } from '../utils/logger';
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;
@@ -327,10 +328,10 @@ export const CachingDashboard: React.FC = () => {
 		autoRegister: true,
 		autoUpdate: false,
 		onUpdateAvailable: () => {
-			log.info('[CachingDashboard] Service worker update available');
+			logger.info('[CachingDashboard] Service worker update available');
 		},
 		onUpdateInstalled: () => {
-			log.info('[CachingDashboard] Service worker update installed');
+			logger.info('[CachingDashboard] Service worker update installed');
 		},
 	});
 

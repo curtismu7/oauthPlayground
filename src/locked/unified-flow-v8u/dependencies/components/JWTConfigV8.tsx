@@ -20,6 +20,7 @@ import {
 } from '../utils/keyGeneration';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
 interface JWTConfigV8Props {
@@ -251,11 +252,11 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			);
 
 			if (strength.recommendations.length > 0) {
-				console.log(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
+				logger.info(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
 			}
 		} catch (error) {
 			v4ToastManager.showError('Failed to generate client secret');
-			console.error('Secret generation error:', error);
+			logger.error('Secret generation error:', error);
 		} finally {
 			setIsGeneratingKey(false);
 		}
@@ -274,7 +275,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			v4ToastManager.showInfo(strength.recommendation);
 		} catch (error) {
 			v4ToastManager.showError('Failed to generate RSA key pair');
-			console.error('Key generation error:', error);
+			logger.error('Key generation error:', error);
 		} finally {
 			setIsGeneratingKey(false);
 		}

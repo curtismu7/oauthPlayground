@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 
+import { logger } from '../utils/logger';
 const HELIOMART_ACCENT_START = '#F59E0B';
 
 const Card = styled.div`
@@ -243,7 +244,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 		setUser(null);
 		setSuccess(false);
 		try {
-			console.log('[PasswordSetValueTab] Looking up user:', {
+			logger.info('[PasswordSetValueTab] Looking up user:', {
 				identifier,
 				environmentId: `${environmentId?.substring(0, 20)}...`,
 			});
@@ -252,7 +253,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				accessToken: workerToken,
 				identifier: identifier.trim(),
 			});
-			console.log('[PasswordSetValueTab] Lookup result:', {
+			logger.info('[PasswordSetValueTab] Lookup result:', {
 				hasUser: !!result.user,
 				userId: result.user?.id,
 			});
@@ -272,7 +273,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'PasswordSetValueTab',
 				'[PasswordSetValueTab] Lookup error:',
 				undefined,

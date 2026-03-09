@@ -14,6 +14,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🌍 COUNTRY-CODE-PICKER-V8]';
 
 interface Country {
@@ -123,7 +124,7 @@ export const CountryCodePickerV8: React.FC<CountryCodePickerV8Props> = ({
 	}, [isOpen]);
 
 	const handleSelect = (country: Country) => {
-		console.log(`${MODULE_TAG} Country selected`, {
+		logger.info(`${MODULE_TAG} Country selected`, {
 			code: country.code,
 			dialCode: country.dialCode,
 		});

@@ -4,6 +4,7 @@ import { useDraggableModal } from '../hooks/useDraggableModal.ts';
 import { MFAServiceV8, type MFASettings } from '../services/mfaServiceV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 
+import { logger } from '../../../../utils/logger';
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -56,7 +57,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			const data = await MFAServiceV8.getMFASettings(environmentId);
 			setSettings(data);
 		} catch (error) {
-			console.error('Failed to fetch MFA settings', error);
+			logger.error('Failed to fetch MFA settings', error);
 			toastV8.error('Failed to fetch MFA settings');
 		} finally {
 			setIsLoading(false);
@@ -70,7 +71,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			toastV8.success('MFA settings updated successfully');
 			onClose();
 		} catch (error) {
-			console.error('Failed to update MFA settings', error);
+			logger.error('Failed to update MFA settings', error);
 			toastV8.error('Failed to update MFA settings');
 		} finally {
 			setIsSaving(false);

@@ -5,6 +5,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -161,7 +162,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 	const handleDiscoveryComplete = (result: DiscoveryResult) => {
 		setDiscoveryResult(result);
-		console.log('Discovery completed:', result);
+		logger.info('Discovery completed:', result);
 	};
 
 	const handleEnvironmentIdChange = (envId: string) => {

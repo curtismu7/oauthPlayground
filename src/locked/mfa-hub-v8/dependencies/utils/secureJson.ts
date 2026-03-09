@@ -1,4 +1,5 @@
 // src/utils/secureJson.ts - Secure JSON parsing utilities
+import { logger } from '../../../utils/logger';
 
 /**
  * Safely parse JSON with validation and XSS protection
@@ -17,7 +18,7 @@ export const safeJsonParse = <T = unknown>(
 
 	// Size validation to prevent DoS
 	if (jsonString.length > maxLength) {
-		console.warn(' [Security] JSON string too large, rejecting parse');
+		logger.warn(' [Security] JSON string too large, rejecting parse');
 		return null;
 	}
 
@@ -36,7 +37,7 @@ export const safeJsonParse = <T = unknown>(
 	const lowerJson = jsonString.toLowerCase();
 	for (const pattern of xssPatterns) {
 		if (lowerJson.includes(pattern)) {
-			console.warn(' [Security] Blocked potentially dangerous JSON content:', pattern);
+			logger.warn(' [Security] Blocked potentially dangerous JSON content:', pattern);
 			return null;
 		}
 	}
@@ -54,7 +55,7 @@ export const safeJsonParse = <T = unknown>(
 
 	for (const pattern of prototypePatterns) {
 		if (lowerJson.includes(pattern)) {
-			console.warn(' [Security] Blocked prototype pollution attempt in JSON string:', pattern);
+			logger.warn(' [Security] Blocked prototype pollution attempt in JSON string:', pattern);
 			return null;
 		}
 	}
@@ -67,12 +68,12 @@ export const safeJsonParse = <T = unknown>(
 			// Check for prototype pollution attempts - only block if these are OWN properties
 			// Use hasOwnProperty to avoid false positives from inherited properties
 			if (Object.hasOwn(parsed, '__proto__') || Object.hasOwn(parsed, 'prototype')) {
-				console.warn(' [Security] Blocked prototype pollution attempt in parsed JSON');
+				logger.warn(' [Security] Blocked prototype pollution attempt in parsed JSON');
 				return null;
 			}
 			// Only block constructor if it's an own property and not a flowContext object
 			if (Object.hasOwn(parsed, 'constructor') && !parsed.flow) {
-				console.warn(
+				logger.warn(
 					' [Security] Blocked prototype pollution attempt in parsed JSON (constructor)'
 				);
 				return null;
@@ -81,7 +82,7 @@ export const safeJsonParse = <T = unknown>(
 
 		return parsed as T;
 	} catch (error) {
-		console.warn(' [Security] JSON parse failed (potentially malformed):', error);
+		logger.warn(' [Security] JSON parse failed (potentially malformed):', error);
 		return null;
 	}
 };
@@ -98,7 +99,7 @@ export const safeLocalStorageParse = <T>(key: string, defaultValue: T): T => {
 		const parsed = safeJsonParse<T>(stored);
 		return parsed !== null ? parsed : defaultValue;
 	} catch (error) {
-		console.warn(' [Security] localStorage parse failed for key:', key, error);
+		logger.warn(' [Security] localStorage parse failed for key:', key, error);
 		return defaultValue;
 	}
 };
@@ -115,7 +116,7 @@ export const safeSessionStorageParse = <T>(key: string, defaultValue: T): T => {
 		const parsed = safeJsonParse<T>(stored);
 		return parsed !== null ? parsed : defaultValue;
 	} catch (error) {
-		console.warn(' [Security] sessionStorage parse failed for key:', key, error);
+		logger.warn(' [Security] sessionStorage parse failed for key:', key, error);
 		return defaultValue;
 	}
 };
@@ -132,13 +133,13 @@ export const sanitizePath = (path: string, defaultPath: string = '/'): string =>
 
 	// Only allow internal paths starting with /
 	if (!path.startsWith('/')) {
-		console.warn(' [Security] Blocked external redirect path:', path);
+		logger.warn(' [Security] Blocked external redirect path:', path);
 		return defaultPath;
 	}
 
 	// Block dangerous protocols and content
 	if (path.includes('javascript:') || path.includes('<') || path.includes('data:')) {
-		console.warn(' [Security] Blocked unsafe path content:', path);
+		logger.warn(' [Security] Blocked unsafe path content:', path);
 		return defaultPath;
 	}
 

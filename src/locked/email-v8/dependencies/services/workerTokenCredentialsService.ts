@@ -1,4 +1,5 @@
 // src/services/workerTokenCredentialsService.ts
+import { logger } from '../../../utils/logger';
 // Worker Token Credentials Service - Specialized service for managing PingOne Worker Token credentials
 // Provides client credentials grant configuration for machine-to-machine authentication
 
@@ -81,7 +82,7 @@ class WorkerTokenCredentialsService {
 				region: config.region || 'us',
 			};
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to load credentials:', error);
+			logger.error('[WorkerTokenCredentialsService] Failed to load credentials:', error);
 			return null;
 		}
 	}
@@ -106,14 +107,14 @@ class WorkerTokenCredentialsService {
 			};
 
 			localStorage.setItem(storageKey, JSON.stringify(config));
-			console.log('[WorkerTokenCredentialsService] Credentials saved successfully:', {
+			logger.info('[WorkerTokenCredentialsService] Credentials saved successfully:', {
 				flowType: flowType || 'default',
 				storageKey,
 				environmentId: `${credentials.environmentId?.substring(0, 20)}...`,
 			});
 			return true;
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to save credentials:', error);
+			logger.error('[WorkerTokenCredentialsService] Failed to save credentials:', error);
 			return false;
 		}
 	}
@@ -195,12 +196,12 @@ class WorkerTokenCredentialsService {
 		try {
 			const storageKey = this.getStorageKey(flowType);
 			localStorage.removeItem(storageKey);
-			console.log(
+			logger.info(
 				'[WorkerTokenCredentialsService] Credentials cleared for flowType:',
 				flowType || 'default'
 			);
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to clear credentials:', error);
+			logger.error('[WorkerTokenCredentialsService] Failed to clear credentials:', error);
 		}
 	}
 
@@ -226,7 +227,7 @@ class WorkerTokenCredentialsService {
 				hasCredentials: true,
 			};
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to get metadata:', error);
+			logger.error('[WorkerTokenCredentialsService] Failed to get metadata:', error);
 			return { hasCredentials: false };
 		}
 	}
