@@ -8,6 +8,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 
 import { logger } from '../utils/logger';
+
 // White background container with better spacing
 const WhiteContainer = styled.div`
   background-color: white;

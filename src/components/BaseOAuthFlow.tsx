@@ -3,11 +3,11 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
+import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';
 import FlowCredentials from './FlowCredentials';
 import PageTitle from './PageTitle';
 
-import { logger } from '../utils/logger';
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
 	__PINGONE_ENVIRONMENT_ID__?: string;

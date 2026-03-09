@@ -9,9 +9,9 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
+import { logger } from '../utils/logger';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
-import { logger } from '../utils/logger';
 interface CodeExamplesInlineProps {
 	flowType: string;
 	stepId: string;

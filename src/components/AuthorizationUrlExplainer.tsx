@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { logger } from '../utils/logger';
+
 interface AuthorizationUrlExplainerProps {
 	authUrl: string;
 	isOpen: boolean;
@@ -240,7 +241,12 @@ const copyToClipboard = async (text: string, label: string) => {
 		// You could add a toast notification here
 		logger.info(`${label} copied to clipboard`);
 	} catch (err) {
-		logger.error('AuthorizationUrlExplainer', 'Failed to copy to clipboard:', undefined, err as Error);
+		logger.error(
+			'AuthorizationUrlExplainer',
+			'Failed to copy to clipboard:',
+			undefined,
+			err as Error
+		);
 	}
 };
 

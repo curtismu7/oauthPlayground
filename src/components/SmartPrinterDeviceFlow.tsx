@@ -6,9 +6,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // HP Smart App Interface - Authentic HP Design with Green Theme
 const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>

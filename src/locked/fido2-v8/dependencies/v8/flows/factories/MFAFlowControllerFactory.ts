@@ -11,6 +11,7 @@
  * - Dependency injection support
  */
 
+import { logger } from '../../../../../utils/logger';
 import { EmailFlowController } from '../controllers/EmailFlowController';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import type { FlowControllerCallbacks } from '../controllers/MFAFlowController';
@@ -19,7 +20,6 @@ import { TOTPFlowController } from '../controllers/TOTPFlowController';
 import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
 import type { DeviceType } from '../shared/MFATypes';
 
-import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
 
 export interface ControllerFactoryConfig {

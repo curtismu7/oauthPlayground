@@ -6,11 +6,10 @@ import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { callbackUriService } from '../services/callbackUriService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
+import { logger } from '../utils/logger';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import LogoutUriInfoPanel from './LogoutUriInfoPanel';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
-
-import { logger } from '../utils/logger';
 // Global style to force all credential inputs to be editable
 export const GlobalInputFix = createGlobalStyle`
 	/* CRITICAL: Force all credential inputs to be editable */

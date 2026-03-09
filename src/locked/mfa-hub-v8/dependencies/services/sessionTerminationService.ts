@@ -1,4 +1,5 @@
 const DEFAULT_DOMAIN = 'https://auth.pingone.com';
+
 import { logger } from '../../../utils/logger';
 
 const DEFAULT_STORAGE_KEYS = {

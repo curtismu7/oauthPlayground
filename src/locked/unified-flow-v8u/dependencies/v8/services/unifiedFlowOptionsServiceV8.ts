@@ -16,10 +16,10 @@
  * const visibility = UnifiedFlowOptionsServiceV8.getFieldVisibility('oidc', 'hybrid');
  */
 
+import { logger } from '../../../../utils/logger';
 import { type FlowOptions, FlowOptionsServiceV8 } from './flowOptionsServiceV8';
 import { type FlowType, type SpecVersion, SpecVersionServiceV8 } from './specVersionServiceV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-OPTIONS-V8]';
 
 export interface FieldVisibility {

@@ -1,5 +1,6 @@
 // src/hooks/useAuthActions.ts
 import { type Dispatch, type SetStateAction, useCallback } from 'react';
+import { showGlobalWarning } from '../contexts/NotificationSystem';
 import { loadAuthConfiguration } from '../services/authConfigurationService';
 import {
 	getAllStoredTokens,
@@ -17,7 +18,6 @@ import { generateCodeChallenge } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
-import { showGlobalWarning } from '../contexts/NotificationSystem';
 
 /**
  * Type-safe wrapper for oauthStorage.setTokens
@@ -839,7 +839,9 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				showAuthModal: 'check App.tsx state',
 			});
 			// DO NOT proceed - this is an auto-submit attempt
-			showGlobalWarning('🚨 SECURITY: Authorization was blocked because it was triggered without user interaction. Please click the "Continue" button in the modal.');
+			showGlobalWarning(
+				'🚨 SECURITY: Authorization was blocked because it was triggered without user interaction. Please click the "Continue" button in the modal.'
+			);
 			return;
 		}
 

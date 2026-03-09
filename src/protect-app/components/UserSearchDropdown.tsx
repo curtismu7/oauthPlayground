@@ -14,10 +14,10 @@
 import { FiUser } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
-import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

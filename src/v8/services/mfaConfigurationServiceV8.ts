@@ -7,6 +7,7 @@
  */
 
 const STORAGE_KEY = 'pingone_mfa_configuration_v8';
+
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-SERVICE-V8]';

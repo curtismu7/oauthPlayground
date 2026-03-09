@@ -2,9 +2,8 @@
 // V8 JWT Authentication Service - Cleaned up and simplified
 // Provides JWT generation for client_secret_jwt and private_key_jwt authentication methods
 
-import { createClientAssertion } from '../utils/clientAuthentication';
-
 import { logger } from '../../../utils/logger';
+import { createClientAssertion } from '../utils/clientAuthentication';
 export interface JWTConfigV8 {
 	clientId: string;
 	tokenEndpoint: string;

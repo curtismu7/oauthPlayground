@@ -5,6 +5,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	DeviceFlowState,
 	type DeviceTokenResponse,
@@ -12,7 +13,6 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
 const BoseSpeakerContainer = styled.div`
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
