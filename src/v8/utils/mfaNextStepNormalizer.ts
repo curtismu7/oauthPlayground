@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file mfaNextStepNormalizer.ts
  * @module v8/utils
  * @description Normalizes MFA nextStep/status values to prevent UI regressions
@@ -21,6 +20,7 @@ import { logger } from '../../utils/logger';
  * Solution: Normalize all variants to the stable set used by UI
  */
 
+import { logger } from '../../utils/logger';
 /**
  * Normalized MFA next step values used by UI
  */

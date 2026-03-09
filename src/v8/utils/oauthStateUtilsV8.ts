@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file oauthStateUtilsV8.ts
  * @module v8/utils
  * @description Shared OAuth state parameter validation utilities
@@ -9,6 +8,7 @@ import { logger } from '../../utils/logger';
  * Ensures consistent CSRF protection across all OAuth flows.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔒 OAUTH-STATE-UTILS-V8]';
 
 /**

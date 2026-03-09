@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file redirectUriServiceV8.ts
  * @module v8/services
  * @description Service for generating flow-specific redirect URIs (V8 - Enhanced from V7)
@@ -9,6 +8,7 @@ import { logger } from '../../../../../utils/logger';
  * Based on V7's comprehensive flowRedirectUriMapping with V8 enhancements
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔗 REDIRECT-URI-V8]';
 
 export interface FlowRedirectUriConfig {

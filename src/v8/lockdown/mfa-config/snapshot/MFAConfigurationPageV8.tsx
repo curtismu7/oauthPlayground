@@ -954,7 +954,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										marginBottom: '8px',
 									}}
 								>
-									<label
+									<div
 										style={{
 											display: 'block',
 											fontSize: '14px',
@@ -964,7 +964,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										}}
 									>
 										Select Policy
-									</label>
+									</div>
 									<button
 										type="button"
 										onClick={() => {
@@ -1148,7 +1148,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 													marginBottom: '8px',
 												}}
 											>
-												<label
+												<div
 													style={{
 														fontSize: '14px',
 														fontWeight: '500',
@@ -1156,7 +1156,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 													}}
 												>
 													Cooldown Duration
-												</label>
+												</div>
 												<MFAInfoButtonV8
 													contentKey="otp.failure.coolDown.duration"
 													displayMode="tooltip"
@@ -1214,7 +1214,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 													marginBottom: '8px',
 												}}
 											>
-												<label
+												<div
 													style={{
 														fontSize: '14px',
 														fontWeight: '500',
@@ -1222,7 +1222,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 													}}
 												>
 													Time Unit
-												</label>
+												</div>
 												<MFAInfoButtonV8
 													contentKey="otp.failure.coolDown.timeUnit"
 													displayMode="tooltip"
@@ -2073,9 +2073,9 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({ label, description, value
 	return (
 		<div>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-				<label style={{ fontSize: '14px', fontWeight: '500', color: '#374151', cursor: 'pointer' }}>
+				<div style={{ fontSize: '14px', fontWeight: '500', color: '#374151', cursor: 'pointer' }}>
 					{label}
-				</label>
+				</div>
 				<button
 					type="button"
 					onClick={() => onChange(!value)}
@@ -2127,9 +2127,11 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 	min,
 	max,
 }) => {
+	const inputId = `number-input-${Math.random().toString(36).substr(2, 9)}`;
 	return (
 		<div>
 			<label
+				htmlFor={inputId}
 				style={{
 					display: 'block',
 					fontSize: '14px',
@@ -2141,6 +2143,7 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 				{label}
 			</label>
 			<input
+				id={inputId}
 				type="number"
 				value={value}
 				onChange={(e) => {
@@ -2181,9 +2184,11 @@ const SelectSetting: React.FC<SelectSettingProps> = ({
 	onChange,
 	options,
 }) => {
+	const selectId = `select-input-${Math.random().toString(36).substr(2, 9)}`;
 	return (
 		<div>
 			<label
+				htmlFor={selectId}
 				style={{
 					display: 'block',
 					fontSize: '14px',
@@ -2195,6 +2200,7 @@ const SelectSetting: React.FC<SelectSettingProps> = ({
 				{label}
 			</label>
 			<select
+				id={selectId}
 				value={value}
 				onChange={(e) => {
 					const selectedOption = options.find((opt) => String(opt.value) === e.target.value);
@@ -2230,9 +2236,11 @@ interface TextSettingProps extends SettingProps {
 }
 
 const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, onChange }) => {
+	const inputId = `text-input-${Math.random().toString(36).substr(2, 9)}`;
 	return (
 		<div>
 			<label
+				htmlFor={inputId}
 				style={{
 					display: 'block',
 					fontSize: '14px',
@@ -2244,6 +2252,7 @@ const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, on
 				{label}
 			</label>
 			<input
+				id={inputId}
 				type="text"
 				value={value}
 				onChange={(e) => onChange(e.target.value)}

@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file validationServiceV8.ts
  * @module v8/services
  * @description Centralized validation service for all V8 flows
@@ -20,6 +19,7 @@ import { logger } from '../../utils/logger';
  * const uuidResult = ValidationServiceV8.validateUUID(environmentId, 'Environment ID');
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[✅ VALIDATION-V8]';
 
 // ============================================================================

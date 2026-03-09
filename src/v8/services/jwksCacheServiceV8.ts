@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file jwksCacheServiceV8.ts
  * @module v8/services
  * @description Caching service for JWKS (JSON Web Key Set)
@@ -10,6 +9,7 @@ import { logger } from '../../utils/logger';
  * JWKS are cached for 24 hours.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[💾 JWKS-CACHE-V8]';
 
 export interface CachedJWKS {

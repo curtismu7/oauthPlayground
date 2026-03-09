@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file errorHandlingUtilsV8.ts
  * @module v8/utils
  * @description Shared error handling utilities for consistent error management
@@ -9,6 +8,7 @@ import { logger } from '../../utils/logger';
  * across all MFA and OAuth flows.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[⚠️ ERROR-HANDLING-UTILS-V8]';
 
 export interface ErrorDetails {
