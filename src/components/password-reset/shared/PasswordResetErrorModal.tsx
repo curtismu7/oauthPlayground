@@ -30,7 +30,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div<{ $severity: 'error' | 'warning' }>`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border-radius: 1rem;
 	max-width: 520px;
 	width: 100%;
@@ -55,7 +55,7 @@ const ModalTitle = styled.h3<{ $severity: 'error' | 'warning' }>`
 `;
 
 const ModalBody = styled.div`
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	font-size: 0.975rem;
 	line-height: 1.6;
 `;
@@ -72,7 +72,7 @@ const CloseButton = styled.button`
 	right: 1rem;
 	background: transparent;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #6b7280;
 	width: 2rem;
 	height: 2rem;
 	border-radius: 999px;
@@ -84,7 +84,7 @@ const CloseButton = styled.button`
 
 	&:hover {
 		background: rgba(148, 163, 184, 0.15);
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: #1f2937;
 	}
 
 	&:focus-visible {
@@ -95,7 +95,7 @@ const CloseButton = styled.button`
 
 const PrimaryButton = styled.button<{ $severity: 'error' | 'warning' }>`
 	background: ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#d97706')};
-	color: V9_COLORS.TEXT.WHITE;
+	color: #ffffff;
 	border: none;
 	border-radius: 0.5rem;
 	padding: 0.65rem 1.5rem;
