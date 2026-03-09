@@ -16,9 +16,8 @@
 export const COLLECTION_VERSION = '9.0.0';
 
 import type { ApiCall as TrackedApiCall } from '../../../services/apiCallTrackerService';
-import type { V9FlowType } from './V9SpecVersionService';
-
 import { logger } from '../../utils/logger';
+import type { V9FlowType } from './V9SpecVersionService';
 export interface PostmanCollectionItem {
 	name: string;
 	request?: {

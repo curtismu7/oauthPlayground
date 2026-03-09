@@ -7,9 +7,9 @@
  */
 
 import React, { useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
-import { logger } from '../../../../utils/logger';
 interface WorkerTokenRequestModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;

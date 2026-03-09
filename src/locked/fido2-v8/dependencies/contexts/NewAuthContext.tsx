@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import FlowContextUtils from '../services/flowContextUtils';
 import {
 	loadFlowCredentialsIsolated,
@@ -8,7 +9,6 @@ import { pingOneConfigService } from '../services/pingoneConfigService';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../../../../utils/logger';
 import { generateCodeChallenge } from '../utils/oauth';
 import { getBackendUrl } from '../utils/protocolUtils';
 import { safeJsonParse } from '../utils/secureJson';

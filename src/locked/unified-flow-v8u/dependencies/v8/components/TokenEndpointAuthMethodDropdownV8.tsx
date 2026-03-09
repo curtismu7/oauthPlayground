@@ -17,8 +17,8 @@
 
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
-import type { FlowType, SpecVersion } from '../services/specVersionServiceV8.ts';
 import { logger } from '../../../../utils/logger';
+import type { FlowType, SpecVersion } from '../services/specVersionServiceV8.ts';
 import {
 	type TokenEndpointAuthMethod,
 	TokenEndpointAuthMethodServiceV8,

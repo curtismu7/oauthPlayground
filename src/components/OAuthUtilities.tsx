@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
-import { logger } from '../utils/logger';
 const UtilitiesContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));

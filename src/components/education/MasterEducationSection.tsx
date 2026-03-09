@@ -11,11 +11,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../utils/logger';
 import {
 	type EducationMode,
 	EducationPreferenceService,
 } from '../../services/educationPreferenceService';
+import { logger } from '../../utils/logger';
 
 const MasterSectionContainer = styled.div`
 	margin-bottom: 24px;

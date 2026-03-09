@@ -24,9 +24,9 @@
  */
 
 import React, { useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { StepActionButtonsProps } from '../types/stepNavigation.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 
 /**

@@ -9,6 +9,7 @@ import { setPasswordValue as setPasswordValueService } from '../../services/pass
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 
 import { logger } from '../../utils/logger';
+
 const HELIOMART_ACCENT_START = '#F59E0B';
 
 const Card = styled.div`

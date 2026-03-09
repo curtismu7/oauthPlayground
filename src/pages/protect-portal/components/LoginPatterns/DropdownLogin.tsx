@@ -10,10 +10,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
-import { logger } from '../../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

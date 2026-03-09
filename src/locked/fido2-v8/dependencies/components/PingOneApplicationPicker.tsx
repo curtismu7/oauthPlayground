@@ -2,13 +2,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	fetchApplications as fetchPingOneApplications,
 	type PingOneApplication,
 } from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-
-import { logger } from '../../../utils/logger';
 export interface PingOneApplicationPickerProps {
 	environmentId: string;
 	clientId: string;

@@ -6,11 +6,11 @@
  */
 
 import React from 'react';
+import { logger } from '../../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '../services/workerTokenStatusServiceV8';
-import { logger } from '../../utils/logger';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';

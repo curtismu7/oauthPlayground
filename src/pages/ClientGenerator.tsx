@@ -42,9 +42,9 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
+import { logger } from '../utils/logger';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
-import { logger } from '../utils/logger';
 const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;

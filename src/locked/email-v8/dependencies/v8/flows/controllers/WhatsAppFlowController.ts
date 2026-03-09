@@ -9,14 +9,13 @@
  * This controller reuses SMS patterns but uses WHATSAPP device type.
  */
 
+import { logger } from '../../../../../utils/logger';
 import type { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
 import type { RegisterDeviceParams } from '../../services/mfaServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServiceV8.ts';
 import { validateAndNormalizePhone } from '../../utils/phoneValidationV8.ts';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
-
-import { logger } from '../../../../../utils/logger';
 /**
  * Get full phone number with country code (PingOne format: +1.5125201234)
  * Uses phone validation utility to handle multiple input formats

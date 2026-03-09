@@ -11,10 +11,10 @@
 
 import { FiAlertTriangle } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-import { logger } from '../../utils/logger';
 interface ProtectPortalConfigModalProps {
 	isOpen: boolean;
 	onClose: () => void;

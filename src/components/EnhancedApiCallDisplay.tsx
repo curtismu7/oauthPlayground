@@ -6,12 +6,12 @@ import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import {
 	type ApiCallDisplayOptions,
 	type EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService';
+import { logger } from '../utils/logger';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`

@@ -9,9 +9,9 @@ import {
 } from '../services/credentialExportImportService';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import StandardMessage from './StandardMessage';
 
-import { logger } from '../utils/logger';
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -644,7 +644,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				onClose();
 			}, 1500);
 		} catch (error) {
-			logger.error('CredentialSetupModal', 'Failed to save configuration:', undefined, error as Error);
+			logger.error(
+				'CredentialSetupModal',
+				'Failed to save configuration:',
+				undefined,
+				error as Error
+			);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Configuration failed',

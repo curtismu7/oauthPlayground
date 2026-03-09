@@ -13,6 +13,7 @@ import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { logger } from '../../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../components/MFAInfoButtonV8.tsx';
 import { WorkerTokenGaugeV8 } from '../../components/WorkerTokenGaugeV8.tsx';
 import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';
@@ -22,7 +23,6 @@ import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
 
-import { logger } from '../../../../../utils/logger';
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
 	deviceTypeLabel: string; // "SMS", "Email", "TOTP", etc.

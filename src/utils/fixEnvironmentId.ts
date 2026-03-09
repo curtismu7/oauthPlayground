@@ -1,6 +1,6 @@
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 
-import { logger } from '../utils/logger';
 // src/utils/fixEnvironmentId.ts
 // Utility function to fix environment ID in localStorage
 

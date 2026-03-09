@@ -16,9 +16,9 @@
  * const tokens = await DeviceCodeIntegrationServiceV8.pollForTokens(credentials, deviceAuth.device_code);
  */
 
+import { logger } from '../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📱 DEVICE-CODE-V8]';
 
 export interface DeviceCodeCredentials {

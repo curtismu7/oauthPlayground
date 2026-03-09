@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CodeExamplesConfig } from '../services/codeExamplesService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { logger } from '../utils/logger';
 import { CodeExamplesInline } from './CodeExamplesInline';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
-import { logger } from '../utils/logger';
 const Container = styled.div`
 	padding: 2rem;
 	max-width: 1200px;

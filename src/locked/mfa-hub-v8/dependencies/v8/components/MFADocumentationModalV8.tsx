@@ -10,8 +10,8 @@
 
 import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
-import type { DeviceType } from '../flows/shared/MFATypes';
 import { logger } from '../../../../utils/logger';
+import type { DeviceType } from '../flows/shared/MFATypes';
 import {
 	downloadAsMarkdown,
 	downloadAsPDF,

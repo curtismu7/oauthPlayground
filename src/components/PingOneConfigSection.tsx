@@ -4,6 +4,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { credentialManager } from '../utils/credentialManager';
 
 import { logger } from '../utils/logger';
+
 const Container = styled.div`
   background: V9_COLORS.BG.WARNING;
   border: 2px solid V9_COLORS.PRIMARY.YELLOW;

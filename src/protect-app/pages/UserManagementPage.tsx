@@ -15,12 +15,12 @@
 import { FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { User, UserRole, UserStatus, userService } from '../services/UserService';
 
-import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
