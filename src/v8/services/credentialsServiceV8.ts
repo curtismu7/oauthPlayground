@@ -43,9 +43,9 @@ const debugLog = (...args: unknown[]): void => {
 };
 
 // Re-export types for backward compatibility
-export interface Credentials extends V8Credentials {}
-export interface CredentialsConfig extends V8CredentialsConfig {}
-export interface AppConfig extends V8AppConfig {}
+export type Credentials = V8Credentials;
+export type CredentialsConfig = V8CredentialsConfig;
+export type AppConfig = V8AppConfig;
 
 // ============================================================================
 // MIGRATION STATE

@@ -215,6 +215,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -228,11 +229,19 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 					justifyContent: 'center',
 				}}
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			/>
 			{/* Modal */}
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop overlay */}
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="worker-token-request-title"
 				style={{
 					position: 'fixed',
 					top: '50%',
@@ -248,6 +257,11 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 					overflow: 'auto',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			>
 				{/* Header */}
 				<div
@@ -260,8 +274,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
 							<h2
+								id="worker-token-request-title"
 								style={{
-									margin: '0 0 4px 0',
+									margin: 0,
 									fontSize: '18px',
 									fontWeight: '700',
 									color: '#92400e',
