@@ -5,7 +5,7 @@
 import { FiBook } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
-import { showGlobalError } from '../../contexts/NotificationSystem';
+import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../../contexts/NotificationSystem';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
@@ -78,25 +78,23 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleApproveDevice() {
 		if (!deviceCode) {
-			console.warn("Alert: No device code available. Request device authorization first.");
-			return;
-		}
-		const approved = V7MStateStore.approveDeviceCode(deviceCode);
-		if (approved) {
-			setIsApproved(true);
-			console.warn("Alert: Device approved! You can now poll for tokens.");
-		} else {
-			console.warn("Alert: Failed to approve device. Device code may be expired.");
-		}
-	}
+                        showGlobalError('No device code available. Request device authorization first.');
+                        return;
+                }
+                const approved = V7MStateStore.approveDeviceCode(deviceCode);
+                if (approved) {
+                        setIsApproved(true);
+                        showGlobalSuccess('Device approved! You can now poll for tokens.');
+                } else {
+                        showGlobalError('Failed to approve device. Device code may be expired.');
 
 	async function handlePollToken() {
 		if (!deviceCode) {
-			console.warn("Alert: No device code available");
+			showGlobalError('No device code available');
 			return;
 		}
 		if (!isApproved) {
-			console.warn("Alert:", 'Device not yet approved. Click "Simulate User Approval" first.');
+			showGlobalWarning('Device not yet approved. Click "Simulate User Approval" first.');
 			return;
 		}
 		const res = tokenExchangeDeviceCode({
@@ -112,7 +110,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		});
 		if ('error' in res) {
 			if (res.error === 'authorization_pending') {
-				console.warn("Alert:", 'User has not yet approved the device. Click "Simulate User Approval" first.');
+				showGlobalWarning('User has not yet approved the device. Click "Simulate User Approval" first.');
 			} else {
 				showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			}
@@ -125,27 +123,25 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleUserInfo() {
 		if (!accessToken) {
-			console.warn("Alert: No access token available");
-			return;
-		}
-		const res = getUserInfoFromAccessToken(accessToken);
-		setUserinfoResponse(res);
-	}
+                        showGlobalError('No access token available');
+                        return;
+                }
+                const res = getUserInfoFromAccessToken(accessToken);
+                setUserinfoResponse(res);
+        }
 
-	function handleIntrospect() {
-		if (!accessToken) {
-			console.warn("Alert: No access token available");
-			return;
-		}
-		const res = introspectToken(accessToken);
-		setIntrospectionResponse(res);
-	}
+        function handleIntrospect() {
+                if (!accessToken) {
+                        showGlobalError('No access token available');
+                        return;
+                }
+                const res = introspectToken(accessToken);
+                setIntrospectionResponse(res);
+        }
 
-	function copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text);
-		console.warn("Alert: Copied to clipboard!");
-	}
-
+        function copyToClipboard(text: string) {
+                navigator.clipboard.writeText(text);
+                showGlobalSuccess('Copied to clipboard!');
 	return (
 		<div style={{ padding: 24 }}>
 			<div

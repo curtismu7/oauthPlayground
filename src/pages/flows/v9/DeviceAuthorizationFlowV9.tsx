@@ -652,7 +652,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		},
-		[deviceFlow.credentials, ensureCredentials]
+		[deviceFlow, ensureCredentials]
 	);
 
 	// V7 Variant Selector Component
@@ -1058,12 +1058,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			}
 		}
 	}, [
+		deviceFlow,
 		deviceFlow.credentials?.environmentId,
 		deviceFlow.credentials?.clientId,
 		deviceFlow.credentials?.clientSecret,
 		deviceFlow.credentials?.scopes,
-		deviceFlow.credentials?.redirectUri,
-		deviceFlow.credentials,
 	]);
 
 	const { clearBackup } = useCredentialBackup({
