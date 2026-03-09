@@ -589,4 +589,34 @@ error during build:
 Additionally, handling the error in the 'buildEnd' hook caused the following error:
 [1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -A5 "Transform failed"[?1l>[?2004l
 ]2;npm run build 2>&1 | grep --color=auto  -A5 "Transform failed"]1;npm]633;E; npm run build 2>&1 | grep -A5 "Transform failed";]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep "\.tsx:"[?1l>[?2004l
-]2;npm run build 2>&1 | grep --color=auto  "\.tsx:"]1;npm]633;E; npm run build 2>&1 | grep "\\.tsx:";]633;C
+]2;npm run build 2>&1 | grep --color=auto  "\.tsx:"]1;npm]633;E; npm run build 2>&1 | grep "\\.tsx:";]633;C[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MSettingsV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MImplicitFlowV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MImplicitFlowV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MImplicitFlowV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MROPCV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MROPCV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MROPCV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MROPCV9[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/components/V7MJwtInspectorModal[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/components/V7MJwtInspectorModal[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/components/V7MInfoIcon[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/components/V7MHelpModal[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v8/flows/unified/components/UnifiedSuccessStep[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/App[01;31m[K.tsx:[m[K202:7
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h
