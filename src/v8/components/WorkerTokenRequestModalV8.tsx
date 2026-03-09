@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import { logger } from '@/utils/logger';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 interface WorkerTokenRequestModalV8Props {
@@ -180,7 +181,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 			});
 			setShowPreflightModal(true);
 		} catch (error) {
-			logger.error('Pre-flight validation error:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error('Pre-flight validation error', errorMessage, { error });
 			setPreflightResult({
 				success: false,
 				message: `❌ Pre-flight validation error:\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check the browser console for more details.`,
@@ -357,7 +359,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													duration: 3000,
 												});
 											} catch (error) {
-												logger.error('[WorkerTokenRequestModal] Failed to save token:', error);
+												const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+												logger.error('[WorkerTokenRequestModal] Failed to save token', errorMessage, { error });
 												modernMessaging.showBanner({
 													type: 'error',
 													title: 'Error',

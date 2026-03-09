@@ -27,9 +27,9 @@ export class BulletproofDiscoveryService {
 		logger.info(
 			'BulletproofDiscoveryService',
 			'[Bulletproof Discovery] Starting discovery for environment:',
-			{ arg0: environmentId }
+			JSON.stringify({ arg0: environmentId })
 		);
-		logger.info('BulletproofDiscoveryService', '[Bulletproof Discovery] Region:', { arg0: region });
+		logger.info('BulletproofDiscoveryService', '[Bulletproof Discovery] Region:', JSON.stringify({ arg0: region }));
 
 		try {
 			// Strategy 1: Backend proxy with retry and region failover
@@ -49,7 +49,7 @@ export class BulletproofDiscoveryService {
 				logger.warn(
 					'BulletproofDiscoveryService',
 					'[Bulletproof Discovery] Backend proxy failed:',
-					{ arg0: proxyError }
+					JSON.stringify({ arg0: proxyError instanceof Error ? proxyError.message : String(proxyError) })
 				);
 			}
 
@@ -58,7 +58,7 @@ export class BulletproofDiscoveryService {
 				const document = await this.tryDirectDiscovery(environmentId);
 				logger.info(
 					'BulletproofDiscoveryService',
-					'[Bulletproof Discovery] ✅ SUCCESS via direct discovery'
+					'[Bulletproof Discovery] SUCCESS via direct discovery'
 				);
 				return {
 					success: true,
@@ -70,7 +70,7 @@ export class BulletproofDiscoveryService {
 				logger.warn(
 					'BulletproofDiscoveryService',
 					'[Bulletproof Discovery] Direct discovery failed:',
-					{ arg0: directError }
+					JSON.stringify({ arg0: directError instanceof Error ? directError.message : String(directError) })
 				);
 			}
 
@@ -82,7 +82,7 @@ export class BulletproofDiscoveryService {
 			const document = this.generateFallbackDocument(environmentId);
 			logger.info(
 				'BulletproofDiscoveryService',
-				'[Bulletproof Discovery] ✅ SUCCESS via fallback generation'
+				'[Bulletproof Discovery] SUCCESS via fallback generation'
 			);
 
 			return {
@@ -95,8 +95,8 @@ export class BulletproofDiscoveryService {
 			logger.error(
 				'BulletproofDiscoveryService',
 				'[Bulletproof Discovery] All strategies failed:',
-				undefined,
-				error as Error
+				error instanceof Error ? error.message : String(error),
+				error instanceof Error ? error : new Error(String(error))
 			);
 			return {
 				success: false,
@@ -124,8 +124,7 @@ export class BulletproofDiscoveryService {
 				logger.warn(
 					'BulletproofDiscoveryService',
 					`[Bulletproof Discovery] Region ${region} failed:`,
-					undefined,
-					error as Error
+					error instanceof Error ? error.message : String(error)
 				);
 				// Continue to next region
 			}

@@ -9,6 +9,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔒 OAUTH-STATE-UTILS-V8]';
 
 /**
@@ -76,7 +77,7 @@ export function validateOAuthState(
 
 	// Basic format validation - should be non-empty string
 	if (receivedState.trim().length === 0) {
-		logger.warn(`${MODULE_TAG} State validation failed: empty state`, "Logger warning");
+		logger.warn(`${MODULE_TAG} State validation failed: empty state`, 'Logger warning');
 		return false;
 	}
 
@@ -122,7 +123,7 @@ export function storeOAuthState(
 	key: string = 'oauth_state'
 ): void {
 	if (typeof window === 'undefined') {
-		logger.warn(`${MODULE_TAG} Cannot store state: window is undefined`, "Logger warning");
+		logger.warn(`${MODULE_TAG} Cannot store state: window is undefined`, 'Logger warning');
 		return;
 	}
 

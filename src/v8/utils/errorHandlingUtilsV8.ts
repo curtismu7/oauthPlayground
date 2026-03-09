@@ -9,6 +9,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[⚠️ ERROR-HANDLING-UTILS-V8]';
 
 export interface ErrorDetails {

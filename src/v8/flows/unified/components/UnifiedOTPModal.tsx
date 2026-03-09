@@ -200,10 +200,10 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 		const isValid = await onValidate(otp);
 
 		if (isValid) {
-			logger.info(`${MODULE_TAG} OTP validation successful`, "Logger info");
+			logger.info(`${MODULE_TAG} OTP validation successful`, 'Logger info');
 			// Success - parent component will handle close
 		} else {
-			logger.info(`${MODULE_TAG} OTP validation failed`, "Logger info");
+			logger.info(`${MODULE_TAG} OTP validation failed`, 'Logger info');
 			// Clear OTP for retry
 			setOtp('');
 			// Focus back to input
@@ -221,7 +221,7 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 			return;
 		}
 
-		logger.info(`${MODULE_TAG} Resending OTP`, "Logger info");
+		logger.info(`${MODULE_TAG} Resending OTP`, 'Logger info');
 
 		setCanResend(false);
 		setResendCooldown(resendCooldownSeconds);

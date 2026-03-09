@@ -1303,15 +1303,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				'handleSaveConfiguration - Save completed successfully'
 			);
 
-			// Also save to comprehensiveFlowDataService with tokenEndpointAuthMethod
-			const _tokenEndpointAuthMethod =
-				typeof controller.credentials.clientAuthMethod === 'string'
-					? controller.credentials.clientAuthMethod
-					: (controller.credentials.clientAuthMethod as { value?: string })?.value ||
-						'client_secret_post';
-
-			const _flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
-
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Configuration saved successfully!',

@@ -122,7 +122,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 	 * Navigate back to main page like Restart Flow does
 	 */
 	const handleRegisterAnother = useCallback(() => {
-		logger.info(`${MODULE_TAG} User wants to register another device`, "Logger info");
+		logger.info(`${MODULE_TAG} User wants to register another device`, 'Logger info');
 
 		modernMessaging.showFooterMessage({
 			type: 'info',
@@ -314,7 +314,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 				<button
 					type="button"
 					onClick={() => {
-						logger.info(`${MODULE_TAG} User finished registration flow`, "Logger info");
+						logger.info(`${MODULE_TAG} User finished registration flow`, 'Logger info');
 						modernMessaging.showFooterMessage({
 							type: 'info',
 							message: 'Registration complete!',

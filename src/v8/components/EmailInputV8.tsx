@@ -101,7 +101,7 @@ export const EmailInputV8: React.FC<EmailInputV8Props> = ({
 	);
 
 	const handleBlur = useCallback(() => {
-		logger.info(`${MODULE_TAG} Email field blurred`, "Logger info");
+		logger.info(`${MODULE_TAG} Email field blurred`, 'Logger info');
 		setTouched(true);
 		if (onBlur) {
 			onBlur();

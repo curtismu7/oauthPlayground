@@ -43,7 +43,7 @@ export class GlobalEnvironmentService {
 	 * Initialize the service (load from persistence)
 	 */
 	initialize(): void {
-		logger.info('[GlobalEnvironmentService] Initializing...', "Logger info");
+		logger.info('[GlobalEnvironmentService] Initializing...', 'Logger info');
 		this.environmentId = environmentIdPersistenceService.loadEnvironmentId();
 		logger.info('[GlobalEnvironmentService] Loaded Environment ID:', this.environmentId);
 		this.notifyListeners();
@@ -54,7 +54,7 @@ export class GlobalEnvironmentService {
 	 */
 	setEnvironmentId(id: string): void {
 		if (!id || !id.trim()) {
-			logger.warn('[GlobalEnvironmentService] Cannot set empty environment ID', "Logger warning");
+			logger.warn('[GlobalEnvironmentService] Cannot set empty environment ID', 'Logger warning');
 			return;
 		}
 
@@ -84,7 +84,7 @@ export class GlobalEnvironmentService {
 	 * Clear Environment ID
 	 */
 	clearEnvironmentId(): void {
-		logger.info('[GlobalEnvironmentService] Clearing Environment ID', "Logger info");
+		logger.info('[GlobalEnvironmentService] Clearing Environment ID', 'Logger info');
 		this.environmentId = null;
 		environmentIdPersistenceService.clearEnvironmentId();
 		this.notifyListeners();

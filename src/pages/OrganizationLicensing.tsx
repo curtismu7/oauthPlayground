@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { usePageStepper } from '../contexts/FloatingStepperContext';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -281,28 +280,6 @@ const OrganizationLicensingV2: React.FC = () => {
 	// Track if we've initialized to prevent auto-advance after user clicks reset
 	const [hasInitialized, setHasInitialized] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-
-	// Global floating stepper
-	const { registerSteps, setCurrentStep: setStepperStep } = usePageStepper();
-
-	useEffect(() => {
-		registerSteps([
-			{ id: 'worker-token', title: 'Worker Token', description: 'Verify worker token credentials' },
-			{ id: 'org-info', title: 'Org Info', description: 'Fetch organization details' },
-			{ id: 'licensing', title: 'Licensing', description: 'View license information' },
-		]);
-	}, [registerSteps]);
-
-	// Sync floating stepper step to reflect data loading progress
-	useEffect(() => {
-		if (allLicenses.length > 0 || orgInfo) {
-			setStepperStep(2);
-		} else if (credentials.environmentId) {
-			setStepperStep(1);
-		} else {
-			setStepperStep(0);
-		}
-	}, [credentials.environmentId, orgInfo, allLicenses, setStepperStep]);
 
 	// Load credentials and tokens, then determine starting step - only on mount
 	useEffect(() => {

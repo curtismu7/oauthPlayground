@@ -1075,12 +1075,12 @@ const flowConfigs: Record<string, DetailedFlowInfo> = {
 		],
 	},
 	'oidc-overview': {
-		flowType: 'documentation',
+		flowType: 'oidc',
 		flowName: 'OpenID Connect Overview',
 		flowVersion: 'V7',
-		flowCategory: 'educational',
-		complexity: 'informational',
-		securityLevel: 'informational',
+		flowCategory: 'standard',
+		complexity: 'moderate',
+		securityLevel: 'medium',
 		userInteraction: 'none',
 		backendRequired: false,
 		refreshTokenSupport: false,
@@ -1090,6 +1090,18 @@ const flowConfigs: Record<string, DetailedFlowInfo> = {
 		specLayer: 'OpenID Connect Core 1.0',
 		nonceRequirement: 'Varies by flow',
 		validation: 'Educational content - no validation required',
+		recommendedFor: ['Developers learning OIDC', 'Security architects', 'API designers'],
+		notRecommendedFor: ['Production authentication', 'Live applications'],
+		implementationNotes: [
+			'Educational overview only',
+			'Use specific flows for implementation',
+		],
+		commonIssues: [
+			{
+				issue: 'Choosing the right flow',
+				solution: 'Review flow comparisons and use cases',
+			},
+		],
 		securityNotes: [
 			'📚 Comprehensive OIDC flow comparison',
 			'🎯 Best practice recommendations',
@@ -1122,7 +1134,7 @@ const normalizeFlowKey = (flowType: string): string => {
 		logger.warn(
 			'FlowInfoService',
 			'FlowInfoService.normalizeFlowKey called with invalid flowType:',
-			{ arg0: flowType }
+			JSON.stringify({ arg0: flowType })
 		);
 		return 'unknown';
 	}
@@ -1153,9 +1165,9 @@ const normalizeFlowKey = (flowType: string): string => {
  */
 const getFlowInfo = (flowType: string): DetailedFlowInfo | null => {
 	if (!flowType || typeof flowType !== 'string') {
-		logger.warn('FlowInfoService', 'FlowInfoService.getFlowInfo called with invalid flowType:', {
+		logger.warn('FlowInfoService', 'FlowInfoService.getFlowInfo called with invalid flowType:', JSON.stringify({
 			arg0: flowType,
-		});
+		}));
 		return null;
 	}
 
@@ -1171,7 +1183,7 @@ const generateFlowInfoCard = (flowType: string): FlowInfoCardData | null => {
 		logger.warn(
 			'FlowInfoService',
 			'FlowInfoService.generateFlowInfoCard called with invalid flowType:',
-			{ arg0: flowType }
+			JSON.stringify({ arg0: flowType })
 		);
 		return null;
 	}

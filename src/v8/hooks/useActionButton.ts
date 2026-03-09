@@ -25,7 +25,10 @@ export const useActionButton = (): UseActionButtonResult => {
 	const executeAction = useCallback(
 		async <T>(actionFn: () => Promise<T>, actionName: string): Promise<T | null> => {
 			if (isActionInProgress) {
-				logger.warn('[useActionButton] Action blocked - another action in progress', "Logger warning");
+				logger.warn(
+					'[useActionButton] Action blocked - another action in progress',
+					'Logger warning'
+				);
 				return null;
 			}
 

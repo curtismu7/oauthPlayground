@@ -184,8 +184,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						// Silently skip loading settings if no worker token is available
 						// User can configure worker token and settings will load automatically
 						logger.info(
-							`${MODULE_TAG} Skipping PingOne MFA settings load - worker token not available`
-						, "Logger info");
+							`${MODULE_TAG} Skipping PingOne MFA settings load - worker token not available`,
+							'Logger info'
+						);
 					}
 				}
 			} catch (error) {

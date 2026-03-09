@@ -27,7 +27,7 @@ const ControlPanel: React.FC = () => {
 	const [updateCount, setUpdateCount] = useState(0);
 
 	useEffect(() => {
-		logger.info(`${MODULE_TAG} ControlPanel mounted`, "Logger info");
+		logger.info(`${MODULE_TAG} ControlPanel mounted`, 'Logger info');
 
 		// Subscribe to visibility changes
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
@@ -37,7 +37,7 @@ const ControlPanel: React.FC = () => {
 		});
 
 		return () => {
-			logger.info(`${MODULE_TAG} ControlPanel unmounted`, "Logger info");
+			logger.info(`${MODULE_TAG} ControlPanel unmounted`, 'Logger info');
 			unsubscribe();
 		};
 	}, []);
@@ -77,7 +77,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						logger.info(`${MODULE_TAG} Show button clicked`, "Logger info");
+						logger.info(`${MODULE_TAG} Show button clicked`, 'Logger info');
 						apiDisplayServiceV8.show();
 					}}
 					style={{
@@ -97,7 +97,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						logger.info(`${MODULE_TAG} Hide button clicked`, "Logger info");
+						logger.info(`${MODULE_TAG} Hide button clicked`, 'Logger info');
 						apiDisplayServiceV8.hide();
 					}}
 					style={{
@@ -117,7 +117,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						logger.info(`${MODULE_TAG} Toggle button clicked`, "Logger info");
+						logger.info(`${MODULE_TAG} Toggle button clicked`, 'Logger info');
 						apiDisplayServiceV8.toggle();
 					}}
 					style={{
@@ -146,7 +146,7 @@ const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
 	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
 	useEffect(() => {
-		logger.info(`${MODULE_TAG} StatusMonitor #${id} mounted`, "Logger info");
+		logger.info(`${MODULE_TAG} StatusMonitor #${id} mounted`, 'Logger info');
 
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
 			logger.info(`${MODULE_TAG} StatusMonitor #${id} received update:`, visible);
@@ -155,7 +155,7 @@ const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
 		});
 
 		return () => {
-			logger.info(`${MODULE_TAG} StatusMonitor #${id} unmounted`, "Logger info");
+			logger.info(`${MODULE_TAG} StatusMonitor #${id} unmounted`, 'Logger info');
 			unsubscribe();
 		};
 	}, [id]);
@@ -272,7 +272,7 @@ const ApiCallGenerator: React.FC = () => {
 					onClick={() => {
 						apiCallTrackerService.clearApiCalls();
 						setCallCount(0);
-						logger.info(`${MODULE_TAG} Cleared all API calls`, "Logger info");
+						logger.info(`${MODULE_TAG} Cleared all API calls`, 'Logger info');
 					}}
 					style={{
 						padding: '8px 16px',

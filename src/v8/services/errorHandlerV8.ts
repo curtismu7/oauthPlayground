@@ -204,7 +204,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 	 */
 	static clearLogHistory(): void {
 		ErrorHandlerV8.logHistory = [];
-		logger.info(`${MODULE_TAG} Log history cleared`, "Logger info");
+		logger.info(`${MODULE_TAG} Log history cleared`, 'Logger info');
 	}
 
 	/**

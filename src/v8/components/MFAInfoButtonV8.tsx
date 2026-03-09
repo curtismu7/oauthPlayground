@@ -178,7 +178,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 	};
 
 	const handleClose = React.useCallback(() => {
-		logger.info(`${MODULE_TAG} Closing modal`, "Logger info");
+		logger.info(`${MODULE_TAG} Closing modal`, 'Logger info');
 		setIsOpen(false);
 	}, []);
 

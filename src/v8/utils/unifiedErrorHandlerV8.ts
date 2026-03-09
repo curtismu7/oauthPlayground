@@ -68,7 +68,7 @@ export const unifiedErrorHandlerV8 = {
 				})
 				.catch(() => {
 					// Fallback if toast import fails
-					logger.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`, "Logger error");
+					logger.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`, 'Logger error');
 				});
 		}
 
@@ -138,7 +138,7 @@ export const unifiedErrorHandlerV8 = {
 				});
 			})
 			.catch(() => {
-				logger.error(`${MODULE_TAG} Failed to show validation toast`, "Logger error");
+				logger.error(`${MODULE_TAG} Failed to show validation toast`, 'Logger error');
 			});
 	},
 

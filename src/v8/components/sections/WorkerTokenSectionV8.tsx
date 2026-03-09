@@ -181,8 +181,9 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									onChange={(e) => {
 										workerToken.setSilentApiRetrieval(e.target.checked);
 										logger.info(
-											`${MODULE_TAG} Silent API retrieval ${e.target.checked ? 'enabled' : 'disabled'}`
-										, "Logger info");
+											`${MODULE_TAG} Silent API retrieval ${e.target.checked ? 'enabled' : 'disabled'}`,
+											'Logger info'
+										);
 									}}
 									style={{
 										width: '16px',
@@ -209,8 +210,9 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									onChange={(e) => {
 										workerToken.setShowTokenAtEnd(e.target.checked);
 										logger.info(
-											`${MODULE_TAG} Show token at end ${e.target.checked ? 'enabled' : 'disabled'}`
-										, "Logger info");
+											`${MODULE_TAG} Show token at end ${e.target.checked ? 'enabled' : 'disabled'}`,
+											'Logger info'
+										);
 									}}
 									style={{
 										width: '16px',

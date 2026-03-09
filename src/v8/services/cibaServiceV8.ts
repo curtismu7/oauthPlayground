@@ -85,7 +85,7 @@ export const CibaServiceV8 = {
 	 * @returns Promise<CibaAuthRequest> - Authentication request details
 	 */
 	async initiateAuthentication(credentials: CibaCredentials): Promise<CibaAuthRequest> {
-		logger.info(`${MODULE_TAG} Initiating CIBA authentication request`, "Logger info");
+		logger.info(`${MODULE_TAG} Initiating CIBA authentication request`, 'Logger info');
 
 		try {
 			const formData = new URLSearchParams();
@@ -184,7 +184,7 @@ export const CibaServiceV8 = {
 
 				// Authorization pending - user hasn't approved yet
 				if (errorCode === 'authorization_pending') {
-					logger.info(`${MODULE_TAG} Authorization pending - continue polling`, "Logger info");
+					logger.info(`${MODULE_TAG} Authorization pending - continue polling`, 'Logger info');
 					return {
 						status: 'pending',
 						interval: data.interval || 5,
@@ -193,7 +193,7 @@ export const CibaServiceV8 = {
 
 				// Slow down - polling too frequently
 				if (errorCode === 'slow_down') {
-					logger.info(`${MODULE_TAG} Slow down - increase polling interval`, "Logger info");
+					logger.info(`${MODULE_TAG} Slow down - increase polling interval`, 'Logger info');
 					return {
 						status: 'pending',
 						error: 'slow_down',
@@ -204,7 +204,7 @@ export const CibaServiceV8 = {
 
 				// Request expired
 				if (errorCode === 'expired_token') {
-					logger.info(`${MODULE_TAG} Request expired`, "Logger info");
+					logger.info(`${MODULE_TAG} Request expired`, 'Logger info');
 					return {
 						status: 'expired',
 						error: 'expired_token',
@@ -214,7 +214,7 @@ export const CibaServiceV8 = {
 
 				// Access denied by user
 				if (errorCode === 'access_denied') {
-					logger.info(`${MODULE_TAG} Access denied by user`, "Logger info");
+					logger.info(`${MODULE_TAG} Access denied by user`, 'Logger info');
 					return {
 						status: 'denied',
 						error: 'access_denied',
@@ -233,7 +233,7 @@ export const CibaServiceV8 = {
 			}
 
 			// Success - tokens issued
-			logger.info(`${MODULE_TAG} CIBA tokens received successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} CIBA tokens received successfully`, 'Logger info');
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'CIBA authentication completed successfully',

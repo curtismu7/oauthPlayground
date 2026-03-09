@@ -44,7 +44,7 @@ export class GlobalWorkerTokenService {
 	 * Initialize the service
 	 */
 	private async initialize(): Promise<void> {
-		logger.info('[GlobalWorkerTokenService] Initializing...', "Logger info");
+		logger.info('[GlobalWorkerTokenService] Initializing...', 'Logger info');
 		await this.refreshStatus();
 	}
 
@@ -55,7 +55,7 @@ export class GlobalWorkerTokenService {
 	 * @throws Error if credentials not configured or fetch fails
 	 */
 	async getToken(): Promise<string> {
-		logger.info('[GlobalWorkerTokenService] Getting token...', "Logger info");
+		logger.info('[GlobalWorkerTokenService] Getting token...', 'Logger info');
 		try {
 			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
@@ -90,7 +90,7 @@ export class GlobalWorkerTokenService {
 	 * Save Worker Token credentials
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		logger.info('[GlobalWorkerTokenService] Saving credentials...', "Logger info");
+		logger.info('[GlobalWorkerTokenService] Saving credentials...', 'Logger info');
 		await workerTokenServiceV8.saveCredentials(credentials);
 		await this.refreshStatus();
 	}
@@ -99,7 +99,7 @@ export class GlobalWorkerTokenService {
 	 * Clear Worker Token credentials and cached token
 	 */
 	async clearCredentials(): Promise<void> {
-		logger.info('[GlobalWorkerTokenService] Clearing credentials...', "Logger info");
+		logger.info('[GlobalWorkerTokenService] Clearing credentials...', 'Logger info');
 		await workerTokenServiceV8.clearCredentials();
 		await workerTokenServiceV8.clearToken();
 		await this.refreshStatus();
@@ -153,7 +153,7 @@ export class GlobalWorkerTokenService {
 	 * Force refresh token (useful for testing or manual refresh)
 	 */
 	async forceRefresh(): Promise<string> {
-		logger.info('[GlobalWorkerTokenService] Forcing token refresh...', "Logger info");
+		logger.info('[GlobalWorkerTokenService] Forcing token refresh...', 'Logger info');
 		await workerTokenServiceV8.clearToken();
 		return await this.getToken();
 	}

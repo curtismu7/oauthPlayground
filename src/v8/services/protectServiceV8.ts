@@ -213,7 +213,7 @@ export class ProtectServiceV8 {
 			}>(credentials, 'GET', '/riskPolicySets', undefined, 'Fetch Risk Policies');
 
 			const policies = response.data._embedded?.riskPolicySets || [];
-			logger.info(`${MODULE_TAG} Retrieved ${policies.length} risk policies`, "Logger info");
+			logger.info(`${MODULE_TAG} Retrieved ${policies.length} risk policies`, 'Logger info');
 
 			return policies;
 		} catch (error) {
@@ -281,7 +281,7 @@ export class ProtectServiceV8 {
 				'Update Risk Evaluation'
 			);
 
-			logger.info(`${MODULE_TAG} Risk evaluation updated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Risk evaluation updated successfully`, 'Logger info');
 			return response.data;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to update risk evaluation:`, error);
@@ -309,7 +309,7 @@ export class ProtectServiceV8 {
 				'Provide Risk Evaluation Feedback'
 			);
 
-			logger.info(`${MODULE_TAG} Feedback provided successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Feedback provided successfully`, 'Logger info');
 			return response.data;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to provide feedback:`, error);
@@ -364,7 +364,10 @@ export class ProtectServiceV8 {
 			);
 
 			const evaluations = response.data._embedded?.riskEvaluations || [];
-			logger.info(`${MODULE_TAG} Retrieved ${evaluations.length} risk evaluations for user`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Retrieved ${evaluations.length} risk evaluations for user`,
+				'Logger info'
+			);
 
 			return evaluations;
 		} catch (error) {
@@ -407,7 +410,7 @@ export class ProtectServiceV8 {
 				'Create Targeted Risk Policy'
 			);
 
-			logger.info(`${MODULE_TAG} Targeted risk policy created successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Targeted risk policy created successfully`, 'Logger info');
 			return response.data;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to create targeted risk policy:`, error);
@@ -427,7 +430,7 @@ export class ProtectServiceV8 {
 			description?: string;
 		}>
 	> {
-		logger.info(`${MODULE_TAG} Fetching risk predictors`, "Logger info");
+		logger.info(`${MODULE_TAG} Fetching risk predictors`, 'Logger info');
 
 		try {
 			const response = await ProtectServiceV8.makeApiCall<{
@@ -435,7 +438,7 @@ export class ProtectServiceV8 {
 			}>(credentials, 'GET', '/riskPredictors', undefined, 'Get Risk Predictors');
 
 			const predictors = response.data._embedded?.riskPredictors || [];
-			logger.info(`${MODULE_TAG} Retrieved ${predictors.length} risk predictors`, "Logger info");
+			logger.info(`${MODULE_TAG} Retrieved ${predictors.length} risk predictors`, 'Logger info');
 
 			return predictors as Array<{
 				id: string;
@@ -454,12 +457,12 @@ export class ProtectServiceV8 {
 	 * Validate credentials and test API connectivity
 	 */
 	static async validateCredentials(credentials: ProtectCredentials): Promise<boolean> {
-		logger.info(`${MODULE_TAG} Validating Protect API credentials`, "Logger info");
+		logger.info(`${MODULE_TAG} Validating Protect API credentials`, 'Logger info');
 
 		try {
 			// Try to fetch risk policies as a simple connectivity test
 			await ProtectServiceV8.fetchRiskPolicies(credentials);
-			logger.info(`${MODULE_TAG} Credentials validated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Credentials validated successfully`, 'Logger info');
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Credential validation failed:`, error);
@@ -485,7 +488,7 @@ export class ProtectServiceV8 {
 		action: 'ALLOW' | 'CHALLENGE' | 'BLOCK';
 		reason: string;
 	}> {
-		logger.info(`${MODULE_TAG} Starting risk evaluation workflow`, "Logger info");
+		logger.info(`${MODULE_TAG} Starting risk evaluation workflow`, 'Logger info');
 
 		// Step 1: Create risk evaluation
 		const evaluation = await ProtectServiceV8.createRiskEvaluation(credentials, event);

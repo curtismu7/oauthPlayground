@@ -50,7 +50,6 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { logger } from '../../utils/logger';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';

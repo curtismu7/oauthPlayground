@@ -16,6 +16,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 ENHANCED-CREDENTIALS-V8]';
 
 // ============================================================================
@@ -202,7 +203,7 @@ class IndexedDBStorage {
 			};
 
 			request.onsuccess = () => {
-				logger.info(`${MODULE_TAG} IndexedDB opened successfully`, "Logger info");
+				logger.info(`${MODULE_TAG} IndexedDB opened successfully`, 'Logger info');
 				resolve(request.result);
 			};
 
@@ -221,7 +222,7 @@ class IndexedDBStorage {
 					store.createIndex('flowType', 'interactionHistory.appName', { unique: false });
 					store.createIndex('username', 'interactionHistory.username', { unique: false });
 
-					logger.info(`${MODULE_TAG} IndexedDB schema created`, "Logger info");
+					logger.info(`${MODULE_TAG} IndexedDB schema created`, 'Logger info');
 				}
 			};
 		});
@@ -241,7 +242,10 @@ class IndexedDBStorage {
 				const request = store.put(credentials);
 
 				request.onsuccess = () => {
-					logger.info(`${MODULE_TAG} Credentials saved to IndexedDB: ${environmentId}`, "Logger info");
+					logger.info(
+						`${MODULE_TAG} Credentials saved to IndexedDB: ${environmentId}`,
+						'Logger info'
+					);
 					resolve(true);
 				};
 
@@ -272,10 +276,16 @@ class IndexedDBStorage {
 				request.onsuccess = () => {
 					const result = request.result as EnhancedCredentials | undefined;
 					if (result) {
-						logger.info(`${MODULE_TAG} Credentials loaded from IndexedDB: ${environmentId}`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Credentials loaded from IndexedDB: ${environmentId}`,
+							'Logger info'
+						);
 						resolve(result);
 					} else {
-						logger.info(`${MODULE_TAG} No credentials found in IndexedDB: ${environmentId}`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} No credentials found in IndexedDB: ${environmentId}`,
+							'Logger info'
+						);
 						resolve(null);
 					}
 				};
@@ -339,7 +349,10 @@ class IndexedDBStorage {
 				const request = store.delete(environmentId);
 
 				request.onsuccess = () => {
-					logger.info(`${MODULE_TAG} Credentials cleared from IndexedDB: ${environmentId}`, "Logger info");
+					logger.info(
+						`${MODULE_TAG} Credentials cleared from IndexedDB: ${environmentId}`,
+						'Logger info'
+					);
 					resolve(true);
 				};
 
@@ -388,10 +401,10 @@ class SQLiteStorage {
 			});
 
 			if (response.ok) {
-				logger.info(`${MODULE_TAG} Credentials saved to SQLite: ${environmentId}`, "Logger info");
+				logger.info(`${MODULE_TAG} Credentials saved to SQLite: ${environmentId}`, 'Logger info');
 				return true;
 			} else {
-				logger.warn(`${MODULE_TAG} SQLite save failed: ${response.status}`, "Logger warning");
+				logger.warn(`${MODULE_TAG} SQLite save failed: ${response.status}`, 'Logger warning');
 				return false;
 			}
 		} catch (error) {
@@ -412,11 +425,14 @@ class SQLiteStorage {
 			if (response.ok) {
 				const data = await response.json();
 				if (data.credentials) {
-					logger.info(`${MODULE_TAG} Credentials loaded from SQLite: ${environmentId}`, "Logger info");
+					logger.info(
+						`${MODULE_TAG} Credentials loaded from SQLite: ${environmentId}`,
+						'Logger info'
+					);
 					return data.credentials;
 				}
 			} else {
-				logger.warn(`${MODULE_TAG} SQLite load failed: ${response.status}`, "Logger warning");
+				logger.warn(`${MODULE_TAG} SQLite load failed: ${response.status}`, 'Logger warning');
 			}
 		} catch (error) {
 			logger.error(`${MODULE_TAG} SQLite load error:`, error);
@@ -457,7 +473,10 @@ class SQLiteStorage {
 			});
 
 			if (response.ok) {
-				logger.info(`${MODULE_TAG} Credentials cleared from SQLite: ${environmentId}`, "Logger info");
+				logger.info(
+					`${MODULE_TAG} Credentials cleared from SQLite: ${environmentId}`,
+					'Logger info'
+				);
 				return true;
 			}
 		} catch (error) {
@@ -500,7 +519,10 @@ class LocalStorageFallback {
 			existing[environmentId] = credentials;
 
 			localStorage.setItem(LocalStorageFallback.STORAGE_KEY, JSON.stringify(existing));
-			logger.info(`${MODULE_TAG} Credentials saved to localStorage: ${environmentId}`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Credentials saved to localStorage: ${environmentId}`,
+				'Logger info'
+			);
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} localStorage save error:`, error);
@@ -541,7 +563,10 @@ class LocalStorageFallback {
 			const all = LocalStorageFallback.loadAll();
 			delete all[environmentId];
 			localStorage.setItem(LocalStorageFallback.STORAGE_KEY, JSON.stringify(all));
-			logger.info(`${MODULE_TAG} Credentials cleared from localStorage: ${environmentId}`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Credentials cleared from localStorage: ${environmentId}`,
+				'Logger info'
+			);
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} localStorage clear error:`, error);
@@ -727,7 +752,10 @@ export class EnhancedCredentialsServiceV8 {
 						];
 						enhanced.metadata.syncStatus = 'synced';
 
-						logger.info(`${MODULE_TAG} Credentials saved successfully using ${backend.name}`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Credentials saved successfully using ${backend.name}`,
+							'Logger info'
+						);
 						return { success: true, backend: backend.name };
 					}
 				} catch (error) {
@@ -782,7 +810,10 @@ export class EnhancedCredentialsServiceV8 {
 								(performance.now() - startTime)) /
 							2;
 
-						logger.info(`${MODULE_TAG} Credentials loaded from ${backend.name}: ${environmentId}`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Credentials loaded from ${backend.name}: ${environmentId}`,
+							'Logger info'
+						);
 						return credentials;
 					}
 				} catch (error) {
@@ -790,7 +821,7 @@ export class EnhancedCredentialsServiceV8 {
 				}
 			}
 
-			logger.info(`${MODULE_TAG} No credentials found for ${environmentId}`, "Logger info");
+			logger.info(`${MODULE_TAG} No credentials found for ${environmentId}`, 'Logger info');
 			return null;
 		} catch (error) {
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
