@@ -213,17 +213,39 @@ interface FlowCredentialInfo {
 }
 
 const KNOWN_FLOWS = [
-	{ key: 'oauth-authorization-code-v7', name: 'OAuth Authorization Code V7' },
-	{ key: 'oidc-authorization-code-v7', name: 'OIDC Authorization Code V7' },
-	{ key: 'oauth-implicit-v7', name: 'OAuth Implicit V7' },
-	{ key: 'oidc-implicit-v7', name: 'OIDC Implicit V7' },
-	{ key: 'device-authorization-v7', name: 'Device Authorization V7' },
-	{ key: 'oidc-hybrid-v7', name: 'OIDC Hybrid V7' },
-	{ key: 'client-credentials-v7', name: 'Client Credentials V7' },
-	{ key: 'kroger-mfa', name: 'Kroger MFA Flow' },
-	{ key: 'device-authorization-v6', name: 'Device Authorization V6' },
+	// Shared / global config
 	{ key: 'configuration', name: 'Configuration' },
+
+	// V9 OAuth 2.0 Flows
+	{ key: 'oauth-authorization-code-v9', name: 'Authorization Code (V9)' },
+	{ key: 'implicit-v9', name: 'Implicit Flow (V9)' },
+	{ key: 'device-authorization-v9', name: 'Device Authorization (V9)' },
+	{ key: 'client-credentials-v9', name: 'Client Credentials (V9)' },
+	{ key: 'dpop-authorization-code-v9', name: 'DPoP Authorization Code (V9)' },
+
+	// V9 OIDC Flows
+	{ key: 'oidc-hybrid-v9', name: 'OIDC Hybrid Flow (V9)' },
+	{ key: 'ciba-v9', name: 'CIBA Flow (V9)' },
+
+	// V9 PingOne Flows
+	{ key: 'pingone-par-flow-v9', name: 'Pushed Authorization Request (V9)' },
+	{ key: 'redirectless-v9', name: 'Redirectless Flow (V9)' },
+	{ key: 'kroger-mfa', name: 'Kroger Grocery Store MFA' },
+
+	// V9 Tokens
+	{ key: 'worker-token-v9', name: 'Worker Token (V9)' },
+	{ key: 'token-exchange-v9', name: 'Token Exchange (V9)' },
+
+	// Unified V8U
+	{ key: 'oauth-authz-v8u', name: 'Unified OAuth & OIDC (V8U)' },
+
+	// V8 MFA Flows
+	{ key: 'unified-mfa-v8', name: 'Unified MFA (V8)' },
+	{ key: 'mfa-hub-v8', name: 'MFA Hub (V8)' },
+
+	// Developer tools
 	{ key: 'app-generator', name: 'Application Generator' },
+	{ key: 'postman-collection-generator', name: 'Postman Collection Generator' },
 ];
 
 export const CredentialManagement: React.FC = () => {
