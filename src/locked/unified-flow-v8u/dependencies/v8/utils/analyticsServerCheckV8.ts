@@ -89,6 +89,7 @@ export async function safeAnalyticsFetch(_data: Record<string, unknown>): Promis
 	} catch {
 		// Silently ignore all errors
 	}
+}
 
 /**
  * Reset cache (useful for testing or manual refresh)
