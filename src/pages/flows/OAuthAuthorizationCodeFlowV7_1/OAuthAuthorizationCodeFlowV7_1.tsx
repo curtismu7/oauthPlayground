@@ -219,12 +219,12 @@ const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
 `;
 
 interface OAuthAuthorizationCodeFlowV7_1Props {
-	initialVariant?: FlowVariant;
+	initialVariant?: 'oauth' | 'oidc';
 	initialCredentials?: Partial<FlowCredentials>;
-	onFlowComplete?: (tokens: TokenResponse, userInfo?: UserInfo) => void;
+	onFlowComplete?: (result: TokenResponse) => void;
 	onFlowError?: (error: Error) => void;
 	showDebugInfo?: boolean;
-	enablePerformanceMonitoring?: boolean;
+	_enablePerformanceMonitoring?: boolean;
 }
 
 export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlowV7_1Props> = ({
@@ -233,7 +233,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	onFlowComplete,
 	onFlowError,
 	showDebugInfo = false,
-	enablePerformanceMonitoring = true,
+	_enablePerformanceMonitoring = true,
 }) => {
 	// Performance monitoring
 	const performanceMonitoring = usePerformanceMonitoring('OAuthAuthorizationCodeFlowV7_1');
@@ -281,6 +281,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		requestScopesForMultipleResources: false,
 		terminateUserSessionByIdToken: false,
 		corsAllowAnyOrigin: false,
+		corsOrigins: [],
 	});
 
 	// Flow variant switching
@@ -352,7 +353,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 				flowState.updateUserInfo(userInfo);
 			}
 			flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
-			onFlowComplete?.(tokens, userInfo);
+			onFlowComplete?.(tokens);
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Flow completed successfully!',
@@ -457,7 +458,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	}, [flowState]);
 
 	// Handle go home
-	const handleGoHome = useCallback(() => {
+	const _handleGoHome = useCallback(() => {
 		window.location.href = '/';
 	}, []);
 
@@ -472,7 +473,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	}
 
 	return (
-		<FlowErrorWrapper flowKey={FLOW_CONSTANTS.FLOW_KEY}>
+		<FlowErrorWrapper flowName="OAuth Authorization Code Flow V7.1">
 			<Container>
 				<ContentWrapper>
 					<MainCard>
@@ -515,13 +516,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 							<StepNavigationButtons
 								currentStep={flowState.flowState.currentStep}
 								totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-								onStepChange={handleStepChange}
+								onPrevious={() => flowState.goToPreviousStep()}
+								onNext={() => flowState.goToNextStep()}
 								onReset={handleFlowReset}
-								onGoHome={handleGoHome}
-								stepCompletion={flowState.stepCompletion}
-								canGoBack={flowState.canGoBack()}
-								canGoForward={flowState.canGoForward()}
-								isComplete={flowState.isFlowComplete()}
+								canNavigateNext={flowState.canGoForward()}
+								isFirstStep={flowState.flowState.currentStep === 0}
 							/>
 
 							{/* Original V7 Collapsible Sections Structure */}
