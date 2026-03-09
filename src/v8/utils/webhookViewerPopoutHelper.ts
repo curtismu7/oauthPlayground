@@ -5,6 +5,8 @@
  * @version 1.0.0
  */
 
+import { logger } from '../../utils/logger';
+
 const POPUP_WIDTH = 1400;
 const POPUP_HEIGHT = 900;
 
@@ -24,10 +26,7 @@ export function openWebhookViewerPopout(): void {
 	);
 
 	if (!popup) {
-		// Popup blocked — notify user with console message
-		console.warn(
-			'Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.'
-		);
+		logger.warn('webhookViewerPopoutHelper', 'Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.');
 		// Also show a modern notification if possible
 		if (typeof window !== 'undefined' && 'Notification' in window) {
 			// Try to show a browser notification (will be blocked if not permitted)
@@ -41,8 +40,7 @@ export function openWebhookViewerPopout(): void {
 					}
 				})
 				.catch(() => {
-					// Fallback to console if notification fails
-					console.warn('Please allow popups for this site to use the Webhook Viewer popout.');
+					// Notification permission denied — already logged above
 				});
 		}
 		return;

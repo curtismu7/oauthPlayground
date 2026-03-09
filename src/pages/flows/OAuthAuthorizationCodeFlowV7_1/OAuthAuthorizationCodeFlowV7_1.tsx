@@ -334,15 +334,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	}, [
 		initialVariant,
 		initialCredentials,
-		authCodeManagement.detectAuthCode,
-		flowState.flowState.flowVariant,
-		flowState.markStepCompleted,
-		flowState.updateAuthCode,
-		flowState.updateCredentials,
-		flowVariantSwitching.switchVariant,
+		authCodeManagement,
+		flowState,
+		flowVariantSwitching,
 		onFlowError,
-		performanceMonitoring.endRender,
-		performanceMonitoring.startRender,
+		performanceMonitoring,
 	]);
 
 	// Handle flow completion
