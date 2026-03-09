@@ -23,6 +23,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { showGlobalError } from '../../contexts/NotificationSystem';
 
 export const V7MDeviceAuthorizationV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-device-client');
@@ -65,7 +66,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 			Math.floor(Date.now() / 1000)
 		);
 		if ('error' in res) {
-			alert(`${res.error}: ${res.error_description ?? ''}`);
+			showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			return;
 		}
 		setDeviceCode(res.device_code);
@@ -113,7 +114,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 			if (res.error === 'authorization_pending') {
 				alert('User has not yet approved the device. Click "Simulate User Approval" first.');
 			} else {
-				alert(`${res.error}: ${res.error_description ?? ''}`);
+				showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			}
 			return;
 		}

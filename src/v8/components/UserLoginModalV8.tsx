@@ -1740,6 +1740,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					cursor: 'pointer',
 				}}
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				aria-label="Close modal"
 			/>
 

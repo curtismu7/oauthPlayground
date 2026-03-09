@@ -7,6 +7,7 @@
 
 import { FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { showGlobalError } from '../contexts/NotificationSystem';
 
 interface PasskeyDevice {
 	id: string;
@@ -268,7 +269,9 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 			onDeviceDeleted?.();
 		} catch (err) {
 			log.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
-			alert(`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`);
+			showGlobalError(
+				`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`
+			);
 		}
 	};
 

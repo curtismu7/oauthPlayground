@@ -5,6 +5,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
+	showGlobalInfo,
+} from '../contexts/NotificationSystem';
+import {
 	BaseFlowConfig,
 	ConfigurationSuggestion,
 	ConfigurationValidationResult,
@@ -432,7 +435,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						);
 						setValidation(validationResult);
 					} else {
-						alert(
+						showGlobalInfo(
 							`Configuration is for ${imported.flowType}, but you're editing ${selectedFlowType}`
 						);
 					}
@@ -443,7 +446,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						undefined,
 						error as Error
 					);
-					alert('Failed to import configuration. Please check the file format.');
+					console.error('Failed to import configuration:', error);
 				}
 			};
 			reader.readAsText(file);

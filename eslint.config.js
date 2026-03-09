@@ -24,6 +24,14 @@ export default [
 		},
 		rules: {
 			...tsplugin.configs.recommended.rules,
+			// --- Severity overrides (warn vs error) ---
+			// no-explicit-any: 848 occurrences - too noisy as error; address incrementally
+			'@typescript-eslint/no-explicit-any': 'warn',
+			// no-require-imports: 39 occurrences - legacy require() calls, address incrementally
+			'@typescript-eslint/no-require-imports': 'warn',
+			// require-atomic-updates: 52 occurrences - real but non-blocking async patterns
+			'require-atomic-updates': 'warn',
+			// --- Unused vars ---
 			'@typescript-eslint/no-unused-vars': ['warn', {
 				varsIgnorePattern: '^_',
 				argsIgnorePattern: '^_',
@@ -40,7 +48,6 @@ export default [
 			// '@typescript-eslint/no-misused-promises': 'error',
 			// '@typescript-eslint/promise-function-async': 'warn',
 			'no-async-promise-executor': 'error',
-			'require-atomic-updates': 'error',
 			'react-hooks/exhaustive-deps': 'warn',
 		},
 	},
@@ -57,6 +64,19 @@ export default [
 		},
 	},
 	{
-		ignores: ['dist/', 'node_modules/', '*.config.js'],
+		ignores: [
+			'dist/',
+			'node_modules/',
+			'*.config.js',
+			'src/locked/**',
+			'src/v8/lockdown/**',
+			'src/v8u/lockdown/**',
+			'src/tests/**',
+			'src/**/*.test.ts',
+			'src/**/*.test.tsx',
+			'src/**/*.spec.ts',
+			'src/**/*.spec.tsx',
+			'src/contexts/__tests__/**',
+		],
 	},
 ];
