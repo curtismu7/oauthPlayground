@@ -16,6 +16,8 @@
  * @module flowStorageService
  */
 
+import { logger } from '../utils/logger';
+
 // ============================================
 // Type Definitions
 // ============================================
@@ -289,11 +291,9 @@ export class AuthCodeStorage {
 			const data: AuthCodeData = JSON.parse(stored);
 			return data.code;
 		} catch (e) {
-			logger.warn(
+			logger.error(
 				'FlowStorageService',
-				`[FlowStorage] Failed to parse auth code for ${flowId}`,
-				undefined,
-				e as Error
+				`[FlowStorage] Failed to parse auth code for ${flowId}: ${e instanceof Error ? e.message : String(e)}`
 			);
 			return null;
 		}
@@ -311,7 +311,7 @@ export class AuthCodeStorage {
 		try {
 			return JSON.parse(stored) as AuthCodeData;
 		} catch (e) {
-			logger.warn(
+			logger.error(
 				'FlowStorageService',
 				`[FlowStorage] Failed to parse auth code data for ${flowId}`,
 				undefined,
@@ -381,12 +381,7 @@ export class DeviceCodeStorage {
 		try {
 			return JSON.parse(stored) as DeviceCodeData;
 		} catch (e) {
-			logger.warn(
-				'FlowStorageService',
-				`[FlowStorage] Failed to parse device code for ${flowId}`,
-				undefined,
-				e as Error
-			);
+			logger.error('FlowStorageService', `[FlowStorage] Failed to parse device code for ${flowId}`, undefined, e as Error);
 			return null;
 		}
 	}
@@ -451,12 +446,7 @@ export class StateStorage {
 			const data: StateData = JSON.parse(stored);
 			return data.state;
 		} catch (e) {
-			logger.warn(
-				'FlowStorageService',
-				`[FlowStorage] Failed to parse state for ${flowId}`,
-				undefined,
-				e as Error
-			);
+			logger.error('FlowStorageService', `[FlowStorage] Failed to parse state for ${flowId}`, undefined, e as Error);
 			return null;
 		}
 	}
@@ -585,20 +575,18 @@ export class CredentialsStorage {
 	 * @param credentials - The credentials data
 	 */
 	static async set(flowId: FlowId, credentials: CredentialsData): Promise<void> {
-		// Store in unified credentials service
+		// Store in V9 credentials service
 		try {
-			const { unifiedCredentialsService } = await import('./unifiedCredentialsService');
-			await unifiedCredentialsService.storeOAuthCredentials(credentials, {
-				flowName: flowId,
-			});
+			const { CredentialsServiceV8 } = await import('./v9/credentialsServiceV9');
+			await CredentialsServiceV8.saveCredentials(flowId, credentials);
 			logger.info(
 				'FlowStorageService',
 				`💾 [FlowStorage] Saved credentials for ${flowId} to unified storage`
 			);
 		} catch (error) {
-			logger.warn(
+			logger.error(
 				'FlowStorageService',
-				`[FlowStorage] Failed to save to unified storage, falling back to localStorage:`,
+				`[FlowStorage] Failed to save to unified storage, falling back to localStorage`,
 				undefined,
 				error as Error
 			);
@@ -617,24 +605,31 @@ export class CredentialsStorage {
 	 * @returns The credentials or null if not found
 	 */
 	static async get(flowId: FlowId): Promise<CredentialsData | null> {
-		// Try unified credentials service first
+		// Try V9 credentials service first
 		try {
-			const { unifiedCredentialsService } = await import('./unifiedCredentialsService');
-			const credentials = await unifiedCredentialsService.getOAuthCredentials({
-				flowName: flowId,
+			const { CredentialsServiceV8 } = await import('./v9/credentialsServiceV9');
+			const credentials = await CredentialsServiceV8.loadCredentials(flowId, {
+				flowKey: flowId,
+				flowType: 'oauth',
+				includeClientSecret: true,
+				includeRedirectUri: true,
+				includeLogoutUri: false,
+				includeScopes: true,
+				defaultScopes: '',
+				defaultRedirectUri: '',
 			});
 
 			if (credentials) {
 				logger.info(
-					'FlowStorageService',
-					`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
-				);
+				'FlowStorageService',
+				`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
+			);
 				return credentials as CredentialsData;
 			}
 		} catch (error) {
-			logger.warn(
+			logger.error(
 				'FlowStorageService',
-				`[FlowStorage] Failed to load from unified storage, falling back to localStorage:`,
+				`[FlowStorage] Failed to load from unified storage, falling back to localStorage`,
 				undefined,
 				error as Error
 			);
@@ -647,7 +642,7 @@ export class CredentialsStorage {
 		try {
 			return JSON.parse(stored) as CredentialsData;
 		} catch (e) {
-			logger.warn(
+			logger.error(
 				'FlowStorageService',
 				`[FlowStorage] Failed to parse localStorage credentials for ${flowId}`,
 				undefined,
