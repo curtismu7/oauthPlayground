@@ -24,202 +24,224 @@ export interface FlowRedirectUriConfig {
 }
 
 /**
- * Centralized mapping of all OAuth/OIDC flows to their redirect URI patterns
+ * Centralized mapping of all OAuth/OIDC flows to their redirect URI patterns.
+ * Only flows that appear in the sidebar are listed here.
  * Pattern: {origin}/{callbackPath} (origin from getAppOrigin(), e.g. custom domain)
  */
 export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
-	// OAuth 2.0 Authorization Code Flows
+	// ── V9 OAuth 2.0 Flows ────────────────────────────────────────────────────
 	{
-		flowType: 'oauth-authorization-code-v6',
+		flowType: 'oauth-authorization-code-v9',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
-		description: 'OAuth 2.0 Authorization Code Flow with PKCE',
+		description: 'Authorization Code (V9)',
 		specification: 'RFC 6749, Section 4.1',
 	},
 	{
-		flowType: 'oauth-authorization-code-v5',
+		flowType: 'oauth-authorization-code-v9-condensed',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
-		description: 'OAuth 2.0 Authorization Code Flow with PKCE (V5)',
+		description: 'Authorization Code Condensed (V9)',
 		specification: 'RFC 6749, Section 4.1',
 	},
-
-	// OpenID Connect Authorization Code Flows
 	{
-		flowType: 'oidc-authorization-code-v6',
+		flowType: 'oauth2-compliant-authorization-code',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
-		description: 'OpenID Connect Authorization Code Flow',
-		specification: 'OIDC Core 1.0, Section 3.1.2',
+		description: 'Authorization Code (RFC 6749)',
+		specification: 'RFC 6749, Section 4.1',
 	},
 	{
-		flowType: 'oidc-authorization-code-v5',
-		requiresRedirectUri: true,
-		callbackPath: 'authz-callback',
-		description: 'OpenID Connect Authorization Code Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.1.2',
-	},
-
-	// OAuth 2.0 Implicit Flows
-	{
-		flowType: 'oauth-implicit-v6',
-		requiresRedirectUri: true,
-		callbackPath: 'oauth-implicit-callback',
-		description: 'OAuth 2.0 Implicit Grant Flow',
-		specification: 'RFC 6749, Section 4.2',
-	},
-	{
-		flowType: 'oauth-implicit-v5',
-		requiresRedirectUri: true,
-		callbackPath: 'oauth-implicit-callback',
-		description: 'OAuth 2.0 Implicit Grant Flow (V5)',
-		specification: 'RFC 6749, Section 4.2',
-	},
-
-	// OpenID Connect Implicit Flows
-	{
-		flowType: 'oidc-implicit-v6',
-		requiresRedirectUri: true,
-		callbackPath: 'oidc-implicit-callback',
-		description: 'OpenID Connect Implicit Flow',
-		specification: 'OIDC Core 1.0, Section 3.2.2',
-	},
-	{
-		flowType: 'oidc-implicit-v5',
-		requiresRedirectUri: true,
-		callbackPath: 'oidc-implicit-callback',
-		description: 'OpenID Connect Implicit Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.2.2',
-	},
-
-	// Unified OAuth/OIDC Implicit Flow V7
-	{
-		flowType: 'implicit-v7',
+		flowType: 'implicit-v9',
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',
-		description: 'Unified OAuth/OIDC Implicit Flow V7',
-		specification: 'RFC 6749, Section 4.2 / OIDC Core 1.0, Section 3.2.2',
-	},
-
-	// OpenID Connect Hybrid Flows
-	{
-		flowType: 'oidc-hybrid-v6',
-		requiresRedirectUri: true,
-		callbackPath: 'hybrid-callback',
-		description: 'OpenID Connect Hybrid Flow',
-		specification: 'OIDC Core 1.0, Section 3.3',
+		description: 'Implicit Flow (V9)',
+		specification: 'RFC 6749, Section 4.2',
 	},
 	{
-		flowType: 'oidc-hybrid-v5',
-		requiresRedirectUri: true,
-		callbackPath: 'hybrid-callback',
-		description: 'OpenID Connect Hybrid Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.3',
-	},
-
-	// Device Authorization Flows
-	{
-		flowType: 'device-authorization-v6',
+		flowType: 'device-authorization-v9',
 		requiresRedirectUri: false,
-		callbackPath: 'device-callback',
-		description: 'OAuth 2.0 Device Authorization Grant',
-		specification: 'RFC 8628, Section 3.4',
+		callbackPath: 'device-code-status',
+		description: 'Device Authorization (V9)',
+		specification: 'RFC 8628',
 	},
 	{
-		flowType: 'oidc-device-authorization-v6',
-		requiresRedirectUri: false,
-		callbackPath: 'device-callback',
-		description: 'OpenID Connect Device Authorization Grant',
-		specification: 'OIDC Device Flow 1.0',
-	},
-
-	// Client Credentials Flow
-	{
-		flowType: 'client-credentials-v6',
-		requiresRedirectUri: false,
-		callbackPath: 'N/A',
-		description: 'OAuth 2.0 Client Credentials Grant',
-		specification: 'RFC 6749, Section 4.4',
-	},
-	{
-		flowType: 'client-credentials',
+		flowType: 'client-credentials-v9',
 		requiresRedirectUri: false,
 		callbackPath: 'client-credentials-callback',
-		description: 'OAuth 2.0 Client Credentials Grant',
+		description: 'Client Credentials (V9)',
 		specification: 'RFC 6749, Section 4.4',
 	},
-
-	// Worker Token Flow (PingOne Management API)
 	{
-		flowType: 'worker-token',
+		flowType: 'dpop-authorization-code-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'DPoP Authorization Code (V9)',
+		specification: 'RFC 9449 + RFC 6749, Section 4.1',
+	},
+
+	// ── V9 OpenID Connect Flows ───────────────────────────────────────────────
+	{
+		flowType: 'oidc-implicit-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'implicit-callback',
+		description: 'OIDC Implicit Flow (V9)',
+		specification: 'OIDC Core 1.0, Section 3.2.2',
+	},
+	{
+		flowType: 'oidc-device-authorization-v9',
 		requiresRedirectUri: false,
-		callbackPath: 'worker-token-callback',
-		description: 'PingOne Worker Token (Management API)',
-		specification: 'PingOne Management API',
+		callbackPath: 'device-code-status',
+		description: 'OIDC Device Authorization (V9)',
+		specification: 'OIDC Device Flow 1.0',
 	},
-
-	// PingOne PAR (Pushed Authorization Requests)
 	{
-		flowType: 'pingone-par-v6',
+		flowType: 'oidc-hybrid-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'hybrid-callback',
+		description: 'OIDC Hybrid Flow (V9)',
+		specification: 'OIDC Core 1.0, Section 3.3',
+	},
+	{
+		flowType: 'oidc-compliant-authorization-code',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
-		description: 'PingOne Pushed Authorization Requests',
-		specification: 'RFC 9126 (PAR)',
+		description: 'OIDC Authorization Code (OIDC Core 1.0)',
+		specification: 'OIDC Core 1.0, Section 3.1.2',
 	},
 	{
-		flowType: 'pingone-par-v6-new',
-		requiresRedirectUri: true,
-		callbackPath: 'authz-callback',
-		description: 'PingOne Pushed Authorization Requests (New)',
-		specification: 'RFC 9126 (PAR)',
-	},
-
-	// RAR (Rich Authorization Requests)
-	{
-		flowType: 'rar-v6',
-		requiresRedirectUri: true,
-		callbackPath: 'authz-callback',
-		description: 'Rich Authorization Requests',
-		specification: 'RFC 9396 (RAR)',
-	},
-
-	// Mock/Educational Flows
-	{
-		flowType: 'jwt-bearer-token-v6',
+		flowType: 'ciba-v9',
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
-		description: 'OAuth 2.0 JWT Bearer Token Flow (Mock)',
+		description: 'CIBA Flow (V9)',
+		specification: 'OIDC CIBA Core 1.0',
+	},
+
+	// ── V9 PingOne Flows ──────────────────────────────────────────────────────
+	{
+		flowType: 'pingone-par-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'Pushed Authorization Request (V9)',
+		specification: 'RFC 9126 (PAR)',
+	},
+	{
+		flowType: 'redirectless-v9',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'Redirectless Flow (V9)',
+		specification: 'PingOne Redirectless API',
+	},
+	{
+		flowType: 'pingone-mfa-workflow-library-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'PingOne MFA Workflow Library (V9)',
+		specification: 'PingOne MFA API',
+	},
+
+	// ── V9 Tokens & Session ───────────────────────────────────────────────────
+	{
+		flowType: 'worker-token-v9',
+		requiresRedirectUri: false,
+		callbackPath: 'worker-token-callback',
+		description: 'Worker Token (V9)',
+		specification: 'PingOne Management API',
+	},
+	{
+		flowType: 'token-exchange-v9',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'Token Exchange (V9)',
+		specification: 'RFC 8693',
+	},
+
+	// ── V9 Mock & Educational Flows ───────────────────────────────────────────
+	{
+		flowType: 'jwt-bearer-token-v9',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'JWT Bearer Token (V9)',
 		specification: 'RFC 7523',
 	},
 	{
-		flowType: 'saml-bearer-assertion-v6',
+		flowType: 'saml-bearer-assertion-v9',
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
-		description: 'OAuth 2.0 SAML Bearer Assertion Flow (Mock)',
+		description: 'SAML Bearer Assertion (V9)',
 		specification: 'RFC 7522',
 	},
-
-	// Legacy/V3 Flows (for backward compatibility)
 	{
-		flowType: 'authorization-code-v3',
-		requiresRedirectUri: true,
-		callbackPath: 'authz-callback',
-		description: 'Authorization Code Flow (V3)',
-		specification: 'RFC 6749, Section 4.1',
+		flowType: 'oauth-ropc-v9',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'Resource Owner Password (V9)',
+		specification: 'RFC 6749, Section 4.3',
 	},
 	{
-		flowType: 'implicit-v3',
+		flowType: 'mock-oidc-ropc',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'Mock OIDC ROPC',
+		specification: 'OIDC Core 1.0 / RFC 6749, Section 4.3',
+	},
+	{
+		flowType: 'dpop-mock',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'DPoP (Educational/Mock)',
+		specification: 'RFC 9449',
+	},
+	{
+		flowType: 'rar-v9',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'RAR Flow (V9)',
+		specification: 'RFC 9396 (RAR)',
+	},
+	{
+		flowType: 'saml-sp-dynamic-acs-v1',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'SAML Service Provider (V1)',
+		specification: 'SAML 2.0',
+	},
+
+	// ── V7 Mock Server Flows ──────────────────────────────────────────────────
+	{
+		flowType: 'v7-oidc-authorization-code',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'Auth Code (V7 Mock)',
+		specification: 'OIDC Core 1.0, Section 3.1.2',
+	},
+	{
+		flowType: 'v7-device-authorization',
+		requiresRedirectUri: false,
+		callbackPath: 'device-code-status',
+		description: 'Device Authorization (V7 Mock)',
+		specification: 'RFC 8628',
+	},
+	{
+		flowType: 'v7-client-credentials',
+		requiresRedirectUri: false,
+		callbackPath: 'client-credentials-callback',
+		description: 'Client Credentials (V7 Mock)',
+		specification: 'RFC 6749, Section 4.4',
+	},
+	{
+		flowType: 'v7-implicit',
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',
-		description: 'Implicit Flow (V3)',
+		description: 'Implicit Flow (V7 Mock)',
 		specification: 'RFC 6749, Section 4.2',
 	},
 	{
-		flowType: 'hybrid-v3',
-		requiresRedirectUri: true,
-		callbackPath: 'hybrid-callback',
-		description: 'Hybrid Flow (V3)',
-		specification: 'OIDC Core 1.0, Section 3.3',
+		flowType: 'v7-ropc',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'ROPC (V7 Mock)',
+		specification: 'RFC 6749, Section 4.3',
 	},
 
 	// V8 OAuth 2.0 Flows
@@ -335,43 +357,6 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
 		description: 'V8U Resource Owner Password Credentials',
-		specification: 'RFC 6749, Section 4.3',
-	},
-
-	// Generic fallbacks
-	{
-		flowType: 'authorization-code',
-		requiresRedirectUri: true,
-		callbackPath: 'authz-callback',
-		description: 'Generic Authorization Code Flow',
-		specification: 'RFC 6749, Section 4.1',
-	},
-	{
-		flowType: 'implicit',
-		requiresRedirectUri: true,
-		callbackPath: 'implicit-callback',
-		description: 'Generic Implicit Flow',
-		specification: 'RFC 6749, Section 4.2',
-	},
-	{
-		flowType: 'hybrid',
-		requiresRedirectUri: true,
-		callbackPath: 'hybrid-callback',
-		description: 'Generic Hybrid Flow',
-		specification: 'OIDC Core 1.0, Section 3.3',
-	},
-	{
-		flowType: 'device-code',
-		requiresRedirectUri: false,
-		callbackPath: 'device-code-status',
-		description: 'Generic Device Code Flow',
-		specification: 'RFC 8628',
-	},
-	{
-		flowType: 'ropc',
-		requiresRedirectUri: false,
-		callbackPath: 'N/A',
-		description: 'Generic Resource Owner Password Credentials',
 		specification: 'RFC 6749, Section 4.3',
 	},
 ];
