@@ -141,41 +141,39 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 			includeRedirectUri: true,
 			includeLogoutUri: false,
 			includeScopes: true,
-		}).then(saved => {
-			if (saved) {
-				// Cast V8Credentials to MFACredentials with defaults
-				setCredentials({
-					flowKey: FLOW_KEY,
-					flowType: 'oauth',
-					environmentId: saved.environmentId || '',
-					clientId: saved.clientId || '',
-					clientSecret: saved.clientSecret || '',
-					redirectUri: saved.redirectUri || '',
-					logoutUri: saved.logoutUri || '',
-					scopes: saved.scopes || [],
-					username: '',
-					deviceType: 'MOBILE' as const,
-					countryCode: '',
-					phoneNumber: '',
-					userToken: '',
-					email: '',
-					deviceName: '',
-				});
-			}
-		}).catch(error => {
-			console.error('Error loading credentials:', error);
-		});
+		})
+			.then((saved) => {
+				if (saved) {
+					// Cast V8Credentials to MFACredentials with defaults
+					setCredentials({
+						flowKey: FLOW_KEY,
+						flowType: 'oauth',
+						environmentId: saved.environmentId || '',
+						clientId: saved.clientId || '',
+						clientSecret: saved.clientSecret || '',
+						redirectUri: saved.redirectUri || '',
+						logoutUri: saved.logoutUri || '',
+						scopes: saved.scopes || [],
+						username: '',
+						deviceType: 'MOBILE' as const,
+						countryCode: '',
+						phoneNumber: '',
+						userToken: '',
+						email: '',
+						deviceName: '',
+					});
+				}
+			})
+			.catch((error) => {
+				console.error('Error loading credentials:', error);
+			});
 	}, []);
 
 	const [mfaState, setMfaState] = useState<MFAState>({
-		isLoading: false,
-		error: null,
-		deviceId: null,
-		authenticationId: null,
-		activationId: null,
-		qrCode: null,
-		otpCode: null,
-		deviceInfo: null,
+		deviceId: '',
+		otpCode: '',
+		deviceStatus: '',
+		verificationResult: null,
 	});
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -227,7 +225,8 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 					false // forceShowModal=false: automatic mount check
 				);
 			} catch (error) {
-				logger.error(`${MODULE_TAG} Error in worker token check:`, error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.error(`${MODULE_TAG} Error in worker token check:`, errorMessage);
 			}
 		};
 
@@ -240,7 +239,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		const currentPath = location.pathname;
 
 		if (isOAuthCallbackReturn) {
-			logger.info(`${MODULE_TAG} OAuth callback detected, processing return...`);
+			logger.info(`${MODULE_TAG} OAuth callback detected, processing return...`, 'OAuth callback');
 
 			// Store flow context for callback handler (Unified OAuth pattern)
 			const flowContext = {
@@ -252,7 +251,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-			logger.info(`${MODULE_TAG} 🎯 Stored flow context for authentication`);
+			logger.info(`${MODULE_TAG} 🎯 Stored flow context for authentication`, 'Flow context stored');
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
@@ -295,10 +294,11 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				setPoliciesError(null);
 				try {
 					// Refresh policies logic here
-					logger.info(`${MODULE_TAG} Refreshing device auth policies...`);
+					logger.info(`${MODULE_TAG} Refreshing device auth policies...`, 'Refreshing policies');
 				} catch (error) {
 					setPoliciesError('Failed to refresh policies');
-					logger.error(`${MODULE_TAG} Error refreshing policies:`, error);
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					logger.error(`${MODULE_TAG} Error refreshing policies:`, errorMessage);
 				} finally {
 					setIsLoadingPolicies(false);
 				}
@@ -429,7 +429,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 								nav
 							)
 						) {
-							logger.info(`${MODULE_TAG} Step 0 validation passed`);
+							logger.info(`${MODULE_TAG} Step 0 validation passed`, 'Step 0 validation');
 						}
 					}
 				}}
@@ -463,7 +463,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				onClose={() => setShowWorkerTokenModal(false)}
 				onGetToken={async () => {
 					// Handle worker token acquisition
-					logger.info(`${MODULE_TAG} Getting worker token...`);
+					logger.info(`${MODULE_TAG} Getting worker token...`, 'Getting worker token');
 					setShowWorkerTokenModal(false);
 				}}
 			/>
