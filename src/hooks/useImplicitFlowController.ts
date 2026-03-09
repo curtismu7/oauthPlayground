@@ -183,7 +183,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 			// Preserve implicit redirect if it existed, otherwise use config redirect
 			redirectUri: preservedImplicitRedirect || configCredentials.redirectUri,
 		};
-		console.log('🔄 [useImplicitFlowController] Fallback to config credentials:', {
+		logger.info('🔄 [useImplicitFlowController] Fallback to config credentials:', {
 			hasEnvId: !!loaded.environmentId,
 			hasClientId: !!loaded.clientId,
 			redirectUri: loaded.redirectUri,
@@ -197,7 +197,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 			...permanentCredentials,
 			redirectUri: preservedImplicitRedirect || permanentCredentials.redirectUri,
 		};
-		console.log('🔄 [useImplicitFlowController] Fallback to permanent credentials:', {
+		logger.info('🔄 [useImplicitFlowController] Fallback to permanent credentials:', {
 			hasEnvId: !!loaded.environmentId,
 			hasClientId: !!loaded.clientId,
 			redirectUri: loaded.redirectUri,
@@ -236,7 +236,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 				{ redirectUri: storageKeyRedirect },
 				variant
 			);
-			console.log('💾 [useImplicitFlowController] Persisted implicit redirect URI override:', {
+			logger.info('💾 [useImplicitFlowController] Persisted implicit redirect URI override:', {
 				storageKeyRedirect,
 				saveResult,
 			});
@@ -244,7 +244,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		redirectUri = DEFAULT_IMPLICIT_V7_REDIRECT_URI;
 	}
 
-	console.log('🔍 [useImplicitFlowController] loadInitialCredentials:', {
+	logger.info('🔍 [useImplicitFlowController] loadInitialCredentials:', {
 		urlRedirect,
 		preservedImplicitRedirect,
 		loadedRedirectUri: loaded.redirectUri,
@@ -362,7 +362,7 @@ export const useImplicitFlowController = (
 			const results = getStoredStepResults(stepResultKey);
 			results[stepId] = result;
 			sessionStorage.setItem(stepResultKey, JSON.stringify(results));
-			console.log(`💾 [useImplicitFlowController] Step result saved: ${stepId}`);
+			logger.info(`💾 [useImplicitFlowController] Step result saved: ${stepId}`);
 		},
 		[stepResultKey]
 	);
@@ -377,14 +377,14 @@ export const useImplicitFlowController = (
 
 	const clearStepResults = useCallback(() => {
 		sessionStorage.removeItem(stepResultKey);
-		console.log('🗑️ [useImplicitFlowController] Step results cleared');
+		logger.info('🗑️ [useImplicitFlowController] Step results cleared');
 	}, [stepResultKey]);
 
 	const handleFlowConfigChange = useCallback(
 		(config: FlowConfig) => {
 			setFlowConfig(config);
 			sessionStorage.setItem(configStorageKey, JSON.stringify(config));
-			console.log('💾 [useImplicitFlowController] Flow config updated and persisted');
+			logger.info('💾 [useImplicitFlowController] Flow config updated and persisted');
 		},
 		[configStorageKey]
 	);
@@ -393,7 +393,7 @@ export const useImplicitFlowController = (
 	useEffect(() => {
 		if (options.enableDebugger) {
 			const sessionId = enhancedDebugger.startSession('implicit');
-			console.log('🔍 [useImplicitFlowController] Debug session started:', sessionId);
+			logger.info('🔍 [useImplicitFlowController] Debug session started:', sessionId);
 
 			return () => {
 				enhancedDebugger.endSession();
@@ -407,7 +407,7 @@ export const useImplicitFlowController = (
 		const newNonce =
 			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setNonce(newNonce);
-		console.log('🔐 [useImplicitFlowController] Nonce generated');
+		logger.info('🔐 [useImplicitFlowController] Nonce generated');
 		saveStepResult('generate-nonce', { nonce: newNonce, timestamp: Date.now() });
 		return newNonce;
 	}, [saveStepResult]);
@@ -417,7 +417,7 @@ export const useImplicitFlowController = (
 		const newState =
 			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setState(newState);
-		console.log('🔐 [useImplicitFlowController] State generated');
+		logger.info('🔐 [useImplicitFlowController] State generated');
 		saveStepResult('generate-state', { state: newState, timestamp: Date.now() });
 		return newState;
 	}, [saveStepResult]);
@@ -434,7 +434,7 @@ export const useImplicitFlowController = (
 		}
 
 		// Debug: Log the redirect URI being used
-		console.log(
+		logger.info(
 			'[useImplicitFlowController] Generating auth URL with redirectUri:',
 			credentials.redirectUri
 		);
@@ -544,14 +544,14 @@ export const useImplicitFlowController = (
 		// Set flow-specific flag for ImplicitCallback to recognize V7 flows
 		if (flowKey.includes('implicit-v7')) {
 			ImplicitFlowSharedService.SessionStorage.setActiveFlow(flowVariant, 'v7');
-			console.log(
+			logger.info(
 				`🔄 [useImplicitFlowController] Set V7 ${flowVariant.toUpperCase()} flag for callback detection`
 			);
 		} else if (flowKey.includes('implicit-v6')) {
 			const flowFlag =
 				flowVariant === 'oidc' ? 'oidc-implicit-v6-flow-active' : 'oauth-implicit-v6-flow-active';
 			sessionStorage.setItem(flowFlag, 'true');
-			console.log(`🔄 [useImplicitFlowController] Set ${flowFlag} flag for callback detection`);
+			logger.info(`🔄 [useImplicitFlowController] Set ${flowFlag} flag for callback detection`);
 		}
 
 		saveStepResult('user-authorization', {
@@ -559,7 +559,7 @@ export const useImplicitFlowController = (
 			timestamp: Date.now(),
 		});
 
-		console.log('🔄 [useImplicitFlowController] Redirecting to authorization URL');
+		logger.info('🔄 [useImplicitFlowController] Redirecting to authorization URL');
 		window.location.href = authUrl;
 	}, [authUrl, flowKey, flowVariant, saveStepResult]);
 
@@ -609,7 +609,7 @@ export const useImplicitFlowController = (
 					`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Implicit - Tokens received`
 				);
 
-				console.log('✅ [useImplicitFlowController] Tokens parsed from fragment');
+				logger.info('✅ [useImplicitFlowController] Tokens parsed from fragment');
 			} catch (error) {
 				logger.error(
 					'useImplicitFlowController',
@@ -672,7 +672,7 @@ export const useImplicitFlowController = (
 			saveStepResult('fetch-userinfo', data);
 			trackTokenOperation('UserInfo', true, 'User information fetched successfully');
 
-			console.log('✅ [useImplicitFlowController] User info fetched');
+			logger.info('✅ [useImplicitFlowController] User info fetched');
 		} catch (error) {
 			logger.error(
 				'useImplicitFlowController',
@@ -694,8 +694,8 @@ export const useImplicitFlowController = (
 
 	// Save credentials
 	const saveCredentials = useCallback(async () => {
-		console.log('💾 [useImplicitFlowController] Saving credentials...');
-		console.log(
+		logger.info('💾 [useImplicitFlowController] Saving credentials...');
+		logger.info(
 			'📋 [useImplicitFlowController] Credentials:',
 			JSON.stringify(credentials, null, 2)
 		);
@@ -746,7 +746,7 @@ export const useImplicitFlowController = (
 				clientAuthMethod: credentials.clientAuthMethod || 'none',
 			};
 
-			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
+			logger.info('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
 			const saveResult = await credentialManager.saveImplicitFlowCredentials(
 				credsToSave as Partial<PermanentCredentials>,
 				flowVariant
@@ -790,7 +790,7 @@ export const useImplicitFlowController = (
 			}
 
 			credentialManager.saveAuthzFlowCredentials(authzPayload);
-			console.log(
+			logger.info(
 				'✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback'
 			);
 
@@ -805,13 +805,13 @@ export const useImplicitFlowController = (
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
 			window.dispatchEvent(new CustomEvent('implicit-flow-credentials-changed'));
-			console.log('📢 [useImplicitFlowController] Configuration change events dispatched');
+			logger.info('📢 [useImplicitFlowController] Configuration change events dispatched');
 
 			saveStepResult('save-credentials', {
 				...credentials,
 				timestamp: Date.now(),
 			});
-			console.log('✅ [useImplicitFlowController] Credentials saved successfully');
+			logger.info('✅ [useImplicitFlowController] Credentials saved successfully');
 		} catch (error) {
 			logger.error(
 				'useImplicitFlowController',
@@ -846,7 +846,7 @@ export const useImplicitFlowController = (
 
 		saveStepResult('reset-flow', { timestamp: Date.now() });
 
-		console.log('🔄 [useImplicitFlowController] Flow reset');
+		logger.info('🔄 [useImplicitFlowController] Flow reset');
 	}, [clearStepResults, saveStepResult, stopPopupWatch]);
 
 	// Track credential changes

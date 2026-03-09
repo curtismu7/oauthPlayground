@@ -1,4 +1,5 @@
 import { logger } from '../../../utils/logger';
+import { logger } from '../../utils/logger';
 // DaVinci Todo Service interfaces and types
 export interface DavinciTodo {
 	id: string;
@@ -93,7 +94,7 @@ export class DavinciTodoService {
 				throw new Error(`Connection test failed: ${response.statusText}`);
 			}
 
-			console.log('[DavinciTodoService] ✅ Client initialized successfully');
+			logger.info('[DavinciTodoService] ✅ Client initialized successfully');
 			return { success: true };
 		} catch (error) {
 			logger.error('DavinciTodoService', ' Client initialization failed:', undefined, error);
@@ -397,7 +398,7 @@ export class DavinciTodoService {
 			}
 
 			// In production, this would save to PingOne user attributes or external database
-			console.log('[DavinciTodoService] 💾 Saving todos:', todos);
+			logger.info('[DavinciTodoService] 💾 Saving todos:', todos);
 
 			// Example: Update user custom attributes
 			const response = await fetch(
@@ -465,7 +466,7 @@ export class DavinciTodoService {
 					DavinciTodoService.accessToken = newAccessToken;
 				}
 
-				console.log('[DavinciTodoService] ✅ Authentication successful');
+				logger.info('[DavinciTodoService] ✅ Authentication successful');
 			} else {
 				throw new Error('Client secret not configured for authentication');
 			}
@@ -498,7 +499,7 @@ export class DavinciTodoService {
 			DavinciTodoService.accessToken = null;
 
 			// In production, you might want to revoke the token with PingOne
-			console.log('[DavinciTodoService] 👋 Logged out successfully');
+			logger.info('[DavinciTodoService] 👋 Logged out successfully');
 		} catch (error) {
 			logger.error('DavinciTodoService', ' Logout failed:', undefined, error);
 			throw error;
@@ -510,7 +511,7 @@ export class DavinciTodoService {
 	 */
 	static setCurrentUser(user: { id: string; email: string; name: string }): void {
 		// In a real implementation, this would store user information
-		console.log('[DavinciTodoService] 👤 User set:', user);
+		logger.info('[DavinciTodoService] 👤 User set:', user);
 	}
 
 	/**
@@ -518,7 +519,7 @@ export class DavinciTodoService {
 	 */
 	static clearCurrentUser(): void {
 		// In a real implementation, this would clear user information
-		console.log('[DavinciTodoService] 👤 User cleared');
+		logger.info('[DavinciTodoService] 👤 User cleared');
 	}
 
 	/**

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -75,7 +76,7 @@ const LogoutCallback: React.FC = () => {
 	useEffect(() => {
 		const processLogoutCallback = async () => {
 			try {
-				log.auth('LogoutCallback', 'Processing logout callback');
+				logger.auth('LogoutCallback', 'Processing logout callback');
 
 				// Clear any remaining session data
 				const keysToRemove = [
@@ -106,7 +107,7 @@ const LogoutCallback: React.FC = () => {
 				});
 
 				// Log successful logout
-				log.auth('LogoutCallback', 'Logout completed successfully');
+				logger.auth('LogoutCallback', 'Logout completed successfully');
 
 				// Show success message
 				modernMessaging.showFooterMessage({
@@ -120,7 +121,7 @@ const LogoutCallback: React.FC = () => {
 					setIsProcessing(false);
 				}, 1000);
 			} catch (error) {
-				log.error('LogoutCallback', 'Error during logout processing', error);
+				logger.error('LogoutCallback', 'Error during logout processing', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',

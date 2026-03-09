@@ -6,6 +6,7 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -254,7 +255,7 @@ const userInfoConfig = {
   includeClaims: ${formData.includeClaims}
 };
 
-console.log('UserInfo POST configured:', userInfoConfig);`,
+logger.info('UserInfo POST configured:', userInfoConfig);`,
 			execute: async () => {
 				logger.info('UserInfoPostFlow', 'Configuring UserInfo POST settings');
 			},
@@ -274,8 +275,8 @@ formData.append('scope', '${formData.scope}');
 formData.append('claims', '${formData.claims}');
 formData.append('ui_locales', '${formData.uiLocales}');
 
-console.log('UserInfo POST URL:', userInfoUrl);
-console.log('Form data prepared for POST request');`,
+logger.info('UserInfo POST URL:', userInfoUrl);
+logger.info('Form data prepared for POST request');`,
 			execute: async () => {
 				logger.info('UserInfoPostFlow', 'Preparing UserInfo POST request');
 			},
@@ -297,7 +298,7 @@ try {
   
   if (response.ok) {
     const userInfo = await response.json();
-    console.log('UserInfo received:', userInfo);
+    logger.info('UserInfo received:', userInfo);
     
     // Store user info
     localStorage.setItem('user_info', JSON.stringify(userInfo));
@@ -325,8 +326,8 @@ try {
 
 					const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
 
-					console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
-					console.log(
+					logger.info('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
+					logger.info(
 						'[UserInfoPostFlow] Token preview:',
 						`${formData.accessToken.substring(0, 20)}...`
 					);
@@ -353,7 +354,7 @@ try {
 
 					const userInfo = await response.json();
 
-					console.log('[UserInfoPostFlow] UserInfo received:', {
+					logger.info('[UserInfoPostFlow] UserInfo received:', {
 						hasSub: !!userInfo.sub,
 						hasEmail: !!userInfo.email,
 						hasName: !!userInfo.name,
@@ -406,7 +407,7 @@ if (userInfo) {
     lastUpdated: new Date(userInfo.updated_at * 1000)
   };
   
-  console.log('Processed user data:', userData);
+  logger.info('Processed user data:', userData);
   
   // Store processed user data
   localStorage.setItem('user_data', JSON.stringify(userData));
@@ -506,8 +507,8 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 
 			const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
 
-			console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
-			console.log(
+			logger.info('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
+			logger.info(
 				'[UserInfoPostFlow] Token preview:',
 				`${formData.accessToken.substring(0, 20)}...`
 			);
@@ -534,7 +535,7 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 
 			const userInfo = await response.json();
 
-			console.log('[UserInfoPostFlow] UserInfo received:', {
+			logger.info('[UserInfoPostFlow] UserInfo received:', {
 				hasSub: !!userInfo.sub,
 				hasEmail: !!userInfo.email,
 				hasName: !!userInfo.name,

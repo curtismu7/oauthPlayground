@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;
@@ -491,9 +492,9 @@ const TestAuthzCodePKCE: React.FC = () => {
 	};
 
 	const handleVerifyPKCE = () => {
-		console.log('🔍 handleVerifyPKCE function called');
-		console.log('pkceData:', pkceData);
-		console.log('tokenData:', tokenData);
+		logger.info('🔍 handleVerifyPKCE function called');
+		logger.info('pkceData:', pkceData);
+		logger.info('tokenData:', tokenData);
 		log('🔍 Verifying PKCE implementation...', 'info');
 
 		if (pkceData?.codeVerifier?.length === 43) {
@@ -719,7 +720,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 						<SectionTitle>6. Verify PKCE Flow</SectionTitle>
 						<Button
 							onClick={() => {
-								console.log('🔍 Verify PKCE button clicked!');
+								logger.info('🔍 Verify PKCE button clicked!');
 								handleVerifyPKCE();
 							}}
 						>

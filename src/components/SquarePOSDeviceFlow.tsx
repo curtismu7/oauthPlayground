@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // Square POS Terminal Main Container - Authentic Square Design
 const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
@@ -421,12 +422,12 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
+		logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

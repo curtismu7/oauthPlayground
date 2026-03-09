@@ -5,6 +5,7 @@ import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
+import { logger } from '../utils/logger';
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;
@@ -436,7 +437,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 				announceToScreenReader('Security analytics data refreshed successfully');
 			}, 1000);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'SecurityAnalyticsDashboard',
 				'Failed to refresh security analytics:',
 				undefined,

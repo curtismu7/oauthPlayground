@@ -8,6 +8,7 @@ import {
 } from '../utils/flowRedirectUriMapping';
 import { callbackUriService } from './callbackUriService';
 
+import { logger } from '../../../utils/logger';
 /**
  * Service for managing OAuth/OIDC flow redirect URIs
  */
@@ -77,7 +78,7 @@ export class FlowRedirectUriService {
 			const targetBase = new URL(baseUrl, defaultUrl.origin);
 			return `${targetBase.origin}${defaultUrl.pathname}`;
 		} catch (error) {
-			console.warn('[FlowRedirectUriService] Failed to remap redirect URI base:', error);
+			logger.warn('[FlowRedirectUriService] Failed to remap redirect URI base:', error);
 			return defaultUri;
 		}
 	}
@@ -106,7 +107,7 @@ export class FlowRedirectUriService {
 			const providedUrl = new URL(redirectUri, expectedUrl.origin);
 			return expectedUrl.href === providedUrl.href;
 		} catch (error) {
-			console.warn(
+			logger.warn(
 				'[FlowRedirectUriService] Failed to normalise redirect URI for validation:',
 				error
 			);
@@ -163,7 +164,7 @@ export class FlowRedirectUriService {
 			baseUrl
 		);
 
-		console.log(`[FlowRedirectUriService] Flow: ${flowType}`, {
+		logger.info(`[FlowRedirectUriService] Flow: ${flowType}`, {
 			flowConfig: config,
 			requiresRedirectUri: config?.requiresRedirectUri || false,
 			customRedirectUri: credentials.redirectUri || 'none',

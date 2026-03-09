@@ -4,6 +4,7 @@ import { CodeGenerationService } from '../services/codeGeneration';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CodeCategory, CodeType, FlowStep, InteractiveCodeEditor } from './InteractiveCodeEditor';
 
+import { logger } from '../utils/logger';
 const CodeGeneratorContainer = styled.div`
   background: V9_COLORS.TEXT.WHITE;
   border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -151,7 +152,7 @@ export const MfaFlowCodeGenerator: React.FC<MfaFlowCodeGeneratorProps> = ({
 					onCategoryChange={handleCategoryChange}
 					onCodeChange={(code) => {
 						// Handle code changes if needed
-						console.log('Code updated:', `${code.substring(0, 50)}...`);
+						logger.info('Code updated:', `${code.substring(0, 50)}...`);
 					}}
 				/>
 

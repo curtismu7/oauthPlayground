@@ -9,6 +9,7 @@
 import { FiAlertTriangle } from '@icons';
 import React from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 
 export interface DeviceLimitErrorModalV8Props {
@@ -32,13 +33,13 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 	maxDevices,
 }) => {
 	const handleDeleteDevices = () => {
-		console.log(`${MODULE_TAG} User clicked to delete devices`);
+		logger.info(`${MODULE_TAG} User clicked to delete devices`);
 		onClose();
 		onDeleteDevicesClick();
 	};
 
 	const handleManageDevices = () => {
-		console.log(`${MODULE_TAG} User clicked to manage devices`);
+		logger.info(`${MODULE_TAG} User clicked to manage devices`);
 		onClose();
 		onDeleteDevicesClick();
 	};

@@ -36,6 +36,7 @@ import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U'
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
 
+import { logger } from '../utils/logger';
 // Define type for password change error
 interface PasswordChangeError extends Error {
 	code: string;
@@ -263,7 +264,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 	useEffect(() => {
 		const savedState = FlowStorageService.AdvancedParameters.get('redirectless-v9');
 		if (savedState) {
-			console.log('[Redirectless V9] Loading saved flow state:', savedState);
+			logger.info('[Redirectless V9] Loading saved flow state:', savedState);
 			// Apply saved state if needed
 		}
 	}, []);
@@ -296,7 +297,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 	// Custom navigation handler with validation (V9 pattern)
 	const handleStepChange = useCallback(
 		(newStep: number) => {
-			console.log('🔍 [Redirectless V9] handleStepChange called:', {
+			logger.info('🔍 [Redirectless V9] handleStepChange called:', {
 				currentStep,
 				newStep,
 				credentials: controller.credentials,
@@ -326,7 +327,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					}
 				},
 				() => {
-					console.log('✅ [Redirectless V9] Navigation allowed, moving to step:', newStep);
+					logger.info('✅ [Redirectless V9] Navigation allowed, moving to step:', newStep);
 					setCurrentStep(newStep);
 				}
 			);
@@ -402,7 +403,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 	const handleTokenExchange = useCallback(
 		async (authCode: string, codeVerifier: string) => {
 			try {
-				console.log('🔐 [Redirectless V9] Step 4: Exchanging authorization code for tokens');
+				logger.info('🔐 [Redirectless V9] Step 4: Exchanging authorization code for tokens');
 
 				const backendUrl =
 					process.env.NODE_ENV === 'production'
@@ -448,7 +449,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							.includes('must change password');
 
 					if (requiresPasswordChange) {
-						console.log('🔐 [Redirectless V9] Password change required detected');
+						logger.info('🔐 [Redirectless V9] Password change required detected');
 						const passwordChangeError = Object.assign(new Error('MUST_CHANGE_PASSWORD'), {
 							code: 'MUST_CHANGE_PASSWORD' as const,
 							requiresPasswordChange: true,
@@ -484,7 +485,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								payload.password_state || payload.password_status || payload.pwd_state;
 
 							if (passwordState === 'MUST_CHANGE_PASSWORD') {
-								console.log('🔐 [Redirectless V9] Password change required detected in ID token');
+								logger.info('🔐 [Redirectless V9] Password change required detected in ID token');
 								const passwordChangeError = Object.assign(new Error('MUST_CHANGE_PASSWORD'), {
 									code: 'MUST_CHANGE_PASSWORD' as const,
 									requiresPasswordChange: true,
@@ -501,7 +502,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					} catch {
 						// If parsing fails but requiresPasswordChange is true, still throw
 						if (requiresPasswordChange) {
-							console.log(
+							logger.info(
 								'🔐 [Redirectless V9] Password change required detected in response metadata'
 							);
 							const passwordChangeError = Object.assign(new Error('MUST_CHANGE_PASSWORD'), {
@@ -516,7 +517,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					}
 				}
 
-				console.log('🔐 [Redirectless V9] Token exchange successful:', tokenData);
+				logger.info('🔐 [Redirectless V9] Token exchange successful:', tokenData);
 
 				if (!tokenData.access_token) {
 					throw new Error('No access token received from PingOne');
@@ -627,7 +628,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 					(error as PasswordChangeError).code === 'MUST_CHANGE_PASSWORD' &&
 					(error as PasswordChangeError).requiresPasswordChange === true
 				) {
-					console.log('🔐 [Redirectless V9] Password change required - showing modal');
+					logger.info('🔐 [Redirectless V9] Password change required - showing modal');
 					// Store password change info for modal
 					const errorData = error as PasswordChangeError;
 					const passwordChangeState = {
@@ -674,7 +675,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: string },
 			resumeUrl?: string
 		) => {
-			console.log('🔐 [Redirectless V9] Step 3: Resuming flow to get authorization code');
+			logger.info('🔐 [Redirectless V9] Step 3: Resuming flow to get authorization code');
 
 			if (!resumeUrl) {
 				// Try to get resumeUrl from session storage if not provided
@@ -708,7 +709,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			}
 
 			const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
-			console.log('🔐 [Redirectless V9] Resume response data:', resumeData);
+			logger.info('🔐 [Redirectless V9] Resume response data:', resumeData);
 
 			const authCode = (resumeData.code ||
 				(resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
@@ -736,12 +737,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				throw new Error('Flow state not found. Please start the flow again.');
 			}
 
-			console.log('🔐 [Redirectless V9] Step 2: Submitting credentials to PingOne Flow API');
+			logger.info('🔐 [Redirectless V9] Step 2: Submitting credentials to PingOne Flow API');
 
 			// Send credentials to PingOne Flow API endpoint (NOT /as/authorize)
 			const flowApiUrl = `https://auth.pingone.com/${controller.credentials.environmentId}/flows/${flowId}`;
 
-			console.log('🔐 [Redirectless V9] Submitting credentials to Flow API:', {
+			logger.info('🔐 [Redirectless V9] Submitting credentials to Flow API:', {
 				flowApiUrl,
 				username: loginCredentials.username,
 				// Password not logged for security
@@ -786,7 +787,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						errorText.includes('password change required') ||
 						errorText.includes('must change password')
 					) {
-						console.log(
+						logger.info(
 							'🔐 [Redirectless V9] Password change required detected in credentials check'
 						);
 						// We can't change password here since we don't have userId yet
@@ -803,7 +804,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			}
 
 			const credentialsData = (await credentialsResponse.json()) as Record<string, unknown>;
-			console.log('🔐 [Redirectless V9] Credentials response:', credentialsData);
+			logger.info('🔐 [Redirectless V9] Credentials response:', credentialsData);
 
 			// Check if flow is ready to resume
 			const status = String(credentialsData.status || '').toUpperCase();
@@ -848,7 +849,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 		try {
 			// V9 ENHANCEMENT: Force generate fresh PKCE codes for redirectless flow
-			console.log('🔐 [Redirectless V9] Force generating fresh PKCE codes for redirectless flow');
+			logger.info('🔐 [Redirectless V9] Force generating fresh PKCE codes for redirectless flow');
 
 			// Import PKCE generation utilities
 			const { generateCodeVerifier, generateCodeChallenge } = await import('../../utils/oauth');
@@ -863,7 +864,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				codeChallengeMethod: 'S256' as const,
 			};
 
-			console.log('🔐 [Redirectless V9] Generated fresh PKCE codes:', {
+			logger.info('🔐 [Redirectless V9] Generated fresh PKCE codes:', {
 				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 			});
@@ -879,12 +880,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				codeChallengeMethod: freshPkceCodes.codeChallengeMethod,
 			});
 
-			console.log(
+			logger.info(
 				'🔐 [Redirectless V9] Fresh PKCE codes set in controller and bulletproof storage'
 			);
 
 			// Step 1: Make real authorization request with response_mode=pi.flow (NO CREDENTIALS)
-			console.log(
+			logger.info(
 				'🔐 [Redirectless V9] Step 1: Starting authorization request with response_mode=pi.flow (NO credentials)'
 			);
 
@@ -902,7 +903,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				// CRITICAL: Do NOT send username/password here - credentials go to Flow API in Step 2
 			});
 
-			console.log('🔐 [Redirectless V9] Authorization request body:', authRequestBody.toString());
+			logger.info('🔐 [Redirectless V9] Authorization request body:', authRequestBody.toString());
 
 			const authResponse = await fetch(authEndpoint, {
 				method: 'POST',
@@ -913,7 +914,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				body: authRequestBody.toString(),
 			});
 
-			console.log('🔐 [Redirectless V9] Authorization response status:', authResponse.status);
+			logger.info('🔐 [Redirectless V9] Authorization response status:', authResponse.status);
 
 			if (!authResponse.ok) {
 				const errorText = await authResponse.text();
@@ -923,7 +924,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			}
 
 			const authData = await authResponse.json();
-			console.log('🔐 [Redirectless V9] Authorization response data:', authData);
+			logger.info('🔐 [Redirectless V9] Authorization response data:', authData);
 
 			// Store flowId and state for later steps
 			const flowId = authData.id || authData.flowId;
@@ -939,11 +940,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 			// Check if credentials are required
 			const status = authData.status?.toUpperCase();
-			console.log('🔐 [Redirectless V9] Flow status:', status);
+			logger.info('🔐 [Redirectless V9] Flow status:', status);
 
 			if (status === 'USERNAME_PASSWORD_REQUIRED' || status === 'IN_PROGRESS') {
 				// Show modal for username/password - DO NOT REDIRECT
-				console.log('🔐 [Redirectless V9] Credentials required - showing login modal');
+				logger.info('🔐 [Redirectless V9] Credentials required - showing login modal');
 				setShowLoginForm(true);
 				setIsLoading(false);
 				return; // Exit early, wait for user to submit credentials via modal
@@ -1213,7 +1214,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 										}}
 										placeholder="Search for username..."
 										onGetToken={() => {
-											console.log('Worker token required for user search in RedirectlessFlow V9');
+											logger.info('Worker token required for user search in RedirectlessFlow V9');
 										}}
 									/>
 								</div>

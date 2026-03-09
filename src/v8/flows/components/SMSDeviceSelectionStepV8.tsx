@@ -13,6 +13,7 @@ import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 SMS-DEVICE-SELECTION-V8]';
 
 export type DeviceSelectionState = {
@@ -112,7 +113,7 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 				}
 			} catch (error) {
 				if (!cancelled) {
-					console.error(`${MODULE_TAG} Failed to load existing devices:`, error);
+					logger.error(`${MODULE_TAG} Failed to load existing devices:`, error);
 					setDeviceSelection((prev) => ({
 						...prev,
 						loadingDevices: false,
@@ -202,7 +203,7 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 						});
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+				logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 				nav.setValidationErrors([
 					`Failed to authenticate: ${error instanceof Error ? error.message : 'Unknown error'}`,
 				]);

@@ -19,6 +19,7 @@ import { TOTPFlowController } from '../controllers/TOTPFlowController';
 import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
 import type { DeviceType } from '../shared/MFATypes';
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
 
 export interface ControllerFactoryConfig {
@@ -46,7 +47,7 @@ export class MFAFlowControllerFactory {
 	 * const controller = MFAFlowControllerFactory.create({
 	 *   deviceType: 'SMS',
 	 *   callbacks: {
-	 *     onDeviceRegistered: (id, status) => console.log('Registered:', id)
+	 *     onDeviceRegistered: (id, status) => logger.info('Registered:', id)
 	 *   }
 	 * });
 	 */
@@ -73,7 +74,7 @@ export class MFAFlowControllerFactory {
 				return new WhatsAppFlowController(callbacks);
 
 			default:
-				console.warn(`${MODULE_TAG} Unknown device type: ${deviceType}, defaulting to SMS`);
+				logger.warn(`${MODULE_TAG} Unknown device type: ${deviceType}, defaulting to SMS`);
 				return new SMSFlowController(callbacks);
 		}
 	}

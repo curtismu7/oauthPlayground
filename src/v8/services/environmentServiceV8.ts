@@ -5,6 +5,7 @@ import type { ApiCall } from '@/services/apiCallTrackerService';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 // Environment Types
 export type EnvironmentType = 'PRODUCTION' | 'SANDBOX' | 'DEVELOPMENT';
 export type EnvironmentStatus = 'ACTIVE' | 'INACTIVE' | 'DELETE_PENDING';
@@ -102,17 +103,17 @@ class EnvironmentServiceV8 {
 	 */
 	async getEnvironments(options?: EnvironmentListOptions): Promise<EnvironmentListResponse> {
 		try {
-			console.log(`${this.MODULE_TAG} Fetching environments with options:`, options);
+			logger.info(`${this.MODULE_TAG} Fetching environments with options:`, options);
 
 			// Mock implementation - replace with actual API call
 			const mockResponse = await this.mockGetEnvironments(options);
 
-			console.log(
+			logger.info(
 				`${this.MODULE_TAG} ✅ Successfully fetched ${mockResponse.environments.length} environments`
 			);
 			return mockResponse;
 		} catch (error) {
-			console.error(`${this.MODULE_TAG} ❌ Failed to fetch environments:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to fetch environments:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -143,7 +144,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Fetching environment details for ID: ${id}`);
+			logger.info(`${this.MODULE_TAG} Fetching environment details for ID: ${id}`);
 
 			// Mock implementation - replace with actual API call
 			const mockEnvironment = await this.mockGetEnvironment(id);
@@ -155,7 +156,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(
+			logger.info(
 				`${this.MODULE_TAG} ✅ Successfully fetched environment: ${mockEnvironment.name}`
 			);
 			return mockEnvironment;
@@ -166,7 +167,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(`${this.MODULE_TAG} ❌ Failed to fetch environment ${id}:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to fetch environment ${id}:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -197,7 +198,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Creating environment:`, request);
+			logger.info(`${this.MODULE_TAG} Creating environment:`, request);
 
 			// Mock implementation - replace with actual API call
 			const mockEnvironment = await this.mockCreateEnvironment(request);
@@ -209,7 +210,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(
+			logger.info(
 				`${this.MODULE_TAG} ✅ Successfully created environment: ${mockEnvironment.name}`
 			);
 			modernMessaging.showFooterMessage({
@@ -225,7 +226,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(`${this.MODULE_TAG} ❌ Failed to create environment:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to create environment:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -259,7 +260,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Updating environment ${id}:`, request);
+			logger.info(`${this.MODULE_TAG} Updating environment ${id}:`, request);
 
 			// Mock implementation - replace with actual API call
 			const mockEnvironment = await this.mockUpdateEnvironment(id, request);
@@ -271,7 +272,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(
+			logger.info(
 				`${this.MODULE_TAG} ✅ Successfully updated environment: ${mockEnvironment.name}`
 			);
 			modernMessaging.showFooterMessage({
@@ -287,7 +288,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(`${this.MODULE_TAG} ❌ Failed to update environment ${id}:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to update environment ${id}:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -321,7 +322,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Updating environment ${id} status to: ${status}`);
+			logger.info(`${this.MODULE_TAG} Updating environment ${id} status to: ${status}`);
 
 			// Mock implementation - replace with actual API call
 			const mockEnvironment = await this.mockUpdateEnvironmentStatus(id, status);
@@ -333,7 +334,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(`${this.MODULE_TAG} ✅ Successfully updated environment status to: ${status}`);
+			logger.info(`${this.MODULE_TAG} ✅ Successfully updated environment status to: ${status}`);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: `Environment status updated to "${status}"`,
@@ -347,7 +348,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(`${this.MODULE_TAG} ❌ Failed to update environment status ${id}:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to update environment status ${id}:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -378,7 +379,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Deleting environment ${id} with options:`, options);
+			logger.info(`${this.MODULE_TAG} Deleting environment ${id} with options:`, options);
 
 			// Mock implementation - replace with actual API call
 			await this.mockDeleteEnvironment(id, options);
@@ -389,7 +390,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(`${this.MODULE_TAG} ✅ Successfully deleted environment: ${id}`);
+			logger.info(`${this.MODULE_TAG} ✅ Successfully deleted environment: ${id}`);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Environment deleted successfully',
@@ -402,7 +403,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(`${this.MODULE_TAG} ❌ Failed to delete environment ${id}:`, error);
+			logger.error(`${this.MODULE_TAG} ❌ Failed to delete environment ${id}:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -433,7 +434,7 @@ class EnvironmentServiceV8 {
 		};
 
 		try {
-			console.log(`${this.MODULE_TAG} Fetching capabilities for environment: ${id}`);
+			logger.info(`${this.MODULE_TAG} Fetching capabilities for environment: ${id}`);
 
 			// Mock implementation - replace with actual API call
 			const mockCapabilities = await this.mockGetEnvironmentCapabilities(id);
@@ -445,7 +446,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.log(`${this.MODULE_TAG} ✅ Successfully fetched capabilities for environment: ${id}`);
+			logger.info(`${this.MODULE_TAG} ✅ Successfully fetched capabilities for environment: ${id}`);
 			return mockCapabilities;
 		} catch (error) {
 			apiCall.status = 'error';
@@ -454,7 +455,7 @@ class EnvironmentServiceV8 {
 
 			apiCallTrackerService.addApiCall(apiCall);
 
-			console.error(
+			logger.error(
 				`${this.MODULE_TAG} ❌ Failed to fetch capabilities for environment ${id}:`,
 				error
 			);
@@ -668,7 +669,7 @@ class EnvironmentServiceV8 {
 			}
 		}
 
-		console.log(`${this.MODULE_TAG} Environment ${id} (${environment.name}) deleted successfully`);
+		logger.info(`${this.MODULE_TAG} Environment ${id} (${environment.name}) deleted successfully`);
 	}
 
 	private async mockGetEnvironmentCapabilities(id: string): Promise<EnvironmentCapabilities> {

@@ -8,6 +8,7 @@ import {
 import { logger } from '../../utils/logger';
 import ConfirmationModal from '../ConfirmationModal';
 
+import { logger } from '../utils/logger';
 interface MFADeviceManagerProps {
 	credentials: {
 		accessToken: string;
@@ -128,8 +129,8 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			message: 'TOTP device added. Please scan the QR code with your authenticator app.',
 			duration: 4000,
 		});
-		console.log('TOTP Secret:', secret); // In a real app, show this to the user in a secure way
-		console.log('QR Code:', qrCode); // In a real app, display this image
+		logger.info('TOTP Secret:', secret); // In a real app, show this to the user in a secure way
+		logger.info('QR Code:', qrCode); // In a real app, display this image
 	};
 
 	const handleVerifyCode = async () => {
@@ -183,7 +184,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			});
 			setDevices(devices.filter((d) => d.id !== deviceToRemove));
 			onDeviceRemoved?.(deviceToRemove);
-			console.log(
+			logger.info(
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Device removed successfully in MFADeviceManager: ${deviceToRemove}`
 			);
 		} catch (error) {

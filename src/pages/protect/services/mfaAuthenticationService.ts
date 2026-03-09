@@ -10,6 +10,7 @@
  */
 
 import { logger } from '../../../utils/logger';
+import { logger } from '../../utils/logger';
 import type {
 	MFADevice,
 	MFADeviceType,
@@ -83,7 +84,7 @@ class MFAAuthenticationService {
 		credentials: MFAServiceCredentials
 	): Promise<ServiceResponse<DeviceListResponse>> {
 		try {
-			console.log(`${MODULE_TAG} Fetching MFA devices for user:`, userContext.id);
+			logger.info(`${MODULE_TAG} Fetching MFA devices for user:`, userContext.id);
 
 			const response = await fetch(`${PROXY_BASE_URL}/user/${userContext.id}/devices`, {
 				method: 'GET',
@@ -99,7 +100,7 @@ class MFAAuthenticationService {
 
 			const devices = await response.json();
 
-			console.log(`${MODULE_TAG} Retrieved ${devices.length} MFA devices`);
+			logger.info(`${MODULE_TAG} Retrieved ${devices.length} MFA devices`);
 
 			return {
 				success: true,
@@ -145,7 +146,7 @@ class MFAAuthenticationService {
 		loginContext: { flowSubtype: string }
 	): Promise<ServiceResponse<AuthenticationResponse>> {
 		try {
-			console.log(`${MODULE_TAG} Initiating MFA authentication for device:`, device.id);
+			logger.info(`${MODULE_TAG} Initiating MFA authentication for device:`, device.id);
 
 			const authRequest: AuthenticationRequest = {
 				device: {
@@ -185,7 +186,7 @@ class MFAAuthenticationService {
 
 			const authResponse = await response.json();
 
-			console.log(`${MODULE_TAG} MFA authentication initiated`, {
+			logger.info(`${MODULE_TAG} MFA authentication initiated`, {
 				requiresChallenge: authResponse.requiresChallenge,
 				challengeType: authResponse.challengeData?.type,
 			});
@@ -231,7 +232,7 @@ class MFAAuthenticationService {
 		credentials: MFAServiceCredentials
 	): Promise<ServiceResponse<TokenSet>> {
 		try {
-			console.log(`${MODULE_TAG} Completing MFA authentication for device:`, device.id);
+			logger.info(`${MODULE_TAG} Completing MFA authentication for device:`, device.id);
 
 			const completeRequest = {
 				device: {
@@ -260,7 +261,7 @@ class MFAAuthenticationService {
 
 			const result = await response.json();
 
-			console.log(`${MODULE_TAG} MFA authentication completed successfully`);
+			logger.info(`${MODULE_TAG} MFA authentication completed successfully`);
 
 			return {
 				success: true,

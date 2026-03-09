@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { oauth2ComplianceService } from '../services/oauth2ComplianceService';
+import { logger } from '../utils/logger';
 import {
 	type ClaimsRequest,
 	type IDTokenValidationResult,
@@ -301,7 +302,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				message: 'PKCE codes and nonce generated successfully',
 				duration: 4000,
 			});
-			console.log('[OIDCCompliantFlow] PKCE and nonce generated:', {
+			logger.info('[OIDCCompliantFlow] PKCE and nonce generated:', {
 				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 20)}...`,
 				method: pkceCodes.codeChallengeMethod,
@@ -405,7 +406,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				message: 'OIDC authorization URL generated successfully',
 				duration: 4000,
 			});
-			console.log('[OIDCCompliantFlow] Authorization URL generated:', {
+			logger.info('[OIDCCompliantFlow] Authorization URL generated:', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
 				nonce: `${state.nonce.substring(0, 10)}...`,
@@ -465,7 +466,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 					message: 'OIDC authorization callback received successfully',
 					duration: 4000,
 				});
-				console.log('[OIDCCompliantFlow] Authorization callback processed:', {
+				logger.info('[OIDCCompliantFlow] Authorization callback processed:', {
 					code: `${code.substring(0, 20)}...`,
 					stateValid,
 				});
@@ -512,7 +513,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				...oidcComplianceService.getOIDCSecurityHeaders(),
 			};
 
-			console.log('[OIDCCompliantFlow] Making token request:', {
+			logger.info('[OIDCCompliantFlow] Making token request:', {
 				endpoint: tokenEndpoint,
 				grantType: 'authorization_code',
 				clientId: state.credentials.clientId,
@@ -585,7 +586,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				message: 'OIDC tokens exchanged and validated successfully',
 				duration: 4000,
 			});
-			console.log('[OIDCCompliantFlow] Token exchange successful:', {
+			logger.info('[OIDCCompliantFlow] Token exchange successful:', {
 				hasAccessToken: !!tokens.access_token,
 				hasRefreshToken: !!tokens.refresh_token,
 				hasIdToken: !!tokens.id_token,
@@ -633,7 +634,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				...oidcComplianceService.getOIDCSecurityHeaders(),
 			};
 
-			console.log('[OIDCCompliantFlow] Making UserInfo request:', {
+			logger.info('[OIDCCompliantFlow] Making UserInfo request:', {
 				endpoint: userInfoEndpoint,
 				hasAccessToken: !!state.tokens.access_token,
 			});
@@ -684,7 +685,7 @@ export const useOIDCCompliantAuthorizationCodeFlow = (): [OIDCFlowState, OIDCFlo
 				message: 'UserInfo fetched and validated successfully',
 				duration: 4000,
 			});
-			console.log('[OIDCCompliantFlow] UserInfo request successful:', {
+			logger.info('[OIDCCompliantFlow] UserInfo request successful:', {
 				subject: userInfo.sub,
 				claimsCount: Object.keys(userInfo).length,
 				hasEmail: !!userInfo.email,

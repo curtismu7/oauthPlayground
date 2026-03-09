@@ -16,6 +16,7 @@
 import { FiAlertTriangle, FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 PKCE-V8]';
 
 export type PKCEMode = 'DISABLED' | 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
@@ -91,7 +92,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 	const shouldWarn = isPublicClient && value === 'DISABLED';
 
 	const handleChange = (newMode: PKCEMode) => {
-		console.log(`${MODULE_TAG} PKCE mode changed`, { from: value, to: newMode });
+		logger.info(`${MODULE_TAG} PKCE mode changed`, { from: value, to: newMode });
 		onChange(newMode);
 	};
 

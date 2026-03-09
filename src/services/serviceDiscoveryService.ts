@@ -1,4 +1,5 @@
 // src/services/serviceDiscoveryService.ts
+import { logger } from '../utils/logger';
 // Service discovery and registry system for OAuth flows
 // Helps developers find appropriate services for their implementations
 
@@ -163,7 +164,7 @@ export class ServiceDiscoveryService {
   onCredentialsChange={handleCredentialsChange}
   onDiscoveryComplete={(result) => {
     // Handle discovery results
-    console.log('Discovered endpoints:', result);
+    logger.info('Discovered endpoints:', result);
   }}
   discoveryPlaceholder="Enter issuer URL or environment ID"
 />

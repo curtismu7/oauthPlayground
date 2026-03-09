@@ -177,7 +177,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				const config = safeJsonParse<ClientCredentialsConfig>(savedConfig);
 				if (config) {
 					setConfigState(config);
-					console.log(`${LOG_PREFIX} [INFO] Loaded config from localStorage`);
+					logger.info(`${LOG_PREFIX} [INFO] Loaded config from localStorage`);
 				}
 			}
 		} catch (e) {
@@ -202,7 +202,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 						setDecodedToken(decoded);
 					}
 
-					console.log(`${LOG_PREFIX} [INFO] Loaded tokens from localStorage`);
+					logger.info(`${LOG_PREFIX} [INFO] Loaded tokens from localStorage`);
 				}
 			}
 		} catch (e) {
@@ -227,7 +227,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		saveDebounceRef.current = setTimeout(() => {
 			try {
 				localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));
-				console.log(`${LOG_PREFIX} [INFO] Config saved to localStorage`);
+				logger.info(`${LOG_PREFIX} [INFO] Config saved to localStorage`);
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save config to localStorage`, {
 					detail: String(e),
@@ -288,16 +288,16 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		requestAbortController.current = new AbortController();
 
 		const timestamp = new Date().toISOString();
-		console.log(`${LOG_PREFIX} [INFO] [${timestamp}] Requesting access token...`);
-		console.log(`${LOG_PREFIX} [INFO] Auth method: ${config.authMethod}`);
-		console.log(`${LOG_PREFIX} [INFO] Scopes: ${config.scopes}`);
-		console.log(`${LOG_PREFIX} [INFO] Audience: ${config.audience || 'N/A'}`);
-		console.log(`${LOG_PREFIX} [INFO] Resource: ${config.resource || 'N/A'}`);
+		logger.info(`${LOG_PREFIX} [INFO] [${timestamp}] Requesting access token...`);
+		logger.info(`${LOG_PREFIX} [INFO] Auth method: ${config.authMethod}`);
+		logger.info(`${LOG_PREFIX} [INFO] Scopes: ${config.scopes}`);
+		logger.info(`${LOG_PREFIX} [INFO] Audience: ${config.audience || 'N/A'}`);
+		logger.info(`${LOG_PREFIX} [INFO] Resource: ${config.resource || 'N/A'}`);
 
 		try {
 			// Determine token endpoint
 			const tokenEndpoint = config.tokenEndpoint || `${config.issuer}/as/token`;
-			console.log(`${LOG_PREFIX} [INFO] Token endpoint: ${tokenEndpoint}`);
+			logger.info(`${LOG_PREFIX} [INFO] Token endpoint: ${tokenEndpoint}`);
 
 			// Build request body
 			const body = new URLSearchParams();
@@ -325,14 +325,14 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				case 'client_secret_basic': {
 					const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
 					headers['Authorization'] = `Basic ${credentials}`;
-					console.log(`${LOG_PREFIX} [INFO] Using Basic authentication`);
+					logger.info(`${LOG_PREFIX} [INFO] Using Basic authentication`);
 					break;
 				}
 
 				case 'client_secret_post': {
 					body.append('client_id', config.clientId);
 					body.append('client_secret', config.clientSecret || '');
-					console.log(`${LOG_PREFIX} [INFO] Using POST body authentication`);
+					logger.info(`${LOG_PREFIX} [INFO] Using POST body authentication`);
 					break;
 				}
 
@@ -345,26 +345,26 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 					);
 					body.append('client_assertion', assertion);
-					console.log(`${LOG_PREFIX} [INFO] Using JWT assertion authentication`);
+					logger.info(`${LOG_PREFIX} [INFO] Using JWT assertion authentication`);
 					break;
 				}
 
 				case 'tls_client_auth': {
 					body.append('client_id', config.clientId);
-					console.log(`${LOG_PREFIX} [INFO] Using mTLS authentication`);
+					logger.info(`${LOG_PREFIX} [INFO] Using mTLS authentication`);
 					logger.warn('useClientCredentialsFlow', `mTLS requires proper certificate configuration`);
 					break;
 				}
 
 				case 'none': {
 					body.append('client_id', config.clientId);
-					console.log(`${LOG_PREFIX} [INFO] Using no authentication (public client)`);
+					logger.info(`${LOG_PREFIX} [INFO] Using no authentication (public client)`);
 					break;
 				}
 			}
 
 			// Make token request
-			console.log(`${LOG_PREFIX} [INFO] Sending token request...`);
+			logger.info(`${LOG_PREFIX} [INFO] Sending token request...`);
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
@@ -401,22 +401,22 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			if (tokenData.access_token && tokenData.access_token.split('.').length === 3) {
 				const decoded = decodeJWT(tokenData.access_token);
 				setDecodedToken(decoded);
-				console.log(`${LOG_PREFIX} [INFO] JWT decoded successfully`);
-				console.log(`${LOG_PREFIX} [INFO] Issuer: ${decoded?.payload.iss || 'N/A'}`);
-				console.log(`${LOG_PREFIX} [INFO] Subject: ${decoded?.payload.sub || 'N/A'}`);
-				console.log(`${LOG_PREFIX} [INFO] Audience: ${decoded?.payload.aud || 'N/A'}`);
-				console.log(
+				logger.info(`${LOG_PREFIX} [INFO] JWT decoded successfully`);
+				logger.info(`${LOG_PREFIX} [INFO] Issuer: ${decoded?.payload.iss || 'N/A'}`);
+				logger.info(`${LOG_PREFIX} [INFO] Subject: ${decoded?.payload.sub || 'N/A'}`);
+				logger.info(`${LOG_PREFIX} [INFO] Audience: ${decoded?.payload.aud || 'N/A'}`);
+				logger.info(
 					`${LOG_PREFIX} [INFO] Expiry: ${decoded?.payload.exp ? new Date(decoded.payload.exp * 1000).toISOString() : 'N/A'}`
 				);
 			} else {
 				setDecodedToken(null);
-				console.log(`${LOG_PREFIX} [INFO] Access token is opaque (not a JWT)`);
+				logger.info(`${LOG_PREFIX} [INFO] Access token is opaque (not a JWT)`);
 			}
 
 			// Store tokens in localStorage
 			try {
 				localStorage.setItem('client_credentials_tokens', JSON.stringify(tokenData));
-				console.log(`${LOG_PREFIX} [INFO] Tokens saved to localStorage`);
+				logger.info(`${LOG_PREFIX} [INFO] Tokens saved to localStorage`);
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save tokens to localStorage`, {
 					detail: String(e),
@@ -439,17 +439,17 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 				localStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
-				console.log(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
+				logger.info(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save flow context`, {
 					detail: String(e),
 				});
 			}
 
-			console.log(`${LOG_PREFIX} [INFO] ✅ Token request successful!`);
-			console.log(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`);
-			console.log(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
-			console.log(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`);
+			logger.info(`${LOG_PREFIX} [INFO] ✅ Token request successful!`);
+			logger.info(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`);
+			logger.info(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
+			logger.info(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`);
 
 			modernMessaging.showFooterMessage({
 				type: 'status',
@@ -459,7 +459,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.name === 'AbortError') {
-					console.log(`${LOG_PREFIX} [INFO] Token request cancelled`);
+					logger.info(`${LOG_PREFIX} [INFO] Token request cancelled`);
 					return;
 				}
 				logger.error('useClientCredentialsFlow', `Token request failed`, error.message);
@@ -497,7 +497,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			return;
 		}
 
-		console.log(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`);
+		logger.info(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`);
 		modernMessaging.showFooterMessage({
 			type: 'status',
 			message: 'Navigate to Token Management page for introspection',
@@ -513,7 +513,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 
 		try {
 			localStorage.removeItem('client_credentials_tokens');
-			console.log(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`);
+			logger.info(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`);
 		} catch (e) {
 			logger.warn('useClientCredentialsFlow', `Failed to clear tokens from localStorage`, {
 				detail: String(e),

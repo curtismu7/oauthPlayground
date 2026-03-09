@@ -6,6 +6,7 @@ const _log = createModuleLogger('pages/CodeEditorDemo.tsx');
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
 
+import { logger } from '../utils/logger';
 const PageContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -171,11 +172,11 @@ async function initiateAuthorizationFlow() {
     sessionStorage.setItem('oauth_state', state);
 
     // Step 4: Redirect to authorization endpoint
-    console.log('Redirecting to:', authUrl.toString());
+    logger.info('Redirecting to:', authUrl.toString());
     window.location.href = authUrl.toString();
     
   } catch (error) {
-    log.error('CodeEditorDemo', 'Authorization flow failed:', undefined, error as Error);
+    logger.error('CodeEditorDemo', 'Authorization flow failed:', undefined, error as Error);
     throw error;
   }
 }
@@ -252,7 +253,7 @@ const CodeEditorDemo: React.FC = () => {
 					language="typescript"
 					title="OAuth 2.0 Authorization Code Flow with PKCE"
 					onCodeChange={(code) => {
-						console.log('Code changed, length:', code.length);
+						logger.info('Code changed, length:', code.length);
 					}}
 				/>
 

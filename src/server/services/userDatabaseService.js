@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import fetch from 'node-fetch';
 import sqlite3 from 'sqlite3';
 
+import { logger } from '../utils/logger';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -47,23 +48,23 @@ class UserDatabaseService {
 		return new Promise((resolve, reject) => {
 			this.db = new sqlite3.Database(DB_PATH, (err) => {
 				if (err) {
-					console.error(`${MODULE_TAG} Failed to open database:`, err);
+					logger.error(`${MODULE_TAG} Failed to open database:`, err);
 					reject(err);
 					return;
 				}
 
 				// Enable WAL mode and other optimizations
 				this.db.run('PRAGMA journal_mode = WAL', (err) => {
-					if (err) console.warn(`${MODULE_TAG} Failed to set WAL mode:`, err);
+					if (err) logger.warn(`${MODULE_TAG} Failed to set WAL mode:`, err);
 				});
 				this.db.run('PRAGMA synchronous = NORMAL', (err) => {
-					if (err) console.warn(`${MODULE_TAG} Failed to set synchronous mode:`, err);
+					if (err) logger.warn(`${MODULE_TAG} Failed to set synchronous mode:`, err);
 				});
 				this.db.run('PRAGMA cache_size = 1000000', (err) => {
-					if (err) console.warn(`${MODULE_TAG} Failed to set cache size:`, err);
+					if (err) logger.warn(`${MODULE_TAG} Failed to set cache size:`, err);
 				});
 				this.db.run('PRAGMA temp_store = memory', (err) => {
-					if (err) console.warn(`${MODULE_TAG} Failed to set temp store:`, err);
+					if (err) logger.warn(`${MODULE_TAG} Failed to set temp store:`, err);
 				});
 
 				this.createTables()
@@ -72,7 +73,7 @@ class UserDatabaseService {
 					})
 					.then(() => {
 						this.initialized = true;
-						console.log(`${MODULE_TAG} Database initialized at ${DB_PATH}`);
+						logger.info(`${MODULE_TAG} Database initialized at ${DB_PATH}`);
 						resolve();
 					})
 					.catch(reject);
@@ -125,7 +126,7 @@ class UserDatabaseService {
 			await this.run(sql);
 		}
 
-		console.log(`${MODULE_TAG} Tables created successfully`);
+		logger.info(`${MODULE_TAG} Tables created successfully`);
 	}
 
 	/**
@@ -156,7 +157,7 @@ class UserDatabaseService {
 			await this.run(sql);
 		}
 
-		console.log(`${MODULE_TAG} Indexes created successfully`);
+		logger.info(`${MODULE_TAG} Indexes created successfully`);
 	}
 
 	/**
@@ -215,7 +216,7 @@ class UserDatabaseService {
 			CREATE INDEX IF NOT EXISTS idx_users_updated ON users(updated_at);
 		`);
 
-		console.log(`${MODULE_TAG} Indexes created successfully`);
+		logger.info(`${MODULE_TAG} Indexes created successfully`);
 	}
 
 	/**
@@ -270,11 +271,11 @@ class UserDatabaseService {
 					);
 
 					await this.run('COMMIT');
-					console.log(`${MODULE_TAG} Saved ${users.length} users for environment ${environmentId}`);
+					logger.info(`${MODULE_TAG} Saved ${users.length} users for environment ${environmentId}`);
 					resolve();
 				} catch (error) {
 					await this.run('ROLLBACK');
-					console.error(`${MODULE_TAG} Failed to save users:`, error);
+					logger.error(`${MODULE_TAG} Failed to save users:`, error);
 					reject(error);
 				}
 			});
@@ -358,7 +359,7 @@ class UserDatabaseService {
 				lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null,
 			}));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Search failed:`, error);
+			logger.error(`${MODULE_TAG} Search failed:`, error);
 			return [];
 		}
 	}
@@ -449,11 +450,11 @@ class UserDatabaseService {
 				await this.run('DELETE FROM sync_metadata WHERE environment_id = ?', [environmentId]);
 				await this.run('COMMIT');
 
-				console.log(`${MODULE_TAG} Cleared data for environment ${environmentId}`);
+				logger.info(`${MODULE_TAG} Cleared data for environment ${environmentId}`);
 				resolve();
 			} catch (error) {
 				await this.run('ROLLBACK');
-				console.error(`${MODULE_TAG} Failed to clear environment data:`, error);
+				logger.error(`${MODULE_TAG} Failed to clear environment data:`, error);
 				reject(error);
 			}
 		});
@@ -497,19 +498,19 @@ class UserDatabaseService {
 
 		const { workerToken, maxPages = 100, delayMs = 100, onProgress } = options;
 
-		console.log(`${MODULE_TAG} Starting incremental sync for environment ${environmentId}`);
+		logger.info(`${MODULE_TAG} Starting incremental sync for environment ${environmentId}`);
 
 		// Get last sync timestamp
 		const metadata = await this.getSyncMetadata(environmentId);
 		const lastSyncTime = metadata.last_sync_completed;
 
 		if (!lastSyncTime) {
-			console.log(`${MODULE_TAG} No previous sync found, performing full sync`);
+			logger.info(`${MODULE_TAG} No previous sync found, performing full sync`);
 			return this.fullSync(environmentId, options);
 		}
 
-		console.log(`${MODULE_TAG} Last sync completed: ${lastSyncTime}`);
-		console.log(`${MODULE_TAG} Syncing users updated since: ${lastSyncTime}`);
+		logger.info(`${MODULE_TAG} Last sync completed: ${lastSyncTime}`);
+		logger.info(`${MODULE_TAG} Syncing users updated since: ${lastSyncTime}`);
 
 		// Update sync status to in progress
 		await this.updateSyncMetadata(environmentId, {
@@ -570,12 +571,12 @@ class UserDatabaseService {
 				last_sync_status: 'success',
 			});
 
-			console.log(`${MODULE_TAG} Incremental sync completed! Updated ${totalFetched} users`);
+			logger.info(`${MODULE_TAG} Incremental sync completed! Updated ${totalFetched} users`);
 			return { success: true, totalUsers: totalFetched, incremental: true };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Incremental sync failed:`, error);
-			console.error(`${MODULE_TAG} Error message:`, error.message);
-			console.error(`${MODULE_TAG} Error stack:`, error.stack);
+			logger.error(`${MODULE_TAG} Incremental sync failed:`, error);
+			logger.error(`${MODULE_TAG} Error message:`, error.message);
+			logger.error(`${MODULE_TAG} Error stack:`, error.stack);
 
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
@@ -594,7 +595,7 @@ class UserDatabaseService {
 
 		const { workerToken, maxPages = 100, delayMs = 100, onProgress } = options;
 
-		console.log(`${MODULE_TAG} Starting full sync for environment ${environmentId}`);
+		logger.info(`${MODULE_TAG} Starting full sync for environment ${environmentId}`);
 
 		// Update sync status to in progress
 		await this.updateSyncMetadata(environmentId, {
@@ -620,7 +621,7 @@ class UserDatabaseService {
 					offset += limit;
 					fetchedPages++;
 
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Full sync page ${fetchedPages} - fetched ${fetchedCount} users. Total: ${totalFetched}`
 					);
 
@@ -654,12 +655,12 @@ class UserDatabaseService {
 				last_sync_status: 'success',
 			});
 
-			console.log(`${MODULE_TAG} Full sync completed! Total users: ${totalFetched}`);
+			logger.info(`${MODULE_TAG} Full sync completed! Total users: ${totalFetched}`);
 			return { success: true, totalUsers: totalFetched, incremental: false };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Full sync failed:`, error);
-			console.error(`${MODULE_TAG} Error message:`, error.message);
-			console.error(`${MODULE_TAG} Error stack:`, error.stack);
+			logger.error(`${MODULE_TAG} Full sync failed:`, error);
+			logger.error(`${MODULE_TAG} Error message:`, error.message);
+			logger.error(`${MODULE_TAG} Error stack:`, error.stack);
 
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
@@ -741,7 +742,7 @@ class UserDatabaseService {
 			this.db.close();
 			this.db = null;
 			this.initialized = false;
-			console.log(`${MODULE_TAG} Database connection closed`);
+			logger.info(`${MODULE_TAG} Database connection closed`);
 		}
 	}
 }

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
 
+import { logger } from '../utils/logger';
 interface FIDO2RegistrationModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -83,7 +84,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				},
 			};
 
-			console.log('🔐 [FIDO2 Registration] Starting credential registration', {
+			logger.info('🔐 [FIDO2 Registration] Starting credential registration', {
 				userId,
 				deviceName,
 				authenticatorType: selectedAuthenticatorType,
@@ -93,7 +94,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 			const result = await FIDO2Service.registerCredential(config);
 
 			if (result.success && result.credentialId) {
-				console.log('✅ [FIDO2 Registration] Credential registered successfully');
+				logger.info('✅ [FIDO2 Registration] Credential registered successfully');
 				modernMessaging.showFooterMessage({
 					type: 'status',
 					message: 'Passkey registered successfully!',
@@ -104,7 +105,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				throw new Error(result.error || 'Registration failed');
 			}
 		} catch (error: any) {
-			log.error(
+			logger.error(
 				'FIDO2RegistrationModal',
 				'❌ [FIDO2 Registration] Registration failed:',
 				undefined,

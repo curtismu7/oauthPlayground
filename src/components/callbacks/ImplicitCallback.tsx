@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -105,7 +106,7 @@ const ImplicitCallback: React.FC = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				log.auth('ImplicitCallback', 'Processing implicit grant callback', {
+				logger.auth('ImplicitCallback', 'Processing implicit grant callback', {
 					url: window.location.href,
 				});
 
@@ -114,7 +115,7 @@ const ImplicitCallback: React.FC = () => {
 				const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
 				// Debug logging to see what we're parsing
-				console.log(' [ImplicitCallback] Debug parsing:', {
+				logger.info(' [ImplicitCallback] Debug parsing:', {
 					hash: window.location.hash,
 					hashSubstring: window.location.hash.substring(1),
 					queryParams: Object.fromEntries(queryParams.entries()),
@@ -135,7 +136,7 @@ const ImplicitCallback: React.FC = () => {
 					setError(errorMsg);
 
 					// DEBUG: Enhanced error logging with full URL details
-					log.error('ImplicitCallback', '🔴 [ImplicitCallback] Implicit grant error:', {
+					logger.error('ImplicitCallback', '🔴 [ImplicitCallback] Implicit grant error:', {
 						error,
 						errorDescription,
 						fullUrl: window.location.href,
@@ -145,7 +146,7 @@ const ImplicitCallback: React.FC = () => {
 						hashParams: Object.fromEntries(hashParams.entries()),
 					});
 
-					log.error('ImplicitCallback', 'Implicit grant error', {
+					logger.error('ImplicitCallback', 'Implicit grant error', {
 						error,
 						errorDescription,
 						url: window.location.href,
@@ -160,7 +161,7 @@ const ImplicitCallback: React.FC = () => {
 					const stateParam = hashParams.get('state');
 					if (stateParam?.startsWith('v8u-implicit-')) {
 						// V8U Unified Flow - redirect to CallbackHandlerV8U with fragment preserved
-						log.auth(
+						logger.auth(
 							'ImplicitCallback',
 							'V8U unified flow detected - redirecting to unified callback handler',
 							{
@@ -197,7 +198,7 @@ const ImplicitCallback: React.FC = () => {
 						try {
 							const parsedContext = JSON.parse(v8Context);
 
-							log.auth('ImplicitCallback', 'V8 implicit grant received, returning to flow', {
+							logger.auth('ImplicitCallback', 'V8 implicit grant received, returning to flow', {
 								hasAccessToken: !!accessToken,
 								hasIdToken: !!idToken,
 								responseType: parsedContext.responseType,
@@ -210,7 +211,7 @@ const ImplicitCallback: React.FC = () => {
 								navigate(`/flows/implicit-v8?step=TOKENS#${fragment}`);
 							}, 1500);
 						} catch (parseError) {
-							log.error(
+							logger.error(
 								'ImplicitCallback',
 								'[ImplicitCallback] Failed to parse V8 flow context:',
 								undefined,
@@ -230,7 +231,7 @@ const ImplicitCallback: React.FC = () => {
 
 						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
 
-						log.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
+						logger.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 							variant: isOIDCFlow ? 'oidc' : 'oauth',
@@ -249,7 +250,7 @@ const ImplicitCallback: React.FC = () => {
 						// Determine which flow this is from
 						const isOIDCFlow = v6OIDCContext;
 
-						log.auth('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
+						logger.auth('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 							flow: isOIDCFlow ? 'oidc-v6' : 'oauth-v6',
@@ -271,7 +272,7 @@ const ImplicitCallback: React.FC = () => {
 						// Determine which flow this is from
 						const isOIDCFlow = v5OIDCContext && !v5OAuthContext;
 
-						log.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
+						logger.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 							flow: isOIDCFlow ? 'oidc-v5' : 'oauth-v5',
@@ -292,7 +293,7 @@ const ImplicitCallback: React.FC = () => {
 						// This is a V3 flow - return to the flow page
 						setStatus('success');
 						setMessage('Implicit grant received - returning to flow');
-						log.auth('ImplicitCallback', 'V3 implicit grant received, returning to flow', {
+						logger.auth('ImplicitCallback', 'V3 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 						});
@@ -314,7 +315,7 @@ const ImplicitCallback: React.FC = () => {
 						// Legacy flow - show success and redirect to dashboard
 						setStatus('success');
 						setMessage('Implicit grant received successfully');
-						log.auth('ImplicitCallback', 'Legacy implicit grant received', {
+						logger.auth('ImplicitCallback', 'Legacy implicit grant received', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 						});
@@ -327,14 +328,14 @@ const ImplicitCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('No tokens received');
 					setError('Expected access_token or id_token in callback URL');
-					log.error('ImplicitCallback', 'No tokens in callback', { url: window.location.href });
+					logger.error('ImplicitCallback', 'No tokens in callback', { url: window.location.href });
 				}
 			} catch (err) {
 				setStatus('error');
 				setMessage('Implicit grant failed');
 				const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
 				setError(errorMessage);
-				log.error('ImplicitCallback', 'Error processing implicit callback', {
+				logger.error('ImplicitCallback', 'Error processing implicit callback', {
 					error: errorMessage,
 					url: window.location.href,
 				});

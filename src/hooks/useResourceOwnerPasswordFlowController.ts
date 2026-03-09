@@ -50,7 +50,7 @@ export const useResourceOwnerPasswordFlowController =
 				null
 			);
 			if (parsed) {
-				console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
+				logger.info(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
 				return parsed;
 			}
 
@@ -119,7 +119,7 @@ export const useResourceOwnerPasswordFlowController =
 				const result: ResourceOwnerPasswordResult = await response.json();
 				setTokens(result);
 
-				console.log(`${LOG_PREFIX} [SUCCESS] Resource Owner Password token obtained:`, result);
+				logger.info(`${LOG_PREFIX} [SUCCESS] Resource Owner Password token obtained:`, result);
 				return result;
 			} catch (err) {
 				const errorMessage =
@@ -139,7 +139,7 @@ export const useResourceOwnerPasswordFlowController =
 
 		const saveCredentials = useCallback(async () => {
 			try {
-				console.log(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`);
+				logger.info(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`);
 
 				// Save to sessionStorage for persistence
 				sessionStorage.setItem(
@@ -147,7 +147,7 @@ export const useResourceOwnerPasswordFlowController =
 					JSON.stringify(credentials)
 				);
 
-				console.log(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
+				logger.info(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
 			} catch (error) {
 				logger.error(
 					'useResourceOwnerPasswordFlowController',

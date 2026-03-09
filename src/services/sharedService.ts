@@ -108,7 +108,7 @@ export class V7IDTokenValidationManager {
 		jwksUri?: string,
 		flowName?: V7FlowName
 	): Promise<IDTokenValidationResult> {
-		log.info(`Validating ID token for flow: ${flowName || 'unknown'}`);
+		logger.info(`Validating ID token for flow: ${flowName || 'unknown'}`);
 
 		try {
 			const result = await IDTokenValidationService.validateIDToken(
@@ -120,14 +120,14 @@ export class V7IDTokenValidationManager {
 			);
 
 			if (result.isValid) {
-				log.success(`ID token validation successful for flow: ${flowName}`);
+				logger.success(`ID token validation successful for flow: ${flowName}`);
 			} else {
-				log.error(`ID token validation failed for flow: ${flowName}`, result.errors);
+				logger.error(`ID token validation failed for flow: ${flowName}`, result.errors);
 			}
 
 			return result;
 		} catch (error) {
-			log.error(`ID token validation error for flow: ${flowName}`, error);
+			logger.error(`ID token validation error for flow: ${flowName}`, error);
 			throw error;
 		}
 	}
@@ -156,7 +156,7 @@ export class V7ErrorHandlingManager {
 	 * Handle OAuth 2.0 errors
 	 */
 	static handleOAuthError(error: any, context?: ErrorContext): StandardizedErrorResponse {
-		log.error(`Handling OAuth error for flow: ${context?.flowName || 'unknown'}`, error);
+		logger.error(`Handling OAuth error for flow: ${context?.flowName || 'unknown'}`, error);
 
 		const response = StandardizedErrorHandler.handleOAuthError(error, context);
 		StandardizedErrorHandler.logError(response, context);
@@ -168,7 +168,7 @@ export class V7ErrorHandlingManager {
 	 * Handle OIDC errors
 	 */
 	static handleOIDCError(error: any, context?: ErrorContext): StandardizedErrorResponse {
-		log.error(`Handling OIDC error for flow: ${context?.flowName || 'unknown'}`, error);
+		logger.error(`Handling OIDC error for flow: ${context?.flowName || 'unknown'}`, error);
 
 		const response = StandardizedErrorHandler.handleOIDCError(error, context);
 		StandardizedErrorHandler.logError(response, context);
@@ -180,7 +180,7 @@ export class V7ErrorHandlingManager {
 	 * Create scenario-specific error
 	 */
 	static createScenarioError(scenario: string, context?: ErrorContext): StandardizedErrorResponse {
-		log.warn(`Creating scenario error: ${scenario} for flow: ${context?.flowName || 'unknown'}`);
+		logger.warn(`Creating scenario error: ${scenario} for flow: ${context?.flowName || 'unknown'}`);
 
 		return StandardizedErrorHandler.createScenarioError(scenario, context);
 	}
@@ -197,7 +197,7 @@ export class V7ErrorHandlingManager {
 	 */
 	static clearErrorLog(): void {
 		StandardizedErrorHandler.clearErrorLog();
-		log.info('Error log cleared');
+		logger.info('Error log cleared');
 	}
 }
 
@@ -213,14 +213,14 @@ export class V7ParameterValidationManager {
 		flowName: V7FlowName,
 		parameters: Record<string, any>
 	): ParameterValidationResult {
-		log.info(`Validating parameters for flow: ${flowName}`);
+		logger.info(`Validating parameters for flow: ${flowName}`);
 
 		const result = ParameterValidationService.validateFlowParameters(flowName, parameters);
 
 		if (result.isValid) {
-			log.success(`Parameter validation successful for flow: ${flowName}`);
+			logger.success(`Parameter validation successful for flow: ${flowName}`);
 		} else {
-			log.error(`Parameter validation failed for flow: ${flowName}`, result.errors);
+			logger.error(`Parameter validation failed for flow: ${flowName}`, result.errors);
 		}
 
 		return result;
@@ -266,7 +266,7 @@ export class V7SecurityHeadersManager {
 	 * Get security headers for a specific V7 flow
 	 */
 	static getSecurityHeaders(flowName: V7FlowName): SecurityHeaders {
-		log.info(`Getting security headers for flow: ${flowName}`);
+		logger.info(`Getting security headers for flow: ${flowName}`);
 
 		return SecurityHeadersService.getSecurityHeaders(flowName);
 	}
@@ -455,7 +455,7 @@ export class V7FlowIntegrationManager {
 			enableSecurityHeaders?: boolean;
 		}
 	) {
-		log.info(`Initializing V7 flow: ${flowName}`, options);
+		logger.info(`Initializing V7 flow: ${flowName}`, options);
 
 		const config = V7SpecificationComplianceManager.getFlowConfig(flowName);
 		const compliance = V7SpecificationComplianceManager.checkFlowCompliance(flowName);

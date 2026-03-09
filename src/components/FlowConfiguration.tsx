@@ -7,6 +7,7 @@ import { themeService } from '../services/themeService';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
 
+import { logger } from '../utils/logger';
 const SAVE_FEEDBACK_TIMEOUT_MS = 3200;
 
 const ConfigContainer = styled.div`
@@ -545,7 +546,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				announce(`${field} copied to clipboard`);
 				window.setTimeout(() => setCopiedField(null), 2000);
 			} catch (error) {
-				log.error('FlowConfiguration', 'Failed to copy to clipboard', undefined, error as Error);
+				logger.error('FlowConfiguration', 'Failed to copy to clipboard', undefined, error as Error);
 			}
 		},
 		[announce]
@@ -595,7 +596,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				saveTimeoutRef.current = null;
 			}, SAVE_FEEDBACK_TIMEOUT_MS);
 		} catch (error) {
-			log.error('FlowConfiguration', 'Failed to save configuration:', undefined, error as Error);
+			logger.error('FlowConfiguration', 'Failed to save configuration:', undefined, error as Error);
 			announce('Failed to save configuration');
 		} finally {
 			setIsSaving(false);

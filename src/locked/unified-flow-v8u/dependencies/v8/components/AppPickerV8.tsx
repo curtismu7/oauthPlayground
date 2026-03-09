@@ -14,6 +14,7 @@ import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🎯 APP-PICKER-V8]';
 
 export interface DiscoveredApp {
@@ -45,7 +46,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	useEffect(() => {
 		const checkStatus = () => {
 			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log(`${MODULE_TAG} Token status check:`, status);
+			logger.info(`${MODULE_TAG} Token status check:`, status);
 			setTokenStatus(status);
 		};
 
@@ -56,7 +57,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 
 		// Listen for storage events (token updates)
 		const handleStorageChange = () => {
-			console.log(`${MODULE_TAG} Storage/token updated event received`);
+			logger.info(`${MODULE_TAG} Storage/token updated event received`);
 			checkStatus();
 		};
 		window.addEventListener('storage', handleStorageChange);
@@ -99,7 +100,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	};
 
 	const handleDiscover = async () => {
-		console.log(`${MODULE_TAG} Discover clicked`, {
+		logger.info(`${MODULE_TAG} Discover clicked`, {
 			environmentId: environmentId?.substring(0, 20),
 			tokenStatus: tokenStatus.status,
 			isValid: tokenStatus.isValid,
@@ -112,14 +113,14 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 
 		// Check token status
 		if (!tokenStatus.isValid) {
-			console.log(`${MODULE_TAG} Token not valid, showing error`);
+			logger.info(`${MODULE_TAG} Token not valid, showing error`);
 			toastV8.error(tokenStatus.message);
 			return;
 		}
 
 		setIsLoading(true);
 		try {
-			console.log(`${MODULE_TAG} Discovering apps`, { environmentId });
+			logger.info(`${MODULE_TAG} Discovering apps`, { environmentId });
 
 			// Get worker token directly from global service
 			const workerToken = await workerTokenServiceV8.getToken();
@@ -136,7 +137,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			);
 
 			if (discovered && discovered.length > 0) {
-				console.log(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
+				logger.info(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
 				setApps(discovered);
 				setShowResults(true);
 				toastV8.success(`Found ${discovered.length} application(s)`);
@@ -145,7 +146,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 				setApps([]);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error(
 				error instanceof Error
 					? error.message
@@ -157,7 +158,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	};
 
 	const handleSelectApp = (app: DiscoveredApp) => {
-		console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
+		logger.info(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 		onAppSelected(app);
 		setShowResults(false);
 		setApps([]);
@@ -166,7 +167,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	};
 
 	// Debug: Log button state
-	console.log(`${MODULE_TAG} Render - Button state:`, {
+	logger.info(`${MODULE_TAG} Render - Button state:`, {
 		isLoading,
 		hasEnvironmentId: !!environmentId.trim(),
 		tokenStatus: tokenStatus.status,

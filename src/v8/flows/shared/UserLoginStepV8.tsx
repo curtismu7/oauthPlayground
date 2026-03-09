@@ -9,6 +9,7 @@ import { FiKey, FiShield } from '@icons';
 import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 USER-LOGIN-STEP-V8]';
 
 interface UserLoginStepV8Props {
@@ -19,7 +20,7 @@ export const UserLoginStepV8: React.FC<UserLoginStepV8Props> = ({ renderProps })
 	const { credentials, setShowUserLoginModal } = renderProps;
 
 	const handleStartAuthentication = () => {
-		console.log(`${MODULE_TAG} Starting PingOne Authentication`);
+		logger.info(`${MODULE_TAG} Starting PingOne Authentication`);
 		setShowUserLoginModal(true);
 	};
 

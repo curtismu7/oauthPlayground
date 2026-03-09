@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 export interface StepNavigationButtonsProps {
 	currentStep: number;
 	totalSteps: number;
@@ -261,7 +262,7 @@ export const StepNavigationButtons = ({
 			const saved = localStorage.getItem('stepper-compact-mode');
 			return saved === 'true';
 		} catch (e) {
-			log.warn(
+			logger.warn(
 				'StepNavigationButtons',
 				'[StepNavigationButtons] Failed to load compact mode from localStorage:',
 				{ error: e }
@@ -300,9 +301,9 @@ export const StepNavigationButtons = ({
 	useEffect(() => {
 		try {
 			localStorage.setItem('stepper-compact-mode', isCompact.toString());
-			console.log('[StepNavigationButtons] Saved compact mode to localStorage:', isCompact);
+			logger.info('[StepNavigationButtons] Saved compact mode to localStorage:', isCompact);
 		} catch (e) {
-			log.warn(
+			logger.warn(
 				'StepNavigationButtons',
 				'[StepNavigationButtons] Failed to save compact mode to localStorage:',
 				{ error: e }

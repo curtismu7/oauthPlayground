@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	CodeExample,
 	CodeExamplesConfig,
@@ -236,7 +237,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			log.error('CodeExamplesDisplay', 'Failed to copy code:', undefined, err as Error);
+			logger.error('CodeExamplesDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

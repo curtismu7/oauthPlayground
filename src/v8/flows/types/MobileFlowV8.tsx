@@ -33,6 +33,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 MOBILE-FLOW-V8]';
 
 type DeviceSelectionState = {
@@ -135,7 +136,7 @@ const MobileDeviceSelectionStep: React.FC<
 				if (cancelled) {
 					return;
 				}
-				console.error(`${MODULE_TAG} Failed to load devices`, error);
+				logger.error(`${MODULE_TAG} Failed to load devices`, error);
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -225,7 +226,7 @@ const MobileDeviceSelectionStep: React.FC<
 				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Unknown error';
-				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+				logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 				nav.setValidationErrors([`Failed to authenticate: ${message}`]);
 				modernMessaging.showBanner({
 					type: 'error',
@@ -362,7 +363,7 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
 			// User Flow selected - ensure User Token is used
-			console.log(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -375,14 +376,14 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
 			);
 			isSyncingRef.current = true;
 
 			// Close UserLoginModal if it's open (Admin Flow uses worker token, not user token)
 			if (props.showUserLoginModal) {
-				console.log(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`);
+				logger.info(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`);
 				props.setShowUserLoginModal(false);
 			}
 
@@ -414,21 +415,21 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
 			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
 			// User Flow must use User Token, so we should switch to Admin Flow
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
 			);
 			setRegistrationFlowType('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
 			);
 			setRegistrationFlowType('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -822,7 +823,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					}
 
 					if (hasChanges) {
-						console.log(`${MODULE_TAG} Merged config page state into credentials:`, {
+						logger.info(`${MODULE_TAG} Merged config page state into credentials:`, {
 							deviceAuthPolicyId: !!updated.deviceAuthenticationPolicyId,
 							environmentId: !!updated.environmentId,
 							username: !!updated.username,
@@ -858,7 +859,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 			if (false && isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
 				// Disabled: Always show Step 0 now
 				setTimeout(() => {
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`
 					);
 					// nav.goToStep(1);
@@ -869,7 +870,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 			// If configured flag is true but we are missing env/user/policy,
 			// stay on Step 0 so user can complete configuration
 			if (isConfigured && !hasMinimumConfig) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Configured flag is true but missing prerequisites, staying on Step 0`,
 					{
 						hasEnvironmentId: !!credentials.environmentId?.trim(),
@@ -969,7 +970,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			} catch (error) {
 				// Silently fail - user can manually enter phone number
-				console.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
+				logger.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
 			}
 		};
 
@@ -1306,7 +1307,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 
 					// CRITICAL: Ensure status is explicitly set
 					if (registrationFlowType === 'admin' && deviceStatus !== adminDeviceStatus) {
-						console.error(`${MODULE_TAG} ⚠️ STATUS MISMATCH:`, {
+						logger.error(`${MODULE_TAG} ⚠️ STATUS MISMATCH:`, {
 							'Expected (adminDeviceStatus)': adminDeviceStatus,
 							'Calculated (deviceStatus)': deviceStatus,
 							'Registration Flow Type': registrationFlowType,
@@ -1341,9 +1342,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								},
 								deviceNickname
 							);
-							console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`);
 						} catch (nicknameError) {
-							console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
+							logger.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
 							// Don't fail the registration if nickname update fails
 						}
 					}
@@ -1490,7 +1491,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 							updatedAt?: string;
 							environmentId?: string;
 						};
-						console.log(
+						logger.info(
 							`${MODULE_TAG} Device registered with ACTIVE status, showing success screen...`,
 							{
 								'Requested Status': deviceStatus,
@@ -1530,7 +1531,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					} else {
 						// Fallback: If status is unclear or unexpected
 						// This should not happen if status is being sent correctly
-						console.error(`${MODULE_TAG} ⚠️ UNEXPECTED STATUS:`, {
+						logger.error(`${MODULE_TAG} ⚠️ UNEXPECTED STATUS:`, {
 							'Requested Status': deviceStatus,
 							'Actual Status from API': actualDeviceStatus,
 							'Has deviceActivateUri': hasDeviceActivateUri,
@@ -1543,7 +1544,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						// Follow the same pattern as the main ACTIVATION_REQUIRED branch
 						// Type assertion needed because TypeScript can't narrow the type here
 						if ((deviceStatus as string) === 'ACTIVATION_REQUIRED') {
-							console.warn(
+							logger.warn(
 								`${MODULE_TAG} Requested ACTIVATION_REQUIRED but API returned ${actualDeviceStatus}, treating as ACTIVATION_REQUIRED`
 							);
 							// Set mfaState correctly
@@ -1572,7 +1573,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 							});
 						} else {
 							// Unknown status - default to OTP flow to be safe
-							console.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
+							logger.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
 							setShowModal(false);
 							nav.markStepComplete();
 							nav.goToStep(3);
@@ -3182,7 +3183,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 												) {
 													// Construct the URI: POST /environments/{envID}/users/{userID}/devices/{deviceID}
 													// We'll let the service handle user lookup and URI construction
-													console.log(
+													logger.info(
 														`${MODULE_TAG} deviceActivateUri not in state, will let service construct it`
 													);
 												}
@@ -3226,7 +3227,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 											} catch (error) {
 												const errorMessage =
 													error instanceof Error ? error.message : 'Unknown error';
-												console.error(`${MODULE_TAG} Failed to activate device:`, error);
+												logger.error(`${MODULE_TAG} Failed to activate device:`, error);
 												updateValidationState({
 													validationAttempts: validationState.validationAttempts + 1,
 													lastValidationError: errorMessage,

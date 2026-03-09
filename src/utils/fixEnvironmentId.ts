@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // src/utils/fixEnvironmentId.ts
 // Utility function to fix environment ID in localStorage
 
@@ -16,8 +17,8 @@ export function fixEnvironmentIdInStorage(): void {
 		return;
 	}
 
-	console.log('🔧 Fixing Environment ID in localStorage...');
-	console.log(`Correct Environment ID: ${CORRECT_ENV_ID}\n`);
+	logger.info('🔧 Fixing Environment ID in localStorage...');
+	logger.info(`Correct Environment ID: ${CORRECT_ENV_ID}\n`);
 
 	let fixedCount = 0;
 
@@ -28,11 +29,11 @@ export function fixEnvironmentIdInStorage(): void {
 		if (workerTokenData) {
 			const parsed = JSON.parse(workerTokenData);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${workerTokenKey}: ${parsed.environmentId}`);
+				logger.info(`❌ Found wrong Environment ID in ${workerTokenKey}: ${parsed.environmentId}`);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				localStorage.setItem(workerTokenKey, JSON.stringify(parsed));
-				console.log(`✅ Fixed ${workerTokenKey}`);
+				logger.info(`✅ Fixed ${workerTokenKey}`);
 				fixedCount++;
 			}
 		}
@@ -53,7 +54,7 @@ export function fixEnvironmentIdInStorage(): void {
 				parsed.credentials?.environmentId &&
 				parsed.credentials.environmentId !== CORRECT_ENV_ID
 			) {
-				console.log(
+				logger.info(
 					`❌ Found wrong Environment ID in ${flowDataKey}.credentials: ${parsed.credentials.environmentId}`
 				);
 				parsed.credentials.environmentId = CORRECT_ENV_ID;
@@ -66,7 +67,7 @@ export function fixEnvironmentIdInStorage(): void {
 				parsed.sharedEnvironment?.environmentId &&
 				parsed.sharedEnvironment.environmentId !== CORRECT_ENV_ID
 			) {
-				console.log(
+				logger.info(
 					`❌ Found wrong Environment ID in ${flowDataKey}.sharedEnvironment: ${parsed.sharedEnvironment.environmentId}`
 				);
 				parsed.sharedEnvironment.environmentId = CORRECT_ENV_ID;
@@ -76,7 +77,7 @@ export function fixEnvironmentIdInStorage(): void {
 
 			if (updated) {
 				localStorage.setItem(flowDataKey, JSON.stringify(parsed));
-				console.log(`✅ Fixed ${flowDataKey}`);
+				logger.info(`✅ Fixed ${flowDataKey}`);
 				fixedCount++;
 			}
 		}
@@ -91,7 +92,7 @@ export function fixEnvironmentIdInStorage(): void {
 		if (sharedEnv) {
 			const parsed = JSON.parse(sharedEnv);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${sharedEnvKey}: ${parsed.environmentId}`);
+				logger.info(`❌ Found wrong Environment ID in ${sharedEnvKey}: ${parsed.environmentId}`);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				// Update issuer URL if it contains the old environment ID
@@ -102,7 +103,7 @@ export function fixEnvironmentIdInStorage(): void {
 					);
 				}
 				localStorage.setItem(sharedEnvKey, JSON.stringify(parsed));
-				console.log(`✅ Fixed ${sharedEnvKey}`);
+				logger.info(`✅ Fixed ${sharedEnvKey}`);
 				fixedCount++;
 			}
 		}
@@ -117,7 +118,7 @@ export function fixEnvironmentIdInStorage(): void {
 		if (sharedDiscovery) {
 			const parsed = JSON.parse(sharedDiscovery);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(
+				logger.info(
 					`❌ Found wrong Environment ID in ${sharedDiscoveryKey}: ${parsed.environmentId}`
 				);
 				parsed.environmentId = CORRECT_ENV_ID;
@@ -130,7 +131,7 @@ export function fixEnvironmentIdInStorage(): void {
 					);
 				}
 				localStorage.setItem(sharedDiscoveryKey, JSON.stringify(parsed));
-				console.log(`✅ Fixed ${sharedDiscoveryKey}`);
+				logger.info(`✅ Fixed ${sharedDiscoveryKey}`);
 				fixedCount++;
 			}
 		}
@@ -145,13 +146,13 @@ export function fixEnvironmentIdInStorage(): void {
 		if (envPersistence) {
 			const parsed = JSON.parse(envPersistence);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(
+				logger.info(
 					`❌ Found wrong Environment ID in ${envPersistenceKey}: ${parsed.environmentId}`
 				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				localStorage.setItem(envPersistenceKey, JSON.stringify(parsed));
-				console.log(`✅ Fixed ${envPersistenceKey}`);
+				logger.info(`✅ Fixed ${envPersistenceKey}`);
 				fixedCount++;
 			}
 		}
@@ -160,7 +161,7 @@ export function fixEnvironmentIdInStorage(): void {
 	}
 
 	// Scan for any other keys that might contain wrong environment IDs
-	console.log('\n🔍 Scanning all localStorage keys for wrong environment IDs...\n');
+	logger.info('\n🔍 Scanning all localStorage keys for wrong environment IDs...\n');
 	const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 	const keysToCheck = [
 		'pingone_worker_token_credentials_heb-grocery-store-mfa',
@@ -193,7 +194,7 @@ export function fixEnvironmentIdInStorage(): void {
 							(id) => id.toLowerCase() !== CORRECT_ENV_ID.toLowerCase()
 						);
 						if (wrongIds.length > 0) {
-							console.log(`⚠️ Found potential wrong Environment ID in ${key}:`, wrongIds);
+							logger.info(`⚠️ Found potential wrong Environment ID in ${key}:`, wrongIds);
 							// Try to fix if it's a simple structure
 							if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
 								parsed.environmentId = CORRECT_ENV_ID;
@@ -201,7 +202,7 @@ export function fixEnvironmentIdInStorage(): void {
 									parsed.lastUpdated = Date.now();
 								}
 								localStorage.setItem(key, JSON.stringify(parsed));
-								console.log(`✅ Fixed ${key}`);
+								logger.info(`✅ Fixed ${key}`);
 								fixedCount++;
 							}
 						}
@@ -213,8 +214,8 @@ export function fixEnvironmentIdInStorage(): void {
 		}
 	}
 
-	console.log(`\n✅ Fixed ${fixedCount} storage location(s)`);
-	console.log(`✅ Environment ID fix complete!`);
+	logger.info(`\n✅ Fixed ${fixedCount} storage location(s)`);
+	logger.info(`✅ Environment ID fix complete!`);
 
 	// Also make it available globally for manual execution
 	if (typeof window !== 'undefined') {

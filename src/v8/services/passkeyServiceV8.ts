@@ -23,6 +23,7 @@
 import { FIDO2Service } from '@/services/fido2Service';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 // Utility function to convert ArrayBuffer to base64
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);
@@ -101,7 +102,7 @@ export class PasskeyServiceV8 {
 	 * 5. Complete authentication with PingOne
 	 */
 	static async authenticateUsernameless(options: PasskeyAuthOptions): Promise<PasskeyAuthResult> {
-		console.log(`${MODULE_TAG} Starting username-less passkey authentication`, {
+		logger.info(`${MODULE_TAG} Starting username-less passkey authentication`, {
 			environmentId: options.environmentId,
 		});
 
@@ -243,7 +244,7 @@ export class PasskeyServiceV8 {
 				};
 			}
 
-			console.log(`${MODULE_TAG} WebAuthn authentication successful, userHandle extracted`, {
+			logger.info(`${MODULE_TAG} WebAuthn authentication successful, userHandle extracted`, {
 				userHandleLength: userHandle.length,
 				credentialId: `${credential.id.substring(0, 20)}...`,
 			});
@@ -305,7 +306,7 @@ export class PasskeyServiceV8 {
 			}
 
 			const verifyData = await verifyResponse.json();
-			console.log(`${MODULE_TAG} Authentication verified successfully`, {
+			logger.info(`${MODULE_TAG} Authentication verified successfully`, {
 				userId: verifyData.userId,
 				username: verifyData.username,
 			});
@@ -317,7 +318,7 @@ export class PasskeyServiceV8 {
 				authenticationId: verifyData.authenticationId,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Username-less authentication error:`, error);
+			logger.error(`${MODULE_TAG} Username-less authentication error:`, error);
 
 			let errorMessage = 'Authentication failed';
 			let requiresRegistration = false;
@@ -362,7 +363,7 @@ export class PasskeyServiceV8 {
 	static async registerPasskey(
 		options: PasskeyRegistrationOptions
 	): Promise<PasskeyRegistrationResult> {
-		console.log(`${MODULE_TAG} Starting passkey registration`, {
+		logger.info(`${MODULE_TAG} Starting passkey registration`, {
 			environmentId: options.environmentId,
 			username: options.username,
 		});
@@ -530,7 +531,7 @@ export class PasskeyServiceV8 {
 			}
 
 			const verifyData = await verifyResponse.json();
-			console.log(`${MODULE_TAG} Passkey registered successfully`, {
+			logger.info(`${MODULE_TAG} Passkey registered successfully`, {
 				deviceId: verifyData.deviceId,
 				userId: verifyData.userId,
 			});
@@ -541,7 +542,7 @@ export class PasskeyServiceV8 {
 				userId: verifyData.userId,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Passkey registration error:`, error);
+			logger.error(`${MODULE_TAG} Passkey registration error:`, error);
 
 			let errorMessage = 'Registration failed';
 			if (error instanceof DOMException) {

@@ -15,6 +15,7 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
+import { logger } from '../../../../utils/logger';
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
 	flowType: 'registration' | 'authentication';
@@ -1119,7 +1120,7 @@ export const downloadAsPDF = (content: string, title: string): void => {
 	// Create a new window with the content
 	const printWindow = window.open('', '_blank');
 	if (!printWindow) {
-		console.error('Failed to open print window');
+		logger.error('Failed to open print window');
 		return;
 	}
 

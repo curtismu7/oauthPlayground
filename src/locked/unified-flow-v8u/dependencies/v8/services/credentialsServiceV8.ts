@@ -27,7 +27,7 @@ const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-	console.log(...args);
+	logger.info(...args);
 };
 
 export interface Credentials {
@@ -161,7 +161,7 @@ export class CredentialsServiceV8 {
 	static getSmartDefaults(flowKey: string): Credentials {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, using generic defaults`, { flowKey });
+			logger.warn(`${MODULE_TAG} Unknown flow key, using generic defaults`, { flowKey });
 			return CredentialsServiceV8.getDefaultCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -226,7 +226,7 @@ export class CredentialsServiceV8 {
 	static loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Credentials {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
+			logger.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
 			return CredentialsServiceV8.loadCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -320,7 +320,7 @@ export class CredentialsServiceV8 {
 				return parsed;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error loading credentials from storage`, { flowKey, error });
+			logger.error(`${MODULE_TAG} Error loading credentials from storage`, { flowKey, error });
 		}
 
 		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
@@ -347,7 +347,7 @@ export class CredentialsServiceV8 {
 				return parsed;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Error loading from localStorage`, { flowKey, error });
+			logger.error(`${MODULE_TAG} ❌ Error loading from localStorage`, { flowKey, error });
 		}
 
 		// Try IndexedDB backup (fallback)
@@ -367,7 +367,7 @@ export class CredentialsServiceV8 {
 					return backup;
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} ❌ Error loading from IndexedDB`, { flowKey, error });
+				logger.error(`${MODULE_TAG} ❌ Error loading from IndexedDB`, { flowKey, error });
 			}
 		}
 
@@ -394,14 +394,14 @@ export class CredentialsServiceV8 {
 						// Credentials backed up to IndexedDB
 					})
 					.catch((err: Error) => {
-						console.warn(`${MODULE_TAG} ⚠️ IndexedDB backup failed (non-critical)`, {
+						logger.warn(`${MODULE_TAG} ⚠️ IndexedDB backup failed (non-critical)`, {
 							flowKey,
 							error: err,
 						});
 					});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving credentials to storage`, { flowKey, error });
+			logger.error(`${MODULE_TAG} Error saving credentials to storage`, { flowKey, error });
 		}
 	}
 
@@ -416,7 +416,7 @@ export class CredentialsServiceV8 {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			localStorage.removeItem(storageKey);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error clearing credentials from storage`, { flowKey, error });
+			logger.error(`${MODULE_TAG} Error clearing credentials from storage`, { flowKey, error });
 		}
 	}
 
@@ -428,7 +428,7 @@ export class CredentialsServiceV8 {
 	 * @example
 	 * const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
 	 * if (result.errors.length > 0) {
-	 *   console.error('Validation failed:', result.errors);
+	 *   logger.error('Validation failed:', result.errors);
 	 * }
 	 */
 	static validateCredentials(
@@ -553,7 +553,8 @@ export class CredentialsServiceV8 {
 			}
 			return parsed;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error importing credentials`, { error });
+			logger.error(`${MODULE_TAG} Error importing credentials`, { error });
+import { logger } from '../../../../utils/logger';
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

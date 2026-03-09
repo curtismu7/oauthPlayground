@@ -3,6 +3,7 @@
 
 import { presetManagerService } from '../services/presetManagerService';
 
+import { logger } from '../utils/logger';
 export function testPresetFunctionality() {
 	try {
 		// Test 1: Load built-in presets
@@ -71,7 +72,7 @@ export function testPresetFunctionality() {
 
 		return true;
 	} catch (error) {
-		console.error('❌ Preset test failed:', error);
+		logger.error('❌ Preset test failed:', error);
 		return false;
 	}
 }

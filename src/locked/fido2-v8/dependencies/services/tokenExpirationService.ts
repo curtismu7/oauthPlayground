@@ -3,6 +3,7 @@
 
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
+import { logger } from '../../../utils/logger';
 export interface TokenExpirationInfo {
 	token: string | null;
 	isExpired: boolean;
@@ -59,7 +60,7 @@ export const checkTokenExpiration = (
 			expiresAtFormatted: new Date(expiresAt).toLocaleString(),
 		};
 	} catch (error) {
-		console.warn('[TokenExpirationService] Error checking token expiration:', error);
+		logger.warn('[TokenExpirationService] Error checking token expiration:', error);
 		return null;
 	}
 };
@@ -137,7 +138,7 @@ export const getValidWorkerToken = (
 			expirationInfo,
 		};
 	} catch (error) {
-		console.error('[TokenExpirationService] Error getting valid worker token:', error);
+		logger.error('[TokenExpirationService] Error getting valid worker token:', error);
 		return {
 			isValid: false,
 			token: null,

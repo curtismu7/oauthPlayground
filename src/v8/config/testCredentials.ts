@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file testCredentials.ts
  * @module v8/config
  * @description Test credentials for PingOne API testing
@@ -39,15 +40,15 @@ export const TEST_CREDENTIALS = {
  * @returns Test credentials object
  */
 export function getTestCredentials() {
-	console.log(`${MODULE_TAG} Loading test credentials`);
+	logger.info(`${MODULE_TAG} Loading test credentials`);
 
 	if (!TEST_CREDENTIALS.environmentId) {
-		console.error(`${MODULE_TAG} Environment ID not configured`);
+		logger.error(`${MODULE_TAG} Environment ID not configured`);
 		throw new Error('Environment ID not configured');
 	}
 
 	if (!TEST_CREDENTIALS.workerToken) {
-		console.error(`${MODULE_TAG} Worker token not configured`);
+		logger.error(`${MODULE_TAG} Worker token not configured`);
 		throw new Error('Worker token not configured');
 	}
 
@@ -68,11 +69,11 @@ export function isOAuthConfigured(): boolean {
  * @returns OAuth credentials object
  */
 export function getOAuthCredentials() {
-	console.log(`${MODULE_TAG} Loading OAuth credentials`);
+	logger.info(`${MODULE_TAG} Loading OAuth credentials`);
 
 	if (!isOAuthConfigured()) {
-		console.warn(`${MODULE_TAG} OAuth credentials not fully configured`);
-		console.warn(`${MODULE_TAG} Please set clientId and clientSecret in testCredentials.ts`);
+		logger.warn(`${MODULE_TAG} OAuth credentials not fully configured`);
+		logger.warn(`${MODULE_TAG} Please set clientId and clientSecret in testCredentials.ts`);
 	}
 
 	return TEST_CREDENTIALS.oauthCredentials;
@@ -109,29 +110,29 @@ export function validateTestCredentials(): { valid: boolean; errors: string[] } 
  * Log test credentials status
  */
 export function logCredentialsStatus() {
-	console.log(`${MODULE_TAG} === Test Credentials Status ===`);
-	console.log(
+	logger.info(`${MODULE_TAG} === Test Credentials Status ===`);
+	logger.info(
 		`${MODULE_TAG} Environment ID: ${TEST_CREDENTIALS.environmentId ? '✅ Configured' : '❌ Missing'}`
 	);
-	console.log(
+	logger.info(
 		`${MODULE_TAG} Worker Token: ${TEST_CREDENTIALS.workerToken ? '✅ Configured' : '❌ Missing'}`
 	);
-	console.log(
+	logger.info(
 		`${MODULE_TAG} OAuth Client ID: ${TEST_CREDENTIALS.oauthCredentials.clientId ? '✅ Configured' : '⚠️ Not configured'}`
 	);
-	console.log(
+	logger.info(
 		`${MODULE_TAG} OAuth Client Secret: ${TEST_CREDENTIALS.oauthCredentials.clientSecret ? '✅ Configured' : '⚠️ Not configured'}`
 	);
-	console.log(`${MODULE_TAG} Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.redirectUri}`);
-	console.log(
+	logger.info(`${MODULE_TAG} Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.redirectUri}`);
+	logger.info(
 		`${MODULE_TAG} Implicit Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.implicitRedirectUri}`
 	);
 
 	const validation = validateTestCredentials();
 	if (validation.valid) {
-		console.log(`${MODULE_TAG} ✅ All required credentials configured`);
+		logger.info(`${MODULE_TAG} ✅ All required credentials configured`);
 	} else {
-		console.warn(`${MODULE_TAG} ⚠️ Missing credentials:`, validation.errors);
+		logger.warn(`${MODULE_TAG} ⚠️ Missing credentials:`, validation.errors);
 	}
 }
 

@@ -1144,10 +1144,10 @@ async function deviceFlowAuth() {
   const deviceData = await deviceResponse.json();
   
   // Display to user
-  console.log(\`\\n🔐 To activate this device:\`);
-  console.log(\`\\n   1. Visit: \${deviceData.verification_uri}\`);
-  console.log(\`   2. Enter code: \${deviceData.user_code}\`);
-  console.log(\`\\n   Waiting for authorization...\\n\`);
+  logger.info(\`\\n🔐 To activate this device:\`);
+  logger.info(\`\\n   1. Visit: \${deviceData.verification_uri}\`);
+  logger.info(\`   2. Enter code: \${deviceData.user_code}\`);
+  logger.info(\`\\n   Waiting for authorization...\\n\`);
   
   // Step 2: Poll for tokens
   const interval = deviceData.interval || 5; // seconds
@@ -1194,7 +1194,7 @@ async function deviceFlowAuth() {
     }
     
     // Success!
-    console.log('\\n\\n✅ Device authorized!\\n');
+    logger.info('\\n\\n✅ Device authorized!\\n');
     return result;
   }
 }
@@ -1202,14 +1202,14 @@ async function deviceFlowAuth() {
 // Usage in device/CLI
 deviceFlowAuth()
   .then(tokens => {
-    console.log('Access Token:', tokens.access_token.substring(0, 20) + '...');
-    console.log('Expires in:', tokens.expires_in, 'seconds');
+    logger.info('Access Token:', tokens.access_token.substring(0, 20) + '...');
+    logger.info('Expires in:', tokens.expires_in, 'seconds');
     
     // Store tokens for device use
     saveToDeviceStorage(tokens);
   })
   .catch(error => {
-    log.error('RealWorldScenarioBuilder', '❌ Authorization failed:', { message: error.message });
+    logger.error('RealWorldScenarioBuilder', '❌ Authorization failed:', { message: error.message });
   });`,
 			python: `# IoT Device / Smart TV OAuth (Device Flow)
 import requests
@@ -1293,6 +1293,7 @@ import com.google.gson.Gson;
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { FiCheckCircle, FiCode, FiExternalLink } from '@icons';
 
+import { logger } from '../utils/logger';
 public class DeviceFlowAuth {
     private String envId;
     private String clientId;

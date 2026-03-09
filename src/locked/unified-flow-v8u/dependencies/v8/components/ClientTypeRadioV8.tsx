@@ -14,6 +14,7 @@
 
 import React, { useState } from 'react';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
 
 export type ClientType = 'public' | 'confidential';
@@ -84,7 +85,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 	const selectedOption = CLIENT_TYPE_OPTIONS[value];
 
 	const handleChange = (newType: ClientType) => {
-		console.log(`${MODULE_TAG} Client type changed`, { from: value, to: newType });
+		logger.info(`${MODULE_TAG} Client type changed`, { from: value, to: newType });
 		onChange(newType);
 	};
 

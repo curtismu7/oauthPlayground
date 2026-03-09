@@ -17,6 +17,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📡 SIMPLE-API-DISPLAY-V8]';
 
 interface ApiCall {
@@ -68,7 +69,7 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 			setApiCalls(pingOneCalls);
 
 			if (pingOneCalls.length > 0) {
-				console.log(`${MODULE_TAG} Displaying ${pingOneCalls.length} API calls`);
+				logger.info(`${MODULE_TAG} Displaying ${pingOneCalls.length} API calls`);
 			}
 		};
 

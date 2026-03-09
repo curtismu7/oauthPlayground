@@ -15,6 +15,7 @@
 import { FiClock } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[⏱️ MAX-AGE-V8]';
 
 export interface MaxAgeInputV8Props {
@@ -42,7 +43,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 	const [customValue, setCustomValue] = useState<string>(value?.toString() || '');
 
 	const handlePresetChange = (seconds: number | string) => {
-		console.log(`${MODULE_TAG} Max age changed`, { seconds });
+		logger.info(`${MODULE_TAG} Max age changed`, { seconds });
 		if (seconds === '') {
 			onChange(undefined);
 			setCustomValue('');

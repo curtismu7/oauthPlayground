@@ -9,6 +9,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
+import { logger } from '../utils/logger';
 const styles = {
 	container: {
 		maxWidth: '1200px',
@@ -266,7 +267,7 @@ export const CredentialManagement: React.FC = () => {
 
 			setFlows(flowInfos);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialManagement',
 				'[CredentialManagement] Failed to load credentials:',
 				undefined,
@@ -326,7 +327,7 @@ export const CredentialManagement: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialManagement',
 				'[CredentialManagement] Export failed:',
 				undefined,
@@ -382,7 +383,7 @@ export const CredentialManagement: React.FC = () => {
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialManagement',
 				'[CredentialManagement] Import failed:',
 				undefined,
@@ -415,11 +416,11 @@ export const CredentialManagement: React.FC = () => {
 				duration: 4000,
 			});
 			await loadFlowCredentials();
-			console.log(
+			logger.info(
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
 			);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialManagement',
 				`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`,
 				undefined,
