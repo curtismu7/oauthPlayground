@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
@@ -84,13 +83,13 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   background: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f9fafb';
 		}
@@ -98,15 +97,15 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   border-color: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -121,15 +120,15 @@ const InfoBoxIcon = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' 
   color: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   font-size: 1.25rem;
@@ -233,13 +232,13 @@ const DiagramTitle = styled.h4`
 `;
 
 const FlowStep = styled.div<{ $isActive?: boolean }>`
-  background: ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-  color: ${(props) => (props.$isActive ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$isActive ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$isActive ? 'white' : '#1f2937')};
   padding: 1rem 1.5rem;
   border-radius: 8px;
   margin: 0.5rem;
   display: inline-block;
-  border: 2px solid ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -263,8 +262,8 @@ const BestPracticeCard = styled.div<{ type: 'do' | 'dont' }>`
   padding: 1.5rem;
   border-radius: 8px;
   border: 2px solid;
-  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
-  border-color: ${(props) => (props.type === 'do' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
+  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : '#fef2f2')};
+  border-color: ${(props) => (props.type === 'do' ? '#10b981' : '#ef4444')};
 `;
 
 const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
@@ -272,7 +271,7 @@ const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
-  color: ${(props) => (props.type === 'do' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  color: ${(props) => (props.type === 'do' ? '#059669' : '#dc2626')};
   font-weight: 600;
   font-size: 1.1rem;
 `;
@@ -430,7 +429,7 @@ const ScopesBestPractices: React.FC = () => {
 								<FlowArrow></FlowArrow>
 								<FlowStep>Inventory API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 								<strong>Scopes:</strong> <InlineCode>orders:read</InlineCode>,{' '}
 								<InlineCode>orders:write</InlineCode>, <InlineCode>inventory:read</InlineCode>
 							</div>
@@ -523,7 +522,7 @@ const ScopesBestPractices: React.FC = () => {
 								<FlowArrow></FlowArrow>
 								<FlowStep>Access Token with Elevated Permissions</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 								<strong>Example:</strong> <InlineCode>payment:process</InlineCode> scope for payment
 								operations
 							</div>
@@ -595,7 +594,7 @@ transaction-12345`}</CodeBlock>
 								<FlowArrow></FlowArrow>
 								<FlowStep>Inventory API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 								<strong>Same Token:</strong> <InlineCode>orders:read</InlineCode>,{' '}
 								<InlineCode>inventory:read</InlineCode>
 							</div>
@@ -624,7 +623,7 @@ transaction-12345`}</CodeBlock>
 								<FlowArrow></FlowArrow>
 								<FlowStep>Shipping API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 								<strong>Original:</strong> <InlineCode>orders:read orders:write</InlineCode>
 								<br />
 								<strong>Exchanged:</strong> <InlineCode>shipping:write</InlineCode>

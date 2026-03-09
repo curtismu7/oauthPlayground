@@ -1,7 +1,6 @@
 // src/components/RedirectStateManagerDemo.tsx
 // Demo showing RedirectStateManager usage in OAuth flows
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
@@ -259,7 +258,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 		<Container>
 			<Header>
 				<Title>RedirectStateManager Demo</Title>
-				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
+				<p style={{ color: '#6b7280', margin: 0 }}>
 					Demonstration of flow state preservation across OAuth redirects
 				</p>
 			</Header>
@@ -291,7 +290,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 
 			<Section>
 				<SectionTitle>State Management Actions</SectionTitle>
-				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+				<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 					Simulate the OAuth redirect flow with state preservation:
 				</p>
 
@@ -317,7 +316,7 @@ export const RedirectStateManagerDemo: React.FC = () => {
 			{preservedState && (
 				<Section>
 					<SectionTitle>Restored Flow State</SectionTitle>
-					<p style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginBottom: '1rem' }}>
+					<p style={{ color: '#059669', marginBottom: '1rem' }}>
 						✅ State successfully preserved and restored across redirect!
 					</p>
 					<CodeBlock>{JSON.stringify(preservedState, null, 2)}</CodeBlock>

@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-
+import { FiMail } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
@@ -31,7 +31,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
-import { FiMail } from '@icons';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 

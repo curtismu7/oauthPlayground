@@ -1964,7 +1964,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	// Context value
 	const contextValue = useMemo(() => {
 		// Handle both config structures: config.pingone.* and config.*
-		const pingoneConfig = (config?.pingone as Record<string, unknown>) || (config as Record<string, unknown>) || {};
+		const pingoneConfig =
+			(config?.pingone as Record<string, unknown>) || (config as Record<string, unknown>) || {};
 
 		// Debug logging for config issues
 		if (!config) {

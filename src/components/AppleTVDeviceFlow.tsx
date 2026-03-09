@@ -1,7 +1,7 @@
 // src/components/AppleTVDeviceFlow.tsx
 // Apple TV Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,7 +11,6 @@ import {
 	deviceFlowService,
 } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheckCircle } from '@icons';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`

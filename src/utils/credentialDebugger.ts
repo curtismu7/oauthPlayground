@@ -258,9 +258,12 @@ if (typeof window !== 'undefined') {
 	(window as unknown as Record<string, unknown>).CredentialDebugger = CredentialDebugger;
 
 	// Also make it available as a simple global function
-	(window as unknown as Record<string, unknown>).auditCredentials = () => CredentialDebugger.auditAllFlows();
-	(window as unknown as Record<string, unknown>).dumpStorage = () => CredentialDebugger.dumpAllStorage();
-	(window as unknown as Record<string, unknown>).clearCredentials = () => CredentialDebugger.clearAllCredentials();
+	(window as unknown as Record<string, unknown>).auditCredentials = () =>
+		CredentialDebugger.auditAllFlows();
+	(window as unknown as Record<string, unknown>).dumpStorage = () =>
+		CredentialDebugger.dumpAllStorage();
+	(window as unknown as Record<string, unknown>).clearCredentials = () =>
+		CredentialDebugger.clearAllCredentials();
 }
 
 export default CredentialDebugger;

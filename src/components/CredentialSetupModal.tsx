@@ -1,4 +1,4 @@
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -8,10 +8,9 @@ import {
 	triggerFileImport,
 } from '../services/credentialExportImportService';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
-import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
-import { FiLoader } from '@icons';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -645,12 +644,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				onClose();
 			}, 1500);
 		} catch (error) {
-			log.error(
-				'CredentialSetupModal',
-				'Failed to save configuration:',
-				undefined,
-				error as Error
-			);
+			log.error('CredentialSetupModal', 'Failed to save configuration:', undefined, error as Error);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Configuration failed',
@@ -900,7 +894,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 									title={showSecret ? 'Hide client secret' : 'Show client secret'}
 								>
-									{showSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+									{showSecret ? (
+										<span style={{ fontSize: '18px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '18px' }}>👁️</span>
+									)}
 								</button>
 							</SecretInputContainer>
 							<div className="form-text">Only required for confidential clients</div>
@@ -1048,7 +1046,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								alignItems: 'center',
 								gap: '0.5rem',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								cursor: 'pointer',
 							}}
 						>
@@ -1088,7 +1086,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										padding: '0.75rem 1rem',
 										fontSize: '0.875rem',
 										fontWeight: '500',
-										color: 'V9_COLORS.PRIMARY.BLUE',
+										color: '#3b82f6',
 										background: 'white',
 										border: '1px solid V9_COLORS.PRIMARY.BLUE',
 										borderRadius: '6px',
@@ -1112,7 +1110,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										padding: '0.75rem 1rem',
 										fontSize: '0.875rem',
 										fontWeight: '500',
-										color: 'V9_COLORS.PRIMARY.GREEN',
+										color: '#10b981',
 										background: 'white',
 										border: '1px solid V9_COLORS.PRIMARY.GREEN',
 										borderRadius: '6px',

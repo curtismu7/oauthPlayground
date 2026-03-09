@@ -1,7 +1,6 @@
-
+import { FiChevronDown } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { FiChevronDown } from '@icons';
 
 interface CountryCode {
 	code: string;
@@ -141,13 +140,13 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 					padding: '0.75rem',
 					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					borderRadius: '0.375rem',
-					backgroundColor: disabled ? '#f9fafb' : 'V9_COLORS.TEXT.WHITE',
+					backgroundColor: disabled ? '#f9fafb' : '#ffffff',
 					cursor: disabled ? 'not-allowed' : 'pointer',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'space-between',
 					fontSize: '0.875rem',
-					color: disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.TEXT.GRAY_DARK',
+					color: disabled ? '#9ca3af' : '#1f2937',
 					transition: 'all 0.2s ease',
 					height: '48px', // Explicit height to match phone number input
 					boxSizing: 'border-box',
@@ -155,7 +154,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 						? {}
 						: {
 								'&:hover': {
-									borderColor: 'V9_COLORS.TEXT.GRAY_LIGHT',
+									borderColor: '#9ca3af',
 								},
 							}),
 				}}
@@ -163,14 +162,12 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 				<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 					<span style={{ fontSize: '1.25rem' }}>{selectedCountry.flag}</span>
 					<span style={{ fontWeight: '500' }}>{selectedCountry.dialCode}</span>
-					<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
-						{selectedCountry.code}
-					</span>
+					<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>{selectedCountry.code}</span>
 				</div>
 				<FiChevronDown
 					size={16}
 					style={{
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
 						transition: 'transform 0.2s ease',
 					}}
@@ -208,7 +205,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 							top: '100%',
 							left: 0,
 							right: 0,
-							backgroundColor: 'V9_COLORS.TEXT.WHITE',
+							backgroundColor: '#ffffff',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
@@ -236,13 +233,13 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 									alignItems: 'center',
 									gap: '0.75rem',
 									fontSize: '0.875rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									textAlign: 'left',
 									transition: 'background-color 0.2s ease',
 									...(selectedCountry.code === country.code
 										? {
-												backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
-												color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+												backgroundColor: '#f8fafc',
+												color: '#2563eb',
 											}
 										: {
 												'&:hover': {
@@ -261,14 +258,12 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 									}}
 								>
 									<span style={{ fontWeight: '500' }}>{country.name}</span>
-									<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-										{country.dialCode}
-									</span>
+									<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{country.dialCode}</span>
 								</div>
 								<span
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+										color: '#9ca3af',
 										fontWeight: '500',
 									}}
 								>

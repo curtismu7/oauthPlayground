@@ -44,10 +44,7 @@ export interface V7FlowVariantProps {
  * V7 OAuth Flow Variant
  * Standardized OAuth 2.0 flow with V7 compliance features
  */
-export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
-	baseFlowName,
-}) => {
-
+export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({ baseFlowName }) => {
 	// Get OAuth template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
 
@@ -313,10 +310,7 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
  * V7 OIDC Flow Variant
  * Standardized OpenID Connect flow with V7 compliance features
  */
-export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
-	baseFlowName,
-}) => {
-
+export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({ baseFlowName }) => {
 	// Get OIDC template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
 

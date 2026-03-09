@@ -3,33 +3,28 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import type { OAuthFlow } from '../types/oauthFlows';
 import { logger } from '../utils/logger';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiClock': 'mdi-clock',
-		'FiCode': 'mdi-code-tags',
-		'FiLock': 'mdi-lock',
-		'FiPlay': 'mdi-play',
-		'FiShield': 'mdi-shield-check',
-		'FiUser': 'mdi-account',
+		FiClock: 'mdi-clock',
+		FiCode: 'mdi-code-tags',
+		FiLock: 'mdi-lock',
+		FiPlay: 'mdi-play',
+		FiShield: 'mdi-shield-check',
+		FiUser: 'mdi-account',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 const FlowsContainer = styled.div`

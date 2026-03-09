@@ -1,7 +1,6 @@
 // src/components/ClientAuthMethodSelector.tsx
 // Token Endpoint Authentication Method Selector for OAuth/OIDC flows
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { ClientAuthMethod, getAuthMethodSecurityLevel } from '../utils/clientAuthentication';
@@ -61,13 +60,13 @@ const Description = styled.div<{ $level: string }>`
 	background-color: ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'High':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'Medium':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'Low':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f3f4f6';
 		}
@@ -75,15 +74,15 @@ const Description = styled.div<{ $level: string }>`
 	border-left: 3px solid ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'High':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'Medium':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'Low':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	}};
 	border-radius: 0.375rem;
@@ -103,15 +102,15 @@ const SecurityBadge = styled.span<{ $level: string }>`
 	background-color: ${(props) => {
 		switch (props.$level) {
 			case 'Highest':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'High':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'Medium':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'Low':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	}};
 	color: V9_COLORS.TEXT.WHITE;

@@ -9,9 +9,9 @@ import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { getOAuthTokens } from '../../utils/tokenStorage';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -276,8 +276,8 @@ const _ResponseBox = styled.div<{
   margin: 1rem 0;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || 'V9_COLORS.TEXT.GRAY_LIGHTER'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || 'V9_COLORS.BG.GRAY_LIGHT'};
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e5e7eb'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.4;
@@ -611,12 +611,7 @@ console.log('ID token is valid!');`,
 	return (
 		<Container>
 			<PageTitle
-				title={
-					<>
-						🛡️
-						OpenID Connect ID Tokens
-					</>
-				}
+				title={<>🛡️ OpenID Connect ID Tokens</>}
 				subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
 			/>
 
@@ -636,7 +631,7 @@ console.log('ID token is valid!');`,
 					</div>
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
@@ -742,8 +737,8 @@ console.log('ID token is valid!');`,
 						>
 							<span>✅</span>
 							<div>
-								<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>ID Token Available:</strong>
-								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+								<strong style={{ color: '#10b981' }}>ID Token Available:</strong>
+								<span style={{ color: '#059669' }}>
 									{' '}
 									Found stored ID token from previous OAuth flow
 								</span>

@@ -6,7 +6,7 @@
  * @since 2026-01-29
  */
 
-
+import { FiCheck } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -18,7 +18,6 @@ import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
-import { FiCheck } from '@icons';
 
 const MODULE_TAG = '[🔍 DEVICE-SELECTION-MODERN]';
 
@@ -312,7 +311,12 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 					<p style={{ margin: `0 0 ${spacing.lg} 0`, color: colors.neutral[600] }}>
 						Add a new {config.displayName} device to your account
 					</p>
-					<Button variant="primary" size="lg" onClick={handleRegisterNew} leftIcon={<span>➕</span>}>
+					<Button
+						variant="primary"
+						size="lg"
+						onClick={handleRegisterNew}
+						leftIcon={<span>➕</span>}
+					>
 						Register New {config.displayName}
 					</Button>
 				</div>

@@ -13,12 +13,12 @@
  * - Compact and detailed view modes
  */
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { FiRefreshCw } from '@icons';
+import { unifiedTokenStorage, type UnifiedToken } from '@/services/unifiedTokenStorageService';
+import { logger } from '@/utils/logger';
 
 // Flow types for dropdowns
 const FLOW_TYPES = [
@@ -109,7 +109,6 @@ const TokenTitle = styled.div`
 	align-items: center;
 	gap: 10px;
 `;
-
 
 const TokenText = styled.div`
 	display: flex;
@@ -358,29 +357,69 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const [selectedFlowType, setSelectedFlowType] = useState('oauth-authz');
 	const [selectedTokenType, setSelectedTokenType] = useState('access_token');
 
-	const parseJWT = useCallback((token: string) => {
+	// JWT payload interface
+interface JWTPayload {
+	exp?: number;
+	iat?: number;
+	scope?: string;
+	iss?: string;
+	aud?: string | string[];
+	sub?: string;
+}
+
+const parseJWT = useCallback((token: string): JWTPayload => {
 		try {
 			const base64Url = token.split('.')[1];
 			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-			return JSON.parse(window.atob(base64));
+			return JSON.parse(window.atob(base64)) as JWTPayload;
 		} catch (error) {
-			log.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error instanceof Error ? error.message : String(error));
 			return {};
 		}
 	}, []);
 
 	const checkAccessToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check multiple storage locations for access tokens
+			// First check unified token storage (primary source)
+			const unifiedResult = await unifiedTokenStorage.getTokens({
+				type: 'access_token',
+			});
 
-			// 1. Check sessionStorage for v8u unified flow tokens
+			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
+				// Get the most recent access token
+				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
+				if (latestToken && latestToken.value) {
+					// Parse JWT to get expiration and metadata
+					const payload = parseJWT(latestToken.value);
+					const now = Date.now();
+					const expiresAt = payload.exp ? payload.exp * 1000 : 0;
+					const isValid = expiresAt > now;
+					const timeRemaining = expiresAt - now;
+					const isExpiringSoon = timeRemaining < 5 * 60 * 1000; // 5 minutes
+
+					return {
+						type: 'access_token',
+						token: latestToken.value,
+						expiresAt,
+						issuedAt: payload.iat ? payload.iat * 1000 : 0,
+						scope: payload.scope || undefined,
+						issuer: payload.iss || undefined,
+						audience: Array.isArray(payload.aud) ? payload.aud[0] : payload.aud || undefined,
+						subject: payload.sub || undefined,
+						isValid,
+						status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
+					};
+				}
+			}
+
+			// Fallback to sessionStorage for v8u unified flow tokens
 			let accessToken = sessionStorage.getItem('v8u_access_token');
 			if (!accessToken) {
-				// 2. Check localStorage for legacy tokens
+				// Fallback to localStorage for legacy tokens
 				accessToken = localStorage.getItem('access_token');
 			}
 			if (!accessToken) {
-				// 3. Check for tokens in callback data
+				// Fallback to callback data
 				const callbackData = sessionStorage.getItem('v8u_callback_data');
 				if (callbackData) {
 					try {
@@ -415,23 +454,53 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
-			log.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking access token:', error instanceof Error ? error.message : String(error));
 			return null;
 		}
 	}, [parseJWT]);
 
 	const checkIdToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check multiple storage locations for ID tokens
+			// First check unified token storage (primary source)
+			const unifiedResult = await unifiedTokenStorage.getTokens({
+				type: 'id_token',
+			});
 
-			// 1. Check sessionStorage for v8u unified flow tokens
+			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
+				// Get the most recent ID token
+				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
+				if (latestToken && latestToken.value) {
+					// Parse JWT to get expiration and metadata
+					const payload = parseJWT(latestToken.value);
+					const now = Date.now();
+					const expiresAt = payload.exp ? payload.exp * 1000 : 0;
+					const isValid = expiresAt > now;
+					const timeRemaining = expiresAt - now;
+					const isExpiringSoon = timeRemaining < 5 * 60 * 1000; // 5 minutes
+
+					return {
+						type: 'id_token',
+						token: latestToken.value,
+						expiresAt,
+						issuedAt: payload.iat ? payload.iat * 1000 : 0,
+						scope: payload.scope || undefined,
+						issuer: payload.iss || undefined,
+						audience: Array.isArray(payload.aud) ? payload.aud[0] : payload.aud || undefined,
+						subject: payload.sub || undefined,
+						isValid,
+						status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
+					};
+				}
+			}
+
+			// Fallback to sessionStorage for v8u unified flow tokens
 			let idToken = sessionStorage.getItem('v8u_id_token');
 			if (!idToken) {
-				// 2. Check localStorage for legacy tokens
+				// Fallback to localStorage for legacy tokens
 				idToken = localStorage.getItem('id_token');
 			}
 			if (!idToken) {
-				// 3. Check for tokens in callback data
+				// Fallback to callback data
 				const callbackData = sessionStorage.getItem('v8u_callback_data');
 				if (callbackData) {
 					try {
@@ -445,7 +514,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 			if (!idToken) return null;
 
-			// Parse JWT to get expiration
+			// Parse JWT to get expiration and metadata
 			const payload = parseJWT(idToken);
 			const now = Date.now();
 			const expiresAt = payload.exp * 1000;
@@ -466,23 +535,52 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
-			log.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
 			return null;
 		}
 	}, [parseJWT]);
 
 	const checkRefreshToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check multiple storage locations for refresh tokens
+			// First check unified token storage (primary source)
+			const unifiedResult = await unifiedTokenStorage.getTokens({
+				type: 'refresh_token',
+			});
 
-			// 1. Check sessionStorage for v8u unified flow tokens
+			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
+				// Get the most recent refresh token
+				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
+				if (latestToken && latestToken.value) {
+					// Refresh tokens may not be JWT, so handle accordingly
+					const now = Date.now();
+					const expiresAt = latestToken.expiresAt;
+					const isValid = !expiresAt || expiresAt > now;
+					const timeRemaining = expiresAt ? expiresAt - now : Infinity;
+					const isExpiringSoon = timeRemaining < 5 * 60 * 1000; // 5 minutes
+
+					return {
+						type: 'refresh_token',
+						token: latestToken.value,
+						expiresAt,
+						issuedAt: latestToken.issuedAt,
+						scope: latestToken.scope?.join(' ') || undefined,
+						issuer: latestToken.metadata?.issuer as string || undefined,
+						audience: latestToken.metadata?.audience as string || undefined,
+						subject: latestToken.metadata?.subject as string || undefined,
+						isValid,
+						status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
+					};
+				}
+			}
+
+			// Fallback to sessionStorage for v8u unified flow tokens
 			let refreshToken = sessionStorage.getItem('v8u_refresh_token');
 			if (!refreshToken) {
-				// 2. Check localStorage for legacy tokens
+				// Fallback to localStorage for legacy tokens
 				refreshToken = localStorage.getItem('refresh_token');
 			}
 			if (!refreshToken) {
-				// 3. Check for tokens in callback data
+				// Fallback to callback data
 				const callbackData = sessionStorage.getItem('v8u_callback_data');
 				if (callbackData) {
 					try {
@@ -496,15 +594,22 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 			if (!refreshToken) return null;
 
-			// Refresh tokens typically don't expire, but we can check if they exist
+			// For refresh tokens, we may not have JWT info, so create basic token info
+			const now = Date.now();
 			return {
 				type: 'refresh_token',
 				token: refreshToken,
+				expiresAt: null, // Refresh tokens may not have explicit expiration
+				issuedAt: now,
+				scope: undefined,
+				issuer: undefined,
+				audience: undefined,
+				subject: undefined,
 				isValid: true,
 				status: 'valid',
 			};
 		} catch (error) {
-			log.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
 			return null;
 		}
 	}, []);
@@ -517,7 +622,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const resolvedTokens = await Promise.all(tokenPromises);
 			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
-			log.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error instanceof Error ? error.message : String(error));
 		}
 	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
 
@@ -653,7 +758,6 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				return 'info';
 		}
 	};
-
 
 	const formatTimeRemaining = (expiresAt?: number) => {
 		if (!expiresAt) return 'N/A';

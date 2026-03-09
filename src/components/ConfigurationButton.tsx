@@ -1,8 +1,8 @@
+import { FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { type FlowConfig, FlowConfiguration } from './FlowConfiguration';
-import { FiSettings } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

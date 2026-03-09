@@ -13,9 +13,8 @@
  * />
  */
 
-
-import React, { useState } from 'react';
 import { FiKey } from '@icons';
+import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔑 SCOPES-V8]';
 

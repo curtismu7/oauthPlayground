@@ -140,8 +140,7 @@ export class TokenExchangeServiceV8 {
 				`${TokenExchangeServiceV8.MODULE_TAG} Validating token for environment: ${expectedEnvironmentId}`
 			);
 
-			// TODO: Implement actual token validation with PingOne
-			// For now, simulate token validation
+			// Simulate token validation: parse JWT claims locally (educational demo only)
 
 			// Parse JWT token (simplified)
 			const tokenParts = token.split('.');
@@ -206,8 +205,7 @@ export class TokenExchangeServiceV8 {
 		try {
 			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Executing token exchange with PingOne`);
 
-			// TODO: Implement actual PingOne token exchange API call
-			// For now, simulate successful response
+			// Simulate a successful PingOne token exchange response (educational demo only).
 
 			// Get current environment for API endpoint
 			const currentEnvId = GlobalEnvironmentService.getInstance().getEnvironmentId();
@@ -234,7 +232,7 @@ export class TokenExchangeServiceV8 {
 				...(params.actor_token && { actor_token: '[REDACTED]' }),
 			});
 
-			// TODO: Make actual API call to PingOne token endpoint
+			// TODO: Replace with real PingOne /oauth2/token call when integrating:
 			// const response = await fetch(`${env.apiUrl}/oauth2/token`, {
 			//   method: 'POST',
 			//   headers: {
@@ -269,8 +267,8 @@ export class TokenExchangeServiceV8 {
 	}
 
 	/**
-	 * Generate mock access token for testing
-	 * TODO: Remove when actual PingOne integration is implemented
+	 * Generate simulated access token for the educational demo.
+	 * Returns a structurally valid JWT with appropriate claims.
 	 */
 	private static generateMockAccessToken(environmentId: string): string {
 		const header = { alg: 'HS256', typ: 'JWT' };

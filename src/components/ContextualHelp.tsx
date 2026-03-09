@@ -1,7 +1,16 @@
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronRight,
+	FiExternalLink,
+	FiHelpCircle,
+	FiInfo,
+	FiShield,
+} from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from './Card';
-import { FiAlertTriangle, FiCheckCircle, FiChevronDown, FiChevronRight, FiExternalLink, FiHelpCircle, FiInfo, FiShield } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

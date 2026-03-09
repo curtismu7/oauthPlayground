@@ -6,7 +6,6 @@
  * @since 2025-01-XX
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -421,11 +420,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			});
 		}
 	};
-
-
-
-
-
 
 	const updateConfig = <K extends keyof MFAConfiguration>(key: K, value: MFAConfiguration[K]) => {
 		setConfig((prev) => ({ ...prev, [key]: value }));

@@ -2,7 +2,6 @@
 // Visual indicator component showing what each OAuth step demonstrates
 // Helps users understand what they're learning at each stage
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -39,7 +38,7 @@ const IndicatorContainer = styled.div<{ $completed?: boolean; $active?: boolean;
 	border-radius: 0.375rem;
 	background: ${(props) => {
 		if (props.$completed) return '#f0fdf4';
-		if (props.$active) return 'V9_COLORS.BG.GRAY_LIGHT';
+		if (props.$active) return '#f8fafc';
 		return '#f9fafb';
 	}};
 	border: 1px solid ${(props) => {
@@ -49,26 +48,26 @@ const IndicatorContainer = styled.div<{ $completed?: boolean; $active?: boolean;
 			case 'configuration':
 				return '#dbeafe';
 			case 'authorization':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'token-exchange':
 				return '#ddd6fe';
 			case 'refresh':
 				return '#fce7f3';
 			case 'user-info':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'validation':
 				return '#fed7aa';
 			case 'completion':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'pkce':
 				return '#e0e7ff';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	color: ${(props) => {
-		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN_DARK';
-		if (props.$active) return 'V9_COLORS.PRIMARY.BLUE_DARK';
+		if (props.$completed) return '#059669';
+		if (props.$active) return '#2563eb';
 		return '#4b5563';
 	}};
 	font-size: 0.875rem;
@@ -83,13 +82,13 @@ const StepBadge = styled.div<{ $type: StepType; $completed?: boolean; $active?: 
 	height: 24px;
 	border-radius: 50%;
 	background: ${(props) => {
-		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN';
-		if (props.$active) return 'V9_COLORS.PRIMARY.BLUE';
+		if (props.$completed) return '#10b981';
+		if (props.$active) return '#3b82f6';
 		switch (props.$type) {
 			case 'configuration':
-				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
+				return '#60a5fa';
 			case 'authorization':
-				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
+				return '#fbbf24';
 			case 'token-exchange':
 				return '#a78bfa';
 			case 'refresh':
@@ -99,11 +98,11 @@ const StepBadge = styled.div<{ $type: StepType; $completed?: boolean; $active?: 
 			case 'validation':
 				return '#fb923c';
 			case 'completion':
-				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
+				return '#34d399';
 			case 'pkce':
 				return '#818cf8';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	}};
 	color: white;

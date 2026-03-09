@@ -2,6 +2,7 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 
 const log = createModuleLogger('pages/flows/v9/WorkerTokenFlowV9.tsx');
+
 // src/pages/flows/v9/WorkerTokenFlowV9.tsx
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
@@ -132,9 +133,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 	// Step 0 — Credentials
 	const renderStep0 = () => (
 		<StepContainer>
-			<StepTitle>
-				🔑 Configure Worker Token Credentials
-			</StepTitle>
+			<StepTitle>🔑 Configure Worker Token Credentials</StepTitle>
 			<StyledHelperText>
 				Configure your PingOne environment and worker application credentials. Worker tokens are
 				used for machine-to-machine authentication with PingOne Management APIs.
@@ -288,9 +287,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 		return (
 			<StepContainer>
-				<StepTitle>
-					✅ Worker Token Generated
-				</StepTitle>
+				<StepTitle>✅ Worker Token Generated</StepTitle>
 				<StyledHelperText>
 					Your PingOne worker token has been successfully generated. Use this token to authenticate
 					with PingOne Management APIs.
@@ -307,9 +304,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 				<StyledSectionDivider />
 				<ImportedResultsSection>
-					<ResultsHeading>
-						⚠️ Configuration Management
-					</ResultsHeading>
+					<ResultsHeading>⚠️ Configuration Management</ResultsHeading>
 					<StyledHelperText>
 						To use Config Checker features (Check Config, Create App, Get New Worker Token), return
 						to Step 0 where these tools are integrated into the credentials section.
@@ -333,9 +328,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 		return (
 			<StepContainer>
-				<StepTitle>
-					🛡️ Using Worker Tokens with PingOne Administration APIs
-				</StepTitle>
+				<StepTitle>🛡️ Using Worker Tokens with PingOne Administration APIs</StepTitle>
 				<StyledHelperText>
 					Learn how to use your worker token to make authenticated calls to PingOne Management APIs
 					for administrative operations.
@@ -344,7 +337,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* Administration API Overview */}
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid #0ea5e9',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -356,12 +349,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						🏢 PingOne Administration APIs
 					</h4>
-					<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: 1.6 }}>
+					<div style={{ fontSize: '0.875rem', color: '#1f2937', lineHeight: 1.6 }}>
 						<p style={{ margin: '0 0 1rem 0' }}>
 							Worker tokens provide machine-to-machine authentication for PingOne Management APIs.
 							These APIs allow you to:
@@ -391,7 +384,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* Common API Calls */}
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -403,7 +396,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							color: '#2563eb',
 						}}
 					>
 						🔧 Common Administration API Calls
@@ -428,14 +421,14 @@ const WorkerTokenFlowV9: React.FC = () => {
 									margin: '0 0 0.5rem 0',
 									fontSize: '1rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 								}}
 							>
 								{icon} {label}
 							</h5>
 							<div
 								style={{
-									background: 'V9_COLORS.TEXT.WHITE',
+									background: '#ffffff',
 									border: '1px solid #dbeafe',
 									borderRadius: '0.5rem',
 									padding: '1rem',
@@ -443,8 +436,8 @@ const WorkerTokenFlowV9: React.FC = () => {
 									fontSize: '0.875rem',
 								}}
 							>
-								<div style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '0.5rem' }}>GET {path}</div>
-								<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								<div style={{ color: '#2563eb', marginBottom: '0.5rem' }}>GET {path}</div>
+								<div style={{ color: '#6b7280' }}>
 									Authorization: Bearer{' '}
 									{accessToken ? `${accessToken.substring(0, 20)}...` : '<your-worker-token>'}
 								</div>
@@ -456,7 +449,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				{/* JavaScript examples */}
 				<div
 					style={{
-						background: 'V9_COLORS.BG.WARNING',
+						background: '#fef3c7',
 						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -468,14 +461,14 @@ const WorkerTokenFlowV9: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+							color: '#d97706',
 						}}
 					>
 						💻 JavaScript Code Examples
 					</h4>
 					<div
 						style={{
-							background: 'V9_COLORS.TEXT.WHITE',
+							background: '#ffffff',
 							border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 							borderRadius: '0.5rem',
 							padding: '1rem',
@@ -517,14 +510,14 @@ getApplications('${envId}', '${accessToken || '<worker-token>'}')
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							color: '#2563eb',
 						}}
 					>
 						🖥️ cURL Examples
 					</h4>
 					<div
 						style={{
-							background: 'V9_COLORS.TEXT.WHITE',
+							background: '#ffffff',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
@@ -552,7 +545,7 @@ curl -X GET \\
 				{/* Best Practices */}
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
@@ -564,7 +557,7 @@ curl -X GET \\
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							color: '#2563eb',
 						}}
 					>
 						✅ Best Practices for Worker Tokens

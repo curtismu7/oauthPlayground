@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
@@ -124,11 +123,11 @@ const MetricTrend = styled.div<{ trend: 'up' | 'down' | 'neutral' }>`
   color: ${({ trend }) => {
 		switch (trend) {
 			case 'up':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'down':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   margin-top: 0.5rem;

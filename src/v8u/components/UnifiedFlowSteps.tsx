@@ -16,7 +16,6 @@
  * Use the mock ROPC flow instead.
  */
 
-
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -43,6 +42,7 @@ import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8
 // Create module-specific logger
 const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
+import { FiArrowRight } from '@icons';
 import { ButtonSpinner } from '@/components/ui';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 // Enhanced state management for token synchronization
@@ -59,7 +59,6 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
-import { FiArrowRight } from '@icons';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -1181,12 +1180,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		 * and are preserved across restarts.
 		 */
 		PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
-			log.error(
-				'UnifiedFlowSteps',
-				`Failed to clear PKCE codes from all storage`,
-				undefined,
-				err
-			);
+			log.error('UnifiedFlowSteps', `Failed to clear PKCE codes from all storage`, undefined, err);
 		});
 		sessionStorage.removeItem('v8u_callback_data');
 		sessionStorage.removeItem('v8u_implicit_tokens');
@@ -1345,14 +1339,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (onStepChange) {
 			onStepChange(currentStep);
 		}
-		}, [currentStep, onStepChange]);
+	}, [currentStep, onStepChange]);
 
 	// Notify parent of completed steps changes
 	useEffect(() => {
 		if (onCompletedStepsChange) {
 			onCompletedStepsChange(completedSteps);
 		}
-		}, [completedSteps, onCompletedStepsChange]);
+	}, [completedSteps, onCompletedStepsChange]);
 
 	// Note: nav object is already created above using useMemo - duplicate removed
 
@@ -2126,16 +2120,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const hasState = url.searchParams.has('state');
 
 				if (!hasCode || !hasState) {
-					log.warn(
-						'UnifiedFlowSteps',
-						`Callback URL does not contain required OAuth parameters`,
-						{
-							callbackUrl,
-							hasCode,
-							hasState,
-							allParams: Object.fromEntries(url.searchParams),
-						}
-					);
+					log.warn('UnifiedFlowSteps', `Callback URL does not contain required OAuth parameters`, {
+						callbackUrl,
+						hasCode,
+						hasState,
+						allParams: Object.fromEntries(url.searchParams),
+					});
 					return; // Skip parsing if no OAuth params found
 				}
 
@@ -2313,12 +2303,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						hasIdToken: !!tokens.idToken,
 					});
 				} catch (err) {
-					log.error(
-						'UnifiedFlowSteps',
-						`Failed to save tokens to sessionStorage`,
-						undefined,
-						err
-					);
+					log.error('UnifiedFlowSteps', `Failed to save tokens to sessionStorage`, undefined, err);
 				}
 
 				// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
@@ -5544,12 +5529,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 				}
 			} catch (validationError) {
-				log.error(
-					'UnifiedFlowSteps',
-					`Pre-flight validation error:`,
-					undefined,
-					validationError
-				);
+				log.error('UnifiedFlowSteps', `Pre-flight validation error:`, undefined, validationError);
 				const errorMessage =
 					validationError instanceof Error ? validationError.message : 'Unknown error';
 				if (errorMessage.includes('timed out')) {
@@ -6942,12 +6922,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														});
 													}
 												} catch (error) {
-													log.error(
-														'UnifiedFlowSteps',
-														`Error fixing errors:`,
-														undefined,
-														error
-													);
+													log.error('UnifiedFlowSteps', `Error fixing errors:`, undefined, error);
 													modernMessaging.showBanner({
 														type: 'error',
 														title: 'Error',
@@ -10383,12 +10358,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
 										}}
 										onError={(error: string) => {
-											log.error(
-												'UnifiedFlowSteps',
-												`Device authorization error`,
-												undefined,
-												error
-											);
+											log.error('UnifiedFlowSteps', `Device authorization error`, undefined, error);
 											setError(error);
 										}}
 									/>
@@ -11106,12 +11076,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						});
 					}
 				} catch (validationError) {
-					log.error(
-						'UnifiedFlowSteps',
-						`Pre-flight validation error:`,
-						undefined,
-						validationError
-					);
+					log.error('UnifiedFlowSteps', `Pre-flight validation error:`, undefined, validationError);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -11734,10 +11699,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// CRITICAL: If PKCE is required, we MUST have a code verifier
 			// The service layer will reject the request if PKCE is required but no verifier is provided
 			if (isPKCERequired && !effectiveCodeVerifier) {
-				log.error(
-					'UnifiedFlowSteps',
-					`VALIDATION FAILED: PKCE required but code verifier missing`
-				);
+				log.error('UnifiedFlowSteps', `VALIDATION FAILED: PKCE required but code verifier missing`);
 				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
@@ -11794,16 +11756,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				log.error(
-					'UnifiedFlowSteps',
-					`Missing redirectUri in credentials (PKCE not required):`,
-					{
-						credentials,
-						usePKCE: isPKCERequired,
-						pkceEnforcement: credentials.pkceEnforcement,
-						hasRedirectUri: !!credentials.redirectUri,
-					}
-				);
+				log.error('UnifiedFlowSteps', `Missing redirectUri in credentials (PKCE not required):`, {
+					credentials,
+					usePKCE: isPKCERequired,
+					pkceEnforcement: credentials.pkceEnforcement,
+					hasRedirectUri: !!credentials.redirectUri,
+				});
 				return;
 			}
 
@@ -12046,12 +12004,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							console.log(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
 						}
 					} catch (clearError) {
-						log.error(
-							'UnifiedFlowSteps',
-							`Failed to clear old PKCE codes:`,
-							undefined,
-							clearError
-						);
+						log.error('UnifiedFlowSteps', `Failed to clear old PKCE codes:`, undefined, clearError);
 					}
 
 					const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;

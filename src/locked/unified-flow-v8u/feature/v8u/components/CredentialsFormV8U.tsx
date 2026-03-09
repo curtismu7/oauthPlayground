@@ -23,7 +23,7 @@
  * />
  */
 
-
+import { FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
@@ -2062,7 +2062,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 														e.currentTarget.style.color = '#6b7280';
 													}}
 												>
-													{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+													{showClientSecret ? (
+														<span style={{ fontSize: '18px' }}>🙈</span>
+													) : (
+														<span style={{ fontSize: '18px' }}>👁️</span>
+													)}
 												</button>
 											</div>
 											{highlightEmptyFields &&

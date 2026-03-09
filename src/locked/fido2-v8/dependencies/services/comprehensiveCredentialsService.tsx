@@ -10,7 +10,7 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-
+import { FiCheckCircle } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
@@ -35,7 +35,6 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { FlowRedirectUriService } from './flowRedirectUriService';
 import { getDefaultScopesForFlow } from './flowScopeMappingService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
-import { FiCheckCircle } from '@icons';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`

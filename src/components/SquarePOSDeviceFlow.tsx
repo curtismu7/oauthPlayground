@@ -2,14 +2,13 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-
+import { FiCreditCard } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCreditCard } from '@icons';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
@@ -22,15 +21,15 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
   margin: 2rem 0;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.1),
-    0 0 0 1px ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')},
+    0 0 0 1px ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')},
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
-  border: 2px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   transition: all 0.3s ease;
   
   /* Square tablet design - white with modern styling */
@@ -57,7 +56,7 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
     left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#00d4aa')};
+    color: ${({ $authorized }) => ($authorized ? '#000000' : '#00d4aa')};
     letter-spacing: 1px;
     z-index: 3;
   }
@@ -69,13 +68,13 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)'
 			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
-  border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
@@ -86,7 +85,7 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
 const SquareTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -95,7 +94,7 @@ const SquareTitle = styled.div<{ $authorized?: boolean }>`
 
 const SquareSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 0.875rem;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#6b7280')};
   font-weight: 500;
   transition: all 0.3s ease;
 `;
@@ -140,15 +139,15 @@ const POSStatus = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: V9_COLORS.TEXT.WHITE;
@@ -268,13 +267,13 @@ const StatusValue = styled.div<{ $status?: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'disconnected':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.TEXT.WHITE';
+				return '#ffffff';
 		}
 	}};
   display: flex;
@@ -286,7 +285,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
   box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -356,7 +355,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
@@ -512,9 +511,7 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					<CardReaderSlot>
 						<span>💳</span>
 					</CardReaderSlot>
-					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT' }}>
-						Card Reader Ready
-					</span>
+					<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
 				</CardReader>
 
 				{/* Status Display */}

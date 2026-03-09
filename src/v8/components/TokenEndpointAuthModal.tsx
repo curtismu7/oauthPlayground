@@ -6,7 +6,6 @@
  * @since 2024-11-20
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
 

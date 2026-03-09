@@ -1,8 +1,8 @@
+import { FiAward } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-import { FiAward } from '@icons';
 
 // Styled Components
 const PageContainer = styled.div`
@@ -179,14 +179,14 @@ const AchievementCard = styled.div<{ $variant: 'success' | 'warning' | 'info' }>
 	align-items: flex-start;
 	gap: 1rem;
 	background: ${({ $variant }) =>
-		$variant === 'success' ? '#f0fdf4' : $variant === 'warning' ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT'};
+		$variant === 'success' ? '#f0fdf4' : $variant === 'warning' ? '#fef3c7' : '#f8fafc'};
 	border-color: ${({ $variant }) =>
-		$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : $variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE'};
+		$variant === 'success' ? '#10b981' : $variant === 'warning' ? '#f59e0b' : '#3b82f6'};
 `;
 
 const AchievementIcon = styled.div<{ $variant: 'success' | 'warning' | 'info' }>`
 	color: ${({ $variant }) =>
-		$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : $variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK'};
+		$variant === 'success' ? '#059669' : $variant === 'warning' ? '#d97706' : '#2563eb'};
 	font-size: 1.5rem;
 	margin-top: 0.125rem;
 `;
@@ -381,7 +381,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 				{/* Hero Section */}
 				<HeroSection>
 					<TrophyIcon>
-						<span>[FiAward]</span></TrophyIcon>
+						<span>[FiAward]</span>
+					</TrophyIcon>
 					<HeroTitle>OAuth Implicit Flow Mastered!</HeroTitle>
 					<HeroSubtitle>
 						Congratulations! You've successfully completed the OAuth 2.0 Implicit Flow
@@ -419,13 +420,15 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 								<span>✅</span>Your Achievements
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.achievements}>
-								<span>🔽</span></SectionToggle>
+								<span>🔽</span>
+							</SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.achievements}>
 							<AchievementGrid>
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<span>✅</span></AchievementIcon>
+										<span>✅</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Flow Completion</AchievementTitle>
 										<AchievementText>
@@ -437,7 +440,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<span>🔑</span></AchievementIcon>
+										<span>🔑</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Token Management</AchievementTitle>
 										<AchievementText>
@@ -449,7 +453,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<span>🛡️</span></AchievementIcon>
+										<span>🛡️</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Security Awareness</AchievementTitle>
 										<AchievementText>
@@ -461,7 +466,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="info">
 									<AchievementIcon $variant="info">
-										<span>📖</span></AchievementIcon>
+										<span>📖</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>OAuth Knowledge</AchievementTitle>
 										<AchievementText>
@@ -481,13 +487,15 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 								<span>📈</span>Key Insights & Learnings
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.insights}>
-								<span>🔽</span></SectionToggle>
+								<span>🔽</span>
+							</SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.insights}>
 							<AchievementGrid>
 								<AchievementCard $variant="info">
 									<AchievementIcon $variant="info">
-										<span>ℹ️</span></AchievementIcon>
+										<span>ℹ️</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Token Exposure</AchievementTitle>
 										<AchievementText>
@@ -499,7 +507,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<span>⚠️</span></AchievementIcon>
+										<span>⚠️</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>No Refresh Tokens</AchievementTitle>
 										<AchievementText>
@@ -511,7 +520,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="success">
 									<AchievementIcon $variant="success">
-										<span>✅</span></AchievementIcon>
+										<span>✅</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Simplicity Benefits</AchievementTitle>
 										<AchievementText>
@@ -523,7 +533,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 								<AchievementCard $variant="warning">
 									<AchievementIcon $variant="warning">
-										<span>⚠️</span></AchievementIcon>
+										<span>⚠️</span>
+									</AchievementIcon>
 									<AchievementContent>
 										<AchievementTitle>Modern Standards</AchievementTitle>
 										<AchievementText>
@@ -567,7 +578,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 								<span>🛡️</span>Migration Guide: From Implicit to Auth Code + PKCE
 							</SectionTitle>
 							<SectionToggle $expanded={expandedSections.migration}>
-								<span>🔽</span></SectionToggle>
+								<span>🔽</span>
+							</SectionToggle>
 						</SectionHeader>
 						<SectionContent $expanded={expandedSections.migration}>
 							<MigrationSection>

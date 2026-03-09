@@ -1,6 +1,5 @@
 // src/components/OAuthErrorHelper.tsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
@@ -367,9 +366,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 												</li>
 											))
 										) : (
-											<li style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-												No specific steps available
-											</li>
+											<li style={{ color: '#6b7280' }}>No specific steps available</li>
 										)}
 									</ol>
 								</div>
@@ -390,9 +387,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						</SolutionItem>
 					))
 				) : (
-					<div
-						style={{ padding: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}
-					>
+					<div style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
 						No specific solutions available for this error.
 					</div>
 				)}
@@ -426,10 +421,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 				</ActionButton>
 
 				{onDismiss && (
-					<ActionButton
-						onClick={onDismiss}
-						style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
-					>
+					<ActionButton onClick={onDismiss} style={{ background: '#6b7280', color: 'white' }}>
 						<span style={{ fontSize: '16px' }}>❌</span>
 						Dismiss
 					</ActionButton>

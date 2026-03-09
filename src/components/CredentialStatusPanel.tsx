@@ -1,16 +1,15 @@
 // src/components/CredentialStatusPanel.tsx
 
-
+import { FiRefreshCw } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
-import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import ServerStatusModal from './ServerStatusModal';
-import { FiRefreshCw } from '@icons';
 
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
@@ -133,17 +132,17 @@ const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
   color: ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'environment':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'environment':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 		}
 	}};
   transition: all 0.2s ease;
@@ -176,11 +175,11 @@ const FlowStatusCard = styled.div<{
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'partial':
 				return '#fed7aa';
 			case 'missing':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 		}
 	}};
   border-radius: 0.75rem;
@@ -259,11 +258,11 @@ const StatusBadge = styled.div<{
   color: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'partial':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'missing':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
   border: 1px solid ${(props) => {
@@ -423,11 +422,11 @@ const CredentialStatusPanel: React.FC = () => {
 	const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
 		switch (status) {
 			case 'configured':
-				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>;
+				return <span style={{ fontSize: 16, color: '#10b981' }}>✅</span>;
 			case 'partial':
-				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>;
+				return <span style={{ fontSize: 16, color: '#f59e0b' }}>⚠️</span>;
 			case 'missing':
-				return <span style={{ fontSize: 16, color: 'V9_COLORS.PRIMARY.RED' }}>❌</span>;
+				return <span style={{ fontSize: 16, color: '#ef4444' }}>❌</span>;
 		}
 	};
 

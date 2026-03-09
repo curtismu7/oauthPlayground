@@ -158,6 +158,7 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 // PARFlowV7 archived — route redirects to pingone-par-v9
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
+import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
@@ -174,6 +175,7 @@ import OAuthROPCFlowV9 from './pages/flows/v9/OAuthROPCFlowV9';
 import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
+import ResourcesAPIFlowV9 from './pages/flows/v9/ResourcesAPIFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
 import TokenExchangeFlowV9 from './pages/flows/v9/TokenExchangeFlowV9';
 import WorkerTokenFlowV9 from './pages/flows/v9/WorkerTokenFlowV9';
@@ -194,6 +196,7 @@ import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
+import PingOneScopesReference from './pages/PingOneScopesReference';
 import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
@@ -206,7 +209,6 @@ import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
 import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
-import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
@@ -223,9 +225,9 @@ import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
-import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
+import { TokenMonitoringPage } from './v8u/pages/TokenMonitoringPage';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
@@ -244,7 +246,7 @@ import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
-import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
+// CreateCompanyPage - ARCHIVED
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { logger } from './utils/logger';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
@@ -792,7 +794,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
 								<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
-								<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
+								<Route path="/v9/resources-api" element={<ResourcesAPIFlowV9 />} />
 								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 								<Route
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
@@ -1355,7 +1357,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
 								<Route
 									path="/worker-token-tester"
-									element={<Navigate to="/credential-management" replace />}
+									element={<Navigate to="/flows/worker-token-v9" replace />}
 								/>
 								<Route path="/credential-management" element={<CredentialManagement />} />
 								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
@@ -1377,7 +1379,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/docs/migration/migrate-vscode" element={<MigrateVscode />} />
 								<Route path="/docs/prompts/prompt-all" element={<PromptAll />} />
 								<Route path="/auto-discover" element={<AutoDiscover />} />
-								<Route path="/token-management" element={<TokenManagement />} />
+								<Route path="/token-management" element={<TokenMonitoringPage />} />
+								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
 								<Route
 									path="/postman-collection-generator"
 									element={<PostmanCollectionGenerator />}
@@ -1392,6 +1395,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/samples/p1mfa/sms" element={<SMSSampleApp />} />
 								<Route path="/oauth-2-1" element={<OAuth21 />} />
 								<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
+								<Route path="/pingone-scopes-reference" element={<PingOneScopesReference />} />
 								<Route path="/pingone-sessions-api" element={<PingOneSessionsAPI />} />
 								<Route path="/par-vs-rar" element={<PARvsRAR />} />
 								<Route path="/ciba-vs-device-authz" element={<CIBAvsDeviceAuthz />} />
@@ -1445,15 +1449,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
-								{/* Company Editor Utility */}
-								<Route
-									path="/admin/create-company"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<CreateCompanyPage />
-										</Suspense>
-									}
-								/>
+								{/* Company Editor Utility - ARCHIVED */}
 								<Route path="/advanced-configuration" element={<AdvancedConfiguration />} />
 								<Route
 									path="/advanced-security-settings"

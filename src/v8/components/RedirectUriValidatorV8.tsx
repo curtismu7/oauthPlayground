@@ -9,10 +9,9 @@
  * Following SWE-15 principles for reusable validation components
  */
 
-
+import { FiAlertTriangle, FiCheck, FiX } from '@icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { FiAlertTriangle, FiCheck } from '@icons';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
 
@@ -231,7 +230,11 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 								}
 							}}
 						>
-							{copiedUri === currentUri ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
+							{copiedUri === currentUri ? (
+								<span style={{ fontSize: '14px' }}>✅</span>
+							) : (
+								<span style={{ fontSize: '14px' }}>📋</span>
+							)}
 							{copiedUri === currentUri ? 'Copied!' : 'Copy'}
 						</button>
 					)}
@@ -330,7 +333,11 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 										fontSize: '12px',
 									}}
 								>
-									{copiedUri === suggestedUri ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+									{copiedUri === suggestedUri ? (
+										<span style={{ fontSize: '12px' }}>✅</span>
+									) : (
+										<span style={{ fontSize: '12px' }}>📋</span>
+									)}
 									Copy
 								</button>
 								<button

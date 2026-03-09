@@ -8,9 +8,9 @@
  * Base corporate theme that provides default configuration for all companies.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const baseCorporateConfig: Partial<CorporatePortalConfig> = {
 	company: {
@@ -61,16 +61,16 @@ export const baseCorporateConfig: Partial<CorporatePortalConfig> = {
 		colors: {
 			primary: '#0066CC',
 			primaryDark: '#0052A3',
-			secondary: 'V9_COLORS.TEXT.GRAY_DARK',
+			secondary: '#1f2937',
 			accent: '#FF6600',
-			background: 'V9_COLORS.TEXT.WHITE',
-			surface: 'V9_COLORS.TEXT.WHITE',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+			background: '#ffffff',
+			surface: '#ffffff',
+			muted: '#6b7280',
+			border: '#e5e7eb',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#DC2626',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#F59E0B',
 			info: '#0066CC',
 			primaryLight: '#3385FF',
@@ -113,16 +113,16 @@ export const baseCorporateTheme: BrandTheme = {
 	colors: {
 		primary: '#0066CC',
 		primaryDark: '#0052A3',
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK',
+		secondary: '#1f2937',
 		accent: '#FF6600',
-		background: 'V9_COLORS.TEXT.WHITE',
-		surface: 'V9_COLORS.TEXT.WHITE',
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		background: '#ffffff',
+		surface: '#ffffff',
+		muted: '#6b7280',
+		border: '#e5e7eb',
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#F59E0B',
 		info: '#0066CC',
 		primaryLight: '#3385FF',

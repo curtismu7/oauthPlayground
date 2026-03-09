@@ -34,15 +34,13 @@ class AuthErrorBoundary extends Component<Props, State> {
 					style={{
 						padding: '2rem',
 						textAlign: 'center',
-						backgroundColor: 'V9_COLORS.BG.ERROR',
+						backgroundColor: '#fef2f2',
 						border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 						borderRadius: '0.5rem',
 						margin: '1rem',
 					}}
 				>
-					<h2 style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginBottom: '1rem' }}>
-						Authentication Error
-					</h2>
+					<h2 style={{ color: '#dc2626', marginBottom: '1rem' }}>Authentication Error</h2>
 					<p style={{ color: '#7f1d1d', marginBottom: '1rem' }}>
 						There was an error with the authentication system. Please refresh the page.
 					</p>
@@ -53,7 +51,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 						spinnerPosition="left"
 						loadingText="Refreshing..."
 						style={{
-							backgroundColor: 'V9_COLORS.PRIMARY.RED_DARK',
+							backgroundColor: '#dc2626',
 							color: 'white',
 							border: 'none',
 							padding: '0.5rem 1rem',

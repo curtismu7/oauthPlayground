@@ -287,21 +287,21 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
 	margin: 1rem 0;
@@ -545,7 +545,8 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										$priority="primary"
 										disabled={isIntrospecting || !onIntrospectToken}
 									>
-										<span>👁️</span> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
+										<span>👁️</span>{' '}
+										{isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
 									</HighlightedActionButton>
 								</ActionRow>
 
@@ -558,9 +559,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 													<ParameterLabel>Token Status</ParameterLabel>
 													<ParameterValue
 														style={{
-															color: introspectionResults.active
-																? 'V9_COLORS.PRIMARY.GREEN_DARK'
-																: 'V9_COLORS.PRIMARY.RED_DARK',
+															color: introspectionResults.active ? '#059669' : '#dc2626',
 															fontWeight: 'bold',
 														}}
 													>
@@ -677,14 +676,14 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																style={{
 																	margin: 0,
 																	padding: '1rem',
-																	background: 'V9_COLORS.BG.GRAY_LIGHT',
+																	background: '#f8fafc',
 																	borderRadius: '0.5rem',
 																	border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 																	fontSize: '0.875rem',
 																	lineHeight: '1.5',
 																	overflow: 'auto',
 																	maxHeight: '400px',
-																	color: 'V9_COLORS.TEXT.GRAY_DARK',
+																	color: '#1f2937',
 																}}
 															>
 																{JSON.stringify(introspectionResults, null, 2)}

@@ -1,6 +1,5 @@
 // src/components/EnhancedStepFlow.tsx
 
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -547,11 +546,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				(allowStepJumping || Math.abs(index - currentStepIndex) <= 1)
 			) {
 				setCurrentStepIndex(index);
-				log.debug(
-					'EnhancedStepFlow',
-					`Navigated to step ${index}`,
-					`stepId: ${steps[index]?.id}`
-				);
+				log.debug('EnhancedStepFlow', `Navigated to step ${index}`, `stepId: ${steps[index]?.id}`);
 			}
 		},
 		[steps, currentStepIndex, allowStepJumping]
@@ -636,11 +631,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 	useEffect(() => {
 		if (isFlowComplete) {
 			onFlowComplete?.(stepResults);
-			log.success(
-				'EnhancedStepFlow',
-				'Flow completed',
-				`results: ${JSON.stringify(stepResults)}`
-			);
+			log.success('EnhancedStepFlow', 'Flow completed', `results: ${JSON.stringify(stepResults)}`);
 		}
 	}, [isFlowComplete, stepResults, onFlowComplete]);
 
@@ -754,10 +745,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 						{/* Step Result */}
 						{stepResults[currentStep.id] && (
 							<StepResult>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
-									{' '}
-									Result:
-								</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}> Result:</h4>
 								<pre style={{ margin: 0, fontSize: '0.875rem' }}>
 									{typeof stepResults[currentStep.id] === 'string'
 										? stepResults[currentStep.id]
@@ -840,9 +828,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			{/* Flow Complete Message */}
 			{isFlowComplete && (
 				<StepResult>
-					<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
-						Flow Complete!
-					</h3>
+					<h3 style={{ margin: '0 0 1rem 0', color: '#059669' }}>Flow Complete!</h3>
 					<p>
 						All steps have been successfully executed. You can review the results above or start
 						over.

@@ -11,9 +11,9 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { useBrandTheme } from '../themes/theme-provider';
 import TextLogo from './TextLogo';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

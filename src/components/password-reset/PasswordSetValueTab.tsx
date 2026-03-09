@@ -1,14 +1,13 @@
 // src/components/password-reset/PasswordSetValueTab.tsx
 // Update Password (Set Value) Tab Component
 
-
+import { FiCheckCircle } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
-import { FiCheckCircle } from '@icons';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -39,7 +38,7 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		return '#3B82F6';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
+		if (props.$type === 'success') return '#10b981';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
 	}};

@@ -36,6 +36,7 @@ import {
 	loadFlowCredentialsIsolated,
 	saveFlowCredentialsIsolated,
 } from '../../../services/flowCredentialService';
+import { logger } from '../../../utils/logger';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
 import { trackTokenOperation } from '../utils/activityTracker';
@@ -56,7 +57,6 @@ import { safeJsonParse, safeSessionStorageParse } from '../utils/secureJson';
 import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { logger } from '../../../utils/logger';
 
 type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 

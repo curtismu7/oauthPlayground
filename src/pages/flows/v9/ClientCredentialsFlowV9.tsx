@@ -1,8 +1,10 @@
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+
 // src/pages/flows/ClientCredentialsFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
 
+import { FiCode } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -19,11 +21,10 @@ import { FlowCredentialService } from '../../../services/flowCredentialService';
 import FlowUIService from '../../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
+import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { FiCode } from '@icons';
 
 /**
  * Utility function to mask tokens for security
@@ -412,7 +413,8 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>⚙️</span>Credentials & Configuration
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.credentials && (
 							<CollapsibleContent>
 								<CompactAppPickerV8U
@@ -481,11 +483,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>🛡️</span>Authentication Method
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.authMethod && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<span>ℹ️</span><div>
+									<span>ℹ️</span>
+									<div>
 										<InfoTitle>
 											<LearningTooltip
 												variant="learning"
@@ -535,7 +539,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 											</LearningTooltip>
 											.
 										</InfoText>
-										<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
 											Current auth method: {controller.credentials.clientAuthMethod || 'none'}
 										</div>
 									</div>
@@ -612,11 +616,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>[FiCode]</span>Token Request
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.tokenRequest && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<span>ℹ️</span><div>
+									<span>ℹ️</span>
+									<div>
 										<InfoTitle>
 											<LearningTooltip
 												variant="learning"
@@ -715,13 +721,15 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>✅</span>Token Response
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.tokenResponse && (
 							<CollapsibleContent>
 								{controller.tokens ? (
 									<>
 										<InfoBox $variant="success">
-											<span>✅</span><div>
+											<span>✅</span>
+											<div>
 												<InfoTitle>
 													<LearningTooltip
 														variant="learning"
@@ -778,7 +786,8 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 									</>
 								) : (
 									<InfoBox $variant="warning">
-										<span>⚠️</span><div>
+										<span>⚠️</span>
+										<div>
 											<InfoTitle>No Token Received</InfoTitle>
 											<InfoText>
 												Complete the token request in step 2 to receive an access token.
@@ -801,11 +810,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>🔗</span>API Call
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.apiCall && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<span>ℹ️</span><div>
+									<span>ℹ️</span>
+									<div>
 										<InfoTitle>
 											Using the{' '}
 											<LearningTooltip
@@ -870,11 +881,13 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							<CollapsibleTitle>
 								<span>🛡️</span>Token Introspection
 							</CollapsibleTitle>
-							<span>🔽</span></CollapsibleHeaderButton>
+							<span>🔽</span>
+						</CollapsibleHeaderButton>
 						{!collapsedSections.introspection && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<span>ℹ️</span><div>
+									<span>ℹ️</span>
+									<div>
 										<InfoTitle>Token Validation</InfoTitle>
 										<InfoText>
 											<LearningTooltip
@@ -931,7 +944,8 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 				return (
 					<>
 						<InfoBox $variant="success">
-							<span>✅</span><div>
+							<span>✅</span>
+							<div>
 								<InfoTitle>
 									<LearningTooltip
 										variant="learning"

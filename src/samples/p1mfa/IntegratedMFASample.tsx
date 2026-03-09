@@ -11,10 +11,9 @@
  */
 
 import React, { useState } from 'react';
-import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
+import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
+import { getPingOneAuthBaseUrl } from '../../services/regionService';
 import { logger } from '../../utils/logger';
-import { CredentialsForm } from './shared/CredentialsForm';
-import { DeviceList } from './shared/DeviceList';
 
 type Tab =
 	| 'config'
@@ -34,15 +33,15 @@ interface UserContext {
 }
 
 export const IntegratedMFASample: React.FC = () => {
-	const [sdk, setSdk] = useState<P1MFASDK | null>(null);
-	const [config, setConfig] = useState<P1MFAConfig | null>(null);
-	const [activeTab, setActiveTab] = useState<Tab>('config');
-	const [userContext, setUserContext] = useState<UserContext>({});
-	const [devices, setDevices] = useState<Device[]>([]);
-	const [loadingDevices, setLoadingDevices] = useState(false);
+	const [_sdk, setSdk] = useState<P1MFASDK | null>(null);
+	const [_config, setConfig] = useState<P1MFAConfig | null>(null);
+	const [_activeTab, setActiveTab] = useState<Tab>('config');
+	const [_userContext, _setUserContext] = useState<UserContext>({});
+	const [_devices, _setDevices] = useState<Device[]>([]);
+	const [_loadingDevices, _setLoadingDevices] = useState(false);
 
 	// OIDC Sign-in state
-	const [oidcConfig, setOidcConfig] = useState({
+	const [_oidcConfig, _setOidcConfig] = useState({
 		clientId: '',
 		redirectUri: 'https://localhost:3000/callback',
 		scope: 'openid profile email',
@@ -50,7 +49,7 @@ export const IntegratedMFASample: React.FC = () => {
 	});
 
 	// SMS Enrollment state
-	const [smsEnrollState, setSmsEnrollState] = useState({
+	const [_smsEnrollState, _setSmsEnrollState] = useState({
 		phone: '',
 		deviceId: '',
 		otp: '',
@@ -58,28 +57,28 @@ export const IntegratedMFASample: React.FC = () => {
 	});
 
 	// FIDO2 Enrollment state
-	const [fido2EnrollState, setFido2EnrollState] = useState({
+	const [_fido2EnrollState, _setFido2EnrollState] = useState({
 		deviceId: '',
 		creationOptions: null as PublicKeyCredentialCreationOptions | null,
 		step: 'input' as 'input' | 'created' | 'webauthn' | 'activating' | 'success',
 	});
 
 	// SMS Auth state
-	const [smsAuthState, setSmsAuthState] = useState({
+	const [_smsAuthState, _setSmsAuthState] = useState({
 		authenticationId: '',
 		otp: '',
 		step: 'input' as 'input' | 'initialized' | 'verifying' | 'success',
 	});
 
 	// FIDO2 Auth state
-	const [fido2AuthState, setFido2AuthState] = useState({
+	const [_fido2AuthState, _setFido2AuthState] = useState({
 		authenticationId: '',
 		challengeId: '',
 		assertionOptions: null as PublicKeyCredentialRequestOptions | null,
 		step: 'input' as 'input' | 'initialized' | 'webauthn' | 'completing' | 'success',
 	});
 
-	const handleInitialize = async (sdkConfig: P1MFAConfig) => {
+	const _handleInitialize = async (sdkConfig: P1MFAConfig) => {
 		try {
 			const newSdk = new P1MFASDK();
 			await newSdk.initialize(sdkConfig);
@@ -91,10 +90,10 @@ export const IntegratedMFASample: React.FC = () => {
 		}
 	};
 
-	const handleOIDCSignIn = async () => {
+	const _handleOIDCSignIn = async () => {
 		// Step 1: Build authorization URL with PKCE
 		const codeVerifier = generateCodeVerifier();
-		const codeChallenge = await generateCodeChallenge(codeVerifier);
+		const _codeChallenge = await generateCodeChallenge(codeVerifier);
 		const state = randomString(32);
 
 		// Store PKCE values
@@ -102,7 +101,9 @@ export const IntegratedMFASample: React.FC = () => {
 		sessionStorage.setItem('p1mfa_state', state);
 
 		// Build authorization URL
-		const authUrl = new URL(`https://auth.pingone.com/${config?.environmentId}/as/authorize`);
+		const _authUrl = new URL(
+			`${getPingOneAuthBaseUrl() ?? 'https://auth.pingone.com'}/${config?.environmentId}/as/authorize`
+		);
 		authUrl.searchParams.set('client_id', oidcConfig.clientId);
 		authUrl.searchParams.set('response_type', 'code');
 		authUrl.searchParams.set('redirect_uri', oidcConfig.redirectUri);

@@ -6,12 +6,11 @@
  * @since 2026-03-06
  */
 
-
 import React, { useRef } from 'react';
 import {
 	credentialsImportExportService,
 	type ImportExportOptions,
-} from '@/services/credentialsImportExportService'
+} from '@/services/credentialsImportExportService';
 
 export interface CredentialsImportExportProps {
 	credentials: Record<string, unknown>;
@@ -71,7 +70,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 		alignItems: 'center',
 		gap: '0.4rem',
 		padding: compact ? '0.3rem 0.7rem' : '0.4rem 0.9rem',
-		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: '#2563eb',
 		color: 'white',
 		border: 'none',
 		borderRadius: '0.375rem',
@@ -85,13 +84,13 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 	const exportButtonStyle: React.CSSProperties = {
 		...buttonBaseStyle,
 		'&:hover': {
-			background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+			background: '#2563eb',
 		},
 	};
 
 	const importButtonStyle: React.CSSProperties = {
 		...buttonBaseStyle,
-		background: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		background: '#059669',
 		'&:hover': {
 			background: '#047857',
 		},
@@ -100,9 +99,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 	return (
 		<div style={containerStyle} className={className}>
 			{!compact && (
-				<span
-					style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginRight: 'auto' }}
-				>
+				<span style={{ fontSize: '0.8rem', color: '#6b7280', marginRight: 'auto' }}>
 					Credentials
 				</span>
 			)}

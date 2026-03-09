@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
@@ -224,13 +223,13 @@ const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
   border: 2px solid ${(props) => (props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent')};
   background: ${(props) => {
 		const colors = {
-			blue: 'V9_COLORS.PRIMARY.BLUE',
-			green: 'V9_COLORS.PRIMARY.GREEN',
+			blue: '#3b82f6',
+			green: '#10b981',
 			purple: '#8b5cf6',
 			orange: '#f97316',
-			red: 'V9_COLORS.PRIMARY.RED',
+			red: '#ef4444',
 		};
-		return colors[props.$color as keyof typeof colors] || 'V9_COLORS.PRIMARY.BLUE';
+		return colors[props.$color as keyof typeof colors] || '#3b82f6';
 	}};
   cursor: pointer;
   transition: all 0.2s ease;

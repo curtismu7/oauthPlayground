@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -101,14 +100,14 @@ const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
 	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	color: ${(props) => (props.$isActive ? '#2563eb' : '#1f2937')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$isActive ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : '#f9fafb')};
+		background: ${(props) => (props.$isActive ? '#e5e7eb' : '#f9fafb')};
 		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
 	}
 
@@ -265,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							margin: 0,
 							fontSize: '1.25rem',
 							fontWeight: 'bold',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						PingOne MasterFlow API

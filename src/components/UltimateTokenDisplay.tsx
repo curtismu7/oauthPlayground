@@ -1,14 +1,13 @@
 // src/components/UltimateTokenDisplay.tsx
 // Ultimate Token Display Component - Combines all the best features
 
-
+import { FiClock, FiTag, FiUnlock } from '@icons';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { FiClock, FiTag, FiUnlock } from '@icons';
 
 interface TokenSet {
 	access_token?: string;
@@ -61,7 +60,7 @@ const Header = styled.div<{ $mode: DisplayMode }>`
   background: ${({ $mode }) =>
 		$mode === 'educational'
 			? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'
-			: 'V9_COLORS.BG.GRAY_LIGHT'};
+			: '#f8fafc'};
   border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
@@ -87,13 +86,13 @@ const TokenSection = styled.div<{ $variant: TokenType; $mode: DisplayMode }>`
   border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 8px;
@@ -121,7 +120,7 @@ const TokenHeader = styled.div<{ $variant: TokenType }>`
 			case 'refresh':
 				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border-bottom: 1px solid ${({ $variant }) => {
@@ -133,7 +132,7 @@ const TokenHeader = styled.div<{ $variant: TokenType }>`
 			case 'refresh':
 				return '#fcd34d';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -146,13 +145,13 @@ const TokenLabel = styled.div<{ $variant: TokenType }>`
   color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 `;
@@ -169,13 +168,13 @@ const TokenBadge = styled.span<{ $variant: TokenType }>`
   background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: white;
@@ -245,8 +244,8 @@ const TokenValue = styled.div<{ $masked?: boolean; $highlighted?: boolean }>`
   font-size: 0.875rem;
   line-height: 1.6;
   color: V9_COLORS.TEXT.GRAY_DARK;
-  background: ${({ $highlighted }) => ($highlighted ? '#f0fdf4' : 'V9_COLORS.BG.GRAY_LIGHT')};
-  border: 1px solid ${({ $highlighted }) => ($highlighted ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  background: ${({ $highlighted }) => ($highlighted ? '#f0fdf4' : '#f8fafc')};
+  border: 1px solid ${({ $highlighted }) => ($highlighted ? '#10b981' : '#e5e7eb')};
   border-radius: 6px;
   padding: 1rem;
   word-break: break-all;
@@ -559,7 +558,11 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title="Copy token"
 								$variant="primary"
 							>
-								{isCopied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
+								{isCopied ? (
+									<span style={{ fontSize: '14px' }}>✅</span>
+								) : (
+									<span style={{ fontSize: '14px' }}>📋</span>
+								)}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</ActionButton>
 						)}

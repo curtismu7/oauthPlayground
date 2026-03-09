@@ -2,7 +2,7 @@
 /* eslint-disable no-alert */
 // lint-file-disable: token-value-in-jsx
 
-
+import { FiBook } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
@@ -23,7 +23,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { FiBook } from '@icons';
 
 export const V7MDeviceAuthorizationV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-device-client');
@@ -244,7 +243,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button type="button" onClick={handleRequestDeviceAuth} style={primaryBtn}>
+					<button type="button" type="button" onClick={handleRequestDeviceAuth} style={primaryBtn}>
 						Request Device Authorization
 					</button>
 					{deviceResponse && !('error' in deviceResponse) && (
@@ -264,7 +263,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{userCode}
 									</code>
-									<button type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
+									<button type="button" type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -273,7 +272,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{deviceCode}
 									</code>
-									<button type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
+									<button type="button" type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -364,7 +363,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							Once the device is approved, the client polls the token endpoint using the device code
 							to obtain tokens.
 						</p>
-						<button type="button" onClick={handlePollToken} style={primaryBtn}>
+						<button type="button" type="button" onClick={handlePollToken} style={primaryBtn}>
 							Poll for Tokens
 						</button>
 						{tokenResponse && (
@@ -382,10 +381,10 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										>
 											Inspect Access Token
 										</button>
-										<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
+										<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
 											Call UserInfo
 										</button>
-										<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
+										<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
 											Introspect Token
 										</button>
 									</div>

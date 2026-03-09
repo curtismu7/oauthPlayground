@@ -11,7 +11,6 @@
  * - PingOne-specific implementations and requirements
  */
 
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';

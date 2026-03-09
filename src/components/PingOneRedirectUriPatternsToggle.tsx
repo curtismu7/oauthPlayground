@@ -1,6 +1,5 @@
 // src/components/PingOneRedirectUriPatternsToggle.tsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { pingOneConfigService } from '../services/pingoneConfigService';
@@ -38,7 +37,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 	position: relative;
 	width: 3rem;
 	height: 1.5rem;
-	background-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background-color: ${({ $active }) => ($active ? '#10b981' : '#e5e7eb')};
 	border: none;
 	border-radius: 9999px;
 	cursor: pointer;

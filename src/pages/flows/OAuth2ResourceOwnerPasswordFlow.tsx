@@ -1,4 +1,4 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { FiEye, FiEyeOff } from '@icons';
 // lint-file-disable: token-value-in-jsx
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -11,8 +11,8 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
-import { FiEye, FiEyeOff } from '@icons';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -284,7 +284,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										type="button"
 										onClick={() => setShowClientSecret(!showClientSecret)}
 									>
-										{showClientSecret ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
+										{showClientSecret ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
@@ -324,7 +324,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										autoComplete="current-password"
 									/>
 									<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
-										{showPassword ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
+										{showPassword ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
@@ -348,9 +348,11 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								>
 									{controller.isSavingCredentials ? (
 										<SpinningIcon>
-											<span>🔄</span></SpinningIcon>
+											<span>🔄</span>
+										</SpinningIcon>
 									) : (
-										<span>✅</span>)}
+										<span>✅</span>
+									)}
 									Save Configuration
 								</Button>
 							</div>
@@ -372,7 +374,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							<span>🔒</span>Resource Owner Password Authentication
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
 							This step will exchange the username and password for an access token using the
 							Resource Owner Password Credentials grant.
 						</p>
@@ -385,9 +387,11 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isAuthenticating ? (
 								<SpinningIcon>
-									<span>🔄</span></SpinningIcon>
+									<span>🔄</span>
+								</SpinningIcon>
 							) : (
-								<span>🔒</span>)}
+								<span>🔒</span>
+							)}
 							Authenticate User
 						</Button>
 
@@ -460,7 +464,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							<span>👤</span>User Information
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
 							Fetch user information using the access token from the previous step.
 						</p>
 
@@ -472,9 +476,11 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isFetchingUserInfo ? (
 								<SpinningIcon>
-									<span>🔄</span></SpinningIcon>
+									<span>🔄</span>
+								</SpinningIcon>
 							) : (
-								<span>👤</span>)}
+								<span>👤</span>
+							)}
 							Fetch User Info
 						</Button>
 
@@ -493,7 +499,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 								<div
 									style={{
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.5rem',
 										padding: '1rem',
@@ -525,7 +531,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							<span>🔄</span>Token Refresh
 						</h3>
 
-						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
 							Use the refresh token to obtain a new access token without re-authenticating.
 						</p>
 
@@ -537,14 +543,16 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						>
 							{controller.isRefreshingTokens ? (
 								<SpinningIcon>
-									<span>🔄</span></SpinningIcon>
+									<span>🔄</span>
+								</SpinningIcon>
 							) : (
-								<span>🔄</span>)}
+								<span>🔄</span>
+							)}
 							Refresh Tokens
 						</Button>
 
 						{!controller.tokens?.refresh_token && (
-							<p style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '1rem' }}>
+							<p style={{ color: '#dc2626', marginTop: '1rem' }}>
 								No refresh token available. Complete the authentication step first.
 							</p>
 						)}
@@ -586,7 +594,8 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										<span>✅</span>After Refresh
 									</h4>
 									<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
-										<span>ℹ️</span><CardText style={{ margin: 0, fontSize: '0.875rem' }}>
+										<span>ℹ️</span>
+										<CardText style={{ margin: 0, fontSize: '0.875rem' }}>
 											Whether a refresh token is opaque or JWT depends on the authorization server's
 											design:
 											<br />• <strong>PingOne</strong> → typically opaque (refresh token references
@@ -624,13 +633,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="⚠️ Security Warning" defaultCollapsed={false}>
 				<WarningCard>
-					<span>⚠️</span><CardContent>
-						<CardText style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+					<span>⚠️</span>
+					<CardContent>
+						<CardText style={{ color: '#dc2626' }}>
 							The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should
 							be avoided in most cases due to significant security risks. This flow requires the
 							application to collect and handle user credentials directly.
 						</CardText>
-						<CardList style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+						<CardList style={{ color: '#dc2626' }}>
 							<CardListItem>Applications must handle passwords securely</CardListItem>
 							<CardListItem>No delegation of authentication to authorization server</CardListItem>
 							<CardListItem>Phishing attacks become easier</CardListItem>
@@ -642,11 +652,12 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="📋 When to Use (Rare Cases)">
 				<InfoCard>
-					<span>ℹ️</span><CardContent>
-						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+					<span>ℹ️</span>
+					<CardContent>
+						<CardText style={{ color: '#1f2937' }}>
 							This flow should only be used in very specific, high-trust scenarios:
 						</CardText>
-						<CardList style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+						<CardList style={{ color: '#1f2937' }}>
 							<CardListItem>Legacy system migration where other flows are impossible</CardListItem>
 							<CardListItem>Highly trusted first-party applications</CardListItem>
 							<CardListItem>Server-to-server communication with shared credentials</CardListItem>
@@ -699,11 +710,12 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 			<CollapsibleSection title="✅ Recommended Alternatives">
 				<InfoCard>
-					<span>👤</span><CardContent>
-						<CardText style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+					<span>👤</span>
+					<CardContent>
+						<CardText style={{ color: '#1f2937' }}>
 							Instead of the Resource Owner Password flow, consider these more secure alternatives:
 						</CardText>
-						<CardList style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+						<CardList style={{ color: '#1f2937' }}>
 							<CardListItem>
 								<strong>Authorization Code Flow:</strong> Most secure for web applications
 							</CardListItem>

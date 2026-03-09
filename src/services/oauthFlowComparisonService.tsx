@@ -1,33 +1,28 @@
 // src/services/oauthFlowComparisonService.tsx
 // Service for displaying OAuth flow comparisons with collapsible headers
 
+import { FiAlertTriangle } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
-import { FiAlertTriangle } from '@icons';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiGlobe': 'mdi-earth',
-		'FiShield': 'mdi-shield-check',
-		'FiUsers': 'mdi-account-group',
-		'FiXCircle': 'mdi-close-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiGlobe: 'mdi-earth',
+		FiShield: 'mdi-shield-check',
+		FiUsers: 'mdi-account-group',
+		FiXCircle: 'mdi-close-circle',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 const Table = styled.table`

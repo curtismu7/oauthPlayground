@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -132,10 +131,10 @@ const TH = styled.th`
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : '#ffffff')};
 
   &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
   }
 `;
 
@@ -187,7 +186,7 @@ const StatusBar = styled.div<{ $variant: 'info' | 'warning' }>`
   font-size: 0.85rem;
   background: ${({ $variant }) =>
 		$variant === 'warning' ? 'rgba(254, 215, 170, 0.45)' : 'rgba(191, 219, 254, 0.6)'};
-  color: ${({ $variant }) => ($variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : '#1e3a8a')};
+  color: ${({ $variant }) => ($variant === 'warning' ? '#d97706' : '#1e3a8a')};
   border: 1px solid
     ${({ $variant }) => ($variant === 'warning' ? 'rgba(251, 191, 36, 0.5)' : 'rgba(59, 130, 246, 0.4)')};
 `;
@@ -431,15 +430,16 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 
 				{missingWorkerToken && (
 					<StatusBar $variant="warning">
-						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can call the PingOne Admin API.
+						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can call
+						the PingOne Admin API.
 						<Button
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
 								marginLeft: '0.75rem',
 								padding: '0.4rem 0.9rem',
 								fontSize: '0.8rem',
-								background: 'V9_COLORS.TEXT.WHITE',
-								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+								background: '#ffffff',
+								color: '#d97706',
 								border: '1px solid rgba(251, 191, 36, 0.5)',
 							}}
 						>
@@ -481,14 +481,12 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 								{pagedApplications.map((app) => (
 									<TR key={app.id}>
 										<TD>
-											<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-												{app.name}
-											</div>
+											<div style={{ fontWeight: 600, color: '#1f2937' }}>{app.name}</div>
 											{app.description && (
 												<div
 													style={{
 														fontSize: '0.8rem',
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														marginTop: '0.15rem',
 													}}
 												>
@@ -498,7 +496,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 										</TD>
 										<TD>
 											<InlineInfo>
-												<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>❓</span>
+												<span style={{ fontSize: 14, color: '#2563eb' }}>❓</span>
 												<span style={{ fontFamily: 'Menlo, monospace', fontSize: '0.78rem' }}>
 													{app.clientId}
 												</span>
@@ -507,7 +505,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 										<TD>
 											<div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
 												<Badge>{app.type || 'APP'}</Badge>
-												<div style={{ fontSize: '0.78rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
 													{app.grantTypes?.length
 														? app.grantTypes.join(', ')
 														: 'No grant types configured'}
@@ -515,7 +513,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 											</div>
 										</TD>
 										<TD>
-											<div style={{ fontSize: '0.78rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											<div style={{ fontSize: '0.78rem', color: '#6b7280' }}>
 												<div>Redirect URIs: {app.redirectUris?.length ?? 0}</div>
 												<div>Logout URIs: {app.postLogoutRedirectUris?.length ?? 0}</div>
 											</div>

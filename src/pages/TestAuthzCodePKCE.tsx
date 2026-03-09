@@ -570,7 +570,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 					<Title style={{ marginBottom: '5px' }}>🔐 Authorization Code + PKCE Test</Title>
 					<Subtitle>Test the complete OAuth 2.0 Authorization Code flow with PKCE</Subtitle>
 				</div>
-				<Button onClick={handleStartOver} style={{ background: 'V9_COLORS.PRIMARY.YELLOW', height: 'fit-content' }}>
+				<Button onClick={handleStartOver} style={{ background: '#f59e0b', height: 'fit-content' }}>
 					🔄 Start Over
 				</Button>
 			</div>
@@ -626,7 +626,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 									onChange={(e) => setAutoExchangeEnabled(e.target.checked)}
 									style={{ width: 'auto', cursor: 'pointer' }}
 								/>
-								<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>
+								<span style={{ color: '#6b7280', fontWeight: 600 }}>
 									Auto-exchange authorization code for tokens
 								</span>
 							</label>

@@ -1,6 +1,5 @@
 // src/components/StepNavigationButtons.tsx
 
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -71,7 +70,7 @@ const StepDot = styled.div<{ $active: boolean }>`
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $active }) => ($active ? '#10b981' : '#e5e7eb')};
 	transition: all 0.2s ease;
 `;
 

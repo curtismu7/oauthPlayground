@@ -1,7 +1,6 @@
-
+import { FiAlertTriangle, FiCheckCircle, FiExternalLink } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiCheckCircle, FiExternalLink } from '@icons';
 
 interface ValidationResult {
 	isValid: boolean;
@@ -94,9 +93,9 @@ const ValidationSummary = styled.div<{ $isValid: boolean }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
-	background: ${(props) => (props.$isValid ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR')};
-	border: 1px solid ${(props) => (props.$isValid ? '#a7f3d0' : 'V9_COLORS.BG.ERROR_BORDER')};
-	color: ${(props) => (props.$isValid ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+	background: ${(props) => (props.$isValid ? '#ecfdf5' : '#fef2f2')};
+	border: 1px solid ${(props) => (props.$isValid ? '#a7f3d0' : '#ef4444')};
+	color: ${(props) => (props.$isValid ? '#059669' : '#dc2626')};
 	font-weight: 500;
 	display: flex;
 	align-items: center;
@@ -118,9 +117,9 @@ const IssueItem = styled.div<{ $isError: boolean }>`
 	padding: 0.75rem;
 	border-radius: 0.375rem;
 	margin-bottom: 0.5rem;
-	background: ${(props) => (props.$isError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.WARNING')};
-	border-left: 4px solid ${(props) => (props.$isError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.YELLOW')};
-	color: ${(props) => (props.$isError ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+	background: ${(props) => (props.$isError ? '#fef2f2' : '#fef3c7')};
+	border-left: 4px solid ${(props) => (props.$isError ? '#ef4444' : '#f59e0b')};
+	color: ${(props) => (props.$isError ? '#dc2626' : '#d97706')};
 	font-size: 0.875rem;
 `;
 
@@ -179,12 +178,12 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 					<ModalTitle>
 						{hasErrors ? (
 							<>
-								<FiAlertTriangle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
+								<FiAlertTriangle style={{ color: '#ef4444' }} />
 								Authorization URL Issues
 							</>
 						) : (
 							<>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								Authorization URL Validation
 							</>
 						)}
@@ -225,7 +224,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 					<IssuesList>
 						{hasErrors && (
 							<div>
-								<IssuesTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Errors:</IssuesTitle>
+								<IssuesTitle style={{ color: '#dc2626' }}>Errors:</IssuesTitle>
 								{validationResult.errors.map((error, index) => (
 									<IssueItem key={index} $isError={true}>
 										{error}
@@ -236,9 +235,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 
 						{hasWarnings && (
 							<div>
-								<IssuesTitle style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
-									Warnings:
-								</IssuesTitle>
+								<IssuesTitle style={{ color: '#d97706' }}>Warnings:</IssuesTitle>
 								{validationResult.warnings.map((warning, index) => (
 									<IssueItem key={index} $isError={false}>
 										{warning}

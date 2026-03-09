@@ -4,7 +4,6 @@
  * Pre-built OAuth scenarios with auto-populated parameters and generated code
  */
 
-
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -43,7 +42,7 @@ const ScenarioGrid = styled.div`
 
 const ScenarioCard = styled.button<{ $selected: boolean }>`
 	background: white;
-	border: 3px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 3px solid ${({ $selected }) => ($selected ? '#10b981' : '#e5e7eb')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	cursor: pointer;
@@ -190,15 +189,15 @@ const CodeTabs = styled.div`
 const CodeTab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	border: none;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'transparent')};
-	color: ${({ $active }) => ($active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	background: ${({ $active }) => ($active ? '#10b981' : 'transparent')};
+	color: ${({ $active }) => ($active ? 'white' : '#6b7280')};
 	font-weight: 600;
 	cursor: pointer;
 	border-radius: 0.5rem 0.5rem 0 0;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.BG.GRAY_MEDIUM')};
+		background: ${({ $active }) => ($active ? '#059669' : '#f1f5f9')};
 	}
 `;
 
@@ -257,7 +256,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 		variant === 'secondary'
 			? 'white'
 			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
-	color: ${({ variant }) => (variant === 'secondary' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'white')};
+	color: ${({ variant }) => (variant === 'secondary' ? '#059669' : 'white')};
 	border: ${({ variant }) => (variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.GREEN' : 'none')};
 
 	&:hover {
@@ -1552,7 +1551,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 					<ConfigPanel>
 						<ConfigSection>
 							<SectionTitle>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								Pre-Configured OAuth Parameters
 							</SectionTitle>
 							<ParameterList>
@@ -1575,7 +1574,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<ConfigSection>
 							<SectionTitle>
-								<FiExternalLink style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
+								<FiExternalLink style={{ color: '#3b82f6' }} />
 								Industry Example
 							</SectionTitle>
 							<div
@@ -1584,7 +1583,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 									background: '#dbeafe',
 									borderRadius: '0.5rem',
 									borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									lineHeight: '1.6',
 								}}
 							>
@@ -1595,7 +1594,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 					<div>
 						<SectionTitle>
-							<FiCode style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
+							<FiCode style={{ color: '#059669' }} />
 							Production-Ready Code
 						</SectionTitle>
 
@@ -1653,7 +1652,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 					style={{
 						textAlign: 'center',
 						padding: '3rem',
-						color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+						color: '#059669',
 						fontSize: '1.1rem',
 					}}
 				>

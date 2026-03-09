@@ -4,7 +4,6 @@
  * Visualizes how authorization responses travel for query, fragment, form_post, and PingOne redirectless
  */
 
-
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -225,11 +224,11 @@ const ModeCard = styled.button<{ $selected: boolean }>`
 	text-align: left;
 	padding: 1.25rem;
 	border-radius: 0.75rem;
-	border: 2px solid ${({ $selected }) => ($selected ? '#0ea5e9' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#0ea5e9' : '#e5e7eb')};
 	background: ${({ $selected }) =>
 		$selected
 			? 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.2))'
-			: 'V9_COLORS.TEXT.WHITE'};
+			: '#ffffff'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 20px rgba(14, 165, 233, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -319,15 +318,15 @@ const TimelineActor = styled.span<{ $actor: TimelineStep['actor'] }>`
 	color: ${({ $actor }) => {
 		switch ($actor) {
 			case 'browser':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'authorizationServer':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'application':
 				return '#f97316';
 			case 'pingone':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 `;
@@ -433,7 +432,7 @@ const SupportBadge = styled.span<{ $support: ResponseModeDefinition['pingoneSupp
 			case 'partial':
 				return '#b45309';
 			default:
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
 `;
@@ -493,7 +492,9 @@ const ResponseModeSandbox: React.FC = () => {
 							<TimelineItem key={`${step.actor}-${index}`}>
 								<TimelineActor $actor={step.actor}>
 									{step.actor === 'browser' && <span style={{ fontSize: '16px' }}>🧭</span>}
-									{step.actor === 'authorizationServer' && <span style={{ fontSize: '16px' }}>🔗</span>}
+									{step.actor === 'authorizationServer' && (
+										<span style={{ fontSize: '16px' }}>🔗</span>
+									)}
 									{step.actor === 'application' && <span style={{ fontSize: '16px' }}>🔄</span>}
 									{step.actor === 'pingone' && <span style={{ fontSize: '16px' }}>ℹ️</span>}
 									{step.actor}

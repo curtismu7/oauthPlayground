@@ -1,7 +1,7 @@
 // src/components/ConfigurationURIChecker.tsx
 // Component to display and check redirect and logout URIs against PingOne configuration
 
-
+import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -10,7 +10,6 @@ import { fetchApplications } from '../services/pingOneApplicationService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
-import { FiInfo } from '@icons';
 
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
@@ -66,7 +65,7 @@ const TableHeader = styled.thead`
 `;
 
 const TableRow = styled.tr<{ $isEven?: boolean }>`
-  background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : '#ffffff')};
 
   &:hover {
     background: V9_COLORS.BG.GRAY_MEDIUM;
@@ -114,8 +113,8 @@ const StatusIndicator = styled.div<{ $status: boolean | null }>`
   font-size: 0.75rem;
   font-weight: 600;
   color: ${({ $status }) => {
-		if ($status === null) return 'V9_COLORS.TEXT.GRAY_MEDIUM';
-		return $status ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK';
+		if ($status === null) return '#6b7280';
+		return $status ? '#059669' : '#dc2626';
 	}};
 `;
 
@@ -134,15 +133,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   border: none;
-  background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
-  color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
+  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
   font-size: 0.875rem;
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
   }
 
   &:disabled {
@@ -455,9 +454,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 										)}
 									</StatusIndicator>
 								) : (
-									<span style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.75rem' }}>
-										N/A
-									</span>
+									<span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>N/A</span>
 								)}
 							</StatusCell>
 						</TableRow>
@@ -466,10 +463,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					{!requiresRedirectUri && (
 						<TableRow $isEven={false}>
 							<TableCell>Redirect URI</TableCell>
-							<TableCell
-								colSpan={2}
-								style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontStyle: 'italic' }}
-							>
+							<TableCell colSpan={2} style={{ color: '#9ca3af', fontStyle: 'italic' }}>
 								Not used for {getFlowDisplayName()}
 							</TableCell>
 						</TableRow>
@@ -514,9 +508,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 										)}
 									</StatusIndicator>
 								) : (
-									<span style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.75rem' }}>
-										N/A
-									</span>
+									<span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>N/A</span>
 								)}
 							</StatusCell>
 						</TableRow>
@@ -525,10 +517,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					{!requiresLogoutUri && (
 						<TableRow $isEven={true}>
 							<TableCell>Post-Logout Redirect URI</TableCell>
-							<TableCell
-								colSpan={2}
-								style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontStyle: 'italic' }}
-							>
+							<TableCell colSpan={2} style={{ color: '#9ca3af', fontStyle: 'italic' }}>
 								Not used for {getFlowDisplayName()}
 							</TableCell>
 						</TableRow>
@@ -552,7 +541,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 							margin: 0,
 							fontSize: '1rem',
 							fontWeight: 600,
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						All V7 Flow URIs Reference
@@ -561,7 +550,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 						style={{
 							margin: '0.25rem 0 0 0',
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 						}}
 					>
 						Complete list of redirect and logout URIs for all V7 flows
@@ -570,7 +559,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 						style={{
 							margin: '0.25rem 0 0 0',
 							fontSize: '0.75rem',
-							color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+							color: '#9ca3af',
 							fontStyle: 'italic',
 						}}
 					>
@@ -615,7 +604,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 								<TableCell style={{ textAlign: 'center' }}>
 									<FiInfo
 										size={14}
-										style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', cursor: 'help' }}
+										style={{ color: '#9ca3af', cursor: 'help' }}
 										title={`${flowInfo.note} ${flowInfo.logoutNote}`}
 									/>
 								</TableCell>

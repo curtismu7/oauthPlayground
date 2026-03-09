@@ -1,4 +1,3 @@
-
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -14,11 +13,7 @@ const StepContainer = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
   border: 2px solid ${({ $isActive, $isCompleted }) =>
 		$isActive ? '#007bff' : $isCompleted ? '#28a745' : '#dee2e6'};
   background-color: ${({ $isActive, $isCompleted }) =>
-		$isActive
-			? 'rgba(0, 123, 255, 0.05)'
-			: $isCompleted
-				? 'rgba(40, 167, 69, 0.05)'
-				: 'V9_COLORS.TEXT.WHITE'};
+		$isActive ? 'rgba(0, 123, 255, 0.05)' : $isCompleted ? 'rgba(40, 167, 69, 0.05)' : '#ffffff'};
   transition: all 0.3s ease;
 `;
 

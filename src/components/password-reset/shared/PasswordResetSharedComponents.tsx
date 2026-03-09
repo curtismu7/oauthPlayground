@@ -31,7 +31,7 @@ export const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		return '#3B82F6';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
+		if (props.$type === 'success') return '#10b981';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
 	}};

@@ -95,7 +95,11 @@ class UINotificationServiceV8 {
 	showSuccess(message: string, options?: NotificationOptions): void {
 		this.log('toast', 'success', message);
 		console.log(`${MODULE_TAG} ✅ Success:`, message);
-		modernMessaging.showFooterMessage({ type: 'info', message, duration: options?.duration ?? 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message,
+			duration: options?.duration ?? 3000,
+		});
 	}
 
 	/**

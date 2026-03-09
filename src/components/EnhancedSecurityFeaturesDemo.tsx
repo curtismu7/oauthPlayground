@@ -1,6 +1,5 @@
 // src/components/EnhancedSecurityFeaturesDemo.tsx
 
-
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -204,16 +203,16 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		if (props.$active) {
 			switch (props.$tabType) {
 				case 'config':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK'; // Dark blue
+					return '#2563eb'; // Dark blue
 				case 'demo':
 					return '#047857'; // Dark green
 				case 'analysis':
 					return '#be185d'; // Dark pink
 				default:
-					return 'V9_COLORS.PRIMARY.BLUE';
+					return '#3b82f6';
 			}
 		}
-		return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+		return '#6b7280';
 	}};
 	font-weight: ${(props) => (props.$active ? '600' : '500')};
 	cursor: pointer;
@@ -221,13 +220,13 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		if (props.$active) {
 			switch (props.$tabType) {
 				case 'config':
-					return 'V9_COLORS.PRIMARY.BLUE'; // Blue border
+					return '#3b82f6'; // Blue border
 				case 'demo':
-					return 'V9_COLORS.PRIMARY.GREEN'; // Green border
+					return '#10b981'; // Green border
 				case 'analysis':
 					return '#ec4899'; // Pink border
 				default:
-					return 'V9_COLORS.PRIMARY.BLUE';
+					return '#3b82f6';
 			}
 		}
 		return 'transparent';
@@ -249,9 +248,9 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 						return 'white';
 				}
 			}
-			return 'V9_COLORS.BG.GRAY_LIGHT';
+			return '#f8fafc';
 		}};
-		color: ${(props) => (props.$active ? props.color : 'V9_COLORS.TEXT.GRAY_DARK')};
+		color: ${(props) => (props.$active ? props.color : '#1f2937')};
 		transform: ${(props) => (props.$active ? 'translateY(-1px)' : 'none')};
 		box-shadow: ${(props) => (props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)')};
 	}
@@ -286,11 +285,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	// Color scheme mapping
 	const getColors = (scheme: string) => {
 		const colorMap = {
-			blue: { primary: 'V9_COLORS.PRIMARY.BLUE', secondary: 'V9_COLORS.PRIMARY.BLUE_DARK' },
-			green: { primary: 'V9_COLORS.PRIMARY.GREEN', secondary: '#047857' },
+			blue: { primary: '#3b82f6', secondary: '#2563eb' },
+			green: { primary: '#10b981', secondary: '#047857' },
 			purple: { primary: '#8b5cf6', secondary: '#6d28d9' },
-			orange: { primary: 'V9_COLORS.PRIMARY.YELLOW', secondary: 'V9_COLORS.PRIMARY.YELLOW_DARK' },
-			red: { primary: 'V9_COLORS.PRIMARY.RED', secondary: 'V9_COLORS.PRIMARY.RED_DARK' },
+			orange: { primary: '#f59e0b', secondary: '#d97706' },
+			red: { primary: '#ef4444', secondary: '#dc2626' },
 		};
 		return colorMap[scheme as keyof typeof colorMap] || colorMap.blue;
 	};
@@ -706,7 +705,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						onClick={() => setShowLogoutUrl(!showLogoutUrl)}
 						$variant="primary"
 						style={{
-							background: 'V9_COLORS.PRIMARY.BLUE',
+							background: '#3b82f6',
 							color: 'white',
 							border: '1px solid V9_COLORS.PRIMARY.BLUE',
 						}}
@@ -720,19 +719,17 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						<InfoBox
 							style={{
 								marginTop: '1rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderColor: '#cbd5e1',
 							}}
 						>
-							<InfoTitle style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-								🌐 Logout Request URL
-							</InfoTitle>
+							<InfoTitle style={{ color: '#6b7280' }}>🌐 Logout Request URL</InfoTitle>
 							<CodeBlock $isVisible={true}>
 								{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 							</CodeBlock>
 							<InfoText
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									fontSize: '0.85rem',
 									marginTop: '0.5rem',
 								}}
@@ -945,7 +942,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 									style={{
 										marginLeft: '0.5rem',
 										fontSize: '0.75rem',
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										padding: '0.125rem 0.375rem',
 										borderRadius: '0.25rem',

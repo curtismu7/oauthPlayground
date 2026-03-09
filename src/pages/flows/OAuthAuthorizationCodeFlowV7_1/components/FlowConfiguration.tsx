@@ -1,14 +1,13 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowConfiguration.tsx
 // V7.1 Flow Configuration - Configuration section for credentials and settings
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
-import { logger } from '../../../../utils/logger';
 
 interface FlowConfigurationProps {
 	credentials: FlowCredentials;

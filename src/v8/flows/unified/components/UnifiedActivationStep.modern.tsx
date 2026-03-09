@@ -1,7 +1,7 @@
 /**
  * @file UnifiedActivationStep.modern.tsx
  * @module v8/flows/unified/components
- * @description MODERNIZED Step 3: Device Activation - Design system UI, 0 raw <button> elements
+ * @description MODERNIZED Step 3: Device Activation - Design system UI, 0 raw <button type="button"> elements
  * @version 9.2.0
  * @since 2026-01-29
  *
@@ -15,14 +15,6 @@
  * - All logic (handlers, effects, resend cooldown) preserved unchanged
  */
 
-import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { Button } from '@/v8/components/Button';
-import { PageTransition } from '@/v8/components/PageTransition';
-import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
-import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
-import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import {
 	FiAlertCircle,
 	FiArrowLeft,
@@ -31,6 +23,14 @@ import {
 	FiRefreshCw,
 	FiSmartphone,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { Button } from '@/v8/components/Button';
+import { PageTransition } from '@/v8/components/PageTransition';
+import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
+import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
+import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-MODERN]';
@@ -88,8 +88,12 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 				window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 				document.documentElement.scrollTop = 0;
 				document.body.scrollTop = 0;
-				document.querySelector('.step-header')?.scrollIntoView({ behavior: 'instant', block: 'start' });
-				document.querySelector('.unified-activation-step')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+				document
+					.querySelector('.step-header')
+					?.scrollIntoView({ behavior: 'instant', block: 'start' });
+				document
+					.querySelector('.unified-activation-step')
+					?.scrollIntoView({ behavior: 'instant', block: 'start' });
 				document.querySelectorAll('[style*="overflow"]').forEach((el) => {
 					if (el instanceof HTMLElement) el.scrollTop = 0;
 				});
@@ -138,7 +142,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 			const activationResult = result as Record<string, unknown>;
 			if (!result || activationResult.error) {
 				throw new Error(
-					String(activationResult.error || activationResult.message || 'Device activation failed'),
+					String(activationResult.error || activationResult.message || 'Device activation failed')
 				);
 			}
 
@@ -195,7 +199,12 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 		} catch (error: unknown) {
 			const msg = error instanceof Error ? error.message : 'Failed to resend verification code';
 			setOtpError(msg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: msg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: msg,
+				dismissible: true,
+			});
 			setCanResend(true);
 			setResendCooldown(0);
 		} finally {
@@ -558,7 +567,13 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 					>
 						{config.icon} Activate {config.displayName}
 					</h2>
-					<p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)', fontSize: typography.fontSize.sm }}>
+					<p
+						style={{
+							margin: 0,
+							color: 'rgba(255, 255, 255, 0.9)',
+							fontSize: typography.fontSize.sm,
+						}}
+					>
 						Complete the activation process.
 					</p>
 				</div>
@@ -593,7 +608,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 								leftIcon={<FiRefreshCw size={14} />}
 								onClick={() => {
 									window.dispatchEvent(
-										new CustomEvent('showWorkerTokenModal', { detail: { reason: 'token_invalid' } }),
+										new CustomEvent('showWorkerTokenModal', { detail: { reason: 'token_invalid' } })
 									);
 								}}
 							>

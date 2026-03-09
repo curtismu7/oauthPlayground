@@ -11,8 +11,8 @@ import { Icon } from '../../components/Icon/Icon';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { logger } from '../../utils/logger';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -214,8 +214,8 @@ const ResultCard = styled.div<{ success: boolean }>`
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
-  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
@@ -227,7 +227,7 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3<{ success: boolean }>`
   margin: 0;
-  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
@@ -253,11 +253,11 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 			case 'authorization_code':
 				return '#dbeafe';
 			case 'implicit':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'hybrid':
 				return '#fce7f3';
 			case 'device_code':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'client_credentials':
 				return '#f3f4f6';
 			default:
@@ -267,17 +267,17 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
   color: ${(props) => {
 		switch (props.flowtype) {
 			case 'authorization_code':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'implicit':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'hybrid':
 				return '#be185d';
 			case 'device_code':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'client_credentials':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   padding: 0.25rem 0.5rem;
@@ -1045,7 +1045,7 @@ const AllFlowsApiTest: React.FC = () => {
 								<Label>
 									Environment ID:
 									{config.environmentId && hasWorkerToken && (
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 											✓ Auto-populated from worker token
 										</span>
 									)}
@@ -1057,7 +1057,7 @@ const AllFlowsApiTest: React.FC = () => {
 									placeholder="e.g. f9d1e21a-54dc-4b3d-990e-fa36191730d4"
 									style={{
 										backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
-										borderColor: config.environmentId && hasWorkerToken ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#e5e7eb',
 									}}
 								/>
 							</FormGroup>
@@ -1066,7 +1066,7 @@ const AllFlowsApiTest: React.FC = () => {
 								<Label>
 									Client ID:
 									{config.clientId && selectedAppId && (
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 											✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 										</span>
 									)}
@@ -1078,7 +1078,7 @@ const AllFlowsApiTest: React.FC = () => {
 									placeholder="e.g. a1b2c3d4..."
 									style={{
 										backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
-										borderColor: config.clientId && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										borderColor: config.clientId && selectedAppId ? '#10b981' : '#e5e7eb',
 									}}
 								/>
 							</FormGroup>
@@ -1093,7 +1093,7 @@ const AllFlowsApiTest: React.FC = () => {
 										Client Secret:
 										{config.clientSecret && selectedAppId && (
 											<span
-												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}
+												style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}
 											>
 												✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 											</span>
@@ -1106,7 +1106,7 @@ const AllFlowsApiTest: React.FC = () => {
 										placeholder="Required for confidential clients"
 										style={{
 											backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
-											borderColor: config.clientSecret && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+											borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#e5e7eb',
 										}}
 									/>
 								</FormGroup>
@@ -1189,7 +1189,7 @@ const AllFlowsApiTest: React.FC = () => {
 										/>
 										Use PKCE
 									</Label>
-									<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+									<span style={{ fontSize: '0.8rem', color: '#1f2937' }}>
 										{config.flowType === 'implicit'
 											? 'Not used in implicit flow'
 											: config.flowType === 'client_credentials'
@@ -1348,7 +1348,7 @@ const AllFlowsApiTest: React.FC = () => {
 					))}
 
 					{results.length === 0 && (
-						<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_DARK', padding: '2rem' }}>
+						<div style={{ textAlign: 'center', color: '#1f2937', padding: '2rem' }}>
 							No test results yet. Configure your settings and run the tests.
 						</div>
 					)}

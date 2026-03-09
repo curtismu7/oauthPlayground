@@ -6,24 +6,19 @@ import styled, { keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheck': 'mdi-check',
-		'FiCopy': 'mdi-content-copy',
+		FiCheck: 'mdi-check',
+		FiCopy: 'mdi-content-copy',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 export interface CopyButtonProps {
