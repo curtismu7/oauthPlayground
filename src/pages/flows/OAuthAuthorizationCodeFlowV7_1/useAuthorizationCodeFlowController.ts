@@ -58,7 +58,6 @@ import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
-import { logger } from '../../utils/logger';
 type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 
 export interface AuthorizationCodeFlowControllerOptions {

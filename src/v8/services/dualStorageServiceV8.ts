@@ -1,5 +1,5 @@
 // src/v8/services/dualStorageServiceV8.ts
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 /**
  * Dual Storage Service V8
  *

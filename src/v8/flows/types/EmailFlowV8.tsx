@@ -22,6 +22,7 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
+import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -31,7 +32,6 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-import { logger } from '../../utils/logger';
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
 	loadingDevices: boolean;

@@ -46,10 +46,10 @@ import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
+import { logger } from '../../utils/logger';
 import { MFAFlowComponentFactory } from './factories/MFAFlowComponentFactory';
 import type { DeviceType } from './shared/MFATypes';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 

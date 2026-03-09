@@ -15,7 +15,8 @@ import {
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { isPopoutWindow, openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
 

@@ -8,7 +8,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';
 
 interface CreatePolicyModalV8Props {

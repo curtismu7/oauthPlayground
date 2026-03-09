@@ -21,9 +21,9 @@
  */
 
 import { FIDO2Service } from '@/services/fido2Service';
+import { logger } from '../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-import { logger } from '../utils/logger';
 // Utility function to convert ArrayBuffer to base64
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);

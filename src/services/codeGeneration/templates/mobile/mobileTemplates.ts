@@ -275,7 +275,7 @@ export const MFAVerification = ({ userId, deviceId, accessToken, onSuccess }: an
 import React, { useState } from 'react';
 import { View, TextInput, Button, Picker, Alert } from 'react-native';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 export const DeviceRegistration = ({ userId, accessToken, onSuccess }: any) => {
   const [type, setType] = useState('SMS');
   const [phone, setPhone] = useState('');

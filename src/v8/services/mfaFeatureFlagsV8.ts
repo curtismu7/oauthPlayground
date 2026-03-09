@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file mfaFeatureFlagsV8.ts
  * @module v8/services
  * @description Simple feature flag service for MFA consolidation migration

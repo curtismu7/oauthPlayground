@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file mfaRedirectUriServiceV8.ts
  * @module v8/services
  * @description Centralized service for MFA redirect URIs using flow mapping
@@ -440,9 +440,7 @@ export const MFARedirectUriServiceV8 = {
 			// Log migration to persistent storage
 			PersistentLogger.logMigration(credentials.redirectUri, correctUri, flowType);
 
-			logger.warn(
-				`${MODULE_TAG} Migrating old redirect URI to: ${correctUri} (flow: ${flowType})`
-			);
+			logger.warn(`${MODULE_TAG} Migrating old redirect URI to: ${correctUri} (flow: ${flowType})`);
 
 			return {
 				...credentials,

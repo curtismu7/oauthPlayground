@@ -19,10 +19,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
+import { logger } from '../../../../utils/logger';
 import type { Device } from '../../components/MFADeviceSelector';
 import type { DeviceAuthenticationPolicy } from '../../shared/MFATypes';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useMFAAuthentication]';
 
 export interface AuthenticationState {

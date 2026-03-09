@@ -15,7 +15,8 @@
 import type { DeviceFlowConfig, ValidationResult } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFACredentials } from '@/v8/flows/shared/MFATypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[✅ UNIFIED-FLOW-VALIDATION]';
 
 // ============================================================================

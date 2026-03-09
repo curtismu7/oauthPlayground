@@ -12,7 +12,7 @@
  *
  * @example
  * import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  *
  * // Show/hide the display
  * apiDisplayServiceV8.show();

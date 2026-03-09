@@ -15,9 +15,9 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
+import { logger } from '../../utils/logger';
 import { ScopeFixServiceV8 } from './scopeFixServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 CLIENT-CREDENTIALS-V8]';
 
 export type ClientAuthMethod =

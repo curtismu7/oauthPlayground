@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
+
 type MessageBoxType = 'success' | 'warning' | 'error' | 'info';
 
 interface MessageBoxProps {

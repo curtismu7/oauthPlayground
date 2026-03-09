@@ -5,7 +5,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
 import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Collapsible components
 const CollapsibleSection = styled.div`
 	margin-bottom: 1.5rem;

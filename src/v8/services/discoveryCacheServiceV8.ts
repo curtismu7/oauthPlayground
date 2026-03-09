@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file discoveryCacheServiceV8.ts
  * @module v8/services
  * @description Caching service for OIDC discovery documents

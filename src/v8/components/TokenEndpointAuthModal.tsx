@@ -9,7 +9,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 TOKEN-AUTH-MODAL-V8]';
 
 interface TokenEndpointAuthModalProps {
@@ -263,8 +264,8 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 	}, [isOpen, onClose]);
 
 	return (
-		<Overlay 
-			$isOpen={isOpen} 
+		<Overlay
+			$isOpen={isOpen}
 			onClick={onClose}
 			aria-hidden="true"
 			onKeyDown={(e) => {
@@ -273,7 +274,7 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 				}
 			}}
 		>
-			<ModalContainer 
+			<ModalContainer
 				onClick={(e) => e.stopPropagation()}
 				role="dialog"
 				aria-modal="true"

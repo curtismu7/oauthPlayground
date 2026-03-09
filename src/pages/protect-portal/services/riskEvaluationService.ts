@@ -23,7 +23,6 @@ import type {
 } from '../types/protectPortal.types';
 import { PingOneSignalsService } from './pingOneSignalsService';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
 
 // ============================================================================

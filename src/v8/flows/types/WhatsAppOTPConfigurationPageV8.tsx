@@ -33,10 +33,10 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { logger } from '../../../utils/logger';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📲 WHATSAPP-OTP-CONFIG-V8]';
 
 export const WhatsAppOTPConfigurationPageV8: React.FC = () => {

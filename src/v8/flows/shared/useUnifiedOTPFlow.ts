@@ -16,11 +16,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { logger } from '../../../utils/logger';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import type { MFACredentials } from './MFATypes';
-
-import { logger } from '../../utils/logger';
 export type UnifiedOTPDeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP';
 
 export type DeviceSelectionState = {

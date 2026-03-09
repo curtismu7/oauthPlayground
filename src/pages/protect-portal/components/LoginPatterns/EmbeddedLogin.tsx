@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS - Real Banking Website Design
 // ============================================================================

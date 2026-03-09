@@ -12,7 +12,6 @@
 import type { RiskThresholds } from '../../pages/protect-portal/types/protectPortal.types';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 // ============================================================================
 // DEFAULT RISK POLICIES
 // ============================================================================

@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔍 MFA-CALLBACK-DEBUG]';
 
 interface DebugInfo {

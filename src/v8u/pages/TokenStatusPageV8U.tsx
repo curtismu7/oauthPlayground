@@ -31,7 +31,7 @@ import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Token monitoring interfaces
 
 // Styled components

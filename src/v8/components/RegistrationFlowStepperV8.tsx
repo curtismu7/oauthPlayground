@@ -32,11 +32,11 @@ import type {
 } from '@/v8/flows/shared/MFATypes';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📝 REGISTRATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-registration-flow-v8';

@@ -25,7 +25,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { areRequiredFieldsValid, validateDeviceFields } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceFlowConfig, ValidationResult } from '@/v8/config/deviceFlowConfigTypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🪝 USE-DYNAMIC-FORM-VALIDATION]';
 
 /**

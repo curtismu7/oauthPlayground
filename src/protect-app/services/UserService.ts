@@ -1,6 +1,5 @@
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 /**
  * @file UserService.ts
  * @module protect-app/services

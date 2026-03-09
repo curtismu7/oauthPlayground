@@ -11,7 +11,7 @@
 
 import type { PortalError } from '../types/protectPortal.types';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // INTERFACES
 // ============================================================================

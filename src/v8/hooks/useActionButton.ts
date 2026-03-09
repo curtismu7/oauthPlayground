@@ -8,7 +8,7 @@
 import { useCallback, useState } from 'react';
 import { useFlowState } from '../contexts/FlowStateContext';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface UseActionButtonResult {
 	isLoading: boolean;
 	disabled: boolean;

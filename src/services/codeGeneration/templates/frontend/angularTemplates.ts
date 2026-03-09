@@ -606,7 +606,7 @@ export class DeviceRegistrationService {
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 @Component({
   selector: 'app-device-registration',
   template: \`

@@ -14,11 +14,11 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { logger } from '../utils/logger';
 import {
 	EnhancedCredentialsServiceV8,
 	type UserInteractionData,
 } from '../services/enhancedCredentialsServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📊 CREDENTIALS-TRACKING]';
 

@@ -34,7 +34,7 @@ import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U
 
 import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 const {
 	Container,
 	ContentWrapper,

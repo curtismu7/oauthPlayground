@@ -9,7 +9,7 @@
 import { FiCheckCircle } from '@icons';
 import React from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 
 interface UserInfoSuccessModalV8UProps {

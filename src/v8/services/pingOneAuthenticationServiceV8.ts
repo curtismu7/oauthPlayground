@@ -12,7 +12,8 @@
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 PINGONE-AUTH-V8]';
 
 export interface PingOneAuthResult {

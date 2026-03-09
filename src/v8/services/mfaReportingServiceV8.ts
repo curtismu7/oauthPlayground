@@ -16,9 +16,9 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { logger } from '../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[📊 MFA-REPORTING-V8]';
 
 export interface ReportParams {

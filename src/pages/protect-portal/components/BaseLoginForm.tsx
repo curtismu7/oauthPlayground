@@ -21,7 +21,7 @@ import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
 // ============================================================================

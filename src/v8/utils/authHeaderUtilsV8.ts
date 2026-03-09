@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file authHeaderUtilsV8.ts
  * @module v8/utils
  * @description Centralized authorization header utilities for consistent token handling

@@ -13,7 +13,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { showGlobalInfo } from '../../contexts/NotificationSystem';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface UserInfo {
 	sub?: string;
 	username?: string;

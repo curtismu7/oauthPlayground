@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file workerTokenStatusServiceV8.ts
  * @module v8/services
  * @description Worker token status checking and formatting for V8

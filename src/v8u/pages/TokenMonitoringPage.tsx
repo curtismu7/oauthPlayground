@@ -5,7 +5,7 @@ import TokenDisplayService from '../../services/tokenDisplayService';
 import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	type RevocationMethod,
 	type TokenInfo,

@@ -12,7 +12,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📚 RESOURCES-API-V8]';
 
 // Styled Components

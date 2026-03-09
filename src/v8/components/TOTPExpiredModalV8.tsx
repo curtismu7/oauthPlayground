@@ -210,10 +210,10 @@ export const TOTPExpiredModalV8: React.FC<TOTPExpiredModalV8Props> = ({
 	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
 
 	return (
-		<ModalOverlay 
+		<ModalOverlay
 			aria-hidden="true"
-			role="presentation" 
-			onClick={onClose} 
+			role="presentation"
+			onClick={onClose}
 			$hasPosition={hasPosition}
 			onKeyDown={(e) => {
 				if (e.key === 'Escape') {

@@ -10,7 +10,8 @@ import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
 

@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file oauthStateUtilsV8.ts
  * @module v8/utils
  * @description Shared OAuth state parameter validation utilities

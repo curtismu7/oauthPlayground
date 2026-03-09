@@ -8,7 +8,7 @@ import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Test Configuration for MFA flows
 interface MFATestConfig {
 	environmentId: string;

@@ -476,7 +476,7 @@ const verifyCode = async () => {
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * MFA Device Registration Component
  */

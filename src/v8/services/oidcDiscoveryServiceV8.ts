@@ -17,6 +17,8 @@
  * }
  */
 
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📡 OIDC-DISCOVERY-V8]';
 
 export interface DiscoveryResult {
@@ -189,7 +191,6 @@ Original error: ${errorMessage}`;
 			if (typeof window !== 'undefined') {
 				try {
 					const { cacheDiscoveryDocument } = await import('./discoveryCacheServiceV8');
-import { logger } from '../utils/logger';
 					await cacheDiscoveryDocument(normalized, discoveryData, environmentId);
 				} catch (error) {
 					logger.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document (non-critical)`, {

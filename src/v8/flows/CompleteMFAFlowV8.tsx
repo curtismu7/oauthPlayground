@@ -29,7 +29,8 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
 	clientId: string;

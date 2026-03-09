@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file backendConnectivityServiceV8.ts
  * @module v8/services
  * @description Service to monitor backend connectivity and show graceful error modal

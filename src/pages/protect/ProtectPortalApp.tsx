@@ -29,7 +29,7 @@ import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Import types and config
 import type {
 	LoginContext,

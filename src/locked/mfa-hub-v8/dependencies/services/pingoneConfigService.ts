@@ -1,5 +1,5 @@
 // src/services/pingoneConfigService.ts
-import { logger } from '../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 export interface PingOneConfig {
 	environmentId: string;

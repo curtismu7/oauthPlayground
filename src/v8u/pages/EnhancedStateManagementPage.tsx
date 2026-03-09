@@ -4,7 +4,7 @@ import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/St
 import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const PageContainer = styled.div`
   padding: 2rem;
   max-width: 1200px;

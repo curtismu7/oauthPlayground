@@ -22,7 +22,8 @@
 import React from 'react';
 import { StepProgressBarProps } from '@/v8/types/stepNavigation';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📊 STEP-PROGRESS-V8]';
 
 /**

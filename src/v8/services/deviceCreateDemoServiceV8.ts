@@ -7,7 +7,8 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import pingOneFetch from '@/utils/pingOneFetch';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🧪 DEVICE-CREATE-DEMO-V8]';
 
 export interface DeviceCreateDemoRequest {

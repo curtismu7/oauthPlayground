@@ -20,11 +20,10 @@ import {
 	type UnifiedMFASuccessPageData,
 	UnifiedMFASuccessPageV8,
 } from '@/v8/services/unifiedMFASuccessPageServiceV8';
+import { logger } from '../../../utils/logger';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from './MFATypes';
-
-import { logger } from '../../utils/logger';
 export interface MFASuccessPageData {
 	deviceId: string;
 	deviceType: DeviceType;

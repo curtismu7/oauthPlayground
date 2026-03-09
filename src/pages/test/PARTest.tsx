@@ -8,7 +8,6 @@ import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 // PAR Test Configuration
 interface PARTestConfig {
 	environmentId: string;

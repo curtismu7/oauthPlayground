@@ -19,11 +19,11 @@
  */
 
 import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
+import { logger } from '../../../utils/logger';
 import { workerTokenServiceV8 } from '../workerTokenServiceV8';
 import type { TokenStatusInfo } from '../workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '../workerTokenStatusServiceV8';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 TOKEN-GATEWAY-V8]';
 
 // ============================================================================

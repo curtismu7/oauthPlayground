@@ -8,9 +8,9 @@
 import { FiBook, FiCode, FiCopy, FiExternalLink } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📚 API-DOCS-STEP-V8]';
 
 // Styled Components

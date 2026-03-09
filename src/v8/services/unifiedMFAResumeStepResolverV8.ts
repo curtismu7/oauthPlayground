@@ -19,7 +19,8 @@
 
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔄 UNIFIED-MFA-STEP-RESOLVER-V8]';
 const RESOLVER_VERSION = '1.0.0';
 

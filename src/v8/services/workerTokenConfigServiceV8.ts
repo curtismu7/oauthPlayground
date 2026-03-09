@@ -9,9 +9,9 @@
  * Eliminates code duplication and ensures consistent behavior across the entire application
  */
 
+import { logger } from '../../utils/logger';
 import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[⚙️ WORKER-TOKEN-CONFIG-V8]';
 
 export interface WorkerTokenConfig {

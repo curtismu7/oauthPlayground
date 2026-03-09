@@ -19,7 +19,8 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';
 
 export interface HybridFlowCredentials {

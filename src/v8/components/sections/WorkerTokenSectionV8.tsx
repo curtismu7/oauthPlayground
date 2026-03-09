@@ -17,7 +17,7 @@ import React, { useState } from 'react';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import type { UseWorkerTokenReturn } from '@/v8/hooks/useWorkerToken';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 export interface WorkerTokenSectionProps {
 	/** Worker token hook return value */
 	workerToken: UseWorkerTokenReturn;

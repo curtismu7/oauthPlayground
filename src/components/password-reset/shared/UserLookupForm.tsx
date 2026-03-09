@@ -13,7 +13,7 @@ import {
 } from './PasswordResetSharedComponents';
 import { type PingOneUser, useUserLookup } from './useUserLookup';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 interface UserLookupFormProps {
 	environmentId: string;
 	workerToken: string;

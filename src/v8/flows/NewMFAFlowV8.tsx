@@ -10,6 +10,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '../services/workerTokenStatusServiceV8';
+import { logger } from '../../utils/logger';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';
@@ -20,7 +21,6 @@ import { UserLoginStepV8 } from './shared/UserLoginStepV8';
 import { UnifiedActivationStep } from './unified/components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './unified/components/UnifiedDeviceRegistrationForm';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🎯 NEW-MFA-FLOW-V8]';
 
 interface NewMFAFlowV8Props {

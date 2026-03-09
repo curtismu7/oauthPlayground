@@ -1749,7 +1749,7 @@ import React, { useState } from "react";
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { FiRefreshCw } from '@icons';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 function TokenExchangeComponent() {
   const [exchangeState, setExchangeState] = useState({
     subjectToken: "",

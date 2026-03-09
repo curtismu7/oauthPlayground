@@ -11,7 +11,8 @@
 
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔑 WORKER-TOKEN-CACHE-V8]';
 
 interface CachedWorkerToken {

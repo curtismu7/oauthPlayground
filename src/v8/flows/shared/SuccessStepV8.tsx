@@ -7,9 +7,9 @@
 
 import { FiCpu, FiShield } from '@icons';
 import React from 'react';
+import { logger } from '../../../utils/logger';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';
 
 interface SuccessStepV8Props {

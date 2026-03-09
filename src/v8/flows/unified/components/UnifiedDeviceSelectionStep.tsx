@@ -29,7 +29,8 @@ import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedErrorHandlerV8 } from '@/v8/utils/unifiedErrorHandlerV8';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔍 UNIFIED-DEVICE-SELECTION-STEP]';
 
 // ============================================================================

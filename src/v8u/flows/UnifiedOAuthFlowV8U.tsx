@@ -61,7 +61,7 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,

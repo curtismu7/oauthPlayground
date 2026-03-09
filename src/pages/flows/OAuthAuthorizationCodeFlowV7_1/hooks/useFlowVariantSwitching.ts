@@ -7,7 +7,6 @@ import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 
-import { logger } from '../../../utils/logger';
 // Mock services - these would be imported from actual services in real implementation
 const FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {

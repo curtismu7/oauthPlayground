@@ -16,10 +16,10 @@ import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
+import { logger } from '../../../utils/logger';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType } from './MFATypes';
 
-import { logger } from '../../utils/logger';
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
 	deviceTypeLabel: string;

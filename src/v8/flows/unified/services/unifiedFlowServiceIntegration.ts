@@ -11,7 +11,7 @@ import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService
 import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * Unified Flow Service Integration
  *

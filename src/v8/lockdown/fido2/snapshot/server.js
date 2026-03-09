@@ -15,6 +15,7 @@ import express from 'express';
 import fetch from 'node-fetch';
 
 import { logger } from '../../../utils/logger';
+
 dotenv.config();
 
 // Setup file logging
@@ -1684,10 +1685,7 @@ app.post('/api/token-exchange', async (req, res) => {
 					}
 				}
 			} catch (error) {
-				logger.warn(
-					'⚠️ [Server] Failed to parse ID token for password state check:',
-					error.message
-				);
+				logger.warn('⚠️ [Server] Failed to parse ID token for password state check:', error.message);
 			}
 		}
 
@@ -3687,10 +3685,10 @@ res.json(data);
 } catch (error)
 {
 	logger.error('[Device Authorization] Server error:', error);
-	res.status(500).json({
-		error: 'server_error',
-		error_description: 'Internal server error during device authorization',
-	});
+res.status(500).json({
+	error: 'server_error',
+	error_description: 'Internal server error during device authorization',
+});
 }
 })
 
@@ -16066,7 +16064,8 @@ app.post('/api/pingone/email-mfa-signon/create-signon-policy', async (req, res) 
 )
 
 // Step 6: Create Email MFA Sign-On Policy Action
-app.post('/api/pingone/email-mfa-signon/create-email-mfa-action', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-email-mfa-action', async (req, res) =>
+{
 	try {
 		const { environmentId, signOnPolicyId, workerToken, priority, configuration } = req.body;
 
@@ -16109,7 +16108,8 @@ app.post('/api/pingone/email-mfa-signon/create-email-mfa-action', async (req, re
 		logger.error('[📧 EMAIL-MFA-SIGNON] Error creating Email MFA action:', error);
 		res.status(500).json({ error: 'Failed to create Email MFA action', message: error.message });
 	}
-});
+}
+)
 
 // Step 7: Assign Sign-On Policy to Application
 app.post('/api/pingone/email-mfa-signon/assign-signon-policy', async (req, res) => {

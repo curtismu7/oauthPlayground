@@ -21,7 +21,7 @@ import type {
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

@@ -21,7 +21,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import {
 	type CibaAuthRequest,
 	type CibaCredentials,
@@ -31,6 +30,7 @@ import {
 	type CibaStatus,
 	type CibaTokens,
 } from '@/v8/services/cibaServiceV8Enhanced';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8-ENHANCED]';
 

@@ -33,7 +33,7 @@ import { useRedirectURIRouting } from '@/v8/services/redirectURIRoutingServiceV8
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,

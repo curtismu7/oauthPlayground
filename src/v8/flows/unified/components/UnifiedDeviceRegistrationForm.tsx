@@ -23,9 +23,9 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
+import { logger } from '../../../../utils/logger';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
-import { logger } from '../../../utils/logger';
 import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';

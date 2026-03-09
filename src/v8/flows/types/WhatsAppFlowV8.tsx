@@ -26,6 +26,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -35,7 +36,6 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📲 WHATSAPP-MFA]';
 
 // Device Selection Step Component (identical to SMS, but for WhatsApp)

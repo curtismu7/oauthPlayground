@@ -10,10 +10,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
 import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 SMS-DEVICE-SELECTION-V8]';
 
 export type DeviceSelectionState = {

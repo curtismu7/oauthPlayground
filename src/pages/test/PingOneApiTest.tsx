@@ -10,7 +10,6 @@ import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenServ
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
-import { logger } from '../utils/logger';
 // Test Configuration Interface
 interface TestConfig {
 	environmentId: string;

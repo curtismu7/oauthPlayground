@@ -21,7 +21,7 @@
 
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import type {
 	DeviceConfigKey,
 	DeviceFlowConfig,

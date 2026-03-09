@@ -9,12 +9,12 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { logger } from '../utils/logger';
 import {
 	SQLiteStatsServiceV8,
 	type SQLiteSyncMetadata,
 	type SQLiteUserStats,
 } from '@/v8/services/sqliteStatsServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔄 USE-SQLITE-STATS]';
 

@@ -13,7 +13,8 @@ import React, { useEffect, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 interface Device {
 	id: string;
 	type: 'SMS' | 'EMAIL' | 'TOTP' | 'VOICE' | 'FIDO2' | 'MOBILE' | 'WHATSAPP';

@@ -14,7 +14,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🌍 COUNTRY-CODE-PICKER-V8]';
 
 interface Country {

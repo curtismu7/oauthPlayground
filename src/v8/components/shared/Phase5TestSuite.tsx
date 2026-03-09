@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../../utils/logger';
 import { ComponentTestSuiteV8 } from './ComponentTestSuiteV8';
 import { FlowProgressTrackerV8 } from './FlowProgressTrackerV8';
 import { ComponentPreloader, LazyLoadWrapperV8 } from './LazyLoadWrapperV8';
 
-import { logger } from '../../utils/logger';
 // Test component for lazy loading
 const TestComponent: React.FC<{ message: string; delay?: number }> = ({
 	message,

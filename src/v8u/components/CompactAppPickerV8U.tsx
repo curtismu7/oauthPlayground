@@ -14,7 +14,7 @@ import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {

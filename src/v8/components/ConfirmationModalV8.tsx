@@ -16,11 +16,11 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { logger } from '../utils/logger';
 import {
 	type ConfirmOptions,
 	uiNotificationServiceV8,
 } from '@/v8/services/uiNotificationServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[✅ CONFIRMATION-MODAL-V8]';
 

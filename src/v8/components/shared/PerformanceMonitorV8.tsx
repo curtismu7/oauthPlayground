@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
+
 interface PerformanceMetrics {
 	componentLoadTime: number;
 	memoryUsage: number;

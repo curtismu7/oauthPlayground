@@ -26,7 +26,7 @@ import { ImplicitFlowV9Helpers } from '../../../services/implicitFlowSharedServi
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // Get UI components
 const { Container, ContentWrapper } = FlowUIService.getFlowUIComponents();
 

@@ -25,7 +25,8 @@ import type { DeviceType } from '@/v8/flows/shared/MFATypes';
 import type { MFAFeatureFlag, RolloutPercentage } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 /**
  * Map device types to their corresponding feature flags
  */

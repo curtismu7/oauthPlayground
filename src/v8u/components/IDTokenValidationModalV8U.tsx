@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 
 export interface IDTokenValidationModalV8UProps {

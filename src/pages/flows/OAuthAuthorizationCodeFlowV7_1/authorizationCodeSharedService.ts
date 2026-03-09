@@ -15,7 +15,6 @@ import type { PingOneApplicationState } from '../components/PingOneApplicationCo
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { validateForStep } from './credentialsValidationService';
 
-import { logger } from '../../utils/logger';
 export type AuthzFlowVariant = 'oauth' | 'oidc';
 
 /**

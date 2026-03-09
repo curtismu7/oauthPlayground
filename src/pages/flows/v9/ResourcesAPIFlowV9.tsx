@@ -18,7 +18,6 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import { logger } from '../../../utils/logger';
 
-import { logger } from '../../utils/logger';
 const messagingService = V9ModernMessagingService.getInstance();
 
 // Styled Components
