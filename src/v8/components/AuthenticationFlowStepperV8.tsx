@@ -112,26 +112,60 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 	// State management
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
-		const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+		// Default credentials for initialization
+		return {
 			flowKey: FLOW_KEY,
 			flowType: 'oauth',
-			includeClientSecret: true,
-			includeRedirectUri: true,
-			includeLogoutUri: false,
-			includeScopes: true,
-		});
-		return {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
 			redirectUri: '',
 			logoutUri: '',
 			scopes: [],
-			tokenType: 'user',
+			username: '',
+			deviceType: 'MOBILE' as const,
+			countryCode: '',
+			phoneNumber: '',
 			userToken: '',
-			...saved,
+			email: '',
+			deviceName: '',
 		};
 	});
+
+	// Load credentials asynchronously
+	useEffect(() => {
+		CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+			flowKey: FLOW_KEY,
+			flowType: 'oauth',
+			includeClientSecret: true,
+			includeRedirectUri: true,
+			includeLogoutUri: false,
+			includeScopes: true,
+		}).then(saved => {
+			if (saved) {
+				// Cast V8Credentials to MFACredentials with defaults
+				setCredentials({
+					flowKey: FLOW_KEY,
+					flowType: 'oauth',
+					environmentId: saved.environmentId || '',
+					clientId: saved.clientId || '',
+					clientSecret: saved.clientSecret || '',
+					redirectUri: saved.redirectUri || '',
+					logoutUri: saved.logoutUri || '',
+					scopes: saved.scopes || [],
+					username: '',
+					deviceType: 'MOBILE' as const,
+					countryCode: '',
+					phoneNumber: '',
+					userToken: '',
+					email: '',
+					deviceName: '',
+				});
+			}
+		}).catch(error => {
+			console.error('Error loading credentials:', error);
+		});
+	}, []);
 
 	const [mfaState, setMfaState] = useState<MFAState>({
 		isLoading: false,
