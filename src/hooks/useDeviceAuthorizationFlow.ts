@@ -290,7 +290,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				});
 
 				// Enhanced error logging for Device Authorization Grant setup
-				console.group('🔧 Device Authorization Grant Setup Issues');
+				logger.info('useDeviceAuthorizationFlow', '[Device Authorization Grant Setup Issues]');
 				logger.error(
 					'useDeviceAuthorizationFlow',
 					'Common causes of 400 errors in device code requests'
@@ -308,7 +308,6 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					environment_id: credentials.environmentId,
 					scopes: credentials.scopes,
 				});
-				console.groupEnd();
 
 				throw new Error(
 					errorData.error_description || errorData.message || `Request failed: ${response.status}`
@@ -594,7 +593,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				logger.error('useDeviceAuthorizationFlow', `Unknown error during polling`, data.error);
 
 				// Enhanced error logging for 400 Bad Request
-				console.group('🔧 Device Authorization Error Response - Troubleshooting Guide');
+				logger.info('useDeviceAuthorizationFlow', '[Device Authorization Error Response - Troubleshooting Guide]');
 				logger.error('useDeviceAuthorizationFlow', 'Error Response', data);
 				logger.info('Response Status:', response.status, response.statusText);
 				logger.info('Request Details:', {
@@ -619,7 +618,6 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					'4. Incorrect grant_type - should be "urn:ietf:params:oauth:grant-type:device_code"'
 				, "Logger info");
 				logger.info('5. Application not configured for Device Authorization Grant', "Logger info");
-				console.groupEnd();
 
 				setPollingStatus((prev) => ({
 					...prev,
@@ -644,7 +642,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			);
 
 			// Enhanced error logging for debugging
-			console.group('🔧 Device Authorization Token Exchange Error - Troubleshooting Guide');
+			logger.info('useDeviceAuthorizationFlow', '[Device Authorization Token Exchange Error - Troubleshooting Guide]');
 			logger.error('useDeviceAuthorizationFlow', 'Original Error', undefined, error as Error);
 			logger.info('Request Details:', {
 				url: tokenEndpoint,
@@ -661,7 +659,6 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				environmentId: credentials.environmentId,
 				scopes: credentials.scopes,
 			});
-			console.groupEnd();
 
 			setPollingStatus((prev) => ({
 				...prev,
