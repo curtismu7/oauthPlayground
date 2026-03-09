@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file authHeaderUtilsV8.ts
  * @module v8/utils
  * @description Centralized authorization header utilities for consistent token handling
@@ -9,6 +8,7 @@ import { logger } from '../../utils/logger';
  * Ensures consistent format across all API calls.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 AUTH-HEADER-UTILS-V8]';
 
 /**
