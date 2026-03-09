@@ -12,7 +12,7 @@
  * This ensures credentials persist even if browser storage is cleared.
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { FileStorageUtil } from '../../utils/fileStorageUtil.ts';
 
 const MODULE_TAG = '[💾 DUAL-STORAGE-V8]';

@@ -8,7 +8,7 @@
 
 import { FiSearch } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8.tsx';
 import { AppDiscoveryServiceV8 } from '../../v8/services/appDiscoveryServiceV8.ts';
 import { workerTokenServiceV8 } from '../../v8/services/workerTokenServiceV8.ts';

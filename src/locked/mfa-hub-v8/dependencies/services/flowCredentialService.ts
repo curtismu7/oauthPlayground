@@ -2,7 +2,7 @@
 // Unified Credential Service for OAuth/OIDC Flows
 // Provides consistent credential loading, saving, and synchronization across all flows
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import type { AllCredentials } from '../utils/credentialManager';

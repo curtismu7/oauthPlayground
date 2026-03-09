@@ -17,7 +17,7 @@
  * const tokens = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(credentials, code, codeVerifier);
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 
 const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';

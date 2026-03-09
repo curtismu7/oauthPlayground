@@ -8,7 +8,7 @@
 // Collection version - update this when making breaking changes or major updates
 export const COLLECTION_VERSION = '9.0.0';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import type { FlowType } from '../v8/services/specVersionServiceV8.ts';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
 export interface PostmanCollectionItem {

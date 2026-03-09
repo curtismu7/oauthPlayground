@@ -59,7 +59,7 @@ import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV
 import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
 const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';

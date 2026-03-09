@@ -29,7 +29,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';

@@ -4,7 +4,7 @@
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 export interface CopyButtonProps {
 	text: string;
 	label?: string;

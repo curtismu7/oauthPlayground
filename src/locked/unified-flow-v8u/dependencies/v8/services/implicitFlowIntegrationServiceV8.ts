@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file implicitFlowIntegrationServiceV8.ts
  * @module v8/services
  * @description Real OAuth Implicit Flow integration with PingOne APIs

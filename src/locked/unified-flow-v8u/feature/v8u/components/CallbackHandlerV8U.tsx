@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { sendAnalyticsLog } from '../../../dependencies/v8/utils/analyticsLoggerV8.ts';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
@@ -39,21 +39,6 @@ export const CallbackHandlerV8U: React.FC = () => {
 		});
 
 		if (isUserLoginCallback) {
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'CallbackHandlerV8U.tsx:39',
-				message: 'User login callback detected',
-				data: {
-					currentPath: window.location.pathname,
-					currentSearch: window.location.search,
-					currentHref: window.location.href,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'E',
-			});
-			// #endregion
 
 			logger.info(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
 			logger.info(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
@@ -68,17 +53,6 @@ export const CallbackHandlerV8U: React.FC = () => {
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'CallbackHandlerV8U.tsx:51',
-				message: 'Checking for return path in sessionStorage',
-				data: { returnToMfaFlow, hasReturnPath: !!returnToMfaFlow, allSessionKeys: allKeys },
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'B',
-			});
-			// #endregion
 
 			logger.info(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
 			logger.info(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
@@ -126,17 +100,6 @@ export const CallbackHandlerV8U: React.FC = () => {
 						`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`
 					);
 
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'CallbackHandlerV8U.tsx:93',
-						message: 'About to execute redirect to MFA flow',
-						data: { mfaPath, redirectUrl, redirectPath, callbackParams: window.location.search },
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run2',
-						hypothesisId: 'B',
-					});
-					// #endregion
 
 					// CRITICAL: Do NOT remove user_login_return_to_mfa here - let the target page clean it up
 					// This ensures if the redirect fails or there's a race condition, the path is still available
@@ -146,33 +109,11 @@ export const CallbackHandlerV8U: React.FC = () => {
 					// Store redirect intent in sessionStorage as a backup in case redirect fails
 					sessionStorage.setItem('mfa_redirect_intent', redirectUrl);
 
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'CallbackHandlerV8U.tsx:110',
-						message: 'Executing window.location.replace',
-						data: { redirectUrl },
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run2',
-						hypothesisId: 'B',
-					});
-					// #endregion
 
 					window.location.replace(redirectUrl);
 
 					// This code should never execute due to navigation, but adding as safety check
 					setTimeout(() => {
-						// #region agent log
-						sendAnalyticsLog({
-							location: 'CallbackHandlerV8U.tsx:120',
-							message: 'WARNING: window.location.replace did not navigate away',
-							data: { currentUrl: window.location.href, expectedRedirect: redirectUrl },
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run2',
-							hypothesisId: 'B',
-						});
-						// #endregion
 						logger.error(
 							`${MODULE_TAG} ❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`
 						);

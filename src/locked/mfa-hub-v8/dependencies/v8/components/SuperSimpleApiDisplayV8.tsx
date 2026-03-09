@@ -17,7 +17,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useServerHealth } from '@/hooks/useServerHealth';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { apiDisplayServiceV8 } from '../services/apiDisplayServiceV8.ts';
 

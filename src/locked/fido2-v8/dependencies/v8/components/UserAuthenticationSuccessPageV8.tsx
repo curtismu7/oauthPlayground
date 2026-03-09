@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 export interface UserInfo {
 	sub?: string;
 	username?: string;

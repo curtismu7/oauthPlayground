@@ -40,7 +40,8 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 	};
 
 	return (
-		<div
+		<button
+			type="button"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -52,8 +53,16 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 				alignItems: 'center',
 				justifyContent: 'center',
 				zIndex: 1000,
+				border: 'none',
+				cursor: 'pointer',
 			}}
 			onClick={handleClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					handleClose();
+				}
+			}}
+			aria-label="Close modal"
 		>
 			<div
 				style={{
@@ -66,6 +75,10 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 					overflow: 'hidden',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="otp-modal-title"
 			>
 				{/* Header with Logo */}
 				<div
@@ -103,6 +116,7 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
+						id="otp-modal-title"
 						style={{
 							margin: '0',
 							fontSize: '22px',
@@ -265,6 +279,6 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 					</div>
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 };
