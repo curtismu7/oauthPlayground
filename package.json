@@ -63,6 +63,7 @@
 		"ai:security": "node scripts/ai/code-analyzer.mjs --security-only",
 		"ai:performance": "node scripts/ai/code-analyzer.mjs --performance-only",
 		"test": "vitest",
+		"test:watch": "vitest --watch",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
 		"test:coverage": "vitest run --coverage",

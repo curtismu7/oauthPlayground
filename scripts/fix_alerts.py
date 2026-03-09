@@ -69,9 +69,6 @@ def relative_import_path(file_path: Path) -> str:
 
 def should_skip(path: Path) -> bool:
     parts = path.parts
-    for skip in {"locked", "lockdown"}:
-        if skip in parts:
-            return True
     name = path.name
     if ".test." in name or ".spec." in name:
         return True
