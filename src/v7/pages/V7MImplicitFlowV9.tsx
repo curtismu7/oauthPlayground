@@ -17,6 +17,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { showGlobalError } from '../../contexts/NotificationSystem';
 
 type Props = {
 	oidc?: boolean;
@@ -87,7 +88,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 		};
 		const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
 		if (res.type === 'error') {
-			alert(`${res.error}: ${res.error_description ?? ''}`);
+			showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			return;
 		}
 		setAuthorizationUrl(res.url);

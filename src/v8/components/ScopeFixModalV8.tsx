@@ -83,6 +83,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 
 	return (
 		<div
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -101,11 +102,17 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 					onClose();
 				}
 			}}
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="scope-fix-title"
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="scope-fix-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					background: 'white',
 					borderRadius: '12px',

@@ -11,6 +11,7 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { showGlobalError } from '../contexts/NotificationSystem';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { logger } from '../utils/logger';
 
@@ -64,7 +65,7 @@ export const PasskeyManager: React.FC = () => {
 				console.log('[Passkey Manager] Using worker token from unified service');
 			} catch (error) {
 				logger.error('PasskeyManager', 'Failed to load worker token:', undefined, error as Error);
-				alert(
+				showGlobalError(
 					`Failed to load worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
 				);
 			} finally {
