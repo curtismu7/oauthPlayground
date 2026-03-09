@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -8,13 +7,13 @@ const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border-radius: 0.5rem;
@@ -46,13 +45,13 @@ const ErrorIcon = styled.div<{ $severity: string }>`
   color: ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -64,13 +63,13 @@ const ErrorTitle = styled.h3<{ $severity: string }>`
   color: ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -175,13 +174,13 @@ const CategoryBadge = styled.span<{ $category: string }>`
 			case 'configuration':
 				return '#dbeafe';
 			case 'authentication':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'authorization':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'network':
 				return '#e0e7ff';
 			case 'validation':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			default:
 				return '#f3f4f6';
 		}
@@ -189,17 +188,17 @@ const CategoryBadge = styled.span<{ $category: string }>`
   color: ${({ $category }) => {
 		switch ($category) {
 			case 'configuration':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'authentication':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorization':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'network':
 				return '#3730a3';
 			case 'validation':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   border-radius: 0.25rem;
@@ -270,8 +269,8 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 					<CopyButton
 						onClick={onRetry}
 						style={{
-							background: 'V9_COLORS.PRIMARY.GREEN',
-							borderColor: 'V9_COLORS.PRIMARY.GREEN',
+							background: '#10b981',
+							borderColor: '#10b981',
 						}}
 					>
 						<span>🔗</span>
@@ -283,9 +282,9 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 					<ToggleButton
 						onClick={onDismiss}
 						style={{
-							background: 'V9_COLORS.PRIMARY.RED',
+							background: '#ef4444',
 							color: 'white',
-							borderColor: 'V9_COLORS.PRIMARY.RED',
+							borderColor: '#ef4444',
 						}}
 					>
 						Dismiss

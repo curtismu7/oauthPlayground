@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
@@ -40,10 +39,10 @@ const VersionText = styled.span`
 `;
 
 const APP_COLORS = {
-	app: 'V9_COLORS.PRIMARY.BLUE', // Blue
+	app: '#3b82f6', // Blue
 	mfa: '#8b5cf6', // Purple
-	unified: 'V9_COLORS.PRIMARY.GREEN', // Green
-	protect: 'V9_COLORS.PRIMARY.YELLOW', // Amber
+	unified: '#10b981', // Green
+	protect: '#f59e0b', // Amber
 };
 
 const APP_LABELS = {

@@ -1,7 +1,7 @@
 // src/components/AIAgentDeviceFlow.tsx
 // AI Agent Style Device Authorization Flow Interface
 
-
+import { FiActivity, FiCpu } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,9 +10,7 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiActivity, FiCpu } from '@icons';
 
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`

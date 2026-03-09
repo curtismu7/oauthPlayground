@@ -26,12 +26,12 @@ const BadgeContainer = styled.span<{ $color: string; $bgColor: string }>`
 
 const BADGE_STYLES = {
 	v8: {
-		color: 'V9_COLORS.PRIMARY.BLUE',
+		color: '#3b82f6',
 		bgColor: 'rgba(59, 130, 246, 0.9)',
 		defaultLabel: 'V8',
 	},
 	v8u: {
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		bgColor: 'rgba(16, 185, 129, 0.9)',
 		defaultLabel: 'V8U',
 	},
@@ -41,17 +41,17 @@ const BADGE_STYLES = {
 		defaultLabel: 'V7',
 	},
 	v6: {
-		color: 'V9_COLORS.PRIMARY.YELLOW',
+		color: '#f59e0b',
 		bgColor: 'rgba(245, 158, 11, 0.9)',
 		defaultLabel: 'V6',
 	},
 	production: {
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		bgColor: 'rgba(34, 197, 94, 0.9)',
 		defaultLabel: 'PROD',
 	},
 	legacy: {
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		bgColor: 'rgba(107, 114, 128, 0.9)',
 		defaultLabel: 'LEGACY',
 	},

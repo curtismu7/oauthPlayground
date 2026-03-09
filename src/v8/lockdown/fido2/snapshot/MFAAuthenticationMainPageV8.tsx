@@ -18,7 +18,7 @@
  * - Dashboard features (device list, policy summary)
  */
 
-
+import { FiAlertCircle, FiCheck, FiKey, FiLoader, FiMail, FiPhone, FiShield } from '@icons';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -60,7 +60,6 @@ import {
 	MFAOTPInputModal,
 	MFAPushConfirmationModal,
 } from './components/modals';
-import { FiAlertCircle, FiCheck, FiLoader, FiShield } from '@icons';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';

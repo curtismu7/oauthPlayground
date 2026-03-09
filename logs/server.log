@@ -27496,3 +27496,862 @@
 [2026-03-08T11:58:38.650Z] [03/08/2026, 06:58:38] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
 [2026-03-08T11:58:38.651Z] [03/08/2026, 06:58:38] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
 [2026-03-08T11:58:38.651Z] [03/08/2026, 06:58:38] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T12:20:58.248Z] [03/08/2026, 07:20:58] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:20:58.251Z] [03/08/2026, 07:20:58] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:21:17.993Z] [03/08/2026, 07:21:17] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:21:17.996Z] [03/08/2026, 07:21:17] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:22:24.159Z] [03/08/2026, 07:22:24] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:22:24.208Z] [03/08/2026, 07:22:24] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:22:24.308Z] [03/08/2026, 07:22:24] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:22:24.319Z] [03/08/2026, 07:22:24] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:24:42.887Z] [03/08/2026, 07:24:42] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:24:42.889Z] [03/08/2026, 07:24:42] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:15.305Z] [03/08/2026, 07:26:15] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:15.313Z] [03/08/2026, 07:26:15] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-08T12:26:15.315Z] [03/08/2026, 07:26:15] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:15.319Z] [03/08/2026, 07:26:15] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:15.390Z] [03/08/2026, 07:26:15] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)
+[2026-03-08T12:26:25.455Z] [03/08/2026, 07:26:25] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:25.467Z] [03/08/2026, 07:26:25] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:25.468Z] [03/08/2026, 07:26:25] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:25.490Z] [03/08/2026, 07:26:25] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-08T12:26:25.520Z] [03/08/2026, 07:26:25] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)
+[2026-03-08T12:26:34.594Z] [03/08/2026, 07:26:34] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:34.604Z] [03/08/2026, 07:26:34] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:34.607Z] [03/08/2026, 07:26:34] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:34.621Z] [03/08/2026, 07:26:34] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-08T12:26:34.691Z] [03/08/2026, 07:26:34] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)
+[2026-03-08T12:26:41.129Z] [03/08/2026, 07:26:41] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:41.136Z] [03/08/2026, 07:26:41] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:41.137Z] [03/08/2026, 07:26:41] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:26:41.181Z] [03/08/2026, 07:26:41] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-08T12:26:41.211Z] [03/08/2026, 07:26:41] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)
+[2026-03-08T12:27:31.487Z] [03/08/2026, 07:27:31] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth2.0-oauth-authz-v8u_V8 oauth2.0-oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:27:31.523Z] [03/08/2026, 07:27:31] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:27:31.546Z] [03/08/2026, 07:27:31] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-08T12:27:31.618Z] [03/08/2026, 07:27:31] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-08T12:27:31.644Z] [03/08/2026, 07:27:31] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)
+[2026-03-08T12:28:50.103Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T12:28:50.090Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T12:28:50.104Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T12:28:50.104Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T12:28:50.104Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T12:28:50.104Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T12:28:50.106Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T12:28:50.107Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T12:28:50.111Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-08T12:28:50.135Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T12:28:50.135Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T12:28:50.135Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T12:28:50.135Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T12:28:50.135Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T12:28:50.136Z] [03/08/2026, 07:28:50] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T12:28:50.136Z] [03/08/2026, 07:28:50] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T12:28:50.138Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T12:28:50.138Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T12:28:50.139Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T12:28:50.139Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T12:28:50.139Z] [03/08/2026, 07:28:50] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:08:28.827Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] Request received: {
+  "hasEnvironmentId": true,
+  "hasAccessToken": true,
+  "hasIdentifier": true,
+  "environmentIdType": "string",
+  "accessTokenType": "string",
+  "identifierType": "string",
+  "environmentIdValue": "curtis@mbbtx.com",
+  "accessTokenValue": "myfvi5-fyztoB-rympuh...",
+  "identifierValue": "curtis"
+}
+[2026-03-08T20:08:28.829Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] Identifier does not look like a UUID, skipping direct lookup and using SCIM filter search
+[2026-03-08T20:08:28.829Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 🔍 Attempting Management API SCIM filter searches for: curtis
+[2026-03-08T20:08:28.829Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 🔍 SCIM Filter (username): username eq "curtis"
+[2026-03-08T20:08:28.830Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 🌐 Full SCIM Query URL: https://api.pingone.com/v1/environments/curtis@mbbtx.com/users?filter=username%20eq%20%22curtis%22&limit=10
+[2026-03-08T20:08:28.829Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 📤 SCIM Filter URL-encoded: username%20eq%20%22curtis%22
+[2026-03-08T20:08:28.829Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] Will try 2 SCIM filter variations
+[2026-03-08T20:08:28.997Z] [03/08/2026, 15:08:28] [❌ ERROR] [PingOne User Lookup] Filter returned 401: {
+  "message": "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+}
+[2026-03-08T20:08:28.997Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 🔍 SCIM Filter (username): userName eq "curtis"
+[2026-03-08T20:08:28.998Z] [03/08/2026, 15:08:28] [ℹ️ LOG] [PingOne User Lookup] 📤 SCIM Filter URL-encoded: userName%20eq%20%22curtis%22
+[2026-03-08T20:08:29.000Z] [03/08/2026, 15:08:29] [ℹ️ LOG] [PingOne User Lookup] 🌐 Full SCIM Query URL: https://api.pingone.com/v1/environments/curtis@mbbtx.com/users?filter=userName%20eq%20%22curtis%22&limit=10
+[2026-03-08T20:08:29.106Z] [03/08/2026, 15:08:29] [❌ ERROR] [PingOne User Lookup] Filter returned 401: {
+  "message": "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+}
+[2026-03-08T20:08:29.108Z] [03/08/2026, 15:08:29] [ℹ️ LOG] [PingOne User Lookup] No user found for identifier: curtis
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] Request received: {
+  "hasEnvironmentId": true,
+  "hasAccessToken": true,
+  "hasIdentifier": true,
+  "environmentIdType": "string",
+  "accessTokenType": "string",
+  "identifierType": "string",
+  "environmentIdValue": "curtis@mbbtx.com",
+  "accessTokenValue": "myfvi5-fyztoB-rympuh...",
+  "identifierValue": "curtis7"
+}
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] Identifier does not look like a UUID, skipping direct lookup and using SCIM filter search
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 🔍 Attempting Management API SCIM filter searches for: curtis7
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] Will try 2 SCIM filter variations
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 🔍 SCIM Filter (username): username eq "curtis7"
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 📤 SCIM Filter URL-encoded: username%20eq%20%22curtis7%22
+[2026-03-08T20:08:38.210Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 🌐 Full SCIM Query URL: https://api.pingone.com/v1/environments/curtis@mbbtx.com/users?filter=username%20eq%20%22curtis7%22&limit=10
+[2026-03-08T20:08:38.290Z] [03/08/2026, 15:08:38] [❌ ERROR] [PingOne User Lookup] Filter returned 401: {
+  "message": "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+}
+[2026-03-08T20:08:38.290Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 🔍 SCIM Filter (username): userName eq "curtis7"
+[2026-03-08T20:08:38.290Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 🌐 Full SCIM Query URL: https://api.pingone.com/v1/environments/curtis@mbbtx.com/users?filter=userName%20eq%20%22curtis7%22&limit=10
+[2026-03-08T20:08:38.290Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] 📤 SCIM Filter URL-encoded: userName%20eq%20%22curtis7%22
+[2026-03-08T20:08:38.385Z] [03/08/2026, 15:08:38] [❌ ERROR] [PingOne User Lookup] Filter returned 401: {
+  "message": "User is not authorized to access this resource with an explicit deny in an identity-based policy"
+}
+[2026-03-08T20:08:38.386Z] [03/08/2026, 15:08:38] [ℹ️ LOG] [PingOne User Lookup] No user found for identifier: curtis7
+[2026-03-08T20:10:31.323Z] [03/08/2026, 15:10:31] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-08T20:10:32.492Z] [03/08/2026, 15:10:32] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-08T20:10:38.661Z] [03/08/2026, 15:10:38] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-08T20:20:43.597Z] [03/08/2026, 15:20:43] [ℹ️ LOG] [React Router] Serving index.html for route: /src/pages/Configuration.tsx
+[2026-03-08T20:24:41.099Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:24:41.114Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:24:41.114Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:24:41.114Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:24:41.114Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:24:41.114Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:24:41.117Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:24:41.119Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:24:41.123Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:24:41.149Z] [03/08/2026, 15:24:41] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:24:41.150Z] [03/08/2026, 15:24:41] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:24:41.152Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:24:41.152Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:24:41.152Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:24:41.152Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:24:41.152Z] [03/08/2026, 15:24:41] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:26:43.231Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:26:43.245Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:26:43.245Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:26:43.245Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:26:43.245Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:26:43.245Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:26:43.247Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:26:43.249Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:26:43.252Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:26:43.277Z] [03/08/2026, 15:26:43] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:26:43.278Z] [03/08/2026, 15:26:43] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:26:43.280Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:26:43.279Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:26:43.280Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:26:43.280Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:26:43.280Z] [03/08/2026, 15:26:43] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:27:17.118Z] [03/08/2026, 15:27:17] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-08T20:27:47.972Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:27:47.956Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:27:47.972Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:27:47.972Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:27:47.972Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:27:47.973Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:27:47.975Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:27:47.976Z] [03/08/2026, 15:27:47] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:27:47.979Z] [03/08/2026, 15:27:47] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:27:48.005Z] [03/08/2026, 15:27:48] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:27:48.006Z] [03/08/2026, 15:27:48] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:27:48.012Z] [03/08/2026, 15:27:48] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:27:48.012Z] [03/08/2026, 15:27:48] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:27:48.012Z] [03/08/2026, 15:27:48] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:27:48.013Z] [03/08/2026, 15:27:48] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:27:48.013Z] [03/08/2026, 15:27:48] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:28:43.667Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:28:43.685Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:28:43.685Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:28:43.686Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:28:43.686Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:28:43.685Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:28:43.688Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:28:43.689Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:28:43.693Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-08T20:28:43.718Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:28:43.719Z] [03/08/2026, 15:28:43] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:28:43.725Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:28:43.725Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:28:43.725Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:28:43.725Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:28:43.726Z] [03/08/2026, 15:28:43] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:42:02.881Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:42:02.860Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:42:02.881Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:42:02.881Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:42:02.881Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:42:02.881Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:42:02.884Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:42:02.886Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:42:02.891Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:42:02.919Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:42:02.920Z] [03/08/2026, 15:42:02] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:42:02.923Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:42:02.923Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:42:02.924Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:42:02.924Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:42:02.924Z] [03/08/2026, 15:42:02] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-08T20:42:24.921Z] [03/08/2026, 15:42:24] [ℹ️ LOG] [PingOne Environments API] Request received: /api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMDQ2NzJlN2QtZDA0YS00YmUxLThiODYtOTJhYzMxY2M1NDI3IiwiaWF0IjoxNzczMDAxNjM5LCJleHAiOjE3NzMwMDUyMzksImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwNDY3MmU3ZC1kMDRhLTRiZTEtOGI4Ni05MmFjMzFjYzU0MjcifQ.ry2EL0MM28tptNJG4upOKZ4TG5A5VJh9oHgk2Z6rPvWcwpbhmFt63VD150ckDKQpM8jg7GMzxCR-JCUFDGuJqU5bquM_gSnQ24V6vZGRmuFQ7B6gFi7gWnocHfMt6rapUJjptebxwjUPpg-mAXU1ZHCngV7na-V1QBY5uCeVgnMbwEHQjtwrbye7PopTK38eEWLtcBGlJhUbMT5z8A5jAz0oLs1JtPtEIGVMy6ARkG0_QJcTAE-YbGe6PuHvPFmqpAJuGAn2lzGGfMdI5mStlDkpUidk9qHCEYgP5OkRPw_q3KdegHoSJoMSfaAXO_56_b1aATHo5vyxHoJGC_YXbg&region=na
+[2026-03-08T20:42:24.922Z] [03/08/2026, 15:42:24] [ℹ️ LOG] [PingOne Environments API] Params: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+[2026-03-08T20:42:24.922Z] [03/08/2026, 15:42:24] [ℹ️ LOG] [PingOne Environments API] Fetching real environments data using worker token
+[2026-03-08T20:42:25.206Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Using organization: trial_ping_identity_1274825138 (97ba44f2-f7ee-4144-aa95-9e636b57c096)
+[2026-03-08T20:42:25.253Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Organization-based fetch failed, trying direct endpoint: Failed to fetch environments: 403
+[2026-03-08T20:42:25.718Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Fetched 48 environments from direct endpoint
+[2026-03-08T20:42:25.721Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 07a6e80b-8031-40a9-88ce-95e45daa8bb2: enabled = undefined undefined
+[2026-03-08T20:42:25.719Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 06a361f5-d7ff-458d-a98f-d154f9e2fe3e: enabled = undefined undefined
+[2026-03-08T20:42:25.720Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 06f2aeae-eca7-4113-9421-9c2bf896a35c: enabled = undefined undefined
+[2026-03-08T20:42:25.722Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 0d5e1878-25dd-4214-aad9-c7efe0e91ad1: enabled = undefined undefined
+[2026-03-08T20:42:25.726Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 1561379e-d0ba-4207-8d05-35239ae02a46: enabled = undefined undefined
+[2026-03-08T20:42:25.726Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 1ad1e971-bd7a-493a-a539-2cdae47757c5: enabled = undefined undefined
+[2026-03-08T20:42:25.726Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 132fdaf0-877b-481c-b213-abde68028a5f: enabled = undefined undefined
+[2026-03-08T20:42:25.727Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 3624c34e-5cc5-4c32-a0bc-bd2fc501dad5: enabled = undefined undefined
+[2026-03-08T20:42:25.726Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 1290ba1b-e3a1-4d8a-b1db-c794099ff749: enabled = undefined undefined
+[2026-03-08T20:42:25.728Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 424ef4fb-64ba-4ffe-b541-88a7ab5cd01f: enabled = undefined undefined
+[2026-03-08T20:42:25.728Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 4aa5b344-98fe-4f4f-9be1-507f72b3bcb0: enabled = undefined undefined
+[2026-03-08T20:42:25.728Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 5029f3de-30cc-439b-a559-6aee4c68ce4c: enabled = undefined undefined
+[2026-03-08T20:42:25.727Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 3666da1e-8898-4ebe-b147-a570982308eb: enabled = undefined undefined
+[2026-03-08T20:42:25.727Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 2ea03892-1074-4d64-8aec-eb65e1e83757: enabled = undefined undefined
+[2026-03-08T20:42:25.729Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 5523a6d5-9056-4f32-b5aa-198cfed35ce1: enabled = undefined undefined
+[2026-03-08T20:42:25.723Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 0eeb1ef2-c7c0-4c1a-9c73-f2fe7be2fbec: enabled = undefined undefined
+[2026-03-08T20:42:25.731Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 5667db6d-a88d-44b3-a2b1-c3df7e7d2c23: enabled = undefined undefined
+[2026-03-08T20:42:25.735Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 7853c888-ad7d-470c-add6-597397698767: enabled = undefined undefined
+[2026-03-08T20:42:25.735Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 80ee135e-9d4e-4084-8b96-c3131c04c432: enabled = undefined undefined
+[2026-03-08T20:42:25.735Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 862be276-16ff-47ea-a3e7-62f2aa753be8: enabled = undefined undefined
+[2026-03-08T20:42:25.734Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 6b95bf3d-386f-4d1a-9fe4-e6689d924567: enabled = undefined undefined
+[2026-03-08T20:42:25.734Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 65a19a87-4915-49ab-8752-c773695fc0c4: enabled = undefined undefined
+[2026-03-08T20:42:25.735Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 89065f6c-1a8f-43f5-9025-214a2b0364cd: enabled = undefined undefined
+[2026-03-08T20:42:25.734Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 5edeed19-b037-4208-90f4-3e2b7302b554: enabled = undefined undefined
+[2026-03-08T20:42:25.736Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 947ea3b0-67f8-4417-9c03-d5984a627dce: enabled = undefined undefined
+[2026-03-08T20:42:25.736Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 9d0a06c1-a175-4873-82eb-81032bc97644: enabled = undefined undefined
+[2026-03-08T20:42:25.736Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 9ae7d066-0d23-482b-9b8f-4b5e398acf18: enabled = undefined undefined
+[2026-03-08T20:42:25.737Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 9e2f2f0c-f9fa-46da-b6f0-7eda4d3ccca2: enabled = undefined undefined
+[2026-03-08T20:42:25.736Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 9a703f61-bb2d-4cce-97ae-8bb6949cb601: enabled = undefined undefined
+[2026-03-08T20:42:25.737Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment a5a778a8-0588-4cf0-b5b1-ee1bb18a7614: enabled = undefined undefined
+[2026-03-08T20:42:25.738Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment b07f9724-2499-4af4-8941-1345f9003acc: enabled = undefined undefined
+[2026-03-08T20:42:25.737Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment a8ba5c48-b7bb-46f4-8910-cdf71970c663: enabled = undefined undefined
+[2026-03-08T20:42:25.736Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 96b4d35d-08a2-40ce-8418-ea5b3290ad0f: enabled = undefined undefined
+[2026-03-08T20:42:25.738Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment a9af1291-a300-482c-8864-9e335a8f5121: enabled = undefined undefined
+[2026-03-08T20:42:25.734Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment 5e4b5c7b-636d-492e-ad93-f736f905c9cf: enabled = undefined undefined
+[2026-03-08T20:42:25.738Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment b7170c48-7537-473c-89e4-32feadd2f1e2: enabled = undefined undefined
+[2026-03-08T20:42:25.738Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment bfa153fe-c94c-446d-afdd-75dea0576c7a: enabled = undefined undefined
+[2026-03-08T20:42:25.739Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment c9026897-1d8e-4a38-8be5-19ee10e1b5b8: enabled = undefined undefined
+[2026-03-08T20:42:25.739Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment c2d596b2-bf37-4c94-aa23-887cdc0eeafe: enabled = undefined undefined
+[2026-03-08T20:42:25.739Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment d02d2305-f445-406d-82ee-7cdbf6eeabfd: enabled = undefined undefined
+[2026-03-08T20:42:25.739Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment d659f840-65fb-4c10-9390-d58c77628217: enabled = undefined undefined
+[2026-03-08T20:42:25.738Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment b9817c16-9910-4415-b67e-4ac687da74d9: enabled = undefined undefined
+[2026-03-08T20:42:25.740Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment e7cb9b8a-cc3e-48e5-a85c-fb76ee4f5a99: enabled = undefined undefined
+[2026-03-08T20:42:25.739Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment e2923c73-60ed-4273-a04a-90bda64ee794: enabled = undefined undefined
+[2026-03-08T20:42:25.740Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment f0459ecb-75fa-43a5-8d47-0ee9b3dbfa52: enabled = undefined undefined
+[2026-03-08T20:42:25.757Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Sample transformed environments: [
+  {
+    "id": "06a361f5-d7ff-458d-a98f-d154f9e2fe3e",
+    "name": "PingOne Delegated Administration",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "06f2aeae-eca7-4113-9421-9c2bf896a35c",
+    "name": "Testing",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "07a6e80b-8031-40a9-88ce-95e45daa8bb2",
+    "name": "New Passwordless",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  }
+]
+[2026-03-08T20:42:25.741Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment f91d3fea-9a7b-48c0-9f5d-aa048077cd98: enabled = undefined undefined
+[2026-03-08T20:42:25.742Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment fbc47d84-8685-4271-b2f9-bdd00f5db09f: enabled = undefined undefined
+[2026-03-08T20:42:25.751Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Transformed 48 environments
+[2026-03-08T20:42:25.740Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [DEBUG] Environment e3708053-4bf4-413f-8071-6a23d83086d4: enabled = undefined undefined
+[2026-03-08T20:42:25.761Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] All regions found: [
+  "NA"
+]
+[2026-03-08T20:42:25.785Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] ✅ Returning 12 of 48 environments
+[2026-03-08T20:42:25.764Z] [03/08/2026, 15:42:25] [ℹ️ LOG] [PingOne Environments API] Applying filters: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "initialCount": 48
+}
+[2026-03-08T20:42:27.856Z] [03/08/2026, 15:42:27] [ℹ️ LOG] [PingOne Environments API] Request received: /api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMDQ2NzJlN2QtZDA0YS00YmUxLThiODYtOTJhYzMxY2M1NDI3IiwiaWF0IjoxNzczMDAxNjM5LCJleHAiOjE3NzMwMDUyMzksImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwNDY3MmU3ZC1kMDRhLTRiZTEtOGI4Ni05MmFjMzFjYzU0MjcifQ.ry2EL0MM28tptNJG4upOKZ4TG5A5VJh9oHgk2Z6rPvWcwpbhmFt63VD150ckDKQpM8jg7GMzxCR-JCUFDGuJqU5bquM_gSnQ24V6vZGRmuFQ7B6gFi7gWnocHfMt6rapUJjptebxwjUPpg-mAXU1ZHCngV7na-V1QBY5uCeVgnMbwEHQjtwrbye7PopTK38eEWLtcBGlJhUbMT5z8A5jAz0oLs1JtPtEIGVMy6ARkG0_QJcTAE-YbGe6PuHvPFmqpAJuGAn2lzGGfMdI5mStlDkpUidk9qHCEYgP5OkRPw_q3KdegHoSJoMSfaAXO_56_b1aATHo5vyxHoJGC_YXbg&region=na
+[2026-03-08T20:42:27.856Z] [03/08/2026, 15:42:27] [ℹ️ LOG] [PingOne Environments API] Params: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+[2026-03-08T20:42:27.857Z] [03/08/2026, 15:42:27] [ℹ️ LOG] [PingOne Environments API] Fetching real environments data using worker token
+[2026-03-08T20:42:27.933Z] [03/08/2026, 15:42:27] [ℹ️ LOG] [PingOne Environments API] Using organization: trial_ping_identity_1274825138 (97ba44f2-f7ee-4144-aa95-9e636b57c096)
+[2026-03-08T20:42:27.974Z] [03/08/2026, 15:42:27] [ℹ️ LOG] [PingOne Environments API] Organization-based fetch failed, trying direct endpoint: Failed to fetch environments: 403
+[2026-03-08T20:42:28.454Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] Fetched 48 environments from direct endpoint
+[2026-03-08T20:42:28.455Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 07a6e80b-8031-40a9-88ce-95e45daa8bb2: enabled = undefined undefined
+[2026-03-08T20:42:28.455Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 06f2aeae-eca7-4113-9421-9c2bf896a35c: enabled = undefined undefined
+[2026-03-08T20:42:28.456Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 132fdaf0-877b-481c-b213-abde68028a5f: enabled = undefined undefined
+[2026-03-08T20:42:28.455Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 0d5e1878-25dd-4214-aad9-c7efe0e91ad1: enabled = undefined undefined
+[2026-03-08T20:42:28.456Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 1561379e-d0ba-4207-8d05-35239ae02a46: enabled = undefined undefined
+[2026-03-08T20:42:28.456Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 1ad1e971-bd7a-493a-a539-2cdae47757c5: enabled = undefined undefined
+[2026-03-08T20:42:28.457Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 2ea03892-1074-4d64-8aec-eb65e1e83757: enabled = undefined undefined
+[2026-03-08T20:42:28.457Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 3624c34e-5cc5-4c32-a0bc-bd2fc501dad5: enabled = undefined undefined
+[2026-03-08T20:42:28.459Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 3666da1e-8898-4ebe-b147-a570982308eb: enabled = undefined undefined
+[2026-03-08T20:42:28.461Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 424ef4fb-64ba-4ffe-b541-88a7ab5cd01f: enabled = undefined undefined
+[2026-03-08T20:42:28.461Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 4aa5b344-98fe-4f4f-9be1-507f72b3bcb0: enabled = undefined undefined
+[2026-03-08T20:42:28.455Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 0eeb1ef2-c7c0-4c1a-9c73-f2fe7be2fbec: enabled = undefined undefined
+[2026-03-08T20:42:28.462Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 5029f3de-30cc-439b-a559-6aee4c68ce4c: enabled = undefined undefined
+[2026-03-08T20:42:28.471Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 5523a6d5-9056-4f32-b5aa-198cfed35ce1: enabled = undefined undefined
+[2026-03-08T20:42:28.472Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 5667db6d-a88d-44b3-a2b1-c3df7e7d2c23: enabled = undefined undefined
+[2026-03-08T20:42:28.472Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 5e4b5c7b-636d-492e-ad93-f736f905c9cf: enabled = undefined undefined
+[2026-03-08T20:42:28.472Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 5edeed19-b037-4208-90f4-3e2b7302b554: enabled = undefined undefined
+[2026-03-08T20:42:28.474Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 6b95bf3d-386f-4d1a-9fe4-e6689d924567: enabled = undefined undefined
+[2026-03-08T20:42:28.456Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 1290ba1b-e3a1-4d8a-b1db-c794099ff749: enabled = undefined undefined
+[2026-03-08T20:42:28.455Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 06a361f5-d7ff-458d-a98f-d154f9e2fe3e: enabled = undefined undefined
+[2026-03-08T20:42:28.474Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 65a19a87-4915-49ab-8752-c773695fc0c4: enabled = undefined undefined
+[2026-03-08T20:42:28.475Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 7853c888-ad7d-470c-add6-597397698767: enabled = undefined undefined
+[2026-03-08T20:42:28.475Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 80ee135e-9d4e-4084-8b96-c3131c04c432: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 862be276-16ff-47ea-a3e7-62f2aa753be8: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 89065f6c-1a8f-43f5-9025-214a2b0364cd: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 947ea3b0-67f8-4417-9c03-d5984a627dce: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 96b4d35d-08a2-40ce-8418-ea5b3290ad0f: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 9a703f61-bb2d-4cce-97ae-8bb6949cb601: enabled = undefined undefined
+[2026-03-08T20:42:28.476Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 9ae7d066-0d23-482b-9b8f-4b5e398acf18: enabled = undefined undefined
+[2026-03-08T20:42:28.477Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 9d0a06c1-a175-4873-82eb-81032bc97644: enabled = undefined undefined
+[2026-03-08T20:42:28.477Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment 9e2f2f0c-f9fa-46da-b6f0-7eda4d3ccca2: enabled = undefined undefined
+[2026-03-08T20:42:28.477Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment a5a778a8-0588-4cf0-b5b1-ee1bb18a7614: enabled = undefined undefined
+[2026-03-08T20:42:28.477Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment a8ba5c48-b7bb-46f4-8910-cdf71970c663: enabled = undefined undefined
+[2026-03-08T20:42:28.478Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment a9af1291-a300-482c-8864-9e335a8f5121: enabled = undefined undefined
+[2026-03-08T20:42:28.478Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment b07f9724-2499-4af4-8941-1345f9003acc: enabled = undefined undefined
+[2026-03-08T20:42:28.479Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment b7170c48-7537-473c-89e4-32feadd2f1e2: enabled = undefined undefined
+[2026-03-08T20:42:28.479Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment b9817c16-9910-4415-b67e-4ac687da74d9: enabled = undefined undefined
+[2026-03-08T20:42:28.479Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment bfa153fe-c94c-446d-afdd-75dea0576c7a: enabled = undefined undefined
+[2026-03-08T20:42:28.479Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment c2d596b2-bf37-4c94-aa23-887cdc0eeafe: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment c9026897-1d8e-4a38-8be5-19ee10e1b5b8: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment d02d2305-f445-406d-82ee-7cdbf6eeabfd: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment d659f840-65fb-4c10-9390-d58c77628217: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment e3708053-4bf4-413f-8071-6a23d83086d4: enabled = undefined undefined
+[2026-03-08T20:42:28.481Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment f0459ecb-75fa-43a5-8d47-0ee9b3dbfa52: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment e7cb9b8a-cc3e-48e5-a85c-fb76ee4f5a99: enabled = undefined undefined
+[2026-03-08T20:42:28.481Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment fbc47d84-8685-4271-b2f9-bdd00f5db09f: enabled = undefined undefined
+[2026-03-08T20:42:28.480Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment e2923c73-60ed-4273-a04a-90bda64ee794: enabled = undefined undefined
+[2026-03-08T20:42:28.481Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [DEBUG] Environment f91d3fea-9a7b-48c0-9f5d-aa048077cd98: enabled = undefined undefined
+[2026-03-08T20:42:28.482Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] Sample transformed environments: [
+  {
+    "id": "06a361f5-d7ff-458d-a98f-d154f9e2fe3e",
+    "name": "PingOne Delegated Administration",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "06f2aeae-eca7-4113-9421-9c2bf896a35c",
+    "name": "Testing",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "07a6e80b-8031-40a9-88ce-95e45daa8bb2",
+    "name": "New Passwordless",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  }
+]
+[2026-03-08T20:42:28.482Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] All regions found: [
+  "NA"
+]
+[2026-03-08T20:42:28.482Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] Applying filters: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "initialCount": 48
+}
+[2026-03-08T20:42:28.483Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] ✅ Returning 12 of 48 environments
+[2026-03-08T20:42:28.481Z] [03/08/2026, 15:42:28] [ℹ️ LOG] [PingOne Environments API] Transformed 48 environments
+[2026-03-08T20:45:55.265Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Params: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+[2026-03-08T20:45:55.266Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Fetching real environments data using worker token
+[2026-03-08T20:45:55.264Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Request received: /api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMDQ2NzJlN2QtZDA0YS00YmUxLThiODYtOTJhYzMxY2M1NDI3IiwiaWF0IjoxNzczMDAxNjM5LCJleHAiOjE3NzMwMDUyMzksImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwNDY3MmU3ZC1kMDRhLTRiZTEtOGI4Ni05MmFjMzFjYzU0MjcifQ.ry2EL0MM28tptNJG4upOKZ4TG5A5VJh9oHgk2Z6rPvWcwpbhmFt63VD150ckDKQpM8jg7GMzxCR-JCUFDGuJqU5bquM_gSnQ24V6vZGRmuFQ7B6gFi7gWnocHfMt6rapUJjptebxwjUPpg-mAXU1ZHCngV7na-V1QBY5uCeVgnMbwEHQjtwrbye7PopTK38eEWLtcBGlJhUbMT5z8A5jAz0oLs1JtPtEIGVMy6ARkG0_QJcTAE-YbGe6PuHvPFmqpAJuGAn2lzGGfMdI5mStlDkpUidk9qHCEYgP5OkRPw_q3KdegHoSJoMSfaAXO_56_b1aATHo5vyxHoJGC_YXbg&region=na
+[2026-03-08T20:45:55.475Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Using organization: trial_ping_identity_1274825138 (97ba44f2-f7ee-4144-aa95-9e636b57c096)
+[2026-03-08T20:45:55.530Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Organization-based fetch failed, trying direct endpoint: Failed to fetch environments: 403
+[2026-03-08T20:45:55.794Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Fetched 48 environments from direct endpoint
+[2026-03-08T20:45:55.795Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 06a361f5-d7ff-458d-a98f-d154f9e2fe3e: enabled = undefined undefined
+[2026-03-08T20:45:55.796Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 06f2aeae-eca7-4113-9421-9c2bf896a35c: enabled = undefined undefined
+[2026-03-08T20:45:55.799Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 07a6e80b-8031-40a9-88ce-95e45daa8bb2: enabled = undefined undefined
+[2026-03-08T20:45:55.800Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 0eeb1ef2-c7c0-4c1a-9c73-f2fe7be2fbec: enabled = undefined undefined
+[2026-03-08T20:45:55.800Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 0d5e1878-25dd-4214-aad9-c7efe0e91ad1: enabled = undefined undefined
+[2026-03-08T20:45:55.800Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 1290ba1b-e3a1-4d8a-b1db-c794099ff749: enabled = undefined undefined
+[2026-03-08T20:45:55.801Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 132fdaf0-877b-481c-b213-abde68028a5f: enabled = undefined undefined
+[2026-03-08T20:45:55.802Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 1561379e-d0ba-4207-8d05-35239ae02a46: enabled = undefined undefined
+[2026-03-08T20:45:55.802Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 1ad1e971-bd7a-493a-a539-2cdae47757c5: enabled = undefined undefined
+[2026-03-08T20:45:55.803Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 2ea03892-1074-4d64-8aec-eb65e1e83757: enabled = undefined undefined
+[2026-03-08T20:45:55.803Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 3624c34e-5cc5-4c32-a0bc-bd2fc501dad5: enabled = undefined undefined
+[2026-03-08T20:45:55.803Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 3666da1e-8898-4ebe-b147-a570982308eb: enabled = undefined undefined
+[2026-03-08T20:45:55.804Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 424ef4fb-64ba-4ffe-b541-88a7ab5cd01f: enabled = undefined undefined
+[2026-03-08T20:45:55.804Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 4aa5b344-98fe-4f4f-9be1-507f72b3bcb0: enabled = undefined undefined
+[2026-03-08T20:45:55.804Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 5029f3de-30cc-439b-a559-6aee4c68ce4c: enabled = undefined undefined
+[2026-03-08T20:45:55.804Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 5667db6d-a88d-44b3-a2b1-c3df7e7d2c23: enabled = undefined undefined
+[2026-03-08T20:45:55.805Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 5e4b5c7b-636d-492e-ad93-f736f905c9cf: enabled = undefined undefined
+[2026-03-08T20:45:55.805Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 5edeed19-b037-4208-90f4-3e2b7302b554: enabled = undefined undefined
+[2026-03-08T20:45:55.805Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 65a19a87-4915-49ab-8752-c773695fc0c4: enabled = undefined undefined
+[2026-03-08T20:45:55.807Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 7853c888-ad7d-470c-add6-597397698767: enabled = undefined undefined
+[2026-03-08T20:45:55.804Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 5523a6d5-9056-4f32-b5aa-198cfed35ce1: enabled = undefined undefined
+[2026-03-08T20:45:55.808Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 862be276-16ff-47ea-a3e7-62f2aa753be8: enabled = undefined undefined
+[2026-03-08T20:45:55.808Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 80ee135e-9d4e-4084-8b96-c3131c04c432: enabled = undefined undefined
+[2026-03-08T20:45:55.807Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 6b95bf3d-386f-4d1a-9fe4-e6689d924567: enabled = undefined undefined
+[2026-03-08T20:45:55.808Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 89065f6c-1a8f-43f5-9025-214a2b0364cd: enabled = undefined undefined
+[2026-03-08T20:45:55.809Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 96b4d35d-08a2-40ce-8418-ea5b3290ad0f: enabled = undefined undefined
+[2026-03-08T20:45:55.810Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 9a703f61-bb2d-4cce-97ae-8bb6949cb601: enabled = undefined undefined
+[2026-03-08T20:45:55.813Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 9ae7d066-0d23-482b-9b8f-4b5e398acf18: enabled = undefined undefined
+[2026-03-08T20:45:55.813Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 9d0a06c1-a175-4873-82eb-81032bc97644: enabled = undefined undefined
+[2026-03-08T20:45:55.813Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 9e2f2f0c-f9fa-46da-b6f0-7eda4d3ccca2: enabled = undefined undefined
+[2026-03-08T20:45:55.813Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment a5a778a8-0588-4cf0-b5b1-ee1bb18a7614: enabled = undefined undefined
+[2026-03-08T20:45:55.820Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment a8ba5c48-b7bb-46f4-8910-cdf71970c663: enabled = undefined undefined
+[2026-03-08T20:45:55.821Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment a9af1291-a300-482c-8864-9e335a8f5121: enabled = undefined undefined
+[2026-03-08T20:45:55.823Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment b9817c16-9910-4415-b67e-4ac687da74d9: enabled = undefined undefined
+[2026-03-08T20:45:55.822Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment b07f9724-2499-4af4-8941-1345f9003acc: enabled = undefined undefined
+[2026-03-08T20:45:55.824Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment c2d596b2-bf37-4c94-aa23-887cdc0eeafe: enabled = undefined undefined
+[2026-03-08T20:45:55.823Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment b7170c48-7537-473c-89e4-32feadd2f1e2: enabled = undefined undefined
+[2026-03-08T20:45:55.824Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment bfa153fe-c94c-446d-afdd-75dea0576c7a: enabled = undefined undefined
+[2026-03-08T20:45:55.825Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment c9026897-1d8e-4a38-8be5-19ee10e1b5b8: enabled = undefined undefined
+[2026-03-08T20:45:55.809Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment 947ea3b0-67f8-4417-9c03-d5984a627dce: enabled = undefined undefined
+[2026-03-08T20:45:55.827Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment d02d2305-f445-406d-82ee-7cdbf6eeabfd: enabled = undefined undefined
+[2026-03-08T20:45:55.831Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment d659f840-65fb-4c10-9390-d58c77628217: enabled = undefined undefined
+[2026-03-08T20:45:55.834Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment e2923c73-60ed-4273-a04a-90bda64ee794: enabled = undefined undefined
+[2026-03-08T20:45:55.838Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment e7cb9b8a-cc3e-48e5-a85c-fb76ee4f5a99: enabled = undefined undefined
+[2026-03-08T20:45:55.840Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment f91d3fea-9a7b-48c0-9f5d-aa048077cd98: enabled = undefined undefined
+[2026-03-08T20:45:55.839Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment f0459ecb-75fa-43a5-8d47-0ee9b3dbfa52: enabled = undefined undefined
+[2026-03-08T20:45:55.841Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment fbc47d84-8685-4271-b2f9-bdd00f5db09f: enabled = undefined undefined
+[2026-03-08T20:45:55.838Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [DEBUG] Environment e3708053-4bf4-413f-8071-6a23d83086d4: enabled = undefined undefined
+[2026-03-08T20:45:55.845Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Transformed 48 environments
+[2026-03-08T20:45:55.873Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Sample transformed environments: [
+  {
+    "id": "06a361f5-d7ff-458d-a98f-d154f9e2fe3e",
+    "name": "PingOne Delegated Administration",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "06f2aeae-eca7-4113-9421-9c2bf896a35c",
+    "name": "Testing",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "07a6e80b-8031-40a9-88ce-95e45daa8bb2",
+    "name": "New Passwordless",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  }
+]
+[2026-03-08T20:45:55.878Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] ✅ Returning 12 of 48 environments
+[2026-03-08T20:45:55.874Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] All regions found: [
+  "NA"
+]
+[2026-03-08T20:45:55.876Z] [03/08/2026, 15:45:55] [ℹ️ LOG] [PingOne Environments API] Applying filters: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "initialCount": 48
+}
+[2026-03-08T20:50:50.620Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-08T20:50:50.633Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-08T20:50:50.634Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-08T20:50:50.634Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-08T20:50:50.634Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-08T20:50:50.636Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-08T20:50:50.634Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-08T20:50:50.637Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-08T20:50:50.640Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-08T20:50:50.663Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-08T20:50:50.663Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-08T20:50:50.663Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-08T20:50:50.664Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-08T20:50:50.664Z] [03/08/2026, 15:50:50] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-08T20:50:50.663Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-08T20:50:50.664Z] [03/08/2026, 15:50:50] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-08T20:50:50.666Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-08T20:50:50.666Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-08T20:50:50.667Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-08T20:50:50.668Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-08T20:50:50.668Z] [03/08/2026, 15:50:50] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T00:27:22.392Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T00:27:22.376Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T00:27:22.392Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T00:27:22.392Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T00:27:22.392Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T00:27:22.392Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T00:27:22.394Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T00:27:22.396Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T00:27:22.401Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T00:27:22.434Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T00:27:22.435Z] [03/08/2026, 19:27:22] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T00:27:22.437Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-09T00:27:22.437Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T00:27:22.438Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-09T00:27:22.438Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T00:27:22.438Z] [03/08/2026, 19:27:22] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-09T02:08:04.806Z] [03/08/2026, 21:08:04] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T02:58:17.096Z] [03/08/2026, 21:58:17] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T02:58:18.664Z] [03/08/2026, 21:58:18] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T02:58:18.691Z] [03/08/2026, 21:58:18] [ℹ️ LOG] [Config Checker] Handler called with query: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "workerToken": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMDQ2NzJlN2QtZDA0YS00YmUxLThiODYtOTJhYzMxY2M1NDI3IiwiaWF0IjoxNzczMDAxNjM5LCJleHAiOjE3NzMwMDUyMzksImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwNDY3MmU3ZC1kMDRhLTRiZTEtOGI4Ni05MmFjMzFjYzU0MjcifQ.ry2EL0MM28tptNJG4upOKZ4TG5A5VJh9oHgk2Z6rPvWcwpbhmFt63VD150ckDKQpM8jg7GMzxCR-JCUFDGuJqU5bquM_gSnQ24V6vZGRmuFQ7B6gFi7gWnocHfMt6rapUJjptebxwjUPpg-mAXU1ZHCngV7na-V1QBY5uCeVgnMbwEHQjtwrbye7PopTK38eEWLtcBGlJhUbMT5z8A5jAz0oLs1JtPtEIGVMy6ARkG0_QJcTAE-YbGe6PuHvPFmqpAJuGAn2lzGGfMdI5mStlDkpUidk9qHCEYgP5OkRPw_q3KdegHoSJoMSfaAXO_56_b1aATHo5vyxHoJGC_YXbg"
+}
+[2026-03-09T02:58:18.692Z] [03/08/2026, 21:58:18] [ℹ️ LOG] [Config Checker] Fetching applications from: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/applications
+[2026-03-09T02:58:18.692Z] [03/08/2026, 21:58:18] [ℹ️ LOG] [Config Checker] Using provided worker token
+[2026-03-09T02:58:19.015Z] [03/08/2026, 21:58:19] [❌ ERROR] [Config Checker] Applications request failed: {"message":"User is not authorized to access this resource with an explicit deny in an identity-based policy"}
+[2026-03-09T02:58:21.405Z] [03/08/2026, 21:58:21] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T02:58:21.692Z] [03/08/2026, 21:58:21] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "mfa-flow-v8_V8 mfa-flow-v8_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-09T02:59:13.466Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Request received: /api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiZDMzNTc2ZjItNTVlMy00OTRhLTgwMDEtYWM0MGYzZTViN2FlIiwiaWF0IjoxNzczMDI1MTAxLCJleHAiOjE3NzMwMjg3MDEsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiJkMzM1NzZmMi01NWUzLTQ5NGEtODAwMS1hYzQwZjNlNWI3YWUifQ.ijLrJoCIy2pJCq_ioQxZcWV8xPvYJJzIYY_yKerVeDMG9zwj1YNCcMziTEjFY704rBrNHYzH204-_NqgbBhzeBIDi2RGngj5G2pQu6v-Gh9sBn_LJX8ASYCFWW1TnP7qrRdsL_S58iDsftr1KfvoA9Dv7NETaQ9ibkHqIk_ic5EQoiW1hEulmXqywUL277sRjJiRk0kTGJtPJdDq86l7EI9Yg0wKVoT-qk_ALvGOQRFdHPU1UPkr1RK3F4vW5ZYCcKt8MiM3bEd-cVNy6uEqPqTXtl28i0uZ2vaK1B7Kk-ZP-qj6FRkoKR--ph5ral_Ce9jlOjWpheiNVgqAOyaGOg&region=na
+[2026-03-09T02:59:13.466Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Params: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+[2026-03-09T02:59:13.467Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Fetching real environments data using worker token
+[2026-03-09T02:59:13.589Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Using organization: trial_ping_identity_1274825138 (97ba44f2-f7ee-4144-aa95-9e636b57c096)
+[2026-03-09T02:59:13.628Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Organization-based fetch failed, trying direct endpoint: Failed to fetch environments: 403
+[2026-03-09T02:59:13.851Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Fetched 48 environments from direct endpoint
+[2026-03-09T02:59:13.851Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 06a361f5-d7ff-458d-a98f-d154f9e2fe3e: enabled = undefined undefined
+[2026-03-09T02:59:13.852Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 07a6e80b-8031-40a9-88ce-95e45daa8bb2: enabled = undefined undefined
+[2026-03-09T02:59:13.853Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 0eeb1ef2-c7c0-4c1a-9c73-f2fe7be2fbec: enabled = undefined undefined
+[2026-03-09T02:59:13.852Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 0d5e1878-25dd-4214-aad9-c7efe0e91ad1: enabled = undefined undefined
+[2026-03-09T02:59:13.852Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 06f2aeae-eca7-4113-9421-9c2bf896a35c: enabled = undefined undefined
+[2026-03-09T02:59:13.853Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 1290ba1b-e3a1-4d8a-b1db-c794099ff749: enabled = undefined undefined
+[2026-03-09T02:59:13.853Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 132fdaf0-877b-481c-b213-abde68028a5f: enabled = undefined undefined
+[2026-03-09T02:59:13.854Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 1ad1e971-bd7a-493a-a539-2cdae47757c5: enabled = undefined undefined
+[2026-03-09T02:59:13.854Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 1561379e-d0ba-4207-8d05-35239ae02a46: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 3666da1e-8898-4ebe-b147-a570982308eb: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 2ea03892-1074-4d64-8aec-eb65e1e83757: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 3624c34e-5cc5-4c32-a0bc-bd2fc501dad5: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 4aa5b344-98fe-4f4f-9be1-507f72b3bcb0: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 424ef4fb-64ba-4ffe-b541-88a7ab5cd01f: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 5523a6d5-9056-4f32-b5aa-198cfed35ce1: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 5e4b5c7b-636d-492e-ad93-f736f905c9cf: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 5edeed19-b037-4208-90f4-3e2b7302b554: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 5667db6d-a88d-44b3-a2b1-c3df7e7d2c23: enabled = undefined undefined
+[2026-03-09T02:59:13.855Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 5029f3de-30cc-439b-a559-6aee4c68ce4c: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 65a19a87-4915-49ab-8752-c773695fc0c4: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 6b95bf3d-386f-4d1a-9fe4-e6689d924567: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 7853c888-ad7d-470c-add6-597397698767: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 80ee135e-9d4e-4084-8b96-c3131c04c432: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 862be276-16ff-47ea-a3e7-62f2aa753be8: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 89065f6c-1a8f-43f5-9025-214a2b0364cd: enabled = undefined undefined
+[2026-03-09T02:59:13.856Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 947ea3b0-67f8-4417-9c03-d5984a627dce: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 96b4d35d-08a2-40ce-8418-ea5b3290ad0f: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 9a703f61-bb2d-4cce-97ae-8bb6949cb601: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 9ae7d066-0d23-482b-9b8f-4b5e398acf18: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 9d0a06c1-a175-4873-82eb-81032bc97644: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment 9e2f2f0c-f9fa-46da-b6f0-7eda4d3ccca2: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment a8ba5c48-b7bb-46f4-8910-cdf71970c663: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment a9af1291-a300-482c-8864-9e335a8f5121: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment b07f9724-2499-4af4-8941-1345f9003acc: enabled = undefined undefined
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment b7170c48-7537-473c-89e4-32feadd2f1e2: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment b9817c16-9910-4415-b67e-4ac687da74d9: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment bfa153fe-c94c-446d-afdd-75dea0576c7a: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment c2d596b2-bf37-4c94-aa23-887cdc0eeafe: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment d02d2305-f445-406d-82ee-7cdbf6eeabfd: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment d659f840-65fb-4c10-9390-d58c77628217: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment c9026897-1d8e-4a38-8be5-19ee10e1b5b8: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment e2923c73-60ed-4273-a04a-90bda64ee794: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment e3708053-4bf4-413f-8071-6a23d83086d4: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment e7cb9b8a-cc3e-48e5-a85c-fb76ee4f5a99: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment f0459ecb-75fa-43a5-8d47-0ee9b3dbfa52: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment f91d3fea-9a7b-48c0-9f5d-aa048077cd98: enabled = undefined undefined
+[2026-03-09T02:59:13.858Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment fbc47d84-8685-4271-b2f9-bdd00f5db09f: enabled = undefined undefined
+[2026-03-09T02:59:13.859Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Transformed 48 environments
+[2026-03-09T02:59:13.859Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Sample transformed environments: [
+  {
+    "id": "06a361f5-d7ff-458d-a98f-d154f9e2fe3e",
+    "name": "PingOne Delegated Administration",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "06f2aeae-eca7-4113-9421-9c2bf896a35c",
+    "name": "Testing",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  },
+  {
+    "id": "07a6e80b-8031-40a9-88ce-95e45daa8bb2",
+    "name": "New Passwordless",
+    "type": "SANDBOX",
+    "status": "INACTIVE",
+    "region": "NA"
+  }
+]
+[2026-03-09T02:59:13.859Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] All regions found: [
+  "NA"
+]
+[2026-03-09T02:59:13.859Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] Applying filters: {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "initialCount": 48
+}
+[2026-03-09T02:59:13.860Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [PingOne Environments API] ✅ Returning 12 of 48 environments
+[2026-03-09T02:59:13.857Z] [03/08/2026, 21:59:13] [ℹ️ LOG] [DEBUG] Environment a5a778a8-0588-4cf0-b5b1-ee1bb18a7614: enabled = undefined undefined
+[2026-03-09T10:40:03.176Z] [03/09/2026, 05:40:03] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T10:40:04.409Z] [03/09/2026, 05:40:04] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T10:40:04.445Z] [03/09/2026, 05:40:04] [ℹ️ LOG] [Config Checker] Using provided worker token
+[2026-03-09T10:40:04.444Z] [03/09/2026, 05:40:04] [ℹ️ LOG] [Config Checker] Handler called with query: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "workerToken": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiZDMzNTc2ZjItNTVlMy00OTRhLTgwMDEtYWM0MGYzZTViN2FlIiwiaWF0IjoxNzczMDI1MTAxLCJleHAiOjE3NzMwMjg3MDEsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiJkMzM1NzZmMi01NWUzLTQ5NGEtODAwMS1hYzQwZjNlNWI3YWUifQ.ijLrJoCIy2pJCq_ioQxZcWV8xPvYJJzIYY_yKerVeDMG9zwj1YNCcMziTEjFY704rBrNHYzH204-_NqgbBhzeBIDi2RGngj5G2pQu6v-Gh9sBn_LJX8ASYCFWW1TnP7qrRdsL_S58iDsftr1KfvoA9Dv7NETaQ9ibkHqIk_ic5EQoiW1hEulmXqywUL277sRjJiRk0kTGJtPJdDq86l7EI9Yg0wKVoT-qk_ALvGOQRFdHPU1UPkr1RK3F4vW5ZYCcKt8MiM3bEd-cVNy6uEqPqTXtl28i0uZ2vaK1B7Kk-ZP-qj6FRkoKR--ph5ral_Ce9jlOjWpheiNVgqAOyaGOg"
+}
+[2026-03-09T10:40:04.445Z] [03/09/2026, 05:40:04] [ℹ️ LOG] [Config Checker] Fetching applications from: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/applications
+[2026-03-09T10:40:04.745Z] [03/09/2026, 05:40:04] [❌ ERROR] [Config Checker] Applications request failed: {"message":"User is not authorized to access this resource with an explicit deny in an identity-based policy"}
+[2026-03-09T10:40:08.306Z] [03/09/2026, 05:40:08] [ℹ️ LOG] [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-09T10:40:08.580Z] [03/09/2026, 05:40:08] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "mfa-flow-v8_V8 mfa-flow-v8_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
+[2026-03-09T10:58:15.898Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T10:58:15.930Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T10:58:15.930Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T10:58:15.930Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T10:58:15.930Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T10:58:15.930Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T10:58:15.935Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T10:58:15.937Z] [03/09/2026, 05:58:15] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T10:58:15.941Z] [03/09/2026, 05:58:15] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-09T10:58:16.189Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T10:58:16.189Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T10:58:16.189Z] [03/09/2026, 05:58:16] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T10:58:16.192Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T10:58:16.189Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T10:58:16.188Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T10:58:16.206Z] [03/09/2026, 05:58:16] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-09T10:58:16.189Z] [03/09/2026, 05:58:16] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T10:58:16.206Z] [03/09/2026, 05:58:16] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T10:58:16.221Z] [03/09/2026, 05:58:16] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-09T10:58:16.222Z] [03/09/2026, 05:58:16] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-09T10:58:16.222Z] [03/09/2026, 05:58:16] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T10:59:03.084Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T10:59:03.099Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T10:59:03.099Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T10:59:03.099Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T10:59:03.099Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T10:59:03.099Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T10:59:03.101Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T10:59:03.103Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T10:59:03.109Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-09T10:59:03.134Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T10:59:03.135Z] [03/09/2026, 05:59:03] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T10:59:03.138Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-09T10:59:03.138Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T10:59:03.138Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-09T10:59:03.139Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-09T10:59:03.139Z] [03/09/2026, 05:59:03] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T11:11:56.467Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T11:11:56.488Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T11:11:56.488Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T11:11:56.488Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T11:11:56.488Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T11:11:56.488Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T11:11:56.490Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T11:11:56.492Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T11:11:56.496Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T11:11:56.528Z] [03/09/2026, 06:11:56] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T11:11:56.529Z] [03/09/2026, 06:11:56] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T11:11:56.532Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [💾 BACKUP-DB] Backup tables created
+[2026-03-09T11:11:56.532Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T11:11:56.532Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [💾 USER-DB] Tables created successfully
+[2026-03-09T11:11:56.532Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [💾 USER-DB] Indexes created successfully
+[2026-03-09T11:11:56.532Z] [03/09/2026, 06:11:56] [ℹ️ LOG] [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db

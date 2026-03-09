@@ -1,9 +1,9 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/types/flowTypes.ts
 // V7.1 Flow Types - TypeScript interfaces for the OAuth Authorization Code Flow
 
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // Flow variant types
 export type FlowVariant = 'oauth' | 'oidc';

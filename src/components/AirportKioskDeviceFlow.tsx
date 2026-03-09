@@ -2,7 +2,6 @@
 // Airport Check-in Kiosk Style Device Authorization Flow Interface
 // Designed to look like CLEAR/TSA biometric kiosks
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -174,11 +173,11 @@ const KioskStatusBadge = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'authorized':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'denied':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'expired':
 				return '#f3f4f6';
 			default:
@@ -188,29 +187,29 @@ const KioskStatusBadge = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   padding: 0.75rem 1.5rem;
@@ -391,13 +390,13 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: V9_COLORS.TEXT.WHITE;
@@ -443,15 +442,15 @@ const StatusMessage = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border-radius: 0.75rem;
@@ -467,15 +466,15 @@ const StatusIcon = styled.div<{ $status: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -697,7 +696,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 								style={{
 									fontSize: '1.25rem',
 									fontWeight: '700',
-									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+									color: '#059669',
 									textAlign: 'center',
 									marginBottom: '1rem',
 									display: 'flex',

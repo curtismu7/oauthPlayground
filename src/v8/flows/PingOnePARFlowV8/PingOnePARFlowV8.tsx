@@ -33,6 +33,7 @@
 //    - Check PAR service logs for request generation errors
 //
 
+import { FiCheckCircle } from '@icons';
 import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
@@ -294,8 +295,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 					<>
 						<Section>
 							<SectionTitle>
-								⚙️
-								Flow Variant
+								⚙️ Flow Variant
 								<LearningTooltip
 									variant="info"
 									content="OAuth 2.0 provides authorization (API access), while OIDC adds authentication (user identity)"
@@ -350,8 +350,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 						<Section>
 							<FormGroup>
 								<Label>
-									🌐
-									Your PingOne environment identifier
+									🌐 Your PingOne environment identifier
 									<LearningTooltip
 										variant="info"
 										title="PingOne Environment"
@@ -466,8 +465,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 										marginBottom: '0.5rem',
 									}}
 								>
-									✅
-									<strong>PKCE Parameters Generated</strong>
+									✅<strong>PKCE Parameters Generated</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
 									<div>Verifier: {state.pkceCodes.codeVerifier.substring(0, 20)}...</div>
@@ -536,8 +534,7 @@ code_challenge_method=S256`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									✅
-									<strong>PAR Request Successful</strong>
+									✅<strong>PAR Request Successful</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
 									<div>Request URI: {state.flowState.parRequestUri}</div>
@@ -599,8 +596,7 @@ code_challenge_method=S256`}
 										marginBottom: '0.5rem',
 									}}
 								>
-									✅
-									<strong>Authorization Code Received</strong>
+									✅<strong>Authorization Code Received</strong>
 								</div>
 								<div style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}>
 									Code: {state.flowState.authCode.substring(0, 20)}...
@@ -655,8 +651,7 @@ code_challenge_method=S256`}
 											marginBottom: '0.5rem',
 										}}
 									>
-										✅
-										<strong>Tokens Received</strong>
+										✅<strong>Tokens Received</strong>
 									</div>
 								</InfoBox>
 

@@ -1,13 +1,12 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowSteps.tsx
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
-
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant, StepCompletionState } from '../types/flowTypes';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowStepsProps {
 	currentStep: number;
@@ -76,10 +75,10 @@ const StepItem = styled.div<{
 	}};
   border: 2px solid ${(props) => {
 		if (props.$isActive) {
-			return props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN_DARK';
+			return props.$variant === 'oidc' ? '#3b82f6' : '#059669';
 		}
 		if (props.$isCompleted) {
-			return 'V9_COLORS.PRIMARY.GREEN';
+			return '#10b981';
 		}
 		return UI_CONSTANTS.COLORS.GRAY_200;
 	}};
@@ -110,10 +109,10 @@ const StepIcon = styled.div<{
   border-radius: 50%;
   background: ${(props) => {
 		if (props.$isCompleted) {
-			return 'V9_COLORS.PRIMARY.GREEN';
+			return '#10b981';
 		}
 		if (props.$isActive) {
-			return props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN_DARK';
+			return props.$variant === 'oidc' ? '#3b82f6' : '#059669';
 		}
 		return UI_CONSTANTS.COLORS.GRAY_300;
 	}};

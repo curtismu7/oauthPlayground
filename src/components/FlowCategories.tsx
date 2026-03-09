@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -328,7 +327,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <span>⭐</span>,
 		difficulty: 'beginner',
 		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		flows: [
 			{
 				id: 'authorization-code-v7',
@@ -412,7 +411,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <span>❓</span>,
 		difficulty: 'intermediate',
 		useCases: ['IoT Devices', 'Smart TVs', 'High Security Apps'],
-		color: 'V9_COLORS.PRIMARY.BLUE',
+		color: '#3b82f6',
 		flows: [
 			{
 				id: 'hybrid',
@@ -459,7 +458,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <span>⚠️</span>,
 		difficulty: 'advanced',
 		useCases: ['Legacy Systems', 'Migration Scenarios'],
-		color: 'V9_COLORS.PRIMARY.RED',
+		color: '#ef4444',
 		flows: [
 			{
 				id: 'implicit',
@@ -482,7 +481,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <span>❓</span>,
 		difficulty: 'intermediate',
 		useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		flows: [
 			{
 				id: 'token-management',
@@ -624,9 +623,7 @@ const FlowCategories: React.FC = () => {
 								{category.difficulty}
 							</DifficultyBadge>
 
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
-								{category.description}
-							</p>
+							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>{category.description}</p>
 
 							<UseCasesList>
 								<h4>Best for:</h4>

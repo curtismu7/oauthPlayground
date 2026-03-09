@@ -11,9 +11,7 @@
  * - Dependency Inversion: Depends on theme abstraction, not concrete implementation
  */
 
-
 import React, { useState } from 'react';
-import { logger } from '../../../utils/logger';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface JsonDisplayProps {
@@ -85,7 +83,11 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 					}}
 				>
 					<span className="text-xs">
-						{isExpanded ? <span style={{ fontSize: '12px' }}>⬇️</span> : <span style={{ fontSize: '12px' }}>➡️</span>}
+						{isExpanded ? (
+							<span style={{ fontSize: '12px' }}>⬇️</span>
+						) : (
+							<span style={{ fontSize: '12px' }}>➡️</span>
+						)}
 					</span>
 					<h4
 						className="text-xs font-semibold uppercase tracking-wider"
@@ -116,7 +118,11 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 							}
 						}}
 					>
-						{copied ? <span style={{ fontSize: '10px' }}>✅</span> : <span style={{ fontSize: '10px' }}>📋</span>}
+						{copied ? (
+							<span style={{ fontSize: '10px' }}>✅</span>
+						) : (
+							<span style={{ fontSize: '10px' }}>📋</span>
+						)}
 						<span>{copied ? 'Copied!' : 'Copy'}</span>
 					</button>
 				)}

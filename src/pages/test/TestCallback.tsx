@@ -28,9 +28,9 @@ const Card = styled.div<{ status: 'success' | 'error' | 'info' }>`
 	border-radius: 0.5rem;
 	border-left: 4px solid
 		${(props) =>
-			props.status === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : props.status === 'error' ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE'};
+			props.status === 'success' ? '#10b981' : props.status === 'error' ? '#ef4444' : '#3b82f6'};
 	background: ${(props) =>
-		props.status === 'success' ? '#f0fdf4' : props.status === 'error' ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT'};
+		props.status === 'success' ? '#f0fdf4' : props.status === 'error' ? '#fef2f2' : '#f8fafc'};
 `;
 
 const Title = styled.h1`

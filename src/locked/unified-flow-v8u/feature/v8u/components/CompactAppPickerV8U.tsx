@@ -6,14 +6,13 @@
  * @since 2024-11-16
  */
 
-
+import { FiSearch } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { DiscoveredApp } from '../../../dependencies/v8/components/AppPickerV8.tsx';
 import { AppDiscoveryServiceV8 } from '../../../dependencies/v8/services/appDiscoveryServiceV8.ts';
 import { workerTokenServiceV8 } from '../../../dependencies/v8/services/workerTokenServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from '../../../dependencies/v8/utils/toastNotificationsV8.ts';
-import { FiSearch } from '@icons';
 
 const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 

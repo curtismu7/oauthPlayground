@@ -1,11 +1,10 @@
-
+import { FiAlertCircle, FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { type ConfigStatus, getSharedConfigurationStatusAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
-import { FiAlertCircle, FiCheckCircle } from '@icons';
 
 interface OAuthConfig {
 	environmentId?: string;
@@ -40,9 +39,9 @@ const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }
 			case 'ready':
 				return '#f0fdf4';
 			case 'partial':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'missing':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f9fafb';
 		}
@@ -50,13 +49,13 @@ const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'partial':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'missing':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.5rem;
@@ -80,13 +79,13 @@ const StatusIcon = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'partial':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'missing':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -336,10 +335,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
 	const getRefreshAction = () => {
 		return (
-			<CompactButton
-				onClick={handleRefresh}
-				style={{ backgroundColor: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
-			>
+			<CompactButton onClick={handleRefresh} style={{ backgroundColor: '#6b7280' }}>
 				<span>🔄</span>
 				Refresh
 			</CompactButton>
@@ -369,7 +365,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 						style={{
 							marginBottom: '1rem',
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 						}}
 					>
 						{message}

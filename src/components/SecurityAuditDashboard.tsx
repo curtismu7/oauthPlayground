@@ -19,7 +19,7 @@ const DashboardHeader = styled.div`
 
 const DashboardTitle = styled.h2`
   margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   font-size: 1.5rem;
 `;
 
@@ -35,15 +35,15 @@ const SecurityScore = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 90) {
 			return `
-        background-color: V9_COLORS.BG.SUCCESS;
-        color: V9_COLORS.PRIMARY.GREEN;
-        border: 2px solid V9_COLORS.PRIMARY.GREEN;
+        background-color: #ecfdf5;
+        color: #10b981;
+        border: 2px solid #10b981;
       `;
 		} else if (score >= 70) {
 			return `
-        background-color: V9_COLORS.BG.WARNING;
-        color: V9_COLORS.PRIMARY.YELLOW_DARK;
-        border: 2px solid V9_COLORS.PRIMARY.YELLOW;
+        background-color: #fef3c7;
+        color: #d97706;
+        border: 2px solid #f59e0b;
       `;
 		} else if (score >= 50) {
 			return `
@@ -53,9 +53,9 @@ const SecurityScore = styled.div<{ score: number }>`
       `;
 		} else {
 			return `
-        background-color: V9_COLORS.BG.ERROR_BORDER;
-        color: V9_COLORS.PRIMARY.RED_DARK;
-        border: 2px solid V9_COLORS.PRIMARY.RED;
+        background-color: #ef4444;
+        color: #dc2626;
+        border: 2px solid #ef4444;
       `;
 		}
 	}}
@@ -74,12 +74,12 @@ const ScoreCircle = styled.div<{ score: number }>`
   ${({ score }) => {
 		if (score >= 90) {
 			return `
-        background-color: V9_COLORS.PRIMARY.GREEN;
+        background-color: #10b981;
         color: white;
       `;
 		} else if (score >= 70) {
 			return `
-        background-color: V9_COLORS.PRIMARY.YELLOW;
+        background-color: #f59e0b;
         color: white;
       `;
 		} else if (score >= 50) {
@@ -89,7 +89,7 @@ const ScoreCircle = styled.div<{ score: number }>`
       `;
 		} else {
 			return `
-        background-color: V9_COLORS.PRIMARY.RED;
+        background-color: #ef4444;
         color: white;
       `;
 		}
@@ -111,27 +111,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: V9_COLORS.PRIMARY.BLUE;
+          background-color: #3b82f6;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
+          &:hover { background-color: #2563eb; }
         `;
 			case 'secondary':
 				return `
-          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
+          background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: V9_COLORS.PRIMARY.GREEN;
+          background-color: #10b981;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
+          &:hover { background-color: #059669; }
         `;
 			case 'danger':
 				return `
-          background-color: V9_COLORS.PRIMARY.RED;
+          background-color: #ef4444;
           color: white;
-          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
+          &:hover { background-color: #dc2626; }
         `;
 		}
 	}}
@@ -148,13 +148,13 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
   background: ${({ $severity }) => {
 		switch ($severity) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'high':
 				return '#fed7aa';
 			case 'medium':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'low':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			default:
 				return '#f9fafb';
 		}
@@ -168,11 +168,11 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
 			case 'high':
 				return '#fdba74';
 			case 'medium':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'low':
 				return '#86efac';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -180,13 +180,13 @@ const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low'
 const StatValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: #6b7280;
   font-weight: 500;
 `;
 
@@ -196,7 +196,7 @@ const Section = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   font-size: 1.125rem;
   font-weight: 600;
 `;
@@ -214,7 +214,7 @@ const VulnerabilityItem = styled.div<{ $severity: 'critical' | 'high' | 'medium'
 			case 'high':
 				return '#fdba74';
 			case 'medium':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'low':
 				return '#86efac';
 		}
@@ -225,11 +225,11 @@ const VulnerabilityItem = styled.div<{ $severity: 'critical' | 'high' | 'medium'
   background: ${({ $severity }) => {
 		switch ($severity) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'high':
-				return 'V9_COLORS.TEXT.WHITE7ed';
+				return '#ffffff7ed';
 			case 'medium':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'low':
 				return '#f0fdf4';
 		}
@@ -245,7 +245,7 @@ const VulnerabilityHeader = styled.div`
 
 const VulnerabilityTitle = styled.h4`
   margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   font-size: 1rem;
   font-weight: 600;
 `;
@@ -261,8 +261,8 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
 		switch ($severity) {
 			case 'critical':
 				return `
-          background-color: V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: #ef4444;
+          color: #dc2626;
         `;
 			case 'high':
 				return `
@@ -271,13 +271,13 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
         `;
 			case 'medium':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: #fef3c7;
+          color: #d97706;
         `;
 			case 'low':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: #ecfdf5;
+          color: #10b981;
         `;
 		}
 	}}
@@ -285,14 +285,14 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
 
 const VulnerabilityDescription = styled.p`
   margin: 0 0 0.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: #6b7280;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const VulnerabilityRecommendation = styled.p`
   margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   font-size: 0.875rem;
   font-weight: 500;
   background: #f3f4f6;
@@ -309,7 +309,7 @@ const RecommendationsList = styled.ul`
 const RecommendationItem = styled.li`
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   
   &::before {
     content: '';
@@ -322,12 +322,12 @@ const LoadingSpinner = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: #6b7280;
 `;
 
 const ErrorMessage = styled.div`
-  background: V9_COLORS.BG.ERROR_BORDER;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+  background: #ef4444;
+  color: #dc2626;
   padding: 1rem;
   border-radius: 0.375rem;
   border: 1px solid #fca5a5;
@@ -472,7 +472,7 @@ const SecurityAuditDashboard: React.FC = () => {
 								<div
 									style={{
 										textAlign: 'center',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										padding: '2rem',
 									}}
 								>
@@ -506,7 +506,7 @@ const SecurityAuditDashboard: React.FC = () => {
 					</div>
 				</>
 			) : (
-				<div style={{ textAlign: 'center', padding: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+				<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
 					No security audit has been run yet. Click "Run New Audit" to get started.
 				</div>
 			)}

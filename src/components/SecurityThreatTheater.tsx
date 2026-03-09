@@ -4,7 +4,6 @@
  * Interactive attack simulations showing what happens when security parameters are missing
  */
 
-
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -46,7 +45,7 @@ const AttackCard = styled.button<{ $selected: boolean }>`
 		$selected
 			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%)'
 			: 'linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%)'};
-	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#6b7280')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	cursor: pointer;
@@ -87,7 +86,7 @@ const SeasonBadge = styled.span<{ $season: 'season1' | 'season2' }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	margin-bottom: 0.5rem;
-	color: ${({ $season }) => ($season === 'season2' ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : '#93c5fd')};
+	color: ${({ $season }) => ($season === 'season2' ? '#fbbf24' : '#93c5fd')};
 	background: ${({ $season }) =>
 		$season === 'season2' ? 'rgba(250, 204, 21, 0.12)' : 'rgba(59, 130, 246, 0.12)'};
 `;
@@ -164,14 +163,14 @@ const Actor = styled.div<{ role: 'user' | 'attacker' | 'server'; $active?: boole
 	}};
 	border-radius: 0.75rem;
 	border: 3px solid ${({ role, $active }) => {
-		if ($active) return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
+		if ($active) return '#fbbf24';
 		switch (role) {
 			case 'user':
-				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
+				return '#60a5fa';
 			case 'attacker':
-				return 'V9_COLORS.PRIMARY.RED_LIGHT';
+				return '#f87171';
 			case 'server':
-				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
+				return '#34d399';
 		}
 	}};
 	animation: ${({ $active }) => ($active ? pulse : 'none')} 1.5s ease-in-out infinite;
@@ -221,13 +220,13 @@ const LogEntry = styled.div<{ type: 'info' | 'warning' | 'danger' | 'success' }>
 	border-left: 3px solid ${({ type }) => {
 		switch (type) {
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
 	color: ${({ type }) => {
@@ -235,7 +234,7 @@ const LogEntry = styled.div<{ type: 'info' | 'warning' | 'danger' | 'success' }>
 			case 'danger':
 				return '#fca5a5';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
+				return '#fbbf24';
 			case 'success':
 				return '#6ee7b7';
 			default:
@@ -254,13 +253,13 @@ const Outcome = styled.div<{ success: boolean }>`
 		success
 			? 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #a7f3d0 100%)'
 			: 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)'};
-	border: 3px solid ${({ success }) => (success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
+	border: 3px solid ${({ success }) => (success ? '#10b981' : '#ef4444')};
 `;
 
 const OutcomeTitle = styled.div<{ success: boolean }>`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: ${({ success }) => (success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+	color: ${({ success }) => (success ? '#059669' : '#dc2626')};
 	margin-bottom: 1rem;
 	display: flex;
 	align-items: center;
@@ -931,7 +930,7 @@ const SecurityThreatTheater: React.FC = () => {
 	return (
 		<TheaterContainer>
 			<Title>
-				<FiAlertTriangle size={32} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT' }} />
+				<FiAlertTriangle size={32} style={{ color: '#fbbf24' }} />
 				Security Threat Theater
 			</Title>
 			<Subtitle>
@@ -1020,7 +1019,7 @@ const SecurityThreatTheater: React.FC = () => {
 					<div>
 						<div
 							style={{
-								color: 'V9_COLORS.BG.GRAY_MEDIUM',
+								color: '#f1f5f9',
 								fontWeight: 600,
 								marginBottom: '0.75rem',
 								fontSize: '1.1rem',
@@ -1075,7 +1074,7 @@ const SecurityThreatTheater: React.FC = () => {
 							</div>
 							<div
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									marginBottom: '1rem',
 									lineHeight: '1.6',
 								}}
@@ -1103,7 +1102,7 @@ const SecurityThreatTheater: React.FC = () => {
 							</div>
 							<div
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									marginBottom: '1rem',
 									lineHeight: '1.6',
 								}}
@@ -1142,9 +1141,7 @@ const SecurityThreatTheater: React.FC = () => {
 					<span style={{ fontSize: '20px' }}>⚠️</span>
 					Critical Security Warning
 				</div>
-				<div
-					style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHTER', lineHeight: '1.6', fontSize: '0.95rem' }}
-				>
+				<div style={{ color: '#e5e7eb', lineHeight: '1.6', fontSize: '0.95rem' }}>
 					These attacks are NOT theoretical — they happen in production every day. Security
 					parameters like <code>state</code>, <code>nonce</code>, and <code>PKCE</code> are
 					REQUIRED, not optional. Every parameter you skip is a vulnerability you introduce.

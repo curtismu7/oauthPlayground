@@ -29,7 +29,7 @@ const SectionTitle = styled.h2`
 const FlowHeaderDemo: React.FC = () => {
 	return (
 		<DemoContainer>
-			<h1 style={{ textAlign: 'center', marginBottom: '3rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+			<h1 style={{ textAlign: 'center', marginBottom: '3rem', color: '#1f2937' }}>
 				V5 Flow Header Standardization Demo
 			</h1>
 
@@ -82,7 +82,7 @@ const FlowHeaderDemo: React.FC = () => {
 
 				<div
 					style={{
-						background: 'V9_COLORS.TEXT.GRAY_DARK',
+						background: '#1f2937',
 						color: '#f9fafb',
 						padding: '1.5rem',
 						borderRadius: '8px',
@@ -92,14 +92,12 @@ const FlowHeaderDemo: React.FC = () => {
 					}}
 				>
 					<div style={{ marginBottom: '1rem' }}>
-						<div style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '0.5rem' }}>
-							// Basic Usage:
-						</div>
+						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>// Basic Usage:</div>
 						<div>{'<FlowHeader flowId="oauth-authorization-code-v5" />'}</div>
 					</div>
 
 					<div style={{ marginBottom: '1rem' }}>
-						<div style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '0.5rem' }}>
+						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>
 							// With Custom Configuration:
 						</div>
 						<div>{'<FlowHeader'}</div>
@@ -111,9 +109,7 @@ const FlowHeaderDemo: React.FC = () => {
 					</div>
 
 					<div>
-						<div style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '0.5rem' }}>
-							// Import:
-						</div>
+						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>// Import:</div>
 						<div>{"import { FlowHeader } from '../services/flowHeaderService';"}</div>
 					</div>
 				</div>
@@ -126,12 +122,10 @@ const FlowHeaderDemo: React.FC = () => {
 				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 					{/* Before */}
 					<div>
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginBottom: '1rem' }}>
-							❌ Before (Inconsistent)
-						</h3>
+						<h3 style={{ color: '#dc2626', marginBottom: '1rem' }}>❌ Before (Inconsistent)</h3>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								padding: '1rem',
 								borderRadius: '8px',
 								fontFamily: 'Monaco, Consolas, monospace',
@@ -153,12 +147,10 @@ const FlowHeaderDemo: React.FC = () => {
 
 					{/* After */}
 					<div>
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginBottom: '1rem' }}>
-							✅ After (Standardized)
-						</h3>
+						<h3 style={{ color: '#059669', marginBottom: '1rem' }}>✅ After (Standardized)</h3>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.SUCCESS',
+								background: '#ecfdf5',
 								padding: '1rem',
 								borderRadius: '8px',
 								fontFamily: 'Monaco, Consolas, monospace',

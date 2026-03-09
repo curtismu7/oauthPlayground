@@ -177,8 +177,8 @@ const ResultCard = styled.div<{ success: boolean }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
-  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
@@ -190,7 +190,7 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3`
   margin: 0;
-  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
@@ -622,7 +622,7 @@ const ImplicitFlowTest: React.FC = () => {
 								onChange={(e) => handleConfigChange('scopes', e.target.value)}
 								placeholder="openid profile email"
 							/>
-							<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Note: 'openid' scope is required and will be added automatically if missing
 							</span>
 						</div>
@@ -830,7 +830,7 @@ const ImplicitFlowTest: React.FC = () => {
 				))}
 
 				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}>
+					<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
 						No test results yet. Configure your settings and run the tests.
 					</div>
 				)}

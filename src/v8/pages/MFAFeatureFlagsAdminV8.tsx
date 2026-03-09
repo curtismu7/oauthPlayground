@@ -6,7 +6,6 @@
  * @since 2026-01-29
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -110,7 +109,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 			<div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+						background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
 						borderRadius: '12px',
 						padding: '32px',
 						marginBottom: '32px',
@@ -488,7 +487,11 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 											transition: 'all 0.2s',
 										}}
 									>
-										{state.enabled ? <span style={{ fontSize: '20px' }}>❓</span> : <span style={{ fontSize: '20px' }}>❓</span>}
+										{state.enabled ? (
+											<span style={{ fontSize: '20px' }}>✅</span>
+										) : (
+											<span style={{ fontSize: '20px' }}>❌</span>
+										)}
 										{state.enabled ? 'ENABLED' : 'DISABLED'}
 									</button>
 								</div>

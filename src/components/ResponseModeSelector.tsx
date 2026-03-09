@@ -1,7 +1,6 @@
 // src/components/ResponseModeSelector.tsx
 // Reusable response mode selector component for OAuth/OIDC flows
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ResponseMode, ResponseModeService } from '../services/responseModeService';
@@ -36,7 +35,7 @@ const SelectButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
 	background: white;
-	border: 2px solid ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED' : props.$isOpen ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : props.$isOpen ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -45,7 +44,7 @@ const SelectButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 	transition: all 0.2s ease;
 
 	&:hover {
-		border-color: ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE')};
+		border-color: ${(props) => (props.$hasError ? '#dc2626' : '#3b82f6')};
 	}
 
 	&:focus {

@@ -7,12 +7,11 @@
  * feedback on discovery status.
  */
 
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiLoader } from '@icons';
 
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -80,11 +79,7 @@ const Input = styled.input.withConfig({
   flex: 1;
   padding: 0.75rem 2.5rem 0.75rem 2.5rem;
   border: 1px solid ${(props) =>
-		props.hasError
-			? 'V9_COLORS.PRIMARY.RED'
-			: props.hasSuccess
-				? 'V9_COLORS.PRIMARY.GREEN'
-				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#e5e7eb'};
   border-radius: 6px;
   font-size: 0.875rem;
   background: white;
@@ -94,11 +89,7 @@ const Input = styled.input.withConfig({
   &:focus {
     outline: none;
     border-color: ${(props) =>
-			props.hasError
-				? 'V9_COLORS.PRIMARY.RED'
-				: props.hasSuccess
-					? 'V9_COLORS.PRIMARY.GREEN'
-					: 'V9_COLORS.PRIMARY.BLUE'};
+			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
     box-shadow: 0 0 0 3px ${(props) =>
 			props.hasError
 				? 'rgba(239, 68, 68, 0.1)'
@@ -120,10 +111,10 @@ const InputIcon = styled.div.withConfig({
   position: absolute;
   left: 0.75rem;
   color: ${(props) => {
-		if (props.isLoading) return 'V9_COLORS.PRIMARY.BLUE';
-		if (props.hasError) return 'V9_COLORS.PRIMARY.RED';
-		if (props.hasSuccess) return 'V9_COLORS.PRIMARY.GREEN';
-		return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+		if (props.isLoading) return '#3b82f6';
+		if (props.hasError) return '#ef4444';
+		if (props.hasSuccess) return '#10b981';
+		return '#6b7280';
 	}};
   z-index: 1;
 `;
@@ -134,8 +125,8 @@ const DiscoverButton = styled.button.withConfig({
   position: absolute;
   right: 0.5rem;
   padding: 0.5rem;
-  background: ${(props) => (props.isLoading ? '#f3f4f6' : 'V9_COLORS.PRIMARY.BLUE')};
-  color: ${(props) => (props.isLoading ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white')};
+  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#3b82f6')};
+  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
   border: none;
   border-radius: 4px;
   cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
@@ -227,41 +218,41 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'info':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'loading':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'info':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'loading':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   color: ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'loading':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -647,10 +638,14 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			{discoveryResult?.success && discoveryResult.data && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
-						{showResults ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+						{showResults ? (
+							<span style={{ fontSize: '16px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '16px' }}>👁️</span>
+						)}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
-					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+					<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 						Click to {showResults ? 'hide' : 'show'} discovered endpoints
 					</span>
 				</ResultsToggleContainer>

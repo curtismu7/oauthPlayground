@@ -72,8 +72,11 @@ export interface SharedOAuthCredentials {
 }
 
 /**
+ * UnifiedOAuthCredentialsServiceV8U
+ *
  * Enhanced credentials service with SQLite backup for Unified OAuth flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Legacy service class, will be refactored in future iteration
 export class UnifiedOAuthCredentialsServiceV8U {
 	private static readonly STORAGE_PREFIX = 'unified_oauth_';
 	private static readonly SHARED_PREFIX = 'unified_oauth_shared_';

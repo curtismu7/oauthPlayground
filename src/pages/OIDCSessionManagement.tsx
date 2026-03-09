@@ -1,12 +1,12 @@
-
+import { FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
+import { BootstrapIcon } from '../components/v9/BootstrapIcon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
@@ -380,11 +380,11 @@ const OIDCSessionManagement = () => {
 		<CodeExample>
 			<CodeHeader>
 				<CodeTitle>
-					<span>❓</span>
+					<BootstrapIcon icon="question-circle" size={14} />
 					{title}
 				</CodeTitle>
 				<CopyButton onClick={() => copyToClipboard(code, id)}>
-					<span>📋</span>
+					<BootstrapIcon icon="clipboard" size={14} />
 					{copiedCode === id ? 'Copied!' : 'Copy'}
 				</CopyButton>
 			</CodeHeader>
@@ -423,7 +423,7 @@ const OIDCSessionManagement = () => {
 					<header
 						style={{
 							padding: '2rem',
-							background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							background: '#2563eb',
 							color: 'white',
 							borderRadius: '1rem 1rem 0 0',
 						}}
@@ -457,7 +457,7 @@ const OIDCSessionManagement = () => {
 
 									<div
 										style={{
-											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											background: '#f8fafc',
 											border: '2px solid V9_COLORS.PRIMARY.BLUE',
 											borderRadius: '0.75rem',
 											padding: '1.5rem',
@@ -467,7 +467,7 @@ const OIDCSessionManagement = () => {
 										<h3
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+												color: '#2563eb',
 												fontSize: '1.1rem',
 												fontWeight: 600,
 											}}
@@ -492,7 +492,7 @@ const OIDCSessionManagement = () => {
 												<h4
 													style={{
 														margin: '0 0 0.5rem 0',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														fontSize: '1rem',
 														fontWeight: 600,
 													}}
@@ -502,7 +502,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: '0 0 0.5rem 0',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 														fontSize: '0.9rem',
 														lineHeight: '1.6',
 													}}
@@ -514,7 +514,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: 0,
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														fontSize: '0.85rem',
 														fontStyle: 'italic',
 													}}
@@ -525,7 +525,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: '0.5rem 0 0 0',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														fontSize: '0.85rem',
 														fontWeight: 500,
 													}}
@@ -546,7 +546,7 @@ const OIDCSessionManagement = () => {
 												<h4
 													style={{
 														margin: '0 0 0.5rem 0',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														fontSize: '1rem',
 														fontWeight: 600,
 													}}
@@ -556,7 +556,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: '0 0 0.5rem 0',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 														fontSize: '0.9rem',
 														lineHeight: '1.6',
 													}}
@@ -568,7 +568,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: 0,
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														fontSize: '0.85rem',
 														fontStyle: 'italic',
 													}}
@@ -579,7 +579,7 @@ const OIDCSessionManagement = () => {
 												<p
 													style={{
 														margin: '0.5rem 0 0 0',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														fontSize: '0.85rem',
 														fontWeight: 500,
 													}}
@@ -611,12 +611,12 @@ const OIDCSessionManagement = () => {
 												}}
 											>
 												<FiShield
-													style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+													style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 												/>
 												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
 													Enhanced Security
 												</h4>
-												<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 													Real-time session monitoring prevents unauthorized access
 												</p>
 											</div>
@@ -629,10 +629,10 @@ const OIDCSessionManagement = () => {
 												}}
 											>
 												<FiUsers
-													style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+													style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 												/>
 												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Better UX</h4>
-												<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 													Seamless logout across multiple applications
 												</p>
 											</div>
@@ -645,12 +645,12 @@ const OIDCSessionManagement = () => {
 												}}
 											>
 												<FiMonitor
-													style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+													style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 												/>
 												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
 													Centralized Control
 												</h4>
-												<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 													Manage sessions from a single identity provider
 												</p>
 											</div>
@@ -672,13 +672,13 @@ const OIDCSessionManagement = () => {
 											target="_blank"
 											rel="noopener noreferrer"
 											style={{
-												color: 'V9_COLORS.PRIMARY.BLUE',
+												color: '#3b82f6',
 												textDecoration: 'none',
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.5rem 1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												borderRadius: '0.5rem',
 												border: '1px solid #dbeafe',
 												transition: 'all 0.2s ease',
@@ -688,7 +688,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(-1px)';
 											}}
 											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'V9_COLORS.BG.GRAY_LIGHT';
+												e.currentTarget.style.background = '#f8fafc';
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
@@ -700,13 +700,13 @@ const OIDCSessionManagement = () => {
 											target="_blank"
 											rel="noopener noreferrer"
 											style={{
-												color: 'V9_COLORS.PRIMARY.BLUE',
+												color: '#3b82f6',
 												textDecoration: 'none',
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.5rem 1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												borderRadius: '0.5rem',
 												border: '1px solid #dbeafe',
 												transition: 'all 0.2s ease',
@@ -716,7 +716,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(-1px)';
 											}}
 											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'V9_COLORS.BG.GRAY_LIGHT';
+												e.currentTarget.style.background = '#f8fafc';
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
@@ -728,13 +728,13 @@ const OIDCSessionManagement = () => {
 											target="_blank"
 											rel="noopener noreferrer"
 											style={{
-												color: 'V9_COLORS.PRIMARY.BLUE',
+												color: '#3b82f6',
 												textDecoration: 'none',
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.5rem 1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												borderRadius: '0.5rem',
 												border: '1px solid #dbeafe',
 												transition: 'all 0.2s ease',
@@ -744,7 +744,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(-1px)';
 											}}
 											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'V9_COLORS.BG.GRAY_LIGHT';
+												e.currentTarget.style.background = '#f8fafc';
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
@@ -756,23 +756,23 @@ const OIDCSessionManagement = () => {
 											target="_blank"
 											rel="noopener noreferrer"
 											style={{
-												color: 'V9_COLORS.PRIMARY.YELLOW',
+												color: '#f59e0b',
 												textDecoration: 'none',
 												display: 'flex',
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.5rem 1rem',
-												background: 'V9_COLORS.BG.WARNING',
+												background: '#fef3c7',
 												borderRadius: '0.5rem',
 												border: '1px solid V9_COLORS.BG.WARNING_BORDER',
 												transition: 'all 0.2s ease',
 											}}
 											onMouseEnter={(e) => {
-												e.currentTarget.style.background = 'V9_COLORS.BG.WARNING';
+												e.currentTarget.style.background = '#fef3c7';
 												e.currentTarget.style.transform = 'translateY(-1px)';
 											}}
 											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'V9_COLORS.BG.WARNING';
+												e.currentTarget.style.background = '#fef3c7';
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
@@ -787,7 +787,7 @@ const OIDCSessionManagement = () => {
 
 					<CollapsibleSection title=" Session Management Flows" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: '#6b7280', lineHeight: '1.6' }}>
 								Explore the different session management flows available in OpenID Connect. Each
 								flow serves a specific purpose for monitoring and managing user sessions across
 								applications.
@@ -819,7 +819,8 @@ const OIDCSessionManagement = () => {
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -940,7 +941,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 
 										<div
 											style={{
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												border: '2px solid V9_COLORS.PRIMARY.BLUE',
 												borderRadius: '0.75rem',
 												padding: '1.5rem',
@@ -950,7 +951,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 											<h4
 												style={{
 													margin: '0 0 1rem 0',
-													color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+													color: '#2563eb',
 													fontSize: '1rem',
 													fontWeight: 600,
 												}}
@@ -960,7 +961,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 											<p
 												style={{
 													margin: '0 0 1rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.7',
 												}}
@@ -976,7 +977,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 											<p
 												style={{
 													margin: '0 0 1rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.7',
 												}}
@@ -991,7 +992,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 											<p
 												style={{
 													margin: 0,
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.7',
 												}}
@@ -1014,7 +1015,8 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1159,7 +1161,8 @@ window.addEventListener('message', function(event) {
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1302,7 +1305,8 @@ GET /endsession?
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1471,7 +1475,8 @@ GET /logout?
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1646,7 +1651,8 @@ Content-Type: application/json
 												icon: (
 													<div
 														style={{
-															background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
+															background:
+																'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK)',
 															color: 'white',
 															borderRadius: '4px',
 															padding: '0.25rem',
@@ -1798,7 +1804,7 @@ if (sessionState !== expectedSessionState) {
 
 					<CollapsibleSection title=" Implementation Considerations" defaultCollapsed>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: '#6b7280', lineHeight: '1.6' }}>
 								Understanding the technical details and best practices for implementing OIDC session
 								management in your applications.
 							</p>
@@ -1842,7 +1848,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1855,7 +1861,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1868,7 +1874,7 @@ if (sessionState !== expectedSessionState) {
 												vulnerabilities.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Example:</strong> "my-web-app-client-123" or "abc123def456"
 												(typically an alphanumeric string)
@@ -1895,7 +1901,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1908,7 +1914,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1921,7 +1927,7 @@ if (sessionState !== expectedSessionState) {
 												attacks.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Example:</strong> "https://myapp.example.com" (protocol + domain, no
 												path or query parameters)
@@ -1948,7 +1954,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1961,7 +1967,7 @@ if (sessionState !== expectedSessionState) {
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -1975,7 +1981,7 @@ if (sessionState !== expectedSessionState) {
 												out or logged in with a different account at the OP.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Example:</strong> A base64-encoded string like "a1b2c3d4e5f6..."
 												that changes when the user's OP session changes
@@ -2032,7 +2038,7 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -2047,7 +2053,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2061,7 +2067,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2073,7 +2079,7 @@ console.log('Calculated session state:', sessionState);`,
 												compliance issues.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Impact:</strong> Session management may fail, requiring alternative
 												approaches like polling or back-channel logout.
@@ -2088,7 +2094,7 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -2103,7 +2109,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2116,7 +2122,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2128,7 +2134,7 @@ console.log('Calculated session state:', sessionState);`,
 												restrict certain APIs within cross-origin iframes.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Impact:</strong> Developers must implement proper origin validation
 												and may need fallback mechanisms when iframe communication fails.
@@ -2143,7 +2149,7 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -2158,7 +2164,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2171,7 +2177,7 @@ console.log('Calculated session state:', sessionState);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -2184,7 +2190,7 @@ console.log('Calculated session state:', sessionState);`,
 												awareness.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Impact:</strong> Session management may be unreliable, requiring
 												alternative authentication flows or user education about cookie
@@ -2222,10 +2228,10 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiRefreshCw
-												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Polling</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Periodically check session status via API calls
 											</p>
 										</div>
@@ -2238,10 +2244,10 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiMonitor
-												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>WebSockets</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Real-time session status updates
 											</p>
 										</div>
@@ -2254,12 +2260,12 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiUsers
-												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
 												Server-Sent Events
 											</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Push-based session notifications
 											</p>
 										</div>
@@ -2272,10 +2278,10 @@ console.log('Calculated session state:', sessionState);`,
 											}}
 										>
 											<FiCheck
-												style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Token Refresh</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Use token expiration for session management
 											</p>
 										</div>
@@ -2334,7 +2340,7 @@ sessionMonitor.startPolling();`,
 
 					<CollapsibleSection title=" PingOne Session Management Features" defaultCollapsed={false}>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: '#6b7280', lineHeight: '1.6' }}>
 								PingOne provides comprehensive session management capabilities aligned with OpenID
 								Connect standards.
 							</p>
@@ -2347,7 +2353,7 @@ sessionMonitor.startPolling();`,
 									<p
 										style={{
 											marginBottom: '1.5rem',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 											fontSize: '0.95rem',
 											lineHeight: '1.7',
 										}}
@@ -2376,7 +2382,7 @@ sessionMonitor.startPolling();`,
 												marginBottom: '1rem',
 											}}
 										>
-											<FiLogOut style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem' }} />
+											<FiLogOut style={{ color: '#10b981', fontSize: '1.5rem' }} />
 											<h4
 												style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem', fontWeight: 600 }}
 											>
@@ -2387,7 +2393,7 @@ sessionMonitor.startPolling();`,
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2401,7 +2407,7 @@ sessionMonitor.startPolling();`,
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2414,7 +2420,7 @@ sessionMonitor.startPolling();`,
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2425,7 +2431,7 @@ sessionMonitor.startPolling();`,
 											style={{
 												margin: '0 0 1rem 0',
 												paddingLeft: '1.5rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2496,7 +2502,7 @@ if (returnedState === storedState) {
 														target="_blank"
 														rel="noopener noreferrer"
 														style={{
-															color: 'V9_COLORS.PRIMARY.BLUE',
+															color: '#3b82f6',
 															marginLeft: '0.5rem',
 															textDecoration: 'underline',
 														}}
@@ -2526,7 +2532,7 @@ if (returnedState === storedState) {
 												marginBottom: '1rem',
 											}}
 										>
-											<FiRefreshCw style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem' }} />
+											<FiRefreshCw style={{ color: '#10b981', fontSize: '1.5rem' }} />
 											<h4
 												style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem', fontWeight: 600 }}
 											>
@@ -2537,7 +2543,7 @@ if (returnedState === storedState) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2551,7 +2557,7 @@ if (returnedState === storedState) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2565,7 +2571,7 @@ if (returnedState === storedState) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2576,7 +2582,7 @@ if (returnedState === storedState) {
 											style={{
 												margin: '0 0 1rem 0',
 												paddingLeft: '1.5rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2676,7 +2682,7 @@ app.get('/logout', (req, res) => {
 														target="_blank"
 														rel="noopener noreferrer"
 														style={{
-															color: 'V9_COLORS.PRIMARY.BLUE',
+															color: '#3b82f6',
 															marginLeft: '0.5rem',
 															textDecoration: 'underline',
 														}}
@@ -2706,7 +2712,7 @@ app.get('/logout', (req, res) => {
 												marginBottom: '1rem',
 											}}
 										>
-											<FiShield style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem' }} />
+											<FiShield style={{ color: '#10b981', fontSize: '1.5rem' }} />
 											<h4
 												style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem', fontWeight: 600 }}
 											>
@@ -2717,7 +2723,7 @@ app.get('/logout', (req, res) => {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2732,7 +2738,7 @@ app.get('/logout', (req, res) => {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2745,7 +2751,7 @@ app.get('/logout', (req, res) => {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2756,7 +2762,7 @@ app.get('/logout', (req, res) => {
 											style={{
 												margin: '0 0 1rem 0',
 												paddingLeft: '1.5rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2867,7 +2873,7 @@ async function terminateSessionBySid(sessionId) {
 														target="_blank"
 														rel="noopener noreferrer"
 														style={{
-															color: 'V9_COLORS.PRIMARY.BLUE',
+															color: '#3b82f6',
 															marginLeft: '0.5rem',
 															textDecoration: 'underline',
 														}}
@@ -2897,7 +2903,7 @@ async function terminateSessionBySid(sessionId) {
 												marginBottom: '1rem',
 											}}
 										>
-											<FiMonitor style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1.5rem' }} />
+											<FiMonitor style={{ color: '#10b981', fontSize: '1.5rem' }} />
 											<h4
 												style={{ margin: 0, color: '#1e293b', fontSize: '1.1rem', fontWeight: 600 }}
 											>
@@ -2908,7 +2914,7 @@ async function terminateSessionBySid(sessionId) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2922,7 +2928,7 @@ async function terminateSessionBySid(sessionId) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2936,7 +2942,7 @@ async function terminateSessionBySid(sessionId) {
 										<p
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -2947,7 +2953,7 @@ async function terminateSessionBySid(sessionId) {
 											style={{
 												margin: '0 0 1rem 0',
 												paddingLeft: '1.5rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontSize: '0.95rem',
 												lineHeight: '1.7',
 											}}
@@ -3051,7 +3057,7 @@ setInterval(checkSessionState, 30000);`,
 														target="_blank"
 														rel="noopener noreferrer"
 														style={{
-															color: 'V9_COLORS.PRIMARY.BLUE',
+															color: '#3b82f6',
 															marginLeft: '0.5rem',
 															textDecoration: 'underline',
 														}}
@@ -3065,7 +3071,7 @@ setInterval(checkSessionState, 30000);`,
 
 									<div
 										style={{
-											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											background: '#f8fafc',
 											border: '2px solid V9_COLORS.PRIMARY.BLUE',
 											borderRadius: '0.75rem',
 											padding: '1.5rem',
@@ -3075,7 +3081,7 @@ setInterval(checkSessionState, 30000);`,
 										<h4
 											style={{
 												margin: '0 0 1rem 0',
-												color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+												color: '#2563eb',
 												fontSize: '1rem',
 												fontWeight: 600,
 											}}
@@ -3091,25 +3097,25 @@ setInterval(checkSessionState, 30000);`,
 										>
 											<div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem' }}>
 												<strong style={{ color: '#1e293b' }}>RP-Initiated:</strong>
-												<p style={{ margin: '0.5rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
 													Best for single-application logout with user control
 												</p>
 											</div>
 											<div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem' }}>
 												<strong style={{ color: '#1e293b' }}>Front-Channel:</strong>
-												<p style={{ margin: '0.5rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
 													Best for immediate multi-application SSO logout
 												</p>
 											</div>
 											<div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem' }}>
 												<strong style={{ color: '#1e293b' }}>Back-Channel:</strong>
-												<p style={{ margin: '0.5rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
 													Best for reliable logout in critical applications
 												</p>
 											</div>
 											<div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem' }}>
 												<strong style={{ color: '#1e293b' }}>Session Monitoring:</strong>
-												<p style={{ margin: '0.5rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+												<p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
 													Best for detecting logout events automatically
 												</p>
 											</div>
@@ -3140,12 +3146,12 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiArrowRight
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
 												Post-Logout Redirect URIs
 											</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Configure where users go after logout
 											</p>
 										</div>
@@ -3158,10 +3164,10 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiMonitor
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Timeout</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Configurable session duration
 											</p>
 										</div>
@@ -3174,10 +3180,10 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiRefreshCw
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Idle Timeout</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Automatic logout after inactivity
 											</p>
 										</div>
@@ -3190,12 +3196,12 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiUsers
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
 											/>
 											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
 												Multi-Session Support
 											</h4>
-											<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+											<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 												Manage multiple concurrent sessions
 											</p>
 										</div>
@@ -3218,7 +3224,7 @@ setInterval(checkSessionState, 30000);`,
 
 					<CollapsibleSection title=" Security Best Practices" defaultCollapsed>
 						<div style={{ marginTop: '1rem' }}>
-							<p style={{ marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<p style={{ marginBottom: '2rem', color: '#6b7280', lineHeight: '1.6' }}>
 								Essential security considerations and best practices for implementing OIDC session
 								management securely.
 							</p>
@@ -3245,7 +3251,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3260,7 +3266,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3275,7 +3281,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3287,7 +3293,7 @@ setInterval(checkSessionState, 30000);`,
 												secure session management.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Use SHA-256 or SHA-512 for hashing, include
 												a secret salt in the calculation, and ensure the salt is stored securely and
@@ -3303,7 +3309,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3318,7 +3324,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3332,7 +3338,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3345,7 +3351,7 @@ setInterval(checkSessionState, 30000);`,
 												from eavesdropping.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Use TLS 1.3 when possible, enforce HTTPS
 												redirects, and implement HSTS (HTTP Strict Transport Security) headers to
@@ -3361,7 +3367,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiCheck
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3376,7 +3382,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3390,7 +3396,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3404,7 +3410,7 @@ setInterval(checkSessionState, 30000);`,
 												prevent legitimate logouts.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Validate all token claims (iss, aud, exp,
 												iat), verify cryptographic signatures using the OP's public keys from JWKS
@@ -3420,7 +3426,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiUsers
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3435,7 +3441,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3449,7 +3455,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3461,7 +3467,7 @@ setInterval(checkSessionState, 30000);`,
 												boundary between user-initiated actions and system-initiated actions.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Show a clear confirmation dialog for
 												user-initiated logouts, but allow automatic logouts from the OP to proceed
@@ -3494,7 +3500,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3509,7 +3515,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3523,7 +3529,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3536,7 +3542,7 @@ setInterval(checkSessionState, 30000);`,
 												application.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Generate unique CSRF tokens per session,
 												store them securely (e.g., in HttpOnly cookies), and validate them on all
@@ -3552,7 +3558,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiShield
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3567,7 +3573,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3582,7 +3588,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3595,7 +3601,7 @@ setInterval(checkSessionState, 30000);`,
 												users.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Validate the Origin header against a
 												whitelist of allowed origins, implement proper error handling for missing or
@@ -3612,7 +3618,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiMonitor
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3627,7 +3633,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3641,7 +3647,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3654,7 +3660,7 @@ setInterval(checkSessionState, 30000);`,
 												sensitive data.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Use absolute timeouts of 8-24 hours for most
 												applications, implement idle timeouts of 15-30 minutes, and provide clear
@@ -3670,7 +3676,7 @@ setInterval(checkSessionState, 30000);`,
 											}}
 										>
 											<FiUsers
-												style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontSize: '1.5rem', marginBottom: '0.75rem' }}
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.75rem' }}
 											/>
 											<h4
 												style={{
@@ -3685,7 +3691,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3699,7 +3705,7 @@ setInterval(checkSessionState, 30000);`,
 											<p
 												style={{
 													margin: '0 0 0.75rem 0',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontSize: '0.95rem',
 													lineHeight: '1.6',
 												}}
@@ -3712,7 +3718,7 @@ setInterval(checkSessionState, 30000);`,
 												and impact of the incident.
 											</p>
 											<p
-												style={{ margin: 0, color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '0.9rem', fontWeight: 500 }}
+												style={{ margin: 0, color: '#2563eb', fontSize: '0.9rem', fontWeight: 500 }}
 											>
 												<strong>Best Practice:</strong> Log all session events in a tamper-proof
 												format, store logs securely with retention policies, and implement log

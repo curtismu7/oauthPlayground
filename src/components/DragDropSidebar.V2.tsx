@@ -15,7 +15,7 @@
  * ========================================================================
  */
 
-
+import { FiChevronDown, FiMove } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,7 +26,6 @@ import {
 } from '../services/v9/V9CredentialStorageService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import MenuVersionBadge from './MenuVersionBadge';
-import { FiChevronDown, FiMove } from '@icons';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
@@ -448,7 +447,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge
 								title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows"
-								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
+								style={{ background: '#3b82f6', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -466,7 +465,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge
 								title="New Unified MFA flow with all fixes and improvements"
-								style={{ background: 'V9_COLORS.PRIMARY.RED', color: 'white' }}
+								style={{ background: '#ef4444', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -484,7 +483,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge
 								title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
-								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
+								style={{ background: '#3b82f6', color: 'white' }}
 							>
 								UNIFIED
 							</MigrationBadge>
@@ -546,7 +545,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge
 								title="Complete risk-based authentication portal with MFA integration"
-								style={{ background: 'V9_COLORS.PRIMARY.RED_DARK', color: 'white' }}
+								style={{ background: '#dc2626', color: 'white' }}
 							>
 								PROTECT
 							</MigrationBadge>
@@ -641,7 +640,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge style={{ background: 'V9_COLORS.PRIMARY.RED', color: 'white' }}>
+							<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -2576,10 +2575,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				<div
 					style={{
 						padding: '0.5rem 1rem',
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						borderBottom: '1px solid V9_COLORS.BG.GRAY_LIGHT',
 						fontSize: '0.875rem',
-						color: 'V9_COLORS.PRIMARY.BLUE',
+						color: '#3b82f6',
 					}}
 				>
 					{(() => {
@@ -2632,7 +2631,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					style={{
 						marginBottom: '1rem',
 						padding: '1rem',
-						backgroundColor: 'V9_COLORS.BG.SUCCESS',
+						backgroundColor: '#ecfdf5',
 						borderRadius: '0.5rem',
 						border: '2px solid V9_COLORS.PRIMARY.GREEN',
 						boxShadow: '0 4px 12px rgba(34, 197, 94, 0.15)',
@@ -2640,13 +2639,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
-							<strong style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
-								🎯 Drag & Drop Mode Active:
-							</strong>
+							<strong style={{ color: '#10b981' }}>🎯 Drag & Drop Mode Active:</strong>
 							<div
 								style={{
 									fontSize: '0.875rem',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 									marginTop: '0.25rem',
 								}}
 							>
@@ -2656,7 +2653,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								<div
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+										color: '#059669',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -2673,10 +2670,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									padding: '0.5rem 1rem',
 									backgroundColor:
 										saveButtonState === 'saved'
-											? 'V9_COLORS.PRIMARY.GREEN'
+											? '#10b981'
 											: saveButtonState === 'saving'
-												? 'V9_COLORS.PRIMARY.YELLOW'
-												: 'V9_COLORS.PRIMARY.YELLOW', // Default yellow
+												? '#f59e0b'
+												: '#f59e0b', // Default yellow
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -2708,7 +2705,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								}}
 								style={{
 									padding: '0.5rem 1rem',
-									backgroundColor: 'V9_COLORS.PRIMARY.RED',
+									backgroundColor: '#ef4444',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -2843,7 +2840,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						<div
 							style={{
 								paddingLeft: '1rem',
-								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+								backgroundColor: '#f8fafc',
 								borderRadius: '0.5rem',
 								padding: '0.5rem',
 								minHeight: '2rem',
@@ -2904,7 +2901,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											<div
 												style={{
 													paddingLeft: '0.75rem',
-													backgroundColor: 'V9_COLORS.BG.GRAY_MEDIUM',
+													backgroundColor: '#f1f5f9',
 													borderRadius: '0.375rem',
 													padding: '0.5rem',
 												}}
@@ -2928,8 +2925,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																	e.preventDefault();
 																	e.stopPropagation();
 																	setDropTarget({ groupId: group.id, index: itemIndex });
-																	e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
-																	e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
+																	e.currentTarget.style.backgroundColor = '#fef2f2';
+																	e.currentTarget.style.borderColor = '#ef4444';
 																	e.currentTarget.style.borderStyle = 'solid';
 																	e.currentTarget.style.borderWidth = '2px';
 																	e.currentTarget.style.boxShadow =
@@ -3025,12 +3022,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																alignItems: 'center',
 																gap: '0.5rem',
 																padding: '0.5rem 0.75rem',
-																backgroundColor: isActive(item.path)
-																	? 'V9_COLORS.BG.WARNING'
-																	: 'white',
-																color: isActive(item.path)
-																	? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-																	: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
+																color: isActive(item.path) ? '#d97706' : '#6b7280',
 																borderRadius: '0.375rem',
 																border:
 																	dropTarget &&
@@ -3080,8 +3073,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																		groupId: group.id,
 																		index: subGroup.items.length,
 																	});
-																	e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
-																	e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
+																	e.currentTarget.style.backgroundColor = '#fef2f2';
+																	e.currentTarget.style.borderColor = '#ef4444';
 																	e.currentTarget.style.borderStyle = 'solid';
 																	e.currentTarget.style.borderWidth = '2px';
 																	e.currentTarget.style.boxShadow =
@@ -3161,8 +3154,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											e.preventDefault();
 											e.stopPropagation();
 											setDropTarget({ groupId: group.id, index: 0 });
-											e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
-											e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
+											e.currentTarget.style.backgroundColor = '#fef2f2';
+											e.currentTarget.style.borderColor = '#ef4444';
 											e.currentTarget.style.borderStyle = 'solid';
 											e.currentTarget.style.borderWidth = '3px';
 											e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3218,8 +3211,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: itemIndex });
-												e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
-												e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
+												e.currentTarget.style.backgroundColor = '#fef2f2';
+												e.currentTarget.style.borderColor = '#ef4444';
 												e.currentTarget.style.borderStyle = 'solid';
 												e.currentTarget.style.borderWidth = '3px';
 												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3293,10 +3286,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.5rem 0.75rem',
-											backgroundColor: isActive(item.path) ? 'V9_COLORS.BG.WARNING' : 'white',
-											color: isActive(item.path)
-												? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
+											color: isActive(item.path) ? '#d97706' : '#6b7280',
 											borderRadius: '0.375rem',
 											border:
 												dropTarget &&
@@ -3412,8 +3403,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: group.items.length });
-												e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.ERROR';
-												e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.RED';
+												e.currentTarget.style.backgroundColor = '#fef2f2';
+												e.currentTarget.style.borderColor = '#ef4444';
 												e.currentTarget.style.borderStyle = 'solid';
 												e.currentTarget.style.borderWidth = '3px';
 												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
@@ -3462,7 +3453,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									style={{
 										padding: '2rem 1rem',
 										textAlign: 'center',
-										color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+										color: '#9ca3af',
 										fontStyle: 'italic',
 										border: '3px dashed rgba(34, 197, 94, 0.4)',
 										borderRadius: '12px',
@@ -3472,15 +3463,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									}}
 									onDragOver={(e) => {
 										e.preventDefault();
-										e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.GREEN';
-										e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.SUCCESS';
+										e.currentTarget.style.borderColor = '#10b981';
+										e.currentTarget.style.backgroundColor = '#ecfdf5';
 										e.currentTarget.style.borderStyle = 'solid';
 										e.currentTarget.style.borderWidth = '2px';
 										e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.3)';
 										e.currentTarget.style.transform = 'scale(1.02)';
 									}}
 									onDragLeave={(e) => {
-										e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+										e.currentTarget.style.borderColor = '#e5e7eb';
 										e.currentTarget.style.backgroundColor = 'transparent';
 										e.currentTarget.style.borderStyle = 'dashed';
 										e.currentTarget.style.borderWidth = '2px';
@@ -3488,7 +3479,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										e.currentTarget.style.transform = 'scale(1)';
 									}}
 									onDrop={(e) => {
-										e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+										e.currentTarget.style.borderColor = '#e5e7eb';
 										e.currentTarget.style.backgroundColor = 'transparent';
 										e.currentTarget.style.borderStyle = 'dashed';
 										e.currentTarget.style.borderWidth = '2px';

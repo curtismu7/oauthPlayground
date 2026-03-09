@@ -1,9 +1,9 @@
+import { FiActivity, FiCloud, FiCpu, FiDatabase, FiEye, FiGitBranch } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
-import { FiActivity, FiCloud, FiCpu, FiDatabase, FiEye, FiGitBranch } from '@icons';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -82,7 +82,7 @@ const LayerIcon = styled.div`
 	justify-content: center;
 	width: 3rem;
 	height: 3rem;
-	background: ${({ color }) => color || 'V9_COLORS.PRIMARY.BLUE'};
+	background: ${({ color }) => color || '#3b82f6'};
 	color: white;
 	border-radius: 0.5rem;
 	font-size: 1.25rem;
@@ -146,13 +146,13 @@ const AgentType = styled.div`
 	border: 1px solid ${({ variant }) => {
 		switch (variant) {
 			case 'personal':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'managed':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'digital':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -183,7 +183,7 @@ const RoadmapIcon = styled.div`
 	justify-content: center;
 	width: 2.5rem;
 	height: 2.5rem;
-	background: ${({ color }) => color || 'V9_COLORS.PRIMARY.BLUE'};
+	background: ${({ color }) => color || '#3b82f6'};
 	color: white;
 	border-radius: 0.5rem;
 	font-size: 1.125rem;
@@ -218,37 +218,37 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' | 'error' }>
 	background: ${({ $type }) => {
 		switch ($type) {
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${({ $type }) => {
 		switch ($type) {
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;
@@ -282,7 +282,8 @@ const AIIdentityArchitectures: React.FC = () => {
 					<ArchitectureDiagram>
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.BLUE">
-								<span>👥</span></LayerIcon>
+								<span>👥</span>
+							</LayerIcon>
 							<LayerContent>
 								<h3>Users</h3>
 								<p>Service Account, Password, Secret</p>
@@ -291,7 +292,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#8b5cf6">
-								<span>🔑</span></LayerIcon>
+								<span>🔑</span>
+							</LayerIcon>
 							<LayerContent>
 								<h3>API Clients</h3>
 								<p>OAuth Client ID, Client Secret, API Keys, mTLS</p>
@@ -300,7 +302,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#06b6d4">
-								<span>[FiCpu]</span></LayerIcon>
+								<span>[FiCpu]</span>
+							</LayerIcon>
 							<LayerContent>
 								<h3>Workloads</h3>
 								<p>SPIFFE, WIMSE, Secrets, mTLS</p>
@@ -309,7 +312,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.GREEN">
-								<span>[FiDatabase]</span></LayerIcon>
+								<span>[FiDatabase]</span>
+							</LayerIcon>
 							<LayerContent>
 								<h3>Devices/Machines</h3>
 								<p>IP Address, mTLS</p>
@@ -318,7 +322,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<span>⚡</span></LayerIcon>
+								<span>⚡</span>
+							</LayerIcon>
 							<LayerContent>
 								<h3>AI Agents</h3>
 								<p>Agent Identity Types, Resource Types, Identifiers & Credential Types</p>
@@ -340,7 +345,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<AgentType variant="personal">
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								marginBottom: '1rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -349,10 +354,10 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<span>👥</span>Personal Agents
 						</h3>
-						<p style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>
+						<p style={{ color: '#2563eb', marginBottom: '1rem' }}>
 							<strong>OAuth Public Client</strong>
 						</p>
-						<ul style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+						<ul style={{ color: '#2563eb', margin: 0, paddingLeft: '1.5rem' }}>
 							<li>Authorization code grant with PKCE</li>
 							<li>Cannot store client secrets securely</li>
 							<li>Dynamic Client Registration</li>
@@ -362,7 +367,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<AgentType variant="managed">
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								color: '#059669',
 								marginBottom: '1rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -371,10 +376,10 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<span>⚙️</span>Managed Agents
 						</h3>
-						<p style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginBottom: '1rem' }}>
+						<p style={{ color: '#059669', marginBottom: '1rem' }}>
 							<strong>OAuth Confidential Client</strong>
 						</p>
-						<ul style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+						<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
 							<li>Pre-registered Clients</li>
 							<li>Client credential grant</li>
 							<li>Can store client secrets securely</li>
@@ -385,7 +390,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<AgentType variant="digital">
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+								color: '#d97706',
 								marginBottom: '1rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -394,10 +399,10 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<span>[FiCpu]</span>Digital Workers
 						</h3>
-						<p style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '1rem' }}>
+						<p style={{ color: '#d97706', marginBottom: '1rem' }}>
 							<strong>Semi-Supervised Agent LCM</strong>
 						</p>
-						<ul style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+						<ul style={{ color: '#d97706', margin: 0, paddingLeft: '1.5rem' }}>
 							<li>Agent onboarding, offboarding, and governance</li>
 							<li>Human-in-the-Loop</li>
 							<li>Confirm/Approve with user for JIT access and high risk interactions</li>
@@ -426,7 +431,8 @@ const AIIdentityArchitectures: React.FC = () => {
 					</TrustBoundary>
 
 					<InfoBox $type="info">
-						<span>ℹ️</span><div>
+						<span>ℹ️</span>
+						<div>
 							<strong>Key Considerations:</strong>
 							<ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
 								<li>Agent Discovery and Registration</li>
@@ -452,14 +458,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -483,7 +489,7 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+									color: '#059669',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -500,14 +506,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.BG.WARNING_BORDER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -544,14 +550,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.RED_DARK',
+									color: '#dc2626',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -560,7 +566,7 @@ const AIIdentityArchitectures: React.FC = () => {
 							>
 								<span>⚠️</span>Before: Bots as Threats
 							</h4>
-							<ul style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+							<ul style={{ color: '#dc2626', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Credential stuffing</li>
 								<li>Password spraying</li>
 								<li>Automated fraud</li>
@@ -571,14 +577,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.SUCCESS',
+								background: '#ecfdf5',
 								borderRadius: '0.75rem',
 								border: '1px solid #a7f3d0',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+									color: '#059669',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -587,7 +593,7 @@ const AIIdentityArchitectures: React.FC = () => {
 							>
 								<span>✅</span>Now: CUAs as Verified Agents
 							</h4>
-							<ul style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+							<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Identified & approved agents</li>
 								<li>Intent evaluation</li>
 								<li>Known user context</li>
@@ -597,7 +603,8 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="warning">
-						<span>⚠️</span><div>
+						<span>⚠️</span>
+						<div>
 							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
 							entities as threats to recognizing and managing legitimate Computer Using Agents
 							(CUAs) that act on behalf of users.
@@ -617,7 +624,8 @@ const AIIdentityArchitectures: React.FC = () => {
 				<Card>
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.BLUE">
-							<span>[FiEye]</span></RoadmapIcon>
+							<span>[FiEye]</span>
+						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Making Agents Visible Across The Estate</h4>
 							<p>
@@ -630,7 +638,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#8b5cf6">
-							<span>👥</span></RoadmapIcon>
+							<span>👥</span>
+						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
 							<p>
@@ -642,7 +651,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#06b6d4">
-							<span>🔑</span></RoadmapIcon>
+							<span>🔑</span>
+						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Getting Token Issuance Right</h4>
 							<p>
@@ -654,7 +664,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.GREEN">
-							<span>🛡️</span></RoadmapIcon>
+							<span>🛡️</span>
+						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Authentication & Authorization</h4>
 							<p>
@@ -667,7 +678,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.YELLOW">
-							<span>[FiActivity]</span></RoadmapIcon>
+							<span>[FiActivity]</span>
+						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Enterprise Grade Service Layer for Agents</h4>
 							<p>
@@ -699,14 +711,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -732,7 +744,7 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+									color: '#059669',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -751,14 +763,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.BG.WARNING_BORDER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -777,14 +789,14 @@ const AIIdentityArchitectures: React.FC = () => {
 						<div
 							style={{
 								padding: '1.5rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.75rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h4
 								style={{
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
@@ -815,14 +827,15 @@ const AIIdentityArchitectures: React.FC = () => {
 					<div
 						style={{
 							padding: '1.5rem',
-							background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+							background:
+								'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 							borderRadius: '0.75rem',
 							border: '1px solid #0ea5e9',
 						}}
 					>
 						<h4
 							style={{
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								marginBottom: '1rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -831,11 +844,11 @@ const AIIdentityArchitectures: React.FC = () => {
 						>
 							<span>⚡</span>SSO for AI Agents
 						</h4>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
+						<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
 							<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed
 							authorization policy
 						</p>
-						<ul style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', margin: 0, paddingLeft: '1.5rem' }}>
+						<ul style={{ color: '#1f2937', margin: 0, paddingLeft: '1.5rem' }}>
 							<li>Eliminates need for agent to store multiple secrets for each backend service</li>
 							<li>Agent Credential exchanged for Assertion Grant</li>
 							<li>Centralized authorization policy management</li>
@@ -843,7 +856,8 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="success">
-						<span>✅</span><div>
+						<span>✅</span>
+						<div>
 							<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
 							and centralized policy enforcement for AI agents across enterprise systems.
 						</div>

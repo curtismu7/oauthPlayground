@@ -4,7 +4,6 @@
  * Guides users through selecting PingOne app + policy settings based on risk posture
  */
 
-
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -213,11 +212,11 @@ const OptionButton = styled.button<{ $selected: boolean }>`
 	text-align: left;
 	padding: 1.25rem;
 	border-radius: 0.75rem;
-	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#e5e7eb')};
 	background: ${({ $selected }) =>
 		$selected
 			? 'linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.18))'
-			: 'V9_COLORS.TEXT.WHITE'};
+			: '#ffffff'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 22px rgba(37, 99, 235, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -272,9 +271,9 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.BLUE_DARK' : 'none')};
 	background: ${({ $variant }) =>
 		$variant === 'secondary'
-			? 'V9_COLORS.TEXT.WHITE'
+			? '#ffffff'
 			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'};
-	color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.WHITE')};
+	color: ${({ $variant }) => ($variant === 'secondary' ? '#2563eb' : '#ffffff')};
 	font-weight: 600;
 	cursor: pointer;
 	box-shadow: ${({ $variant }) =>
@@ -314,9 +313,9 @@ const RecommendationCard = styled.div<{ $category: Recommendation['category'] }>
 				case 'security':
 					return '#0ea5e9';
 				case 'usability':
-					return 'V9_COLORS.PRIMARY.GREEN';
+					return '#10b981';
 				default:
-					return 'V9_COLORS.PRIMARY.YELLOW';
+					return '#f59e0b';
 			}
 		}};
 	background: ${({ $category }) => {

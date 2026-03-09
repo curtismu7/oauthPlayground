@@ -5,9 +5,8 @@
  * @version 1.0.0
  */
 
-
+import { FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
-import { logger } from './logger';
 
 interface PasskeyDevice {
 	id: string;

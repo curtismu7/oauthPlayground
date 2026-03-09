@@ -5,7 +5,6 @@
  * @version 8.0.0
  */
 
-
 import React from 'react';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '../config/constants.ts';
 

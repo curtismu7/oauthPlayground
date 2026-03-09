@@ -1,9 +1,9 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FlowHeader } from '../services/flowHeaderService';
 // src/pages/PingOneUserProfile.tsx
 // PingOne User Profile viewer with worker token management
 // Cache bust: 2025-02-17-11:32
 // PingOne User Profile Page - Display detailed user information using real PingOne APIs
-
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -94,10 +94,6 @@ const extractPopulation = (population: unknown): string => {
 	return 'N/A';
 };
 
-
-
-
-
 interface PingOneUserProfileData {
 	id?: string;
 	name?:
@@ -145,20 +141,20 @@ interface PingOneMfaDetails {
 
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
+import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 import type { CSSProperties } from 'react';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
 		maxWidth: '1200px',
 		margin: '0 auto',
 		padding: '2rem',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		background: '#f8fafc',
 		minHeight: '100vh',
 	},
 	header: {
-		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
+		background: 'linear-gradient(135deg, #dc2626 0%, #dc2626 100%)',
 		borderRadius: '1rem',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -178,7 +174,7 @@ const styles: Record<string, CSSProperties> = {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		color: '#dc2626',
 		fontSize: '1.5rem',
 		fontWeight: 600,
 		flexShrink: 0,
@@ -214,7 +210,7 @@ const styles: Record<string, CSSProperties> = {
 		marginTop: '0.5rem',
 		fontSize: '0.8125rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.BG.WARNING',
+		color: '#fef3c7',
 	},
 	tokenStatusMissing: {
 		display: 'flex',
@@ -223,7 +219,7 @@ const styles: Record<string, CSSProperties> = {
 		marginTop: '0.5rem',
 		fontSize: '0.8125rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.BG.ERROR_BORDER',
+		color: '#ef4444',
 	},
 	compareTable: {
 		width: '100%',
@@ -234,26 +230,26 @@ const styles: Record<string, CSSProperties> = {
 	compareHeaderCell: {
 		textAlign: 'left',
 		padding: '0.75rem',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		background: '#f8fafc',
+		borderBottom: '1px solid #e5e7eb',
 		fontSize: '0.875rem',
 		fontWeight: 700,
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	},
 	compareCell: {
 		padding: '0.75rem',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid #e5e7eb',
 		verticalAlign: 'top',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		fontWeight: 500,
 	},
 	compareCellEmphasize: {
 		padding: '0.75rem',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid #e5e7eb',
 		verticalAlign: 'top',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		fontWeight: 600,
 	},
 	compareBadgeActive: {
@@ -264,8 +260,8 @@ const styles: Record<string, CSSProperties> = {
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
 		fontWeight: 600,
-		background: 'V9_COLORS.BG.SUCCESS',
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		background: '#ecfdf5',
+		color: '#10b981',
 	},
 	compareBadgeInactive: {
 		display: 'inline-flex',
@@ -275,14 +271,14 @@ const styles: Record<string, CSSProperties> = {
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
 		fontWeight: 600,
-		background: 'V9_COLORS.BG.ERROR',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		background: '#fef2f2',
+		color: '#dc2626',
 	},
 	tabsContainer: {
 		display: 'flex',
 		gap: '0.5rem',
 		marginBottom: '1.5rem',
-		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '2px solid #e5e7eb',
 	},
 	tabActive: {
 		padding: '0.75rem 1.5rem',
@@ -291,8 +287,8 @@ const styles: Record<string, CSSProperties> = {
 		cursor: 'pointer',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.PRIMARY.BLUE',
-		borderBottom: '2px solid V9_COLORS.PRIMARY.BLUE',
+		color: '#3b82f6',
+		borderBottom: '2px solid #3b82f6',
 		marginBottom: '-2px',
 		display: 'flex',
 		alignItems: 'center',
@@ -305,7 +301,7 @@ const styles: Record<string, CSSProperties> = {
 		cursor: 'pointer',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		borderBottom: '2px solid transparent',
 		marginBottom: '-2px',
 		display: 'flex',
@@ -314,14 +310,14 @@ const styles: Record<string, CSSProperties> = {
 	},
 	alertBanner: {
 		padding: '1rem 1.5rem',
-		background: 'V9_COLORS.BG.WARNING',
-		border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+		background: '#fef3c7',
+		border: '1px solid #fbbf24',
 		borderRadius: '0.5rem',
 		marginBottom: '1.5rem',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.75rem',
-		color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+		color: '#d97706',
 	},
 	section: {
 		background: 'white',
@@ -336,19 +332,19 @@ const styles: Record<string, CSSProperties> = {
 		justifyContent: 'space-between',
 		marginBottom: '1.5rem',
 		paddingBottom: '1rem',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid #e5e7eb',
 	},
 	sectionHeaderH2: {
 		margin: 0,
 		fontSize: '1.125rem',
 		fontWeight: 600,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
 	},
 	sectionTimestamp: {
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		fontSize: '0.875rem',
 	},
 	fieldGrid: {
@@ -359,7 +355,7 @@ const styles: Record<string, CSSProperties> = {
 	fieldLabel: {
 		fontSize: '0.75rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
 		marginBottom: '0.5rem',
@@ -369,7 +365,7 @@ const styles: Record<string, CSSProperties> = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		fontSize: '0.875rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		fontWeight: 500,
 	},
 	verificationBadgeVerified: {
@@ -380,8 +376,8 @@ const styles: Record<string, CSSProperties> = {
 		padding: '0.25rem 0.5rem',
 		borderRadius: '0.25rem',
 		marginLeft: '0.5rem',
-		background: 'V9_COLORS.BG.SUCCESS',
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		background: '#ecfdf5',
+		color: '#10b981',
 	},
 	verificationBadgeUnverified: {
 		display: 'inline-flex',
@@ -391,8 +387,8 @@ const styles: Record<string, CSSProperties> = {
 		padding: '0.25rem 0.5rem',
 		borderRadius: '0.25rem',
 		marginLeft: '0.5rem',
-		background: 'V9_COLORS.BG.ERROR',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		background: '#fef2f2',
+		color: '#dc2626',
 	},
 	infoCards: {
 		display: 'grid',
@@ -401,25 +397,25 @@ const styles: Record<string, CSSProperties> = {
 	},
 	infoCard: {
 		padding: '1.5rem',
-		background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+		background: 'linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%)',
 		borderRadius: '0.5rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		textAlign: 'center',
 	},
 	infoCardIcon: {
 		fontSize: '2rem',
 		marginBottom: '0.75rem',
-		color: 'V9_COLORS.PRIMARY.BLUE',
+		color: '#3b82f6',
 	},
 	infoCardValue: {
 		fontSize: '1.5rem',
 		fontWeight: 700,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		marginBottom: '0.25rem',
 	},
 	infoCardLabel: {
 		fontSize: '0.875rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		textTransform: 'uppercase',
 		letterSpacing: '0.05em',
 	},
@@ -429,8 +425,8 @@ const styles: Record<string, CSSProperties> = {
 		gap: '0.5rem',
 	},
 	statusTag: {
-		background: 'V9_COLORS.BG.GRAY_MEDIUM',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		background: '#f1f5f9',
+		color: '#1f2937',
 		padding: '0.3rem 0.75rem',
 		borderRadius: '9999px',
 		fontSize: '0.75rem',
@@ -443,19 +439,19 @@ const styles: Record<string, CSSProperties> = {
 		margin: '0 0 0.5rem',
 		fontSize: '0.9rem',
 		fontWeight: 600,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 	},
 	loadingState: {
 		padding: '3rem',
 		textAlign: 'center',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	},
 	errorState: {
 		padding: '2rem',
-		background: 'V9_COLORS.BG.ERROR',
+		background: '#fef2f2',
 		border: '1px solid #fca5a5',
 		borderRadius: '0.5rem',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		color: '#dc2626',
 		textAlign: 'center',
 	},
 	userSelectorCard: {
@@ -473,7 +469,7 @@ const styles: Record<string, CSSProperties> = {
 		maxWidth: '860px',
 		margin: '0 auto',
 		padding: '1.5rem 2rem',
-		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+		background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
 		borderRadius: '0.75rem',
 		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 	},
@@ -504,12 +500,12 @@ const styles: Record<string, CSSProperties> = {
 		maxWidth: '550px',
 		margin: '1rem',
 		boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-		border: '3px solid V9_COLORS.PRIMARY.RED_DARK',
+		border: '3px solid #dc2626',
 	},
 	serverErrorModalTitle: {
 		fontSize: '1.5rem',
 		fontWeight: 700,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		margin: '0 0 1rem 0',
 		display: 'flex',
 		alignItems: 'center',
@@ -517,19 +513,19 @@ const styles: Record<string, CSSProperties> = {
 	},
 	serverErrorModalMessage: {
 		fontSize: '1rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		lineHeight: 1.6,
 		margin: '0 0 1.5rem 0',
 	},
 	serverErrorModalInstructions: {
 		fontSize: '0.9rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		lineHeight: 1.6,
 		margin: '0 0 1.5rem 0',
 		padding: '1rem',
 		background: '#f3f4f6',
 		borderRadius: '0.5rem',
-		borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE',
+		borderLeft: '4px solid #3b82f6',
 	},
 	serverErrorModalActions: {
 		display: 'flex',
@@ -538,7 +534,7 @@ const styles: Record<string, CSSProperties> = {
 	},
 	serverErrorModalButton: {
 		padding: '0.75rem 1.5rem',
-		background: 'V9_COLORS.PRIMARY.BLUE',
+		background: '#3b82f6',
 		color: 'white',
 		border: 'none',
 		borderRadius: '0.5rem',
@@ -553,13 +549,13 @@ const styles: Record<string, CSSProperties> = {
 		display: 'block',
 		fontSize: '0.875rem',
 		fontWeight: 500,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		marginBottom: '0.5rem',
 	},
 	inputEl: {
 		width: '100%',
 		padding: '0.75rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		borderRadius: '0.375rem',
 		fontSize: '0.875rem',
 	},
@@ -590,27 +586,27 @@ const Container = styled.div`
 const Title = styled.h1`
 	font-size: 2rem;
 	margin-bottom: 1rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 `;
 
 const Subtitle = styled.p`
 	font-size: 1.125rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #6b7280;
 	margin-bottom: 2rem;
 `;
 
 const LoadingMessage = styled.div`
 	text-align: center;
 	padding: 2rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #6b7280;
 `;
 
 const ErrorMessage = styled.div`
-	background: V9_COLORS.BG.ERROR;
-	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	background: #fef2f2;
+	border: 1px solid #ef4444;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	color: V9_COLORS.PRIMARY.RED_DARK;
+	color: #dc2626;
 	margin-bottom: 1rem;
 `;
 
@@ -635,10 +631,7 @@ const PingOneUserProfile: React.FC = () => {
 	const [, setMfaStatus] = useState<PingOneMfaStatus>(null);
 	const [, setUserConsents] = useState<PingOneConsentRecord[]>([]);
 	const [, setPopulationDetails] = useState<Record<string, unknown> | null>(null);
-	const [, setComparisonPopulationDetails] = useState<Record<
-		string,
-		unknown
-	> | null>(null);
+	const [, setComparisonPopulationDetails] = useState<Record<string, unknown> | null>(null);
 
 	const USER_IDENTIFIER_STORAGE_KEY = 'pingone_user_identifier';
 	const initialIdentifier =
@@ -658,9 +651,7 @@ const PingOneUserProfile: React.FC = () => {
 	const [showUserSelector, setShowUserSelector] = useState(true);
 
 	const [, setShowServerErrorModal] = useState(false);
-	const [, setSavedWorkerCredentials] = useState(() =>
-            credentialManager.getAllCredentials()
-    );
+	const [, setSavedWorkerCredentials] = useState(() => credentialManager.getAllCredentials());
 	const [identifierError, setIdentifierError] = useState<string | null>(null);
 	const [isResolvingUser, setIsResolvingUser] = useState(false);
 	const [comparisonProfile] = useState<PingOneUserProfileData | null>(null);
@@ -1068,12 +1059,7 @@ const PingOneUserProfile: React.FC = () => {
 				setMfaStatus(bundle.mfa);
 				setUserConsents(bundle.consents);
 			} catch (err: unknown) {
-				log.error(
-					'PingOneUserProfile',
-					'Failed to fetch user profile:',
-					undefined,
-					err as Error
-				);
+				log.error('PingOneUserProfile', 'Failed to fetch user profile:', undefined, err as Error);
 				const status = (err as { status?: number })?.status;
 				const message = err instanceof Error ? err.message : 'Failed to load user profile';
 				if (status === 401 || message === 'Worker token unauthorized') {
@@ -1361,8 +1347,6 @@ const PingOneUserProfile: React.FC = () => {
 		}
 	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus.isValid]);
 
-
-
 	useEffect(() => {
 		if (showUserSelector) {
 			setLoading(false);
@@ -1384,24 +1368,26 @@ const PingOneUserProfile: React.FC = () => {
 		};
 	}, []);
 
-
-
-
 	if (loading) {
 		return (
-			<div style={styles.pageContainer}>
-				<div style={styles.loadingState}>
+			<>
+				<FlowHeader flowId="pingone-user-profile" />
+				<div style={styles.pageContainer}>
+					<div style={styles.loadingState}>
 					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
 					<p>Loading user profile...</p>
 				</div>
 			</div>
+			</>
 		);
 	}
 
 	if (error) {
 		return (
-			<div style={styles.pageContainer}>
-				<div style={styles.errorState}>
+			<>
+				<FlowHeader flowId="pingone-user-profile" />
+				<div style={styles.pageContainer}>
+					<div style={styles.errorState}>
 					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
 					<p>{error}</p>
 					<button
@@ -1410,7 +1396,7 @@ const PingOneUserProfile: React.FC = () => {
 						style={{
 							marginTop: '1rem',
 							padding: '0.5rem 1rem',
-							background: 'V9_COLORS.PRIMARY.BLUE',
+							background: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1421,15 +1407,18 @@ const PingOneUserProfile: React.FC = () => {
 					</button>
 				</div>
 			</div>
+			</>
 		);
 	}
 
-    const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
+	const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
 
 	if (!userProfile && showUserSelector) {
 		return (
-			<div style={styles.pageContainer}>
-				<div style={styles.selectorPageHeader}>
+			<>
+				<FlowHeader flowId="pingone-user-profile" />
+				<div style={styles.pageContainer}>
+					<div style={styles.selectorPageHeader}>
 					<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
 					<div>
 						<h1 style={styles.selectorPageHeaderH1}>Select User to View Profile</h1>
@@ -1443,8 +1432,8 @@ const PingOneUserProfile: React.FC = () => {
 						<div
 							style={{
 								...styles.alertBanner,
-								background: 'V9_COLORS.BG.SUCCESS',
-								border: '1px solid V9_COLORS.PRIMARY.GREEN_LIGHT',
+								background: '#ecfdf5',
+								border: '1px solid #34d399',
 								color: '#047857',
 							}}
 						>
@@ -1520,11 +1509,11 @@ const PingOneUserProfile: React.FC = () => {
 							id="userIdentifier"
 							autoLoad={true}
 						/>
-						<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
+						<div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 							Search and select a user from the dropdown list in the selected environment.
 						</div>
 						{identifierError && (
-							<div style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+							<div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '0.5rem' }}>
 								{identifierError}
 							</div>
 						)}
@@ -1546,8 +1535,8 @@ const PingOneUserProfile: React.FC = () => {
 								!userIdentifier.trim() ||
 								!environmentId.trim() ||
 								!accessToken.trim()
-									? 'V9_COLORS.TEXT.GRAY_LIGHT'
-									: 'V9_COLORS.PRIMARY.BLUE',
+									? '#9ca3af'
+									: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1566,12 +1555,15 @@ const PingOneUserProfile: React.FC = () => {
 					</button>
 				</div>
 			</div>
+			</>
 		);
 	}
 
 	if (!userProfile && !showUserSelector) {
 		return (
-			<PageContainer>
+			<>
+				<FlowHeader flowId="pingone-user-profile" />
+				<PageContainer>
 				<ErrorState>
 					<p>
 						No user data available. Provide a User ID, Environment ID, and Worker Token using the
@@ -1584,7 +1576,7 @@ const PingOneUserProfile: React.FC = () => {
 						style={{
 							marginTop: '1rem',
 							padding: '0.5rem 1rem',
-							background: 'V9_COLORS.PRIMARY.BLUE',
+							background: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1595,6 +1587,7 @@ const PingOneUserProfile: React.FC = () => {
 					</button>
 				</ErrorState>
 			</PageContainer>
+			</>
 		);
 	}
 
@@ -1602,13 +1595,10 @@ const PingOneUserProfile: React.FC = () => {
 		return null;
 	}
 
-
-
-
-
-
 	return (
-		<PageContainer>
+		<>
+			<FlowHeader flowId="pingone-user-profile" />
+			<PageContainer>
 			{loading ? (
 				<LoadingMessage>
 					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
@@ -1676,6 +1666,7 @@ const PingOneUserProfile: React.FC = () => {
 				</Container>
 			)}
 		</PageContainer>
+		</>
 	);
 };
 

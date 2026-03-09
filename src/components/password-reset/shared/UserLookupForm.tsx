@@ -153,7 +153,7 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 							<div
 								style={{
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontFamily: 'monospace',
 									background: 'rgba(255, 255, 255, 0.7)',
 									padding: '0.5rem',

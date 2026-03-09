@@ -31,12 +31,12 @@ const TemplateGrid = styled.div`
 `;
 
 const TemplateCard = styled.div<{ $selected: boolean }>`
-  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+  background: ${({ $selected }) => ($selected ? '#f8fafc' : 'white')};
   
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;

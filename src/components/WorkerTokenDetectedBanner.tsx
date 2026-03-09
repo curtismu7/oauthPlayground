@@ -1,12 +1,11 @@
 // src/components/WorkerTokenDetectedBanner.tsx
 // Reusable banner component to display when a worker token is detected
 
-
+import { FiCheckCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheckCircle } from '@icons';
 
 interface WorkerTokenDetectedBannerProps {
 	token: string;
@@ -60,23 +59,11 @@ const ExpiryMessage = styled.div<{ $isExpired: boolean; $isExpiringSoon: boolean
 	padding: 0.5rem;
 	border-radius: 0.5rem;
 	background: ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired
-			? 'V9_COLORS.BG.ERROR'
-			: $isExpiringSoon
-				? 'V9_COLORS.BG.WARNING'
-				: 'V9_COLORS.BG.SUCCESS'};
+		$isExpired ? '#fef2f2' : $isExpiringSoon ? '#fef3c7' : '#ecfdf5'};
 	border: 1px solid ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired
-			? 'V9_COLORS.PRIMARY.RED_LIGHT'
-			: $isExpiringSoon
-				? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
-				: '#6ee7b7'};
+		$isExpired ? '#f87171' : $isExpiringSoon ? '#fbbf24' : '#6ee7b7'};
 	color: ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired
-			? 'V9_COLORS.PRIMARY.RED_DARK'
-			: $isExpiringSoon
-				? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-				: 'V9_COLORS.PRIMARY.GREEN_DARK'};
+		$isExpired ? '#dc2626' : $isExpiringSoon ? '#d97706' : '#059669'};
 	font-size: 0.8rem;
 	display: flex;
 	align-items: center;
@@ -170,41 +157,34 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			style={{
 				// Green background when valid, yellow when expiring soon, red when expired
 				background: expiryInfo?.isExpired
-					? 'V9_COLORS.BG.ERROR'
+					? '#fef2f2'
 					: expiryInfo?.isExpiringSoon
-						? 'V9_COLORS.BG.WARNING'
+						? '#fef3c7'
 						: isValid
 							? '#f0fdf4' // Green background for valid tokens
 							: '#f0fdf4', // Default green if no expiry info
 				borderColor: expiryInfo?.isExpired
-					? 'V9_COLORS.PRIMARY.RED'
+					? '#ef4444'
 					: expiryInfo?.isExpiringSoon
-						? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
+						? '#fbbf24'
 						: isValid
-							? 'V9_COLORS.PRIMARY.GREEN' // Green border for valid tokens
-							: 'V9_COLORS.PRIMARY.GREEN', // Default green if no expiry info
+							? '#10b981' // Green border for valid tokens
+							: '#10b981', // Default green if no expiry info
 			}}
 		>
 			<TitleRow>
 				{expiryInfo?.isExpired ? (
-					<span style={{ fontSize: 18, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>⚠️</span>
+					<span style={{ fontSize: 18, color: '#dc2626' }}>⚠️</span>
 				) : (
-					<FiCheckCircle
-						size={18}
-						color={
-							expiryInfo?.isExpiringSoon
-								? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-								: 'V9_COLORS.PRIMARY.GREEN'
-						}
-					/>
+					<FiCheckCircle size={18} color={expiryInfo?.isExpiringSoon ? '#d97706' : '#10b981'} />
 				)}
 				<Title
 					style={{
 						color: expiryInfo?.isExpired
-							? 'V9_COLORS.PRIMARY.RED_DARK'
+							? '#dc2626'
 							: expiryInfo?.isExpiringSoon
-								? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-								: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								? '#d97706'
+								: '#059669',
 					}}
 				>
 					{expiryInfo?.isExpired ? 'Worker Token EXPIRED' : 'Worker Token Detected'}
@@ -213,20 +193,20 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			<TokenBadge
 				style={{
 					background: expiryInfo?.isExpired
-						? 'V9_COLORS.BG.ERROR'
+						? '#fef2f2'
 						: expiryInfo?.isExpiringSoon
-							? 'V9_COLORS.BG.WARNING'
-							: 'V9_COLORS.BG.SUCCESS',
+							? '#fef3c7'
+							: '#ecfdf5',
 					borderColor: expiryInfo?.isExpired
-						? 'V9_COLORS.PRIMARY.RED_LIGHT'
+						? '#f87171'
 						: expiryInfo?.isExpiringSoon
-							? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
+							? '#fbbf24'
 							: '#6ee7b7',
 					color: expiryInfo?.isExpired
-						? 'V9_COLORS.PRIMARY.RED_DARK'
+						? '#dc2626'
 						: expiryInfo?.isExpiringSoon
-							? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-							: 'V9_COLORS.PRIMARY.GREEN_DARK',
+							? '#d97706'
+							: '#059669',
 				}}
 			>
 				<span style={{ fontSize: '14px' }}>🗄️</span> Token cached • {token.substring(0, 16)}…
@@ -246,9 +226,9 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 			<Message
 				style={{
 					color: expiryInfo?.isExpired
-						? 'V9_COLORS.PRIMARY.RED_DARK'
+						? '#dc2626'
 						: expiryInfo?.isExpiringSoon
-							? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+							? '#d97706'
 							: '#047857',
 					marginTop: expiryInfo ? '0.5rem' : '0.5rem',
 				}}

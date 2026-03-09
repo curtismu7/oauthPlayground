@@ -38,9 +38,11 @@ export interface BackupOptions {
 }
 
 /**
- * Unified OAuth Backup Service
+ * UnifiedOAuthBackupServiceV8U
+ *
  * Integrates with existing SQLite backup infrastructure for OAuth flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Legacy service class, will be refactored in future iteration
 export class UnifiedOAuthBackupServiceV8U {
 	private static readonly BACKUP_API_BASE = '/api/backup';
 	private static readonly DEFAULT_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days

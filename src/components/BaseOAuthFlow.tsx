@@ -1,4 +1,4 @@
-
+import { FiAlertCircle, FiCheckCircle, FiInfo } from '@icons';
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -7,7 +7,6 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import FlowCredentials from './FlowCredentials';
 import PageTitle from './PageTitle';
-import { FiAlertCircle, FiCheckCircle, FiInfo } from '@icons';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {

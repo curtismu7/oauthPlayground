@@ -1,12 +1,10 @@
 // src/examples/OAuthFlowWithRedirectStateManager.tsx
 // Example OAuth flow using RedirectStateManager for state preservation
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService from '../services/flowContextService';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   max-width: 800px;

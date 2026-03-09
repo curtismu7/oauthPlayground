@@ -1,9 +1,10 @@
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+
 // src/pages/flows/DeviceAuthorizationFlowV9_New.tsx
 // lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
-
+import { FiInfo, FiMonitor } from '@icons';
 import { BarChart3, Play } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -24,20 +25,20 @@ import { LearningTooltip } from '../../../components/LearningTooltip';
 import OAuthErrorDisplay from '../../../components/OAuthErrorDisplay';
 import PerformanceMonitor from '../../../components/PerformanceMonitor';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
+import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
+import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../../components/ResultsPanel';
 import SecurityAnalyticsDashboard from '../../../components/SecurityAnalyticsDashboard';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import TokenIntrospect from '../../../components/TokenIntrospect';
 import { useUISettings } from '../../../contexts/UISettingsContext';
 import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
-import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
-import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
-import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
 import {
 	type DeviceAuthCredentials,
 	useDeviceAuthorizationFlow,
 } from '../../../hooks/useDeviceAuthorizationFlow';
 import { usePageScroll } from '../../../hooks/usePageScroll';
+import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
 import { deviceTypeService } from '../../../services/deviceTypeService';
@@ -55,14 +56,13 @@ import {
 	type IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../../services/tokenIntrospectionService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { useV7CredentialValidation } from '../../../services/v7CredentialValidationService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { FiInfo, FiMonitor } from '@icons';
 
 /**
  * Utility function to mask tokens for security
@@ -114,8 +114,8 @@ const FlowSubtitle = styled.p`
 const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	background: ${(props) =>
 		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
-	border: 1px solid ${(props) => (props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#4ade80')};
-	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : 'V9_COLORS.BG.SUCCESS_BORDER')};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#10b981')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -207,16 +207,16 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	align-items: flex-start;
 	border: 1px solid
 		${({ $variant }) => {
-			if ($variant === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
-			if ($variant === 'success') return 'V9_COLORS.PRIMARY.GREEN';
-			if ($variant === 'error') return 'V9_COLORS.PRIMARY.RED';
-			return 'V9_COLORS.PRIMARY.BLUE';
+			if ($variant === 'warning') return '#f59e0b';
+			if ($variant === 'success') return '#10b981';
+			if ($variant === 'error') return '#ef4444';
+			return '#3b82f6';
 		}};
 	background-color:
 		${({ $variant }) => {
-			if ($variant === 'warning') return 'V9_COLORS.BG.WARNING';
-			if ($variant === 'success') return 'V9_COLORS.BG.SUCCESS';
-			if ($variant === 'error') return 'V9_COLORS.BG.ERROR';
+			if ($variant === 'warning') return '#fef3c7';
+			if ($variant === 'success') return '#ecfdf5';
+			if ($variant === 'error') return '#fef2f2';
 			return '#dbeafe';
 		}};
 `;
@@ -423,7 +423,6 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
 	position: fixed;
@@ -523,9 +522,9 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
 	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$selected ? '#2563eb' : '#6b7280')};
 	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
@@ -1524,7 +1523,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														style={{
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
-															backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+															backgroundColor: '#f8fafc',
 														}}
 													>
 														{maskToken(deviceFlow.tokens.id_token)}
@@ -1582,7 +1581,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												<Button
 													onClick={() => handleCopy(deviceFlow.tokens!.id_token!, 'ID Token')}
 													$variant="outline"
-													style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', borderColor: '#0ea5e9' }}
+													style={{ backgroundColor: '#f8fafc', borderColor: '#0ea5e9' }}
 												>
 													<span>📋</span> Copy ID Token
 												</Button>
@@ -1655,9 +1654,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 														fontSize: '0.9rem',
 														fontWeight: '600',
 														padding: '0.75rem 1rem',
-														backgroundColor: 'V9_COLORS.PRIMARY.YELLOW',
-														borderColor: 'V9_COLORS.PRIMARY.YELLOW',
-														color: 'V9_COLORS.TEXT.WHITE',
+														backgroundColor: '#f59e0b',
+														borderColor: '#f59e0b',
+														color: '#ffffff',
 													}}
 												>
 													<span>🔄</span> Decode Refresh Token
@@ -2233,7 +2232,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						<ExplanationSection>
 							<div
 								style={{
-									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+									backgroundColor: '#f8fafc',
 									padding: '2rem',
 									borderRadius: '0.75rem',
 									border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
@@ -2295,7 +2294,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										<br />
 										<code
 											style={{
-												background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+												background: '#e5e7eb',
 												padding: '0.25rem 0.5rem',
 												borderRadius: '0.25rem',
 												fontSize: '0.85em',
@@ -2312,7 +2311,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 											</LearningTooltip>
 										</code>
 										<br />
-										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<small style={{ color: '#6b7280' }}>
 											Server responds with:{' '}
 											<LearningTooltip
 												variant="learning"
@@ -2392,7 +2391,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										</LearningTooltip>{' '}
 										to user on screen (e.g., "Visit example.com and enter code: ABCD-1234")
 										<br />
-										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<small style={{ color: '#6b7280' }}>
 											Example display: "Go to https://auth.pingone.com/activate and enter:
 											WDJB-MJHT"
 										</small>
@@ -2446,7 +2445,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 											application
 										</LearningTooltip>
 										<br />
-										<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<small style={{ color: '#6b7280' }}>
 											User sees: "Authorize 'Smart TV App' to access your account?"
 										</small>
 									</li>
@@ -2736,7 +2735,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 			{/* Info about Device Flow Requirements */}
 			<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-				<FiInfo style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE' }} />
+				<FiInfo style={{ flexShrink: 0, color: '#3b82f6' }} />
 				<div>
 					<InfoTitle>Device Flow Requirements</InfoTitle>
 					<InfoText>
@@ -2798,7 +2797,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2881,7 +2880,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2916,7 +2915,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							<InfoBox $variant="success" style={{ marginTop: '1.5rem' }}>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										borderRadius: '50%',
 										width: '24px',
@@ -2983,14 +2982,14 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												alignItems: 'center',
 												gap: '0.5rem',
 												padding: '0.75rem 1rem',
-												background: 'V9_COLORS.BG.WARNING',
+												background: '#fef3c7',
 												border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 												borderRadius: '0.5rem',
 												fontSize: '0.875rem',
-												color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+												color: '#d97706',
 											}}
 										>
-											<FiAlertTriangle style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.YELLOW' }} />
+											<FiAlertTriangle style={{ flexShrink: 0, color: '#f59e0b' }} />
 											<span>
 												<strong>Button disabled:</strong> Please configure your{' '}
 												{!deviceFlow.credentials?.environmentId && !deviceFlow.credentials?.clientId
@@ -3043,7 +3042,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 												style={{
 													fontFamily: 'monospace',
 													fontSize: '0.75rem',
-													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+													color: '#6b7280',
 												}}
 											>
 												{deviceFlow.deviceCodeData.device_code.substring(0, 20)}...
@@ -3069,7 +3068,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-
 	const renderUserAuthorization = () => (
 		<>
 			{deviceFlow.deviceCodeData && (
@@ -3092,7 +3090,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								<div>
 									<InfoTitle>Real-World Scenario: {deviceConfig.name}</InfoTitle>
 									<InfoText>{deviceConfig.description}</InfoText>
-									<InfoText style={{ marginTop: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<InfoText style={{ marginTop: '0.5rem', color: '#6b7280' }}>
 										💡 {deviceConfig.useCase}
 									</InfoText>
 								</div>
@@ -3399,7 +3397,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							</ExplanationHeading>
 							<div
 								style={{
-									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+									backgroundColor: '#f8fafc',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
@@ -3446,10 +3444,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			<FlowContainer>
 				<FlowContent>
 					<StandardFlowHeader flowId="device-authorization-v9" />
-					
+
 					{/* Educational URI Guide Button */}
 					<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-						<RedirectUriEducationButton 
+						<RedirectUriEducationButton
 							flowKey="DeviceAuthorizationFlowV9"
 							variant="outline"
 							size="sm"
@@ -3458,151 +3456,151 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						</RedirectUriEducationButton>
 					</div>
 
-				<EnhancedFlowInfoCard
-					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
-					showAdditionalInfo={true}
-					showDocumentation={true}
-					showCommonIssues={false}
-					showImplementationNotes={false}
-				/>
+					<EnhancedFlowInfoCard
+						flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
+						showAdditionalInfo={true}
+						showDocumentation={true}
+						showCommonIssues={false}
+						showImplementationNotes={false}
+					/>
 
-				<FlowHeader $variant={selectedVariant}>
-					<div>
-						<StepBadge $variant={selectedVariant}>
-							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION •
-							V7 UNIFIED
-						</StepBadge>
-						<FlowTitle>
-							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
-							{STEP_METADATA[currentStep].title}
-						</FlowTitle>
-						<FlowSubtitle>
-							{selectedVariant === 'oidc'
-								? 'Authentication + Authorization with ID token and Access token'
-								: 'API Authorization with Access token only'}
-						</FlowSubtitle>
-					</div>
-					<div style={{ fontSize: '2rem', fontWeight: '700', color: 'V9_COLORS.TEXT.WHITE' }}>
-						{String(currentStep + 1).padStart(2, '0')}
-						<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
-							{' '}
-							of {STEP_METADATA.length}
-						</span>
-					</div>
-				</FlowHeader>
+					<FlowHeader $variant={selectedVariant}>
+						<div>
+							<StepBadge $variant={selectedVariant}>
+								{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION •
+								V7 UNIFIED
+							</StepBadge>
+							<FlowTitle>
+								{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
+								{STEP_METADATA[currentStep].title}
+							</FlowTitle>
+							<FlowSubtitle>
+								{selectedVariant === 'oidc'
+									? 'Authentication + Authorization with ID token and Access token'
+									: 'API Authorization with Access token only'}
+							</FlowSubtitle>
+						</div>
+						<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
+							{String(currentStep + 1).padStart(2, '0')}
+							<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+								{' '}
+								of {STEP_METADATA.length}
+							</span>
+						</div>
+					</FlowHeader>
 
-				{/* V7 Variant Selector - Now below Flow Header */}
-				{renderVariantSelector()}
+					{/* V7 Variant Selector - Now below Flow Header */}
+					{renderVariantSelector()}
 
-				{renderStepContent()}
+					{renderStepContent()}
 
-				<CredentialValidationModal />
+					<CredentialValidationModal />
 
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => toggleSection('deviceSelection')}
-						aria-expanded={!collapsedSections.deviceSelection}
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('deviceSelection')}
+							aria-expanded={!collapsedSections.deviceSelection}
+						>
+							<CollapsibleTitle>
+								<span>🖥️</span> Device Simulator
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.deviceSelection}>
+								<span>⬇️</span>
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!collapsedSections.deviceSelection && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<FiMonitor style={{ flexShrink: 0, color: '#3b82f6' }} />
+									<div>
+										<InfoTitle style={{ fontSize: '1rem', fontWeight: 600, color: '#3b82f6' }}>
+											🎮 Device Selection
+										</InfoTitle>
+										<InfoText style={{ marginTop: '0.75rem', color: '#1f2937' }}>
+											Device selection is available in the main flow area above. Choose your device
+											type to see the appropriate authorization interface.
+										</InfoText>
+									</div>
+								</InfoBox>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				</FlowContent>
+
+				{/* Polling Prompt Modal */}
+				<ModalOverlay $isOpen={showPollingModal}>
+					<ModalContent
+						ref={modalRef}
+						$position={modalPosition || undefined}
+						$isDragging={isDragging}
 					>
-						<CollapsibleTitle>
-							<span>🖥️</span> Device Simulator
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={collapsedSections.deviceSelection}>
-							<span>⬇️</span>
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!collapsedSections.deviceSelection && (
-						<CollapsibleContent>
-							<InfoBox $variant="info">
-								<FiMonitor style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE' }} />
+						<ModalHeader onMouseDown={handleModalMouseDown}>
+							<span style={{ fontSize: 32, color: 'white' }}>🕐</span>
+							<ModalTitle style={{ color: 'white' }}>Ready to Start Polling?</ModalTitle>
+						</ModalHeader>
+						<ModalBody>
+							<p>
+								The device code has been generated and displayed on the {deviceConfig.displayName}.
+								The user can now scan the QR code or enter the code on their phone.
+							</p>
+							<p style={{ marginTop: '1rem' }}>
+								<strong>Next step:</strong> Start polling the authorization server to check if the
+								user has completed authorization. The app will automatically check every{' '}
+								{deviceFlow.deviceCodeData?.interval || 5} seconds.
+							</p>
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '0.75rem',
+									backgroundColor: '#f8fafc',
+									borderRadius: '0.5rem',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								}}
+							>
+								<div style={{ marginBottom: '0.75rem' }}>
+									<DeviceTypeSelector
+										selectedDevice={selectedDevice}
+										onDeviceChange={(deviceType) => {
+											setSelectedDevice(deviceType);
+											localStorage.setItem('device_flow_selected_device', deviceType);
+										}}
+										variant="compact"
+									/>
+								</div>
+								<p style={{ margin: 0 }}>
+									{deviceConfig.emoji}{' '}
+									<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the
+									user authorizes on their phone!
+								</p>
+							</div>
+							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+								<span style={{ fontSize: '18px' }}>ℹ️</span>
 								<div>
-									<InfoTitle style={{ fontSize: '1rem', fontWeight: 600, color: 'V9_COLORS.PRIMARY.BLUE' }}>
-										🎮 Device Selection
-									</InfoTitle>
-									<InfoText style={{ marginTop: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-										Device selection is available in the main flow area above. Choose your device
-										type to see the appropriate authorization interface.
+									<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
+										💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you
+										prefer to start polling manually.
 									</InfoText>
 								</div>
 							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
-			</FlowContent>
+						</ModalBody>
+						<ModalActions>
+							<Button onClick={handleDismissModal} $variant="outline">
+								Cancel
+							</Button>
+							<Button onClick={handleStartPolling} $variant="primary">
+								<span>🔄</span> Start Polling Now
+							</Button>
+						</ModalActions>
+					</ModalContent>
+				</ModalOverlay>
+			</FlowContainer>
 
-			{/* Polling Prompt Modal */}
-			<ModalOverlay $isOpen={showPollingModal}>
-				<ModalContent
-					ref={modalRef}
-					$position={modalPosition || undefined}
-					$isDragging={isDragging}
-				>
-					<ModalHeader onMouseDown={handleModalMouseDown}>
-						<span style={{ fontSize: 32, color: 'white' }}>🕐</span>
-						<ModalTitle style={{ color: 'white' }}>Ready to Start Polling?</ModalTitle>
-					</ModalHeader>
-					<ModalBody>
-						<p>
-							The device code has been generated and displayed on the {deviceConfig.displayName}.
-							The user can now scan the QR code or enter the code on their phone.
-						</p>
-						<p style={{ marginTop: '1rem' }}>
-							<strong>Next step:</strong> Start polling the authorization server to check if the
-							user has completed authorization. The app will automatically check every{' '}
-							{deviceFlow.deviceCodeData?.interval || 5} seconds.
-						</p>
-						<div
-							style={{
-								marginTop: '1rem',
-								padding: '0.75rem',
-								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
-								borderRadius: '0.5rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-							}}
-						>
-							<div style={{ marginBottom: '0.75rem' }}>
-								<DeviceTypeSelector
-									selectedDevice={selectedDevice}
-									onDeviceChange={(deviceType) => {
-										setSelectedDevice(deviceType);
-										localStorage.setItem('device_flow_selected_device', deviceType);
-									}}
-									variant="compact"
-								/>
-							</div>
-							<p style={{ margin: 0 }}>
-								{deviceConfig.emoji}{' '}
-								<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the
-								user authorizes on their phone!
-							</p>
-						</div>
-						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
-							<span style={{ fontSize: '18px' }}>ℹ️</span>
-							<div>
-								<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
-									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer
-									to start polling manually.
-								</InfoText>
-							</div>
-						</InfoBox>
-					</ModalBody>
-					<ModalActions>
-						<Button onClick={handleDismissModal} $variant="outline">
-							Cancel
-						</Button>
-						<Button onClick={handleStartPolling} $variant="primary">
-							<span>🔄</span> Start Polling Now
-						</Button>
-					</ModalActions>
-				</ModalContent>
-			</ModalOverlay>
-		</FlowContainer>
-		
-		{/* Redirect URI Educational Modal */}
-		<RedirectUriEducationalModal
-			flowKey="DeviceAuthorizationFlowV9"
-			isOpen={redirectUriEducation.showEducationalModal}
-			onClose={redirectUriEducation.closeEducationalModal}
-		/>
+			{/* Redirect URI Educational Modal */}
+			<RedirectUriEducationalModal
+				flowKey="DeviceAuthorizationFlowV9"
+				isOpen={redirectUriEducation.showEducationalModal}
+				onClose={redirectUriEducation.closeEducationalModal}
+			/>
 		</>
 	);
 };

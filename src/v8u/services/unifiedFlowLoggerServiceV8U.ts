@@ -251,12 +251,12 @@ export const unifiedFlowLoggerService = {
 
 		return () => {
 			const duration = performance.now() - startTime;
-		const metric: PerformanceMetric = {
-			operation,
-			duration,
-			flowType: flowType || undefined,
-			timestamp: Date.now(),
-		};
+			const metric: PerformanceMetric = {
+				operation,
+				duration,
+				flowType: flowType || undefined,
+				timestamp: Date.now(),
+			};
 
 			performanceMetrics.push(metric);
 

@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
@@ -95,9 +94,9 @@ const MetricIcon = styled.div<{ trend?: 'up' | 'down' | 'neutral' }>`
   background: ${({ trend, theme }) => {
 		switch (trend) {
 			case 'up':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'down':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return theme.colors.gray200;
 		}
@@ -105,11 +104,11 @@ const MetricIcon = styled.div<{ trend?: 'up' | 'down' | 'neutral' }>`
   color: ${({ trend }) => {
 		switch (trend) {
 			case 'up':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'down':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   font-size: 12px;

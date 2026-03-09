@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { jwtGenerator } from '../utils/jwtGenerator';
@@ -38,8 +37,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
-  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: V9_COLORS.PRIMARY.BLUE;
@@ -727,7 +726,11 @@ const JWTGenerator: React.FC = () => {
 							aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '18px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '18px' }}>👁️</span>
+							)}
 						</button>
 					</div>
 				</FormGroup>

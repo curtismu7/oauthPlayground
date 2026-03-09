@@ -2,17 +2,16 @@
 // Interactive service discovery and browsing component
 // Helps developers find and understand available services
 
-
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
-FlowType,
+	FlowType,
 	ServiceCategory,
 	ServiceComplexity,
 	ServiceDefinition,
 	ServiceDiscoveryService,
 	ServiceMaturity,
-} from '../services/serviceDiscoveryService'
+} from '../services/serviceDiscoveryService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -138,12 +137,12 @@ const ServiceListTitle = styled.h2`
 
 const ServiceItem = styled.div<{ isSelected: boolean }>`
   padding: 1rem;
-  border: 2px solid ${(props) => (props.isSelected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.isSelected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
-  background: ${(props) => (props.isSelected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+  background: ${(props) => (props.isSelected ? '#f8fafc' : 'white')};
 
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;
@@ -481,10 +480,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 					</FilterGroup>
 
 					<FilterGroup style={{ justifyContent: 'flex-end' }}>
-						<SearchButton
-							onClick={clearFilters}
-							style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
-						>
+						<SearchButton onClick={clearFilters} style={{ background: '#6b7280' }}>
 							Clear Filters
 						</SearchButton>
 					</FilterGroup>
@@ -510,7 +506,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 										style={{
 											marginBottom: '0.5rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+											color: '#059669',
 										}}
 									>
 										🎯 {rec.relevance}% relevant - {rec.rationale}
@@ -582,7 +578,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 												style={{
 													margin: '0 0 0.5rem 0',
 													fontSize: '0.875rem',
-													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+													color: '#6b7280',
 												}}
 											>
 												{example.description}
@@ -600,10 +596,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 								</SectionTitle>
 								<ul style={{ paddingLeft: '1.5rem', margin: 0 }}>
 									{selectedService.bestPractices.map((practice, index) => (
-										<li
-											key={index}
-											style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-										>
+										<li key={index} style={{ marginBottom: '0.5rem', color: '#1f2937' }}>
 											{practice}
 										</li>
 									))}

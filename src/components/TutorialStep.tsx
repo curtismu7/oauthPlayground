@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -184,7 +183,11 @@ const TutorialStep: React.FC<TutorialStepProps> = ({
 
 					{hasExpandableContent && (
 						<ExpandButton>
-							{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
+							{isExpanded ? (
+								<span style={{ fontSize: '20px' }}>⬆️</span>
+							) : (
+								<span style={{ fontSize: '20px' }}>⬇️</span>
+							)}
 						</ExpandButton>
 					)}
 				</StepActions>

@@ -1,24 +1,21 @@
 // src/components/EnhancedApiCallDisplay.tsx
 // React component for displaying API calls with enhanced features
 
-
+import { FiChevronDown } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
-type ApiCallDisplayOptions
-,
-type EnhancedApiCallData
-,
+	type ApiCallDisplayOptions,
+	type EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
-} from '../services/enhancedApiCallDisplayService'
-import { FiChevronDown } from '@icons';
+} from '../services/enhancedApiCallDisplayService';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
-	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#ffffff')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#e5e7eb')};
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -63,11 +60,11 @@ const StatusBadge = styled.div<{
 	background: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'pending':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'info':
 				return '#dbeafe';
 			default:
@@ -77,15 +74,15 @@ const StatusBadge = styled.div<{
 	color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 
@@ -131,33 +128,33 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 			case 'notes':
 				return 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)'; // Purple gradient
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 2px solid ${({ $sectionType, $statusCode }) => {
 		if ($sectionType === 'response' && $statusCode !== undefined) {
 			// Color based on status code
 			if ($statusCode >= 200 && $statusCode < 300) {
-				return 'V9_COLORS.PRIMARY.GREEN'; // Green border for success
+				return '#10b981'; // Green border for success
 			} else if ($statusCode >= 400) {
-				return 'V9_COLORS.PRIMARY.RED'; // Red border for errors
+				return '#ef4444'; // Red border for errors
 			} else {
-				return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border for other statuses
+				return '#f59e0b'; // Yellow border for other statuses
 			}
 		}
 		switch ($sectionType) {
 			case 'details':
-				return 'V9_COLORS.PRIMARY.BLUE'; // Blue border
+				return '#3b82f6'; // Blue border
 			case 'curl':
-				return 'V9_COLORS.PRIMARY.GREEN'; // Green border
+				return '#10b981'; // Green border
 			case 'pingone':
-				return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border
+				return '#f59e0b'; // Yellow border
 			case 'response':
 				return '#ec4899'; // Pink border (fallback)
 			case 'notes':
 				return '#8b5cf6'; // Purple border
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 6px;
@@ -189,7 +186,7 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 				case 'notes':
 					return 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%)'; // Darker purple
 				default:
-					return 'V9_COLORS.BG.GRAY_MEDIUM';
+					return '#f1f5f9';
 			}
 		}};
 		transform: translateY(-1px);
@@ -205,29 +202,29 @@ const StatusLine = styled.div<{ $statusCode: number }>`
 	font-weight: 600;
 	color: ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return 'V9_COLORS.PRIMARY.GREEN_DARK'; // Green text for success
+			return '#059669'; // Green text for success
 		} else if ($statusCode >= 400) {
-			return 'V9_COLORS.PRIMARY.RED_DARK'; // Red text for errors
+			return '#dc2626'; // Red text for errors
 		} else {
-			return 'V9_COLORS.PRIMARY.YELLOW_DARK'; // Yellow text for other statuses
+			return '#d97706'; // Yellow text for other statuses
 		}
 	}};
 	background: ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return 'V9_COLORS.BG.SUCCESS'; // Green background for success
+			return '#ecfdf5'; // Green background for success
 		} else if ($statusCode >= 400) {
-			return 'V9_COLORS.BG.ERROR'; // Red background for errors
+			return '#fef2f2'; // Red background for errors
 		} else {
-			return 'V9_COLORS.BG.WARNING'; // Yellow background for other statuses
+			return '#fef3c7'; // Yellow background for other statuses
 		}
 	}};
 	border: 1px solid ${({ $statusCode }) => {
 		if ($statusCode >= 200 && $statusCode < 300) {
-			return 'V9_COLORS.PRIMARY.GREEN'; // Green border for success
+			return '#10b981'; // Green border for success
 		} else if ($statusCode >= 400) {
-			return 'V9_COLORS.PRIMARY.RED'; // Red border for errors
+			return '#ef4444'; // Red border for errors
 		} else {
-			return 'V9_COLORS.PRIMARY.YELLOW'; // Yellow border for other statuses
+			return '#f59e0b'; // Yellow border for other statuses
 		}
 	}};
 `;
@@ -253,8 +250,8 @@ const SectionContent = styled.div<{ $isExpanded: boolean }>`
 `;
 
 const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
-	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#f8fafc')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#e5e7eb')};
 	border-radius: 6px;
 	padding: 1rem;
 	overflow-x: auto;
@@ -263,7 +260,7 @@ const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : '#1f2937')};
 	margin: 0;
 	white-space: pre-wrap;
 	word-wrap: break-word;
@@ -290,13 +287,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'secondary':
 				return '#f3f4f6';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
 				return '#f3f4f6';
 		}
@@ -306,13 +303,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 			case 'primary':
 				return 'white';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			case 'success':
 				return 'white';
 			case 'danger':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 	
@@ -320,15 +317,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		background: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'secondary':
-					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+					return '#e5e7eb';
 				case 'success':
-					return 'V9_COLORS.PRIMARY.GREEN_DARK';
+					return '#059669';
 				case 'danger':
-					return 'V9_COLORS.PRIMARY.RED_DARK';
+					return '#dc2626';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+					return '#e5e7eb';
 			}
 		}};
 	}
@@ -387,7 +384,7 @@ const ParameterValue = styled.code`
 `;
 
 const RevealableValue = styled.code<{ $revealed: boolean }>`
-	background: ${({ $revealed }) => ($revealed ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.WARNING')};
+	background: ${({ $revealed }) => ($revealed ? '#e5e7eb' : '#fef3c7')};
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	font-size: 0.8rem;
@@ -436,7 +433,11 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 				title={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey} for educational inspection`}
 				aria-label={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey}`}
 			>
-				{revealed ? <span style={{ fontSize: '13px' }}>🙈</span> : <span style={{ fontSize: '13px' }}>👁️</span>}
+				{revealed ? (
+					<span style={{ fontSize: '13px' }}>🙈</span>
+				) : (
+					<span style={{ fontSize: '13px' }}>👁️</span>
+				)}
 				{revealed ? 'mask' : 'reveal'}
 			</RevealToggleBtn>
 		</span>
@@ -446,15 +447,13 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 /** Renders a permanently-masked credential field (client_secret etc.) */
 const CredentialMaskedValue: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue
-			style={{ background: 'V9_COLORS.BG.ERROR', color: 'V9_COLORS.PRIMARY.RED_DARK' }}
-		>
+		<ParameterValue style={{ background: '#fef2f2', color: '#dc2626' }}>
 			***REDACTED***
 		</ParameterValue>
 		<span
 			style={{
 				fontSize: '0.7rem',
-				color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+				color: '#9ca3af',
 				display: 'inline-flex',
 				alignItems: 'center',
 				gap: '0.2rem',
@@ -468,13 +467,13 @@ const CredentialMaskedValue: React.FC = () => (
 /** Renders a masked token with no reveal available (Basic auth, or service not yet wired). */
 const TokenMaskedNoReveal: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue style={{ background: 'V9_COLORS.BG.WARNING', color: '#78350f' }}>
+		<ParameterValue style={{ background: '#fef3c7', color: '#78350f' }}>
 			••••••••masked••••••••
 		</ParameterValue>
 		<span
 			style={{
 				fontSize: '0.7rem',
-				color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+				color: '#9ca3af',
 				display: 'inline-flex',
 				alignItems: 'center',
 				gap: '0.2rem',
@@ -589,9 +588,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</Title>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 					{apiCall.duration && (
-						<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-							{apiCall.duration}ms
-						</span>
+						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{apiCall.duration}ms</span>
 					)}
 					<div style={{ position: 'relative' }}>
 						<StatusBadge $status={getStatus()}>{getStatus().toUpperCase()}</StatusBadge>
@@ -603,7 +600,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				<p
 					style={{
 						margin: '0 0 1rem 0',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						fontSize: '0.875rem',
 					}}
 				>
@@ -636,7 +633,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							URL
@@ -654,7 +651,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Query Parameters
@@ -693,7 +690,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Headers
@@ -732,7 +729,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Body
@@ -804,7 +801,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Status
@@ -833,7 +830,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 											margin: '0 0 0.5rem 0',
 											fontSize: '0.875rem',
 											fontWeight: 600,
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 										}}
 									>
 										Response Headers
@@ -859,7 +856,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Body
@@ -894,7 +891,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							cURL Command
@@ -922,7 +919,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.875rem',
 								fontWeight: 600,
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Code Examples
@@ -951,7 +948,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 						<p
 							style={{
 								margin: '0 0 0.75rem 0',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontSize: '0.875rem',
 							}}
 						>
@@ -965,7 +962,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								PingOne Token Endpoint
@@ -983,7 +980,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									HTTP Headers
@@ -1009,7 +1006,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Request Body (JSON)
@@ -1029,7 +1026,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								JavaScript Fetch Example
@@ -1106,7 +1103,7 @@ console.log('PingOne Response:', data);`,
 										margin: 0,
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									📮 Postman Collection Example
@@ -1294,7 +1291,7 @@ ${
 									margin: '0 0 0.75rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								📚 Official Documentation & Examples
@@ -1331,11 +1328,11 @@ ${
 								style={{
 									marginTop: '0.75rem',
 									padding: '0.75rem',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into
@@ -1350,7 +1347,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Real cURL Command to PingOne
@@ -1412,7 +1409,7 @@ ${
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Response Headers
@@ -1437,7 +1434,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Status
@@ -1454,7 +1451,7 @@ ${
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Response Body
@@ -1486,10 +1483,7 @@ ${
 					<SectionContent $isExpanded={expandedSections.has('notes')}>
 						{apiCall.educationalNotes.map((note, index) => (
 							<EducationalNote key={index}>
-								<FiExternalLink
-									size={16}
-									style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '2px' }}
-								/>
+								<FiExternalLink size={16} style={{ color: '#3b82f6', marginTop: '2px' }} />
 								<span>{note}</span>
 							</EducationalNote>
 						))}
@@ -1512,10 +1506,10 @@ ${
 					style={{
 						marginTop: '1rem',
 						padding: '0.75rem',
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						borderRadius: '6px',
 						fontSize: '0.875rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 					}}
 				>
 					<strong>Duration:</strong>{' '}

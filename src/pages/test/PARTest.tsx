@@ -204,8 +204,8 @@ const ResultCard = styled.div<{ success: boolean }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
-  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
@@ -217,7 +217,7 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3`
   margin: 0;
-  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
@@ -756,7 +756,7 @@ const PARTest: React.FC = () => {
 				<TestSection>
 					<SectionTitle>Pushed Authorization Request URI</SectionTitle>
 					<CodeBlock>{parRequestUri}</CodeBlock>
-					<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.5rem' }}>
+					<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
 						This request_uri is valid for a limited time (typically 5-10 minutes) and can only be
 						used once.
 					</p>
@@ -817,7 +817,7 @@ const PARTest: React.FC = () => {
 				))}
 
 				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}>
+					<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
 						No test results yet. Configure your PingOne credentials and run PAR tests.
 					</div>
 				)}

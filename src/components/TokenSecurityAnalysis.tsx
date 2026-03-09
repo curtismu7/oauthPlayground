@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-TokenLifecycleInfo,
+	TokenLifecycleInfo,
 	TokenSecurityAnalysis,
 	tokenLifecycleManager,
-} from '../utils/tokenLifecycle'
+} from '../utils/tokenLifecycle';
 
 const SecurityContainer = styled.div`
   background: white;
@@ -291,7 +291,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 	if (error) {
 		return (
 			<SecurityContainer>
-				<div style={{ color: 'V9_COLORS.PRIMARY.RED' }}>Error: {error}</div>
+				<div style={{ color: '#ef4444' }}>Error: {error}</div>
 			</SecurityContainer>
 		);
 	}
@@ -343,7 +343,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 					<InfoLabel>Status:</InfoLabel>
 					<InfoValue
 						style={{
-							color: tokenInfo.isExpired ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.GREEN',
+							color: tokenInfo.isExpired ? '#ef4444' : '#10b981',
 						}}
 					>
 						{tokenInfo.isExpired ? 'Expired' : 'Active'}
