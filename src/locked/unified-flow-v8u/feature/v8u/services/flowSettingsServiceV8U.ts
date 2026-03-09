@@ -163,7 +163,7 @@ export function clearAllSettings(): void {
 		clearSettings(flowType);
 	}
 
-	logger.info(`${MODULE_TAG} Cleared all flow settings`);
+	logger.info(`${MODULE_TAG} Cleared all flow settings`, "Logger info");
 }
 
 /**

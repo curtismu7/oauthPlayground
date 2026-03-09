@@ -117,7 +117,7 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 		setError(null);
 
 		try {
-			logger.info(`${LOG_PREFIX} [MOCK] Simulating JWT Bearer Token flow...`);
+			logger.info(`${LOG_PREFIX} [MOCK] Simulating JWT Bearer Token flow...`, "Logger info");
 
 			// Simulate processing delay
 			await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -202,7 +202,7 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 			});
 
 			if (jwtBearerSuccess) {
-				logger.info(`${LOG_PREFIX} Saved JWT Bearer Token credentials to flow-specific storage`);
+				logger.info(`${LOG_PREFIX} Saved JWT Bearer Token credentials to flow-specific storage`, "Logger info");
 				return true;
 			} else {
 				logger.error(

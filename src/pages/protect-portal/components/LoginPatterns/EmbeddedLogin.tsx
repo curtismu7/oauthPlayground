@@ -352,7 +352,7 @@ const EmbeddedLogin: React.FC<{
 						}}
 						placeholder="Search for Online ID..."
 						onGetToken={() => {
-							logger.info('Worker token required for user search');
+							logger.info('Worker token required for user search', "Logger info");
 						}}
 					/>
 				</InputGroup>

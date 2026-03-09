@@ -200,7 +200,7 @@ export class IDTokenValidationServiceV8 {
 				const publicKey = await importJWK(signingKey as { kty: string; [key: string]: unknown });
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
-				logger.info(`${MODULE_TAG} ✅ Signature verified`);
+				logger.info(`${MODULE_TAG} ✅ Signature verified`, "Logger info");
 			} catch (error) {
 				errors.push(
 					`Signature verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -291,7 +291,7 @@ export class IDTokenValidationServiceV8 {
 					validationDetails.nonceValid = true;
 				}
 			} else {
-				logger.info(`${MODULE_TAG} 🔍 No nonce provided for validation`);
+				logger.info(`${MODULE_TAG} 🔍 No nonce provided for validation`, "Logger info");
 			}
 
 			// 5.6: Authorized Party (azp) - if multiple audiences

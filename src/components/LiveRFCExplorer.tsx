@@ -820,9 +820,9 @@ const deviceData = await deviceResponse.json();
 // }
 
 // Step 2: Display to user
-logger.info(\`\\n📺 To activate this device:\`);
-logger.info(\`   1. Visit: \${deviceData.verification_uri}\`);
-logger.info(\`   2. Enter code: \${deviceData.user_code}\\n\`);
+logger.info(\`\\n📺 To activate this device:\`, "Logger info");
+logger.info(\`   1. Visit: \${deviceData.verification_uri}\`, "Logger info");
+logger.info(\`   2. Enter code: \${deviceData.user_code}\\n\`, "Logger info");
 
 // OR show QR code with verification_uri_complete
 
@@ -851,7 +851,7 @@ while (Date.now() - startTime < maxTime) {
   
   if (result.error === 'authorization_pending') {
     // Still waiting for user
-    logger.info('Waiting...');
+    logger.info('Waiting...', "Logger info");
     continue;
   } else if (result.error === 'slow_down') {
     // Polling too fast, increase interval
@@ -861,7 +861,7 @@ while (Date.now() - startTime < maxTime) {
     throw new Error(result.error);
   } else {
     // Success!
-    logger.info('✅ Device authorized!');
+    logger.info('✅ Device authorized!', "Logger info");
     return result;
   }
 }

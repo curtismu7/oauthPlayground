@@ -51,7 +51,7 @@ const openLogoutUrl = (url: string, target: PingOneLogoutOpenTarget): boolean =>
 
 		// Check if popup was blocked
 		if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-			logger.warn('[pingOneLogoutService] Popup may have been blocked by browser');
+			logger.warn('[pingOneLogoutService] Popup may have been blocked by browser', "Logger warning");
 			return false;
 		}
 

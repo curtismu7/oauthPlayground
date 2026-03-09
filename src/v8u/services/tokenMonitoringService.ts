@@ -88,7 +88,7 @@ export class TokenMonitoringService {
 		this.setupApiCallTrackerSync();
 
 		// Log initial state for debugging
-		logger.debug(`[TokenMonitoring] Service initialized with ${this.tokens.size} tokens`);
+		logger.debug(`[TokenMonitoring] Service initialized with ${this.tokens.size} tokens`, "Logger debug");
 	}
 
 	private getLegacyWorkerTokenFromStorage(): {
@@ -132,7 +132,7 @@ export class TokenMonitoringService {
 				clearInterval(TokenMonitoringService.instance.pollingTimer);
 			}
 			TokenMonitoringService.instance = null;
-			logger.debug('[TokenMonitoring] Service instance reset');
+			logger.debug('[TokenMonitoring] Service instance reset', "Logger debug");
 		}
 	}
 
@@ -148,7 +148,7 @@ export class TokenMonitoringService {
 			// Clear token monitoring storage
 			window.localStorage.removeItem('v8u.tokenMonitoring.tokens');
 			window.localStorage.removeItem('v8u.tokenMonitoring.apiCalls');
-			logger.debug('[TokenMonitoring] Storage cleared');
+			logger.debug('[TokenMonitoring] Storage cleared', "Logger debug");
 		}
 	}
 
@@ -161,7 +161,7 @@ export class TokenMonitoringService {
 				// User can enable via settings or when clicking a notification button
 				logger.debug(
 					'[TokenMonitoring] Notifications available but not auto-requesting permission'
-				);
+				, "Logger debug");
 			} else {
 				this.notificationPermission = Notification.permission;
 			}
@@ -278,7 +278,7 @@ export class TokenMonitoringService {
 				tokenData.forEach((token) => {
 					this.tokens.set(token.id, token);
 				});
-				logger.debug(`[TokenMonitoring] Loaded ${tokenData.length} tokens from storage`);
+				logger.debug(`[TokenMonitoring] Loaded ${tokenData.length} tokens from storage`, "Logger debug");
 
 				// Notify listeners immediately after loading from storage
 				if (tokenData.length > 0) {
@@ -312,7 +312,7 @@ export class TokenMonitoringService {
 				typeof window !== 'undefined' ? window.localStorage.getItem(this.API_CALLS_KEY) : null;
 			if (stored) {
 				this.apiCalls = JSON.parse(stored) as ApiCall[];
-				logger.debug(`[TokenMonitoring] Loaded ${this.apiCalls.length} API calls from storage`);
+				logger.debug(`[TokenMonitoring] Loaded ${this.apiCalls.length} API calls from storage`, "Logger debug");
 			} else {
 				this.apiCalls = [];
 			}
@@ -356,7 +356,7 @@ export class TokenMonitoringService {
 		}
 
 		this.saveApiCallsToStorage();
-		logger.debug(`[TokenMonitoring] Logged API call: ${call.method} ${call.url}`);
+		logger.debug(`[TokenMonitoring] Logged API call: ${call.method} ${call.url}`, "Logger debug");
 	}
 
 	private generateApiCallId(): string {
@@ -370,7 +370,7 @@ export class TokenMonitoringService {
 	public clearApiCalls(): void {
 		this.apiCalls = [];
 		this.saveApiCallsToStorage();
-		logger.debug('[TokenMonitoring] Cleared API call history');
+		logger.debug('[TokenMonitoring] Cleared API call history', "Logger debug");
 	}
 
 	// Token sync with OAuth flows
@@ -385,13 +385,13 @@ export class TokenMonitoringService {
 
 			// Listen for worker token updates
 			window.addEventListener('worker-token-refreshed', () => {
-				logger.debug('[TokenMonitoring] worker-token-refreshed event received');
+				logger.debug('[TokenMonitoring] worker-token-refreshed event received', "Logger debug");
 				this.syncWorkerToken();
 			});
 
 			// Also listen for any other worker token events
 			window.addEventListener('workerTokenUpdated', () => {
-				logger.debug('[TokenMonitoring] workerTokenUpdated event received');
+				logger.debug('[TokenMonitoring] workerTokenUpdated event received', "Logger debug");
 				this.syncWorkerToken();
 			});
 
@@ -693,7 +693,7 @@ export class TokenMonitoringService {
 					source: 'oauth_flow',
 				});
 
-				logger.debug('[TokenMonitoring] Token synced from localStorage successfully');
+				logger.debug('[TokenMonitoring] Token synced from localStorage successfully', "Logger debug");
 			}
 		} catch (error) {
 			logger.warn('[TokenMonitoring] Failed to sync tokens from localStorage:', {
@@ -742,17 +742,17 @@ export class TokenMonitoringService {
 		tokensToRemove.forEach((id) => {
 			this.removeToken(id);
 		});
-		logger.debug(`[TokenMonitoring] Cleared ${tokensToRemove.length} tokens of type: ${tokenType}`);
+		logger.debug(`[TokenMonitoring] Cleared ${tokensToRemove.length} tokens of type: ${tokenType}`, "Logger debug");
 	}
 
 	public async manualSyncWorkerToken(): Promise<void> {
-		logger.debug('[TokenMonitoring] Manual worker token sync triggered');
+		logger.debug('[TokenMonitoring] Manual worker token sync triggered', "Logger debug");
 		await this.syncWorkerToken();
 	}
 
 	private async syncWorkerToken(): Promise<void> {
 		try {
-			logger.debug('[TokenMonitoring] Syncing worker token...');
+			logger.debug('[TokenMonitoring] Syncing worker token...', "Logger debug");
 
 			// Get worker token status
 			const workerTokenStatus = await unifiedWorkerTokenService.getStatus();
@@ -818,7 +818,7 @@ export class TokenMonitoringService {
 					source: 'worker_token',
 				});
 
-				logger.debug('[TokenMonitoring] Worker token added successfully');
+				logger.debug('[TokenMonitoring] Worker token added successfully', "Logger debug");
 			}
 		} catch (error) {
 			logger.error('[TokenMonitoring] Failed to sync worker token:', {
@@ -913,7 +913,7 @@ export class TokenMonitoringService {
 		this.tokens.set(id, fullToken);
 		this.notifyListeners();
 
-		logger.debug(`[TokenMonitoring] Added new token: ${token.type} with ID: ${id}`);
+		logger.debug(`[TokenMonitoring] Added new token: ${token.type} with ID: ${id}`, "Logger debug");
 		return id;
 	}
 
@@ -1023,7 +1023,7 @@ export class TokenMonitoringService {
 					// Update token with real introspection data
 					this.updateToken(tokenId, { introspectionData });
 
-					logger.debug(`[TokenMonitoring] Successfully introspected ${token.type} via API`);
+					logger.debug(`[TokenMonitoring] Successfully introspected ${token.type} via API`, "Logger debug");
 					success = true;
 
 					// Log the API call
@@ -1203,12 +1203,12 @@ export class TokenMonitoringService {
 					throw new Error(`OAuth revocation failed: ${response.status} ${response.statusText}`);
 				}
 
-				logger.debug(`[TokenMonitoring] Successfully revoked ${token.type} via OAuth API`);
+				logger.debug(`[TokenMonitoring] Successfully revoked ${token.type} via OAuth API`, "Logger debug");
 			} else {
-				logger.warn('[TokenMonitoring] No credentials available for OAuth revocation');
+				logger.warn('[TokenMonitoring] No credentials available for OAuth revocation', "Logger warning");
 			}
 		} else {
-			logger.warn('[TokenMonitoring] No flow context available for OAuth revocation');
+			logger.warn('[TokenMonitoring] No flow context available for OAuth revocation', "Logger warning");
 		}
 	}
 
@@ -1245,12 +1245,12 @@ export class TokenMonitoringService {
 					throw new Error(`SSO sign-off failed: ${response.status} ${response.statusText}`);
 				}
 
-				logger.debug(`[TokenMonitoring] Successfully performed SSO sign-off`);
+				logger.debug(`[TokenMonitoring] Successfully performed SSO sign-off`, "Logger debug");
 			} else {
-				logger.warn('[TokenMonitoring] No credentials available for SSO sign-off');
+				logger.warn('[TokenMonitoring] No credentials available for SSO sign-off', "Logger warning");
 			}
 		} else {
-			logger.warn('[TokenMonitoring] No flow context available for SSO sign-off');
+			logger.warn('[TokenMonitoring] No flow context available for SSO sign-off', "Logger warning");
 		}
 	}
 
@@ -1289,12 +1289,12 @@ export class TokenMonitoringService {
 
 					logger.debug(
 						`[TokenMonitoring] Successfully deleted session ${options.sessionId} for user ${options.userId}`
-					);
+					, "Logger debug");
 				} else {
-					logger.warn('[TokenMonitoring] No credentials available for session deletion');
+					logger.warn('[TokenMonitoring] No credentials available for session deletion', "Logger warning");
 				}
 			} else {
-				logger.warn('[TokenMonitoring] No flow context available for session deletion');
+				logger.warn('[TokenMonitoring] No flow context available for session deletion', "Logger warning");
 			}
 		} catch (error) {
 			logger.warn('[TokenMonitoring] Failed to get worker token for session deletion:', error);

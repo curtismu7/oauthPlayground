@@ -21,11 +21,11 @@ export async function handleShowWorkerTokenModalSimple(
 	forceShowModal: boolean = false // User explicitly clicked button
 ): Promise<void> {
 	try {
-		logger.info(`${MODULE_TAG} Starting simple modal check`);
+		logger.info(`${MODULE_TAG} Starting simple modal check`, 'Logger info');
 
 		// If user explicitly clicked button, always show modal
 		if (forceShowModal) {
-			logger.info(`${MODULE_TAG} User clicked button → showing modal`);
+			logger.info(`${MODULE_TAG} User clicked button → showing modal`, 'Logger info');
 			setShowModal(true);
 			return;
 		}
@@ -39,13 +39,16 @@ export async function handleShowWorkerTokenModalSimple(
 		if (hasCredentials) {
 			// Credentials exist → NO MODAL
 			// Let the silent API do its thing in the background
-			logger.info(`${MODULE_TAG} Credentials exist → no modal needed`);
+			logger.info(`${MODULE_TAG} Credentials exist → no modal needed`, 'Logger info');
 			setShowModal(false);
 			return;
 		} else {
 			// No credentials → SHOW MODAL
 			// Tell user they need to enter credentials
-			logger.info(`${MODULE_TAG} No credentials → showing modal for credential entry`);
+			logger.info(
+				`${MODULE_TAG} No credentials → showing modal for credential entry`,
+				'Logger info'
+			);
 			setShowModal(true);
 			return;
 		}

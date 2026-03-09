@@ -34,7 +34,7 @@ export async function validateIdToken(
 	options: ImplicitFlowSecurityOptions
 ): Promise<TokenValidationResult> {
 	try {
-		logger.info(' [ImplicitFlowSecurity] Starting ID token validation...');
+		logger.info(' [ImplicitFlowSecurity] Starting ID token validation...', "Logger info");
 		logger.security('ImplicitFlowSecurity', 'Starting ID token validation', {
 			environmentId: options.environmentId,
 			clientId: options.clientId,
@@ -82,7 +82,7 @@ export async function validateIdToken(
 			clockTolerance: 300, // 5 minutes tolerance for clock skew
 		});
 
-		logger.info(' [ImplicitFlowSecurity] JWT signature verified successfully');
+		logger.info(' [ImplicitFlowSecurity] JWT signature verified successfully', "Logger info");
 		logger.security('ImplicitFlowSecurity', 'JWT signature verified', {
 			kid: payload.kid,
 			issuer: payload.iss,
@@ -169,7 +169,7 @@ export async function validateIdToken(
 			return { success: false, error };
 		}
 
-		logger.info(' [ImplicitFlowSecurity] ID token validation successful');
+		logger.info(' [ImplicitFlowSecurity] ID token validation successful', "Logger info");
 		logger.security('ImplicitFlowSecurity', 'ID token validation successful', {
 			subject: payload.sub,
 			issuer: payload.iss,
@@ -221,7 +221,7 @@ export function validateStateParameter(
 		};
 	}
 
-	logger.info(' [ImplicitFlowSecurity] State parameter validated successfully');
+	logger.info(' [ImplicitFlowSecurity] State parameter validated successfully', "Logger info");
 	logger.security('ImplicitFlowSecurity', 'State parameter validated', {
 		receivedLength: receivedState.length,
 		expectedLength: expectedState.length,
@@ -243,7 +243,7 @@ export function clearSecurityData(flowType: 'oauth2' | 'oidc'): void {
 	sessionStorage.removeItem(nonceKey);
 	sessionStorage.removeItem(flowContextKey);
 
-	logger.info(' [ImplicitFlowSecurity] Security data cleared from session storage');
+	logger.info(' [ImplicitFlowSecurity] Security data cleared from session storage', "Logger info");
 	logger.security('ImplicitFlowSecurity', 'Security data cleared', { flowType });
 }
 

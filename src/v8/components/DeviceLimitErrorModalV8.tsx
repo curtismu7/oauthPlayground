@@ -34,13 +34,13 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 	maxDevices,
 }) => {
 	const handleDeleteDevices = () => {
-		logger.info(`${MODULE_TAG} User clicked to delete devices`);
+		logger.info(`${MODULE_TAG} User clicked to delete devices`, "Logger info");
 		onClose();
 		onDeleteDevicesClick();
 	};
 
 	const handleManageDevices = () => {
-		logger.info(`${MODULE_TAG} User clicked to manage devices`);
+		logger.info(`${MODULE_TAG} User clicked to manage devices`, "Logger info");
 		onClose();
 		onDeleteDevicesClick();
 	};

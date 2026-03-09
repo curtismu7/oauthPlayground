@@ -63,7 +63,7 @@ export class RedirectStateManager {
 			// Validate state size
 			const stateString = JSON.stringify(state);
 			if (stateString.length > RedirectStateManager.MAX_STATE_SIZE) {
-				logger.warn('[RedirectStateManager] Flow state exceeds size limit');
+				logger.warn('[RedirectStateManager] Flow state exceeds size limit', "Logger warning");
 				return false;
 			}
 
@@ -100,7 +100,7 @@ export class RedirectStateManager {
 			const stateString = sessionStorage.getItem(stateKey);
 
 			if (!stateString) {
-				logger.info(`[RedirectStateManager] No preserved state found for ${flowId}`);
+				logger.info(`[RedirectStateManager] No preserved state found for ${flowId}`, "Logger info");
 				return null;
 			}
 
@@ -111,7 +111,7 @@ export class RedirectStateManager {
 				preservedState._timestamp &&
 				Date.now() - preservedState._timestamp > RedirectStateManager.MAX_STATE_AGE_MS
 			) {
-				logger.warn(`[RedirectStateManager] Preserved state for ${flowId} has expired`);
+				logger.warn(`[RedirectStateManager] Preserved state for ${flowId} has expired`, "Logger warning");
 				RedirectStateManager.clearFlowState(flowId);
 				return null;
 			}
@@ -140,7 +140,7 @@ export class RedirectStateManager {
 		try {
 			const stateKey = RedirectStateManager.getStateKey(flowId);
 			sessionStorage.removeItem(stateKey);
-			logger.info(`[RedirectStateManager] Cleared flow state for ${flowId}`);
+			logger.info(`[RedirectStateManager] Cleared flow state for ${flowId}`, "Logger info");
 		} catch (error) {
 			logger.error('[RedirectStateManager] Failed to clear flow state:', error);
 		}
@@ -155,7 +155,7 @@ export class RedirectStateManager {
 			const flowContext = FlowContextService.getFlowContext();
 
 			if (!flowContext) {
-				logger.info('[RedirectStateManager] No flow context found for redirect return');
+				logger.info('[RedirectStateManager] No flow context found for redirect return', "Logger info");
 				return {
 					success: true,
 					redirectUrl: '/dashboard',
@@ -164,7 +164,7 @@ export class RedirectStateManager {
 
 			// Validate security
 			if (!RedirectStateManager.validateRedirectSecurity(flowContext, callbackData)) {
-				logger.warn('[RedirectStateManager] Security validation failed');
+				logger.warn('[RedirectStateManager] Security validation failed', "Logger warning");
 				FlowContextService.clearFlowContext();
 				return {
 					success: false,
@@ -241,7 +241,7 @@ export class RedirectStateManager {
 				const callbackString = JSON.stringify(callbackData);
 				for (const pattern of dangerousPatterns) {
 					if (pattern.test(callbackString)) {
-						logger.warn('[RedirectStateManager] Dangerous pattern detected in callback data');
+						logger.warn('[RedirectStateManager] Dangerous pattern detected in callback data', "Logger warning");
 						return false;
 					}
 				}
@@ -249,7 +249,7 @@ export class RedirectStateManager {
 				// Validate state parameter if present
 				if (callbackData.state && typeof callbackData.state === 'string') {
 					if (callbackData.state.length > 1000) {
-						logger.warn('[RedirectStateManager] State parameter too long');
+						logger.warn('[RedirectStateManager] State parameter too long', "Logger warning");
 						return false;
 					}
 				}
@@ -342,11 +342,11 @@ export class RedirectStateManager {
 			// Remove expired states
 			keysToRemove.forEach((key) => {
 				sessionStorage.removeItem(key);
-				logger.info(`[RedirectStateManager] Cleaned up expired state: ${key}`);
+				logger.info(`[RedirectStateManager] Cleaned up expired state: ${key}`, "Logger info");
 			});
 
 			if (keysToRemove.length > 0) {
-				logger.info(`[RedirectStateManager] Cleaned up ${keysToRemove.length} expired states`);
+				logger.info(`[RedirectStateManager] Cleaned up ${keysToRemove.length} expired states`, "Logger info");
 			}
 		} catch (error) {
 			logger.error('[RedirectStateManager] Failed to cleanup expired states:', error);

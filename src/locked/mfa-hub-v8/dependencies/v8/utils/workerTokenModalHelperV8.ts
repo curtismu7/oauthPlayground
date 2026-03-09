@@ -51,7 +51,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		if (!credentials) {
 			logger.warn(
 				`${MODULE_TAG} No stored credentials for silent API retrieval - user needs to configure credentials first`
-			);
+			, "Logger warning");
 			// #region agent log
 			// #endregion
 			// Show a helpful toast when silent retrieval fails due to missing credentials
@@ -128,7 +128,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 
 				await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
-				logger.info(`${MODULE_TAG} Token automatically fetched and saved via silent API retrieval`);
+				logger.info(`${MODULE_TAG} Token automatically fetched and saved via silent API retrieval`, "Logger info");
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				toastV8.success('Worker token automatically retrieved!');
 				return true; // Success
@@ -307,7 +307,7 @@ export async function handleShowWorkerTokenModal(
 			// This is helpful even in silent mode, as user needs to configure credentials first
 			logger.info(
 				`${MODULE_TAG} Silent retrieval failed due to missing credentials - showing modal for configuration`
-			);
+			, "Logger info");
 			setShowModal(true);
 			return;
 		}
@@ -328,6 +328,6 @@ export async function handleShowWorkerTokenModal(
 	} else {
 		logger.info(
 			`${MODULE_TAG} Silent API retrieval is OFF and showTokenAtEnd is OFF - not showing modal`
-		);
+		, "Logger info");
 	}
 }

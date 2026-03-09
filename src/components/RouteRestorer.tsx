@@ -25,7 +25,7 @@ export const RouteRestorer: React.FC = () => {
 			sessionStorage.setItem('route_restored', 'true');
 
 			if (lastRoute && lastRoute !== '/') {
-				logger.info(`🔄 [RouteRestorer] Restoring last route: ${lastRoute}`);
+				logger.info(`🔄 [RouteRestorer] Restoring last route: ${lastRoute}`, "Logger info");
 				navigate(lastRoute, { replace: true });
 			} else {
 				logger.info(`🏠 [RouteRestorer] No last route, staying at default`);

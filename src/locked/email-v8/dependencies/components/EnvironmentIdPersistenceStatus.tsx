@@ -72,21 +72,21 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	}, []);
 
 	const handleCopyEnvContent = () => {
-		logger.info('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Copy .env content clicked', "Logger info");
 		const envContent = environmentIdPersistenceService.generateEnvContent();
 		logger.info('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
-			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard');
+			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard', "Logger info");
 			v4ToastManager.showSuccess('Environment content copied to clipboard!');
 		});
 	};
 
 	const handleUpdateEnv = () => {
-		logger.info('[EnvironmentIdPersistenceStatus] Update .env clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Update .env clicked', "Logger info");
 		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
 		logger.info('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
-			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
+			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline', "Logger info");
 			v4ToastManager.showSuccess(
 				'Environment content copied! Paste into your .env file on a new line.'
 			);
@@ -94,9 +94,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleClearPersistence = () => {
-		logger.info('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Clear persistence clicked', "Logger info");
 		environmentIdPersistenceService.clearEnvironmentId();
-		logger.info('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
+		logger.info('[EnvironmentIdPersistenceStatus] Cleared from localStorage', "Logger info");
 		if (onRefresh) onRefresh();
 	};
 

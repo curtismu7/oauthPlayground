@@ -137,7 +137,7 @@ async function listMfaDevices() {
     
     // Display devices to user
     devices.forEach((device: any, index: number) => {
-      logger.info(\`[\${index + 1}] \${device.type} - \${device.name}\`);
+      logger.info(\`[\${index + 1}] \${device.type} - \${device.name}\`, "Logger info");
     });
     
     return devices;
@@ -181,7 +181,7 @@ async function sendMfaChallenge() {
     }
 
     const data = await response.json();
-    logger.info('MFA challenge sent successfully');
+    logger.info('MFA challenge sent successfully', "Logger info");
     logger.info('Challenge ID:', data.id);
     logger.info('Expires at:', data.expiresAt);
     
@@ -236,9 +236,9 @@ async function verifyMfaCode() {
     logger.info('MFA verification result:', isVerified ? 'SUCCESS' : 'FAILED');
     
     if (isVerified) {
-      logger.info('User successfully authenticated with MFA');
+      logger.info('User successfully authenticated with MFA', "Logger info");
     } else {
-      logger.info('Invalid code. Please try again.');
+      logger.info('Invalid code. Please try again.', "Logger info");
     }
     
     return isVerified;

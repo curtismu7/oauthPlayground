@@ -99,7 +99,7 @@ const validateIdToken = (idToken: string, expectedNonce: string): boolean => {
 	try {
 		const parts = idToken.split('.');
 		if (parts.length !== 3) {
-			logger.error('Invalid ID token structure');
+			logger.error('Invalid ID token structure', "Logger error");
 			return false;
 		}
 
@@ -115,7 +115,7 @@ const validateIdToken = (idToken: string, expectedNonce: string): boolean => {
 		// Check expiration
 		const now = Math.floor(Date.now() / 1000);
 		if (payload.exp && payload.exp < now) {
-			logger.error('ID token expired');
+			logger.error('ID token expired', "Logger error");
 			return false;
 		}
 
@@ -136,7 +136,7 @@ const HybridCallback: React.FC = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				logger.info('Processing hybrid flow callback');
+				logger.info('Processing hybrid flow callback', "Logger info");
 
 				// Parse fragment parameters (hybrid flow returns tokens in fragment)
 				const fragment = window.location.hash.substring(1);

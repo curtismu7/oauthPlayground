@@ -912,7 +912,7 @@ class DeviceRegistrationManager {
 // - Redirect URI: ${config.config.redirectUri}
 // - User ID: ${config.config.userId}
 
-logger.info('Template not yet implemented for ${config.codeType}');`,
+logger.info('Template not yet implemented for ${config.codeType}', "Logger info");`,
 			language: 'typescript',
 			dependencies: [],
 			description: `Template for ${config.codeType} - ${config.flowStep} (Coming Soon)`,

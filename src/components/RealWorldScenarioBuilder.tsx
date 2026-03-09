@@ -1144,10 +1144,10 @@ async function deviceFlowAuth() {
   const deviceData = await deviceResponse.json();
   
   // Display to user
-  logger.info(\`\\n🔐 To activate this device:\`);
-  logger.info(\`\\n   1. Visit: \${deviceData.verification_uri}\`);
-  logger.info(\`   2. Enter code: \${deviceData.user_code}\`);
-  logger.info(\`\\n   Waiting for authorization...\\n\`);
+  logger.info(\`\\n🔐 To activate this device:\`, "Logger info");
+  logger.info(\`\\n   1. Visit: \${deviceData.verification_uri}\`, "Logger info");
+  logger.info(\`   2. Enter code: \${deviceData.user_code}\`, "Logger info");
+  logger.info(\`\\n   Waiting for authorization...\\n\`, "Logger info");
   
   // Step 2: Poll for tokens
   const interval = deviceData.interval || 5; // seconds
@@ -1194,7 +1194,7 @@ async function deviceFlowAuth() {
     }
     
     // Success!
-    logger.info('\\n\\n✅ Device authorized!\\n');
+    logger.info('\\n\\n✅ Device authorized!\\n', "Logger info");
     return result;
   }
 }
