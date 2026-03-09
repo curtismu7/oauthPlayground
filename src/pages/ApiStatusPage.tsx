@@ -6,6 +6,7 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
