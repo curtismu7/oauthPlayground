@@ -68,7 +68,8 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 			// Form will be reset by useEffect when modal closes
 		} catch (error) {
 			// Error handling is done in parent component
-			logger.error(`${MODULE_TAG} Failed to create policy:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(`${MODULE_TAG} Failed to create policy`, errorMessage, { error });
 		}
 	};
 

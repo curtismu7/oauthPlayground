@@ -30,7 +30,7 @@
 		"noImplicitReturns": true,
 		"noImplicitThis": true,
 		"alwaysStrict": true,
-		"ignoreDeprecations": "6.0",
+		"ignoreDeprecations": "5.0",
 		"downlevelIteration": true,
 
 		/* Path mapping */

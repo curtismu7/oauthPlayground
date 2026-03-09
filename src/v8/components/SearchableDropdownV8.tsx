@@ -154,7 +154,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 
 		// If user clears the search, keep dropdown open to show full list
 		if (newSearchTerm === '') {
-			logger.info(`${MODULE_TAG} Search cleared - dropdown stays open`, "Logger info");
+			logger.info(`${MODULE_TAG} Search cleared - dropdown stays open`, 'Logger info');
 		}
 	};
 

@@ -116,7 +116,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								]);
 								setKrpCompliance(krpComplianceData);
 							} catch (error) {
-								logger.warn(`${MODULE_TAG} Failed to fetch KRP status:`, error);
+								const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+								logger.warn(`${MODULE_TAG} Failed to fetch KRP status:`, errorMessage, 'KRP status fetch failed');
 							}
 						}
 					}
@@ -175,15 +176,20 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						setRegion(creds.region || 'us');
 						setCustomDomain(creds.customDomain || '');
 						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-						logger.debug(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`, "Logger debug");
+						logger.debug(
+							`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`,
+							'Logger debug'
+						);
 					} else {
-						logger.debug(`${MODULE_TAG} No credentials found in unified storage`, "Logger debug");
+						logger.debug(`${MODULE_TAG} No credentials found in unified storage`, 'Logger debug');
 					}
 				})
 				.catch((error) => {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					logger.error(
 						`${MODULE_TAG} Failed to load credentials from unifiedWorkerTokenService:`,
-						error
+						errorMessage,
+						'Failed to load credentials'
 					);
 				});
 		}
@@ -251,9 +257,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				// If we have a valid token, use it for validation
 				if (tokenValidation?.isValid) {
-					logger.debug(`${MODULE_TAG} 🔑 Using existing token for validation`, "Logger debug");
+					logger.debug(`${MODULE_TAG} 🔑 Using existing token for validation`, 'Using existing token', { tokenValidation });
 				} else {
-					logger.debug(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
+					logger.debug(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`, 'No valid token found', {});
 				}
 
 				// Validate OAuth configuration — race against a 12 s timeout so a
@@ -267,7 +273,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						errors: string[];
 					}>((resolve) =>
 						setTimeout(() => {
-							logger.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`, "Logger warning");
+							logger.warn(
+								`${MODULE_TAG} Pre-flight validation timed out — skipping`,
+								'Logger warning'
+							);
 							resolve({ passed: true, warnings: [], errors: [] });
 						}, PREFLIGHT_TIMEOUT_MS)
 					);
@@ -284,9 +293,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								postLogoutRedirectUri: '', // Not needed for worker tokens
 								scopes: normalizedScopes.join(' '), // Convert array to string
 								responseType: '', // Not needed for worker tokens
-								clientAuthMethod: authMethod,
+								clientAuthMethod: authMethod || 'client_secret_basic',
 							},
-							workerToken: tokenValidation.token,
+							workerToken: tokenValidation.token || '',
 						}),
 						timeoutPromise,
 					]);
@@ -304,8 +313,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						) {
 							// If only 'openid' is mentioned, it might be a false positive for worker tokens
 							logger.warn(
-								`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`
-							, "Logger warning");
+								`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`,
+								'Logger warning'
+							);
 						}
 
 						// Show other validation errors
@@ -346,16 +356,16 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					'Content-Type': 'application/x-www-form-urlencoded',
 				};
 
-				logger.debug(`${MODULE_TAG} 🔍 Debug - Auth method:`, authMethod);
+				logger.debug(`${MODULE_TAG} 🔍 Debug - Auth method:`, JSON.stringify(authMethod), 'Auth method debug');
 				logger.debug(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
 
 				if (authMethod === 'client_secret_post') {
 					params.set('client_secret', clientSecret.trim());
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_post method`, "Logger debug");
+					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_post method`, 'Logger debug');
 				} else if (authMethod === 'client_secret_basic') {
 					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
 					headers.Authorization = `Basic ${basicAuth}`;
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_basic method`, "Logger debug");
+					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_basic method`, 'Logger debug');
 				} else {
 					logger.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
 				}
@@ -382,10 +392,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					// Success handled in main function
 				},
 				onError: (error) => {
-					logger.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+					const loggerErrorMessage = error instanceof Error ? error.message : 'Unknown error';
+					logger.error(`${MODULE_TAG} Pre-flight validation error:`, loggerErrorMessage, { error });
 
 					// Enhanced error handling for token-related issues
-					let errorMessage = 'Pre-flight validation failed';
+					let displayMessage = 'Pre-flight validation failed';
 
 					if (error instanceof Error) {
 						const errorStr = error.message.toLowerCase();
@@ -399,14 +410,14 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							errorStr.includes('token required') ||
 							errorStr.includes('worker token')
 						) {
-							errorMessage =
+							displayMessage =
 								'Worker token is invalid or expired. Please generate a new worker token.';
 						} else if (errorStr.includes('unsupported authentication method')) {
-							errorMessage =
+							displayMessage =
 								'Your PingOne Worker application authentication method doesn\'t match. Please check your Worker app settings in PingOne and ensure the "Token Endpoint Authentication Method" matches the selected method.';
-							setAuthMethodError(errorMessage);
+							setAuthMethodError(displayMessage);
 						} else {
-							errorMessage = error.message;
+							displayMessage = error.message || 'Unknown error occurred';
 						}
 					}
 
@@ -414,7 +425,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
-						message: errorMessage,
+						message: displayMessage,
 						dismissible: true,
 					});
 				},
@@ -439,13 +450,13 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				clientSecret: clientSecret.trim(),
 				scopes: scopeList,
 				region,
-				customDomain: customDomain.trim() || undefined,
+				customDomain: customDomain?.trim() || '',
 				tokenEndpointAuthMethod: authMethod,
 			});
 
 			// Track the API call
 			const startTime = Date.now();
-			logger.debug(`${MODULE_TAG} 🚀 Making token request:`, {
+			logger.debug(`${MODULE_TAG} 🚀 Making token request`, 'Making token request', {
 				tokenEndpoint: requestDetails.tokenEndpoint,
 				authMethod: requestDetails.authMethod,
 				hasClientSecret: !!requestDetails.requestParams.client_secret,
@@ -472,7 +483,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				body: requestDetails.resolvedBody,
 			});
 
-			logger.debug(`${MODULE_TAG} 📡 Token response:`, {
+			logger.debug(`${MODULE_TAG} 📡 Token response`, 'Token response', {
 				status: response.status,
 				statusText: response.statusText,
 				ok: response.ok,
@@ -482,11 +493,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			let responseData: unknown;
 			try {
 				responseData = await response.json();
-				logger.debug(`${MODULE_TAG} 📄 Response data:`, responseData);
+				logger.debug(`${MODULE_TAG} 📄 Response data`, 'Response data', { responseData });
 			} catch {
 				const raw = await response.text();
 				responseData = raw ? { raw } : null;
-				logger.debug(`${MODULE_TAG} 📄 Raw response:`, raw);
+				logger.debug(`${MODULE_TAG} 📄 Raw response`, raw || 'empty', { raw });
 			}
 
 			// Update API call tracking
@@ -517,7 +528,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						requestDetails.authMethod === 'client_secret_basic'
 							? ('client_secret_post' as const)
 							: ('client_secret_basic' as const);
-					logger.debug(`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`, "Logger debug");
+					logger.debug(
+						`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`,
+						'Logger debug'
+					);
 
 					const retryParams = new URLSearchParams(requestDetails.resolvedBody);
 					const retryHeaders: Record<string, string> = {
@@ -596,7 +610,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Also save credentials to MFA flow for MFA Hub compatibility
 			try {
 				const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				const stored = await CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 					flowKey: 'mfa-flow-v8',
 					flowType: 'oidc',
 					includeClientSecret: false,
@@ -607,10 +621,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
 					...stored,
 					environmentId: environmentId.trim(),
-					username: stored.username || '',
+					clientId: clientId.trim(),
 				});
 			} catch (credError) {
-				logger.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow:', credError);
+				const errorMessage = credError instanceof Error ? credError.message : String(credError);
+				logger.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow', errorMessage, { credError });
 			}
 
 			// Cache the token for future preflight validation
@@ -628,9 +643,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Dispatch event for status update
-			logger.debug(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`, "Logger debug");
+			logger.debug(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`, 'Logger debug');
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			logger.debug(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`, "Logger debug");
+			logger.debug(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`, 'Logger debug');
 
 			modernMessaging.showFooterMessage({
 				type: 'info',
@@ -650,10 +665,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			return token;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Token generation error`, error);
+			const loggerErrorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(`${MODULE_TAG} Token generation error`, loggerErrorMessage, { error });
 
 			// Enhanced error handling for token generation
-			let errorMessage = 'Failed to generate token';
+			let displayMessage = 'Failed to generate token';
 
 			if (error instanceof Error) {
 				const errorStr = error.message.toLowerCase();
@@ -667,23 +683,23 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					errorStr.includes('token required') ||
 					errorStr.includes('worker token')
 				) {
-					errorMessage =
+					displayMessage =
 						'Worker token is invalid or expired. Please check your credentials and try again.';
 				} else if (errorStr.includes('400') || errorStr.includes('bad request')) {
-					errorMessage = 'Invalid request. Please check your environment ID and credentials.';
+					displayMessage = 'Invalid request. Please check your environment ID and credentials.';
 				} else if (errorStr.includes('403') || errorStr.includes('forbidden')) {
-					errorMessage = 'Access forbidden. Please check your permissions and credentials.';
+					displayMessage = 'Access forbidden. Please check your permissions and credentials.';
 				} else if (errorStr.includes('network') || errorStr.includes('fetch')) {
-					errorMessage = 'Network error. Please check your connection and try again.';
+					displayMessage = 'Network error. Please check your connection and try again.';
 				} else {
-					errorMessage = error.message;
+					displayMessage = error.message || 'Unknown error occurred';
 				}
 			}
 
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
-				message: errorMessage,
+				message: displayMessage,
 				dismissible: true,
 			});
 			return null;
@@ -889,7 +905,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 															duration: 3000,
 														});
 													} catch (error) {
-														logger.error(`${MODULE_TAG} Failed to save token:`, error);
+														const errorMessage = error instanceof Error ? error.message : String(error);
+														logger.error(`${MODULE_TAG} Failed to save token`, errorMessage, { error });
 														modernMessaging.showBanner({
 															type: 'error',
 															title: 'Error',
@@ -976,7 +993,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											{ access_token: currentToken },
 											'oauth',
 											'worker-token-current-v8',
-											true
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
 										)}
 									</div>
 
@@ -1595,7 +1615,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																	? normalizedScopes
 																	: [PINGONE_WORKER_MFA_SCOPE_STRING],
 															region,
-															customDomain: customDomain.trim() || undefined,
+															customDomain: customDomain?.trim() || '',
 															authMethod:
 																authMethod === 'client_secret_basic' ||
 																authMethod === 'client_secret_post'
@@ -1610,7 +1630,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 															duration: 3000,
 														});
 													} catch (error) {
-														logger.error(`${MODULE_TAG} Export error:`, error);
+														const errorMessage = error instanceof Error ? error.message : String(error);
+														logger.error(`${MODULE_TAG} Export error`, errorMessage, { error });
 														modernMessaging.showBanner({
 															type: 'error',
 															title: 'Error',
@@ -1701,7 +1722,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																});
 															}
 														} catch (error) {
-															logger.error(`${MODULE_TAG} Import error:`, error);
+															logger.error(`${MODULE_TAG} Import error:`, error instanceof Error ? error.message : String(error));
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',

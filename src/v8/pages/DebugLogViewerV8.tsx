@@ -378,8 +378,9 @@ export const DebugLogViewerV8: React.FC = () => {
 						const availableStores = Array.from(db.objectStoreNames);
 						if (availableStores.length === 0) {
 							logger.warn(
-								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`
-							, "Logger warning");
+								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`,
+								'Logger warning'
+							);
 							db.close();
 							resolve([]); // Graceful fallback: empty result instead of hard error
 							return;
@@ -518,7 +519,8 @@ export const DebugLogViewerV8: React.FC = () => {
 					logEntries.push(entry);
 				} catch (parseError) {
 					// If line is not valid JSON, add it as a simple log entry
-					logger.warn('Failed to parse callback debug log entry:', parseError);
+					const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error';
+					logger.warn('Failed to parse callback debug log entry:', errorMessage, 'Parse error in debug log');
 					const entry: LogEntry = {
 						timestamp: new Date().toISOString(),
 						level: 'WARN',
