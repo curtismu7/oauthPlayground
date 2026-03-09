@@ -11,7 +11,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U.tsx';
 import { AppDiscoveryServiceV8 } from '../services/appDiscoveryServiceV8.ts';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '../services/authMethodServiceV8.ts';
@@ -169,17 +169,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						? defaultRedirectUriForMfa
 						: savedRedirectUri;
 
-				// #region agent log
-				sendAnalyticsLog({
-					location: 'UserLoginModalV8.tsx:134',
-					message: 'Initial redirect URI loaded from saved credentials',
-					data: { savedRedirectUri, defaultRedirectUriForMfa, initialRedirectUri, isMfaFlow },
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'C',
-				});
-				// #endregion
 
 				setRedirectUri(initialRedirectUri);
 
@@ -218,22 +207,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'UserLoginModalV8.tsx:189',
-			message: 'Callback processing useEffect running',
-			data: {
-				isOpen,
-				locationSearch: location.search,
-				showSuccessPage,
-				hasSessionInfo: !!sessionInfo,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run3',
-			hypothesisId: 'F',
-		});
-		// #endregion
 
 		// Check if we're returning from a callback (check both when modal opens and on URL change)
 		const checkCallback = async () => {
@@ -252,23 +225,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const error = searchParams.get('error') || windowSearchParams.get('error');
 			const state = searchParams.get('state') || windowSearchParams.get('state');
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'UserLoginModalV8.tsx:207',
-				message: 'checkCallback function called',
-				data: {
-					hasCode: !!code,
-					hasError: !!error,
-					hasState: !!state,
-					fromSearchParams: !!searchParams.get('code'),
-					fromWindowLocation: !!windowSearchParams.get('code'),
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			});
-			// #endregion
 
 			// Only process if we have a stored state (confirms this is from our user login flow)
 			const storedState = sessionStorage.getItem('user_login_state_v8');
@@ -342,23 +298,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				try {
 					let credentials = JSON.parse(storedCredentials);
 
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'UserLoginModalV8.tsx:260',
-						message: 'About to exchange code for tokens',
-						data: {
-							hasCode: !!code,
-							hasCodeVerifier: !!storedCodeVerifier,
-							hasCredentials: !!storedCredentials,
-							environmentId: credentials.environmentId,
-							clientId: credentials.clientId,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run3',
-						hypothesisId: 'F',
-					});
-					// #endregion
 
 					// CRITICAL: Fetch app config from PingOne to ensure we use the correct auth method
 					// This prevents "Unsupported authentication method" errors
@@ -421,21 +360,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						storedCodeVerifier
 					);
 
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'UserLoginModalV8.tsx:282',
-						message: 'Token exchange successful',
-						data: {
-							hasAccessToken: !!tokenResponse.access_token,
-							accessTokenLength: tokenResponse.access_token?.length,
-							tokenType: tokenResponse.token_type,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run3',
-						hypothesisId: 'F',
-					});
-					// #endregion
 
 					// Clean up session storage
 					sessionStorage.removeItem('user_login_state_v8');
@@ -472,39 +396,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Show success page - CRITICAL: Set this AFTER sessionInfo to ensure both are set
 					setShowSuccessPage(true);
 
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'UserLoginModalV8.tsx:377',
-						message: 'Success page state set',
-						data: {
-							showSuccessPage: true,
-							hasSessionInfo: !!newSessionInfo,
-							hasAccessToken: !!newSessionInfo.accessToken,
-							hasIdToken: !!newSessionInfo.idToken,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run3',
-						hypothesisId: 'F',
-					});
-					// #endregion
 
 					// Use access token (callback for parent components)
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'UserLoginModalV8.tsx:308',
-						message: 'Calling handleTokenReceived callback',
-						data: {
-							hasToken: !!tokenResponse.access_token,
-							tokenLength: tokenResponse.access_token?.length,
-							hasOnTokenReceived: !!onTokenReceived,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run3',
-						hypothesisId: 'F',
-					});
-					// #endregion
 
 					// CRITICAL: Mark success page as set BEFORE calling onTokenReceived
 					// This prevents the useEffect from clearing it if parent closes modal
@@ -582,26 +475,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const windowHasCode = windowSearchParams.get('code');
 		const windowHasError = windowSearchParams.get('error');
 
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'UserLoginModalV8.tsx:377',
-			message: 'Checking if callback should be processed',
-			data: {
-				hasCode: !!hasCode,
-				hasError: !!hasError,
-				hasStoredState: !!hasStoredState,
-				windowHasCode: !!windowHasCode,
-				windowHasError: !!windowHasError,
-				windowLocationSearch: window.location.search,
-				willProcessWithSearchParams: (hasCode || hasError) && hasStoredState,
-				willProcessWithWindow: (windowHasCode || windowHasError) && hasStoredState,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run3',
-			hypothesisId: 'F',
-		});
-		// #endregion
 
 		// Only process if we have a code/error AND stored state (to avoid processing other OAuth flows)
 		// Use window.location.search as fallback since window.location.replace bypasses React Router
@@ -925,17 +798,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		// Use the value from the modal field, only fall back if empty or invalid
 		const fieldValue = redirectUri.trim();
 
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'UserLoginModalV8.tsx:604',
-			message: 'Redirect URI field value check',
-			data: { fieldValue, isMfaFlow, defaultRedirectUriForMfa, currentPath: location.pathname },
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'A',
-		});
-		// #endregion
 
 		const finalRedirectUri =
 			fieldValue &&
@@ -945,22 +807,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				? fieldValue
 				: defaultRedirectUriForMfa;
 
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'UserLoginModalV8.tsx:614',
-			message: 'Redirect URI decision result',
-			data: {
-				fieldValue,
-				finalRedirectUri,
-				defaultRedirectUriForMfa,
-				willUseFieldValue: fieldValue === finalRedirectUri,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'A',
-		});
-		// #endregion
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
 		const FLOW_KEY = 'user-login-v8';
@@ -991,22 +837,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const urlObj = new URL(authorizationUrl);
 			const urlRedirectUri = urlObj.searchParams.get('redirect_uri');
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'UserLoginModalV8.tsx:657',
-				message: 'Authorization URL redirect_uri check',
-				data: {
-					expectedRedirectUri: finalRedirectUri,
-					actualRedirectUriInUrl: urlRedirectUri,
-					match: finalRedirectUri === urlRedirectUri,
-					fullAuthorizationUrl: authorizationUrl,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'D',
-			});
-			// #endregion
 
 			// Store state, code verifier, and credentials for validation and token exchange
 			sessionStorage.setItem('user_login_state_v8', state);
@@ -1036,23 +866,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
 
-				// #region agent log
-				sendAnalyticsLog({
-					location: 'UserLoginModalV8.tsx:691',
-					message: 'Stored return path to MFA flow',
-					data: {
-						fullPath,
-						currentPath,
-						currentSearch,
-						redirectUri: finalRedirectUri,
-						isMfaFlow,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'B',
-				});
-				// #endregion
 			} else {
 				logger.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,

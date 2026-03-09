@@ -15,7 +15,7 @@
 
 import React, { useState } from 'react';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 const MODULE_TAG = '[🌐 ISSUER-URL-V8]';
 

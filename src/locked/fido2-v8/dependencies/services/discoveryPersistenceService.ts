@@ -15,7 +15,7 @@
  * - Environment ID → Full config mapping
  */
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 export interface PersistedDiscoveryData {
 	environmentId: string;

@@ -5,7 +5,7 @@
  * to eliminate hardcoded localhost URLs and ensure proper flow-specific routing.
  */
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { FLOW_REDIRECT_URI_MAPPING } from '../utils/flowRedirectUriMapping';
 
 const OVERRIDE_STORAGE_KEY = 'callback_uri_overrides';

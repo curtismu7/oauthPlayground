@@ -1,5 +1,5 @@
 // src/v8/services/oauthErrorCodesServiceV8.ts
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 /**
  * @file oauthErrorCodesServiceV8.ts
