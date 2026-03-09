@@ -65,10 +65,14 @@ const PersistentLogger = {
 			logger.warn('Failed to save debug log to localStorage:', error);
 		}
 
-		// Also log to console for immediate visibility
-		const consoleMethod =
-			level === 'ERROR' ? console.error : level === 'WARN' ? console.warn : console.log;
-		consoleMethod(`${DEBUG_PREFIX} [${category}] ${message}`, data || '');
+		// Log using structured logger
+		if (level === 'ERROR') {
+			logger.error('mfaRedirectUriServiceV8', `[${category}] ${message}`, data || undefined);
+		} else if (level === 'WARN') {
+			logger.warn('mfaRedirectUriServiceV8', `[${category}] ${message}`, data || undefined);
+		} else {
+			logger.info('mfaRedirectUriServiceV8', `[${category}] ${message}`, data || undefined);
+		}
 	},
 
 	/**
@@ -204,7 +208,7 @@ const MFARedirectUriDebugger = {
 	logRedirectUriDetails(flowType: string, redirectUri: string | null, fallback?: string): void {
 		if (!DEBUG_MODE) return;
 
-		console.group(`${DEBUG_PREFIX} Redirect URI Analysis for: ${flowType}`);
+		logger.info('mfaRedirectUriServiceV8', `[Redirect URI Analysis] ${flowType}`);
 		logger.info('📍 Flow Type:', flowType);
 		logger.info('🔗 Generated Redirect URI:', redirectUri);
 		logger.info('🌐 Current Origin:', window.location.origin);
@@ -239,7 +243,6 @@ const MFARedirectUriDebugger = {
 			logger.warn('⚠️ No flow configuration found for:', flowType);
 		}
 
-		console.groupEnd();
 	},
 
 	/**
@@ -248,7 +251,7 @@ const MFARedirectUriDebugger = {
 	logMigration(oldUri: string | undefined, newUri: string, flowType: string): void {
 		if (!DEBUG_MODE) return;
 
-		console.group(`${DEBUG_PREFIX} URI Migration`);
+		logger.info('mfaRedirectUriServiceV8', '[URI Migration]');
 		logger.info('🔄 Flow Type:', flowType);
 		logger.info('📤 Old URI:', oldUri || 'None');
 		logger.info('📥 New URI:', newUri);
@@ -256,7 +259,6 @@ const MFARedirectUriDebugger = {
 			`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`,
 			'Logger info'
 		);
-		console.groupEnd();
 	},
 
 	/**
@@ -282,7 +284,7 @@ const MFARedirectUriDebugger = {
 			}
 		}
 
-		console.group(`${DEBUG_PREFIX} URI Validation for: ${flowType}`);
+		logger.info('mfaRedirectUriServiceV8', `[URI Validation] ${flowType}`);
 		logger.info('🔗 URI:', uri);
 
 		if (issues.length > 0) {
@@ -294,7 +296,6 @@ const MFARedirectUriDebugger = {
 			logger.info('✅ URI validation passed', 'Logger info');
 		}
 
-		console.groupEnd();
 	},
 
 	/**
@@ -305,7 +306,7 @@ const MFARedirectUriDebugger = {
 
 		const allConfigs = getAllFlowRedirectUriConfigs();
 
-		console.group(`${DEBUG_PREFIX} All Flow Mappings`);
+		logger.info('mfaRedirectUriServiceV8', '[All Flow Mappings]');
 		logger.info('📊 Total flows configured:', allConfigs.length);
 
 		allConfigs.forEach((config) => {
@@ -316,7 +317,6 @@ const MFARedirectUriDebugger = {
 			});
 		});
 
-		console.groupEnd();
 	},
 };
 
