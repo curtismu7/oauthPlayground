@@ -1,8 +1,8 @@
 /**
-import { logger } from '../../../../utils/logger';
  * Storage utility for managing browser storage (localStorage, sessionStorage)
  */
 
+import { logger } from '../../../../utils/logger';
 import {
 	OAuthConfig,
 	OAuthStorage,

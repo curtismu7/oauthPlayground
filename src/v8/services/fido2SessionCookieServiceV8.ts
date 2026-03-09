@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * FIDO2 Session Cookie Service
  *
  * Detects PingOne session cookies and determines if FIDO2 platform devices
@@ -11,6 +10,7 @@ import { logger } from '../../utils/logger';
  * even if it is not the default device."
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 FIDO2-SESSION-COOKIE-V8]';
 
 /**
