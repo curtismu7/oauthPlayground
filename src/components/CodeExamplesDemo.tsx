@@ -96,16 +96,16 @@ const FlowSelector = styled.div`
 
 const FlowButton = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
-	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 6px;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 	}
 `;
 
@@ -118,16 +118,16 @@ const StepSelector = styled.div`
 
 const StepButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 4px;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
 	font-size: 0.875rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 	}
 `;
 

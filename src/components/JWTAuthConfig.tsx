@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
@@ -101,16 +100,16 @@ const AuthMethodSelector = styled.div`
 `;
 
 const MethodCard = styled.div<{ $selected: boolean; $disabled?: boolean }>`
-  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   padding: 1rem;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   transition: all 0.2s;
-  background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+  background: ${({ $selected }) => ($selected ? '#f8fafc' : 'white')};
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   
   &:hover:not([disabled]) {
-    border-color: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : '#94a3b8')};
+    border-color: ${({ $selected }) => ($selected ? '#3b82f6' : '#94a3b8')};
   }
   
   .method-header {
@@ -125,7 +124,7 @@ const MethodCard = styled.div<{ $selected: boolean; $disabled?: boolean }>`
     }
     
     .method-badge {
-      background: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+      background: ${({ $selected }) => ($selected ? '#3b82f6' : '#6b7280')};
       color: white;
       padding: 0.125rem 0.5rem;
       border-radius: 0.25rem;
@@ -509,10 +508,14 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 								background: 'none',
 								border: 'none',
 								cursor: 'pointer',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 							}}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</button>
 					</div>
 					<div className="help-text">The client secret for your PingOne application</div>
@@ -547,10 +550,14 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 									background: 'none',
 									border: 'none',
 									cursor: 'pointer',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
-								{showPrivateKey ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+								{showPrivateKey ? (
+									<span style={{ fontSize: '16px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '16px' }}>👁️</span>
+								)}
 							</button>
 						</div>
 						<div className="help-text">

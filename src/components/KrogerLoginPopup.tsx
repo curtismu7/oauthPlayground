@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -14,7 +13,7 @@ const KROGER_COLORS = {
 	white: '#FFFFFF',
 	lightGray: '#F5F5F5',
 	darkGray: '#333333',
-	black: 'V9_COLORS.TEXT.BLACK',
+	black: '#000000',
 };
 
 const clampChannel = (value: number) => Math.min(255, Math.max(0, value));
@@ -158,7 +157,7 @@ const LogoMark = styled.div<{
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: ${({ $backgroundColor }) => $backgroundColor ?? 'V9_COLORS.TEXT.WHITE'};
+  background: ${({ $backgroundColor }) => $backgroundColor ?? '#ffffff'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,8 +190,8 @@ const Content = styled.div<{
 	$contentTextColor?: string | undefined;
 }>`
   padding: 32px 28px;
-  background: ${({ $contentBackground }) => $contentBackground ?? 'V9_COLORS.TEXT.WHITE'};
-  color: ${({ $contentTextColor }) => $contentTextColor ?? 'V9_COLORS.TEXT.GRAY_DARK'};
+  background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
+  color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
 `;
 
 const Form = styled.form`
@@ -692,7 +691,11 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 									onClick={() => setShowPassword((prev) => !prev)}
 									aria-label={showPassword ? 'Hide password' : 'Show password'}
 								>
-									{showPassword ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+									{showPassword ? (
+										<span style={{ fontSize: '18px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '18px' }}>👁️</span>
+									)}
 								</PasswordToggleButton>
 							</InputWrapper>
 						</InputGroup>

@@ -1,9 +1,8 @@
 // src/components/InlineDocumentation.tsx - Enhanced inline documentation
 
-
+import { FiBook, FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiBook, FiCode } from '@icons';
 
 const DocContainer = styled.div`
   margin: 1rem 0;
@@ -195,9 +194,7 @@ export const QuickReference: React.FC<QuickReferenceProps> = ({ title, items }) 
 			<DocSectionTitle>{title}</DocSectionTitle>
 			{items.map((item, index) => (
 				<div key={index} style={{ marginBottom: '0.75rem' }}>
-					<div
-						style={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-					>
+					<div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
 						{item.term}
 					</div>
 					<DocText>{item.definition}</DocText>
@@ -228,15 +225,13 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 			<DocSectionTitle> Troubleshooting: {issue}</DocSectionTitle>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<strong style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
-					Symptoms:
-				</strong>
+				<strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>
 				<ul
 					style={{
 						margin: '0.25rem 0',
 						paddingLeft: '1.5rem',
 						fontSize: '0.8rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 					}}
 				>
 					{symptoms && symptoms.length > 0 ? (
@@ -248,9 +243,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 			</div>
 
 			<div>
-				<strong style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
-					Solutions:
-				</strong>
+				<strong style={{ fontSize: '0.8rem', color: '#059669' }}>Solutions:</strong>
 				{solutions && solutions.length > 0 ? (
 					solutions.map((solution, index) => (
 						<div key={index} style={{ margin: '0.5rem 0' }}>
@@ -258,7 +251,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 								style={{
 									fontWeight: 'bold',
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								{solution.title}
@@ -268,7 +261,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 									margin: '0.25rem 0',
 									paddingLeft: '1.5rem',
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								{solution.steps && solution.steps.length > 0 ? (
@@ -281,9 +274,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 						</div>
 					))
 				) : (
-					<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-						No solutions available
-					</div>
+					<div style={{ fontSize: '0.8rem', color: '#6b7280' }}>No solutions available</div>
 				)}
 			</div>
 		</DocSection>

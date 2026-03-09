@@ -1,7 +1,6 @@
-
+import { FiArrowDown } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { FiArrowDown } from '@icons';
 
 interface FlowStep {
 	id: string;
@@ -71,11 +70,11 @@ const FlowButton = styled.button<{ $selected: boolean }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   background: ${({ $selected }) =>
 		$selected ? 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)' : 'white'};
-  color: ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $selected }) => ($selected ? '#2563eb' : '#1f2937')};
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -174,15 +173,15 @@ const ActorCard = styled.div<{ $actor: string }>`
   border: 2px solid ${({ $actor }) => {
 		switch ($actor) {
 			case 'user':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'client':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'auth-server':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'server':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -197,15 +196,15 @@ const ActorCard = styled.div<{ $actor: string }>`
     color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'client':
-					return 'V9_COLORS.PRIMARY.GREEN_DARK';
+					return '#059669';
 				case 'auth-server':
-					return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+					return '#d97706';
 				case 'server':
 					return '#5b21b6';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+					return '#6b7280';
 			}
 		}};
   }
@@ -216,15 +215,15 @@ const ActorCard = styled.div<{ $actor: string }>`
     color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'client':
-					return 'V9_COLORS.PRIMARY.GREEN_DARK';
+					return '#059669';
 				case 'auth-server':
-					return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+					return '#d97706';
 				case 'server':
 					return '#5b21b6';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_DARK';
+					return '#1f2937';
 			}
 		}};
     margin-bottom: 0.25rem;
@@ -255,13 +254,13 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'active':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'completed':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -279,13 +278,13 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
     color: ${({ $status }) => {
 			switch ($status) {
 				case 'active':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'completed':
-					return 'V9_COLORS.PRIMARY.GREEN_DARK';
+					return '#059669';
 				case 'error':
-					return 'V9_COLORS.PRIMARY.RED_DARK';
+					return '#dc2626';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_DARK';
+					return '#1f2937';
 			}
 		}};
     margin-bottom: 0.5rem;
@@ -313,13 +312,13 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
     border-left: 3px solid ${({ $status }) => {
 			switch ($status) {
 				case 'active':
-					return 'V9_COLORS.PRIMARY.BLUE';
+					return '#3b82f6';
 				case 'completed':
-					return 'V9_COLORS.PRIMARY.GREEN';
+					return '#10b981';
 				case 'error':
-					return 'V9_COLORS.PRIMARY.RED';
+					return '#ef4444';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+					return '#e5e7eb';
 			}
 		}};
   }
@@ -897,7 +896,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 			style={{
 				width: '24px',
 				height: '24px',
-				background: 'V9_COLORS.PRIMARY.RED_DARK',
+				background: '#dc2626',
 				borderRadius: '4px',
 				display: 'flex',
 				alignItems: 'center',
@@ -1031,7 +1030,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 					style={{
 						width: '1px',
 						height: '2rem',
-						background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+						background: '#e5e7eb',
 						margin: '0 0.5rem',
 					}}
 				/>
@@ -1056,7 +1055,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						fontSize: '0.875rem',
 						marginLeft: '0.5rem',
 					}}
@@ -1085,7 +1084,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 										{step.status === 'error' && <span>⚠️</span>}
 										<span
 											style={{
-												background: 'V9_COLORS.PRIMARY.BLUE',
+												background: '#3b82f6',
 												color: 'white',
 												borderRadius: '50%',
 												width: '20px',
@@ -1121,7 +1120,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '25%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: 'V9_COLORS.PRIMARY.BLUE',
+								color: '#3b82f6',
 								opacity: 0.7,
 							}}
 						>
@@ -1134,7 +1133,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '50%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: 'V9_COLORS.PRIMARY.BLUE',
+								color: '#3b82f6',
 								opacity: 0.7,
 							}}
 						>
@@ -1147,7 +1146,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 								left: '75%',
 								transform: 'translate(-50%, -50%)',
 								fontSize: '1.5rem',
-								color: 'V9_COLORS.PRIMARY.BLUE',
+								color: '#3b82f6',
 								opacity: 0.7,
 							}}
 						>

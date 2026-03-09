@@ -1,14 +1,12 @@
 // src/components/SmartPrinterDeviceFlow.tsx
 // Smart Printer Style Device Authorization Flow Interface
 
-
+import { FiFileText, FiPrinter } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiFileText, FiPrinter } from '@icons';
 
 // HP Smart App Interface - Authentic HP Design with Green Theme
 const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`

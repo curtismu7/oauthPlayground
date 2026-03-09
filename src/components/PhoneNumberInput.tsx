@@ -129,14 +129,12 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 						display: 'block',
 						marginBottom: '0.5rem',
 						fontWeight: 500,
-						color: 'V9_COLORS.TEXT.GRAY_DARK',
+						color: '#1f2937',
 						fontSize: '0.875rem',
 					}}
 				>
 					{label}
-					{required && (
-						<span style={{ color: 'V9_COLORS.PRIMARY.RED', marginLeft: '0.25rem' }}>*</span>
-					)}
+					{required && <span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>}
 				</label>
 			)}
 
@@ -165,8 +163,8 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
-							backgroundColor: disabled ? '#f9fafb' : 'V9_COLORS.TEXT.WHITE',
-							color: disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.TEXT.GRAY_DARK',
+							backgroundColor: disabled ? '#f9fafb' : '#ffffff',
+							color: disabled ? '#9ca3af' : '#1f2937',
 							transition: 'border-color 0.2s ease',
 							height: '48px', // Explicit height to match CountryCodeSelector
 							boxSizing: 'border-box',
@@ -175,7 +173,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 								: {
 										'&:focus': {
 											outline: 'none',
-											borderColor: 'V9_COLORS.PRIMARY.BLUE',
+											borderColor: '#3b82f6',
 											boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
 										},
 									}),
@@ -188,7 +186,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 				<div
 					style={{
 						fontSize: '0.75rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						marginTop: '0.25rem',
 					}}
 				>
@@ -200,7 +198,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 			<div
 				style={{
 					fontSize: '0.75rem',
-					color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+					color: '#9ca3af',
 					marginTop: '0.25rem',
 					fontFamily: 'monospace',
 				}}

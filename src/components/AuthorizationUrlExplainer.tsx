@@ -1,6 +1,5 @@
 // src/components/AuthorizationUrlExplainer.tsx - Interactive popup explaining authorization URL parameters
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -111,15 +110,15 @@ const ParameterCard = styled.div<{ $category: string }>`
   border: 2px solid ${({ $category }) => {
 		switch ($category) {
 			case 'authentication':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'security':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'flow':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorization':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 8px;
@@ -148,9 +147,9 @@ const ParameterIcon = styled.div<{ $category: string }>`
 			case 'authentication':
 				return '#dbeafe';
 			case 'security':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'flow':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'authorization':
 				return '#ede9fe';
 			default:
@@ -160,15 +159,15 @@ const ParameterIcon = styled.div<{ $category: string }>`
   color: ${({ $category }) => {
 		switch ($category) {
 			case 'authentication':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'security':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'flow':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorization':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   display: flex;
@@ -241,12 +240,7 @@ const copyToClipboard = async (text: string, label: string) => {
 		// You could add a toast notification here
 		console.log(`${label} copied to clipboard`);
 	} catch (err) {
-		log.error(
-			'AuthorizationUrlExplainer',
-			'Failed to copy to clipboard:',
-			undefined,
-			err as Error
-		);
+		log.error('AuthorizationUrlExplainer', 'Failed to copy to clipboard:', undefined, err as Error);
 	}
 };
 
@@ -432,7 +426,7 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 						<h3
 							style={{
 								margin: '0 0 0.75rem 0',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								fontSize: '1.1rem',
 							}}
 						>
@@ -450,7 +444,7 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								fontSize: '1.1rem',
 							}}
 						>
@@ -478,17 +472,15 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							border: '1px solid #0ea5e9',
 							borderRadius: '8px',
 							padding: '1rem',
 							fontSize: '0.9rem',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-							Educational Note:
-						</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Educational Note:</h4>
 						<p style={{ margin: 0, lineHeight: 1.5 }}>
 							This authorization URL contains all the necessary parameters for a secure OAuth 2.0
 							Authorization Code Flow with PKCE. Each parameter serves a specific security or

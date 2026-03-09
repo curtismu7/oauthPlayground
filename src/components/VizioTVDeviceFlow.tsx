@@ -2,7 +2,6 @@
 // VIZIO Smart TV Style Device Authorization Flow Interface
 // Designed to look like actual VIZIO V-Series 4K TV
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -43,7 +42,7 @@ const VizioTVContainer = styled.div`
 // VIZIO TV Screen
 const TVScreen = styled.div<{ $showContent?: boolean }>`
   background: ${({ $showContent }) =>
-		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : 'V9_COLORS.TEXT.BLACK'};
+		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
   border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 0.75rem;
   padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
@@ -96,7 +95,7 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
   box-shadow: ${(props) => (props.$active ? `0 0 12px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -138,15 +137,15 @@ const SmartCastStatus = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'expired':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: V9_COLORS.TEXT.WHITE;
@@ -253,7 +252,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
@@ -365,9 +364,9 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 		{ label: 'Hulu', icon: '📺', color: '#1ce783' },
 		{ label: 'Prime Video', icon: '📹', color: '#00a8e1' },
 		{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
-		{ label: 'Apple TV+', icon: '🍎', color: 'V9_COLORS.TEXT.BLACK' },
+		{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
 		{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
-		{ label: 'SmartCast', icon: '⚙️', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' },
+		{ label: 'SmartCast', icon: '⚙️', color: '#6b7280' },
 	];
 
 	return (

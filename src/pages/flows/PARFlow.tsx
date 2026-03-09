@@ -8,10 +8,10 @@ import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { type PARAuthMethod, type PARResponse } from '../../services/parService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -243,8 +243,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
-  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: V9_COLORS.PRIMARY.BLUE;
@@ -730,7 +730,7 @@ if (tokenResponse.ok) {
 						href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#pushed-authorization-request"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', textDecoration: 'underline' }}
+						style={{ color: '#2563eb', textDecoration: 'underline' }}
 					>
 						PingOne PAR API Documentation
 					</a>
@@ -908,7 +908,7 @@ if (tokenResponse.ok) {
 						<Button
 							onClick={generateCodeChallenge}
 							style={{
-								background: 'V9_COLORS.PRIMARY.BLUE',
+								background: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -935,7 +935,7 @@ if (tokenResponse.ok) {
 					<Button
 						onClick={generateCodeChallenge}
 						style={{
-							background: 'V9_COLORS.PRIMARY.GREEN',
+							background: '#10b981',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',

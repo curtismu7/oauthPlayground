@@ -1,6 +1,5 @@
 // src/components/AdvancedParametersSection.tsx
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // Import services
@@ -36,19 +35,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'warning':
 				return '#fed7aa';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -56,11 +55,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	color: ${(props) => {
 		switch (props.$variant) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 	line-height: 1.5;

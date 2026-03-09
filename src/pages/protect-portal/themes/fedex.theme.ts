@@ -8,9 +8,9 @@
  * FedEx brand theme with purple and orange colors, professional logistics styling.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const fedexConfig: CorporatePortalConfig = {
 	company: {
@@ -75,12 +75,12 @@ export const fedexConfig: CorporatePortalConfig = {
 			accent: '#FF6600', // FedEx orange
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+			muted: '#6b7280',
+			border: '#e5e7eb',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#DC2626',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#FF6600',
 			info: '#4D148C',
 			primaryLight: '#6B3AA6',
@@ -123,16 +123,16 @@ export const fedexTheme: BrandTheme = {
 	colors: {
 		primary: '#4d148c', // Updated to match mockup primary
 		primaryDark: '#3c0f6d', // Updated to match mockup primaryDark
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
+		secondary: '#1f2937', // Updated to match mockup secondary
 		accent: '#ff6600', // Updated to match mockup accent
-		background: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup bg
-		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
+		background: '#ffffff', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#e5e7eb', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#FF6600', // Use FedEx Orange for warnings
 		info: '#4d148c', // Use FedEx Purple for info
 		// Additional theme colors with official FedEx palette

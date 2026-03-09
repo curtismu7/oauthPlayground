@@ -8,11 +8,10 @@
  * Right-side slide-out login panel for United Airlines pattern.
  */
 
-
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
+import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
 // ============================================================================
 // STYLED COMPONENTS

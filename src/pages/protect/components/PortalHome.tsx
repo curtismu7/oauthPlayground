@@ -9,13 +9,12 @@
  * and educational content about risk-based authentication.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';
 import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

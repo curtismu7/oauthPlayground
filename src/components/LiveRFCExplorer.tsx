@@ -4,7 +4,6 @@
  * Interactive OAuth/OIDC specification browser with real examples
  */
 
-
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -49,11 +48,11 @@ const DeepDiveToggle = styled.button<{ $active: boolean }>`
 	gap: 0.5rem;
 	padding: 0.75rem 1.25rem;
 	border-radius: 999px;
-	border: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${({ $active }) => ($active ? '#2563eb' : '#e5e7eb')};
 	background: ${({ $active }) =>
 		$active
 			? 'linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(37, 99, 235, 0.15))'
-			: 'V9_COLORS.TEXT.WHITE'};
+			: '#ffffff'};
 	color: #1e3a8a;
 	font-weight: 600;
 	cursor: pointer;
@@ -108,7 +107,7 @@ const RFCGrid = styled.div`
 
 const RFCCard = styled.button<{ $selected: boolean }>`
 	background: white;
-	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#e5e7eb')};
 	border-radius: 0.75rem;
 	padding: 1.25rem;
 	cursor: pointer;
@@ -254,11 +253,11 @@ const TipBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 	border-left: 4px solid ${({ variant }) => {
 		switch (variant) {
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 		}
 	}};
 	background: ${({ variant }) => {
@@ -266,19 +265,19 @@ const TipBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 			case 'info':
 				return '#dbeafe';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 		}
 	}};
 	color: ${({ variant }) => {
 		switch (variant) {
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 		}
 	}};
 	line-height: 1.6;
@@ -1081,7 +1080,7 @@ const LiveRFCExplorer: React.FC = () => {
 					style={{
 						textAlign: 'center',
 						padding: '3rem',
-						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						color: '#2563eb',
 						fontSize: '1.1rem',
 					}}
 				>

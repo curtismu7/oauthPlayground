@@ -1,13 +1,12 @@
 // Device polling component for OIDC Device Code flow
 
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
-import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
-import { FiLoader } from '@icons';
 
 interface DevicePollingProps {
 	deviceCode: string;
@@ -45,25 +44,25 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
   background: ${(props) => {
 		switch (props.status) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'expired':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   color: ${(props) => {
 		switch (props.status) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
 `;

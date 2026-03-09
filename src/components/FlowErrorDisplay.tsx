@@ -30,9 +30,9 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
+import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
-import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
 
 export interface FlowErrorDisplayProps {
 	// Flow context

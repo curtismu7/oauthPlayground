@@ -1,14 +1,15 @@
 // src/components/WorkerTokenEducationalPanel.tsx
+
+import { FiAlertCircle, FiCheckCircle, FiKey, FiShield, FiXCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import {
-FiAlertCircle,
+	FiAlertCircle,
 	FiCheckCircle,
 	FiKey,
 	FiShield,
 	FiXCircle,
-} from '../services/commonImportsService'
-import { FiAlertCircle, FiCheckCircle, FiKey, FiShield, FiXCircle } from '@icons';
+} from '../services/commonImportsService';
 
 /**
  * Props for WorkerTokenEducationalPanel component

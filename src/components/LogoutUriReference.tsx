@@ -1,6 +1,5 @@
 // src/components/LogoutUriReference.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
@@ -146,7 +145,7 @@ const UriCode = styled.code`
 `;
 
 const CopyButton = styled.button<{ copied?: boolean }>`
-  background-color: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+  background-color: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
   color: white;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -159,7 +158,7 @@ const CopyButton = styled.button<{ copied?: boolean }>`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background-color: ${(props) => (props.copied ? '#059669' : '#2563eb')};
   }
 `;
 

@@ -417,10 +417,10 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 				{/* Action Buttons */}
 				<div className="form-actions">
-					<button type="button" className="btn btn-primary">
+					<button type="button" type="button" className="btn btn-primary">
 						💾 Save Configuration
 					</button>
-					<button type="button" className="btn btn-secondary">
+					<button type="button" type="button" className="btn btn-secondary">
 						Reset
 					</button>
 				</div>

@@ -1,9 +1,12 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FlowHeader } from '../services/flowHeaderService';
+
 // src/pages/PingOneIdentityMetrics.tsx
 // Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
 // Updated with unified worker token management
 // Cache bust: 2025-02-17-11:32
 
+import { FiCalendar, FiDatabase } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
@@ -13,7 +16,6 @@ import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { FiCalendar, FiDatabase } from '@icons';
 
 const styles = {
 	pageContainer: {
@@ -30,24 +32,24 @@ const styles = {
 		gap: '1rem',
 		padding: '1.75rem',
 		borderRadius: '1rem',
-		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+		background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
 		border: '1px solid rgba(59, 130, 246, 0.2)',
 	},
 	titleRow: {
 		display: 'flex' as const,
 		alignItems: 'center' as const,
 		gap: '0.75rem',
-		color: 'V9_COLORS.TEXT.WHITE',
+		color: '#ffffff',
 	},
 	title: {
 		margin: 0,
 		fontSize: '1.75rem',
 		fontWeight: 700,
-		color: 'V9_COLORS.TEXT.WHITE',
+		color: '#ffffff',
 	},
 	subtitle: {
 		margin: 0,
-		color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		color: '#e5e7eb',
 		maxWidth: '720px',
 		lineHeight: 1.6,
 	},
@@ -57,9 +59,9 @@ const styles = {
 		gap: '1.75rem',
 	},
 	card: {
-		background: 'V9_COLORS.TEXT.WHITE',
+		background: '#ffffff',
 		borderRadius: '1rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.18)',
 		overflow: 'hidden' as const,
 		padding: '1.5rem',
@@ -74,7 +76,7 @@ const styles = {
 		gap: '0.5rem',
 		fontSize: '1.1rem',
 		fontWeight: 600,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 	},
 	fieldGroup: {
 		display: 'flex' as const,
@@ -93,23 +95,23 @@ const styles = {
 		width: '100%',
 		padding: '0.75rem 0.85rem',
 		borderRadius: '0.75rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		border: '1px solid #e5e7eb',
+		background: '#f8fafc',
 		fontSize: '0.92rem',
 	},
 	select: {
 		width: '100%',
 		padding: '0.75rem 0.85rem',
 		borderRadius: '0.75rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		border: '1px solid #e5e7eb',
+		background: '#f8fafc',
 		fontSize: '0.92rem',
 		cursor: 'pointer' as const,
 	},
 	hint: {
 		margin: 0,
 		fontSize: '0.8rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	},
 	buttonRow: {
 		display: 'flex' as const,
@@ -120,7 +122,7 @@ const styles = {
 		border: 'none',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
-		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: '#2563eb',
 		color: 'white',
 		fontWeight: 600,
 		display: 'inline-flex' as const,
@@ -132,7 +134,7 @@ const styles = {
 		border: 'none',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
-		background: 'V9_COLORS.PRIMARY.RED',
+		background: '#ef4444',
 		color: 'white',
 		fontWeight: 600,
 		display: 'inline-flex' as const,
@@ -141,7 +143,7 @@ const styles = {
 		cursor: 'pointer' as const,
 	},
 	secondaryButton: {
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
 		background: 'white',
@@ -155,9 +157,9 @@ const styles = {
 	warningBanner: {
 		padding: '1rem 1.25rem',
 		borderRadius: '0.85rem',
-		border: '2px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
-		background: 'V9_COLORS.BG.WARNING',
-		color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+		border: '2px solid #fbbf24',
+		background: '#fef3c7',
+		color: '#d97706',
 		display: 'flex' as const,
 		flexDirection: 'column' as const,
 		gap: '0.5rem',
@@ -171,9 +173,9 @@ const styles = {
 	emptyState: {
 		padding: '2rem',
 		borderRadius: '1rem',
-		border: '1px dashed V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		border: '1px dashed #e5e7eb',
+		background: '#f8fafc',
+		color: '#6b7280',
 		display: 'flex' as const,
 		flexDirection: 'column' as const,
 		alignItems: 'center' as const,
@@ -182,9 +184,9 @@ const styles = {
 	errorBanner: {
 		padding: '1rem 1.25rem',
 		borderRadius: '0.85rem',
-		border: '1px solid V9_COLORS.BG.ERROR_BORDER',
-		background: 'V9_COLORS.BG.ERROR',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		border: '1px solid #ef4444',
+		background: '#fef2f2',
+		color: '#dc2626',
 		display: 'flex' as const,
 		alignItems: 'flex-start' as const,
 		gap: '0.75rem',
@@ -207,14 +209,14 @@ const styles = {
 		width: 'calc(100vw - 4rem)',
 		margin: '1rem',
 		boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-		border: '3px solid V9_COLORS.PRIMARY.RED_DARK',
+		border: '3px solid #dc2626',
 		maxHeight: 'calc(100vh - 4rem)',
 		overflowY: 'auto' as const,
 	},
 	permissionsModalTitle: {
 		fontSize: '1.1rem',
 		fontWeight: 700,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		margin: '0 0 0.65rem 0',
 		display: 'flex' as const,
 		alignItems: 'center' as const,
@@ -222,19 +224,19 @@ const styles = {
 	},
 	permissionsModalMessage: {
 		fontSize: '0.8rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		lineHeight: 1.35,
 		margin: '0 0 0.65rem 0',
 	},
 	permissionsModalInstructions: {
 		fontSize: '0.75rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		lineHeight: 1.35,
 		margin: '0 0 0.75rem 0',
 		padding: '0.75rem',
 		background: '#f3f4f6',
 		borderRadius: '0.5rem',
-		borderLeft: '4px solid V9_COLORS.PRIMARY.RED_DARK',
+		borderLeft: '4px solid #dc2626',
 	},
 	permissionsModalActions: {
 		display: 'flex' as const,
@@ -243,7 +245,7 @@ const styles = {
 	},
 	permissionsModalButton: {
 		padding: '0.55rem 1.25rem',
-		background: 'V9_COLORS.PRIMARY.BLUE',
+		background: '#3b82f6',
 		color: 'white',
 		border: 'none',
 		borderRadius: '0.5rem',
@@ -579,10 +581,13 @@ const PingOneIdentityMetrics: React.FC = () => {
 	}, [activeIdentityCounts, samplingPeriod]);
 
 	return (
-		<div style={styles.pageContainer}>
-			<div style={styles.headerCard}>
+		<>
+			<FlowHeader flowId="pingone-identity-metrics" />
+			<div style={styles.pageContainer}>
+				<div style={styles.headerCard}>
 				<div style={styles.titleRow}>
-					<span>[FiBarChart2]</span><h1 style={styles.title}>PingOne Identity Counts</h1>
+					<span>[FiBarChart2]</span>
+					<h1 style={styles.title}>PingOne Identity Counts</h1>
 				</div>
 				<p style={styles.subtitle}>
 					Query PingOne active identity counts with time-series data and sampling periods. Requires{' '}
@@ -591,7 +596,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 				{!hasWorkerToken && (
 					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-							<span>⚠️</span><div style={{ flex: 1 }}>
+							<span>⚠️</span>
+							<div style={{ flex: 1 }}>
 								<strong>Worker Token Required</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
 									Click "Get Worker Token" below to generate a token with your PingOne credentials.
@@ -735,7 +741,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 							</label>
 							<input
 								id="metrics-limit"
-								style={{ ...styles.input, background: 'V9_COLORS.BG.GRAY_MEDIUM', cursor: 'not-allowed' }}
+								style={{ ...styles.input, background: '#f1f5f9', cursor: 'not-allowed' }}
 								type="number"
 								value="100"
 								readOnly
@@ -749,7 +755,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 							style={{
 								...styles.primaryButton,
 								...(!hasWorkerToken || loading
-									? { background: 'V9_COLORS.TEXT.GRAY_LIGHTER', cursor: 'not-allowed' }
+									? { background: '#e5e7eb', cursor: 'not-allowed' }
 									: {}),
 							}}
 							type="button"
@@ -774,7 +780,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 					{error && (
 						<div style={styles.errorBanner}>
-							<span>ℹ️</span><span>{error}</span>
+							<span>ℹ️</span>
+							<span>{error}</span>
 						</div>
 					)}
 
@@ -785,8 +792,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<div
 										style={{
 											...styles.card,
-											border: '1px solid V9_COLORS.PRIMARY.GREEN',
-											background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
+											border: '1px solid #10b981',
+											background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
 										}}
 									>
 										<h2 style={styles.sectionTitle}>
@@ -805,15 +812,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Latest Count
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 													{summary.latest.toLocaleString()}
 												</div>
 											</div>
@@ -822,15 +829,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Average
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 													{summary.average.toLocaleString()}
 												</div>
 											</div>
@@ -839,15 +846,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Maximum
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 													{summary.max.toLocaleString()}
 												</div>
 											</div>
@@ -856,15 +863,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Minimum
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 													{summary.min.toLocaleString()}
 												</div>
 											</div>
@@ -873,15 +880,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Data Points
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 													{summary.dataPoints}
 												</div>
 											</div>
@@ -890,11 +897,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.BG.SUCCESS',
+													border: '1px solid #ecfdf5',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Period
 												</div>
@@ -902,7 +909,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 													style={{
 														fontSize: '1.1rem',
 														fontWeight: 600,
-														color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+														color: '#059669',
 														textTransform: 'capitalize',
 													}}
 												>
@@ -916,7 +923,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 													...styles.hint,
 													marginTop: '1rem',
 													paddingTop: '1rem',
-													borderTop: '1px solid V9_COLORS.BG.SUCCESS',
+													borderTop: '1px solid #ecfdf5',
 												}}
 											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
@@ -925,7 +932,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 									</div>
 								)}
 
-								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: 'V9_COLORS.TEXT.WHITE' }}>
+								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}>
 									<h2 style={styles.sectionTitle}>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
 											<span>[FiDatabase]</span>Full API Response
@@ -935,7 +942,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 												style={{
 													display: 'flex',
 													gap: '0.25rem',
-													background: 'V9_COLORS.BG.GRAY_MEDIUM',
+													background: '#f1f5f9',
 													borderRadius: '0.5rem',
 													padding: '0.2rem',
 												}}
@@ -950,8 +957,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 														fontSize: '0.75rem',
 														fontWeight: 600,
 														cursor: 'pointer',
-														background: !showRawJson ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent',
-														color: !showRawJson ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														background: !showRawJson ? '#3b82f6' : 'transparent',
+														color: !showRawJson ? 'white' : '#6b7280',
 														transition: 'all 0.15s',
 													}}
 												>
@@ -967,8 +974,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 														fontSize: '0.75rem',
 														fontWeight: 600,
 														cursor: 'pointer',
-														background: showRawJson ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent',
-														color: showRawJson ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														background: showRawJson ? '#3b82f6' : 'transparent',
+														color: showRawJson ? 'white' : '#6b7280',
 														transition: 'all 0.15s',
 													}}
 												>
@@ -984,8 +991,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 													style={{
 														margin: 0,
 														padding: '1rem',
-														background: 'V9_COLORS.TEXT.GRAY_DARK',
-														color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+														background: '#1f2937',
+														color: '#e5e7eb',
 														borderRadius: '0.5rem',
 														fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 														fontSize: '0.8rem',
@@ -1005,7 +1012,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 							</>
 						) : (
 							<div style={styles.emptyState}>
-								<span>[FiBarChart2]</span><span>Run the request to see active identity counts returned by PingOne.</span>
+								<span>[FiBarChart2]</span>
+								<span>Run the request to see active identity counts returned by PingOne.</span>
 							</div>
 						)}
 					</div>
@@ -1034,8 +1042,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 								...styles.permissionsModalMessage,
 								marginTop: '0.5rem',
 								padding: '0.5rem',
-								background: 'V9_COLORS.BG.WARNING',
-								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+								background: '#fef3c7',
+								border: '1px solid #fbbf24',
 								borderRadius: '0.5rem',
 								fontSize: '0.7rem',
 							}}
@@ -1053,7 +1061,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 									Click <strong>"Grant Roles"</strong>
 								</li>
 								<li>
-									<strong style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Select your Environment</strong> (not
+									<strong style={{ color: '#dc2626' }}>Select your Environment</strong> (not
 									Organization) from dropdown
 								</li>
 								<li>
@@ -1066,7 +1074,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<span
 										style={{
 											fontSize: '0.65rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											marginTop: '0.25rem',
 											display: 'inline-block',
 										}}
@@ -1079,7 +1087,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 									Click <strong>"Save"</strong>
 								</li>
 							</ol>
-							<strong style={{ marginTop: '0.75rem', display: 'block', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+							<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>
 								✅ After assigning role:
 							</strong>
 							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
@@ -1101,7 +1109,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 				</div>
 			)}
 		</div>
+		</>
 	);
 };
 
-export default PingOneIdentityMetrics;

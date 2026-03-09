@@ -1,9 +1,8 @@
-
+import { FiCode } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';
-import { FiCode } from '@icons';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -750,7 +749,11 @@ export const TokenApiDocumentationPage: React.FC = () => {
 												)
 											}
 										>
-											{copiedId === `${call.id}-response-headers` ? <span>✅</span> : <span>📋</span>}
+											{copiedId === `${call.id}-response-headers` ? (
+												<span>✅</span>
+											) : (
+												<span>📋</span>
+											)}
 										</CopyButton>
 									</div>
 									<CodeBlock>
@@ -768,7 +771,11 @@ export const TokenApiDocumentationPage: React.FC = () => {
 														copyToClipboard(call.response.body || '', `${call.id}-response-body`)
 													}
 												>
-													{copiedId === `${call.id}-response-body` ? <span>✅</span> : <span>📋</span>}
+													{copiedId === `${call.id}-response-body` ? (
+														<span>✅</span>
+													) : (
+														<span>📋</span>
+													)}
 												</CopyButton>
 											</div>
 											<CodeBlock $expanded={expandedCalls.has(`${call.id}-response`)}>

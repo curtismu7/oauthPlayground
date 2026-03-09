@@ -165,7 +165,11 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 
 	// Track flow events
 	const trackFlow = useCallback(
-		(flowType: string, event: 'start' | 'complete' | 'error', properties?: Record<string, unknown>) => {
+		(
+			flowType: string,
+			event: 'start' | 'complete' | 'error',
+			properties?: Record<string, unknown>
+		) => {
 			if (!enabled) return;
 
 			switch (event) {

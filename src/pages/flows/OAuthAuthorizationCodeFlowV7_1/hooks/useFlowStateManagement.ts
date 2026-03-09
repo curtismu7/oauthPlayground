@@ -2,8 +2,8 @@
 // V7.1 Flow State Management - Consolidated state management for OAuth Authorization Code Flow
 
 import { useCallback, useEffect, useState } from 'react';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { logger } from '../../../../utils/logger';
+import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type {
 	AuthCodeState,
 	FlowCredentials,

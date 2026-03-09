@@ -1,7 +1,6 @@
 // src/components/ClaimsRequestBuilder.tsx
 // Advanced OIDC Claims Request Builder - Request specific claims with essential/voluntary flags
 
-
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -89,10 +88,10 @@ const Tab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
-	background: ${(props) => (props.$active ? 'V9_COLORS.BG.GRAY_LIGHT' : 'transparent')};
+	color: ${(props) => (props.$active ? '#3b82f6' : '#6b7280')};
+	background: ${(props) => (props.$active ? '#f8fafc' : 'transparent')};
 	border: none;
-	border-bottom: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+	border-bottom: 2px solid ${(props) => (props.$active ? '#3b82f6' : 'transparent')};
 	margin-bottom: -2px;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -142,15 +141,15 @@ const EssentialToggle = styled.button<{ $essential: boolean }>`
 	padding: 0.5rem 1rem;
 	font-size: 0.75rem;
 	font-weight: 500;
-	color: ${(props) => (props.$essential ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
-	background: ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.WHITE')};
-	border: 1px solid ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	color: ${(props) => (props.$essential ? '#ffffff' : '#6b7280')};
+	background: ${(props) => (props.$essential ? '#dc2626' : '#ffffff')};
+	border: 1px solid ${(props) => (props.$essential ? '#dc2626' : '#e5e7eb')};
 	border-radius: 0.375rem;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$essential ? 'V9_COLORS.PRIMARY.RED_DARK' : '#f3f4f6')};
+		background: ${(props) => (props.$essential ? '#dc2626' : '#f3f4f6')};
 	}
 `;
 
@@ -328,11 +327,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${(props) => (props.$variant === 'success' ? '#f0fdf4' : 'V9_COLORS.BG.GRAY_LIGHT')};
-	border: 1px solid ${(props) => (props.$variant === 'success' ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${(props) => (props.$variant === 'success' ? '#f0fdf4' : '#f8fafc')};
+	border: 1px solid ${(props) => (props.$variant === 'success' ? '#10b981' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: ${(props) => (props.$variant === 'success' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+	color: ${(props) => (props.$variant === 'success' ? '#10b981' : '#2563eb')};
 	line-height: 1.5;
 	margin-bottom: 1rem;
 `;
@@ -366,7 +365,7 @@ const DraggableClaim = styled.div<{ $isDragging?: boolean }>`
 	flex-direction: column;
 	padding: 0.75rem;
 	background: white;
-	border: 2px solid ${(props) => (props.$isDragging ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${(props) => (props.$isDragging ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	cursor: grab;
 	transition: all 0.2s;
@@ -609,7 +608,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							style={{
 								marginTop: '0.75rem',
 								padding: '0.75rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
@@ -638,7 +637,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							<pre
 								style={{
 									background: '#1e293b',
-									color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+									color: '#e5e7eb',
 									padding: '0.75rem',
 									borderRadius: '0.5rem',
 									fontSize: '0.8rem',
@@ -758,8 +757,8 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							marginBottom: '0.75rem',
 						}}
 					>
-						<FiInfo style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.25rem' }} />
-						<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>JSON Format Guide:</strong>
+						<FiInfo style={{ color: '#d97706', fontSize: '1.25rem' }} />
+						<strong style={{ color: '#d97706' }}>JSON Format Guide:</strong>
 					</div>
 					<div
 						style={{
@@ -785,7 +784,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									marginBottom: '0.5rem',
 								}}
 							>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
+								<FiCheckCircle style={{ color: '#059669' }} />
 								<strong>Voluntary (Optional)</strong>
 							</div>
 							<code
@@ -802,7 +801,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								style={{
 									marginTop: '0.5rem',
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								Server tries to return this claim but won't fail if missing
@@ -824,7 +823,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									marginBottom: '0.5rem',
 								}}
 							>
-								<FiAlertCircle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }} />
+								<FiAlertCircle style={{ color: '#dc2626' }} />
 								<strong>Essential (Required)</strong>
 							</div>
 							<code
@@ -842,7 +841,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								style={{
 									marginTop: '0.5rem',
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								Server MUST return this claim or request fails

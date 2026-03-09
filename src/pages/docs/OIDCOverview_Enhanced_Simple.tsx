@@ -1,9 +1,8 @@
-
+import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '@icons';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {
@@ -113,17 +112,17 @@ const FilterContainer = styled.div`
 
 const FilterButton = styled.button<{ $active?: boolean }>`
   padding: 0.5rem 1rem;
-  border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
-  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;
-    background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
   }
 `;
 
@@ -355,11 +354,11 @@ const OIDCOverviewEnhancedSimple = () => {
 				{/* Enhanced OIDC Flows Overview */}
 				<section style={{ marginBottom: '3rem' }}>
 					<h2
-						style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+						style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937' }}
 					>
 						OpenID Connect Authentication Flows
 						<span
-							style={{ fontSize: '1rem', fontWeight: '400', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginLeft: '1rem' }}
+							style={{ fontSize: '1rem', fontWeight: '400', color: '#6b7280', marginLeft: '1rem' }}
 						>
 							({filteredFlows.length} flows)
 						</span>
@@ -383,8 +382,8 @@ const OIDCOverviewEnhancedSimple = () => {
 										{flow.deprecated && (
 											<span
 												style={{
-													background: 'V9_COLORS.BG.WARNING',
-													color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+													background: '#fef3c7',
+													color: '#d97706',
 													padding: '0.25rem 0.5rem',
 													borderRadius: '0.25rem',
 													fontSize: '0.75rem',
@@ -400,7 +399,7 @@ const OIDCOverviewEnhancedSimple = () => {
 										{flow.title}
 									</h3>
 
-									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem', lineHeight: '1.5' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
 										{flow.description}
 									</p>
 
@@ -414,7 +413,7 @@ const OIDCOverviewEnhancedSimple = () => {
 												marginBottom: '0.5rem',
 											}}
 										>
-											<strong style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+											<strong style={{ fontSize: '0.875rem', color: '#1f2937' }}>
 												Security Level:
 											</strong>
 											<div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -425,12 +424,12 @@ const OIDCOverviewEnhancedSimple = () => {
 															width: '8px',
 															height: '8px',
 															borderRadius: '50%',
-															backgroundColor: i < flow.securityLevel ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+															backgroundColor: i < flow.securityLevel ? '#10b981' : '#e5e7eb',
 														}}
 													/>
 												))}
 											</div>
-											<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 												{flow.securityLevel}/10
 											</span>
 										</div>
@@ -442,20 +441,20 @@ const OIDCOverviewEnhancedSimple = () => {
 												fontWeight: '500',
 												backgroundColor:
 													flow.security === 'Very High'
-														? 'V9_COLORS.BG.SUCCESS'
+														? '#ecfdf5'
 														: flow.security === 'High'
 															? '#dbeafe'
 															: flow.security === 'Medium-High'
-																? 'V9_COLORS.BG.SUCCESS'
-																: 'V9_COLORS.BG.WARNING',
+																? '#ecfdf5'
+																: '#fef3c7',
 												color:
 													flow.security === 'Very High'
-														? 'V9_COLORS.PRIMARY.GREEN'
+														? '#10b981'
 														: flow.security === 'High'
-															? 'V9_COLORS.PRIMARY.BLUE_DARK'
+															? '#2563eb'
 															: flow.security === 'Medium-High'
-																? 'V9_COLORS.PRIMARY.GREEN_DARK'
-																: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+																? '#059669'
+																: '#d97706',
 											}}
 										>
 											{flow.security}
@@ -467,7 +466,7 @@ const OIDCOverviewEnhancedSimple = () => {
 										<strong
 											style={{
 												fontSize: '0.875rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												display: 'block',
 												marginBottom: '0.5rem',
 											}}
@@ -480,7 +479,7 @@ const OIDCOverviewEnhancedSimple = () => {
 													key={index}
 													style={{
 														background: '#f3f4f6',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 														padding: '0.125rem 0.375rem',
 														borderRadius: '0.25rem',
 														fontSize: '0.75rem',
@@ -491,7 +490,7 @@ const OIDCOverviewEnhancedSimple = () => {
 												</span>
 											))}
 											{flow.bestFor.length > 2 && (
-												<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 													+{flow.bestFor.length - 2} more
 												</span>
 											)}
@@ -542,7 +541,7 @@ const OIDCOverviewEnhancedSimple = () => {
 														fontSize: '1rem',
 														fontWeight: '600',
 														marginBottom: '0.75rem',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 													}}
 												>
 													Flow Steps:
@@ -551,7 +550,7 @@ const OIDCOverviewEnhancedSimple = () => {
 													style={{
 														fontFamily: 'monospace',
 														fontSize: '0.875rem',
-														background: 'V9_COLORS.TEXT.GRAY_DARK',
+														background: '#1f2937',
 														color: '#f9fafb',
 														padding: '1rem',
 														borderRadius: '0.375rem',
@@ -577,7 +576,7 @@ const OIDCOverviewEnhancedSimple = () => {
 															fontSize: '0.875rem',
 															fontWeight: '600',
 															marginBottom: '0.5rem',
-															color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+															color: '#059669',
 														}}
 													>
 														✅ Pros:
@@ -585,7 +584,7 @@ const OIDCOverviewEnhancedSimple = () => {
 													<ul
 														style={{
 															fontSize: '0.875rem',
-															color: 'V9_COLORS.TEXT.GRAY_DARK',
+															color: '#1f2937',
 															margin: 0,
 															paddingLeft: '1rem',
 														}}
@@ -603,7 +602,7 @@ const OIDCOverviewEnhancedSimple = () => {
 															fontSize: '0.875rem',
 															fontWeight: '600',
 															marginBottom: '0.5rem',
-															color: 'V9_COLORS.PRIMARY.RED_DARK',
+															color: '#dc2626',
 														}}
 													>
 														❌ Cons:
@@ -611,7 +610,7 @@ const OIDCOverviewEnhancedSimple = () => {
 													<ul
 														style={{
 															fontSize: '0.875rem',
-															color: 'V9_COLORS.TEXT.GRAY_DARK',
+															color: '#1f2937',
 															margin: 0,
 															paddingLeft: '1rem',
 														}}
@@ -632,7 +631,7 @@ const OIDCOverviewEnhancedSimple = () => {
 														fontSize: '0.875rem',
 														fontWeight: '600',
 														marginBottom: '0.5rem',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 													}}
 												>
 													🎯 Best For:
@@ -643,7 +642,7 @@ const OIDCOverviewEnhancedSimple = () => {
 															key={index}
 															style={{
 																background: '#dbeafe',
-																color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+																color: '#2563eb',
 																padding: '0.25rem 0.5rem',
 																borderRadius: '0.25rem',
 																fontSize: '0.75rem',
@@ -666,7 +665,7 @@ const OIDCOverviewEnhancedSimple = () => {
 				{/* Success Message */}
 				<div
 					style={{
-						background: 'V9_COLORS.BG.SUCCESS',
+						background: '#ecfdf5',
 						border: '3px solid V9_COLORS.PRIMARY.GREEN',
 						borderRadius: '0.5rem',
 						padding: '2rem',
@@ -676,13 +675,13 @@ const OIDCOverviewEnhancedSimple = () => {
 					}}
 				>
 					<h2
-						style={{ color: 'V9_COLORS.PRIMARY.GREEN', margin: '0 0 1rem 0', fontSize: '2rem', fontWeight: 'bold' }}
+						style={{ color: '#10b981', margin: '0 0 1rem 0', fontSize: '2rem', fontWeight: 'bold' }}
 					>
 						🎉 ENHANCED OIDC OVERVIEW V2.0 - SUCCESSFULLY LOADED! 🎉
 					</h2>
 					<p
 						style={{
-							color: 'V9_COLORS.PRIMARY.GREEN',
+							color: '#10b981',
 							margin: '0 0 1rem 0',
 							fontSize: '1.25rem',
 							fontWeight: '600',
@@ -693,7 +692,7 @@ const OIDCOverviewEnhancedSimple = () => {
 					</p>
 					<div
 						style={{
-							background: 'V9_COLORS.PRIMARY.GREEN',
+							background: '#10b981',
 							color: 'white',
 							padding: '0.5rem 1rem',
 							borderRadius: '0.25rem',

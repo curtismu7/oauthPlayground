@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 /**
  * Dashboard — home page: API status, endpoints, quick access flows, recent activity.
  * Follows migrate_cursor.md consistency (Ping headers, V9_COLORS.TEXT.GRAY_DARK/V9_COLORS.TEXT.GRAY_DARK text, collapsible sections).
@@ -23,6 +22,7 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';

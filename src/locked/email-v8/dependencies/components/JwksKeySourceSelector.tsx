@@ -1,6 +1,5 @@
 // src/components/JwksKeySourceSelector.tsx
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { buildJWKSUri } from '../utils/jwks';
@@ -398,7 +397,11 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 							onClick={onTogglePrivateKey}
 							title={showPrivateKey ? 'Hide private key' : 'Show private key'}
 						>
-							{showPrivateKey ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showPrivateKey ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</ToggleSecretButton>
 						{onCopyPrivateKey && privateKey && (
 							<CopyPrivateKeyButton

@@ -15,7 +15,7 @@ const StatusText = styled.span<{ $variant: StatusVariant }>`
 	color: ${({ $variant }) => {
 		if ($variant === 'success') return '#047857';
 		if ($variant === 'warning') return '#b45309';
-		return 'V9_COLORS.PRIMARY.RED_DARK';
+		return '#dc2626';
 	}};
 `;
 

@@ -1,6 +1,5 @@
 // src/components/PingOneApplicationPicker.tsx
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -467,7 +466,11 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 															onClick={() => setShowClientSecret(!showClientSecret)}
 															title={showClientSecret ? 'Hide' : 'Show'}
 														>
-															{showClientSecret ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+															{showClientSecret ? (
+																<span style={{ fontSize: '14px' }}>🙈</span>
+															) : (
+																<span style={{ fontSize: '14px' }}>👁️</span>
+															)}
 														</CopyButton>
 													</div>
 												)}

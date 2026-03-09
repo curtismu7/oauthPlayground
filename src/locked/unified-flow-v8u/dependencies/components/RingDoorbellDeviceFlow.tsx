@@ -2,12 +2,10 @@
 // Ring Video Doorbell Style Device Authorization Flow Interface
 // Designed to look like actual Ring doorbell hardware
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Ring Doorbell Physical Housing

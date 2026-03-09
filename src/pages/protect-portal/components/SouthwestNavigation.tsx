@@ -6,7 +6,6 @@
  * @since 2026-02-13
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';

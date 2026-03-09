@@ -8,11 +8,10 @@
  * Professional footer with industry-specific links and company information.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
-import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
+import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
 // ============================================================================
 // STYLED COMPONENTS

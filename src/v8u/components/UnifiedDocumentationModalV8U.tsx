@@ -9,17 +9,15 @@
  * and download documentation as PDF or Markdown.
  */
 
-
+import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
 	type DocumentationApiCall,
 	downloadAsMarkdown,
 	downloadAsPDF,
 	generateUnifiedFlowMarkdown,
 } from './UnifiedFlowDocumentationPageV8U';
-import { FiDownload, FiFileText } from '@icons';
 
 interface UseCase {
 	id: string;

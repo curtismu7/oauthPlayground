@@ -1,4 +1,3 @@
-
 import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -134,9 +133,9 @@ const ToolbarButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : 'V9_COLORS.TEXT.WHITE')};
-  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : '#ffffff')};
+  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
+  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : '#e5e7eb')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -159,9 +158,9 @@ const ThemeToggle = styled.button<{ $isDark: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: ${(props) => (props.$isDark ? '#1e293b' : 'V9_COLORS.BG.WARNING')};
-  color: ${(props) => (props.$isDark ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
-  border: 1px solid ${(props) => (props.$isDark ? '#334155' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
+  background: ${(props) => (props.$isDark ? '#1e293b' : '#fef3c7')};
+  color: ${(props) => (props.$isDark ? '#fbbf24' : '#d97706')};
+  border: 1px solid ${(props) => (props.$isDark ? '#334155' : '#fbbf24')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -206,17 +205,9 @@ const StatusBadge = styled.span<{ $type: 'success' | 'warning' | 'info' }>`
   font-size: 11px;
   font-weight: 600;
   background: ${(props) =>
-		props.$type === 'success'
-			? 'V9_COLORS.BG.SUCCESS'
-			: props.$type === 'warning'
-				? 'V9_COLORS.BG.WARNING'
-				: '#dbeafe'};
+		props.$type === 'success' ? '#ecfdf5' : props.$type === 'warning' ? '#fef3c7' : '#dbeafe'};
   color: ${(props) =>
-		props.$type === 'success'
-			? 'V9_COLORS.PRIMARY.GREEN_DARK'
-			: props.$type === 'warning'
-				? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-				: 'V9_COLORS.PRIMARY.BLUE_DARK'};
+		props.$type === 'success' ? '#059669' : props.$type === 'warning' ? '#d97706' : '#2563eb'};
 `;
 
 const TabsContainer = styled.div`
@@ -240,7 +231,7 @@ const TabsContainer = styled.div`
 const Tab = styled.button<{ $active: boolean }>`
   padding: 12px 20px;
   background: ${(props) => (props.$active ? '#667eea' : 'transparent')};
-  color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${(props) => (props.$active ? '#ffffff' : '#6b7280')};
   border: none;
   border-bottom: 3px solid ${(props) => (props.$active ? '#667eea' : 'transparent')};
   font-size: 13px;
@@ -252,7 +243,7 @@ const Tab = styled.button<{ $active: boolean }>`
   
   &:hover {
     background: ${(props) => (props.$active ? '#667eea' : '#f3f4f6')};
-    color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+    color: ${(props) => (props.$active ? '#ffffff' : '#1f2937')};
   }
   
   &:active {
@@ -914,7 +905,11 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				<Toolbar>
 					<ToolbarLeft>
 						<ToolbarButton $variant="primary" onClick={handleCopy}>
-							{copied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
+							{copied ? (
+								<span style={{ fontSize: '14px' }}>✅</span>
+							) : (
+								<span style={{ fontSize: '14px' }}>📋</span>
+							)}
 							{copied ? 'Copied!' : 'Copy Code'}
 						</ToolbarButton>
 						<ToolbarButton onClick={handleDownload}>
@@ -932,7 +927,11 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 					</ToolbarLeft>
 					<ToolbarRight>
 						<ThemeToggle $isDark={theme === 'vs-dark'} onClick={toggleTheme}>
-							{theme === 'vs-dark' ? <span style={{ fontSize: '14px' }}>☀️</span> : <span style={{ fontSize: '14px' }}>🌙</span>}
+							{theme === 'vs-dark' ? (
+								<span style={{ fontSize: '14px' }}>☀️</span>
+							) : (
+								<span style={{ fontSize: '14px' }}>🌙</span>
+							)}
 							{theme === 'vs-dark' ? 'Light' : 'Dark'}
 						</ThemeToggle>
 					</ToolbarRight>

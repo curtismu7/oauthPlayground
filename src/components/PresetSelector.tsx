@@ -1,7 +1,6 @@
 // src/components/PresetSelector.tsx
 // Preset selection component for the Application Generator
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -113,8 +112,8 @@ const PresetBadge = styled.span<{ category: 'built-in' | 'custom' }>`
   font-weight: 500;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
-  background: ${({ category }) => (category === 'built-in' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING')};
-  color: ${({ category }) => (category === 'built-in' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  background: ${({ category }) => (category === 'built-in' ? '#ecfdf5' : '#fef3c7')};
+  color: ${({ category }) => (category === 'built-in' ? '#059669' : '#d97706')};
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -134,14 +133,14 @@ const PresetMeta = styled.div`
   margin-bottom: 1rem;
 `;
 
-const MetaTag = styled.span<{ variant: 'security' | 'type' | 'tag' }>`
+const MetaTag = styled.span<{ $variant: 'security' | 'type' | 'tag' }>`
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
   font-weight: 500;
   
-  ${({ variant }) => {
-		switch (variant) {
+  ${({ $variant }) => {
+		switch ($variant) {
 			case 'security':
 				return `
           background: V9_COLORS.BG.ERROR;
@@ -376,7 +375,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 				Choose from predefined configuration templates or your custom presets to quickly set up
 				applications with best practices.
 				{selectedAppType ? (
-					<strong style={{ color: 'V9_COLORS.PRIMARY.RED' }}>
+					<strong style={{ color: '#ef4444' }}>
 						{' '}
 						Templates are filtered for {selectedAppType.replace(/_/g, ' ')} applications.
 					</strong>
@@ -430,7 +429,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 						<CategoryTitle>
 							{category === 'built-in' ? <span>⭐</span> : <span>👤</span>}
 							{category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
-							<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 'normal' }}>
+							<span style={{ color: '#6b7280', fontWeight: 'normal' }}>
 								({categoryPresets.length})
 							</span>
 						</CategoryTitle>
@@ -446,7 +445,11 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 									<PresetHeader>
 										<PresetName>{preset.name}</PresetName>
 										<PresetBadge category={preset.category}>
-											{preset.category === 'built-in' ? <span style={{ fontSize: '12px' }}>⭐</span> : <span style={{ fontSize: '12px' }}>👤</span>}
+											{preset.category === 'built-in' ? (
+												<span style={{ fontSize: '12px' }}>⭐</span>
+											) : (
+												<span style={{ fontSize: '12px' }}>👤</span>
+											)}
 											{preset.category === 'built-in' ? 'Built-in' : 'Custom'}
 										</PresetBadge>
 									</PresetHeader>
@@ -454,10 +457,10 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 									<PresetDescription>{preset.description}</PresetDescription>
 
 									<PresetMeta>
-										<MetaTag variant="security">{preset.metadata.securityLevel}</MetaTag>
-										<MetaTag variant="type">{preset.appType.replace(/_/g, ' ')}</MetaTag>
+										<MetaTag $variant="security">{preset.metadata.securityLevel}</MetaTag>
+										<MetaTag $variant="type">{preset.appType.replace(/_/g, ' ')}</MetaTag>
 										{preset.metadata.tags.slice(0, 2).map((tag) => (
-											<MetaTag key={tag} variant="tag">
+											<MetaTag key={tag} $variant="tag">
 												{tag}
 											</MetaTag>
 										))}

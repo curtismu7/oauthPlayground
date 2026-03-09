@@ -1,6 +1,5 @@
 // src/components/PingOneWorkerInfo.tsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -52,7 +51,7 @@ const InfoBox = styled.div<{ $color?: string }>`
 	background: ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'purple':
 				return '#faf5ff';
 			case 'green':
@@ -60,25 +59,25 @@ const InfoBox = styled.div<{ $color?: string }>`
 			case 'orange':
 				return 'V9_COLORS.TEXT.WHITE7ed';
 			case 'red':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'purple':
 				return '#e9d5ff';
 			case 'green':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'orange':
 				return '#fed7aa';
 			case 'red':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -103,7 +102,7 @@ const Card = styled.div<{ $color?: string }>`
 			case 'orange':
 				return 'V9_COLORS.TEXT.WHITE7ed';
 			case 'red':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f9fafb';
 		}
@@ -111,15 +110,15 @@ const Card = styled.div<{ $color?: string }>`
 	border: 1px solid ${(props) => {
 		switch (props.$color) {
 			case 'blue':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'green':
 				return '#86efac';
 			case 'orange':
 				return '#fed7aa';
 			case 'red':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -273,11 +272,11 @@ const IconWrapper = styled.div<{ $color?: string }>`
 			case 'purple':
 				return '#8b5cf6';
 			case 'green':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'orange':
 				return '#fb923c';
 			case 'red':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
 				return '#4f46e5';
 		}
@@ -318,7 +317,7 @@ const PingOneWorkerInfo: React.FC = () => {
 				<Grid>
 					<Card $color="blue">
 						<CardTitle>
-							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+							<span style={{ fontSize: 20, color: '#10b981' }}>✅</span>
 							API Management
 						</CardTitle>
 						<CardText>
@@ -328,7 +327,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+							<span style={{ fontSize: 20, color: '#10b981' }}>✅</span>
 							Automation
 						</CardTitle>
 						<CardText>
@@ -337,7 +336,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+							<span style={{ fontSize: 20, color: '#10b981' }}>✅</span>
 							Integration
 						</CardTitle>
 						<CardText>
@@ -347,7 +346,7 @@ const PingOneWorkerInfo: React.FC = () => {
 					</Card>
 					<Card $color="blue">
 						<CardTitle>
-							<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+							<span style={{ fontSize: 20, color: '#10b981' }}>✅</span>
 							Administrative Tasks
 						</CardTitle>
 						<CardText>

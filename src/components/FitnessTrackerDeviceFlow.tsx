@@ -1,14 +1,13 @@
 // src/components/FitnessTrackerDeviceFlow.tsx
 // Fitness Tracker Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCheckCircle } from '@icons';
 
 // Fitbit Main Container - Authentic Fitbit Design
 const FitnessTrackerContainer = styled.div`
@@ -190,7 +189,7 @@ const ControlButtons = styled.div`
 
 const ControlButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? '#00ff96' : '#404040')};
-  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
+  color: ${(props) => (props.$variant === 'primary' ? '#000000' : '#ffffff')};
   border: none;
   border-radius: 1rem;
   padding: 0.75rem 1rem;

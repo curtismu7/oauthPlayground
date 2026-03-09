@@ -1,9 +1,8 @@
 // src/v7m/ui/V7MJwtInspectorModal.tsx
 
-
+import { FiPackage } from '@icons';
 import React, { useMemo, useState } from 'react';
 import { V7MHelpModal } from './V7MHelpModal';
-import { FiPackage } from '@icons';
 
 type Props = {
 	open: boolean;
@@ -23,10 +22,10 @@ export const V7MJwtInspectorModal: React.FC<Props> = ({ open, token, onClose }) 
 			themeColor="#0ea5e9"
 		>
 			<div style={{ marginBottom: 12 }}>
-				<button type="button" style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
+				<button type="button" type="button" style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
 					Header
 				</button>
-				<button type="button" style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
+				<button type="button" type="button" style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
 					Payload
 				</button>
 				<button
@@ -95,9 +94,6 @@ function highlightJson(obj: unknown): React.ReactNode {
 		.replace(/>/g, '&gt;')
 		.replace(/"([^"]+)":/g, '<span style="color:#ef4444">"$1"</span>:')
 		.replace(/: (\d+|true|false|null|".*?")/g, ': <span style="color:#3b82f6">$1</span>');
-	{
-		/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON.stringify output HTML-escaped before injection */
-	}
 	// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON.stringify output HTML-escaped before injection
 	return <code dangerouslySetInnerHTML={{ __html: html }} />;
 }

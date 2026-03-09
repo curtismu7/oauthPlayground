@@ -300,7 +300,7 @@ export const GamingConsoleDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 			{isSuccess && (
 				<PSBottomBar>
 					<div>Storage: 625 GB available</div>
-					<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● Online</div>
+					<div style={{ color: '#10b981' }}>● Online</div>
 					<div>Press ✕ to continue</div>
 				</PSBottomBar>
 			)}
@@ -371,7 +371,7 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					</GradeButtons>
 					<PumpInstruction
 						style={{
-							color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT',
+							color: '#fbbf24',
 							background: 'rgba(251, 191, 36, 0.1)',
 							borderColor: 'rgba(251, 191, 36, 0.3)',
 						}}
@@ -400,7 +400,7 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					</GradeButtons>
 					<PumpInstruction
 						style={{
-							color: 'V9_COLORS.PRIMARY.BLUE',
+							color: '#3b82f6',
 							background: 'rgba(59, 130, 246, 0.1)',
 							borderColor: 'rgba(59, 130, 246, 0.3)',
 						}}
@@ -417,7 +417,7 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					borderTop: '1px solid #334155',
 					textAlign: 'center',
 					fontSize: '0.75rem',
-					color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+					color: '#6b7280',
 				}}
 			>
 				Fuel Rewards: 250 points • Station #4215
@@ -470,11 +470,7 @@ const StatusGrid = styled.div`
 const StatusItem = styled.div<{ $status: string }>`
 	background: rgba(255, 255, 255, 0.05);
 	border: 1px solid ${(props) =>
-		props.$status === 'ok'
-			? 'V9_COLORS.PRIMARY.GREEN'
-			: props.$status === 'warning'
-				? 'V9_COLORS.PRIMARY.YELLOW_LIGHT'
-				: 'V9_COLORS.PRIMARY.RED'};
+		props.$status === 'ok' ? '#10b981' : props.$status === 'warning' ? '#fbbf24' : '#ef4444'};
 	padding: 0.75rem;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
@@ -566,9 +562,7 @@ const SpeakerLight = styled.div<{ $color: string; $isActive: boolean }>`
 	height: 80px;
 	border-radius: 50%;
 	background: ${(props) =>
-		props.$isActive
-			? `radial-gradient(circle, ${props.$color} 0%, transparent 70%)`
-			: 'V9_COLORS.TEXT.BLACK'};
+		props.$isActive ? `radial-gradient(circle, ${props.$color} 0%, transparent 70%)` : '#000000'};
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -614,56 +608,52 @@ export const IndustrialIoTDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 				</div>
 				{isSuccess ? (
 					<>
-						<div style={{ marginBottom: '1rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
-							✓ AUTHORIZATION: GRANTED
-						</div>
+						<div style={{ marginBottom: '1rem', color: '#10b981' }}>✓ AUTHORIZATION: GRANTED</div>
 						<StatusGrid>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>VALVE A-01</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● OPERATIONAL</div>
+								<div style={{ color: '#10b981' }}>● OPERATIONAL</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>Pressure: 125 PSI</div>
 							</StatusItem>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>PUMP #04</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● RUNNING</div>
+								<div style={{ color: '#10b981' }}>● RUNNING</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>Flow: 45 GPM</div>
 							</StatusItem>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>SENSOR ARRAY</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● ACTIVE</div>
+								<div style={{ color: '#10b981' }}>● ACTIVE</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>All 12 online</div>
 							</StatusItem>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>NETWORK</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● CONNECTED</div>
+								<div style={{ color: '#10b981' }}>● CONNECTED</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>SCADA Link OK</div>
 							</StatusItem>
 						</StatusGrid>
 					</>
 				) : isWaiting ? (
 					<>
-						<div style={{ marginBottom: '1rem', color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT' }}>
+						<div style={{ marginBottom: '1rem', color: '#fbbf24' }}>
 							⏳ AWAITING AUTHORIZATION...
 						</div>
 						<StatusGrid>
 							<StatusItem $status="warning">
 								<div style={{ fontWeight: 'bold' }}>AUTH STATUS</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT' }}>○ PENDING</div>
+								<div style={{ color: '#fbbf24' }}>○ PENDING</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>Scan QR code</div>
 							</StatusItem>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>SYSTEM</div>
-								<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>● STANDBY</div>
+								<div style={{ color: '#10b981' }}>● STANDBY</div>
 								<div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>Ready to start</div>
 							</StatusItem>
 						</StatusGrid>
 					</>
 				) : (
 					<>
-						<div style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-							■ SYSTEM OFFLINE
-						</div>
-						<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<div style={{ marginBottom: '1rem', color: '#6b7280' }}>■ SYSTEM OFFLINE</div>
+						<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 							Authorize controller to begin operations
 						</div>
 					</>
@@ -760,18 +750,10 @@ export const SmartSpeakerDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					<div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
 						{brandName}
 					</div>
-					{isSuccess && (
-						<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>Ready for voice commands</div>
-					)}
-					{isWaiting && (
-						<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_LIGHT' }}>
-							Waiting for authorization...
-						</div>
-					)}
+					{isSuccess && <div style={{ color: '#10b981' }}>Ready for voice commands</div>}
+					{isWaiting && <div style={{ color: '#fbbf24' }}>Waiting for authorization...</div>}
 					{!isSuccess && !isWaiting && (
-						<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-							Say "Hey {brandName}" to start
-						</div>
+						<div style={{ color: '#6b7280' }}>Say "Hey {brandName}" to start</div>
 					)}
 				</SpeakerText>
 			</SpeakerDisplay>
@@ -783,7 +765,7 @@ export const SmartSpeakerDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 						background: 'rgba(34, 197, 94, 0.1)',
 						border: '1px solid rgba(34, 197, 94, 0.3)',
 						borderRadius: '0.5rem',
-						color: 'V9_COLORS.PRIMARY.GREEN',
+						color: '#10b981',
 						fontSize: '0.875rem',
 					}}
 				>

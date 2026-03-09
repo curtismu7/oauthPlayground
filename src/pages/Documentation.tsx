@@ -5,31 +5,26 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiBookOpen': 'mdi-book-open-page-variant',
-		'FiCode': 'mdi-code-tags',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiHelpCircle': 'mdi-help-circle',
-		'FiLock': 'mdi-lock',
-		'FiPlay': 'mdi-play',
-		'FiSettings': 'mdi-cog',
-		'FiShield': 'mdi-shield-check',
-		'FiTool': 'mdi-tools',
+		FiBookOpen: 'mdi-book-open-page-variant',
+		FiCode: 'mdi-code-tags',
+		FiExternalLink: 'mdi-open-in-new',
+		FiHelpCircle: 'mdi-help-circle',
+		FiLock: 'mdi-lock',
+		FiPlay: 'mdi-play',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield-check',
+		FiTool: 'mdi-tools',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 const CardGrid = styled.div`
@@ -344,7 +339,9 @@ const Documentation = () => {
 							marginTop: '1rem',
 						}}
 					>
-						<h3 style={{ marginTop: 0, color: V9_COLORS.TEXT.GRAY_DARK }}>PingOne SSO Implementation Guide:</h3>
+						<h3 style={{ marginTop: 0, color: V9_COLORS.TEXT.GRAY_DARK }}>
+							PingOne SSO Implementation Guide:
+						</h3>
 						<ul style={{ marginBottom: 0, color: V9_COLORS.PRIMARY.BLUE }}>
 							<li>
 								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and

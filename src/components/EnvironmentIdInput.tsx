@@ -1,10 +1,9 @@
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiLoader } from '@icons';
 
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -296,7 +295,7 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
   color: ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
 				return V9_COLORS.PRIMARY.RED;
 			case 'info':
@@ -744,7 +743,11 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					<IssuerUrlDisplay>
 						{issuerUrl}
 						<CopyButton onClick={handleCopyIssuerUrl}>
-							{copied ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+							{copied ? (
+								<span style={{ fontSize: '12px' }}>✅</span>
+							) : (
+								<span style={{ fontSize: '12px' }}>📋</span>
+							)}
 							{copied ? 'Copied!' : 'Copy'}
 						</CopyButton>
 					</IssuerUrlDisplay>
@@ -819,7 +822,11 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 									: V9_COLORS.PRIMARY.GREEN_DARK,
 							}}
 						>
-							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <span style={{ fontSize: '16px' }}>✅</span>}
+							{isApplying ? (
+								<FiLoader className="animate-spin" size={16} />
+							) : (
+								<span style={{ fontSize: '16px' }}>✅</span>
+							)}
 							{isApplying ? 'Applying...' : isSaved ? 'Applied!' : 'Save & Apply'}
 						</SaveButton>
 					</ButtonGroup>

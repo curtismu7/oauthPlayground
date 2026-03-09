@@ -1,6 +1,5 @@
-
-import type React from 'react';
 import { FiAlertTriangle } from '@icons';
+import type React from 'react';
 
 const cardStyle: React.CSSProperties = {
 	background: 'V9_COLORS.TEXT.WHITE7ed',
@@ -15,7 +14,7 @@ const headingStyle: React.CSSProperties = {
 	margin: '0 0 12px 0',
 	fontSize: '1.45rem',
 	fontWeight: 700,
-	color: 'V9_COLORS.TEXT.GRAY_DARK',
+	color: '#1f2937',
 };
 
 const gridStyle: React.CSSProperties = {
@@ -25,7 +24,7 @@ const gridStyle: React.CSSProperties = {
 };
 
 const blockStyle: React.CSSProperties = {
-	background: 'V9_COLORS.TEXT.WHITE',
+	background: '#ffffff',
 	borderRadius: '12px',
 	padding: '18px',
 	boxShadow: '0 12px 24px rgba(15, 23, 42, 0.06)',
@@ -45,7 +44,7 @@ const securityStyle: React.CSSProperties = {
 	border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 	borderRadius: '12px',
 	padding: '18px',
-	color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+	color: '#d97706',
 };
 
 const ImplicitSafetySummary: React.FC = () => (

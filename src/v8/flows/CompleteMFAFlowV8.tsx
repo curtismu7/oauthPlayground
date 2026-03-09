@@ -9,7 +9,7 @@
  * and services for better consistency and maintainability.
  */
 
-
+import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -28,7 +28,6 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {

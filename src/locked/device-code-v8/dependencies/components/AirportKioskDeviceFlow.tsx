@@ -2,7 +2,6 @@
 // Airport Check-in Kiosk Style Device Authorization Flow Interface
 // Designed to look like CLEAR/TSA biometric kiosks
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,7 +10,6 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel

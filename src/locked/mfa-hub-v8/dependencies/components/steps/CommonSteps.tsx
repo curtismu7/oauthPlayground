@@ -1,6 +1,5 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
-
 import styled from 'styled-components';
 import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
@@ -333,7 +332,11 @@ export const createCredentialsStep = (
 							}}
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</button>
 					)}
 				</div>

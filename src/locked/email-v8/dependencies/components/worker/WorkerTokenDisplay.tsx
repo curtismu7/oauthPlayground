@@ -1,6 +1,5 @@
 // Worker Token Display component for token visualization and management
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -8,7 +7,6 @@ import {
 	TokenIntrospectionResponse,
 	WorkerTokenResponse,
 } from '../../types/workerToken';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
@@ -373,7 +371,11 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 				</h3>
 				<ButtonGroup>
 					<Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
-						{showFullToken ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+						{showFullToken ? (
+							<span style={{ fontSize: '16px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '16px' }}>👁️</span>
+						)}
 						{showFullToken ? 'Hide' : 'Show'} Token
 					</Button>
 					{onRefresh && (

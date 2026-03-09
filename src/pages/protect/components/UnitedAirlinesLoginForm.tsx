@@ -9,15 +9,14 @@
  * their actual login experience: first email/mileage plus/phone number, then password.
  */
 
-
+import { FiLockIcon } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { FiLockIcon } from '@icons';
 
 // ============================================================================
 // PKCE HELPER FUNCTIONS
@@ -508,7 +507,11 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 								disabled={isLoading}
 							/>
 							<PasswordToggle type="button" onClick={togglePasswordVisibility} disabled={isLoading}>
-								{showPassword ? <span style={{ fontSize: '20px' }}>🙈</span> : <span style={{ fontSize: '20px' }}>👁️</span>}
+								{showPassword ? (
+									<span style={{ fontSize: '20px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '20px' }}>👁️</span>
+								)}
 							</PasswordToggle>
 						</InputGroup>
 

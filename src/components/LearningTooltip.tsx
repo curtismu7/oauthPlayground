@@ -2,7 +2,6 @@
 // Learning Mode Tooltip Component - Explains OAuth concepts inline
 // Used throughout flows to help users understand OAuth/OIDC concepts
 
-
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -37,15 +36,15 @@ const TooltipTrigger = styled.span`
 	color: ${(props) => {
 		switch (props['data-variant']) {
 			case 'security':
-				return 'V9_COLORS.PRIMARY.RED_DARK'; // red
+				return '#dc2626'; // red
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK'; // orange
+				return '#d97706'; // orange
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK'; // green
+				return '#059669'; // green
 			case 'learning':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK'; // blue
+				return '#2563eb'; // blue
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM'; // gray
+				return '#6b7280'; // gray
 		}
 	}};
 	

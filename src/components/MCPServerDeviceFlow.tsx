@@ -1,14 +1,13 @@
 // src/components/MCPServerDeviceFlow.tsx
 // MCP Server Style Device Authorization Flow Interface
 
-
+import { FiDatabase, FiLink, FiServer } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiDatabase, FiLink, FiServer } from '@icons';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`
@@ -76,7 +75,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? props.$color : '#1f2937')};
   box-shadow: ${(props) => (props.$active ? `0 0 15px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'serverBlink 2s infinite' : 'none')};
   position: relative;
@@ -90,7 +89,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 6px;
     height: 6px;
     border-radius: 1px;
-    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
+    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerBlink 1s infinite' : 'none')};
   }
   
@@ -192,13 +191,13 @@ const ServerControlButton = styled.button<{
 			case 'primary':
 				return '#ec4899';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			case 'success':
 				return '#06b6d4';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   color: white;
@@ -209,9 +208,9 @@ const ServerControlButton = styled.button<{
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
 				return '#4b5563';
 		}
@@ -259,11 +258,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:

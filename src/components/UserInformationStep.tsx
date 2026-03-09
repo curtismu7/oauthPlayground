@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -317,7 +316,12 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 		setJustFetched(false);
 		try {
 			await onFetchUserInfo();
-			modernMessaging.showFooterMessage({ type: 'status', message: '✓ User information fetched successfully!', description: 'Check the UserInfo Response section below', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: '✓ User information fetched successfully!',
+				description: 'Check the UserInfo Response section below',
+				duration: 4000,
+			});
 			// Auto-collapse overview to focus on results
 			setCollapsedSections((prev) => ({ ...prev, userInfoOverview: true }));
 		} catch (_error) {
@@ -410,7 +414,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 								>
 									<GeneratedLabel
 										style={{
-											backgroundColor: justFetched ? 'V9_COLORS.PRIMARY.GREEN' : primaryColor,
+											backgroundColor: justFetched ? '#10b981' : primaryColor,
 											transition: 'background-color 0.3s ease',
 										}}
 									>
@@ -422,9 +426,9 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 											onClick={() => handleCopy(JSON.stringify(userInfo, null, 2), 'User Info')}
 											$variant="primary"
 											style={{
-												backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
-												borderColor: 'V9_COLORS.PRIMARY.BLUE',
-												color: 'V9_COLORS.TEXT.WHITE',
+												backgroundColor: '#3b82f6',
+												borderColor: '#3b82f6',
+												color: '#ffffff',
 												fontWeight: '600',
 											}}
 										>

@@ -1,7 +1,6 @@
 // src/components/AdvancedSecuritySettingsMock.tsx
 // Mock component to demonstrate the Advanced Security Settings service
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -73,9 +72,9 @@ const SecurityAssessment = styled.div<{ level: 'low' | 'medium' | 'high' | 'crit
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -87,15 +86,15 @@ const SecurityAssessment = styled.div<{ level: 'low' | 'medium' | 'high' | 'crit
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'medium':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   margin-bottom: 1.5rem;
@@ -226,9 +225,9 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -240,29 +239,29 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   color: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'high':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'medium':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'medium':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -472,7 +471,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 											style={{
 												marginTop: '0.5rem',
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 											}}
 										>
 											{

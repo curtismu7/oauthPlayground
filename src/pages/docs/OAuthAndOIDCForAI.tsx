@@ -1,7 +1,9 @@
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+
 // src/pages/docs/OAuthAndOIDCForAI.tsx
 // Comprehensive OAuth 2.0 & OpenID Connect for AI/Agentic Systems Guide
 
+import { FiBookOpen, FiCode, FiCpu, FiExternalLink, FiLayers, FiShield, FiUsers } from '@icons';
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -16,7 +18,6 @@ import {
 } from '../../services/commonImportsService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
-import { FiBookOpen, FiCode, FiCpu, FiExternalLink, FiLayers, FiShield, FiUsers } from '@icons';
 
 const LinkGrid = styled.div`
   display: grid;
@@ -218,7 +219,8 @@ const OAuthAndOIDCForAI = () => {
 
 				<div
 					style={{
-						background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+						background:
+							'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 						padding: '1.5rem',
 						borderRadius: '0.75rem',
 						marginBottom: '2rem',
@@ -704,7 +706,7 @@ const OAuthAndOIDCForAI = () => {
 							style={{
 								marginTop: '1.5rem',
 								padding: '1rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								borderLeft: '4px solid V9_COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.5rem',
 							}}
@@ -725,7 +727,8 @@ const OAuthAndOIDCForAI = () => {
 
 				<div
 					style={{
-						background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+						background:
+							'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 						padding: '1.5rem',
 						borderRadius: '0.75rem',
 						marginBottom: '2rem',
@@ -811,12 +814,12 @@ const OAuthAndOIDCForAI = () => {
 							<div
 								style={{
 									padding: '1rem',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '2px solid V9_COLORS.PRIMARY.BLUE',
 									borderRadius: '0.5rem',
 								}}
 							>
-								<h4 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginTop: 0 }}>🔵 Use OAuth 2.0 When:</h4>
+								<h4 style={{ color: '#2563eb', marginTop: 0 }}>🔵 Use OAuth 2.0 When:</h4>
 								<ul style={{ marginBottom: 0, paddingLeft: '1.25rem' }}>
 									<li>AI needs access to resources/APIs</li>
 									<li>Service-to-service authentication</li>
@@ -829,7 +832,7 @@ const OAuthAndOIDCForAI = () => {
 							<div
 								style={{
 									padding: '1rem',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '2px solid V9_COLORS.PRIMARY.BLUE_DARK',
 									borderRadius: '0.5rem',
 								}}
@@ -877,7 +880,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>Service-to-service, no user context</td>
 									<td>AI model backend access, batch processing, scheduled AI jobs</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 High</span>
+										<span style={{ color: '#059669' }}>🟢 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -889,7 +892,7 @@ const OAuthAndOIDCForAI = () => {
 										Personal AI assistants, user-facing chatbots, AI agents with user permissions
 									</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 High</span>
+										<span style={{ color: '#059669' }}>🟢 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -899,7 +902,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>AI on constrained devices (no browser)</td>
 									<td>IoT AI agents, smart home devices, edge AI systems, voice assistants</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 High</span>
+										<span style={{ color: '#059669' }}>🟢 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -909,7 +912,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>AI already has JWT from another system</td>
 									<td>Federated AI systems, cross-domain AI agents, JWT-based service mesh</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 High</span>
+										<span style={{ color: '#059669' }}>🟢 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -919,7 +922,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>Multi-agent delegation chains</td>
 									<td>AI agent passing context to downstream agents, impersonation flows</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }}>🟡 Medium (if simulated)</span>
+										<span style={{ color: '#f59e0b' }}>🟡 Medium (if simulated)</span>
 									</td>
 								</tr>
 								<tr>
@@ -929,7 +932,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>⚠️ DEPRECATED - Do not use</td>
 									<td>Not recommended for AI systems (insecure)</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>🔴 Low</span>
+										<span style={{ color: '#dc2626' }}>🔴 Low</span>
 									</td>
 								</tr>
 								<tr>
@@ -939,7 +942,7 @@ const OAuthAndOIDCForAI = () => {
 									<td>⚠️ Legacy only - avoid if possible</td>
 									<td>Only for legacy AI system migrations (use Client Credentials instead)</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>🔴 Low</span>
+										<span style={{ color: '#dc2626' }}>🔴 Low</span>
 									</td>
 								</tr>
 							</tbody>
@@ -978,7 +981,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 							style={{
 								marginTop: '1rem',
 								fontSize: '0.9rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontStyle: 'italic',
 							}}
 						>
@@ -1018,7 +1021,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 									<td>Read-only access to user data</td>
 									<td>AI can read user data for inference, analysis, and recommendations</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 Low</span>
+										<span style={{ color: '#059669' }}>🟢 Low</span>
 									</td>
 								</tr>
 								<tr>
@@ -1028,7 +1031,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 									<td>Analyze patterns in user data</td>
 									<td>AI can detect patterns, anomalies, and insights without storing data</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>🟢 Low</span>
+										<span style={{ color: '#059669' }}>🟢 Low</span>
 									</td>
 								</tr>
 								<tr>
@@ -1038,7 +1041,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 									<td>Generate content using user context</td>
 									<td>AI can create text, images, code, or other content based on user input</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }}>🟡 Medium</span>
+										<span style={{ color: '#f59e0b' }}>🟡 Medium</span>
 									</td>
 								</tr>
 								<tr>
@@ -1048,7 +1051,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 									<td>Store preferences for personalization</td>
 									<td>AI can save user preferences, history, and personalization settings</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }}>🟡 Medium</span>
+										<span style={{ color: '#f59e0b' }}>🟡 Medium</span>
 									</td>
 								</tr>
 								<tr>
@@ -1061,7 +1064,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 										controls)
 									</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>🔴 High</span>
+										<span style={{ color: '#dc2626' }}>🔴 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -1074,7 +1077,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 										consent)
 									</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>🔴 High</span>
+										<span style={{ color: '#dc2626' }}>🔴 High</span>
 									</td>
 								</tr>
 								<tr>
@@ -1084,7 +1087,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 									<td>Perform actions on behalf of user</td>
 									<td>AI can send emails, make purchases, modify data, or trigger workflows</td>
 									<td>
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>🔴 High</span>
+										<span style={{ color: '#dc2626' }}>🔴 High</span>
 									</td>
 								</tr>
 							</tbody>
@@ -1094,7 +1097,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 							style={{
 								marginTop: '1.5rem',
 								padding: '1rem',
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								borderLeft: '4px solid V9_COLORS.PRIMARY.RED_DARK',
 								borderRadius: '0.5rem',
 							}}
@@ -1153,7 +1156,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 							style={{
 								marginTop: '1rem',
 								fontSize: '0.9rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontStyle: 'italic',
 							}}
 						>
@@ -1249,7 +1252,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 							style={{
 								marginTop: '1.5rem',
 								padding: '1rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								borderLeft: '4px solid V9_COLORS.PRIMARY.YELLOW',
 								borderRadius: '0.5rem',
 							}}
@@ -1506,7 +1509,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 					<div style={{ margin: '2rem 0' }}>
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								marginBottom: '1rem',
 								fontSize: '1.25rem',
 								fontWeight: 600,
@@ -1589,7 +1592,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								marginTop: '2rem',
 								marginBottom: '1rem',
 								fontSize: '1.25rem',
@@ -1673,7 +1676,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								marginTop: '2rem',
 								marginBottom: '1rem',
 								fontSize: '1.25rem',
@@ -1747,7 +1750,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 						<h3
 							style={{
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 								marginTop: '2rem',
 								marginBottom: '1rem',
 								fontSize: '1.25rem',
@@ -1805,7 +1808,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 							style={{
 								marginTop: '2rem',
 								fontSize: '0.9rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontStyle: 'italic',
 							}}
 						>
@@ -1815,7 +1818,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 								href="https://datatracker.ietf.org/group/oauth/documents/"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: 'V9_COLORS.PRIMARY.BLUE' }}
+								style={{ color: '#3b82f6' }}
 							>
 								OAuth Working Group
 							</a>{' '}
@@ -1824,7 +1827,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 								href="https://datatracker.ietf.org/group/gnap/documents/"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: 'V9_COLORS.PRIMARY.BLUE' }}
+								style={{ color: '#3b82f6' }}
 							>
 								GNAP Working Group
 							</a>{' '}

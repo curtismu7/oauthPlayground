@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -186,7 +185,11 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 					<Title>Understanding ID Tokens</Title>
 				</HeaderContent>
 				<ChevronIcon $collapsed={collapsed}>
-					{collapsed ? <span style={{ fontSize: '16px' }}>➡️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
+					{collapsed ? (
+						<span style={{ fontSize: '16px' }}>➡️</span>
+					) : (
+						<span style={{ fontSize: '16px' }}>⬇️</span>
+					)}
 				</ChevronIcon>
 			</Header>
 
@@ -202,7 +205,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -211,7 +214,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<p
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -221,7 +224,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>👤</span>
 									</UseIcon>
 									<span>
 										<strong>WHO</strong> authenticated (sub claim)
@@ -229,7 +232,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🕐</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🕐</span>
 									</UseIcon>
 									<span>
 										<strong>WHEN</strong> they authenticated (auth_time, iat)
@@ -237,7 +240,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🔑</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🔑</span>
 									</UseIcon>
 									<span>
 										<strong>HOW</strong> they authenticated (amr - authentication methods)
@@ -245,7 +248,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🛡️</span>
 									</UseIcon>
 									<span>
 										<strong>STRENGTH</strong> of authentication (acr - authentication level)
@@ -258,7 +261,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -267,7 +270,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<p
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -276,19 +279,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>👤</span>
 									</UseIcon>
 									<span>Basic profile info (name, email, username)</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🗄️</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🗄️</span>
 									</UseIcon>
 									<span>Custom claims specific to your application</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🌐</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🌐</span>
 									</UseIcon>
 									<span>Group memberships and roles</span>
 								</UseItem>
@@ -299,7 +302,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -308,7 +311,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<p
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -317,19 +320,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🛡️</span>
 									</UseIcon>
 									<span>Signature validation using JWKS keys</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>✅</span>
 									</UseIcon>
 									<span>Claims validation (issuer, audience, expiration)</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🛡️</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🛡️</span>
 									</UseIcon>
 									<span>Ensuring the token hasn't been tampered with</span>
 								</UseItem>
@@ -340,7 +343,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -349,7 +352,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<p
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -363,7 +366,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -372,7 +375,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<p
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -381,19 +384,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<UsesList>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🕐</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🕐</span>
 									</UseIcon>
 									<span>Determining if user needs re-authentication</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>👤</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>👤</span>
 									</UseIcon>
 									<span>Managing session lifetime</span>
 								</UseItem>
 								<UseItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>🌐</span>
+										<span style={{ fontSize: 14, color: '#10b981' }}>🌐</span>
 									</UseIcon>
 									<span>Implementing Single Sign-On across applications</span>
 								</UseItem>
@@ -411,7 +414,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -420,25 +423,25 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<DoDontList>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
+										<span style={{ fontSize: 14, color: '#059669' }}>✅</span>
 									</UseIcon>
 									<span>Authentication (proving who the user is)</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
+										<span style={{ fontSize: 14, color: '#059669' }}>✅</span>
 									</UseIcon>
 									<span>Getting user identity information</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
+										<span style={{ fontSize: 14, color: '#059669' }}>✅</span>
 									</UseIcon>
 									<span>Session management</span>
 								</DoDontItem>
 								<DoDontItem $isPositive>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
+										<span style={{ fontSize: 14, color: '#059669' }}>✅</span>
 									</UseIcon>
 									<span>Authorization decisions based on user attributes</span>
 								</DoDontItem>
@@ -449,7 +452,7 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<h5
 								style={{
 									margin: '0 0 0.5rem 0',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									fontSize: '0.9rem',
 								}}
 							>
@@ -458,19 +461,19 @@ const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
 							<DoDontList>
 								<DoDontItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
+										<span style={{ fontSize: 14, color: '#dc2626' }}>❌</span>
 									</UseIcon>
 									<span>ID tokens are private to the client and should never be sent to APIs</span>
 								</DoDontItem>
 								<DoDontItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
+										<span style={{ fontSize: 14, color: '#dc2626' }}>❌</span>
 									</UseIcon>
 									<span>Long-term storage (they have shorter lifetimes)</span>
 								</DoDontItem>
 								<DoDontItem>
 									<UseIcon>
-										<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>
+										<span style={{ fontSize: 14, color: '#dc2626' }}>❌</span>
 									</UseIcon>
 									<span>API access (that's what access tokens are for)</span>
 								</DoDontItem>

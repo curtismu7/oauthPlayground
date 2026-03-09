@@ -9,7 +9,7 @@
  * risk-based authentication with custom login, MFA integration, and OIDC token display.
  */
 
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
@@ -39,7 +39,6 @@ import type {
 	TokenSet,
 	UserContext,
 } from './types/protectPortal.types';
-import { FiLoader } from '@icons';
 
 // ============================================================================
 // INLINE STYLE HELPERS
@@ -76,7 +75,7 @@ const styles = {
 		justifyContent: 'flex-start',
 	},
 	errorContainer: {
-		background: 'V9_COLORS.BG.ERROR',
+		background: '#fef2f2',
 		border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 		borderRadius: '0.5rem',
 		padding: '1.5rem',
@@ -85,7 +84,7 @@ const styles = {
 		textAlign: 'center' as const,
 	},
 	errorTitle: {
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		color: '#dc2626',
 		fontSize: '1.25rem',
 		fontWeight: 600,
 		margin: '0 0 0.75rem 0',
@@ -133,7 +132,7 @@ const styles = {
 		alignItems: 'center',
 		gap: '0.5rem',
 		padding: '0.875rem 1.75rem',
-		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: '#2563eb',
 		color: 'white',
 		borderRadius: '0.5rem',
 		fontWeight: 600,
@@ -153,7 +152,7 @@ const styles = {
 		gap: '0.5rem',
 	},
 	btnPrimary: {
-		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: '#2563eb',
 		color: 'white',
 	},
 	btnSecondary: {
@@ -170,7 +169,7 @@ const styles = {
 		padding: '2rem',
 	},
 	loadingText: {
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		fontSize: '1rem',
 		margin: 0,
 	},
@@ -347,12 +346,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		log.error(
-			'ProtectPortalApp',
-			'[🚀 PROTECT-PORTAL] Error occurred:',
-			undefined,
-			error as Error
-		);
+		log.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',
@@ -400,7 +394,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						style={{
 							animation: 'spin 1s linear infinite',
 							fontSize: '2rem',
-							color: 'V9_COLORS.PRIMARY.BLUE',
+							color: '#3b82f6',
 						}}
 					/>
 					<p style={styles.loadingText}>Processing your request...</p>
@@ -417,7 +411,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					</h3>
 					<p style={styles.errorMessage}>{error.message}</p>
 					{error.suggestedAction && (
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem', marginBottom: '1rem' }}>
+						<p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
 							{error.suggestedAction}
 						</p>
 					)}

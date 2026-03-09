@@ -3,34 +3,31 @@ import { useLocation } from 'react-router-dom';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiCheck': 'mdi-check',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiCopy': 'mdi-content-copy',
-		'FiEdit': 'mdi-pencil',
-		'FiEye': 'mdi-eye',
-		'FiEyeOff': 'mdi-eye-off',
-		'FiKey': 'mdi-key',
-		'FiLock': 'mdi-lock',
-		'FiLogIn': 'mdi-login',
-		'FiSettings': 'mdi-cog',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiCheck: 'mdi-check',
+		FiCheckCircle: 'mdi-check-circle',
+		FiCopy: 'mdi-content-copy',
+		FiEdit: 'mdi-pencil',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
+		FiKey: 'mdi-key',
+		FiLock: 'mdi-lock',
+		FiLogIn: 'mdi-login',
+		FiSettings: 'mdi-cog',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
+import { FiAlertCircle, FiCheckCircle } from '@icons';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
@@ -45,7 +42,6 @@ import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
 import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '../v8/services/sharedCredentialsServiceV8';
-import { FiAlertCircle, FiCheckCircle } from '@icons';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -822,7 +818,11 @@ const Login = () => {
 											}}
 											title="Copy Application Name"
 										>
-											{copiedId === 'setup-app-name' ? <MDIIcon icon="FiCheck" size={10} /> : <MDIIcon icon="FiCopy" size={10} />}
+											{copiedId === 'setup-app-name' ? (
+												<MDIIcon icon="FiCheck" size={10} />
+											) : (
+												<MDIIcon icon="FiCopy" size={10} />
+											)}
 										</button>
 									</span>
 								</li>
@@ -993,7 +993,9 @@ const Login = () => {
 						)
 					}
 				>
-					<div style={{ padding: '1.5rem', background: V9_COLORS.BG.WHITE, borderRadius: '0.5rem' }}>
+					<div
+						style={{ padding: '1.5rem', background: V9_COLORS.BG.WHITE, borderRadius: '0.5rem' }}
+					>
 						<h4>Configure Your PingOne Application Credentials</h4>
 
 						{redirectMessage && (
@@ -1100,9 +1102,13 @@ const Login = () => {
 										padding: '1rem',
 										marginBottom: '1.5rem',
 										borderRadius: '0.375rem',
-										backgroundColor: saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR,
+										backgroundColor:
+											saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR,
 										border: `1px solid ${saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS_BORDER : V9_COLORS.BG.ERROR_BORDER}`,
-										color: saveStatus.type === 'success' ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.PRIMARY.RED,
+										color:
+											saveStatus.type === 'success'
+												? V9_COLORS.PRIMARY.GREEN
+												: V9_COLORS.PRIMARY.RED,
 										display: 'flex',
 										alignItems: 'flex-start',
 									}}
@@ -1165,7 +1171,11 @@ const Login = () => {
 										onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
 										title="Copy Environment ID"
 									>
-										{copiedId === 'env-id' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
+										{copiedId === 'env-id' ? (
+											<MDIIcon icon="FiCheck" size={16} />
+										) : (
+											<MDIIcon icon="FiCopy" size={16} />
+										)}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1194,7 +1204,11 @@ const Login = () => {
 										onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
 										title="Copy Client ID"
 									>
-										{copiedId === 'client-id' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
+										{copiedId === 'client-id' ? (
+											<MDIIcon icon="FiCheck" size={16} />
+										) : (
+											<MDIIcon icon="FiCopy" size={16} />
+										)}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1241,7 +1255,11 @@ const Login = () => {
 											}}
 											aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showClientSecret ? <MDIIcon icon="FiEyeOff" size={18} /> : <MDIIcon icon="FiEye" size={18} />}
+											{showClientSecret ? (
+												<MDIIcon icon="FiEyeOff" size={18} />
+											) : (
+												<MDIIcon icon="FiEye" size={18} />
+											)}
 										</button>
 									</div>
 									<CopyButton
@@ -1249,7 +1267,11 @@ const Login = () => {
 										title="Copy Client Secret"
 										style={{ marginLeft: '0.5rem' }}
 									>
-										{copiedId === 'client-secret' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
+										{copiedId === 'client-secret' ? (
+											<MDIIcon icon="FiCheck" size={16} />
+										) : (
+											<MDIIcon icon="FiCopy" size={16} />
+										)}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1523,7 +1545,11 @@ const Login = () => {
 										}
 										title="Copy Redirect URI"
 									>
-										{copiedId === 'redirect-uri' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
+										{copiedId === 'redirect-uri' ? (
+											<MDIIcon icon="FiCheck" size={16} />
+										) : (
+											<MDIIcon icon="FiCopy" size={16} />
+										)}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1560,7 +1586,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: 'V9_COLORS.TEXT.WHITE',
+														backgroundColor: '#ffffff',
 													}}
 												>
 													<option value="default">default</option>
@@ -1593,7 +1619,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: 'V9_COLORS.TEXT.WHITE',
+														backgroundColor: '#ffffff',
 													}}
 												/>
 											</CredentialWrapper>
@@ -1652,7 +1678,7 @@ const Login = () => {
 														padding: '0.5rem',
 														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
-														backgroundColor: 'V9_COLORS.TEXT.WHITE',
+														backgroundColor: '#ffffff',
 													}}
 												/>
 											</CredentialWrapper>

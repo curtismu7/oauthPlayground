@@ -4,11 +4,11 @@
 import React from 'react';
 import { FiAlertCircle, FiBook, FiExternalLink } from '../../../services/commonImportsService';
 import {
-Alert,
+	Alert,
 	Card,
 	DocumentationLink,
 	DocumentationSection,
-} from '../shared/PasswordResetSharedComponents'
+} from '../shared/PasswordResetSharedComponents';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -336,7 +336,7 @@ export const OverviewTab: React.FC = () => {
 						<h4
 							style={{
 								marginBottom: '0.5rem',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								fontSize: '1rem',
 							}}
 						>
@@ -403,7 +403,7 @@ export const OverviewTab: React.FC = () => {
 						<h4
 							style={{
 								marginBottom: '0.5rem',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								fontSize: '1rem',
 							}}
 						>
@@ -452,7 +452,7 @@ export const OverviewTab: React.FC = () => {
 						<h4
 							style={{
 								marginBottom: '0.5rem',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								fontSize: '1rem',
 							}}
 						>

@@ -6,9 +6,7 @@
  * @since 2026-02-12
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';

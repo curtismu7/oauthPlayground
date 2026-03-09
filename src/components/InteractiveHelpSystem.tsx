@@ -54,8 +54,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
-  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: V9_COLORS.PRIMARY.BLUE;
@@ -79,16 +79,12 @@ const TutorialTitle = styled.h3`
 
 const TutorialStep = styled.div<{ $active: boolean; $completed: boolean }>`
   border: 2px solid ${({ $active, $completed }) =>
-		$active
-			? 'V9_COLORS.PRIMARY.BLUE'
-			: $completed
-				? 'V9_COLORS.PRIMARY.GREEN'
-				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		$active ? '#3b82f6' : $completed ? '#10b981' : '#e5e7eb'};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
   background: ${({ $active, $completed }) =>
-		$active ? 'V9_COLORS.BG.GRAY_LIGHT' : $completed ? '#f0fdf4' : 'white'};
+		$active ? '#f8fafc' : $completed ? '#f0fdf4' : 'white'};
   cursor: pointer;
   transition: all 0.2s;
   

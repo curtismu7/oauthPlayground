@@ -1,10 +1,9 @@
 // src/components/EnhancedPromptSelector.tsx
 // Enhanced OIDC Prompt Parameter Selector with multiple values
 
-
+import { FiCheck, FiShield, FiUser, FiUsers } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { FiCheck, FiShield, FiUser, FiUsers } from '@icons';
 
 export type PromptValue = 'none' | 'login' | 'consent' | 'select_account';
 
@@ -46,9 +45,9 @@ const PromptOption = styled.button<{ $selected: boolean }>`
 	gap: 0.75rem;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-	background-color: ${(props) => (props.$selected ? '#f0fdf4' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 2px solid ${(props) => (props.$selected ? '#059669' : '#e5e7eb')};
+	background-color: ${(props) => (props.$selected ? '#f0fdf4' : '#ffffff')};
+	color: ${(props) => (props.$selected ? '#059669' : '#1f2937')};
 	cursor: pointer;
 	transition: all 0.2s ease-in-out;
 	text-align: left;
@@ -67,7 +66,7 @@ const PromptOption = styled.button<{ $selected: boolean }>`
 const PromptIcon = styled.div<{ $selected: boolean }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$selected ? '#059669' : '#6b7280')};
 `;
 
 const PromptContent = styled.div`

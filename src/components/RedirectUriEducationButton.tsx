@@ -24,15 +24,8 @@ export const RedirectUriEducationButton: React.FC<RedirectUriEducationButtonProp
 		borderRadius: '0.5rem',
 		border: variant === 'outline' ? '1px solid V9_COLORS.PRIMARY.BLUE' : 'none',
 		background:
-			variant === 'primary'
-				? 'V9_COLORS.PRIMARY.BLUE'
-				: variant === 'outline'
-					? 'transparent'
-					: '#f3f4f6',
-		color:
-			variant === 'primary' || variant === 'outline'
-				? 'V9_COLORS.TEXT.WHITE'
-				: 'V9_COLORS.TEXT.GRAY_DARK',
+			variant === 'primary' ? '#3b82f6' : variant === 'outline' ? 'transparent' : '#f3f4f6',
+		color: variant === 'primary' || variant === 'outline' ? '#ffffff' : '#1f2937',
 		fontWeight: '600' as const,
 		cursor: isLoading || !flowInfo ? 'not-allowed' : 'pointer',
 		opacity: isLoading || !flowInfo ? 0.6 : 1,

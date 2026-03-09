@@ -8,7 +8,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-
+import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
@@ -17,7 +17,6 @@ import {
 	generateMarkdown,
 	getApiCalls,
 } from './MFADocumentationPageV8';
-import { FiDownload, FiFileText } from '@icons';
 
 interface UseCase {
 	id: string;

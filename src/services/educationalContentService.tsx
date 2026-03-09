@@ -4,28 +4,23 @@ import { logger } from '../utils/logger';
 import { CollapsibleHeader, type CollapsibleHeaderConfig } from './collapsibleHeaderService';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiBook': 'mdi-book',
-		'FiCheck': 'mdi-check',
-		'FiInfo': 'mdi-information',
-		'FiLock': 'mdi-lock',
-		'FiX': 'mdi-close',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiBook: 'mdi-book',
+		FiCheck: 'mdi-check',
+		FiInfo: 'mdi-information',
+		FiLock: 'mdi-lock',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // Educational content types
@@ -160,7 +155,9 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 		description:
 			'This flow provides **delegated authorization** - it allows your app to access resources on behalf of the user. It does **NOT authenticate the user** or provide identity information.',
 		characteristics: {
-			positive: [{ icon: <MDIIcon icon="FiCheck" />, text: 'Returns: Access Token (for API calls)' }],
+			positive: [
+				{ icon: <MDIIcon icon="FiCheck" />, text: 'Returns: Access Token (for API calls)' },
+			],
 			negative: [
 				{ icon: <MDIIcon icon="FiX" />, text: 'Does NOT return: ID Token (no user identity)' },
 				{ icon: <MDIIcon icon="FiX" />, text: 'Does NOT provide: User profile information' },
@@ -193,7 +190,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'Returns: ID Token (user identity) + Access Token (for API calls)',
 				},
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Provides: User profile information via UserInfo endpoint' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Provides: User profile information via UserInfo endpoint',
+				},
 				{ icon: <MDIIcon icon="FiCheck" />, text: 'Authenticates: User identity with claims' },
 			],
 			negative: [{ icon: <MDIIcon icon="FiX" />, text: "Requires: 'openid' scope (mandatory)" }],
@@ -214,12 +214,18 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'This flow provides **enhanced security** by pushing authorization parameters via a secure back-channel instead of exposing them in the browser URL. It prevents parameter tampering and improves security.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Enhanced Security: Parameters sent via secure back-channel' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Enhanced Security: Parameters sent via secure back-channel',
+				},
 				{
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'Prevents Tampering: Authorization URL parameters are protected',
 				},
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Returns: ID Token + Access Token (full OIDC flow)' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Returns: ID Token + Access Token (full OIDC flow)',
+				},
 			],
 			negative: [
 				{ icon: <MDIIcon icon="FiX" />, text: 'Requires: Additional PAR endpoint configuration' },
@@ -239,12 +245,24 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'This flow provides **fine-grained authorization** using structured JSON to specify detailed permissions and resource access requirements. It enables precise control over what resources can be accessed.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Fine-Grained: Structured JSON authorization requests' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Precise Control: Specific resource and action permissions' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Returns: ID Token + Access Token with detailed scopes' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Fine-Grained: Structured JSON authorization requests',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Precise Control: Specific resource and action permissions',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Returns: ID Token + Access Token with detailed scopes',
+				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Complex Setup: Requires RAR endpoint configuration' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Complex Setup: Requires RAR endpoint configuration',
+				},
 				{ icon: <MDIIcon icon="FiX" />, text: 'JSON Schema: More complex than simple scopes' },
 			],
 		},
@@ -262,12 +280,21 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 		characteristics: {
 			positive: [
 				{ icon: <MDIIcon icon="FiCheck" />, text: 'No Redirects: Direct API response with tokens' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Mobile Optimized: Perfect for mobile applications' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Server-Side: Ideal for backend-to-backend authentication' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Mobile Optimized: Perfect for mobile applications',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Server-Side: Ideal for backend-to-backend authentication',
+				},
 			],
 			negative: [
 				{ icon: <MDIIcon icon="FiX" />, text: 'PingOne Specific: Not a standard OAuth/OIDC flow' },
-				{ icon: <MDIIcon icon="FiX" />, text: 'Limited Support: Only available in PingOne environments' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Limited Support: Only available in PingOne environments',
+				},
 			],
 		},
 		useCases: [
@@ -283,13 +310,25 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'The hybrid flow needs **confidential client** credentials. Provide the PingOne environment ID, OAuth client ID and secret, redirect URIs, and include `openid` in scopes to unlock tokens in later steps.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Enables: Both code and tokens in a single round trip' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Supports: Backend code exchange with refresh tokens' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Works With: PKCE, nonce, and response_mode variations' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Enables: Both code and tokens in a single round trip',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Supports: Backend code exchange with refresh tokens',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Works With: PKCE, nonce, and response_mode variations',
+				},
 			],
 			negative: [
 				{ icon: <MDIIcon icon="FiX" />, text: 'Requires: Confidential client with stored secret' },
-				{ icon: <MDIIcon icon="FiX" />, text: 'Needs: Redirect and post-logout URIs registered in PingOne' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Needs: Redirect and post-logout URIs registered in PingOne',
+				},
 			],
 			warning: [
 				{
@@ -310,11 +349,20 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'Hybrid flows combine authorization code and implicit behaviours. Choose the response type (`code`, `id_token`, `token`) mix that matches your security posture and UX expectations.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Flexible: Deliver code plus tokens in the front channel' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'User Experience: Immediate ID token for quick login state' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Flexible: Deliver code plus tokens in the front channel',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'User Experience: Immediate ID token for quick login state',
+				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Complexity: More combinations to register in PingOne' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Complexity: More combinations to register in PingOne',
+				},
 				{
 					icon: <MDIIcon icon="FiX" />,
 					text: 'Risk: Tokens in front channel demand strong redirect URI controls',
@@ -343,10 +391,16 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'Single Redirect: Starts the flow that returns both code and tokens',
 				},
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Supports: PKCE challenge, nonce, and state for security' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Supports: PKCE challenge, nonce, and state for security',
+				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Strict Validation: Missing parameters cause PingOne errors' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Strict Validation: Missing parameters cause PingOne errors',
+				},
 			],
 			warning: [
 				{
@@ -367,11 +421,20 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'Users authenticate at PingOne after clicking the authorization URL. Hybrid mode ensures ID tokens (and optionally access tokens) arrive in the front channel while code waits for backend exchange.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Immediate ID Token: App can update session instantly' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Supports: Adaptive authentication and PingOne MFA policies' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Immediate ID Token: App can update session instantly',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Supports: Adaptive authentication and PingOne MFA policies',
+				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Popup Handling: Requires solid UX for redirect or popup flows' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Popup Handling: Requires solid UX for redirect or popup flows',
+				},
 			],
 		},
 		useCases: [
@@ -386,7 +449,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'Tokens returned in the redirect fragment must be parsed, validated, and optionally displayed. Hybrid flows deliver ID tokens (and optionally access tokens) before the backend exchanges the code.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Faster Login: ID token proves authentication instantly' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Faster Login: ID token proves authentication instantly',
+				},
 				{
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'API Ready: Access token can call APIs without waiting for backend exchange',
@@ -421,7 +487,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Requires: Client secret or JWT client assertion configured' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Requires: Client secret or JWT client assertion configured',
+				},
 			],
 			warning: [
 				{
@@ -442,11 +511,20 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'Once tokens are issued, introspection and UserInfo calls help monitor validity, scopes, and user claims. Hybrid flows often carry both front-channel and back-channel tokens to manage.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Visibility: Confirm token status, scopes, and expiry' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'UserInfo: Retrieve authoritative user attributes when needed' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Visibility: Confirm token status, scopes, and expiry',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'UserInfo: Retrieve authoritative user attributes when needed',
+				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Careful Storage: Multiple token types to protect and rotate' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Careful Storage: Multiple token types to protect and rotate',
+				},
 			],
 		},
 		useCases: [
@@ -471,7 +549,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Follow-Up: Requires additional hardening before production' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Follow-Up: Requires additional hardening before production',
+				},
 			],
 		},
 		useCases: [
@@ -547,7 +628,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Security Risk: Application handles raw user passwords' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Security Risk: Application handles raw user passwords',
+				},
 				{
 					icon: <MDIIcon icon="FiX" />,
 					text: 'Trust Required: Users must fully trust the application with credentials',
@@ -598,14 +682,20 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'Compliance Ready: Meets regulatory requirements for secure authentication',
 				},
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'User-Friendly: Modern MFA methods are convenient and fast' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'User-Friendly: Modern MFA methods are convenient and fast',
+				},
 			],
 			negative: [
 				{
 					icon: <MDIIcon icon="FiX" />,
 					text: 'Additional Step: Requires extra verification step in login process',
 				},
-				{ icon: <MDIIcon icon="FiX" />, text: 'Device Dependency: Users need access to registered devices' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Device Dependency: Users need access to registered devices',
+				},
 				{
 					icon: <MDIIcon icon="FiX" />,
 					text: 'Setup Complexity: Initial device registration and configuration required',
@@ -641,17 +731,32 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'This flow provides **enhanced security** by pushing authorization parameters via secure back-channel POST to the authorization server before redirecting. It prevents parameter tampering and reduces URL size for complex requests.',
 		characteristics: {
 			positive: [
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Enhanced Security: Parameters hidden from browser URLs' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Parameter Protection: Prevents tampering and interception' },
-				{ icon: <MDIIcon icon="FiCheck" />, text: 'Compact URLs: No URL length limits for complex requests' },
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Enhanced Security: Parameters hidden from browser URLs',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Parameter Protection: Prevents tampering and interception',
+				},
+				{
+					icon: <MDIIcon icon="FiCheck" />,
+					text: 'Compact URLs: No URL length limits for complex requests',
+				},
 				{
 					icon: <MDIIcon icon="FiCheck" />,
 					text: 'Authorization Details: Support for fine-grained authorization',
 				},
 			],
 			negative: [
-				{ icon: <MDIIcon icon="FiX" />, text: 'Complex Setup: Requires PAR endpoint configuration' },
-				{ icon: <MDIIcon icon="FiX" />, text: 'Server Support: Not all authorization servers support PAR' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Complex Setup: Requires PAR endpoint configuration',
+				},
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Server Support: Not all authorization servers support PAR',
+				},
 			],
 		},
 		useCases: [
@@ -686,7 +791,10 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			],
 			negative: [
 				{ icon: <MDIIcon icon="FiX" />, text: "Requires: 'openid' scope (mandatory for OIDC)" },
-				{ icon: <MDIIcon icon="FiX" />, text: 'Complex Setup: PAR endpoint + OIDC configuration required' },
+				{
+					icon: <MDIIcon icon="FiX" />,
+					text: 'Complex Setup: PAR endpoint + OIDC configuration required',
+				},
 			],
 		},
 		useCases: [

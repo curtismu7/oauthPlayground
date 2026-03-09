@@ -5,7 +5,7 @@
 const modernMessaging = {
 	showBanner: (options: { type: string; title: string; message: string; dismissible: boolean }) => {
 		console.log(`[TokenExpirationService] ${options.type.toUpperCase()}: ${options.message}`);
-	}
+	},
 };
 
 export interface TokenExpirationInfo {

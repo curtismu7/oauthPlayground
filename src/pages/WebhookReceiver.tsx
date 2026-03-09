@@ -1,12 +1,12 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
 // src/pages/WebhookReceiver.tsx
 // Webhook Receiver - Receives and processes PingOne webhook events
 
-
+import { FiAlertTriangle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { FiAlertTriangle } from '@icons';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -157,7 +157,7 @@ const WebhookReceiver: React.FC = () => {
 				<h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>
 					Webhook Endpoint
 				</h2>
-				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', marginBottom: '1rem' }}>
+				<p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
 					Use this URL in your PingOne webhook configuration:
 				</p>
 
@@ -173,7 +173,7 @@ const WebhookReceiver: React.FC = () => {
 					style={{
 						marginTop: '1.5rem',
 						padding: '1rem',
-						background: 'V9_COLORS.BG.WARNING',
+						background: '#fef3c7',
 						border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 						borderRadius: '0.5rem',
 					}}
@@ -182,9 +182,9 @@ const WebhookReceiver: React.FC = () => {
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
 						<FiAlertTriangle color="V9_COLORS.PRIMARY.YELLOW" />
-						<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>Note:</strong>
+						<strong style={{ color: '#d97706' }}>Note:</strong>
 					</div>
-					<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', margin: 0 }}>
+					<p style={{ fontSize: '0.875rem', color: '#d97706', margin: 0 }}>
 						This endpoint is for demonstration purposes. To receive real webhooks from PingOne,
 						you'll need to deploy this application to a publicly accessible server or use a webhook
 						tunnel service.
@@ -198,7 +198,7 @@ const WebhookReceiver: React.FC = () => {
 					<ol
 						style={{
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							paddingLeft: '1.5rem',
 							lineHeight: '1.8',
 						}}
@@ -233,7 +233,7 @@ const WebhookReceiver: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.5rem 1rem',
-								background: 'V9_COLORS.PRIMARY.RED',
+								background: '#ef4444',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -249,7 +249,7 @@ const WebhookReceiver: React.FC = () => {
 							<EventHeader>
 								<div>
 									<strong>{event.method}</strong>
-									<span style={{ marginLeft: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+									<span style={{ marginLeft: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
 										{event.timestamp.toLocaleString()}
 									</span>
 								</div>

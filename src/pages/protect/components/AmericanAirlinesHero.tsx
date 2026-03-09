@@ -9,12 +9,11 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS

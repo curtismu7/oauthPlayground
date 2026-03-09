@@ -1,7 +1,6 @@
 // src/components/CredentialDiagnosticModal.tsx
 // Modal to show diagnostic information about credentials being sent
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -101,8 +100,8 @@ const SectionTitle = styled.h3`
 `;
 
 const DiagnosticCard = styled.div<{ $hasIssue: boolean }>`
-	background: ${(props) => (props.$hasIssue ? 'V9_COLORS.BG.ERROR' : '#f0fdf4')};
-	border: 1px solid ${(props) => (props.$hasIssue ? 'V9_COLORS.BG.ERROR_BORDER' : 'V9_COLORS.BG.SUCCESS_BORDER')};
+	background: ${(props) => (props.$hasIssue ? '#fef2f2' : '#f0fdf4')};
+	border: 1px solid ${(props) => (props.$hasIssue ? '#ef4444' : '#10b981')};
 	border-radius: 8px;
 	padding: 1rem;
 	margin-bottom: 0.75rem;
@@ -124,7 +123,7 @@ const FieldName = styled.div`
 `;
 
 const StatusIcon = styled.div<{ $hasIssue: boolean }>`
-	color: ${(props) => (props.$hasIssue ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
+	color: ${(props) => (props.$hasIssue ? '#dc2626' : '#059669')};
 	display: flex;
 	align-items: center;
 `;
@@ -278,7 +277,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 			<Modal onClick={(e) => e.stopPropagation()}>
 				<Header>
 					<Title>
-						<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
+						<span style={{ fontSize: 24, color: '#f59e0b' }}>⚠️</span>
 						Credential Diagnostic Report
 					</Title>
 					<CloseButton onClick={onClose}>
@@ -349,9 +348,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 										<DetailLabel>Status:</DetailLabel>
 										<DetailValue
 											style={{
-												color: diagnostic.isEmpty
-													? 'V9_COLORS.PRIMARY.RED_DARK'
-													: 'V9_COLORS.PRIMARY.GREEN_DARK',
+												color: diagnostic.isEmpty ? '#dc2626' : '#059669',
 												fontWeight: 'bold',
 											}}
 										>

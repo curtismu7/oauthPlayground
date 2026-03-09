@@ -1,12 +1,11 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowHeader.tsx
 // V7.1 Flow Header - Header component with variant selector and flow information
 
-
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant } from '../types/flowTypes';
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowHeaderProps {
 	flowVariant: FlowVariant;
@@ -137,10 +136,10 @@ const VariantButton = styled.button<{ $selected: boolean; $variant: FlowVariant 
   align-items: flex-start;
   gap: ${UI_CONSTANTS.SPACING.XS};
   padding: ${UI_CONSTANTS.SPACING.LG};
-  border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
+  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
   border-radius: ${UI_CONSTANTS.SECTION.BORDER_RADIUS};
-  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
-  color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$selected ? '#f8fafc' : '#ffffff')};
+  color: ${(props) => (props.$selected ? '#2563eb' : '#6b7280')};
   font-weight: ${(props) => (props.$selected ? '600' : '500')};
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};

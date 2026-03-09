@@ -1,6 +1,5 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -169,10 +168,10 @@ const StepConnector = styled.div<{ $completed: boolean; $active: boolean }>`
   width: 3rem;
   height: 2px;
   background: ${(props) => {
-		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN';
+		if (props.$completed) return '#10b981';
 		if (props.$active)
 			return 'linear-gradient(to right, V9_COLORS.PRIMARY.GREEN 50%, V9_COLORS.TEXT.GRAY_LIGHTER 50%)';
-		return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+		return '#e5e7eb';
 	}};
   position: relative;
   z-index: 1;
@@ -834,10 +833,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
 				onStepError?.(step.id, errorMessage);
 
-				log.error(
-					`Step failed: ${step.title}`,
-					`error: ${errorMessage}, duration: ${duration}ms`
-				);
+				log.error(`Step failed: ${step.title}`, `error: ${errorMessage}, duration: ${duration}ms`);
 			} finally {
 				setIsExecuting(false);
 			}

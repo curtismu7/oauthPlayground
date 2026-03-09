@@ -9,7 +9,6 @@
  * component for easier maintenance and consistent user experience across all flows.
  */
 
-
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -105,22 +104,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 	gap: 0.375rem;
 	padding: 0.5rem 0.75rem;
 	border: 1px solid ${({ $variant }) =>
-		$variant === 'primary'
-			? 'V9_COLORS.PRIMARY.BLUE'
-			: $variant === 'secondary'
-				? 'V9_COLORS.TEXT.GRAY_MEDIUM'
-				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#e5e7eb'};
 	border-radius: 0.375rem;
 	background: ${({ $variant }) =>
-		$variant === 'primary'
-			? 'V9_COLORS.PRIMARY.BLUE'
-			: $variant === 'secondary'
-				? 'V9_COLORS.TEXT.GRAY_MEDIUM'
-				: 'V9_COLORS.TEXT.WHITE'};
+		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#ffffff'};
 	color: ${({ $variant }) =>
-		$variant === 'primary' || $variant === 'secondary'
-			? 'V9_COLORS.TEXT.WHITE'
-			: 'V9_COLORS.TEXT.GRAY_DARK'};
+		$variant === 'primary' || $variant === 'secondary' ? '#ffffff' : '#1f2937'};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -128,11 +117,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary'
-				? 'V9_COLORS.PRIMARY.BLUE_DARK'
-				: $variant === 'secondary'
-					? '#4b5563'
-					: '#f9fafb'};
+			$variant === 'primary' ? '#2563eb' : $variant === 'secondary' ? '#4b5563' : '#f9fafb'};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -201,12 +186,12 @@ const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'err
 	margin-top: 0.5rem;
 	background: ${({ $type }) =>
 		$type === 'success'
-			? 'V9_COLORS.PRIMARY.GREEN'
+			? '#10b981'
 			: $type === 'warning'
-				? 'V9_COLORS.PRIMARY.YELLOW'
+				? '#f59e0b'
 				: $type === 'error'
-					? 'V9_COLORS.PRIMARY.RED'
-					: 'V9_COLORS.PRIMARY.BLUE'};
+					? '#ef4444'
+					: '#3b82f6'};
 	color: V9_COLORS.TEXT.WHITE;
 `;
 
@@ -363,13 +348,17 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 				</HeaderTitle>
 				<HeaderActions>
 					{!isExpanded && (
-						<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 							{showAppPicker && 'App Picker'}
 							{showAppPicker && showImportExport && ' • '}
 							{showImportExport && 'Import/Export'}
 						</span>
 					)}
-					{isExpanded ? <span style={{ fontSize: '16px' }}>⬆️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
+					{isExpanded ? (
+						<span style={{ fontSize: '16px' }}>⬆️</span>
+					) : (
+						<span style={{ fontSize: '16px' }}>⬇️</span>
+					)}
 				</HeaderActions>
 			</Header>
 

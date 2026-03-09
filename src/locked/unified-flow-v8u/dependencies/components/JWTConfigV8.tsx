@@ -2,7 +2,7 @@
 // V8 JWT Configuration Component - Clean UI matching V8 style
 // Supports both Client Secret JWT and Private Key JWT configuration and generation
 
-
+import { FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -19,7 +19,6 @@ import {
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FiCode } from '@icons';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
@@ -401,7 +400,11 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							onClick={() => setShowSecret(!showSecret)}
 							aria-label={showSecret ? 'Hide secret' : 'Show secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</button>
 					</PasswordInputWrapper>
 					<ButtonGroup>

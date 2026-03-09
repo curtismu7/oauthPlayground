@@ -9,7 +9,6 @@
  * Extracted from MFAAuthenticationMainPageV8.tsx lines 6075-6295
  */
 
-
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 

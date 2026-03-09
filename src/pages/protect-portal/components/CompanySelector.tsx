@@ -9,7 +9,6 @@
  * to demonstrate the protect portal functionality across different brands.
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
@@ -169,7 +168,7 @@ const companies = [
 		description: 'Standard protect portal experience',
 		logo: 'P',
 		logoColor: 'white',
-		logoBg: 'V9_COLORS.PRIMARY.BLUE',
+		logoBg: '#3b82f6',
 		theme: 'default',
 	},
 	{

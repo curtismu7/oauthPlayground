@@ -9,9 +9,9 @@
  * their signature red and blue colors, maintaining professional banking aesthetics.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const bankOfAmericaConfig: CorporatePortalConfig = {
 	company: {
@@ -71,12 +71,12 @@ export const bankOfAmericaConfig: CorporatePortalConfig = {
 			accent: '#E31837', // Bank of America red
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+			muted: '#6b7280',
+			border: '#e5e7eb',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#E31837',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#D97706',
 			info: '#012169',
 			primaryLight: '#0033A0',
@@ -120,16 +120,16 @@ export const bankOfAmericaTheme: BrandTheme = {
 	colors: {
 		primary: '#012169', // Bank of America Blue (official primary color)
 		primaryDark: '#010E40', // Darker blue for hover states
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
+		secondary: '#1f2937', // Updated to match mockup secondary
 		accent: '#E31837', // Bank of America Red (official accent color)
 		background: '#f7fafc', // Updated to match mockup bg
-		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#e5e7eb', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31837', // Use Bank of America red for errors
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#F59E0B',
 		info: '#012169', // Use Bank of America blue for info
 		// Additional theme colors with official Bank of America palette

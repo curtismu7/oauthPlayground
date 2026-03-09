@@ -1,6 +1,5 @@
 // src/components/PARInputInterface.tsx
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -257,8 +256,8 @@ const Tab = styled.button<{ $active: boolean }>`
 	font-weight: 500;
 	cursor: pointer;
 	border-bottom: 2px solid transparent;
-	color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
-	border-bottom-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+	color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
+	border-bottom-color: ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
 	
 	&:hover {
 		color: V9_COLORS.PRIMARY.BLUE;
@@ -793,7 +792,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 										style={{
 											margin: '0.5rem 0 0 0',
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+											color: '#059669',
 										}}
 									>
 										This is the final authorization URL that users will visit to authenticate.
@@ -991,7 +990,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 										borderRadius: '6px',
 									}}
 								>
-									<strong style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+									<strong style={{ fontSize: '0.875rem', color: '#059669' }}>
 										Expected Response:
 									</strong>
 									<CodeBlock style={{ marginTop: '0.5rem' }}>

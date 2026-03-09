@@ -9,7 +9,6 @@
  * due to NO_USABLE_DEVICES errors, showing which devices are unavailable and why.
  */
 
-
 import React from 'react';
 
 export interface UnavailableDevice {

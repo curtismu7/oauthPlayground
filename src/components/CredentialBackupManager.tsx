@@ -1,14 +1,13 @@
 // src/components/CredentialBackupManager.tsx
 // V7 Credential Backup Manager Component
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
-import { FiRefreshCw } from '@icons';
 
 const Container = styled.div`
 	background: V9_COLORS.TEXT.WHITE;
@@ -279,7 +278,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 							margin: '0 0 1rem 0',
 							fontSize: '0.875rem',
 							fontWeight: '600',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						Backed Up Flows

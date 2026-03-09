@@ -1,14 +1,13 @@
 // src/components/GasPumpDeviceFlow.tsx
 // Gas Pump Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCheckCircle } from '@icons';
 
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
@@ -115,9 +114,9 @@ const LeftPanel = styled.div`
 `;
 
 const TransactionButton = styled.button<{ $active?: boolean }>`
-  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'rgba(255, 255, 255, 0.9)')};
-  color: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
-  border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.YELLOW' : 'rgba(255, 255, 255, 0.3)')};
+  background: ${(props) => (props.$active ? '#fbbf24' : 'rgba(255, 255, 255, 0.9)')};
+  color: ${(props) => (props.$active ? '#2563eb' : '#1f2937')};
+  border: 2px solid ${(props) => (props.$active ? '#f59e0b' : 'rgba(255, 255, 255, 0.3)')};
   border-radius: 0.375rem;
   padding: 0.75rem;
   font-size: 0.875rem;
@@ -255,21 +254,21 @@ const FuelButton = styled.button<{
   background: ${(props) => {
 		switch (props.$type) {
 			case 'regular':
-				return props.$active ? 'V9_COLORS.PRIMARY.GREEN' : '#f3f4f6';
+				return props.$active ? '#10b981' : '#f3f4f6';
 			case 'special':
-				return props.$active ? 'V9_COLORS.PRIMARY.RED' : '#f3f4f6';
+				return props.$active ? '#ef4444' : '#f3f4f6';
 			case 'super':
-				return props.$active ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6';
+				return props.$active ? '#3b82f6' : '#f3f4f6';
 			case 'diesel':
-				return props.$active ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : '#f3f4f6';
+				return props.$active ? '#fbbf24' : '#f3f4f6';
 			case 'rec90':
 				return props.$active ? '#8b5cf6' : '#f3f4f6';
 			default:
 				return '#f3f4f6';
 		}
 	}};
-  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
-  border: 2px solid ${(props) => (props.$active ? 'currentColor' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
+  border: 2px solid ${(props) => (props.$active ? 'currentColor' : '#e5e7eb')};
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
@@ -343,11 +342,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -386,7 +385,7 @@ const VerificationSection = styled.div`
 `;
 
 const VerificationButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#6b7280')};
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -401,7 +400,7 @@ const VerificationButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   gap: 0.5rem;
   
   &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#4b5563')};
+    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#4b5563')};
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
@@ -574,9 +573,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 					<RightPanel>
 						<CardReader>
 							<CardSlot />
-							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT' }}>
-								Insert your device here
-							</div>
+							<div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Insert your device here</div>
 						</CardReader>
 					</RightPanel>
 				</ControlPanel>
@@ -681,7 +678,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 							style={{
 								fontSize: '1.5rem',
 								fontWeight: '700',
-								color: 'V9_COLORS.PRIMARY.GREEN',
+								color: '#10b981',
 								textAlign: 'center',
 								marginBottom: '1rem',
 							}}

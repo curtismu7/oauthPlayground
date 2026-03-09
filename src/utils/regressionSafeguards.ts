@@ -422,7 +422,11 @@ export class RegressionSafeguards {
 	/**
 	 * Decode JWT token
 	 */
-	private decodeJWT(token: string): { header: Record<string, unknown>; payload: Record<string, unknown>; signature: string } {
+	private decodeJWT(token: string): {
+		header: Record<string, unknown>;
+		payload: Record<string, unknown>;
+		signature: string;
+	} {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');

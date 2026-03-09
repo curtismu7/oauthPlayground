@@ -1,6 +1,7 @@
 // src/pages/EnvironmentManagementPageV8.tsx
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
+import { FiCode, FiDownload, FiPlus } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
@@ -9,7 +10,6 @@ import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmen
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { FiCode, FiDownload, FiPlus } from '@icons';
 
 const styles = {
 	container: {
@@ -28,7 +28,7 @@ const styles = {
 	} as React.CSSProperties,
 
 	title: {
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		fontSize: '2rem',
 		fontWeight: 600,
 	} as React.CSSProperties,
@@ -40,7 +40,7 @@ const styles = {
 	} as React.CSSProperties,
 
 	button: (variant?: 'primary' | 'secondary' | 'danger'): React.CSSProperties => ({
-		background: variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : variant === 'danger' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: variant === 'secondary' ? '#6b7280' : variant === 'danger' ? '#dc2626' : '#2563eb',
 		color: 'white',
 		border: 'none',
 		padding: '0.5rem 1rem',
@@ -182,12 +182,13 @@ const styles = {
 	errorMessage: {
 		textAlign: 'center',
 		padding: '2rem',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		color: '#dc2626',
 		fontSize: '1.1rem',
 	} as React.CSSProperties,
 
 	educationalSection: {
-		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
+		background:
+			'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
 		borderRadius: '12px',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -241,7 +242,7 @@ const styles = {
 	apiEndpointsSection: {
 		margin: '2rem 0',
 		padding: '1.5rem',
-		background: 'V9_COLORS.TEXT.WHITE',
+		background: '#ffffff',
 		borderRadius: '12px',
 		border: '1px solid #e9ecef',
 	} as React.CSSProperties,
@@ -258,7 +259,7 @@ const styles = {
 
 	apiEndpointsDescription: {
 		margin: '0 0 1rem 0',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	} as React.CSSProperties,
 
 	apiEndpointsTable: {
@@ -292,12 +293,12 @@ const styles = {
 		fontWeight: 'bold',
 		color:
 			method === 'GET'
-				? 'V9_COLORS.PRIMARY.BLUE_DARK'
+				? '#2563eb'
 				: method === 'POST'
-					? 'V9_COLORS.PRIMARY.GREEN'
+					? '#10b981'
 					: method === 'PUT'
-						? 'V9_COLORS.PRIMARY.YELLOW'
-						: 'V9_COLORS.PRIMARY.RED_DARK',
+						? '#f59e0b'
+						: '#dc2626',
 	}),
 
 	apiDisplayModal: (isOpen: boolean): React.CSSProperties => ({
@@ -348,7 +349,7 @@ const styles = {
 		border: 'none',
 		fontSize: '1.5rem',
 		cursor: 'pointer',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		padding: '0.5rem',
 		borderRadius: '4px',
 	} as React.CSSProperties,
@@ -368,8 +369,8 @@ const styles = {
 	paginationButton: (active?: boolean): React.CSSProperties => ({
 		padding: '0.5rem 1rem',
 		border: '1px solid #ddd',
-		background: active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'white',
-		color: active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK',
+		background: active ? '#2563eb' : 'white',
+		color: active ? 'white' : '#1f2937',
 		borderRadius: '4px',
 		cursor: 'pointer',
 		transition: 'all 0.2s ease',
@@ -953,7 +954,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '8px',
 						padding: '2rem',
@@ -961,10 +962,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						marginBottom: '2rem',
 					}}
 				>
-					<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
+					<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>
 						Enterprise Authentication Required
 					</h3>
-					<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+					<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 						MasterFlow API requires a valid worker token for secure environment management. Generate
 						your enterprise credentials to access comprehensive environment controls, monitoring
 						tools, and API integration capabilities.
@@ -988,7 +989,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		<div style={styles.container}>
 			<div style={styles.educationalSection}>
 				<div style={styles.educationalHeader}>
-					<span>📚</span><h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
+					<span>📚</span>
+					<h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
 				</div>
 				<div style={styles.educationalContent}>
 					<div style={styles.educationalCard}>
@@ -1092,7 +1094,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			<div style={styles.header}>
 				<h1 style={styles.title}>MasterFlow API - Environment Management</h1>
-				<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '1.1rem', marginBottom: '1rem' }}>
+				<p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '1rem' }}>
 					Manage your PingOne environments with comprehensive tools for monitoring, configuration,
 					and API integration
 				</p>
@@ -1105,7 +1107,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
 						onClick={handleToggleApiDisplay}
 					>
-						<span>[FiCode]</span>{showApiDisplay ? 'Hide API' : 'Show API'}
+						<span>[FiCode]</span>
+						{showApiDisplay ? 'Hide API' : 'Show API'}
 					</button>
 					<button
 						type="button"
@@ -1352,7 +1355,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
 							>
-								<span>🔄</span></button>
+								<span>🔄</span>
+							</button>
 							<button
 								type="button"
 								style={styles.iconButton}
@@ -1360,7 +1364,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title="Edit"
 							>
-								<span>[FiEdit2]</span></button>
+								<span>[FiEdit2]</span>
+							</button>
 							<button
 								type="button"
 								style={styles.iconButton}
@@ -1368,7 +1373,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
 								title="Delete"
 							>
-								<span>🗑️</span></button>
+								<span>🗑️</span>
+							</button>
 						</div>
 					</div>
 				))}
@@ -1535,11 +1541,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={{
 							...styles.button(),
 							backgroundColor: hasUnsavedChanges
-								? 'V9_COLORS.PRIMARY.RED_DARK'
+								? '#dc2626'
 								: editName.trim()
-									? 'V9_COLORS.PRIMARY.BLUE_DARK'
-									: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-							color: 'V9_COLORS.TEXT.WHITE',
+									? '#2563eb'
+									: '#6b7280',
+							color: '#ffffff',
 							opacity: editName.trim() ? 1 : 0.6,
 							cursor: editName.trim() ? 'pointer' : 'not-allowed',
 						}}

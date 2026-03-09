@@ -181,7 +181,7 @@ describe('useOAuthFlowBase', () => {
 
 			return (
 				<div>
-					<button onClick={handleClick}>Trigger Error</button>
+					<button type="button" onClick={handleClick}>Trigger Error</button>
 					<div data-testid="error">{error || 'no-error'}</div>
 				</div>
 			);
@@ -210,8 +210,8 @@ describe('useOAuthFlowBase', () => {
 
 			return (
 				<div>
-					<button onClick={handleErrorClick}>Trigger Error</button>
-					<button onClick={handleClearClick}>Clear Error</button>
+					<button type="button" onClick={handleErrorClick}>Trigger Error</button>
+					<button type="button" onClick={handleClearClick}>Clear Error</button>
 					<div data-testid="error">{error || 'no-error'}</div>
 				</div>
 			);
@@ -232,8 +232,8 @@ describe('useOAuthFlowBase', () => {
 
 			return (
 				<div>
-					<button onClick={startLoading}>Start Loading</button>
-					<button onClick={stopLoading}>Stop Loading</button>
+					<button type="button" onClick={startLoading}>Start Loading</button>
+					<button type="button" onClick={stopLoading}>Stop Loading</button>
 					<div data-testid="loading">{isLoading.toString()}</div>
 				</div>
 			);

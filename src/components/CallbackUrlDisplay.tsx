@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -101,17 +100,17 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem;
-  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE')};
+  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? '#e5e7eb' : '#3b82f6')};
   border-radius: 0.375rem;
-  background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.PRIMARY.BLUE')};
-  color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $variant }) => ($variant === 'copy' ? '#ffffff' : '#3b82f6')};
+  color: ${({ $variant }) => ($variant === 'copy' ? '#1f2937' : '#ffffff')};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'copy' ? '#f9fafb' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
-    border-color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${({ $variant }) => ($variant === 'copy' ? '#f9fafb' : '#2563eb')};
+    border-color: ${({ $variant }) => ($variant === 'copy' ? '#9ca3af' : '#2563eb')};
   }
 
   &:disabled {

@@ -1,16 +1,15 @@
 // src/components/ConfigCheckerButtons.tsx
 // Config Checker component for comparing form data against live PingOne applications
 
-
+import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
-import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { DraggableModal } from './DraggableModal';
-import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '@icons';
 
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
@@ -93,8 +92,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
   border: none;
-  background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
-  color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
+  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
@@ -106,7 +105,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 
   &:hover:not(:disabled) {
-    background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
   }
 
   .spinner {
@@ -174,7 +173,7 @@ const Badge = styled.span<{ $tone: 'warning' | 'success' }>`
   font-size: 0.75rem;
   font-weight: 600;
   background: ${({ $tone }) => ($tone === 'warning' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(16, 185, 129, 0.2)')};
-  color: ${({ $tone }) => ($tone === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
+  color: ${({ $tone }) => ($tone === 'warning' ? '#d97706' : '#059669')};
   margin-top: 0.5rem;
 `;
 
@@ -346,11 +345,7 @@ const DiffChange = styled.span<{ $change: 'added' | 'removed' | 'mismatch' }>`
 				? 'rgba(239, 68, 68, 0.15)'
 				: 'rgba(251, 191, 36, 0.15)'};
   color: ${({ $change }) =>
-		$change === 'added'
-			? '#047857'
-			: $change === 'removed'
-				? 'V9_COLORS.PRIMARY.RED_DARK'
-				: 'V9_COLORS.PRIMARY.YELLOW_DARK'};
+		$change === 'added' ? '#047857' : $change === 'removed' ? '#dc2626' : '#d97706'};
   border: 1px solid ${({ $change }) =>
 		$change === 'added'
 			? 'rgba(16, 185, 129, 0.3)'
@@ -1322,7 +1317,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						onClick={handleCheck}
 						disabled={!workerToken || loading !== null || isCreating}
 						style={{
-							background: 'V9_COLORS.PRIMARY.BLUE', // Blue background
+							background: '#3b82f6', // Blue background
 							color: 'white', // White text
 							border: '1px solid V9_COLORS.PRIMARY.BLUE',
 							fontWeight: '600',
@@ -1340,7 +1335,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.5rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								borderRadius: '0.375rem',
 								border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 							}}
@@ -1357,7 +1352,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								htmlFor="refresh-worker-token"
 								style={{
 									fontSize: '0.875rem',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									fontWeight: '500',
 									cursor: 'pointer',
 									margin: 0,
@@ -1382,10 +1377,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
-							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-								Worker token refreshed
-							</span>
+							<span style={{ fontSize: 14, color: '#10b981' }}>✅</span>
+							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Worker token refreshed</span>
 						</div>
 					)}
 					{lastCheckTime && (
@@ -1408,7 +1401,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						onClick={handleCreate}
 						disabled={loading !== null || isCreating}
 						style={{
-							background: 'V9_COLORS.PRIMARY.GREEN', // Green background
+							background: '#10b981', // Green background
 							color: 'white', // White text
 							border: '1px solid V9_COLORS.PRIMARY.GREEN',
 							fontWeight: '600',
@@ -1430,7 +1423,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}
 						}}
 						style={{
-							background: 'V9_COLORS.PRIMARY.YELLOW', // Orange background
+							background: '#f59e0b', // Orange background
 							color: 'white', // White text
 							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 							fontWeight: '600',
@@ -1471,7 +1464,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					>
 						<div
 							style={{
-								background: 'V9_COLORS.PRIMARY.BLUE',
+								background: '#3b82f6',
 								color: 'white',
 								padding: '0.625rem',
 								borderRadius: '0.5rem',
@@ -1490,7 +1483,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									fontSize: '0.8125rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									marginBottom: '0.375rem',
 									letterSpacing: '0.01em',
 								}}
@@ -1520,8 +1513,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								});
 							}}
 							style={{
-								background: 'V9_COLORS.PRIMARY.BLUE',
-								color: 'V9_COLORS.TEXT.WHITE',
+								background: '#3b82f6',
+								color: '#ffffff',
 								border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 								padding: '0.625rem 1rem',
 								fontSize: '0.8125rem',
@@ -1547,7 +1540,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						<FiCheckCircle
 							size={48}
 							style={{
-								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								color: '#059669',
 								marginBottom: '1rem',
 								display: 'block',
 								margin: '0 auto 1rem',
@@ -1558,7 +1551,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '1.125rem',
 								fontWeight: 600,
-								color: 'V9_COLORS.PRIMARY.GREEN',
+								color: '#10b981',
 							}}
 						>
 							Configuration Match ✓
@@ -1586,7 +1579,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									margin: 0,
 									fontSize: '0.9375rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Differences Found ({selectedDiffs.size} of {diffs.diffs.length} selected)
@@ -1598,8 +1591,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										padding: '0.5rem 0.875rem',
 										fontSize: '0.8125rem',
-										background: 'V9_COLORS.PRIMARY.BLUE',
-										color: 'V9_COLORS.TEXT.WHITE',
+										background: '#3b82f6',
+										color: '#ffffff',
 										border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 									}}
 								>
@@ -1611,8 +1604,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										padding: '0.5rem 0.875rem',
 										fontSize: '0.8125rem',
-										background: 'V9_COLORS.PRIMARY.BLUE',
-										color: 'V9_COLORS.TEXT.WHITE',
+										background: '#3b82f6',
+										color: '#ffffff',
 										border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 									}}
 								>
@@ -1640,7 +1633,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 											height: '18px',
 											marginTop: '0.25rem',
 											cursor: 'pointer',
-											accentColor: 'V9_COLORS.PRIMARY.BLUE',
+											accentColor: '#3b82f6',
 										}}
 									/>
 									<div
@@ -1662,13 +1655,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 															style={{
 																fontSize: '0.6875rem',
 																fontWeight: 600,
-																color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																color: '#6b7280',
 																marginBottom: '0.25rem',
 															}}
 														>
 															PingOne
 														</div>
-														<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+														<div style={{ color: '#1f2937' }}>
 															{formatCompactJson(diff.expected)}
 														</div>
 													</div>
@@ -1681,7 +1674,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 														style={{
 															flexShrink: 0,
 															marginTop: '0.125rem',
-															color: 'V9_COLORS.PRIMARY.BLUE',
+															color: '#3b82f6',
 														}}
 													/>
 													<div style={{ flex: 1 }}>
@@ -1689,15 +1682,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 															style={{
 																fontSize: '0.6875rem',
 																fontWeight: 600,
-																color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																color: '#6b7280',
 																marginBottom: '0.25rem',
 															}}
 														>
 															Our App
 														</div>
-														<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-															{formatCompactJson(diff.actual)}
-														</div>
+														<div style={{ color: '#1f2937' }}>{formatCompactJson(diff.actual)}</div>
 													</div>
 												</div>
 											)}
@@ -1717,13 +1708,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 																style={{
 																	fontSize: '0.6875rem',
 																	fontWeight: 600,
-																	color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																	color: '#6b7280',
 																	marginBottom: '0.25rem',
 																}}
 															>
 																PingOne
 															</div>
-															<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+															<div style={{ color: '#1f2937' }}>
 																{formatCompactJson(diff.expected)}
 															</div>
 														</div>
@@ -1742,7 +1733,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 															style={{
 																flexShrink: 0,
 																marginTop: '0.125rem',
-																color: 'V9_COLORS.PRIMARY.BLUE',
+																color: '#3b82f6',
 															}}
 														/>
 														<div style={{ flex: 1 }}>
@@ -1750,13 +1741,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 																style={{
 																	fontSize: '0.6875rem',
 																	fontWeight: 600,
-																	color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																	color: '#6b7280',
 																	marginBottom: '0.25rem',
 																}}
 															>
 																Our App
 															</div>
-															<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+															<div style={{ color: '#1f2937' }}>
 																{formatCompactJson(diff.actual)}
 															</div>
 														</div>
@@ -1783,7 +1774,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								justifyContent: 'space-between',
 								marginBottom: '0.75rem',
 								padding: '0.875rem 1rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
@@ -1793,7 +1784,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									margin: 0,
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Raw JSON Data
@@ -1804,8 +1795,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									padding: '0.5rem 0.875rem',
 									fontSize: '0.8125rem',
-									background: 'V9_COLORS.PRIMARY.BLUE',
-									color: 'V9_COLORS.TEXT.WHITE',
+									background: '#3b82f6',
+									color: '#ffffff',
 									border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 								}}
 							>
@@ -1826,7 +1817,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						style={{
 							marginBottom: '1rem',
 							padding: '0.75rem',
-							backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+							backgroundColor: '#f8fafc',
 							borderRadius: '0.5rem',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						}}
@@ -1836,7 +1827,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								margin: '0 0 0.5rem 0',
 								fontSize: '0.8rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								textTransform: 'uppercase',
 								letterSpacing: '0.05em',
 							}}
@@ -1854,7 +1845,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								onClick={copyToClipboard}
 								disabled={!diffs}
 								style={{
-									background: 'V9_COLORS.PRIMARY.BLUE',
+									background: '#3b82f6',
 									color: 'white',
 									border: '1px solid V9_COLORS.PRIMARY.BLUE',
 									fontWeight: '600',
@@ -1867,7 +1858,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									onClick={handleImportConfig}
 									disabled={!diffs}
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										border: '1px solid V9_COLORS.PRIMARY.GREEN',
 										fontWeight: '600',
@@ -1881,7 +1872,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									onClick={exportPingOneConfig}
 									disabled={isUpdating}
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										border: '1px solid V9_COLORS.PRIMARY.GREEN',
 										fontWeight: '600',
@@ -1900,7 +1891,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							style={{
 								marginBottom: '1rem',
 								padding: '0.75rem',
-								backgroundColor: 'V9_COLORS.BG.WARNING',
+								backgroundColor: '#fef3c7',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 							}}
@@ -1910,7 +1901,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.8rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									textTransform: 'uppercase',
 									letterSpacing: '0.05em',
 								}}
@@ -1920,7 +1911,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div
 								style={{
 									padding: '0.75rem',
-									background: 'V9_COLORS.BG.WARNING',
+									background: '#fef3c7',
 									borderRadius: '0.5rem',
 									marginBottom: '1rem',
 									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
@@ -1930,7 +1921,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										margin: '0 0 0.5rem 0',
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 										fontWeight: '600',
 									}}
 								>
@@ -1940,7 +1931,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									style={{
 										margin: '0',
 										fontSize: '0.8rem',
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 									}}
 								>
 									<strong>Update Our App:</strong> Updates all selected fields in your local
@@ -1961,7 +1952,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									onClick={handleUpdateOurApp}
 									disabled={isUpdating || selectedDiffs.size === 0}
 									style={{
-										background: selectedDiffs.size === 0 ? 'V9_COLORS.TEXT.GRAY_LIGHT' : '#8b5cf6',
+										background: selectedDiffs.size === 0 ? '#9ca3af' : '#8b5cf6',
 										color: 'white',
 										border:
 											selectedDiffs.size === 0
@@ -1978,10 +1969,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									onClick={handleUpdateConfig}
 									disabled={isUpdating || selectedDiffs.size === 0}
 									style={{
-										background:
-											selectedDiffs.size === 0
-												? 'V9_COLORS.TEXT.GRAY_LIGHT'
-												: 'V9_COLORS.PRIMARY.YELLOW',
+										background: selectedDiffs.size === 0 ? '#9ca3af' : '#f59e0b',
 										color: 'white',
 										border:
 											selectedDiffs.size === 0
@@ -1997,15 +1985,15 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								{/* Option 2: Completely remove Update PingOne button - uncomment to use this approach instead:
                     <div style={{ 
                       padding: '0.75rem', 
-                      background: 'V9_COLORS.BG.ERROR', 
+                      background: '#fef2f2', 
                       borderRadius: '0.5rem', 
                       border: '1px solid #fca5a5',
                       textAlign: 'center'
                     }}>
-                      <p style={{ margin: '0', fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.RED_DARK', fontWeight: '600' }}>
+                      <p style={{ margin: '0', fontSize: '0.875rem', color: '#dc2626', fontWeight: '600' }}>
                         🔒 PingOne updates disabled for safety
                       </p>
-                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
                         Use "Update Our App" to sync your local configuration instead
                       </p>
                     </div>
@@ -2016,8 +2004,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					<Button
 						onClick={closeModal}
 						style={{
-							background: 'V9_COLORS.PRIMARY.BLUE',
-							color: 'V9_COLORS.TEXT.WHITE',
+							background: '#3b82f6',
+							color: '#ffffff',
 							border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 							fontWeight: '600',
 						}}
@@ -2050,7 +2038,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Application Name *
@@ -2070,8 +2058,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								outline: 'none',
 								transition: 'border-color 0.2s',
 							}}
-							onFocus={(e) => (e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE')}
-							onBlur={(e) => (e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER')}
+							onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+							onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
 						/>
 					</div>
 
@@ -2082,7 +2070,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Description
@@ -2105,8 +2093,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								resize: 'vertical',
 								transition: 'border-color 0.2s',
 							}}
-							onFocus={(e) => (e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE')}
-							onBlur={(e) => (e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER')}
+							onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+							onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
 						/>
 					</div>
 
@@ -2118,7 +2106,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									display: 'block',
 									marginBottom: '0.5rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Redirect URI *
@@ -2140,8 +2128,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									outline: 'none',
 									transition: 'border-color 0.2s',
 								}}
-								onFocus={(e) => (e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE')}
-								onBlur={(e) => (e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER')}
+								onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+								onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
 							/>
 						</div>
 					)}
@@ -2154,7 +2142,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									display: 'block',
 									marginBottom: '0.5rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Token Endpoint Authentication Method
@@ -2178,8 +2166,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									background: 'white',
 									transition: 'border-color 0.2s',
 								}}
-								onFocus={(e) => (e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE')}
-								onBlur={(e) => (e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER')}
+								onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+								onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
 							>
 								{allowedTokenAuthMethods.map((method) => (
 									<option key={method} value={method}>
@@ -2197,12 +2185,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					{!shouldShowTokenAuthSelector && (
 						<div
 							style={{
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							<strong>Token Authentication:</strong>{' '}
@@ -2217,7 +2205,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					{/* OIDC Settings Section */}
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.75rem',
 							padding: '1.5rem',
@@ -2237,12 +2225,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									margin: 0,
 									fontSize: '1rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								OIDC Settings
 							</h4>
-							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 								Configure OIDC settings for the application
 							</span>
 						</div>
@@ -2255,7 +2243,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									display: 'block',
 									marginBottom: '0.75rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -2279,8 +2267,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									background: 'white',
 									transition: 'border-color 0.2s',
 								}}
-								onFocus={(e) => (e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE')}
-								onBlur={(e) => (e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER')}
+								onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+								onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
 							>
 								<option value="code">code (Authorization Code)</option>
 								<option value="token">token (Implicit OAuth)</option>
@@ -2294,7 +2282,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									marginTop: '0.5rem',
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									fontStyle: 'italic',
 								}}
 							>
@@ -2311,7 +2299,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									gap: '0.5rem',
 									marginBottom: '0.75rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -2332,11 +2320,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								style={{
 									marginTop: '0.5rem',
 									padding: '0.75rem',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									borderRadius: '0.5rem',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								<strong>Note:</strong> Refresh tokens are not a grant type. They are automatically
@@ -2355,7 +2343,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									gap: '0.25rem',
 									marginBottom: '0.75rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -2363,7 +2351,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								<span
 									style={{
 										background: '#f3f4f6',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										borderRadius: '50%',
 										width: '16px',
 										height: '16px',
@@ -2441,7 +2429,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 												<span
 													style={{
 														background: '#f3f4f6',
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														borderRadius: '50%',
 														width: '16px',
 														height: '16px',
@@ -2470,12 +2458,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							padding: '1rem',
 							borderRadius: '0.5rem',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 						}}
 					>
 						<strong>Application Type:</strong> {selectedAppType}
@@ -2496,7 +2484,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								loading === 'create'
 							}
 							style={{
-								background: 'V9_COLORS.PRIMARY.GREEN',
+								background: '#10b981',
 								color: 'white',
 								border: '1px solid V9_COLORS.PRIMARY.GREEN',
 								fontWeight: '600',
@@ -2524,7 +2512,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.RED_DARK',
+										background: '#dc2626',
 										color: 'white',
 										padding: '0.5rem',
 										borderRadius: '0.5rem',
@@ -2539,7 +2527,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 											margin: 0,
 											fontSize: '1.125rem',
 											fontWeight: '600',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 										}}
 									>
 										Authentication Failed
@@ -2548,7 +2536,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										style={{
 											margin: '0.25rem 0 0 0',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										Worker token is invalid or expired
@@ -2564,7 +2552,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									cursor: 'pointer',
 									padding: '0.5rem',
 									borderRadius: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								<span style={{ fontSize: '20px' }}>❌</span>
@@ -2576,11 +2564,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						>
 							<div
 								style={{
-									background: 'V9_COLORS.BG.ERROR',
+									background: '#fef2f2',
 									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
-									color: 'V9_COLORS.PRIMARY.RED_DARK',
+									color: '#dc2626',
 								}}
 							>
 								<strong>What happened?</strong>
@@ -2591,11 +2579,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 							<div
 								style={{
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								<strong>How to fix:</strong>
@@ -2625,8 +2613,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									background: 'V9_COLORS.TEXT.WHITE',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									background: '#ffffff',
+									color: '#1f2937',
 									cursor: 'pointer',
 									fontWeight: '600',
 								}}
@@ -2652,8 +2640,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
 									border: 'none',
-									background: 'V9_COLORS.PRIMARY.BLUE_DARK',
-									color: 'V9_COLORS.TEXT.WHITE',
+									background: '#2563eb',
+									color: '#ffffff',
 									cursor: 'pointer',
 									fontWeight: '600',
 								}}
@@ -2674,7 +2662,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										padding: '0.5rem',
 										borderRadius: '0.5rem',
@@ -2689,7 +2677,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 											margin: 0,
 											fontSize: '1.125rem',
 											fontWeight: '600',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 										}}
 									>
 										Application Created Successfully
@@ -2698,7 +2686,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										style={{
 											margin: '0.25rem 0 0 0',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										Your PingOne application has been created
@@ -2714,7 +2702,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									cursor: 'pointer',
 									padding: '0.5rem',
 									borderRadius: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								<span style={{ fontSize: '20px' }}>❌</span>
@@ -2727,7 +2715,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							{/* Application Details */}
 							<div
 								style={{
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
@@ -2738,7 +2726,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										margin: '0 0 0.75rem 0',
 										fontSize: '0.875rem',
 										fontWeight: '600',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Application Details
@@ -2752,23 +2740,23 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Name:</span>
-										<span style={{ fontWeight: '500', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<span style={{ color: '#6b7280' }}>Name:</span>
+										<span style={{ fontWeight: '500', color: '#1f2937' }}>
 											{creationResult.app?.name}
 										</span>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Type:</span>
-										<span style={{ fontWeight: '500', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<span style={{ color: '#6b7280' }}>Type:</span>
+										<span style={{ fontWeight: '500', color: '#1f2937' }}>
 											{creationResult.app?.type}
 										</span>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Client ID:</span>
+										<span style={{ color: '#6b7280' }}>Client ID:</span>
 										<span
 											style={{
 												fontWeight: '500',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												fontFamily: 'monospace',
 											}}
 										>
@@ -2777,11 +2765,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									</div>
 									{creationResult.app?.clientSecret && (
 										<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-											<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Client Secret:</span>
+											<span style={{ color: '#6b7280' }}>Client Secret:</span>
 											<span
 												style={{
 													fontWeight: '500',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													fontFamily: 'monospace',
 												}}
 											>
@@ -2795,11 +2783,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							{/* Next Steps */}
 							<div
 								style={{
-									background: 'V9_COLORS.BG.WARNING',
+									background: '#fef3c7',
 									border: '1px solid V9_COLORS.BG.WARNING_BORDER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 								}}
 							>
 								<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600' }}>
@@ -2829,8 +2817,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									background: 'V9_COLORS.TEXT.WHITE',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									background: '#ffffff',
+									color: '#1f2937',
 									cursor: 'pointer',
 									fontWeight: '600',
 								}}
@@ -2855,8 +2843,8 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									padding: '0.75rem 1.5rem',
 									borderRadius: '0.5rem',
 									border: 'none',
-									background: 'V9_COLORS.PRIMARY.BLUE_DARK',
-									color: 'V9_COLORS.TEXT.WHITE',
+									background: '#2563eb',
+									color: '#ffffff',
 									cursor: 'pointer',
 									fontWeight: '600',
 								}}

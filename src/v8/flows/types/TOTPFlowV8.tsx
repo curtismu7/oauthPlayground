@@ -12,7 +12,6 @@
  * - Step 4: Validate (Modal - for authentication after device is activated)
  */
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -170,7 +169,7 @@ const MobileButton = styled.button<{
 			case 'danger':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   font-weight: 600;
@@ -185,7 +184,7 @@ const MobileButton = styled.button<{
 				case 'primary':
 					return theme.colors.primaryDark;
 				case 'danger':
-					return 'V9_COLORS.PRIMARY.RED_DARK';
+					return '#dc2626';
 				default:
 					return theme.colors.gray100;
 			}

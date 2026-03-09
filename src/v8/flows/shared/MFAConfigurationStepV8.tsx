@@ -9,7 +9,7 @@
  * - Ask for User token (access token from Authorization Code Flow) OR Worker token (active or "ACTIVATION_REQUIRED")
  */
 
-
+import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -18,13 +18,12 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
-import { FiLoader } from '@icons';
 
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;

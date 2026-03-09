@@ -5,7 +5,6 @@
  * @version 1.0.0
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -15,7 +14,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   right: 20px;
   width: 50px;
   height: 50px;
-  background: ${(props) => (props.$isOpen ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
+  background: ${(props) => (props.$isOpen ? '#ef4444' : '#3b82f6')};
   color: white;
   border: none;
   border-radius: 50%;
@@ -29,7 +28,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   font-size: 18px;
 
   &:hover {
-    background: ${(props) => (props.$isOpen ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${(props) => (props.$isOpen ? '#dc2626' : '#2563eb')};
     transform: scale(1.05);
   }
 

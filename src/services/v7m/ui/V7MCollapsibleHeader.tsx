@@ -3,24 +3,19 @@
 import React, { useState } from 'react';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string; color?: string }> = ({ 
-	icon, 
-	size = 16, 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string; color?: string }> = ({
+	icon,
+	size = 16,
 	className = '',
-	color 
+	color,
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiPackage': 'mdi-package-variant',
+		FiPackage: 'mdi-package-variant',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px`, color }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px`, color }}></i>;
 };
 
 type Theme = 'orange' | 'blue' | 'yellow' | 'green' | 'highlight';

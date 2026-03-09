@@ -1,6 +1,5 @@
 // src/components/EnhancedFlowInfoCard.tsx - Enhanced flow information card with comprehensive details
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';

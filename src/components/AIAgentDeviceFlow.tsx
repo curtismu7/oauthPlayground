@@ -101,7 +101,7 @@ const NeuralNode = styled.div<{ $active: boolean; $color: string }>`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? props.$color : '#1f2937')};
   box-shadow: ${(props) => (props.$active ? `0 0 20px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'neuralPulse 2s infinite' : 'none')};
   position: relative;
@@ -115,7 +115,7 @@ const NeuralNode = styled.div<{ $active: boolean; $color: string }>`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
+    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerPulse 1.5s infinite' : 'none')};
   }
   
@@ -214,28 +214,28 @@ const AIControlButton = styled.button<{ $variant: 'primary' | 'secondary' | 'suc
 			case 'primary':
 				return '#6366f1';
 			case 'secondary':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
-  color: ${(props) => (props.$variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white')};
+  color: ${(props) => (props.$variant === 'secondary' ? '#6b7280' : 'white')};
   border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return '#6366f1';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.5rem;
@@ -281,11 +281,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -331,7 +331,7 @@ interface AIAgentDeviceFlowProps {
 	onStateUpdate: (newState: DeviceFlowState) => void;
 	onComplete: (tokens: DeviceTokenResponse) => void;
 	onError: (error: string) => void;
-};
+}
 
 const log = createModuleLogger('src/components/AIAgentDeviceFlow.tsx');
 
@@ -503,7 +503,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 							</div>
 							<div
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -581,7 +581,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+											color: '#e5e7eb',
 											maxWidth: '80%',
 										}}
 									>
@@ -603,7 +603,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+											color: '#e5e7eb',
 											maxWidth: '80%',
 										}}
 									>
@@ -657,7 +657,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											padding: '0.75rem',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+											color: '#e5e7eb',
 											maxWidth: '80%',
 										}}
 									>
@@ -752,7 +752,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								</div>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										padding: '0.25rem 0.5rem',
 										borderRadius: '0.25rem',
@@ -789,7 +789,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 								</div>
 								<div
 									style={{
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										padding: '0.25rem 0.5rem',
 										borderRadius: '0.25rem',

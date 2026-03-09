@@ -1,4 +1,14 @@
-
+import {
+	FiActivity,
+	FiDownload,
+	FiHelpCircle,
+	FiLogIn,
+	FiLogOut,
+	FiMenu,
+	FiSearch,
+	FiServer,
+	FiSettings,
+} from '@icons';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -15,7 +25,6 @@ import {
 	exportAllUseCasesAsPDF,
 } from '../v8u/services/unifiedFlowDocumentationServiceV8U';
 import { APP_VERSION } from '../version';
-import { FiActivity, FiDownload, FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiServer, FiSettings } from '@icons';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;

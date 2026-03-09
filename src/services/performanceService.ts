@@ -70,8 +70,11 @@ class PerformanceService {
 		this.observePerformanceEntry('layout-shift', (entries) => {
 			let clsValue = 0;
 			entries.forEach((entry) => {
-				if (!(entry as PerformanceEntry & { hadRecentInput: boolean; value: number }).hadRecentInput) {
-					clsValue += (entry as PerformanceEntry & { hadRecentInput: boolean; value: number }).value;
+				if (
+					!(entry as PerformanceEntry & { hadRecentInput: boolean; value: number }).hadRecentInput
+				) {
+					clsValue += (entry as PerformanceEntry & { hadRecentInput: boolean; value: number })
+						.value;
 				}
 			});
 			this.metrics.cumulativeLayoutShift = clsValue;
@@ -103,8 +106,11 @@ class PerformanceService {
 		if (typeof window === 'undefined') return;
 
 		// Override import() to track chunk loading
-		type DynWindow = Window & { import?: (...a: unknown[]) => Promise<unknown>; __dynamicImport__?: (...a: unknown[]) => Promise<unknown> };
-                const originalImport = (window as DynWindow).import || (window as DynWindow).__dynamicImport__;
+		type DynWindow = Window & {
+			import?: (...a: unknown[]) => Promise<unknown>;
+			__dynamicImport__?: (...a: unknown[]) => Promise<unknown>;
+		};
+		const originalImport = (window as DynWindow).import || (window as DynWindow).__dynamicImport__;
 		if (originalImport) {
 			(window as DynWindow).__dynamicImport__ = async (...args: unknown[]) => {
 				const startTime = performance.now();

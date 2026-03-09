@@ -1,7 +1,6 @@
 // src/components/RARValidationDisplay.tsx
 // RAR Validation Display with field-level validation feedback
 
-
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
@@ -39,35 +38,35 @@ const Header = styled.div<{ level: ValidationLevel }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border-bottom: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'warning':
 				return '#fed7aa';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   color: ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;
@@ -135,35 +134,35 @@ const ValidationMessage = styled.div<{ level: ValidationLevel }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'warning':
 				return '#fed7aa';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   color: ${(props) => {
 		switch (props.level) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;

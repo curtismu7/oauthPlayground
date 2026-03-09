@@ -1,6 +1,5 @@
 // src/components/FlowWalkthrough.tsx
 
-
 import { useState } from 'react';
 import styled from 'styled-components';
 import { themeService } from '../services/themeService';
@@ -38,7 +37,7 @@ const Header = styled.div<{ $isCollapsible?: boolean }>`
 	border-radius: ${({ $isCollapsible }) => ($isCollapsible ? '0.75rem 0.75rem 0 0' : '0')};
 	
 	&:hover {
-		background: ${({ $isCollapsible }) => ($isCollapsible ? 'V9_COLORS.BG.GRAY_LIGHT' : 'transparent')};
+		background: ${({ $isCollapsible }) => ($isCollapsible ? '#f8fafc' : 'transparent')};
 	}
 `;
 

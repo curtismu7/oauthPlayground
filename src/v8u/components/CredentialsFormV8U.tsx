@@ -24,7 +24,6 @@
  * />
  */
 
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
@@ -51,7 +50,6 @@ import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
 import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
@@ -74,7 +72,7 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -1961,7 +1959,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" 
+			<div
+				className="collapsible-header"
 				role="button"
 				tabIndex={0}
 				onClick={() => setIsExpanded(!isExpanded)}
@@ -2168,7 +2167,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Worker Token Status */}
 									<div className="form-group">
-										<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Worker Token Status</div>
+										<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+											Worker Token Status
+										</div>
 										<div
 											style={{
 												padding: '10px 14px',
@@ -2490,7 +2491,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 														e.currentTarget.style.color = '#6b7280';
 													}}
 												>
-													{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+													{showClientSecret ? (
+														<span style={{ fontSize: '18px' }}>🙈</span>
+													) : (
+														<span style={{ fontSize: '18px' }}>👁️</span>
+													)}
 												</button>
 											</div>
 											{highlightEmptyFields &&
@@ -4712,7 +4717,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									}
 								}}
 								aria-expanded={showAdvancedSection}
-								style={{ 
+								style={{
 									cursor: 'pointer',
 									background: 'none',
 									border: 'none',
@@ -4720,7 +4725,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									font: 'inherit',
 									color: 'inherit',
 									textAlign: 'left',
-									width: '100%'
+									width: '100%',
 								}}
 							>
 								<div

@@ -7,27 +7,22 @@ import { logger } from '../utils/logger';
 import { UISettingsService } from './uiSettingsService';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiCopy': 'mdi-content-copy',
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiCopy: 'mdi-content-copy',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // Styled components
@@ -366,7 +361,12 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			logger.error('PKCEGenerationService', 'Failed to copy to clipboard:', undefined, error as Error);
+			logger.error(
+				'PKCEGenerationService',
+				'Failed to copy to clipboard:',
+				undefined,
+				error as Error
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

@@ -1,6 +1,5 @@
 // src/components/JwksKeySourceSelector.tsx
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { buildJWKSUri } from '../utils/jwks';
@@ -121,7 +120,7 @@ const PrivateKeyHeader = styled.div`
 `;
 
 const GenerateButton = styled.button<{ disabled?: boolean }>`
-  background: ${(props) => (props.disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN')};
+  background: ${(props) => (props.disabled ? '#9ca3af' : '#10b981')};
   color: white;
   border: none;
   border-radius: 6px;
@@ -136,7 +135,7 @@ const GenerateButton = styled.button<{ disabled?: boolean }>`
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 
   &:hover {
-    background: ${(props) => (props.disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
+    background: ${(props) => (props.disabled ? '#9ca3af' : '#059669')};
   }
 `;
 
@@ -398,7 +397,11 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 							onClick={onTogglePrivateKey}
 							title={showPrivateKey ? 'Hide private key' : 'Show private key'}
 						>
-							{showPrivateKey ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showPrivateKey ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</ToggleSecretButton>
 						{onCopyPrivateKey && privateKey && (
 							<CopyPrivateKeyButton

@@ -1,6 +1,5 @@
 // src/components/ColoredUrlDisplay.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -466,7 +465,11 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 							/>
 						)}
 						<ActionButton onClick={toggleEncoding} $variant="secondary">
-							{isDecoded ? <span style={{ fontSize: '14px' }}>❓</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+							{isDecoded ? (
+								<span style={{ fontSize: '14px' }}>❓</span>
+							) : (
+								<span style={{ fontSize: '14px' }}>👁️</span>
+							)}
 							{isDecoded ? 'Encode' : 'Decode'}
 						</ActionButton>
 						{showOpenButton && (

@@ -19,10 +19,9 @@
  * />
  */
 
-
+import { FiCheckCircle, FiInfo, FiShield, FiXCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { FiCheckCircle, FiInfo, FiShield, FiXCircle } from '@icons';
 
 interface WorkerTokenVsClientCredentialsEducationModalV8Props {
 	isOpen: boolean;

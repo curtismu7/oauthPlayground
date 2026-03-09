@@ -11,13 +11,11 @@
  * - Dependency Inversion: Depends on UserService abstraction
  */
 
-
+import { FiUser } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
-import { FiUser } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS

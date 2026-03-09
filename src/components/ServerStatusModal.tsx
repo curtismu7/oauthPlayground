@@ -1,8 +1,7 @@
-
+import { FiRefreshCw } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiRefreshCw } from '@icons';
 
 interface ServerStatusModalProps {
 	isOpen: boolean;
@@ -92,7 +91,7 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 			case 'online':
 				return '#f0fdf4';
 			case 'offline':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'checking':
 				return '#f9fafb';
 			default:
@@ -102,13 +101,13 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'offline':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'checking':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -146,13 +145,13 @@ const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' 
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'offline':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'checking':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -308,15 +307,15 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
 		switch (status) {
 			case 'online':
-				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>;
+				return <span style={{ fontSize: 20, color: '#059669' }}>✅</span>;
 			case 'offline':
-				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
+				return <span style={{ fontSize: 20, color: '#dc2626' }}>❌</span>;
 			case 'checking':
 				return (
 					<FiRefreshCw size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" className="animate-spin" />
 				);
 			default:
-				return <span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>❌</span>;
+				return <span style={{ fontSize: 20, color: '#dc2626' }}>❌</span>;
 		}
 	};
 
@@ -355,7 +354,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 							marginBottom: '1rem',
 						}}
 					>
-						<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
 							Check the status of frontend and backend servers
 						</p>
 						<RefreshButton onClick={refreshAllServers} disabled={isRefreshing}>
@@ -391,12 +390,12 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 									</div>
 								)}
 								{server.error && (
-									<div style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '0.5rem' }}>
+									<div style={{ color: '#dc2626', marginTop: '0.5rem' }}>
 										<strong>Error:</strong> {server.error}
 									</div>
 								)}
 								{server.status === 'online' && (
-									<div style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginTop: '0.5rem' }}>
+									<div style={{ color: '#059669', marginTop: '0.5rem' }}>
 										<strong>Status:</strong> Server is responding normally
 									</div>
 								)}

@@ -8,9 +8,9 @@
  * Southwest Airlines brand theme with blue, red, and gold colors, friendly aviation styling.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const southwestAirlinesConfig: CorporatePortalConfig = {
 	company: {
@@ -75,12 +75,12 @@ export const southwestAirlinesConfig: CorporatePortalConfig = {
 			accent: '#EE3124', // Southwest heart red
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+			muted: '#6b7280',
+			border: '#e5e7eb',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#EE3124',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#f4c542', // Southwest gold
 			info: '#304CB2',
 			primaryLight: '#5B7DD8',
@@ -123,16 +123,16 @@ export const southwestAirlinesTheme: BrandTheme = {
 	colors: {
 		primary: '#304cb2', // Updated to match mockup primary
 		primaryDark: '#253a8a', // Updated to match mockup primaryDark
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
+		secondary: '#1f2937', // Updated to match mockup secondary
 		accent: '#f4c542', // Updated to match mockup accent
 		background: '#f5f6f8', // Updated to match mockup bg
-		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#e5e7eb', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E51D23', // Use Southwest red for errors
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#F9B612', // Use Southwest gold for warnings
 		info: '#304cb2', // Use Southwest blue for info
 		// Additional theme colors

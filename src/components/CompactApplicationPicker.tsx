@@ -1,12 +1,11 @@
 // src/components/CompactApplicationPicker.tsx
 // Compact version of application picker for use in modals
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { fetchApplications } from '../services/pingOneApplicationService';
-import { FiRefreshCw } from '@icons';
 
 const Container = styled.div`
 	display: flex;
@@ -61,14 +60,14 @@ const AppItem = styled.button<{ $selected?: boolean }>`
 	gap: 0.75rem;
 	padding: 0.75rem;
 	border: none;
-	background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
-	border-left: 3px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
+	background: ${({ $selected }) => ($selected ? '#f8fafc' : 'white')};
+	border-left: 3px solid ${({ $selected }) => ($selected ? '#3b82f6' : 'transparent')};
 	cursor: pointer;
 	transition: all 0.15s;
 	text-align: left;
 
 	&:hover {
-		background: ${({ $selected }) => ($selected ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
+		background: ${({ $selected }) => ($selected ? '#f8fafc' : '#f9fafb')};
 	}
 
 	&:not(:last-child) {

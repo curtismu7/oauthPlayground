@@ -1,14 +1,13 @@
 // src/components/POSTerminalDeviceFlow.tsx
 // POS Terminal Style Device Authorization Flow Interface
 
-
+import { FiCreditCard, FiDollarSign } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCreditCard, FiDollarSign } from '@icons';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const POSTerminalContainer = styled.div`
@@ -95,7 +94,7 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? props.$color : '#1f2937')};
   box-shadow: ${(props) => (props.$active ? `0 0 20px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'paymentPulse 2s infinite' : 'none')};
   position: relative;
@@ -109,7 +108,7 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
+    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerPulse 1.5s infinite' : 'none')};
   }
   
@@ -209,28 +208,28 @@ const POSControlButton = styled.button<{
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
+				return '#34d399';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   color: white;
   border: 2px solid ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
 				return '#4b5563';
 		}
@@ -278,11 +277,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -507,14 +506,14 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
 										Square Point of Sale
 									</div>
-									<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 										Terminal #001 • Register Active
 									</div>
 								</div>
 							</div>
 							<div
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -564,7 +563,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										justifyContent: 'space-between',
 										alignItems: 'center',
 										padding: '0.75rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										borderRadius: '0.5rem',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
@@ -573,9 +572,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Large Coffee
 										</div>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-											Hot • Extra shot
-										</div>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Hot • Extra shot</div>
 									</div>
 									<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$4.50
@@ -588,7 +585,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										justifyContent: 'space-between',
 										alignItems: 'center',
 										padding: '0.75rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										borderRadius: '0.5rem',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
@@ -597,9 +594,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Blueberry Muffin
 										</div>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-											Fresh baked
-										</div>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Fresh baked</div>
 									</div>
 									<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$3.25
@@ -622,9 +617,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-										Subtotal
-									</span>
+									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Subtotal</span>
 									<span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$7.75
 									</span>
@@ -637,9 +630,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-										Tax (8.5%)
-									</span>
+									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Tax (8.5%)</span>
 									<span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$0.66
 									</span>

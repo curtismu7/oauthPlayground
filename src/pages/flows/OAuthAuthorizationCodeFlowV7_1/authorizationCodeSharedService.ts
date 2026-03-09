@@ -10,10 +10,10 @@
 
 import { useCallback, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../../utils/logger';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { validateForStep } from './credentialsValidationService';
-import { logger } from '../../../utils/logger';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
 

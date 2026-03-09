@@ -9,14 +9,12 @@
  * with support for different display modes (full, compact, hidden).
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-type EducationMode
-,
+	type EducationMode,
 	EducationPreferenceService,
-} from '../../services/educationPreferenceService'
+} from '../../services/educationPreferenceService';
 
 const MasterSectionContainer = styled.div`
 	margin-bottom: 24px;

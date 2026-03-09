@@ -5,7 +5,6 @@
  * @version 1.0.0
  */
 
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
@@ -75,8 +74,8 @@ const Controls = styled.div`
 `;
 
 const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6')};
-  color: ${(props) => (props.$variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
+  color: ${(props) => (props.$variant === 'primary' ? 'white' : '#1f2937')};
   border: none;
   border-radius: 4px;
   padding: 6px 8px;
@@ -88,7 +87,7 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#e5e7eb')};
   }
 
   &:disabled {
@@ -144,13 +143,13 @@ const StatusIndicator = styled.div<{ $status: 'connected' | 'disconnected' | 'lo
   background: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'loading':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'disconnected':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;
@@ -246,25 +245,25 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			}
 
 			let prefix = '📝';
-			let textColor = 'V9_COLORS.TEXT.GRAY_DARK';
+			let textColor = '#1f2937';
 			let background = '#f9fafb';
-			let borderLeft = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+			let borderLeft = '#e5e7eb';
 
 			if (line.includes('ERROR') || line.includes('error')) {
 				prefix = '🔴';
-				textColor = 'V9_COLORS.PRIMARY.RED_DARK';
-				background = 'V9_COLORS.BG.ERROR';
-				borderLeft = 'V9_COLORS.PRIMARY.RED';
+				textColor = '#dc2626';
+				background = '#fef2f2';
+				borderLeft = '#ef4444';
 			} else if (line.includes('WARN') || line.includes('warn')) {
 				prefix = '🟡';
-				textColor = 'V9_COLORS.PRIMARY.YELLOW_DARK';
-				background = 'V9_COLORS.BG.WARNING';
-				borderLeft = 'V9_COLORS.PRIMARY.YELLOW';
+				textColor = '#d97706';
+				background = '#fef3c7';
+				borderLeft = '#f59e0b';
 			} else if (line.includes('INFO') || line.includes('info')) {
 				prefix = '🔵';
 				textColor = '#1e3a8a';
-				background = 'V9_COLORS.BG.GRAY_LIGHT';
-				borderLeft = 'V9_COLORS.PRIMARY.BLUE';
+				background = '#f8fafc';
+				borderLeft = '#3b82f6';
 			} else if (line.includes('DEBUG') || line.includes('debug')) {
 				prefix = '🔍';
 				textColor = '#0f766e';
@@ -706,12 +705,12 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 					{error && (
 						<div
 							style={{
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '4px',
 								padding: '8px',
 								marginBottom: '8px',
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 								fontSize: '12px',
 							}}
 						>
@@ -724,7 +723,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							style={{
 								textAlign: 'center',
 								padding: '20px',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontSize: '12px',
 							}}
 						>

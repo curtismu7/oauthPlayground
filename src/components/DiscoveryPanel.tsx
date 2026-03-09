@@ -1,14 +1,13 @@
-
+import { FiRefreshCw } from '@icons';
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager } from '../utils/credentialManager';
 import CopyIcon from './CopyIcon';
-import { FiRefreshCw } from '@icons';
 
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;
@@ -478,12 +477,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				});
 			}
 		} catch (error) {
-			log.error(
-				'DiscoveryPanel',
-				' [DiscoveryPanel] Discovery failed:',
-				undefined,
-				error as Error
-			);
+			log.error('DiscoveryPanel', ' [DiscoveryPanel] Discovery failed:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -568,7 +562,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				</Header>
 
 				<Content>
-					<p style={{ margin: '0 0 1.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+					<p style={{ margin: '0 0 1.5rem 0', color: '#6b7280' }}>
 						Discover PingOne OpenID Connect configuration automatically. This will populate your
 						configuration with the correct endpoints and settings.
 					</p>
@@ -583,7 +577,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 							placeholder="Enter your PingOne Environment ID (UUID format)"
 							disabled={isLoading}
 						/>
-						<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
+						<small style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 							Or paste a PingOne URL to auto-extract the Environment ID
 						</small>
 					</FormGroup>
@@ -672,7 +666,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
 												title="Copy Issuer"
 											>
-												{copiedField === 'issuer' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
+												{copiedField === 'issuer' ? (
+													<span style={{ fontSize: '14px' }}>✅</span>
+												) : (
+													<CopyIcon size={14} />
+												)}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -687,7 +685,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												}
 												title="Copy Authorization Endpoint"
 											>
-												{copiedField === 'auth' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
+												{copiedField === 'auth' ? (
+													<span style={{ fontSize: '14px' }}>✅</span>
+												) : (
+													<CopyIcon size={14} />
+												)}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -702,7 +704,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												}
 												title="Copy Token Endpoint"
 											>
-												{copiedField === 'token' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
+												{copiedField === 'token' ? (
+													<span style={{ fontSize: '14px' }}>✅</span>
+												) : (
+													<CopyIcon size={14} />
+												)}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -734,7 +740,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
 												title="Copy JWKS URI"
 											>
-												{copiedField === 'jwks' ? <span style={{ fontSize: '14px' }}>✅</span> : <CopyIcon size={14} />}
+												{copiedField === 'jwks' ? (
+													<span style={{ fontSize: '14px' }}>✅</span>
+												) : (
+													<CopyIcon size={14} />
+												)}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>

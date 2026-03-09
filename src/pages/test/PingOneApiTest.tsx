@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Test Configuration Interface
 interface TestConfig {
@@ -167,8 +167,8 @@ const ResultCard = styled.div<{ success: boolean }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
-  background: ${(props) => (props.success ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
@@ -180,7 +180,7 @@ const ResultHeader = styled.div`
 
 const ResultTitle = styled.h3`
   margin: 0;
-  color: ${(props) => (props.success ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
@@ -839,7 +839,7 @@ const PingOneApiTest: React.FC = () => {
 						<Label>
 							Environment ID:
 							{config.environmentId && hasWorkerToken && (
-								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 									✓ Auto-populated from worker token
 								</span>
 							)}
@@ -851,7 +851,7 @@ const PingOneApiTest: React.FC = () => {
 							placeholder="e.g. 12345678-1234-1234-1234-123456789012"
 							style={{
 								backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
-								borderColor: config.environmentId && hasWorkerToken ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#e5e7eb',
 							}}
 						/>
 					</FormGroup>
@@ -860,7 +860,7 @@ const PingOneApiTest: React.FC = () => {
 						<Label>
 							Client ID:
 							{config.clientId && selectedAppId && (
-								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 								</span>
 							)}
@@ -872,7 +872,7 @@ const PingOneApiTest: React.FC = () => {
 							placeholder="e.g. a1b2c3d4..."
 							style={{
 								backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
-								borderColor: config.clientId && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderColor: config.clientId && selectedAppId ? '#10b981' : '#e5e7eb',
 							}}
 						/>
 					</FormGroup>
@@ -881,7 +881,7 @@ const PingOneApiTest: React.FC = () => {
 						<Label>
 							Client Secret:
 							{config.clientSecret && selectedAppId && (
-								<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 								</span>
 							)}
@@ -893,7 +893,7 @@ const PingOneApiTest: React.FC = () => {
 							placeholder="Required for Authorization Code flow"
 							style={{
 								backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
-								borderColor: config.clientSecret && selectedAppId ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#e5e7eb',
 							}}
 						/>
 					</FormGroup>
@@ -917,7 +917,7 @@ const PingOneApiTest: React.FC = () => {
 								onChange={(e) => handleConfigChange('scopes', e.target.value)}
 								placeholder="openid profile email"
 							/>
-							<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Note: 'openid' scope is required and will be added automatically if missing
 							</span>
 						</div>
@@ -959,7 +959,7 @@ const PingOneApiTest: React.FC = () => {
 							/>
 							Use PKCE
 						</Label>
-						<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
 							Required for Authorization Code flow with public clients
 						</span>
 					</FormGroup>
@@ -1027,7 +1027,7 @@ const PingOneApiTest: React.FC = () => {
 				))}
 
 				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}>
+					<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
 						No test results yet. Configure your PingOne credentials and run the tests.
 					</div>
 				)}

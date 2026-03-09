@@ -13,7 +13,7 @@
  * - Event system for configuration updates
  */
 
-
+import { FiLoader, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -24,7 +24,6 @@ import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
-import { FiLoader } from '@icons';
 
 export interface WorkerTokenUIServiceV8Props {
 	/** Display mode for the status display */

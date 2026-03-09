@@ -15,7 +15,6 @@
  * <MFAHubV8 />
  */
 
-
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';

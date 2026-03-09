@@ -1,9 +1,8 @@
-
+import { FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from './Card';
 import TutorialStep from './TutorialStep';
-import { FiCheckCircle } from '@icons';
 
 interface TutorialData {
 	id: string;

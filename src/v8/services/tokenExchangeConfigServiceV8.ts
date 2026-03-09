@@ -16,6 +16,9 @@ import {
 export class TokenExchangeConfigServiceV8 {
 	private static readonly MODULE_TAG = '[TokenExchangeConfigV8]';
 
+	/** In-memory per-environment config store (simulates admin API state within session) */
+	private static readonly configStore = new Map<string, AdminTokenExchangeConfig>();
+
 	/**
 	 * Check if Token Exchange is enabled for the environment
 	 * CRITICAL: Must be called before any token exchange processing
@@ -47,12 +50,22 @@ export class TokenExchangeConfigServiceV8 {
 	}
 
 	/**
-	 * Get admin configuration for Token Exchange
+	 * Get admin configuration for Token Exchange.
+	 * Returns the in-memory config for this environment if one has been set,
+	 * otherwise returns the default (disabled) config.
 	 */
 	static async getAdminConfig(environmentId: string): Promise<AdminTokenExchangeConfig> {
 		try {
-			// TODO: Implement actual admin config retrieval from PingOne admin API
-			// For now, return default disabled config
+			// Return previously set config if present (simulates admin API persistence within session)
+			const stored = TokenExchangeConfigServiceV8.configStore.get(environmentId);
+			if (stored) {
+				console.log(
+					`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved config for environment: ${environmentId}`
+				);
+				return stored;
+			}
+
+			// Default: disabled until explicitly enabled via enableTokenExchange()
 			const defaultConfig: AdminTokenExchangeConfig = {
 				enabled: false,
 				allowedScopes: ['read', 'write', 'admin'],
@@ -64,7 +77,7 @@ export class TokenExchangeConfigServiceV8 {
 			};
 
 			console.log(
-				`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved admin config for environment: ${environmentId}`
+				`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved default config for environment: ${environmentId}`
 			);
 			return defaultConfig;
 		} catch (error) {
@@ -92,8 +105,7 @@ export class TokenExchangeConfigServiceV8 {
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Enabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
 			);
 
-			// TODO: Implement actual admin API call to PingOne
-			// For now, just log the action
+			// Persist in the in-memory store so subsequent getAdminConfig calls see enabled=true
 			const updatedConfig: AdminTokenExchangeConfig = {
 				enabled: true,
 				allowedScopes: config?.allowedScopes || ['read', 'write', 'admin'],
@@ -103,6 +115,7 @@ export class TokenExchangeConfigServiceV8 {
 				lastUpdated: Date.now(),
 				updatedBy: adminUserId,
 			};
+			TokenExchangeConfigServiceV8.configStore.set(environmentId, updatedConfig);
 
 			console.log(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange enabled successfully:`,
@@ -129,8 +142,9 @@ export class TokenExchangeConfigServiceV8 {
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Disabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
 			);
 
-			// TODO: Implement actual admin API call to PingOne
-			// For now, just log the action
+			// Remove from in-memory store so subsequent getAdminConfig calls see enabled=false
+			TokenExchangeConfigServiceV8.configStore.delete(environmentId);
+
 			console.log(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange disabled successfully`
 			);

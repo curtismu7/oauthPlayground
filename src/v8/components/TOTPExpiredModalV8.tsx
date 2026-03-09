@@ -8,7 +8,6 @@
  * This modal informs users and provides options to regenerate or go back.
  */
 
-
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';

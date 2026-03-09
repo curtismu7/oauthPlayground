@@ -2,9 +2,9 @@
 // V7.1 Auth Code Management - Centralized authorization code handling
 
 import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { AuthCodeState } from '../types/flowTypes';
-import { logger } from '../../../../utils/logger';
 
 export const useAuthCodeManagement = () => {
 	const [authCode, setAuthCode] = useState<string | null>(null);

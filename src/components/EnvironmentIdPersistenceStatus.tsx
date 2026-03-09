@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -112,18 +111,18 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 			<StatusContent>
 				<StatusItem>
 					{status.hasStoredId ? (
-						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+						<span style={{ fontSize: 14, color: '#10b981' }}>✅</span>
 					) : (
-						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
+						<span style={{ fontSize: 14, color: '#f59e0b' }}>⚠️</span>
 					)}
 					<span>{status.hasStoredId ? 'Stored in localStorage' : 'Not stored locally'}</span>
 				</StatusItem>
 
 				<StatusItem>
 					{status.hasEnvVar ? (
-						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+						<span style={{ fontSize: 14, color: '#10b981' }}>✅</span>
 					) : (
-						<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠️</span>
+						<span style={{ fontSize: 14, color: '#f59e0b' }}>⚠️</span>
 					)}
 					<span>{status.hasEnvVar ? 'Available in .env' : 'Not in .env file'}</span>
 				</StatusItem>
@@ -169,7 +168,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 						style={{
 							marginTop: '0.75rem',
 							background: '#1e293b',
-							color: 'V9_COLORS.BG.GRAY_MEDIUM',
+							color: '#f1f5f9',
 							padding: '0.75rem',
 							borderRadius: '0.25rem',
 							fontFamily: 'monospace',

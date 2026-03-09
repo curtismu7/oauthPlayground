@@ -1,6 +1,7 @@
 // src/components/UltimateTokenDisplayModal.tsx
 // Modal wrapper for Ultimate Token Display with VSCode-style syntax highlighting
 
+import { FiAlertCircle, FiCheck, FiCode, FiCopy, FiKey, FiShield, FiZap } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -15,7 +16,6 @@ import {
 } from '../services/commonImportsService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { DraggableModal } from './DraggableModal';
-import { FiAlertCircle, FiCheck, FiCode, FiCopy, FiKey, FiShield, FiZap } from '@icons';
 
 interface TokenSet {
 	access_token?: string;
@@ -48,11 +48,11 @@ const TokenSection = styled.div<{ $variant: TokenType }>`
   border: 2px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 		}
 	}};
   border-radius: 8px;
@@ -101,11 +101,11 @@ const TokenLabel = styled.div<{ $variant: TokenType }>`
   color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 		}
 	}};
 `;
@@ -122,11 +122,11 @@ const TokenBadge = styled.span<{ $variant: TokenType }>`
   background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 		}
 	}};
   color: white;
@@ -504,9 +504,7 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		>
 			<ModalContent>
 				{availableTokens.length === 0 ? (
-					<div
-						style={{ padding: '2rem', textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
-					>
+					<div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
 						No tokens available to display
 					</div>
 				) : (

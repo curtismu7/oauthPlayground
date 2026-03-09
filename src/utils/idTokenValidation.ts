@@ -163,7 +163,10 @@ export class IDTokenValidationService {
 	/**
 	 * Decode JWT token
 	 */
-	private static decodeJWT(token: string): { header: Record<string, unknown>; payload: Record<string, unknown> } {
+	private static decodeJWT(token: string): {
+		header: Record<string, unknown>;
+		payload: Record<string, unknown>;
+	} {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');
@@ -194,7 +197,10 @@ export class IDTokenValidationService {
 	/**
 	 * Validate JWT structure
 	 */
-	private static validateJWTStructure(decoded: { header: Record<string, unknown>; payload: Record<string, unknown> }): boolean {
+	private static validateJWTStructure(decoded: {
+		header: Record<string, unknown>;
+		payload: Record<string, unknown>;
+	}): boolean {
 		// Check header structure
 		if (!decoded.header || typeof decoded.header !== 'object') {
 			return false;
@@ -390,7 +396,10 @@ export class IDTokenValidationService {
 	/**
 	 * Check for warnings
 	 */
-	private static checkForWarnings(payload: Record<string, unknown>, result: IDTokenValidationResult): void {
+	private static checkForWarnings(
+		payload: Record<string, unknown>,
+		result: IDTokenValidationResult
+	): void {
 		const now = Math.floor(Date.now() / 1000);
 
 		// Check issued at time

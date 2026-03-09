@@ -8,9 +8,9 @@
  * This service provides utilities for parsing and validating OIDC tokens.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { logger } from '../../../utils/logger';
 import type { TokenSet } from '../types/protectPortal.types';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // INTERFACES

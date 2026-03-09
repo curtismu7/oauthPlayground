@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -114,7 +113,7 @@ const FilterChip = styled.button<{ $active?: boolean }>`
 	padding: 0.45rem 1.1rem;
 	font-weight: 600;
 	font-size: 0.9rem;
-	color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$active ? '#1f2937' : '#6b7280')};
 	background: ${(props) => (props.$active ? '#c7d2fe' : 'rgba(148, 163, 184, 0.2)')};
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -200,7 +199,7 @@ const PriorityPill = styled.span<{ $priority: string }>`
 	color: V9_COLORS.TEXT.GRAY_DARK;
 	background: ${(props) => {
 		if (props.$priority === 'high') return '#fecdd3';
-		if (props.$priority === 'medium') return 'V9_COLORS.BG.WARNING_BORDER';
+		if (props.$priority === 'medium') return '#f59e0b';
 		return '#d9f99d';
 	}};
 `;
@@ -211,7 +210,7 @@ const StatusBadge = styled.button<{ $status: string }>`
 	border: none;
 	font-weight: 600;
 	font-size: 0.85rem;
-	color: ${(props) => (props.$status === 'completed' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : '#1e3a8a')};
+	color: ${(props) => (props.$status === 'completed' ? '#059669' : '#1e3a8a')};
 	background: ${(props) =>
 		props.$status === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.25)'};
 	cursor: pointer;

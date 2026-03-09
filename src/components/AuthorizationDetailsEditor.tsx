@@ -1,7 +1,6 @@
 // src/components/AuthorizationDetailsEditor.tsx
 // Enhanced Authorization Details Editor with JSON editor and real-time validation
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RARService, {
@@ -51,14 +50,14 @@ const ViewModeButton = styled.button<{ $active: boolean }>`
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border: none;
-  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#6b7280')};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+    background: ${(props) => (props.$active ? '#2563eb' : '#f9fafb')};
   }
 `;
 
@@ -69,9 +68,9 @@ const ValidationStatus = styled.div<{ $isValid: boolean }>`
   padding: 0.75rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  background: ${(props) => (props.$isValid ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
-  border: 1px solid ${(props) => (props.$isValid ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'V9_COLORS.BG.ERROR_BORDER')};
-  color: ${(props) => (props.$isValid ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  background: ${(props) => (props.$isValid ? '#f0fdf4' : '#fef2f2')};
+  border: 1px solid ${(props) => (props.$isValid ? '#10b981' : '#ef4444')};
+  color: ${(props) => (props.$isValid ? '#10b981' : '#dc2626')};
   font-size: 0.875rem;
 `;
 

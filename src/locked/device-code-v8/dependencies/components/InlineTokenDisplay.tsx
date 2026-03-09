@@ -1,7 +1,6 @@
 // src/components/InlineTokenDisplay.tsx
 // Inline Token Display Component with In-Place Decoding
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';

@@ -85,8 +85,7 @@ const OIDC: React.FC = () => {
 
 				<Grid>
 					<FeatureCard to="/oidc/authorization-code">
-						📝
-						<h3>Authorization Code</h3>
+						📝<h3>Authorization Code</h3>
 						<p>
 							The most secure OAuth 2.0 flow for web applications. Learn how to implement the
 							authorization code flow, including PKCE extension for public clients.
@@ -94,8 +93,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/hybrid">
-						📚
-						<h3>Hybrid Flow</h3>
+						📚<h3>Hybrid Flow</h3>
 						<p>
 							Combines Authorization Code and Implicit flows. Get some tokens directly from the
 							authorization endpoint while also receiving an authorization code for back-channel
@@ -104,8 +102,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/implicit">
-						⚡
-						<h3>Implicit Flow</h3>
+						⚡<h3>Implicit Flow</h3>
 						<p>
 							Legacy OAuth 2.0 flow for single-page applications. Learn when and how to use it,
 							though PKCE is now recommended.
@@ -113,8 +110,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/client-credentials">
-						🔒
-						<h3>Client Credentials</h3>
+						🔒<h3>Client Credentials</h3>
 						<p>
 							Server-to-server authentication flow. Perfect for API access and machine-to-machine
 							communication scenarios.
@@ -122,8 +118,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/oidc/device-code">
-						📱
-						<h3>Device Code</h3>
+						📱<h3>Device Code</h3>
 						<p>
 							OAuth 2.0 flow for devices with limited input capabilities. Ideal for smart TVs, IoT
 							devices, and command-line tools.
@@ -131,8 +126,7 @@ const OIDC: React.FC = () => {
 					</FeatureCard>
 
 					<FeatureCard to="/token-management">
-						🔑
-						<h3>Token Management</h3>
+						🔑<h3>Token Management</h3>
 						<p>
 							View and manage your access tokens, refresh tokens, and JWTs with detailed inspection
 							and analysis tools.
@@ -149,7 +143,9 @@ const OIDC: React.FC = () => {
 						border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 					}}
 				>
-					<h3 style={{ marginBottom: '1rem', color: V9_COLORS.TEXT.GRAY_DARK }}>What is OpenID Connect?</h3>
+					<h3 style={{ marginBottom: '1rem', color: V9_COLORS.TEXT.GRAY_DARK }}>
+						What is OpenID Connect?
+					</h3>
 					<p style={{ color: V9_COLORS.TEXT.GRAY_MEDIUM, lineHeight: '1.6', marginBottom: '1rem' }}>
 						OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol. It
 						allows clients to verify the identity of end-users based on authentication performed by
@@ -168,8 +164,7 @@ const OIDC: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						Learn more about OpenID Connect
-						🔗
+						Learn more about OpenID Connect 🔗
 					</a>
 				</div>
 			</OIDCContainer>

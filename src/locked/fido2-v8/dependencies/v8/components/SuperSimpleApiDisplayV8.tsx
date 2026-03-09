@@ -344,17 +344,17 @@ const createPopOutWindow = (
 							</div>
 							<div style="display: flex; gap: 8px; align-items: center;">
 								<div style="display: flex; gap: 4px; align-items: center; margin-right: 8px; padding: 4px 8px; background: #e5e7eb; border-radius: 4px;">
-									<button onclick="window.decreaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">−</button>
+									<button type="button" onclick="window.decreaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">−</button>
 									<span style="font-size: \${currentFontSize - 2}px; color: #6b7280; min-width: 32px; text-align: center;">\${currentFontSize}px</span>
-									<button onclick="window.increaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">+</button>
+									<button type="button" onclick="window.increaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">+</button>
 								</div>
 								\${filteredCalls.length > 0 ? \`
-									<button onclick="window.toggleP1OnlyFilter()" style="padding: 6px 12px; background: \${showP1OnlyFilter ? '#10b981' : '#6b7280'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">\${showP1OnlyFilter ? '🔍 P1 Only' : '📋 All Calls'}</button>
-									<button onclick="window.expandAll()" style="padding: 6px 12px; background: \${expandedIds.size === filteredCalls.length ? '#10b981' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▼ Expand All</button>
-									<button onclick="window.collapseAll()" style="padding: 6px 12px; background: \${expandedIds.size === 0 ? '#6b7280' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▲ Collapse All</button>
-									<button onclick="window.clearCalls()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">Clear</button>
+									<button type="button" onclick="window.toggleP1OnlyFilter()" style="padding: 6px 12px; background: \${showP1OnlyFilter ? '#10b981' : '#6b7280'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">\${showP1OnlyFilter ? '🔍 P1 Only' : '📋 All Calls'}</button>
+									<button type="button" onclick="window.expandAll()" style="padding: 6px 12px; background: \${expandedIds.size === filteredCalls.length ? '#10b981' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▼ Expand All</button>
+									<button type="button" onclick="window.collapseAll()" style="padding: 6px 12px; background: \${expandedIds.size === 0 ? '#6b7280' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▲ Collapse All</button>
+									<button type="button" onclick="window.clearCalls()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">Clear</button>
 								\` : ''}
-								<button onclick="window.close()" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">✕ Close</button>
+								<button type="button" onclick="window.close()" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">✕ Close</button>
 							</div>
 						</div>
 						<div style="flex: 1; overflow-y: auto; padding: 16px;">
@@ -419,7 +419,7 @@ const createPopOutWindow = (
 																<div>
 																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">FULL URL:</div>
-																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		<button type="button" class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
 																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
 																</div>
@@ -427,7 +427,7 @@ const createPopOutWindow = (
 																	<div>
 																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
-																			<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																			<button type="button" class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																		</div>
 																		<div class="json-display"><pre>\${headersText}</pre></div>
 																	</div>
@@ -436,7 +436,7 @@ const createPopOutWindow = (
 																	<div>
 																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
-																			<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																			<button type="button" class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																		</div>
 																		<div class="json-display"><pre>\${bodyText}</pre></div>
 																	</div>
@@ -445,7 +445,7 @@ const createPopOutWindow = (
 																	<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
 																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																			<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
-																			<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
+																			<button type="button" class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
 																		</div>
 																		<div class="json-display"><pre>\${responseText}</pre></div>
 																	</div>

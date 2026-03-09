@@ -1,6 +1,5 @@
 // src/components/JWTTokenDisplay.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -209,7 +208,11 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 									: 'Show decoded token'
 						}
 					>
-						{isDecoded ? <span style={{ fontSize: '12px' }}>🙈</span> : <span style={{ fontSize: '12px' }}>👁️</span>}
+						{isDecoded ? (
+							<span style={{ fontSize: '12px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '12px' }}>👁️</span>
+						)}
 						{isDecoded ? 'Hide Decoded' : 'Decode JWT'}
 					</ToggleButton>
 					<CopyButtonService

@@ -1,7 +1,7 @@
 // src/components/AuthorizationCodeConfigModal.tsx
 // Simple modal for configuring Authorization Code flow credentials
 
-
+import { FiInfo } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -15,7 +15,6 @@ import {
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
-import { FiInfo } from '@icons';
 
 const FormSection = styled.div`
 	display: flex;
@@ -87,15 +86,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.375rem;
 	border: none;
-	background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE')};
-	color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+	background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#3b82f6')};
+	color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
 	font-weight: 600;
 	cursor: pointer;
 	transition: background 0.2s;
 	font-size: 0.875rem;
 	
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+		background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
 	}
 	
 	&:disabled {
@@ -344,10 +343,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			maxHeight="calc(100vh - 4rem)"
 		>
 			<InfoBox>
-				<FiInfo
-					size={16}
-					style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '0.125rem' }}
-				/>
+				<FiInfo size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
 				<InfoText>
 					<strong>Authorization Code Flow Configuration</strong>
 					<br />
@@ -427,11 +423,11 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					onClick={handleExport}
 					onFocus={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
+						e.currentTarget.style.borderColor = '#9ca3af';
 					}}
 					onBlur={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+						e.currentTarget.style.borderColor = '#e5e7eb';
 					}}
 					style={{
 						display: 'flex',
@@ -441,18 +437,18 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
-						color: 'V9_COLORS.TEXT.GRAY_DARK',
+						color: '#1f2937',
 						fontSize: '0.875rem',
 						cursor: 'pointer',
 						transition: 'all 0.2s',
 					}}
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
+						e.currentTarget.style.borderColor = '#9ca3af';
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+						e.currentTarget.style.borderColor = '#e5e7eb';
 					}}
 					title="Export credentials to JSON file"
 				>
@@ -464,11 +460,11 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					onClick={handleImport}
 					onFocus={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
+						e.currentTarget.style.borderColor = '#9ca3af';
 					}}
 					onBlur={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+						e.currentTarget.style.borderColor = '#e5e7eb';
 					}}
 					style={{
 						display: 'flex',
@@ -478,18 +474,18 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '6px',
 						background: '#f9fafb',
-						color: 'V9_COLORS.TEXT.GRAY_DARK',
+						color: '#1f2937',
 						fontSize: '0.875rem',
 						cursor: 'pointer',
 						transition: 'all 0.2s',
 					}}
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f3f4f6';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHT';
+						e.currentTarget.style.borderColor = '#9ca3af';
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+						e.currentTarget.style.borderColor = '#e5e7eb';
 					}}
 					title="Import credentials from JSON file"
 				>

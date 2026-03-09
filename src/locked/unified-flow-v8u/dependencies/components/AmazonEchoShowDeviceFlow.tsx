@@ -1,7 +1,7 @@
 // src/components/AmazonEchoShowDeviceFlow.tsx
 // Amazon Echo Show Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,8 +10,6 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheckCircle } from '@icons';
 
 // Amazon Echo Show Main Container - Realistic Physical Device
 const EchoShowContainer = styled.div`

@@ -1,4 +1,4 @@
-
+import { FiLoader } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,7 +6,6 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
-import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -24,19 +23,19 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -50,11 +49,11 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   margin-bottom: 1rem;
@@ -294,10 +293,7 @@ const AuthzCallback: React.FC = () => {
 						}, 1000);
 						return;
 					} else {
-						log.error(
-							'AuthzCallback',
-							' [AuthzCallback] Missing code or state in popup callback'
-						);
+						log.error('AuthzCallback', ' [AuthzCallback] Missing code or state in popup callback');
 						setStatus('error');
 						setMessage('Authorization failed: Missing authorization code');
 

@@ -5,7 +5,6 @@
  * @version 8.0.0
  */
 
-
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';

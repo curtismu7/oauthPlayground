@@ -1,17 +1,17 @@
 import type React from 'react';
-import { logger } from '../../utils/logger';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 // lint-file-disable: json-parse-no-try
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { TokenManagementService } from '../../services/tokenManagementService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -235,8 +235,8 @@ const StatusBadge = styled.span<{ $success: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
-  background-color: ${({ $success }) => ($success ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR')};
-  color: ${({ $success }) => ($success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
+  background-color: ${({ $success }) => ($success ? '#ecfdf5' : '#fef2f2')};
+  color: ${({ $success }) => ($success ? '#10b981' : '#dc2626')};
 `;
 
 const TabContainer = styled.div`
@@ -252,8 +252,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'transparent')};
-  color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: V9_COLORS.PRIMARY.BLUE;
@@ -266,7 +266,7 @@ interface TokenRevocationFlowProps {
 		clientSecret: string;
 		environmentId: string;
 	};
-};
+}
 
 const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);

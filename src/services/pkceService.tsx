@@ -5,31 +5,27 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheck': 'mdi-check',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiEye': 'mdi-eye',
-		'FiEyeOff': 'mdi-eye-off',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiShield': 'mdi-shield-check',
+		FiCheck: 'mdi-check',
+		FiExternalLink: 'mdi-open-in-new',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
+		FiShield: 'mdi-shield-check',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';

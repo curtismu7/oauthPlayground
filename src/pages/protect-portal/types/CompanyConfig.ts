@@ -77,10 +77,10 @@ export const INDUSTRIES = [
 export type Industry = (typeof INDUSTRIES)[number];
 
 export const DEFAULT_COMPANY_COLORS: CompanyColors = {
-	button: 'V9_COLORS.PRIMARY.BLUE',
-	headers: 'V9_COLORS.TEXT.GRAY_DARK',
-	text: 'V9_COLORS.TEXT.GRAY_DARK',
-	background: 'V9_COLORS.TEXT.WHITE',
+	button: '#3b82f6',
+	headers: '#1f2937',
+	text: '#1f2937',
+	background: '#ffffff',
 };
 
 export const COMPANY_CONFIG_STORAGE_KEY = 'companyDraft';

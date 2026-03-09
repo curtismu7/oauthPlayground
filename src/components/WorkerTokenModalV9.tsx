@@ -13,6 +13,17 @@
  * - Comprehensive worker token management
  */
 
+import {
+	FiAlertCircle,
+	FiCheckCircle,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSave,
+} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -25,7 +36,6 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { DraggableModal } from './DraggableModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
-import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiInfo, FiKey, FiRefreshCw, FiSave } from '@icons';
 
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
@@ -613,7 +623,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 									<MDIIcon
 										icon={showPassword ? 'FiEyeOff' : 'FiEye'}
 										size={16}
-										style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
+										style={{ color: '#6b7280' }}
 									/>
 								</button>
 							</div>

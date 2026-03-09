@@ -5,7 +5,6 @@
  * @version 8.0.0
  */
 
-
 import React, { useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 

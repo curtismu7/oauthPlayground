@@ -1,7 +1,6 @@
 // src/components/DeviceDisplayTemplate.tsx
 // Standardized Device Display Template - Based on Airport Kiosk Layout
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -60,13 +59,13 @@ const StatusBadge = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: white;
@@ -206,11 +205,11 @@ const StatusMessage = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'pending':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'denied':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
 				return '#f3f4f6';
 		}
@@ -218,13 +217,13 @@ const StatusMessage = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border-radius: 0.75rem;
@@ -240,13 +239,13 @@ const StatusIcon = styled.div<{ $status: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 `;

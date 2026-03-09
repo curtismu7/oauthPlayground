@@ -1,7 +1,6 @@
 // Worker Token Display component for token visualization and management
 // lint-file-disable: token-value-in-jsx
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -75,7 +74,7 @@ const TokenContainer = styled.div`
 `;
 
 const TokenText = styled.span<{ showFull: boolean }>`
-  color: ${(props) => (props.showFull ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${(props) => (props.showFull ? '#1f2937' : '#6b7280')};
 `;
 
 const CopyButton = styled.button`
@@ -393,7 +392,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		<Container>
 			<Header>
 				<h3>
-					<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE' }}>🛡️</span>
+					<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
 					Worker Token
 					<StatusIndicator status={tokenStatus}>
 						{tokenStatus === 'active' && <span style={{ fontSize: '12px' }}>✅</span>}
@@ -404,7 +403,11 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 				</h3>
 				<ButtonGroup>
 					<Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
-						{showFullToken ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+						{showFullToken ? (
+							<span style={{ fontSize: '16px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '16px' }}>👁️</span>
+						)}
 						{showFullToken ? 'Hide' : 'Show'} Token
 					</Button>
 					{onRefresh && (

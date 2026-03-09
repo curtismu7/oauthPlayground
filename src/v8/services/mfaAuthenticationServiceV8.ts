@@ -1448,7 +1448,9 @@ export class MfaAuthenticationServiceV8 {
 							'Content-Type': contentType,
 						},
 				body: requestBody,
-				...(cleanToken && { revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } } }),
+				...(cleanToken && {
+					revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } },
+				}),
 				step: 'mfa-Validate OTP',
 				flowType: 'mfa',
 			});
@@ -1601,7 +1603,9 @@ export class MfaAuthenticationServiceV8 {
 							'Content-Type': 'application/json',
 						},
 				body: {},
-				...(cleanToken && { revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } } }),
+				...(cleanToken && {
+					revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } },
+				}),
 				step: 'mfa-Complete Authentication',
 				flowType: 'mfa',
 			});
@@ -1721,7 +1725,9 @@ export class MfaAuthenticationServiceV8 {
 					Authorization: `Bearer ***REDACTED***`,
 				},
 				body: {},
-				...(cleanToken && { revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } } }),
+				...(cleanToken && {
+					revealableFields: { headers: { Authorization: `Bearer ${cleanToken}` } },
+				}),
 				step: 'mfa-Cancel Device Authentication',
 				flowType: 'mfa',
 			});

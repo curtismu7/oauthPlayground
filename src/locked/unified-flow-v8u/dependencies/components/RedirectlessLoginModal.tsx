@@ -1,7 +1,6 @@
-
+import { FiLoader, FiLock, FiUser } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { FiLoader, FiLock, FiUser } from '@icons';
 
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
@@ -364,7 +363,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 		<ModalOverlay $isOpen={isOpen} onKeyDown={handleKeyDown}>
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
-					<button className="close-button" onClick={onClose} disabled={isLoading}>
+					<button type="button" className="close-button" onClick={onClose} disabled={isLoading}>
 						<span>❌</span>
 					</button>
 					<IconBadge>
@@ -423,7 +422,11 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 									onClick={() => setShowPassword(!showPassword)}
 									disabled={isLoading}
 								>
-									{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+									{showPassword ? (
+										<span style={{ fontSize: '16px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '16px' }}>👁️</span>
+									)}
 								</button>
 							</InputContainer>
 						</FormGroup>

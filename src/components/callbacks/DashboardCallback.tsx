@@ -1,11 +1,10 @@
-
+import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
-import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   min-height: 100vh;

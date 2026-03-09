@@ -7,27 +7,22 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from './tokenDisplayService';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCopy': 'mdi-content-copy',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiEyeOff': 'mdi-eye-off',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
+		FiCopy: 'mdi-content-copy',
+		FiExternalLink: 'mdi-open-in-new',
+		FiEyeOff: 'mdi-eye-off',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 /**
@@ -317,7 +312,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					<TokenActions>
 						{showDecodeButtons && (
 							<ActionButton $variant="secondary" onClick={() => handleDecodeClick(token, label)}>
-								{isDecoded ? <MDIIcon icon="FiEyeOff" size={14} /> : <MDIIcon icon="FiKey" size={14} />}
+								{isDecoded ? (
+									<MDIIcon icon="FiEyeOff" size={14} />
+								) : (
+									<MDIIcon icon="FiKey" size={14} />
+								)}
 								{isDecoded ? 'Encode' : 'Decode'}
 							</ActionButton>
 						)}
@@ -348,7 +347,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					)}
 					{!isDecoded && showDecodeButtons && !TokenDisplayService.isJWT(token) && (
 						<OpaqueMessage>
-							<MDIIcon icon="FiInfo" size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+							<MDIIcon
+								icon="FiInfo"
+								size={16}
+								style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}
+							/>
 							{label} is opaque and cannot be decoded as JWT.
 						</OpaqueMessage>
 					)}

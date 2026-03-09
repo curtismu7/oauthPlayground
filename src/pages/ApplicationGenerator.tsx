@@ -2,7 +2,6 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -56,7 +55,6 @@ const Container = styled.div`
   }
 `;
 
-
 const BackButton = styled.button`
   display: flex;
   align-items: center;
@@ -105,7 +103,7 @@ const AppTypeCard = styled.div<{ selected: boolean }>`
 
   .icon {
     font-size: 2rem;
-    color: ${({ selected, theme }) => (selected ? theme.colors.primary : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+    color: ${({ selected, theme }) => (selected ? theme.colors.primary : '#6b7280')};
     margin-bottom: 1rem;
   }
 
@@ -170,16 +168,16 @@ const Label = styled.label`
 
 const Input = styled.input<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'rgba(148, 163, 184, 0.4)')};
+  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? 'V9_COLORS.BG.ERROR' : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
     outline: none;
-    border-color: ${({ theme, $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : theme.colors.primary)};
+    border-color: ${({ theme, $hasError }) => ($hasError ? '#ef4444' : theme.colors.primary)};
     box-shadow: ${({ $hasError }) =>
 			$hasError
 				? '0 0 0 3px rgba(239, 68, 68, 0.18), 0 20px 30px -30px rgba(239, 68, 68, 0.6)'
@@ -189,13 +187,13 @@ const Input = styled.input<{ $hasError?: boolean }>`
 
 const TextArea = styled.textarea<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'rgba(148, 163, 184, 0.4)')};
+  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
   border-radius: 0.75rem;
   font-size: 0.875rem;
   min-height: 150px;
   resize: vertical;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? 'V9_COLORS.BG.ERROR' : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
@@ -304,7 +302,6 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
   `;
 	}}
 `;
-
 
 type TokenEndpointMethod =
 	| 'client_secret_basic'
@@ -646,8 +643,6 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	}, []);
 
-
-
 	const appTypes: {
 		type: BuilderAppType;
 		icon: React.ReactNode;
@@ -868,7 +863,6 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	};
 
-
 	const handleImportConfiguration = (
 		importedConfig: FormDataState,
 		metadata: Record<string, unknown>
@@ -950,7 +944,6 @@ const ApplicationGenerator: React.FC = () => {
 		return errors;
 	};
 
-
 	const handleCreateApplication = async (modalData?: {
 		name: string;
 		description: string;
@@ -967,7 +960,7 @@ const ApplicationGenerator: React.FC = () => {
 			(Array.isArray(formData.redirectUris)
 				? formData.redirectUris[0]
 				: 'https://localhost:3000/callback');
-	
+
 		// Validate required fields
 		if (!appName.trim()) {
 			modernMessaging.showBanner({
@@ -1324,7 +1317,7 @@ const ApplicationGenerator: React.FC = () => {
 											autoComplete="off"
 										/>
 										{validationErrors.has('name') && (
-											<div style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+											<div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Application name is required
 											</div>
 										)}
@@ -1387,7 +1380,7 @@ const ApplicationGenerator: React.FC = () => {
 											})()}
 										</CheckboxGroup>
 										{validationErrors.has('grantTypes') && (
-											<div style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+											<div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												At least one grant type is required
 											</div>
 										)}
@@ -1425,7 +1418,7 @@ const ApplicationGenerator: React.FC = () => {
 											</CheckboxGroup>
 											{validationErrors.has('responseTypes') && (
 												<div
-													style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}
+													style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}
 												>
 													At least one response type is required for this app type
 												</div>
@@ -1511,7 +1504,7 @@ const ApplicationGenerator: React.FC = () => {
 											/>
 											{validationErrors.has('redirectUris') && (
 												<div
-													style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}
+													style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}
 												>
 													At least one redirect URI is required for this app type
 												</div>
@@ -1614,7 +1607,7 @@ const ApplicationGenerator: React.FC = () => {
 											style={{
 												fontSize: '1.125rem',
 												fontWeight: '600',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												marginBottom: '1rem',
 											}}
 										>
@@ -1709,7 +1702,7 @@ const ApplicationGenerator: React.FC = () => {
 							<FormTitle>Review Your Configuration</FormTitle>
 							<div
 								style={{
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									padding: '1.5rem',
 									borderRadius: '0.75rem',
 									marginBottom: '2rem',
@@ -1762,9 +1755,9 @@ const ApplicationGenerator: React.FC = () => {
 						<FormContainer>
 							<FormTitle>
 								{creationResult.success ? (
-									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅ Application Created Successfully!</span>
+									<span style={{ color: '#059669' }}>✅ Application Created Successfully!</span>
 								) : (
-									<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>❌ Application Creation Failed</span>
+									<span style={{ color: '#ef4444' }}>❌ Application Creation Failed</span>
 								)}
 							</FormTitle>
 
@@ -1796,7 +1789,7 @@ const ApplicationGenerator: React.FC = () => {
 							) : (
 								<div
 									style={{
-										background: 'V9_COLORS.BG.ERROR',
+										background: '#fef2f2',
 										padding: '1.5rem',
 										borderRadius: '0.75rem',
 										border: '1px solid V9_COLORS.PRIMARY.RED',
@@ -1807,7 +1800,7 @@ const ApplicationGenerator: React.FC = () => {
 									{creationErrorDetails && (
 										<pre
 											style={{
-												background: 'V9_COLORS.TEXT.WHITE',
+												background: '#ffffff',
 												padding: '1rem',
 												borderRadius: '0.5rem',
 												overflow: 'auto',

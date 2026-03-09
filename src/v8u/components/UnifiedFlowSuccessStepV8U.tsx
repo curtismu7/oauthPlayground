@@ -6,13 +6,12 @@
  * @since 2026-02-05
  */
 
-
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 

@@ -9,9 +9,9 @@
  * enterprise security styling, and modern tech company aesthetics.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const pingidentityConfig: CorporatePortalConfig = {
 	company: {
@@ -72,12 +72,12 @@ export const pingidentityConfig: CorporatePortalConfig = {
 			accent: '#003366', // PingIdentity Dark Blue
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+			muted: '#6b7280',
+			border: '#e5e7eb',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#DC2626',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#F59E0B',
 			info: '#0066CC',
 			primaryLight: '#3385FF',
@@ -120,16 +120,16 @@ export const pingidentityTheme: BrandTheme = {
 	colors: {
 		primary: '#0066CC', // PingIdentity Blue (official primary color)
 		primaryDark: '#0052A3', // Darker blue for hover states
-		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
+		secondary: '#1f2937', // Updated to match mockup secondary
 		accent: '#0066CC', // PingIdentity Blue (accent)
-		background: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup bg
-		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
+		background: '#ffffff', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#e5e7eb', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#F59E0B', // Amber for warnings
 		info: '#0066CC', // Use PingIdentity Blue for info
 		// Additional theme colors with PingIdentity palette

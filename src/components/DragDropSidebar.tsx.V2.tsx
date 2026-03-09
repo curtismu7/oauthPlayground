@@ -12,11 +12,10 @@
  * ========================================================================
  */
 
-
+import { FiChevronDown } from '@icons';
 // Import only what's needed for this demo
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FiChevronDown } from '@icons';
 
 interface MenuItem {
 	id: string;
@@ -85,7 +84,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					badge: (
 						<span
 							style={{
-								background: 'V9_COLORS.PRIMARY.GREEN',
+								background: '#10b981',
 								color: 'white',
 								padding: '2px 6px',
 								borderRadius: '4px',
@@ -104,7 +103,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					badge: (
 						<span
 							style={{
-								background: 'V9_COLORS.PRIMARY.BLUE',
+								background: '#3b82f6',
 								color: 'white',
 								padding: '2px 6px',
 								borderRadius: '4px',
@@ -195,10 +194,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				<div
 					style={{
 						padding: '0.5rem 1rem',
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						fontSize: '0.875rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						fontWeight: '500',
 					}}
 				>
@@ -226,7 +225,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							gap: '0.5rem',
 							padding: '0.75rem 1rem',
 							background: isSearchResult
-								? 'V9_COLORS.BG.GRAY_MEDIUM'
+								? '#f1f5f9'
 								: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 							borderRadius: '0.5rem',
 							marginBottom: '0.25rem',
@@ -235,9 +234,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							boxShadow: isSearchResult ? 'none' : '0 2px 4px rgba(59, 130, 246, 0.2)',
 						}}
 					>
-						<div style={{ color: isSearchResult ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white' }}>
-							{group.icon}
-						</div>
+						<div style={{ color: isSearchResult ? '#6b7280' : 'white' }}>{group.icon}</div>
 						<span
 							style={{
 								fontWeight: '600',
@@ -252,7 +249,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							style={{
 								transform: group.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
 								transition: 'transform 0.2s',
-								color: isSearchResult ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white',
+								color: isSearchResult ? '#6b7280' : 'white',
 							}}
 						/>
 					</div>
@@ -262,9 +259,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						<div
 							style={{
 								paddingLeft: '1rem',
-								backgroundColor: isSearchResult
-									? 'V9_COLORS.TEXT.WHITE'
-									: 'V9_COLORS.BG.GRAY_LIGHT',
+								backgroundColor: isSearchResult ? '#ffffff' : '#f8fafc',
 								borderRadius: '0.5rem',
 								padding: '0.5rem',
 							}}
@@ -286,15 +281,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										gap: '0.5rem',
 										padding: '0.5rem 0.75rem',
 										backgroundColor: isSearchResult
-											? 'V9_COLORS.TEXT.WHITE'
+											? '#ffffff'
 											: isActive(item.path)
-												? 'V9_COLORS.BG.WARNING'
+												? '#fef3c7'
 												: 'white',
-										color: isSearchResult
-											? 'V9_COLORS.TEXT.BLACK'
-											: isActive(item.path)
-												? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: isSearchResult ? '#000000' : isActive(item.path) ? '#d97706' : '#6b7280',
 										borderRadius: '0.375rem',
 										border: isSearchResult
 											? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER'

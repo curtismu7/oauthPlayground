@@ -66,11 +66,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	border-left: 4px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 		}
 	}};
 `;
@@ -262,8 +262,9 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 			{/* Demo Notice */}
 			<DemoNotice>
-				<span>⚠️</span><div>
-					<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontSize: '1.25rem' }}>
+				<span>⚠️</span>
+				<div>
+					<h3 style={{ margin: '0 0 1rem 0', color: '#2563eb', fontSize: '1.25rem' }}>
 						🎭 Educational Demo Flow
 					</h3>
 					<p style={{ margin: '0 0 0.5rem 0', lineHeight: '1.6' }}>

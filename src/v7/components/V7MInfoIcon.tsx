@@ -1,6 +1,5 @@
 // src/v7m/ui/V7MInfoIcon.tsx
 
-
 import React from 'react';
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
 
 export const V7MInfoIcon: React.FC<Props> = ({ label, title, onClick }) => {
 	return (
-		<button type="button" aria-label={label} title={title} onClick={onClick} style={btnStyle}>
+		<button type="button" type="button" aria-label={label} title={title} onClick={onClick} style={btnStyle}>
 			<span>ℹ️</span>
 		</button>
 	);

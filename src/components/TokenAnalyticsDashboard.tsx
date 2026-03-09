@@ -246,7 +246,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 	if (error) {
 		return (
 			<DashboardContainer>
-				<div style={{ color: 'V9_COLORS.PRIMARY.RED' }}>Error: {error}</div>
+				<div style={{ color: '#ef4444' }}>Error: {error}</div>
 			</DashboardContainer>
 		);
 	}
@@ -260,14 +260,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 	}
 
 	const maxUsage = Math.max(...Object.values(analytics.tokenUsageByFlow));
-	const colors = [
-		'V9_COLORS.PRIMARY.BLUE',
-		'V9_COLORS.PRIMARY.GREEN',
-		'V9_COLORS.PRIMARY.YELLOW',
-		'V9_COLORS.PRIMARY.RED',
-		'V9_COLORS.PRIMARY.GREEN',
-		'#06b6d4',
-	];
+	const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#10b981', '#06b6d4'];
 
 	return (
 		<DashboardContainer>
@@ -286,15 +279,11 @@ const TokenAnalyticsDashboard: React.FC = () => {
 					<StatLabel>Total Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
-					<StatValue style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
-						{analytics.activeTokens}
-					</StatValue>
+					<StatValue style={{ color: '#10b981' }}>{analytics.activeTokens}</StatValue>
 					<StatLabel>Active Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
-					<StatValue style={{ color: 'V9_COLORS.PRIMARY.RED' }}>
-						{analytics.expiredTokens}
-					</StatValue>
+					<StatValue style={{ color: '#ef4444' }}>{analytics.expiredTokens}</StatValue>
 					<StatLabel>Expired Tokens</StatLabel>
 				</StatCard>
 				<StatCard>
@@ -321,7 +310,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 
 			<Section>
 				<SectionTitle>Most Used Flow</SectionTitle>
-				<div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+				<div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
 					{analytics.mostUsedFlow}
 				</div>
 			</Section>
@@ -330,9 +319,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 				<SectionTitle>Recent Activity</SectionTitle>
 				<ActivityList>
 					{analytics.recentActivity.length === 0 ? (
-						<div
-							style={{ textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', padding: '2rem' }}
-						>
+						<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
 							No recent activity
 						</div>
 					) : (

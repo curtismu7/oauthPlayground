@@ -288,7 +288,7 @@ const Callback = () => {
 					navigate(redirectUrl, { replace: true });
 				}, 1500);
 			} catch (err) {
-					logger.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
+				logger.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
 				setStatus('error');
 				const errorMessage =
 					err instanceof Error ? err.message : 'An error occurred during authentication';

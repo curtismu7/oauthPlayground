@@ -9,8 +9,8 @@
  * for all Protect Portal operations.
  */
 
-import type { PortalError } from '../types/protectPortal.types';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import type { PortalError } from '../types/protectPortal.types';
 
 // ============================================================================
 // INTERFACES

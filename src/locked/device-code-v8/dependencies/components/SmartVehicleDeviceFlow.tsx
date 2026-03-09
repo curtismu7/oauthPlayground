@@ -1,14 +1,12 @@
 // src/components/SmartVehicleDeviceFlow.tsx
 // Smart Vehicle Style Device Authorization Flow Interface
 
-
+import { FiNavigation, FiTruck } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiNavigation, FiTruck } from '@icons';
 
 // Tesla Screen Main Container - Automotive Display
 const SmartVehicleContainer = styled.div`

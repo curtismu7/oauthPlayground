@@ -706,7 +706,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							defaultCollapsed={false}
 						>
 							<InfoBox $variant="info">
-								<span>ℹ️</span><div>
+								<span>ℹ️</span>
+								<div>
 									<InfoTitle>Register or Select Mobile Phone for MFA</InfoTitle>
 									<InfoText>
 										Select an existing SMS device or register a new mobile phone number for
@@ -737,11 +738,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 											alignItems: 'center',
 											justifyContent: 'center',
 											gap: '0.5rem',
-											backgroundColor: workerToken ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK',
-											color: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: workerToken ? '#059669' : '#dc2626',
+											color: '#ffffff',
 										}}
 									>
-										{workerToken ? <span>✅</span>: <span>🔑</span>}
+										{workerToken ? <span>✅</span> : <span>🔑</span>}
 										{workerToken ? 'Worker Token Active ✓' : 'Get Worker Token →'}
 									</Button>
 								</ParameterValue>
@@ -754,7 +755,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										disabled={isLoadingDevices}
 										style={{ marginTop: '1rem', marginBottom: '1rem' }}
 									>
-										<span>🔄</span>{isLoadingDevices ? 'Loading...' : 'Refresh Devices'}
+										<span>🔄</span>
+										{isLoadingDevices ? 'Loading...' : 'Refresh Devices'}
 									</Button>
 
 									{existingDevices.length > 0 && (
@@ -775,23 +777,23 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 														cursor: 'pointer',
 														marginBottom: '0.5rem',
 														background:
-															selectedExistingDeviceId === device.id ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE',
+															selectedExistingDeviceId === device.id ? '#f8fafc' : '#ffffff',
 														width: '100%',
 														textAlign: 'left',
 													}}
 												>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-														<span>📱</span><div style={{ flex: 1 }}>
+														<span>📱</span>
+														<div style={{ flex: 1 }}>
 															<div style={{ fontWeight: 600 }}>
 																{device.phone || device.phoneNumber || device.name || 'SMS Device'}
 															</div>
-															<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+															<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 																{device.type} • {device.status ?? 'Unknown'} •{' '}
 																{device.enabled ? 'Enabled' : 'Disabled'}
 															</div>
 														</div>
-														{selectedExistingDeviceId === device.id && (
-															<span>✅</span>)}
+														{selectedExistingDeviceId === device.id && <span>✅</span>}
 													</div>
 												</button>
 											))}
@@ -802,8 +804,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										<Button
 											onClick={() => setDeviceSelectionMode('select')}
 											style={{
-												background: deviceSelectionMode === 'select' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6',
-												color: deviceSelectionMode === 'select' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK',
+												background: deviceSelectionMode === 'select' ? '#3b82f6' : '#f3f4f6',
+												color: deviceSelectionMode === 'select' ? 'white' : '#1f2937',
 											}}
 										>
 											Select Existing
@@ -811,8 +813,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										<Button
 											onClick={() => setDeviceSelectionMode('register')}
 											style={{
-												background: deviceSelectionMode === 'register' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6',
-												color: deviceSelectionMode === 'register' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK',
+												background: deviceSelectionMode === 'register' ? '#3b82f6' : '#f3f4f6',
+												color: deviceSelectionMode === 'register' ? 'white' : '#1f2937',
 											}}
 										>
 											Register New
@@ -837,7 +839,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 												onClick={handleRegisterMobilePhone}
 												disabled={isLoading || !phoneNumber}
 											>
-												{isLoading ? <span>🔄</span>: <span>📱</span>}
+												{isLoading ? <span>🔄</span> : <span>📱</span>}
 												Register Mobile Phone
 											</Button>
 										</>
@@ -847,7 +849,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										existingDevices.length === 0 &&
 										!isLoadingDevices && (
 											<InfoBox $variant="warning">
-												<span>ℹ️</span><div>
+												<span>ℹ️</span>
+												<div>
 													<InfoTitle>No Existing Devices Found</InfoTitle>
 													<InfoText>No SMS devices found. Use "Register New" to add one.</InfoText>
 												</div>
@@ -862,7 +865,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									<JSONHighlighter data={apiResponses[11]} />
 									{deviceId && (
 										<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-											<span>✅</span><div>
+											<span>✅</span>
+											<div>
 												<InfoTitle>Device Selected/Registered</InfoTitle>
 												<InfoText>Device ID: {deviceId}</InfoText>
 											</div>
@@ -883,7 +887,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Enable User MFA Device</InfoTitle>
 								<InfoText>
 									Enable the registered MFA device for the user. API: PUT /environments/
@@ -898,7 +903,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									type="text"
 									value={userId}
 									readOnly
-									style={{ width: '100%', padding: '0.5rem', background: 'V9_COLORS.BG.GRAY_LIGHT' }}
+									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
 								/>
 							</ParameterValue>
 							<ParameterLabel>Device ID:</ParameterLabel>
@@ -907,12 +912,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									type="text"
 									value={deviceId}
 									readOnly
-									style={{ width: '100%', padding: '0.5rem', background: 'V9_COLORS.BG.GRAY_LIGHT' }}
+									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
 								/>
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
-							{isLoading ? <span>🔄</span>: <span>🛡️</span>}
+							{isLoading ? <span>🔄</span> : <span>🛡️</span>}
 							Enable MFA Device
 						</Button>
 						{(apiResponses[11] as Record<string, unknown>)?.enabled && (
@@ -920,7 +925,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<ResultsHeading>Step 11b Response:</ResultsHeading>
 								<JSONHighlighter data={apiResponses[11]} />
 								<InfoBox $variant="success">
-									<span>✅</span><div>
+									<span>✅</span>
+									<div>
 										<InfoTitle>MFA Device Enabled Successfully</InfoTitle>
 									</div>
 								</InfoBox>
@@ -938,7 +944,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Initiate Authorization Code Flow</InfoTitle>
 								<InfoText>
 									Send an authorization request with response_mode=pi.flow to initiate the flow.
@@ -947,7 +954,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
-							{isLoading ? <span>🔄</span>: <span>➡️</span>}
+							{isLoading ? <span>🔄</span> : <span>➡️</span>}
 							Send Authorize Request
 						</Button>
 						{apiResponses[12] && (
@@ -956,7 +963,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<JSONHighlighter data={apiResponses[12]} />
 								{flowId && (
 									<InfoBox $variant="success">
-										<span>✅</span><div>
+										<span>✅</span>
+										<div>
 											<InfoTitle>Flow ID:</InfoTitle>
 											<InfoText>{flowId}</InfoText>
 										</div>
@@ -976,7 +984,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Retrieve Flow Details</InfoTitle>
 								<InfoText>
 									Get the current state of the flow from PingOne to see what actions are available.
@@ -984,7 +993,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGetFlow} disabled={isLoading}>
-							{isLoading ? <span>🔄</span>: <span>📦</span>}
+							{isLoading ? <span>🔄</span> : <span>📦</span>}
 							Get Flow
 						</Button>
 						{apiResponses[13] && (
@@ -1005,7 +1014,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Authenticate with Username/Password</InfoTitle>
 								<InfoText>
 									Submit user login credentials to advance the flow to the MFA challenge.
@@ -1038,7 +1048,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							onClick={handleSubmitLoginCredentials}
 							disabled={isLoading || !username || !password}
 						>
-							{isLoading ? <span>🔄</span>: <span>👤</span>}
+							{isLoading ? <span>🔄</span> : <span>👤</span>}
 							Submit Login Credentials
 						</Button>
 						{apiResponses[14] && (
@@ -1059,7 +1069,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Complete MFA Challenge</InfoTitle>
 								<InfoText>Submit the MFA code received via SMS to complete the challenge.</InfoText>
 							</div>
@@ -1077,7 +1088,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
-							{isLoading ? <span>🔄</span>: <span>📱</span>}
+							{isLoading ? <span>🔄</span> : <span>📱</span>}
 							Submit MFA Credentials
 						</Button>
 						{apiResponses[15] && (
@@ -1098,7 +1109,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Get Authorization Code</InfoTitle>
 								<InfoText>
 									After successful authentication and MFA, call the resume endpoint to get the
@@ -1107,7 +1119,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
-							{isLoading ? <span>🔄</span>: <span>✅</span>}
+							{isLoading ? <span>🔄</span> : <span>✅</span>}
 							Call Resume Endpoint
 						</Button>
 						{apiResponses[16] && (
@@ -1116,7 +1128,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<JSONHighlighter data={apiResponses[16]} />
 								{authorizationCode && (
 									<InfoBox $variant="success">
-										<span>✅</span><div>
+										<span>✅</span>
+										<div>
 											<InfoTitle>Authorization Code:</InfoTitle>
 											<InfoText>{String(authorizationCode)}</InfoText>
 										</div>
@@ -1136,7 +1149,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="info">
-							<span>ℹ️</span><div>
+							<span>ℹ️</span>
+							<div>
 								<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
 								<InfoText>
 									Exchange the code for access token, refresh token, and ID token.
@@ -1144,7 +1158,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
-							{isLoading ? <span>🔄</span>: <span>🔑</span>}
+							{isLoading ? <span>🔄</span> : <span>🔑</span>}
 							Generate Access Token
 						</Button>
 						{apiResponses[17] && (
@@ -1165,7 +1179,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<InfoBox $variant="success">
-							<span>✅</span><div>
+							<span>✅</span>
+							<div>
 								<InfoTitle>Flow Completed Successfully</InfoTitle>
 								<InfoText>
 									The authorization code flow with MFA has been completed. All tokens received.

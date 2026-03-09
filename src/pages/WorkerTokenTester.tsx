@@ -1,5 +1,6 @@
 // src/pages/WorkerTokenTester.tsx
 
+import { FiKey } from '@icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -7,7 +8,6 @@ import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBann
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiKey } from '@icons';
 
 interface TokenPayload {
 	client_id?: string;
@@ -204,7 +204,8 @@ const styles = {
 	testResultCard: (status: 'success' | 'error' | 'warning'): React.CSSProperties => ({
 		padding: '1rem',
 		borderLeft: `4px solid ${status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#ff9800'}`,
-		background: status === 'success' ? '#f1f8f4' : status === 'error' ? '#fef5f5' : 'V9_COLORS.TEXT.WHITE8f0',
+		background:
+			status === 'success' ? '#f1f8f4' : status === 'error' ? '#fef5f5' : 'V9_COLORS.TEXT.WHITE8f0',
 		borderRadius: '6px',
 	}),
 	testResultHeader: {
@@ -255,7 +256,7 @@ const styles = {
 		padding: '1rem 1.5rem',
 		fontWeight: 600,
 		fontSize: '0.875rem',
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 		textTransform: 'uppercase',
 		letterSpacing: '0.5px',
 		width: '200px',
@@ -266,7 +267,7 @@ const styles = {
 		padding: '1rem 1.5rem',
 		fontSize: highlight ? '1.25rem' : mono ? '0.875rem' : '1rem',
 		fontWeight: highlight ? 700 : 500,
-		color: highlight ? 'V9_COLORS.TEXT.GRAY_DARK' : mono ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : '#4b5563',
+		color: highlight ? '#1f2937' : mono ? '#6b7280' : '#4b5563',
 		wordBreak: mono ? 'break-all' : 'break-word',
 		overflowWrap: 'break-word',
 		...(mono && {
@@ -281,7 +282,7 @@ const styles = {
 		fontSize: '0.875rem',
 		textTransform: 'uppercase',
 		letterSpacing: '1px',
-		background: type === 'PRODUCTION' ? 'V9_COLORS.PRIMARY.RED_DARK' : type === 'SANDBOX' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.GREEN',
+		background: type === 'PRODUCTION' ? '#dc2626' : type === 'SANDBOX' ? '#3b82f6' : '#10b981',
 		color: 'white',
 		boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
 	}),
@@ -676,11 +677,7 @@ const _WorkerTokenTester: React.FC = () => {
 					onChange={(e) => handleTokenChange(e.target.value)}
 					rows={6}
 				/>
-				{error && (
-					<div style={styles.errorMessage}>
-						❌ {error}
-					</div>
-				)}
+				{error && <div style={styles.errorMessage}>❌ {error}</div>}
 			</div>
 
 			{payload && (

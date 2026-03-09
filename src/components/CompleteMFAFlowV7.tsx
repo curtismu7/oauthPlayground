@@ -2,7 +2,6 @@
 // Modern V7 MFA Flow - Complete PingOne MFA implementation with modern V7 UI
 // Implements the full 8-step specification with real API integration
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
@@ -33,6 +32,16 @@ interface CompleteMfaCredentials extends MfaCredentials {
 		| 'private_key_jwt';
 }
 
+import {
+	FiAlertCircle,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiInfo,
+	FiKey,
+	FiPackage,
+	FiRefreshCw,
+	FiSmartphone,
+} from '@icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import DeviceRegistrationModal from '../components/DeviceRegistrationModal';
 import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
@@ -57,10 +66,9 @@ import {
 	type WorkerTokenCredentials,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
-import credentialManager from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import credentialManager from '../utils/credentialManager';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo, FiKey, FiPackage, FiRefreshCw, FiSmartphone } from '@icons';
 
 export interface CompleteMFAFlowProps {
 	requireMFA?: boolean;
@@ -2730,7 +2738,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					<h3 style={{ margin: '1rem 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
 						Initializing PingOne MFA Flow V7
 					</h3>
-					<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+					<p style={{ margin: 0, color: '#6b7280' }}>
 						Setting up your secure multi-factor authentication flow...
 					</p>
 				</div>
@@ -2767,7 +2775,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								style={{
 									margin: '1rem 0',
 									padding: '1rem',
-									background: 'V9_COLORS.BG.WARNING',
+									background: '#fef3c7',
 									borderRadius: '0.75rem',
 									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 								}}
@@ -2777,7 +2785,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										margin: '0 0 0.75rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 									}}
 								>
 									📋 PingOne Application Setup Checklist
@@ -2785,7 +2793,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 										lineHeight: 1.6,
 									}}
 								>
@@ -2834,7 +2842,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								style={{
 									margin: '1rem 0',
 									padding: '1rem',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									borderRadius: '0.75rem',
 									border: '1px solid #0ea5e9',
 								}}
@@ -2844,7 +2852,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										margin: '0 0 0.75rem 0',
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									🔄 Two Authentication Flows Explained
@@ -2852,7 +2860,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 										lineHeight: 1.6,
 									}}
 								>
@@ -2981,7 +2989,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							<div style={{ marginBottom: '1rem' }}>
 								<p
 									style={{
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										fontSize: '0.875rem',
 										marginBottom: '1rem',
 									}}
@@ -3016,9 +3024,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												onClick={getWorkerToken}
 												disabled={isLoading}
 												style={{
-													background: isLoading
-														? 'V9_COLORS.TEXT.GRAY_LIGHT'
-														: 'V9_COLORS.PRIMARY.GREEN',
+													background: isLoading ? '#9ca3af' : '#10b981',
 													color: 'white',
 													border: 'none',
 													padding: '0.5rem 1rem',
@@ -3052,11 +3058,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									<div
 										style={{
 											padding: '1rem',
-											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											background: '#f8fafc',
 											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '8px',
 											textAlign: 'center',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										<FiKey size={24} style={{ marginBottom: '0.5rem' }} />
@@ -3068,9 +3074,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											onClick={getWorkerToken}
 											disabled={isLoading}
 											style={{
-												background: isLoading
-													? 'V9_COLORS.TEXT.GRAY_LIGHT'
-													: 'V9_COLORS.PRIMARY.BLUE',
+												background: isLoading ? '#9ca3af' : '#3b82f6',
 												color: 'white',
 												border: 'none',
 												padding: '0.5rem 1rem',
@@ -3114,7 +3118,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							<div style={{ marginBottom: '1rem' }}>
 								<p
 									style={{
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										fontSize: '0.875rem',
 										marginBottom: '1rem',
 									}}
@@ -3129,7 +3133,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									style={{
 										marginBottom: '1.5rem',
 										padding: '1rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '8px',
 									}}
@@ -3139,7 +3143,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											margin: '0 0 1rem 0',
 											fontSize: '0.875rem',
 											fontWeight: '600',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 										}}
 									>
 										👤 User Credentials (Required for Redirectless Authentication)
@@ -3160,7 +3164,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													display: 'block',
 													fontSize: '0.75rem',
 													fontWeight: '500',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													marginBottom: '0.25rem',
 												}}
 											>
@@ -3180,7 +3184,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '4px',
 													fontSize: '0.875rem',
-													background: 'V9_COLORS.TEXT.WHITE',
+													background: '#ffffff',
 												}}
 											/>
 										</div>
@@ -3191,7 +3195,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													display: 'block',
 													fontSize: '0.75rem',
 													fontWeight: '500',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													marginBottom: '0.25rem',
 												}}
 											>
@@ -3211,7 +3215,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '4px',
 													fontSize: '0.875rem',
-													background: 'V9_COLORS.TEXT.WHITE',
+													background: '#ffffff',
 												}}
 											/>
 										</div>
@@ -3233,9 +3237,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										style={{
 											padding: '1.25rem',
 											background:
-												!credentials.username || !credentials.password
-													? 'V9_COLORS.TEXT.GRAY_LIGHT'
-													: 'V9_COLORS.PRIMARY.GREEN_DARK',
+												!credentials.username || !credentials.password ? '#9ca3af' : '#059669',
 											color: 'white',
 											border: 'none',
 											borderRadius: '12px',
@@ -3270,7 +3272,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												position: 'absolute',
 												top: '-8px',
 												right: '-8px',
-												background: 'V9_COLORS.PRIMARY.YELLOW',
+												background: '#f59e0b',
 												color: 'white',
 												fontSize: '0.625rem',
 												fontWeight: '600',
@@ -3301,7 +3303,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										disabled={false}
 										style={{
 											padding: '1rem',
-											background: 'V9_COLORS.PRIMARY.BLUE',
+											background: '#3b82f6',
 											color: 'white',
 											border: 'none',
 											borderRadius: '8px',
@@ -3335,7 +3337,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									style={{
 										marginTop: '1.5rem',
 										padding: '1rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										border: '1px solid #0ea5e9',
 										borderRadius: '0.5rem',
 									}}
@@ -3353,7 +3355,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												fontSize: '0.875rem',
 												fontWeight: '600',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 											}}
 										>
 											Using Client ID for Authentication:
@@ -3363,8 +3365,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										style={{
 											fontFamily: 'monospace',
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
-											background: 'V9_COLORS.TEXT.WHITE',
+											color: '#1f2937',
+											background: '#ffffff',
 											padding: '0.5rem',
 											borderRadius: '0.25rem',
 											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
@@ -3378,7 +3380,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												marginTop: '0.5rem',
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.PRIMARY.RED_DARK',
+												color: '#dc2626',
 												fontStyle: 'italic',
 											}}
 										>
@@ -3434,7 +3436,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									margin: '0 0 1rem 0',
 									fontSize: '1rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								🔧 PingOne MFA Response Options
@@ -3454,7 +3456,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									disabled={isLoading}
 									style={{
 										padding: '0.75rem 1rem',
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										border: 'none',
 										borderRadius: '6px',
@@ -3479,7 +3481,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									disabled={isLoading}
 									style={{
 										padding: '0.75rem 1rem',
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										border: 'none',
 										borderRadius: '6px',
@@ -3504,7 +3506,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									disabled={isLoading}
 									style={{
 										padding: '0.75rem 1rem',
-										background: 'V9_COLORS.PRIMARY.YELLOW',
+										background: '#f59e0b',
 										color: 'white',
 										border: 'none',
 										borderRadius: '6px',
@@ -3564,11 +3566,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div
 									style={{
 										padding: '1rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '8px',
 										textAlign: 'center',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
 									<FiSmartphone size={24} style={{ marginBottom: '0.5rem' }} />
@@ -3590,7 +3592,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									setCurrentStep('username_login');
 									onStepChange?.('username_login');
 								}}
-								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
+								style={{ background: '#6b7280', color: 'white' }}
 							>
 								<span>⬅️</span>
 								Back to Login
@@ -3648,7 +3650,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									margin: '0 0 1rem 0',
 									fontSize: '1rem',
 									fontWeight: 600,
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Select MFA Device Type
@@ -3709,16 +3711,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 											cursor: 'pointer',
-											backgroundColor:
-												selectedDeviceType === device.id
-													? 'V9_COLORS.BG.GRAY_LIGHT'
-													: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: selectedDeviceType === device.id ? '#f8fafc' : '#ffffff',
 											transition: 'all 0.2s ease',
 										}}
 									>
 										<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{device.icon}</div>
 										<div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{device.name}</div>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 											{device.description}
 										</div>
 									</button>
@@ -3742,7 +3741,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										margin: '0 0 1rem 0',
 										fontSize: '1rem',
 										fontWeight: 600,
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Device Information
@@ -3756,11 +3755,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											display: 'block',
 											marginBottom: '0.5rem',
 											fontWeight: 500,
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 											fontSize: '0.875rem',
 										}}
 									>
-										Device Name <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+										Device Name <span style={{ color: '#ef4444' }}>*</span>
 									</label>
 									<input
 										id="device-name-input"
@@ -3777,13 +3776,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											background: 'V9_COLORS.TEXT.WHITE',
+											background: '#ffffff',
 										}}
 									/>
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											marginTop: '0.25rem',
 										}}
 									>
@@ -3816,7 +3815,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												display: 'block',
 												marginBottom: '0.5rem',
 												fontWeight: 500,
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 											}}
 										>
 											Email Address *
@@ -3840,7 +3839,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										<div
 											style={{
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 												marginTop: '0.25rem',
 											}}
 										>
@@ -3855,7 +3854,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												marginBottom: '1rem',
 												padding: '1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												borderRadius: '0.5rem',
 												border: '1px solid #93c5fd',
 											}}
@@ -3865,7 +3864,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													margin: '0 0 0.5rem 0',
 													fontSize: '0.875rem',
 													fontWeight: 600,
-													color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+													color: '#2563eb',
 												}}
 											>
 												📱 Authenticator App Setup
@@ -3873,7 +3872,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											<div
 												style={{
 													fontSize: '0.75rem',
-													color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+													color: '#2563eb',
 													lineHeight: 1.5,
 													marginBottom: '1rem',
 												}}
@@ -3890,7 +3889,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												onClick={handleShowTOTPQRCode}
 												style={{
 													padding: '0.75rem 1rem',
-													backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
+													backgroundColor: '#3b82f6',
 													color: 'white',
 													border: 'none',
 													borderRadius: '0.375rem',
@@ -3914,7 +3913,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													display: 'block',
 													marginBottom: '0.5rem',
 													fontWeight: 500,
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 												}}
 											>
 												Verification Code *
@@ -3942,7 +3941,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											<div
 												style={{
 													fontSize: '0.75rem',
-													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+													color: '#6b7280',
 													marginTop: '0.25rem',
 												}}
 											>
@@ -3968,7 +3967,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													margin: '0 0 0.5rem 0',
 													fontSize: '0.875rem',
 													fontWeight: 600,
-													color: 'V9_COLORS.PRIMARY.GREEN',
+													color: '#10b981',
 												}}
 											>
 												🔑 Passkey & FIDO2 Setup
@@ -3976,7 +3975,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											<div
 												style={{
 													fontSize: '0.75rem',
-													color: 'V9_COLORS.PRIMARY.GREEN',
+													color: '#10b981',
 													lineHeight: 1.5,
 													marginBottom: '1rem',
 												}}
@@ -3995,7 +3994,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												onClick={handleShowFIDO2Registration}
 												style={{
 													padding: '0.75rem 1rem',
-													backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+													backgroundColor: '#10b981',
 													color: 'white',
 													border: 'none',
 													borderRadius: '0.375rem',
@@ -4020,7 +4019,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												marginBottom: '1rem',
 												padding: '1rem',
-												background: 'V9_COLORS.BG.WARNING',
+												background: '#fef3c7',
 												borderRadius: '0.5rem',
 												border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 											}}
@@ -4030,7 +4029,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													margin: '0 0 0.5rem 0',
 													fontSize: '0.875rem',
 													fontWeight: 600,
-													color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+													color: '#d97706',
 												}}
 											>
 												🔔 Push Notification Setup
@@ -4038,7 +4037,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											<div
 												style={{
 													fontSize: '0.75rem',
-													color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+													color: '#d97706',
 													lineHeight: 1.5,
 												}}
 											>
@@ -4067,9 +4066,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									onClick={handleDeviceRegistration}
 									disabled={isLoading || !isDeviceInfoValid()}
 									style={{
-										background: isDeviceInfoValid()
-											? 'V9_COLORS.PRIMARY.GREEN'
-											: 'V9_COLORS.TEXT.GRAY_LIGHT',
+										background: isDeviceInfoValid() ? '#10b981' : '#9ca3af',
 										color: 'white',
 										border: 'none',
 										borderRadius: '0.375rem',
@@ -4112,7 +4109,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										setCurrentStep('mfa_enrollment');
 										onStepChange?.('mfa_enrollment');
 									}}
-									style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
+									style={{ background: '#6b7280', color: 'white' }}
 								>
 									<span>⬅️</span>
 									Back to MFA Enrollment
@@ -4158,7 +4155,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										margin: '0 0 1rem 0',
 										fontSize: '1rem',
 										fontWeight: '600',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Select MFA Device
@@ -4176,18 +4173,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													borderRadius: '0.5rem',
 													cursor: 'pointer',
 													transition: 'all 0.2s ease',
-													backgroundColor: 'V9_COLORS.TEXT.WHITE',
+													backgroundColor: '#ffffff',
 													display: 'flex',
 													alignItems: 'center',
 													gap: '0.75rem',
 												}}
 												onMouseEnter={(e) => {
-													e.currentTarget.style.borderColor = 'V9_COLORS.PRIMARY.BLUE';
-													e.currentTarget.style.backgroundColor = 'V9_COLORS.BG.GRAY_LIGHT';
+													e.currentTarget.style.borderColor = '#3b82f6';
+													e.currentTarget.style.backgroundColor = '#f8fafc';
 												}}
 												onMouseLeave={(e) => {
-													e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
-													e.currentTarget.style.backgroundColor = 'V9_COLORS.TEXT.WHITE';
+													e.currentTarget.style.borderColor = '#e5e7eb';
+													e.currentTarget.style.backgroundColor = '#ffffff';
 												}}
 											>
 												<div style={{ fontSize: '1.5rem' }}>
@@ -4199,16 +4196,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													{device.type === 'MOBILE' && '📱'}
 												</div>
 												<div style={{ flex: 1 }}>
-													<div style={{ fontWeight: '500', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+													<div style={{ fontWeight: '500', color: '#1f2937' }}>
 														{device.deviceName || `${device.type} Device`}
 													</div>
-													<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+													<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 														{device.type} • {device.status}
 													</div>
 												</div>
 												<div
 													style={{
-														color: 'V9_COLORS.PRIMARY.BLUE',
+														color: '#3b82f6',
 														fontSize: '0.875rem',
 														fontWeight: '500',
 													}}
@@ -4222,7 +4219,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												padding: '1rem',
 												textAlign: 'center',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 												background: '#f9fafb',
 												borderRadius: '0.5rem',
 												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
@@ -4244,7 +4241,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										margin: '0 0 1rem 0',
 										fontSize: '1rem',
 										fontWeight: '600',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Enter Challenge Code
@@ -4252,7 +4249,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div
 									style={{
 										padding: '1rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										borderRadius: '0.5rem',
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										marginBottom: '1rem',
@@ -4271,7 +4268,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											style={{
 												fontSize: '0.875rem',
 												fontWeight: '500',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 											}}
 										>
 											Challenge sent to{' '}
@@ -4279,7 +4276,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											device
 										</span>
 									</div>
-									<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.BLUE', margin: 0 }}>
+									<p style={{ fontSize: '0.75rem', color: '#3b82f6', margin: 0 }}>
 										Please check your {mfaChallenge.challengeType} and enter the verification code
 										below.
 									</p>
@@ -4294,7 +4291,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												marginBottom: '0.5rem',
 												fontSize: '0.875rem',
 												fontWeight: '500',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 											}}
 										>
 											Verification Code
@@ -4328,9 +4325,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										style={{
 											padding: '0.75rem 1.5rem',
 											backgroundColor:
-												mfaChallenge.challengeCode && !isLoading
-													? 'V9_COLORS.PRIMARY.GREEN'
-													: 'V9_COLORS.TEXT.GRAY_LIGHT',
+												mfaChallenge.challengeCode && !isLoading ? '#10b981' : '#9ca3af',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.375rem',
@@ -4360,13 +4355,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									gap: '0.75rem',
 								}}
 							>
-								<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅</span>
+								<span style={{ fontSize: 20, color: '#059669' }}>✅</span>
 								<div>
 									<div
 										style={{
 											fontSize: '0.875rem',
 											fontWeight: '500',
-											color: 'V9_COLORS.PRIMARY.GREEN',
+											color: '#10b981',
 										}}
 									>
 										MFA Challenge Completed Successfully!
@@ -4420,7 +4415,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									setCurrentStep('device_pairing');
 									onStepChange?.('device_pairing');
 								}}
-								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
+								style={{ background: '#6b7280', color: 'white' }}
 							>
 								<span>⬅️</span>
 								Back to Device Registration
@@ -4486,7 +4481,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									setCurrentStep('mfa_challenge');
 									onStepChange?.('mfa_challenge');
 								}}
-								style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
+								style={{ background: '#6b7280', color: 'white' }}
 							>
 								<span>⬅️</span>
 								Back to MFA Challenge
@@ -4495,7 +4490,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<NavigationButton
 									onClick={exchangeToken}
 									disabled={isLoading || !flowContext.authCode}
-									style={{ backgroundColor: 'V9_COLORS.PRIMARY.GREEN' }}
+									style={{ backgroundColor: '#10b981' }}
 								>
 									<FiRefreshCw className={isLoading ? 'animate-spin' : ''} />
 									{isLoading ? 'Exchanging Tokens...' : 'Exchange Authorization Code for Tokens'}
@@ -4506,7 +4501,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										setCurrentStep('success');
 										onStepChange?.('success');
 									}}
-									style={{ backgroundColor: 'V9_COLORS.PRIMARY.GREEN' }}
+									style={{ backgroundColor: '#10b981' }}
 								>
 									<span>➡️</span>
 									Complete Flow
@@ -4538,7 +4533,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						</InfoBox>
 
 						<div style={{ marginTop: '2rem', textAlign: 'center' }}>
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 								Your secure session is now active with MFA protection.
 							</p>
 						</div>

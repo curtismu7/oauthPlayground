@@ -4,12 +4,11 @@
  * Provides UI for exporting and importing flow configurations
  */
 
-
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import configurationBackupService, {
 	FlowConfiguration,
-} from '../services/configurationBackupService'
+} from '../services/configurationBackupService';
 
 interface ConfigurationBackupProps {
 	flowType: string;
@@ -69,17 +68,17 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	padding: 0.625rem 1rem;
 	border-radius: 0.5rem;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#7dd3fc')};
-	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.PRIMARY.BLUE')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#7dd3fc')};
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#3b82f6')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.BG.GRAY_LIGHT')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.PRIMARY.BLUE')};
+		background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#f8fafc')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#3b82f6')};
 		transform: translateY(-1px);
 	}
 
@@ -111,29 +110,29 @@ const Message = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'info':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'info':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;

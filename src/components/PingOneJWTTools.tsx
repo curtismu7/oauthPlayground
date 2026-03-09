@@ -14,12 +14,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
-KeyPair,
+	KeyPair,
 	LoginHintTokenPayload,
 	PingOneJWTService,
 	PrivateKeyJWTConfig,
 	RequestPropertyPayload,
-} from '../services/pingOneJWTService'
+} from '../services/pingOneJWTService';
 
 const ToolsContainer = styled.div`
 	background: white;
@@ -488,9 +488,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			{/* Keypair Generation */}
 			<SectionHeader onClick={() => toggleSection('keypair')}>
-				<SectionTitle>
-					🔑 Generate Keypair
-				</SectionTitle>
+				<SectionTitle>🔑 Generate Keypair</SectionTitle>
 				{collapsedSections.keypair ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.keypair}>
@@ -574,9 +572,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			{/* Login Hint Token */}
 			<SectionHeader onClick={() => toggleSection('loginHint')}>
-				<SectionTitle>
-					⚙️ Create Login Hint Token
-				</SectionTitle>
+				<SectionTitle>⚙️ Create Login Hint Token</SectionTitle>
 				{collapsedSections.loginHint ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.loginHint}>
@@ -660,9 +656,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			{/* Request Property JWT */}
 			<SectionHeader onClick={() => toggleSection('requestProperty')}>
-				<SectionTitle>
-					⚙️ Create Request Property JWT
-				</SectionTitle>
+				<SectionTitle>⚙️ Create Request Property JWT</SectionTitle>
 				{collapsedSections.requestProperty ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.requestProperty}>
@@ -765,9 +759,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			{/* Private Key JWT */}
 			<SectionHeader onClick={() => toggleSection('privateKey')}>
-				<SectionTitle>
-					🔑 Create Private Key JWT (Client Authentication)
-				</SectionTitle>
+				<SectionTitle>🔑 Create Private Key JWT (Client Authentication)</SectionTitle>
 				{collapsedSections.privateKey ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.privateKey}>
@@ -837,9 +829,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
 
 			{/* Transaction Approval Flow */}
 			<SectionHeader onClick={() => toggleSection('transaction')}>
-				<SectionTitle>
-					⚙️ Transaction Approval Flow Configuration
-				</SectionTitle>
+				<SectionTitle>⚙️ Transaction Approval Flow Configuration</SectionTitle>
 				{collapsedSections.transaction ? <span>🔽</span> : <span>🔼</span>}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.transaction}>

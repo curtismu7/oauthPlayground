@@ -1,7 +1,6 @@
 // src/components/LocalesParameterInput.tsx
 // UI and Claims Locales Parameter Input - Internationalization support
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -79,16 +78,16 @@ const ExamplesBox = styled.div`
 const ExampleTag = styled.button<{ $selected: boolean }>`
 	padding: 0.375rem 0.75rem;
 	background: ${(props) => (props.$selected ? '#dbeafe' : '#f3f4f6')};
-	border: 1px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$selected ? '#2563eb' : '#6b7280')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$selected ? '#dbeafe' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+		background: ${(props) => (props.$selected ? '#dbeafe' : '#e5e7eb')};
 		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;

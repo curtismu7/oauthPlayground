@@ -1,15 +1,13 @@
 // src/components/ConfigCheckerButtons.tsx
 // Config Checker component for comparing form data against live PingOne applications
 
-
+import { FiCheckCircle, FiCopy, FiKey, FiLoader, FiMonitor } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
-import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '@icons';
 
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (

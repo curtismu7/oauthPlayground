@@ -1,14 +1,13 @@
 // src/components/SmartTVDeviceFlow.tsx
 // Smart TV Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCheckCircle } from '@icons';
 
 // Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
@@ -403,7 +402,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 									padding: '0.75rem 1.5rem',
 									minWidth: '200px',
 									background: 'white',
-									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+									color: '#2563eb',
 									border: '2px solid white',
 									fontWeight: '700',
 									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',

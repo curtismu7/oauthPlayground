@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
-import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager } from '../utils/credentialManager';
 
 const Container = styled.div`
   background: V9_COLORS.BG.WARNING;
@@ -15,7 +14,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div<{ $hasCredentials: boolean }>`
-  background: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
+  background: ${({ $hasCredentials }) => ($hasCredentials ? '#10b981' : '#fbbf24')};
   padding: 1rem 1.5rem;
   cursor: pointer;
   display: flex;
@@ -24,12 +23,12 @@ const Header = styled.div<{ $hasCredentials: boolean }>`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW')};
+    background: ${({ $hasCredentials }) => ($hasCredentials ? '#059669' : '#f59e0b')};
   }
 `;
 
 const HeaderTitle = styled.h3<{ $hasCredentials: boolean }>`
-  color: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  color: ${({ $hasCredentials }) => ($hasCredentials ? '#059669' : '#d97706')};
   margin: 0;
   margin-left: 0.75rem;
   font-size: 1.1rem;
@@ -48,8 +47,8 @@ const ChevronIcon = styled.div<{ $hasCredentials: boolean }>`
   height: 2rem;
   border-radius: 6px;
   background: ${({ $hasCredentials }) => ($hasCredentials ? 'rgba(6, 95, 70, 0.1)' : 'rgba(146, 64, 14, 0.1)')};
-  border: 1px solid ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
-  color: ${({ $hasCredentials }) => ($hasCredentials ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  border: 1px solid ${({ $hasCredentials }) => ($hasCredentials ? '#059669' : '#d97706')};
+  color: ${({ $hasCredentials }) => ($hasCredentials ? '#059669' : '#d97706')};
   font-size: 1.2rem;
   transition: all 0.2s ease;
   
@@ -114,17 +113,17 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? '#10b981' : '#3b82f6')};
   border-radius: 6px;
-  background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.GRAY_LIGHT')};
-  color: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+  background: ${({ $variant }) => ($variant === 'copy' ? '#ecfdf5' : '#f8fafc')};
+  color: ${({ $variant }) => ($variant === 'copy' ? '#059669' : '#2563eb')};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${({ $variant }) => ($variant === 'copy' ? 'V9_COLORS.BG.SUCCESS' : '#dbeafe')};
+    background: ${({ $variant }) => ($variant === 'copy' ? '#ecfdf5' : '#dbeafe')};
     transform: translateY(-1px);
   }
   
@@ -383,18 +382,18 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 							<div
 								style={{
 									padding: '1rem',
-									backgroundColor: 'V9_COLORS.BG.WARNING',
+									backgroundColor: '#fef3c7',
 									borderRadius: '0.5rem',
 									border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 									marginTop: '1rem',
 								}}
 							>
-								<strong style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}> Important:</strong>
+								<strong style={{ color: '#d97706' }}> Important:</strong>
 								<ul
 									style={{
 										marginTop: '0.5rem',
 										paddingLeft: '1.5rem',
-										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+										color: '#d97706',
 									}}
 								>
 									<li>Save all changes in PingOne console before testing</li>
@@ -412,7 +411,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 								style={{
 									marginTop: '1rem',
 									fontSize: '0.9rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 								}}
 							>
 								<strong>Quick Path:</strong> PingOne Console Applications Your App Configuration

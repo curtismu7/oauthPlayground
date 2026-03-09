@@ -1,14 +1,13 @@
 // src/components/MFAUserSettingsGatherer.tsx
 // Modern MFA User Settings Component with username input and MFA policy selection
 
-
+import { FiCheck, FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheck, FiChevronDown } from '@icons';
 
 // Types
 interface MFAUserSettings {
@@ -101,7 +100,7 @@ const DropdownContainer = styled.div`
 const DropdownButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : '#e5e7eb')};
   border-radius: 0.5rem;
   background: V9_COLORS.TEXT.WHITE;
   font-size: 0.875rem;
@@ -233,7 +232,7 @@ const WorkerTokenStatus = styled.div<{ $hasToken: boolean }>`
   gap: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: ${(props) => (props.$hasToken ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+  color: ${(props) => (props.$hasToken ? '#059669' : '#d97706')};
 `;
 
 const WorkerTokenActions = styled.div`
@@ -247,17 +246,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#ffffff')};
+  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
 
   &:hover:not(:disabled) {
-    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
   }
 
   &:disabled {
@@ -280,12 +279,12 @@ const DeviceCreationOptions = styled.div`
 `;
 
 const DeviceCreationCard = styled.div<{ $selected?: boolean }>`
-  border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.75rem;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${(props) => (props.$selected ? '#f8fafc' : '#ffffff')};
 
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;
@@ -623,7 +622,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					<div
 						style={{
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							marginBottom: '1rem',
 						}}
 					>
@@ -663,7 +662,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 							style={{
 								marginTop: '1rem',
 								fontSize: '0.75rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 							}}
 						>
 							Using Environment: {workerTokenCredentials.environmentId}
@@ -682,7 +681,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				<div
 					style={{
 						fontSize: '0.875rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						marginBottom: '1rem',
 					}}
 				>

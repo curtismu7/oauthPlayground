@@ -1,6 +1,5 @@
 // src/components/ColoredTokenDisplay.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -88,17 +87,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#1f2937')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+		background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#f9fafb')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#9ca3af')};
 	}
 
 	&:active {
@@ -207,9 +206,9 @@ const TokenType = styled.div<{ $type: string }>`
 			case 'access_token':
 				return '#dbeafe';
 			case 'id_token':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'refresh_token':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'scope':
 				return '#e0e7ff';
 			default:
@@ -219,15 +218,15 @@ const TokenType = styled.div<{ $type: string }>`
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'access_token':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id_token':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh_token':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'scope':
 				return '#3730a3';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 `;
@@ -235,12 +234,12 @@ const TokenType = styled.div<{ $type: string }>`
 // Color scheme for JSON syntax highlighting
 const JSON_COLORS = {
 	key: '#7c3aed', // Purple for keys
-	string: 'V9_COLORS.PRIMARY.GREEN_DARK', // Green for strings
-	number: 'V9_COLORS.PRIMARY.RED_DARK', // Red for numbers
+	string: '#059669', // Green for strings
+	number: '#dc2626', // Red for numbers
 	boolean: '#ea580c', // Orange for booleans
-	null: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Gray for null
-	punctuation: 'V9_COLORS.TEXT.GRAY_DARK', // Dark gray for punctuation
-	whitespace: 'V9_COLORS.TEXT.WHITE', // White for whitespace
+	null: '#6b7280', // Gray for null
+	punctuation: '#1f2937', // Dark gray for punctuation
+	whitespace: '#ffffff', // White for whitespace
 };
 
 type ColoredJsonPart = { text: string; color: string; fontWeight?: string };

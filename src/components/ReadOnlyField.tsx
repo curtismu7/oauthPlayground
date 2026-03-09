@@ -6,7 +6,6 @@
  * Used when a field value is fixed by OAuth/OIDC specifications.
  */
 
-
 import React from 'react';
 import styled from 'styled-components';
 

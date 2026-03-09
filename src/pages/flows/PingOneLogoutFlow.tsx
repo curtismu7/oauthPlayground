@@ -608,9 +608,7 @@ if (idToken) {
 
 			{logoutUrl && (
 				<LogoutUrlContainer>
-					<LogoutUrlTitle>
-						🚪 Generated Logout URL
-					</LogoutUrlTitle>
+					<LogoutUrlTitle>🚪 Generated Logout URL</LogoutUrlTitle>
 					<ColoredUrlDisplay
 						url={logoutUrl}
 						label="Logout URL"
@@ -670,7 +668,7 @@ if (idToken) {
 						onChange={(e) => setFormData((prev) => ({ ...prev, idToken: e.target.value }))}
 						placeholder="Paste your ID token here (from authentication response)"
 					/>
-					<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', display: 'block', marginTop: '0.5rem' }}>
+					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
 						💡 Get this from your authentication flow's token response
 					</small>
 				</FormGroup>
@@ -685,7 +683,7 @@ if (idToken) {
 						}
 						placeholder="https://localhost:3000/logout-callback"
 					/>
-					<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', display: 'block', marginTop: '0.5rem' }}>
+					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
 						⚠️ Must be registered in PingOne application's "Sign Off URLs"
 					</small>
 				</FormGroup>
@@ -698,7 +696,7 @@ if (idToken) {
 						onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
 						placeholder="Random state value"
 					/>
-					<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', display: 'block', marginTop: '0.5rem' }}>
+					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
 						💡 Store this in sessionStorage and verify on redirect
 					</small>
 				</FormGroup>

@@ -15358,7 +15358,8 @@ app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) =>
 )
 
 // Delete/Revoke OATH Token
-app.delete('/api/pingone/mfa/oath-tokens/:tokenId', async (req, res) => {
+app.delete('/api/pingone/mfa/oath-tokens/:tokenId', async (req, res) =>
+{
 	try {
 		const { tokenId } = req.params;
 		const { environmentId, workerToken, region } = req.query;
@@ -15422,10 +15423,12 @@ app.delete('/api/pingone/mfa/oath-tokens/:tokenId', async (req, res) => {
 		console.error('[OATH Tokens] Error:', error);
 		res.status(500).json({ error: 'Failed to delete OATH token', message: error.message });
 	}
-});
+}
+)
 
 // Batch OATH Token Operations
-app.post('/api/pingone/mfa/oath-tokens/batch', async (req, res) => {
+app.post('/api/pingone/mfa/oath-tokens/batch', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, region, batchData } = req.body;
 
@@ -15489,14 +15492,16 @@ app.post('/api/pingone/mfa/oath-tokens/batch', async (req, res) => {
 			.status(500)
 			.json({ error: 'Failed to execute batch OATH token operation', message: error.message });
 	}
-});
+}
+)
 
 // ============================================================================
 // FIDO2 POLICY MANAGEMENT ENDPOINTS
 // ============================================================================
 
 // List FIDO2 Policies
-app.get('/api/pingone/mfa/fido2-policies', async (req, res) => {
+app.get('/api/pingone/mfa/fido2-policies', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, region } = req.query;
 
@@ -15554,10 +15559,12 @@ app.get('/api/pingone/mfa/fido2-policies', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to list FIDO2 policies', message: error.message });
 	}
-});
+}
+)
 
 // Get FIDO2 Policy by ID
-app.get('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+app.get('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) =>
+{
 	try {
 		const { policyId } = req.params;
 		const { environmentId, workerToken, region } = req.query;
@@ -15616,10 +15623,12 @@ app.get('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to get FIDO2 policy', message: error.message });
 	}
-});
+}
+)
 
 // Create FIDO2 Policy
-app.post('/api/pingone/mfa/fido2-policies', async (req, res) => {
+app.post('/api/pingone/mfa/fido2-policies', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, region, policyData } = req.body;
 
@@ -15684,10 +15693,12 @@ app.post('/api/pingone/mfa/fido2-policies', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to create FIDO2 policy', message: error.message });
 	}
-});
+}
+)
 
 // Update FIDO2 Policy
-app.put('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+app.put('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) =>
+{
 	try {
 		const { policyId } = req.params;
 		const { environmentId, workerToken, region, policyData } = req.body;
@@ -15750,10 +15761,12 @@ app.put('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to update FIDO2 policy', message: error.message });
 	}
-});
+}
+)
 
 // Delete FIDO2 Policy
-app.delete('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+app.delete('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) =>
+{
 	try {
 		const { policyId } = req.params;
 		const { environmentId, workerToken, region } = req.query;
@@ -15817,14 +15830,16 @@ app.delete('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to delete FIDO2 policy', message: error.message });
 	}
-});
+}
+)
 
 // ============================================================================
 // EMAIL MFA SIGN-ON FLOW PROXY ENDPOINTS
 // ============================================================================
 
 // Step 1: Create Application
-app.post('/api/pingone/email-mfa-signon/create-application', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-application', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -15881,10 +15896,12 @@ app.post('/api/pingone/email-mfa-signon/create-application', async (req, res) =>
 		console.error('[📧 EMAIL-MFA-SIGNON] Error creating application:', error);
 		res.status(500).json({ error: 'Failed to create application', message: error.message });
 	}
-});
+}
+)
 
 // Step 2: Get Resources
-app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) => {
+app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken } = req.query;
 
@@ -15915,7 +15932,8 @@ app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) => {
 		console.error('[📧 EMAIL-MFA-SIGNON] Error getting resources:', error);
 		res.status(500).json({ error: 'Failed to get resources', message: error.message });
 	}
-});
+}
+)
 
 // Step 3: Get Resource Scopes
 app.get('/api/pingone/email-mfa-signon/get-resource-scopes', async (req, res) => {

@@ -389,7 +389,7 @@ export class UnifiedTokenStorageService {
 			// Validate that the token type is compatible with storage
 			const validTokenTypes: UnifiedStorageItem['type'][] = [
 				'access_token',
-				'refresh_token', 
+				'refresh_token',
 				'id_token',
 				'worker_token',
 				'oauth_credentials',
@@ -400,7 +400,7 @@ export class UnifiedTokenStorageService {
 				'flow_state',
 				'v8_storage',
 				'v8_credentials',
-				'v8u_pkce'
+				'v8u_pkce',
 			];
 
 			if (!validTokenTypes.includes(token.type)) {

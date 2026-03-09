@@ -12,6 +12,7 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { BrandTheme } from '../themes/brand-theme.interface';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
@@ -26,7 +27,6 @@ import CorporateFooter from './Shared/CorporateFooter';
 import CorporateNavigation from './Shared/CorporateNavigation';
 import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -34,7 +34,7 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const CorporateContainer = styled.div<{ theme: BrandTheme }>`
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.background || 'V9_COLORS.TEXT.WHITE'};
+  background: ${({ theme }) => theme.colors.background || '#ffffff'};
   font-family: ${({ theme }) => theme.typography?.bodyFont || 'Inter, sans-serif'};
   color: ${({ theme }) => theme.colors.text || '#1F2937'};
 `;

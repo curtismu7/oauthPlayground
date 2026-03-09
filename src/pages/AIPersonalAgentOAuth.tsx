@@ -1,4 +1,3 @@
-
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
@@ -39,7 +38,7 @@ const Callout = styled.div<{ $tone?: 'warning' | 'vision' }>`
 	gap: 0.75rem;
 	background: ${({ $tone }) =>
 		$tone === 'warning' ? 'rgba(254, 226, 226, 0.8)' : 'rgba(59, 130, 246, 0.12)'};
-	border: 1px solid ${({ $tone }) => ($tone === 'warning' ? '#fca5a5' : 'V9_COLORS.PRIMARY.BLUE_LIGHT')};
+	border: 1px solid ${({ $tone }) => ($tone === 'warning' ? '#fca5a5' : '#60a5fa')};
 `;
 
 const CalloutTitle = styled.h3`

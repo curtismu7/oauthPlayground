@@ -236,13 +236,13 @@
 .sidebar-ping__nav .sidebar-ping__item div,
 .sidebar-ping__nav .sidebar-ping__item i,
 .sidebar-ping__nav .sidebar-ping__item svg {
-	color: #2d3748 !important;
-	font-weight: 700 !important;
-	text-shadow: 
+	color: #2d3748;
+	font-weight: 700;
+	text-shadow:
 		0 1px 2px rgba(255, 255, 255, 0.8),
 		0 2px 4px rgba(255, 255, 255, 0.6),
-		0 -1px 1px rgba(0, 0, 0, 0.3) !important;
-	letter-spacing: 0.3px !important;
+		0 -1px 1px rgba(0, 0, 0, 0.3);
+	letter-spacing: 0.3px;
 }
 
 /* Force dark text for any sidebar elements - SUPER AGGRESSIVE */
@@ -254,7 +254,7 @@
 .sidebar-ping div,
 .sidebar-ping i,
 .sidebar-ping svg {
-	color: #2d3748 !important;
+	color: #2d3748;
 }
 
 /* Ensure selected menu text and icon have enhanced 3D effect with dark text */
@@ -264,13 +264,13 @@
 .sidebar-ping__nav .sidebar-ping__item--active a,
 .sidebar-ping__nav .sidebar-ping__item--active span,
 .sidebar-ping__nav .sidebar-ping__item--active div {
-	color: #1a202c !important;
-	font-weight: 800 !important;
-	text-shadow: 
+	color: #1a202c;
+	font-weight: 800;
+	text-shadow:
 		0 1px 2px rgba(255, 255, 255, 0.9),
 		0 2px 4px rgba(255, 255, 255, 0.7),
-		0 -1px 2px rgba(0, 0, 0, 0.4) !important;
-	letter-spacing: 0.4px !important;
+		0 -1px 2px rgba(0, 0, 0, 0.4);
+	letter-spacing: 0.4px;
 }
 
 .sidebar-ping__item--active:hover {

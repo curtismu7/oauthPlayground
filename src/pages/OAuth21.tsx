@@ -1,11 +1,10 @@
-
+import { FiCheck, FiInfo, FiShield } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
-import { FiCheck, FiInfo, FiShield } from '@icons';
 
 const _Container = styled.div`
   max-width: 1400px;
@@ -214,7 +213,9 @@ const OAuth21 = () => {
 										}}
 									>
 										<FiX style={{ color: V9_COLORS.PRIMARY.YELLOW, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>REMOVED</span>
+										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>
+											REMOVED
+										</span>
 									</div>
 									<p>
 										`response_type=token` no longer appears in OAuth 2.1. Browsers should use
@@ -236,7 +237,9 @@ const OAuth21 = () => {
 										}}
 									>
 										<FiX style={{ color: V9_COLORS.PRIMARY.YELLOW, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>REMOVED</span>
+										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>
+											REMOVED
+										</span>
 									</div>
 									<p>
 										The password grant encouraged first-party apps to collect user credentials.
@@ -306,7 +309,9 @@ const OAuth21 = () => {
 										}}
 									>
 										<FiCheck style={{ color: V9_COLORS.PRIMARY.GREEN, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>REQUIRED</span>
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>
+											REQUIRED
+										</span>
 									</div>
 									<p>
 										PKCE (Proof Key for Code Exchange) is now <strong>required</strong> for all
@@ -330,7 +335,9 @@ GET /authorize?
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo
+											style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }}
+										/>
 										<div>
 											<h4
 												style={{
@@ -360,7 +367,9 @@ GET /authorize?
 										}}
 									>
 										<FiCheck style={{ color: V9_COLORS.PRIMARY.GREEN, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>REQUIRED</span>
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>
+											REQUIRED
+										</span>
 									</div>
 									<p>
 										Redirect URIs must be compared using exact string matching, eliminating the
@@ -385,7 +394,9 @@ redirect_uri=https://app.example.com/callback
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo
+											style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }}
+										/>
 										<div>
 											<h4
 												style={{
@@ -414,8 +425,8 @@ redirect_uri=https://app.example.com/callback
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: 'V9_COLORS.PRIMARY.YELLOW' }}>DEPRECATED</span>
+										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
 									</div>
 									<p>
 										The Implicit grant (`response_type=token`) is omitted from OAuth 2.1
@@ -441,7 +452,9 @@ response_type=code
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo
+											style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }}
+										/>
 										<div>
 											<h4
 												style={{
@@ -471,8 +484,8 @@ response_type=code
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: 'V9_COLORS.PRIMARY.YELLOW' }}>DEPRECATED</span>
+										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
 									</div>
 									<p>
 										The Password grant is omitted from OAuth 2.1 specification. Use Authorization
@@ -495,7 +508,9 @@ response_type=code
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo
+											style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }}
+										/>
 										<div>
 											<h4
 												style={{
@@ -526,7 +541,9 @@ response_type=code
 										}}
 									>
 										<FiShield style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>IMPROVEMENT</span>
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>
+											IMPROVEMENT
+										</span>
 									</div>
 									<p>
 										Bearer token usage omits the use of bearer tokens in the query string of URIs,
@@ -549,7 +566,9 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo
+											style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }}
+										/>
 										<div>
 											<h4
 												style={{
@@ -579,7 +598,9 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 										}}
 									>
 										<FiShield style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>IMPROVEMENT</span>
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>
+											IMPROVEMENT
+										</span>
 									</div>
 									<p>
 										Refresh tokens for public clients must either be sender-constrained or one-time
@@ -592,7 +613,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 // 3. Or no refresh tokens at all`}</pre>
 									<div
 										style={{
-											background: 'V9_COLORS.BG.ERROR',
+											background: '#fef2f2',
 											border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 											borderRadius: '0.5rem',
 											padding: '1rem',
@@ -602,11 +623,11 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											gap: '0.75rem',
 										}}
 									>
-										<FiX style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiX style={{ color: '#dc2626', flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: 'V9_COLORS.PRIMARY.RED_DARK',
+													color: '#dc2626',
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -614,7 +635,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											>
 												PingOne Support - Partial
 											</h4>
-											<p style={{ margin: '0', color: 'V9_COLORS.PRIMARY.RED_DARK', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: '#dc2626', fontSize: '0.9rem' }}>
 												PingOne supports one-time use refresh tokens. Sender-constrained refresh
 												tokens (mTLS, DPoP) are not currently supported.
 											</p>

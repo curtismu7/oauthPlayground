@@ -1,4 +1,3 @@
-
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';

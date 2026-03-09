@@ -1,7 +1,6 @@
 // src/v8/components/WhatsAppNotEnabledModalV8.tsx
 // Modal for displaying WhatsApp MFA not enabled errors
 
-
 import React, { useId } from 'react';
 import styled from 'styled-components';
 

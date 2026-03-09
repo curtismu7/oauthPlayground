@@ -1,6 +1,5 @@
 // src/components/InlineTokenDisplay.tsx
 
-
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -60,9 +59,9 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 			case 'access':
 				return '#dbeafe';
 			case 'id':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'refresh':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			default:
 				return '#f3f4f6';
 		}
@@ -70,13 +69,13 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 `;
@@ -95,19 +94,19 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'management':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'management':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			default:
 				return 'white';
 		}
@@ -118,7 +117,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 			case 'management':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 	font-size: 0.75rem;
@@ -130,7 +129,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 		background: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'management':
 					return '#047857';
 				default:
@@ -140,11 +139,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 		border-color: ${({ $variant }) => {
 			switch ($variant) {
 				case 'primary':
-					return 'V9_COLORS.PRIMARY.BLUE_DARK';
+					return '#2563eb';
 				case 'management':
 					return '#047857';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_LIGHT';
+					return '#9ca3af';
 			}
 		}};
 	}
@@ -392,14 +391,14 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						</OpaqueMessage>
 					) : decodedContent ? (
 						<div>
-							<h4 style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Header:</h4>
+							<h4 style={{ marginBottom: '1rem', color: '#1f2937' }}>Header:</h4>
 							<DecodeContent>{JSON.stringify(decodedContent.header, null, 2)}</DecodeContent>
 
 							<h4
 								style={{
 									marginBottom: '1rem',
 									marginTop: '1.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Payload:

@@ -57,17 +57,17 @@ const {
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
-	PRIMARY_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
-	DARK_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
+	PRIMARY_BLUE: '#2563eb',
+	DARK_BLUE: '#2563eb',
 	DARKEST_BLUE: '#1e3a8a',
-	LIGHT_BLUE_BG: 'V9_COLORS.BG.GRAY_LIGHT',
+	LIGHT_BLUE_BG: '#f8fafc',
 	LIGHTER_BLUE_BG: '#dbeafe',
-	RED: 'V9_COLORS.PRIMARY.RED_DARK',
-	BLACK: 'V9_COLORS.TEXT.BLACK',
-	WHITE: 'V9_COLORS.TEXT.WHITE',
-	BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
-	TEXT_PRIMARY: 'V9_COLORS.TEXT.GRAY_DARK',
-	TEXT_SECONDARY: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+	RED: '#dc2626',
+	BLACK: '#000000',
+	WHITE: '#ffffff',
+	BORDER: '#e5e7eb',
+	TEXT_PRIMARY: '#1f2937',
+	TEXT_SECONDARY: '#6b7280',
 };
 
 // Custom responsive container for RAR flow with V9 colors
@@ -903,7 +903,9 @@ const RARFlowV9: React.FC = () => {
 								? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%)'
 								: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 							border: 'none',
-							borderBottom: isWorkerTokenStatusCollapsed ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none',
+							borderBottom: isWorkerTokenStatusCollapsed
+								? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER'
+								: 'none',
 							cursor: 'pointer',
 							display: 'flex',
 							alignItems: 'center',
@@ -913,28 +915,31 @@ const RARFlowV9: React.FC = () => {
 						onMouseEnter={(e) => {
 							e.currentTarget.style.background =
 								'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_MEDIUM 100%)';
-							e.currentTarget.style.color = 'V9_COLORS.TEXT.GRAY_DARK';
+							e.currentTarget.style.color = '#1f2937';
 						}}
 						onMouseLeave={(e) => {
 							e.currentTarget.style.background = isWorkerTokenStatusCollapsed
 								? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_MEDIUM 100%)'
 								: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%)';
-							e.currentTarget.style.color = 'V9_COLORS.TEXT.GRAY_DARK';
+							e.currentTarget.style.color = '#1f2937';
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							<span>🔑</span><span style={{ fontSize: '16px', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+							<span>🔑</span>
+							<span style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
 								Worker Token Status
 							</span>
 						</div>
 						<span
 							style={{
 								fontSize: '16px',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
 								transition: 'all 0.3s ease',
 							}}
-						>🔽</span>
+						>
+							🔽
+						</span>
 					</button>
 
 					{/* Worker Token Status Content */}

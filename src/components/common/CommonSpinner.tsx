@@ -5,7 +5,6 @@
  * @version 1.0.0
  */
 
-
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import type { CommonSpinnerProps, SpinnerSize, SpinnerTheme } from '@/types/spinner';
@@ -28,19 +27,19 @@ const fadeOut = keyframes`
 // Theme configurations
 const themeConfig: Record<SpinnerTheme, { primary: string; secondary: string; text: string }> = {
 	blue: {
-		primary: 'V9_COLORS.PRIMARY.BLUE',
+		primary: '#3b82f6',
 		secondary: '#dbeafe',
-		text: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		text: '#2563eb',
 	},
 	green: {
-		primary: 'V9_COLORS.PRIMARY.GREEN',
-		secondary: 'V9_COLORS.BG.SUCCESS',
-		text: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		primary: '#10b981',
+		secondary: '#ecfdf5',
+		text: '#059669',
 	},
 	orange: {
-		primary: 'V9_COLORS.PRIMARY.YELLOW',
+		primary: '#f59e0b',
 		secondary: '#fed7aa',
-		text: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+		text: '#d97706',
 	},
 	purple: {
 		primary: '#8b5cf6',

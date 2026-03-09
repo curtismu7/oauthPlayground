@@ -1,4 +1,3 @@
-
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -551,7 +550,7 @@ const OAuthForAI = () => {
 					defaultCollapsed={true}
 				>
 					<div style={{ margin: '2rem 0' }}>
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginBottom: '1rem' }}>
+						<h3 style={{ color: '#2563eb', marginBottom: '1rem' }}>
 							Core OAuth 2.0 Specifications
 						</h3>
 						<ReferenceList>
@@ -617,7 +616,7 @@ const OAuthForAI = () => {
 							</li>
 						</ReferenceList>
 
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginTop: '2rem', marginBottom: '1rem' }}>
+						<h3 style={{ color: '#2563eb', marginTop: '2rem', marginBottom: '1rem' }}>
 							AI-Relevant OAuth Extensions
 						</h3>
 						<ReferenceList>
@@ -693,7 +692,7 @@ const OAuthForAI = () => {
 							</li>
 						</ReferenceList>
 
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', marginTop: '2rem', marginBottom: '1rem' }}>
+						<h3 style={{ color: '#2563eb', marginTop: '2rem', marginBottom: '1rem' }}>
 							Emerging Standards & Drafts
 						</h3>
 						<ReferenceList>
@@ -745,7 +744,7 @@ const OAuthForAI = () => {
 							style={{
 								marginTop: '2rem',
 								fontSize: '0.9rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontStyle: 'italic',
 							}}
 						>

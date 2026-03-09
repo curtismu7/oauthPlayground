@@ -1,14 +1,13 @@
 // src/components/GamingConsoleDeviceFlow.tsx
 // Gaming Console Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle, FiTv } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCheckCircle, FiTv } from '@icons';
 
 // Sony PlayStation 5 Console Main Container - Authentic PS5 Design
 const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
@@ -23,12 +22,12 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
     0 30px 60px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border: 3px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 3px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
   position: relative;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   transition: all 0.3s ease;
   
   /* PS5 console styling */
@@ -55,7 +54,7 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
     left: 1rem;
     font-size: 0.875rem;
     font-weight: 700;
-    color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.PRIMARY.BLUE')};
+    color: ${({ $authorized }) => ($authorized ? '#000000' : '#3b82f6')};
     letter-spacing: 1px;
     z-index: 2;
   }
@@ -73,7 +72,7 @@ const ConsoleHeader = styled.div<{ $authorized?: boolean }>`
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#ffffff')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   font-size: 0.875rem;
@@ -84,7 +83,7 @@ const ConsoleHeader = styled.div<{ $authorized?: boolean }>`
 const ConsoleTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#0096ff')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#0096ff')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -95,7 +94,7 @@ const ConsoleTitle = styled.div<{ $authorized?: boolean }>`
 
 const ConsoleSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1rem;
-  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#cccccc')};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#cccccc')};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.3s ease;
@@ -472,7 +471,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 						</div>
 						<div
 							style={{
-								background: 'V9_COLORS.TEXT.BLACK',
+								background: '#000000',
 								padding: '1rem',
 								borderRadius: '0.5rem',
 								border: '1px solid #333333',

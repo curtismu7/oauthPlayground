@@ -307,14 +307,16 @@ class FieldEditingDiagnostic {
 		});
 
 		// Store observer for cleanup
-		(window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver = observer;
+		(window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver =
+			observer;
 	}
 
 	/**
 	 * Stop monitoring
 	 */
 	stopMonitoring(): void {
-		const observer = (window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver;
+		const observer = (window as Window & { fieldEditingObserver?: MutationObserver })
+			.fieldEditingObserver;
 		if (observer) {
 			observer.disconnect();
 			delete (window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver;
@@ -324,13 +326,18 @@ class FieldEditingDiagnostic {
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as Record<string, unknown>).FieldEditingDiagnostic = FieldEditingDiagnostic.getInstance();
+	(window as unknown as Record<string, unknown>).FieldEditingDiagnostic =
+		FieldEditingDiagnostic.getInstance();
 
 	// Convenience functions
-	(window as unknown as Record<string, unknown>).diagnoseFields = () => FieldEditingDiagnostic.getInstance().diagnoseAllFields();
-	(window as unknown as Record<string, unknown>).fixFields = () => FieldEditingDiagnostic.getInstance().fixCommonIssues();
-	(window as unknown as Record<string, unknown>).monitorFields = () => FieldEditingDiagnostic.getInstance().startMonitoring();
-	(window as unknown as Record<string, unknown>).stopMonitorFields = () => FieldEditingDiagnostic.getInstance().stopMonitoring();
+	(window as unknown as Record<string, unknown>).diagnoseFields = () =>
+		FieldEditingDiagnostic.getInstance().diagnoseAllFields();
+	(window as unknown as Record<string, unknown>).fixFields = () =>
+		FieldEditingDiagnostic.getInstance().fixCommonIssues();
+	(window as unknown as Record<string, unknown>).monitorFields = () =>
+		FieldEditingDiagnostic.getInstance().startMonitoring();
+	(window as unknown as Record<string, unknown>).stopMonitorFields = () =>
+		FieldEditingDiagnostic.getInstance().stopMonitoring();
 }
 
 export default FieldEditingDiagnostic;

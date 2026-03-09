@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -7,8 +6,8 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
-import { logger } from '../utils/logger';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -97,15 +96,15 @@ const StatusBadge = styled.span<{ status: 'online' | 'offline' | 'warning' | 'ch
 	background: ${(props) => {
 		switch (props.status) {
 			case 'online':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'offline':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'checking':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -184,7 +183,7 @@ const ApiStatusPage: React.FC = () => {
 				<PageDescription>
 					Server health monitoring and status information
 					{lastRefresh && (
-						<span style={{ marginLeft: '1rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem' }}>
+						<span style={{ marginLeft: '1rem', color: '#9ca3af', fontSize: '0.875rem' }}>
 							Last updated: {lastRefresh.toLocaleTimeString()}
 						</span>
 					)}
@@ -202,10 +201,10 @@ const ApiStatusPage: React.FC = () => {
 							<CardIcon
 								color={
 									server.status === 'online'
-										? 'V9_COLORS.PRIMARY.GREEN'
+										? '#10b981'
 										: server.status === 'offline'
-											? 'V9_COLORS.PRIMARY.RED'
-											: 'V9_COLORS.PRIMARY.YELLOW'
+											? '#ef4444'
+											: '#f59e0b'
 								}
 							>
 								<span>🖥️</span>
@@ -225,10 +224,10 @@ const ApiStatusPage: React.FC = () => {
 								style={{
 									marginBottom: '1rem',
 									padding: '0.5rem',
-									backgroundColor: 'V9_COLORS.BG.ERROR',
+									backgroundColor: '#fef2f2',
 									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 									borderRadius: '0.25rem',
-									color: 'V9_COLORS.PRIMARY.RED_DARK',
+									color: '#dc2626',
 									fontSize: '0.875rem',
 								}}
 							>

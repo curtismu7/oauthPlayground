@@ -1,7 +1,6 @@
 // src/components/EnhancedAuthContextDemo.tsx
 // Demo showing how flows can use the enhanced NewAuthContext
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -139,10 +138,10 @@ const FlowStep = styled.div<{ active: boolean }>`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border: 1px solid ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 6px;
   margin-bottom: 0.5rem;
-  background: ${(props) => (props.active ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+  background: ${(props) => (props.active ? '#f8fafc' : 'white')};
 `;
 
 const StepNumber = styled.div<{ active: boolean }>`
@@ -152,8 +151,8 @@ const StepNumber = styled.div<{ active: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-  color: ${(props) => (props.active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
+  color: ${(props) => (props.active ? 'white' : '#6b7280')};
   font-weight: 600;
   font-size: 0.875rem;
 `;
@@ -422,13 +421,13 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 						</p>
 					</div>
 				) : (
-					<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>No active flow</p>
+					<p style={{ color: '#6b7280', fontStyle: 'italic' }}>No active flow</p>
 				)}
 			</Section>
 
 			<Section>
 				<SectionTitle>Integration Example</SectionTitle>
-				<p style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
 					Here's how flows can use the enhanced AuthContext:
 				</p>
 				<CodeBlock>{`// In your OAuth flow component

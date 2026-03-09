@@ -323,7 +323,8 @@ const DPoPFlow: React.FC = () => {
 
 			<WarningBox>
 				<WarningIcon>
-					<span>⚠️</span></WarningIcon>
+					<span>⚠️</span>
+				</WarningIcon>
 				<WarningContent>
 					<h4>Educational/Mock Implementation</h4>
 					<p>
@@ -376,7 +377,8 @@ const DPoPFlow: React.FC = () => {
 
 						<InfoBox>
 							<InfoIcon>
-								<span>ℹ️</span></InfoIcon>
+								<span>ℹ️</span>
+							</InfoIcon>
 							<InfoContent>
 								<h4>How DPoP Works</h4>
 								<p>
@@ -439,7 +441,8 @@ const DPoPFlow: React.FC = () => {
 								</KeyPairInfo>
 								<InfoBox>
 									<InfoIcon>
-										<span>ℹ️</span></InfoIcon>
+										<span>ℹ️</span>
+									</InfoIcon>
 									<InfoContent>
 										<p>
 											<strong>Note:</strong> The private key is kept secret and never shared. Only
@@ -533,7 +536,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 								onChange={(e) => setAccessToken(e.target.value)}
 								placeholder="Enter access token to include ath claim"
 							/>
-							<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.25rem', display: 'block' }}>
+							<small style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
 								If provided, the access token will be hashed and included in the proof as the "ath"
 								claim
 							</small>
@@ -755,7 +758,8 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 
 						<InfoBox>
 							<InfoIcon>
-								<span>ℹ️</span></InfoIcon>
+								<span>ℹ️</span>
+							</InfoIcon>
 							<InfoContent>
 								<h4>PingOne Support</h4>
 								<p>
