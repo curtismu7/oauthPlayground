@@ -6086,6 +6086,154 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
   }
 });
 
+// Unlock Password (unlock a locked user account)
+app.post('/api/pingone/password/unlock', async (req, res) => {
+  try {
+    const { environmentId, userId, workerToken } = req.body;
+
+    if (!environmentId || !userId || !workerToken) {
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Missing required parameters: environmentId, userId, workerToken',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] Unlocking password...', {
+      environmentId: `${environmentId?.substring(0, 20)}...`,
+      userId: `${userId?.substring(0, 20)}...`,
+    });
+
+    const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+
+    const pingOneResponse = await fetch(pingOneUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${workerToken}`,
+        'Content-Type': 'application/vnd.pingidentity.password.unlock+json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+
+    let responseData;
+    try {
+      responseData = await pingOneResponse.json();
+    } catch {
+      responseData = pingOneResponse.ok ? { success: true } : { error: 'unknown_error' };
+    }
+
+    if (!pingOneResponse.ok) {
+      console.error('[🔐 PASSWORD] Password unlock failed:', responseData);
+      return res.status(pingOneResponse.status).json({
+        error: responseData.error || 'unknown_error',
+        error_description: responseData.error_description || responseData.message || 'Password unlock failed',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] ✅ Password unlocked successfully');
+    res.json({ success: true, message: 'Password unlocked successfully' });
+  } catch (error) {
+    console.error('[🔐 PASSWORD] Error unlocking password:', error);
+    res.status(500).json({ error: 'server_error', error_description: 'Internal server error', details: error.message });
+  }
+});
+
+// Read Password State (GET password status)
+app.get('/api/pingone/password/state', async (req, res) => {
+  try {
+    const { environmentId, userId, workerToken } = req.query;
+
+    if (!environmentId || !userId || !workerToken) {
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Missing required query parameters: environmentId, userId, workerToken',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] Reading password state...', {
+      environmentId: `${String(environmentId).substring(0, 20)}...`,
+      userId: `${String(userId).substring(0, 20)}...`,
+    });
+
+    const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+
+    const pingOneResponse = await fetch(pingOneUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${workerToken}`,
+        Accept: 'application/json',
+      },
+    });
+
+    const responseData = await pingOneResponse.json();
+
+    if (!pingOneResponse.ok) {
+      console.error('[🔐 PASSWORD] Failed to read password state:', responseData);
+      return res.status(pingOneResponse.status).json({
+        error: responseData.error || 'unknown_error',
+        error_description: responseData.error_description || responseData.message || 'Failed to read password state',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] ✅ Password state read successfully');
+    res.json({ success: true, passwordState: responseData });
+  } catch (error) {
+    console.error('[🔐 PASSWORD] Error reading password state:', error);
+    res.status(500).json({ error: 'server_error', error_description: 'Internal server error', details: error.message });
+  }
+});
+
+// Admin Set Password (PUT with admin/worker token)
+app.put('/api/pingone/password/admin-set', async (req, res) => {
+  try {
+    const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } = req.body;
+
+    if (!environmentId || !userId || !workerToken || !newPassword) {
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Missing required parameters: environmentId, userId, workerToken, newPassword',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] Setting password (admin)...', {
+      environmentId: `${environmentId?.substring(0, 20)}...`,
+      userId: `${userId?.substring(0, 20)}...`,
+    });
+
+    const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+
+    const requestBody = { password: newPassword };
+    if (forceChange === true) requestBody.forceChange = true;
+    if (bypassPasswordPolicy === true) requestBody.bypassPasswordPolicy = true;
+
+    const pingOneResponse = await fetch(pingOneUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${workerToken}`,
+        'Content-Type': 'application/vnd.pingidentity.password.set+json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const responseData = await pingOneResponse.json();
+
+    if (!pingOneResponse.ok) {
+      console.error('[🔐 PASSWORD] Admin password set failed:', responseData);
+      return res.status(pingOneResponse.status).json({
+        error: responseData.error || 'unknown_error',
+        error_description: responseData.error_description || responseData.message || 'Admin password set failed',
+      });
+    }
+
+    console.log('[🔐 PASSWORD] ✅ Password set successfully (admin)');
+    res.json({ success: true, message: 'Password set successfully', transactionId: responseData.id || responseData.transactionId });
+  } catch (error) {
+    console.error('[🔐 PASSWORD] Error setting password (admin):', error);
+    res.status(500).json({ error: 'server_error', error_description: 'Internal server error', details: error.message });
+  }
+});
+
 // PingOne MFA Challenge Initiation Endpoint (simplified for frontend)
 app.post('/api/mfa/challenge/initiate', async (req, res) => {
   try {
