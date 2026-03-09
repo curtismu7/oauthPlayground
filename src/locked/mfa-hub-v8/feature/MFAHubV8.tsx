@@ -195,11 +195,11 @@ export const MFAHubV8: React.FC = () => {
 
 	// Clear all tokens (worker and user tokens) and end PingOne session
 	const handleClearTokens = async () => {
-		if (
-			!confirm(
-				'Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.'
-			)
-		) {
+		// eslint-disable-next-line no-alert
+		const confirmed = confirm(
+			'Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.'
+		);
+		if (!confirmed) {
 			return;
 		}
 
