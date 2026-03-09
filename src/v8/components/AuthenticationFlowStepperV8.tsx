@@ -163,7 +163,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				}
 			})
 			.catch((error) => {
-				console.error('Error loading credentials:', error);
+				logger.error('AuthenticationFlowStepperV8', 'Error loading credentials', undefined, error as Error);
 			});
 	}, []);
 
