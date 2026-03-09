@@ -1960,3 +1960,5 @@ const PingOneWebhookViewer: React.FC = () => {
 		</>
 	);
 };
+
+export default PingOneWebhookViewer;
