@@ -8,6 +8,7 @@
 import { useCallback, useState } from 'react';
 import { useFlowState } from '../contexts/FlowStateContext';
 
+import { logger } from '../utils/logger';
 export interface UseActionButtonResult {
 	isLoading: boolean;
 	disabled: boolean;
@@ -25,7 +26,7 @@ export const useActionButton = (): UseActionButtonResult => {
 	const executeAction = useCallback(
 		async <T>(actionFn: () => Promise<T>, actionName: string): Promise<T | null> => {
 			if (isActionInProgress) {
-				console.warn('[useActionButton] Action blocked - another action in progress');
+				logger.warn('[useActionButton] Action blocked - another action in progress');
 				return null;
 			}
 
@@ -35,7 +36,7 @@ export const useActionButton = (): UseActionButtonResult => {
 				const result = await actionFn();
 				return result;
 			} catch (error) {
-				console.error('[useActionButton] Action failed:', actionName, error);
+				logger.error('[useActionButton] Action failed:', actionName, error);
 				throw error;
 			} finally {
 				setIsLoading(false);

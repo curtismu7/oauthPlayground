@@ -15,6 +15,7 @@
 import { FiUser } from '@icons';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
 
 export interface LoginHintInputV8Props {
@@ -55,7 +56,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 	}, [value]);
 
 	const handleChange = (newValue: string) => {
-		console.log(`${MODULE_TAG} Login hint changed`, { value: newValue });
+		logger.info(`${MODULE_TAG} Login hint changed`, { value: newValue });
 		onChange(newValue);
 		// Don't update displayValue immediately - let debounce handle it
 	};

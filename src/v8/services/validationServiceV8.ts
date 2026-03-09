@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file validationServiceV8.ts
  * @module v8/services
  * @description Centralized validation service for all V8 flows
@@ -12,7 +13,7 @@
  * // Validate credentials
  * const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
  * if (!result.valid) {
- *   console.error('Validation errors:', result.errors);
+ *   logger.error('Validation errors:', result.errors);
  * }
  *
  * // Validate single field
@@ -143,7 +144,7 @@ export const ValidationServiceV8 = {
 		flowType: 'oauth' | 'oidc',
 		appConfig?: { allowRedirectUriPatterns: boolean; oauthVersion?: '2.0' | '2.1' }
 	): ValidationResult {
-		console.log(`${MODULE_TAG} Validating credentials`, { flowType });
+		logger.info(`${MODULE_TAG} Validating credentials`, { flowType });
 
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
@@ -157,7 +158,7 @@ export const ValidationServiceV8 = {
 			const rules = VALIDATION_RULES[field];
 
 			if (!rules) {
-				console.warn(`${MODULE_TAG} No validation rules for field`, { field });
+				logger.warn(`${MODULE_TAG} No validation rules for field`, { field });
 				return;
 			}
 
@@ -253,7 +254,7 @@ export const ValidationServiceV8 = {
 		const valid = errors.length === 0;
 		const canProceed = valid && warnings.filter((w) => !w.canProceed).length === 0;
 
-		console.log(`${MODULE_TAG} Validation complete`, {
+		logger.info(`${MODULE_TAG} Validation complete`, {
 			valid,
 			canProceed,
 			errorCount: errors.length,

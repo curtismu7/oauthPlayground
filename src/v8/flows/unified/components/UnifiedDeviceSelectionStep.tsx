@@ -29,6 +29,7 @@ import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedErrorHandlerV8 } from '@/v8/utils/unifiedErrorHandlerV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔍 UNIFIED-DEVICE-SELECTION-STEP]';
 
 // ============================================================================
@@ -78,7 +79,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	config,
 	controller,
 }) => {
-	console.log(`${MODULE_TAG} Rendering device selection step for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering device selection step for:`, config.deviceType);
 
 	// ========================================================================
 	// LOCAL STATE
@@ -97,7 +98,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	 * Load existing devices for the user
 	 */
 	const loadExistingDevices = useCallback(async () => {
-		console.log(`${MODULE_TAG} Loading existing devices for user:`, credentials.username);
+		logger.info(`${MODULE_TAG} Loading existing devices for user:`, credentials.username);
 
 		setIsLoading(true);
 		setLoadError(null);
@@ -106,7 +107,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 			// Call controller to load existing devices
 			const devices = await controller.loadExistingDevices(credentials, mfaState, tokenStatus, nav);
 
-			console.log(`${MODULE_TAG} Loaded ${devices.length} existing devices:`, devices);
+			logger.info(`${MODULE_TAG} Loaded ${devices.length} existing devices:`, devices);
 
 			setExistingDevices(devices);
 			setHasLoadedDevices(true);
@@ -162,7 +163,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	 * Handle device selection
 	 */
 	const handleSelectDevice = useCallback((deviceId: string) => {
-		console.log(`${MODULE_TAG} Device selected:`, deviceId);
+		logger.info(`${MODULE_TAG} Device selected:`, deviceId);
 		setSelectedDeviceId(deviceId);
 	}, []);
 
@@ -191,7 +192,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Using existing device:`, device);
+		logger.info(`${MODULE_TAG} Using existing device:`, device);
 
 		// Update MFA state with selected device
 		setMfaState((prev) => ({
@@ -220,7 +221,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	 * Handle "Register New Device" button click
 	 */
 	const handleRegisterNewDevice = useCallback(() => {
-		console.log(`${MODULE_TAG} User wants to register a new device`);
+		logger.info(`${MODULE_TAG} User wants to register a new device`);
 
 		// Clear any previously selected device
 		setSelectedDeviceId(null);

@@ -18,6 +18,7 @@ import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 import type { ResponseMode } from '@/services/responseModeService';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔗 RESPONSE-MODE-V8]';
 
 export interface ResponseModeDropdownV8Props {
@@ -115,7 +116,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 	const selectedOption = RESPONSE_MODE_OPTIONS[value];
 
 	const handleChange = (newMode: ResponseMode) => {
-		console.log(`${MODULE_TAG} Response mode changed`, { from: value, to: newMode, flowType });
+		logger.info(`${MODULE_TAG} Response mode changed`, { from: value, to: newMode, flowType });
 		onChange(newMode);
 	};
 

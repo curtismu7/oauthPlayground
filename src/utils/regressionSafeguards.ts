@@ -3,6 +3,7 @@
 
 import { StepCredentials } from '../types/flowTypes';
 
+import { logger } from '../utils/logger';
 export interface FlowTestResult {
 	flowName: string;
 	step: string;
@@ -135,14 +136,14 @@ export class RegressionSafeguards {
 			this.errorLog = this.errorLog.slice(-100);
 		}
 
-		console.error(`[Regression Safeguard] ${message}`, context);
+		logger.error(`[Regression Safeguard] ${message}`, context);
 	}
 
 	/**
 	 * Log performance metrics
 	 */
 	private logPerformance(metric: string, data: unknown): void {
-		console.log(`[Performance Monitor] ${metric}:`, data);
+		logger.info(`[Performance Monitor] ${metric}:`, data);
 	}
 
 	/**
@@ -358,7 +359,7 @@ export class RegressionSafeguards {
 		credentials: StepCredentials,
 		tokens: unknown
 	): Promise<RegressionTestSuite> {
-		console.log(`[Regression Safeguards] Running validation suite for ${flowName}`);
+		logger.info(`[Regression Safeguards] Running validation suite for ${flowName}`);
 
 		const tests: FlowTestResult[] = [];
 
@@ -410,8 +411,8 @@ export class RegressionSafeguards {
 	 */
 	private alertCriticalFailure(flowName: string, testSuite: RegressionTestSuite): void {
 		const failedTests = testSuite.tests.filter((test) => !test.passed);
-		console.error(`[CRITICAL] Flow ${flowName} failed validation:`, failedTests);
-		console.log(
+		logger.error(`[CRITICAL] Flow ${flowName} failed validation:`, failedTests);
+		logger.info(
 			`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical flow ${flowName} failed validation. Check console for details.`
 		);
 

@@ -10,6 +10,7 @@ import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenServ
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
+import { logger } from '../utils/logger';
 // Test Configuration Interface
 interface TestConfig {
 	environmentId: string;
@@ -213,7 +214,7 @@ const PingOneApiTest: React.FC = () => {
 				envId = data.credentials?.environmentId || '';
 			}
 		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
+			logger.info('Failed to load environment ID from worker token:', error);
 		}
 
 		return {
@@ -272,7 +273,7 @@ const PingOneApiTest: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -306,7 +307,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Authorization URL Generation...');
+			logger.info('🧪 Testing Authorization URL Generation...');
 
 			const params = new URLSearchParams();
 			params.set('client_id', config.clientId);
@@ -354,7 +355,7 @@ const PingOneApiTest: React.FC = () => {
 				duration,
 			});
 
-			console.log('✅ Authorization URL generated successfully:', authUrl);
+			logger.info('✅ Authorization URL generated successfully:', authUrl);
 			return authUrl;
 		} catch (error) {
 			const duration = Date.now() - startTime;
@@ -382,7 +383,7 @@ const PingOneApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				console.log('🧪 Testing Token Exchange...');
+				logger.info('🧪 Testing Token Exchange...');
 
 				const codeVerifier = config.usePkce ? generateCodeVerifier() : undefined;
 
@@ -429,7 +430,7 @@ const PingOneApiTest: React.FC = () => {
 				});
 
 				if (response.ok) {
-					console.log('✅ Token exchange successful:', responseData);
+					logger.info('✅ Token exchange successful:', responseData);
 				} else {
 					logger.error('PingOneApiTest', '❌ Token exchange failed:', { responseData });
 				}
@@ -458,7 +459,7 @@ const PingOneApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				console.log('🧪 Testing Implicit Token Parsing...');
+				logger.info('🧪 Testing Implicit Token Parsing...');
 
 				// Parse fragment (remove leading #)
 				const fragmentParams = new URLSearchParams(
@@ -495,7 +496,7 @@ const PingOneApiTest: React.FC = () => {
 					duration,
 				});
 
-				console.log('✅ Implicit tokens parsed successfully:', tokens);
+				logger.info('✅ Implicit tokens parsed successfully:', tokens);
 				return tokens;
 			} catch (error) {
 				const duration = Date.now() - startTime;
@@ -524,7 +525,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Token Exchange...');
+			logger.info('🧪 Testing Token Exchange...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for token exchange test');
@@ -605,7 +606,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing User Info Endpoint...');
+			logger.info('🧪 Testing User Info Endpoint...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for user info test');
@@ -656,7 +657,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Token Introspection...');
+			logger.info('🧪 Testing Token Introspection...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for token introspection test');
@@ -720,7 +721,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing JWKS Endpoint...');
+			logger.info('🧪 Testing JWKS Endpoint...');
 
 			if (!config.environmentId) {
 				throw new Error('Environment ID required for JWKS test');
@@ -769,7 +770,7 @@ const PingOneApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			console.log('🚀 Starting PingOne API Tests...');
+			logger.info('🚀 Starting PingOne API Tests...');
 
 			// Test 1: Authorization URL Generation
 			await testAuthUrlGeneration();
@@ -786,7 +787,7 @@ const PingOneApiTest: React.FC = () => {
 			// Test 5: JWKS Endpoint
 			await testJwksEndpoint();
 
-			console.log('✅ All PingOne API tests completed!');
+			logger.info('✅ All PingOne API tests completed!');
 		} catch (error) {
 			logger.error('PingOneApiTest', '❌ Test suite failed:', undefined, error as Error);
 		} finally {

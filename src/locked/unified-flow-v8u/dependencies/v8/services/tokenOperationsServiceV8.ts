@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file tokenOperationsServiceV8.ts
  * @module v8/services
  * @description Service to determine which token operations are allowed for each flow
@@ -45,7 +46,7 @@ export class TokenOperationsServiceV8 {
 		const normalizedFlow = flowType.toLowerCase().replace(/[-_]/g, '-');
 		const hasOpenIdScope = scopes?.toLowerCase().includes('openid') || false;
 
-		console.log(`${MODULE_TAG} Getting operation rules`, {
+		logger.info(`${MODULE_TAG} Getting operation rules`, {
 			flowType,
 			normalizedFlow,
 			scopes,
@@ -208,7 +209,7 @@ export class TokenOperationsServiceV8 {
 		}
 
 		// Default fallback
-		console.warn(`${MODULE_TAG} Unknown flow type, using conservative defaults`, { flowType });
+		logger.warn(`${MODULE_TAG} Unknown flow type, using conservative defaults`, { flowType });
 		return {
 			canIntrospectAccessToken: true,
 			canIntrospectRefreshToken: false,

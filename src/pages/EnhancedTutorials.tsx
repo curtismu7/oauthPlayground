@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import InteractiveTutorial from '../components/InteractiveTutorial';
 import OAuthUtilities from '../components/OAuthUtilities';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -236,7 +237,7 @@ if (!isValid) {
 					title: 'Generate Code Verifier',
 					description: 'Create a cryptographically random code verifier.',
 					codeExample: `const codeVerifier = generateRandomString(64);
-console.log('Code Verifier:', codeVerifier);`,
+logger.info('Code Verifier:', codeVerifier);`,
 				},
 				{
 					id: 'step2',
@@ -288,11 +289,11 @@ const decodedPayload = JSON.parse(atob(payload));`,
 				<InteractiveTutorial
 					tutorial={selectedTutorialData}
 					onTutorialComplete={() => {
-						console.log('Tutorial completed!');
+						logger.info('Tutorial completed!');
 						// Could track completion, show achievement, etc.
 					}}
 					onStepComplete={(stepId) => {
-						console.log('Step completed:', stepId);
+						logger.info('Step completed:', stepId);
 					}}
 				/>
 				<div style={{ textAlign: 'center', marginTop: '2rem' }}>

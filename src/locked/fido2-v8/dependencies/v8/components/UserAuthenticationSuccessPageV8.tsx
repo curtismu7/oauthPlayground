@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
+import { logger } from '../../../../utils/logger';
 export interface UserInfo {
 	sub?: string;
 	username?: string;
@@ -55,7 +56,7 @@ const decodeJWT = (token: string): Record<string, unknown> | null => {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (error) {
-		console.error('Failed to decode JWT:', error);
+		logger.error('Failed to decode JWT:', error);
 		return null;
 	}
 };
@@ -85,7 +86,7 @@ const fetchUserInfo = async (
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			console.warn(
+			logger.warn(
 				'UserInfo request failed:',
 				response.status,
 				errorData.message || errorData.error
@@ -96,7 +97,7 @@ const fetchUserInfo = async (
 		const userInfo = await response.json();
 		return userInfo;
 	} catch (error) {
-		console.error('Failed to fetch user info:', error);
+		logger.error('Failed to fetch user info:', error);
 		return null;
 	}
 };

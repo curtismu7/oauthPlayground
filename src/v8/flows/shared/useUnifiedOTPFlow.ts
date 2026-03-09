@@ -20,6 +20,7 @@ import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import type { MFACredentials } from './MFATypes';
 
+import { logger } from '../../utils/logger';
 export type UnifiedOTPDeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP';
 
 export type DeviceSelectionState = {
@@ -163,7 +164,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 			storedCredentials?.username?.trim() &&
 			storedCredentials?.deviceAuthenticationPolicyId?.trim()
 		) {
-			console.log(`${MODULE_TAG} Found stored credentials, staying in flow`);
+			logger.info(`${MODULE_TAG} Found stored credentials, staying in flow`);
 			setIsCheckingCredentials(false);
 			return;
 		}
@@ -178,7 +179,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 					!storedCredentials?.username?.trim() ||
 					!storedCredentials?.deviceAuthenticationPolicyId?.trim())
 			) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Device route accessed directly without proper state, redirecting to config page`
 				);
 				navigate(configPageRoute, { replace: true });
@@ -191,7 +192,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 				!storedCredentials?.username?.trim() ||
 				!storedCredentials?.deviceAuthenticationPolicyId?.trim()
 			) {
-				console.log(`${MODULE_TAG} No credentials found, will show Step 0 (configuration)`);
+				logger.info(`${MODULE_TAG} No credentials found, will show Step 0 (configuration)`);
 				setIsCheckingCredentials(false);
 				return;
 			}

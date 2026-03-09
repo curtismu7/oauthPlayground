@@ -8,6 +8,7 @@
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { backendConnectivityService } from './backendConnectivityServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[UserServiceV8]';
 
 export interface User {
@@ -120,7 +121,7 @@ export class UserServiceV8 {
 			const data = await response.json();
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} List users error`, error);
+			logger.error(`${MODULE_TAG} List users error`, error);
 			throw error;
 		}
 	}
@@ -139,12 +140,12 @@ export class UserServiceV8 {
 		const all: User[] = [];
 		let page = 0;
 
-		console.log(
+		logger.info(
 			`${MODULE_TAG} searchAllUsers: starting multi-page search for "${search}" (limit=${limit}, maxPages=${maxPages})`
 		);
 
 		while (page < maxPages) {
-			console.log(`${MODULE_TAG} searchAllUsers: fetching page ${page + 1} at offset ${offset}`);
+			logger.info(`${MODULE_TAG} searchAllUsers: fetching page ${page + 1} at offset ${offset}`);
 
 			const result = await UserServiceV8.listUsers(environmentId, {
 				search,
@@ -153,14 +154,14 @@ export class UserServiceV8 {
 				region,
 			});
 
-			console.log(`${MODULE_TAG} searchAllUsers: page ${page + 1} returned`, {
+			logger.info(`${MODULE_TAG} searchAllUsers: page ${page + 1} returned`, {
 				usersCount: result.users?.length || 0,
 				hasMore: result.hasMore,
 				totalCount: result.totalCount,
 			});
 
 			if (!result || !Array.isArray(result.users) || result.users.length === 0) {
-				console.log(`${MODULE_TAG} searchAllUsers: no more users, breaking`);
+				logger.info(`${MODULE_TAG} searchAllUsers: no more users, breaking`);
 				break;
 			}
 
@@ -169,7 +170,7 @@ export class UserServiceV8 {
 			for (const u of result.users) {
 				if (!all.some((existing) => existing.id === u.id)) all.push(u);
 			}
-			console.log(
+			logger.info(
 				`${MODULE_TAG} searchAllUsers: added ${all.length - beforeCount} unique users (${beforeCount} -> ${all.length})`
 			);
 
@@ -183,7 +184,7 @@ export class UserServiceV8 {
 			const moreExist = result.totalCount && all.length < result.totalCount;
 			const shouldContinue = result.hasMore || gotFullPage || moreExist;
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} searchAllUsers: shouldContinue=${shouldContinue} (hasMore=${result.hasMore}, gotFullPage=${gotFullPage}, moreExist=${moreExist})`
 			);
 
@@ -195,7 +196,7 @@ export class UserServiceV8 {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
-		console.log(
+		logger.info(
 			`${MODULE_TAG} searchAllUsers: completed - fetched ${page} pages, ${all.length} unique users`
 		);
 		return all;
@@ -219,7 +220,7 @@ export class UserServiceV8 {
 	 * // Fetch up to 20 pages (4000 users) with progress tracking
 	 * const users = await UserServiceV8.fetchAllUsers(envId, {
 	 *   maxPages: 20,
-	 *   onProgress: (count, pages, latest) => console.log(`Fetched ${count} users`)
+	 *   onProgress: (count, pages, latest) => logger.info(`Fetched ${count} users`)
 	 * });
 	 * ```
 	 */
@@ -235,7 +236,7 @@ export class UserServiceV8 {
 		let hasMore = true;
 		let fetchedPages = 0;
 
-		console.log(`${MODULE_TAG} Starting to fetch users from environment:`, environmentId);
+		logger.info(`${MODULE_TAG} Starting to fetch users from environment:`, environmentId);
 
 		try {
 			while (hasMore && fetchedPages < maxPages) {
@@ -246,7 +247,7 @@ export class UserServiceV8 {
 					allUsers.push(...result.users);
 					fetchedPages++;
 
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Fetched page ${fetchedPages} at offset ${offset} - got ${fetchedCount} users. Total: ${allUsers.length}`
 					);
 
@@ -267,13 +268,13 @@ export class UserServiceV8 {
 				}
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Finished fetching users. Total: ${allUsers.length} across ${fetchedPages} pages`
 			);
 
 			return allUsers;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch all users:`, error);
+			logger.error(`${MODULE_TAG} Failed to fetch all users:`, error);
 			throw error;
 		}
 	}
@@ -336,7 +337,7 @@ export class UserServiceV8 {
 			const data = await response.json();
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get user error`, error);
+			logger.error(`${MODULE_TAG} Get user error`, error);
 			throw error;
 		}
 	}

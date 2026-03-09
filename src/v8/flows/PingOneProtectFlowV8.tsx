@@ -30,6 +30,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
+import { logger } from '../utils/logger';
 // Types for PingOne Protect
 interface ProtectCredentials {
 	environmentId: string;
@@ -379,7 +380,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					// Success handled in main function
 				},
 				onError: (error) => {
-					console.error('[PINGONE-PROTECT-FLOW-V8] Error fetching risk policies:', error);
+					logger.error('[PINGONE-PROTECT-FLOW-V8] Error fetching risk policies:', error);
 					uiNotificationServiceV8.showError('Failed to fetch risk policies');
 				},
 			}
@@ -412,7 +413,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					// Success handled in main function
 				},
 				onError: (error) => {
-					console.error(`${MODULE_TAG} Failed to create risk evaluation:`, error);
+					logger.error(`${MODULE_TAG} Failed to create risk evaluation:`, error);
 					uiNotificationServiceV8.showError('Failed to create risk evaluation');
 				},
 			}
@@ -431,7 +432,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				uiNotificationServiceV8.showSuccess(`Risk evaluation updated: ${completionStatus}`);
 				return data;
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to update risk evaluation:`, error);
+				logger.error(`${MODULE_TAG} Failed to update risk evaluation:`, error);
 				uiNotificationServiceV8.showError('Failed to update risk evaluation');
 				return null;
 			}
@@ -451,7 +452,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				uiNotificationServiceV8.showSuccess(`Feedback provided: ${feedback}`);
 				return data;
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to provide feedback:`, error);
+				logger.error(`${MODULE_TAG} Failed to provide feedback:`, error);
 				uiNotificationServiceV8.showError('Failed to provide feedback');
 				return null;
 			}
@@ -656,7 +657,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								if (newValue) {
 									const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 									if (!currentStatus.isValid) {
-										console.log(
+										logger.info(
 											'[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 										);
 										const { handleShowWorkerTokenModal } = await import(

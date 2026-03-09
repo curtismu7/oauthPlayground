@@ -29,6 +29,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
+import { logger } from '../utils/logger';
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
 	clientId: string;
@@ -137,7 +138,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 					networkStatus: 'online',
 				}));
 			} catch (error) {
-				console.error('Failed to initialize V8 services:', error);
+				logger.error('Failed to initialize V8 services:', error);
 				setFlowState((prev) => ({
 					...prev,
 					networkStatus: 'offline',
@@ -156,7 +157,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 	// Error handling
 	const handleError = useCallback(
 		(error: string, context?: Record<string, unknown>) => {
-			console.error('MFA Flow Error:', error, context);
+			logger.error('MFA Flow Error:', error, context);
 			setFlowState((prev) => ({
 				...prev,
 				error,

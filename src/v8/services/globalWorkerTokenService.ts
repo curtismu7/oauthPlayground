@@ -8,6 +8,7 @@
 import type { WorkerTokenCredentials, WorkerTokenStatus } from './workerTokenServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 type WorkerTokenStatusListener = (status: WorkerTokenStatus) => void;
 
 /**
@@ -43,7 +44,7 @@ export class GlobalWorkerTokenService {
 	 * Initialize the service
 	 */
 	private async initialize(): Promise<void> {
-		console.log('[GlobalWorkerTokenService] Initializing...');
+		logger.info('[GlobalWorkerTokenService] Initializing...');
 		await this.refreshStatus();
 	}
 
@@ -54,7 +55,7 @@ export class GlobalWorkerTokenService {
 	 * @throws Error if credentials not configured or fetch fails
 	 */
 	async getToken(): Promise<string> {
-		console.log('[GlobalWorkerTokenService] Getting token...');
+		logger.info('[GlobalWorkerTokenService] Getting token...');
 		try {
 			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
@@ -63,7 +64,7 @@ export class GlobalWorkerTokenService {
 			await this.refreshStatus();
 			return token;
 		} catch (error) {
-			console.error('[GlobalWorkerTokenService] Failed to get token:', error);
+			logger.error('[GlobalWorkerTokenService] Failed to get token:', error);
 			await this.refreshStatus();
 			throw error;
 		}
@@ -89,7 +90,7 @@ export class GlobalWorkerTokenService {
 	 * Save Worker Token credentials
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		console.log('[GlobalWorkerTokenService] Saving credentials...');
+		logger.info('[GlobalWorkerTokenService] Saving credentials...');
 		await workerTokenServiceV8.saveCredentials(credentials);
 		await this.refreshStatus();
 	}
@@ -98,7 +99,7 @@ export class GlobalWorkerTokenService {
 	 * Clear Worker Token credentials and cached token
 	 */
 	async clearCredentials(): Promise<void> {
-		console.log('[GlobalWorkerTokenService] Clearing credentials...');
+		logger.info('[GlobalWorkerTokenService] Clearing credentials...');
 		await workerTokenServiceV8.clearCredentials();
 		await workerTokenServiceV8.clearToken();
 		await this.refreshStatus();
@@ -134,7 +135,7 @@ export class GlobalWorkerTokenService {
 			this.currentStatus = status;
 			this.notifyListeners(status);
 		} catch (error) {
-			console.error('[GlobalWorkerTokenService] Failed to refresh status:', error);
+			logger.error('[GlobalWorkerTokenService] Failed to refresh status:', error);
 		}
 	}
 
@@ -142,7 +143,7 @@ export class GlobalWorkerTokenService {
 	 * Notify all listeners of status change
 	 */
 	private notifyListeners(status: WorkerTokenStatus): void {
-		console.log('[GlobalWorkerTokenService] Notifying listeners:', this.listeners.size);
+		logger.info('[GlobalWorkerTokenService] Notifying listeners:', this.listeners.size);
 		this.listeners.forEach((listener) => listener(status));
 	}
 
@@ -150,7 +151,7 @@ export class GlobalWorkerTokenService {
 	 * Force refresh token (useful for testing or manual refresh)
 	 */
 	async forceRefresh(): Promise<string> {
-		console.log('[GlobalWorkerTokenService] Forcing token refresh...');
+		logger.info('[GlobalWorkerTokenService] Forcing token refresh...');
 		await workerTokenServiceV8.clearToken();
 		return await this.getToken();
 	}

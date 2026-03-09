@@ -19,6 +19,7 @@
 
 import React, { useCallback, useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[✉️ EMAIL-INPUT-V8]';
 
 // ============================================================================
@@ -92,14 +93,14 @@ export const EmailInputV8: React.FC<EmailInputV8Props> = ({
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const newValue = e.target.value;
-			console.log(`${MODULE_TAG} Email changed:`, newValue);
+			logger.info(`${MODULE_TAG} Email changed:`, newValue);
 			onChange(newValue);
 		},
 		[onChange]
 	);
 
 	const handleBlur = useCallback(() => {
-		console.log(`${MODULE_TAG} Email field blurred`);
+		logger.info(`${MODULE_TAG} Email field blurred`);
 		setTouched(true);
 		if (onBlur) {
 			onBlur();

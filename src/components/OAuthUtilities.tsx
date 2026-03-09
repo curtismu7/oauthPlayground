@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
+import { logger } from '../utils/logger';
 const UtilitiesContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -190,13 +191,13 @@ const OAuthUtilities: React.FC = () => {
 			);
 
 			const parsed = JSON.parse(jsonPayload);
-			console.log(' [JWT Decoder] Successfully parsed JWT part:', {
+			logger.info(' [JWT Decoder] Successfully parsed JWT part:', {
 				part: `${part.substring(0, 20)}...`,
 				result: parsed,
 			});
 			return parsed;
 		} catch (e) {
-			log.error(
+			logger.error(
 				'OAuthUtilities',
 				' [JWT Decoder] Error parsing JWT part:',
 				{ part: `${part.substring(0, 20)}...` },
@@ -217,10 +218,10 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			const token = jwtInput.trim();
-			console.log(' [JWT Decoder] Attempting to decode token:', `${token.substring(0, 50)}...`);
+			logger.info(' [JWT Decoder] Attempting to decode token:', `${token.substring(0, 50)}...`);
 
 			const parts = token.split('.');
-			console.log(' [JWT Decoder] Token parts count:', parts.length);
+			logger.info(' [JWT Decoder] Token parts count:', parts.length);
 
 			if (parts.length !== 3) {
 				setJwtError('Invalid JWT format: token must have 3 parts separated by dots');
@@ -228,7 +229,7 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			// Decode header
-			console.log(' [JWT Decoder] Decoding header part:', `${parts[0].substring(0, 20)}...`);
+			logger.info(' [JWT Decoder] Decoding header part:', `${parts[0].substring(0, 20)}...`);
 			const header = parseJwtPart(parts[0]);
 			if (!header) {
 				setJwtError('Failed to decode JWT header');
@@ -236,18 +237,18 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			// Decode payload
-			console.log(' [JWT Decoder] Decoding payload part:', `${parts[1].substring(0, 20)}...`);
+			logger.info(' [JWT Decoder] Decoding payload part:', `${parts[1].substring(0, 20)}...`);
 			const payload = parseJwtPart(parts[1]);
 			if (!payload) {
 				setJwtError('Failed to decode JWT payload');
 				return;
 			}
 
-			console.log(' [JWT Decoder] Successfully decoded JWT:', { header, payload });
+			logger.info(' [JWT Decoder] Successfully decoded JWT:', { header, payload });
 			setDecodedJwt({ header, payload });
 			setJwtError(''); // Clear any previous errors
 		} catch (error) {
-			log.error(
+			logger.error(
 				'OAuthUtilities',
 				' [JWT Decoder] Error in handleDecodeJWT:',
 				undefined,
@@ -282,7 +283,7 @@ const OAuthUtilities: React.FC = () => {
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			log.error('OAuthUtilities', 'Failed to copy:', undefined, error as Error);
+			logger.error('OAuthUtilities', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 
@@ -327,7 +328,7 @@ const OAuthUtilities: React.FC = () => {
 									const sampleToken =
 										'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 									setJwtInput(sampleToken);
-									console.log(' [JWT Decoder] Loaded sample token for testing');
+									logger.info(' [JWT Decoder] Loaded sample token for testing');
 								}}
 							>
 								Load Sample Token

@@ -11,6 +11,7 @@ import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCreden
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
 
+import { logger } from '../utils/logger';
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -278,7 +279,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load credentials from environment variables
 	const loadFromEnvironmentVariables = useCallback(async () => {
 		try {
-			console.log(' [CredentialSetupModal] Loading credentials from environment variables...');
+			logger.info(' [CredentialSetupModal] Loading credentials from environment variables...');
 
 			const response = await fetch('/api/env-config');
 			if (!response.ok) {
@@ -286,7 +287,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			}
 
 			const envConfig = await response.json();
-			console.log(' [CredentialSetupModal] Loaded from environment config:', envConfig);
+			logger.info(' [CredentialSetupModal] Loaded from environment config:', envConfig);
 
 			// Pre-populate form with environment variables
 			const newFormData = {
@@ -298,13 +299,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				customDomain: '',
 			};
 
-			console.log(
+			logger.info(
 				' [CredentialSetupModal] Setting form data from environment variables:',
 				newFormData
 			);
 			setFormData(newFormData);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialSetupModal',
 				' [CredentialSetupModal] Failed to load from environment variables:',
 				undefined,
@@ -317,7 +318,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load existing credentials using V7 standardized system when modal opens
 	useEffect(() => {
 		if (isOpen) {
-			console.log(' [CredentialSetupModal] Loading credentials using V7 standardized system...');
+			logger.info(' [CredentialSetupModal] Loading credentials using V7 standardized system...');
 
 			const loadCredentialsV7 = async () => {
 				try {
@@ -346,10 +347,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						},
 					});
 
-					console.log(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
+					logger.info(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
 
 					if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
-						console.log(' [CredentialSetupModal] Using V7 FlowCredentialService credentials');
+						logger.info(' [CredentialSetupModal] Using V7 FlowCredentialService credentials');
 						const newFormData = {
 							environmentId: v7Credentials.credentials.environmentId || '',
 							clientId: v7Credentials.credentials.clientId || '',
@@ -366,14 +367,14 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						return;
 					}
 				} catch (v7Error) {
-					console.log(' [CredentialSetupModal] V7 FlowCredentialService not available:', v7Error);
+					logger.info(' [CredentialSetupModal] V7 FlowCredentialService not available:', v7Error);
 				}
 
 				// Fallback to legacy credential manager
 				try {
-					console.log(' [CredentialSetupModal] Loading from legacy credential manager...');
+					logger.info(' [CredentialSetupModal] Loading from legacy credential manager...');
 					const allCredentials = credentialManager.getAllCredentials();
-					console.log(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
+					logger.info(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
 
 					// Also check the old pingone_config localStorage key for backward compatibility
 					const oldConfig = localStorage.getItem('pingone_config');
@@ -381,9 +382,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					if (oldConfig) {
 						try {
 							oldCredentials = JSON.parse(oldConfig);
-							console.log(' [CredentialSetupModal] Found old config:', oldCredentials);
+							logger.info(' [CredentialSetupModal] Found old config:', oldCredentials);
 						} catch (e) {
-							console.log(' [CredentialSetupModal] Failed to parse old config:', e);
+							logger.info(' [CredentialSetupModal] Failed to parse old config:', e);
 						}
 					}
 
@@ -410,7 +411,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 					// Pre-populate form with existing credentials
 					if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
-						console.log(' [CredentialSetupModal] Pre-populating form with existing credentials');
+						logger.info(' [CredentialSetupModal] Pre-populating form with existing credentials');
 						const newFormData = {
 							environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
 							clientId: allCredentials.clientId || oldCredentials?.clientId || '',
@@ -431,13 +432,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						setHasUnsavedChanges(false);
 						setHasBeenSaved(false);
 
-						console.log(' [CredentialSetupModal] Form pre-populated with:', {
+						logger.info(' [CredentialSetupModal] Form pre-populated with:', {
 							environmentId: allCredentials.environmentId,
 							hasClientId: !!allCredentials.clientId,
 							hasClientSecret: !!allCredentials.clientSecret,
 						});
 					} else {
-						console.log(
+						logger.info(
 							' [CredentialSetupModal] No existing credentials found, loading from environment variables...'
 						);
 						// Load from environment variables as fallback
@@ -447,7 +448,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						setHasBeenSaved(false);
 					}
 				} catch (error) {
-					log.error(
+					logger.error(
 						'CredentialSetupModal',
 						' [CredentialSetupModal] Error loading existing credentials:',
 						undefined,
@@ -496,14 +497,14 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					originalFormData[key as keyof typeof originalFormData]
 			);
 			setHasUnsavedChanges(hasChanges);
-			console.log(' [CredentialSetupModal] Form modified, unsaved changes:', hasChanges);
+			logger.info(' [CredentialSetupModal] Form modified, unsaved changes:', hasChanges);
 		}
 	};
 
 	const validateForm = (): boolean => {
 		const newErrors: Record<string, string> = {};
 
-		console.log(' [CredentialSetupModal] Validating form data:', formData);
+		logger.info(' [CredentialSetupModal] Validating form data:', formData);
 
 		if (!formData.environmentId) {
 			newErrors.environmentId = 'Environment ID is required';
@@ -523,20 +524,20 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 		setErrors(newErrors);
 		const isValid = Object.keys(newErrors).length === 0;
-		console.log(' [CredentialSetupModal] Validation result:', { isValid, errors: newErrors });
+		logger.info(' [CredentialSetupModal] Validation result:', { isValid, errors: newErrors });
 		return isValid;
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log(' [CredentialSetupModal] Save button clicked', { formData, errors });
+		logger.info(' [CredentialSetupModal] Save button clicked', { formData, errors });
 
 		if (!validateForm()) {
-			console.log(' [CredentialSetupModal] Form validation failed', { errors });
+			logger.info(' [CredentialSetupModal] Form validation failed', { errors });
 			return;
 		}
 
-		console.log(' [CredentialSetupModal] Form validation passed, starting save...');
+		logger.info(' [CredentialSetupModal] Form validation passed, starting save...');
 		setIsLoading(true);
 		setSaveStatus(null);
 
@@ -545,7 +546,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			const minDelay = new Promise((resolve) => setTimeout(resolve, 500));
 
 			// Save using V7 standardized storage system
-			console.log(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
+			logger.info(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
 
 			// Build base URL - use custom domain if provided, otherwise use region-based domain
 			const baseUrl = formData.customDomain.trim()
@@ -615,7 +616,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			// Wait for minimum delay to ensure spinner is visible
 			await minDelay;
 
-			console.log(
+			logger.info(
 				' [CredentialSetupModal] Configuration saved successfully using V7 standardized system and legacy compatibility'
 			);
 
@@ -630,7 +631,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			setHasUnsavedChanges(false);
 			setOriginalFormData({ ...formData });
 
-			console.log(' [CredentialSetupModal] Form marked as saved, Save button will be disabled');
+			logger.info(' [CredentialSetupModal] Form marked as saved, Save button will be disabled');
 
 			// Call onSave callback if provided
 			if (onSave) {
@@ -639,11 +640,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 			// Auto-close after success
 			setTimeout(() => {
-				console.log(' [CredentialSetupModal] Auto-closing modal after successful save');
+				logger.info(' [CredentialSetupModal] Auto-closing modal after successful save');
 				onClose();
 			}, 1500);
 		} catch (error) {
-			log.error('CredentialSetupModal', 'Failed to save configuration:', undefined, error as Error);
+			logger.error('CredentialSetupModal', 'Failed to save configuration:', undefined, error as Error);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Configuration failed',
@@ -686,7 +687,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				message: 'Your credentials have been exported to a JSON file.',
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialSetupModal',
 				'[CredentialSetupModal] Export error:',
 				undefined,
@@ -735,7 +736,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					});
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'CredentialSetupModal',
 					'[CredentialSetupModal] Import error:',
 					undefined,
@@ -1059,12 +1060,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									// Store the preference in localStorage
 									if (e.target.checked) {
 										localStorage.setItem('skip_startup_credentials_modal', 'true');
-										console.log(
+										logger.info(
 											' [CredentialSetupModal] User chose to skip startup credentials modal'
 										);
 									} else {
 										localStorage.removeItem('skip_startup_credentials_modal');
-										console.log(' [CredentialSetupModal] User will see startup credentials modal');
+										logger.info(' [CredentialSetupModal] User will see startup credentials modal');
 									}
 								}}
 							/>

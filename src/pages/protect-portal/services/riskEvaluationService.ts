@@ -23,6 +23,7 @@ import type {
 } from '../types/protectPortal.types';
 import { PingOneSignalsService } from './pingOneSignalsService';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
 
 // ============================================================================
@@ -45,7 +46,7 @@ export class RiskEvaluationService {
 		const requestId = `risk-eval-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 		try {
-			console.log(`${MODULE_TAG} Starting risk evaluation for user:`, userContext.id);
+			logger.info(`${MODULE_TAG} Starting risk evaluation for user:`, userContext.id);
 
 			// Validate inputs
 			const validationError = RiskEvaluationService.validateInputs(
@@ -67,7 +68,7 @@ export class RiskEvaluationService {
 
 			// Get configurable thresholds (use provided custom thresholds or get from config)
 			const activeThresholds = customThresholds || getActiveRiskThresholds();
-			console.log(`${MODULE_TAG} Using risk thresholds:`, activeThresholds);
+			logger.info(`${MODULE_TAG} Using risk thresholds:`, activeThresholds);
 
 			// Build risk event data
 			const riskEvent = await RiskEvaluationService.buildRiskEvent(userContext, loginContext);
@@ -97,7 +98,7 @@ export class RiskEvaluationService {
 				activeThresholds
 			);
 
-			console.log(`${MODULE_TAG} Risk evaluation completed`, {
+			logger.info(`${MODULE_TAG} Risk evaluation completed`, {
 				riskLevel: finalResult.result?.level,
 				recommendedAction: finalResult.result?.recommendedAction,
 				thresholdsApplied: !customThresholds, // Using config thresholds
@@ -197,7 +198,7 @@ export class RiskEvaluationService {
 			const signalsResult = await PingOneSignalsService.getDevicePayload();
 			if (signalsResult.success && signalsResult.payload) {
 				devicePayload = signalsResult.payload;
-				console.log(`${RiskEvaluationService.MODULE_TAG} Device payload collected`, {
+				logger.info(`${RiskEvaluationService.MODULE_TAG} Device payload collected`, {
 					deviceId: devicePayload.deviceId,
 					hasBehavioralData: !!devicePayload.behavioralData,
 				});

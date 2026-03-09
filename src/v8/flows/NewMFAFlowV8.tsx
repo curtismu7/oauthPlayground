@@ -20,6 +20,7 @@ import { UserLoginStepV8 } from './shared/UserLoginStepV8';
 import { UnifiedActivationStep } from './unified/components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './unified/components/UnifiedDeviceRegistrationForm';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🎯 NEW-MFA-FLOW-V8]';
 
 interface NewMFAFlowV8Props {
@@ -36,7 +37,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 				<UnifiedDeviceRegistrationForm
 					initialDeviceType={deviceType}
 					onSubmit={async (selectedDeviceType, fields, flowType) => {
-						console.log(`${MODULE_TAG} Device registration submitted:`, {
+						logger.info(`${MODULE_TAG} Device registration submitted:`, {
 							selectedDeviceType,
 							flowType,
 							fields,
@@ -44,7 +45,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 						// TODO: Implement device registration logic
 					}}
 					onCancel={() => {
-						console.log(`${MODULE_TAG} Device registration cancelled`);
+						logger.info(`${MODULE_TAG} Device registration cancelled`);
 					}}
 					tokenStatus={props.tokenStatus}
 					username={props.credentials.username}
@@ -189,7 +190,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 			const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 			if (!freshTokenStatus.isValid) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`
 				);
 				return false;
@@ -199,7 +200,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 			const hasEnvironmentId = credentials.environmentId?.trim();
 			const hasUsername = credentials.username?.trim();
 
-			console.log(`${MODULE_TAG} Validating step 0:`, {
+			logger.info(`${MODULE_TAG} Validating step 0:`, {
 				hasEnvironmentId,
 				hasUsername,
 				tokenValid: freshTokenStatus.isValid,

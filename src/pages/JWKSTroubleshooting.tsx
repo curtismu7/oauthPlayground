@@ -6,6 +6,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -399,7 +400,7 @@ const JWKSTroubleshooting: React.FC = () => {
 			setRunningCommands((prev) => new Set(prev).add(url));
 
 			try {
-				console.log(`[JWKS Troubleshooting] Making request to: ${url}`);
+				logger.info(`[JWKS Troubleshooting] Making request to: ${url}`);
 
 				const response = await fetch(url, {
 					method: 'GET',

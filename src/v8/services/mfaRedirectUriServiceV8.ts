@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file mfaRedirectUriServiceV8.ts
  * @module v8/services
  * @description Centralized service for MFA redirect URIs using flow mapping
@@ -61,7 +62,7 @@ const PersistentLogger = {
 		try {
 			localStorage.setItem(PERSISTENT_LOG_KEY, JSON.stringify(existingLogs));
 		} catch (error) {
-			console.warn('Failed to save debug log to localStorage:', error);
+			logger.warn('Failed to save debug log to localStorage:', error);
 		}
 
 		// Also log to console for immediate visibility
@@ -85,7 +86,7 @@ const PersistentLogger = {
 			const stored = localStorage.getItem(PERSISTENT_LOG_KEY);
 			return stored ? JSON.parse(stored) : [];
 		} catch (error) {
-			console.warn('Failed to parse debug logs from localStorage:', error);
+			logger.warn('Failed to parse debug logs from localStorage:', error);
 			return [];
 		}
 	},
@@ -204,38 +205,38 @@ const MFARedirectUriDebugger = {
 		if (!DEBUG_MODE) return;
 
 		console.group(`${DEBUG_PREFIX} Redirect URI Analysis for: ${flowType}`);
-		console.log('📍 Flow Type:', flowType);
-		console.log('🔗 Generated Redirect URI:', redirectUri);
-		console.log('🌐 Current Origin:', window.location.origin);
-		console.log('🏠 Current Host:', window.location.host);
-		console.log('🛣️ Current Pathname:', window.location.pathname);
+		logger.info('📍 Flow Type:', flowType);
+		logger.info('🔗 Generated Redirect URI:', redirectUri);
+		logger.info('🌐 Current Origin:', window.location.origin);
+		logger.info('🏠 Current Host:', window.location.host);
+		logger.info('🛣️ Current Pathname:', window.location.pathname);
 
 		if (fallback) {
-			console.log('⚠️ Fallback URI Used:', fallback);
-			console.log('❌ Reason: No mapping found for flow type');
+			logger.info('⚠️ Fallback URI Used:', fallback);
+			logger.info('❌ Reason: No mapping found for flow type');
 		}
 
 		// Check if URI is HTTPS
 		if (redirectUri) {
 			const isHttps = redirectUri.startsWith('https://');
-			console.log('🔒 HTTPS Protocol:', isHttps ? '✅ Yes' : '❌ No');
+			logger.info('🔒 HTTPS Protocol:', isHttps ? '✅ Yes' : '❌ No');
 
 			if (!isHttps) {
-				console.warn('⚠️ SECURITY WARNING: Redirect URI is not using HTTPS!');
+				logger.warn('⚠️ SECURITY WARNING: Redirect URI is not using HTTPS!');
 			}
 		}
 
 		// Get flow configuration details
 		const config = getFlowRedirectUriConfig(flowType);
 		if (config) {
-			console.log('📋 Flow Config:', {
+			logger.info('📋 Flow Config:', {
 				requiresRedirectUri: config.requiresRedirectUri,
 				callbackPath: config.callbackPath,
 				description: config.description,
 				specification: config.specification,
 			});
 		} else {
-			console.warn('⚠️ No flow configuration found for:', flowType);
+			logger.warn('⚠️ No flow configuration found for:', flowType);
 		}
 
 		console.groupEnd();
@@ -248,10 +249,10 @@ const MFARedirectUriDebugger = {
 		if (!DEBUG_MODE) return;
 
 		console.group(`${DEBUG_PREFIX} URI Migration`);
-		console.log('🔄 Flow Type:', flowType);
-		console.log('📤 Old URI:', oldUri || 'None');
-		console.log('📥 New URI:', newUri);
-		console.log(`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`);
+		logger.info('🔄 Flow Type:', flowType);
+		logger.info('📤 Old URI:', oldUri || 'None');
+		logger.info('📥 New URI:', newUri);
+		logger.info(`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`);
 		console.groupEnd();
 	},
 
@@ -279,15 +280,15 @@ const MFARedirectUriDebugger = {
 		}
 
 		console.group(`${DEBUG_PREFIX} URI Validation for: ${flowType}`);
-		console.log('🔗 URI:', uri);
+		logger.info('🔗 URI:', uri);
 
 		if (issues.length > 0) {
-			console.warn('⚠️ Issues Found:');
+			logger.warn('⚠️ Issues Found:');
 			issues.forEach((issue) => {
-				console.warn('  -', issue);
+				logger.warn('  -', issue);
 			});
 		} else {
-			console.log('✅ URI validation passed');
+			logger.info('✅ URI validation passed');
 		}
 
 		console.groupEnd();
@@ -302,10 +303,10 @@ const MFARedirectUriDebugger = {
 		const allConfigs = getAllFlowRedirectUriConfigs();
 
 		console.group(`${DEBUG_PREFIX} All Flow Mappings`);
-		console.log('📊 Total flows configured:', allConfigs.length);
+		logger.info('📊 Total flows configured:', allConfigs.length);
 
 		allConfigs.forEach((config) => {
-			console.log(`🔄 ${config.flowType}:`, {
+			logger.info(`🔄 ${config.flowType}:`, {
 				path: config.callbackPath,
 				requiresUri: config.requiresRedirectUri,
 				description: config.description,
@@ -347,7 +348,7 @@ export const MFARedirectUriServiceV8 = {
 				config as unknown as Record<string, unknown>
 			);
 
-			console.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
+			logger.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
 			return fallbackUri;
 		}
 
@@ -365,7 +366,7 @@ export const MFARedirectUriServiceV8 = {
 			PersistentLogger.logValidation(flowType, redirectUri, issues);
 		}
 
-		console.log(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`);
+		logger.info(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`);
 		return redirectUri;
 	},
 
@@ -439,7 +440,7 @@ export const MFARedirectUriServiceV8 = {
 			// Log migration to persistent storage
 			PersistentLogger.logMigration(credentials.redirectUri, correctUri, flowType);
 
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} Migrating old redirect URI to: ${correctUri} (flow: ${flowType})`
 			);
 

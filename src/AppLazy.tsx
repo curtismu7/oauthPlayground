@@ -66,14 +66,14 @@ const ScrollToTop: React.FC = () => {
 		];
 
 		if (skipAutoScroll.some((path) => pathname.includes(path))) {
-			console.log('🌍 [ScrollToTop] Skipping auto-scroll for:', pathname);
+			logger.info('🌍 [ScrollToTop] Skipping auto-scroll for:', pathname);
 			return;
 		}
 
 		// Also check for data attribute on the page
 		const noScrollElement = document.querySelector('[data-no-auto-scroll="true"]');
 		if (noScrollElement) {
-			console.log('🌍 [ScrollToTop] Found no-auto-scroll element, skipping scroll');
+			logger.info('🌍 [ScrollToTop] Found no-auto-scroll element, skipping scroll');
 			return;
 		}
 
@@ -91,7 +91,7 @@ const ScrollToTop: React.FC = () => {
 			// Double-check the no-scroll attribute before delayed scroll
 			const noScrollElementDelayed = document.querySelector('[data-no-auto-scroll="true"]');
 			if (noScrollElementDelayed) {
-				console.log(
+				logger.info(
 					'🌍 [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting'
 				);
 				return;
@@ -368,7 +368,7 @@ const AppRoutes = () => {
 					isOpen={showCredentialModal}
 					onClose={handleCredentialSetupComplete}
 					onSave={(creds) => {
-						console.log(' [AppLazy] Credentials saved from startup modal:', creds);
+						logger.info(' [AppLazy] Credentials saved from startup modal:', creds);
 						// The modal will auto-close after save
 					}}
 					flowType="startup"

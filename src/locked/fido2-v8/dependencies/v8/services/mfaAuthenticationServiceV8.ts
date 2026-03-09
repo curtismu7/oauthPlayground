@@ -24,6 +24,7 @@
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
 
 export interface AuthenticationCredentials {
@@ -140,7 +141,7 @@ export class MfaAuthenticationServiceV8 {
 	static async initializeDeviceAuthentication(
 		params: DeviceAuthenticationInitParams
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Initializing device authentication`, {
+		logger.info(`${MODULE_TAG} Initializing device authentication`, {
 			username: params.username,
 			policyId: params.deviceAuthenticationPolicyId,
 			deviceId: params.deviceId,
@@ -158,12 +159,12 @@ export class MfaAuthenticationServiceV8 {
 						params.environmentId,
 						params.deviceAuthenticationPolicyId
 					);
-					console.log(`${MODULE_TAG} Policy loaded for lock verification check:`, {
+					logger.info(`${MODULE_TAG} Policy loaded for lock verification check:`, {
 						policyId: params.deviceAuthenticationPolicyId,
 						skipUserLockVerification: policy.skipUserLockVerification,
 					});
 				} catch (error) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} Failed to read policy for lock verification, continuing:`,
 						error
 					);
@@ -194,7 +195,7 @@ export class MfaAuthenticationServiceV8 {
 					if (isLocked) {
 						const errorMessage =
 							'User account is locked. Please contact your administrator to unlock your account.';
-						console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
+						logger.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
 							userId: user.id,
 							username: params.username,
 							userStatus: user?.status,
@@ -206,10 +207,10 @@ export class MfaAuthenticationServiceV8 {
 					}
 				} catch (error) {
 					// If lookup fails, let the backend handle it (it will return proper error)
-					console.warn(`${MODULE_TAG} Could not verify user lock status, continuing:`, error);
+					logger.warn(`${MODULE_TAG} Could not verify user lock status, continuing:`, error);
 				}
 			} else {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true or no username)`
 				);
 			}
@@ -436,7 +437,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} Device authentication initialized`, {
+			logger.info(`${MODULE_TAG} Device authentication initialized`, {
 				authenticationId: data.id,
 				status: data.status,
 				nextStep: data.nextStep,
@@ -445,7 +446,7 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing device authentication`, error);
+			logger.error(`${MODULE_TAG} Error initializing device authentication`, error);
 			throw error;
 		}
 	}
@@ -459,7 +460,7 @@ export class MfaAuthenticationServiceV8 {
 	static async initializeOneTimeDeviceAuthentication(
 		params: OneTimeDeviceAuthenticationParams
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Initializing one-time device authentication (Phase 2)`, {
+		logger.info(`${MODULE_TAG} Initializing one-time device authentication (Phase 2)`, {
 			username: params.username,
 			policyId: params.deviceAuthenticationPolicyId,
 			type: params.type,
@@ -489,7 +490,7 @@ export class MfaAuthenticationServiceV8 {
 			} else {
 				// No-username variant: Initialize device authentication without username/userId
 				// This requires a special request body structure
-				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+				logger.info(`${MODULE_TAG} Using no-username variant for device authentication`);
 				userId = ''; // Will be omitted from request body
 			}
 
@@ -568,7 +569,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} One-time device authentication initialized`, {
+			logger.info(`${MODULE_TAG} One-time device authentication initialized`, {
 				authenticationId: data.id,
 				status: data.status,
 				nextStep: data.nextStep,
@@ -577,7 +578,7 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing one-time device authentication`, error);
+			logger.error(`${MODULE_TAG} Error initializing one-time device authentication`, error);
 			throw error;
 		}
 	}
@@ -596,7 +597,7 @@ export class MfaAuthenticationServiceV8 {
 			customDomain?: string;
 		}
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Reading device authentication status`, {
+		logger.info(`${MODULE_TAG} Reading device authentication status`, {
 			authenticationId,
 			isUserId: options?.isUserId,
 		});
@@ -694,14 +695,14 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} Device authentication status read`, {
+			logger.info(`${MODULE_TAG} Device authentication status read`, {
 				status: data.status,
 				nextStep: data.nextStep,
 			});
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error reading device authentication`, error);
+			logger.error(`${MODULE_TAG} Error reading device authentication`, error);
 			throw error;
 		}
 	}
@@ -716,7 +717,7 @@ export class MfaAuthenticationServiceV8 {
 		params: DeviceSelectionParams,
 		options?: { stepName?: string }
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Selecting device for authentication`, {
+		logger.info(`${MODULE_TAG} Selecting device for authentication`, {
 			authenticationId: params.authenticationId,
 			deviceId: params.deviceId,
 			username: params.username,
@@ -735,7 +736,7 @@ export class MfaAuthenticationServiceV8 {
 				const { MFAServiceV8 } = await import('./mfaServiceV8');
 				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
-				console.log(`${MODULE_TAG} Looked up userId for username:`, {
+				logger.info(`${MODULE_TAG} Looked up userId for username:`, {
 					username: params.username,
 					userId,
 				});
@@ -774,7 +775,7 @@ export class MfaAuthenticationServiceV8 {
 							| undefined) ||
 						[];
 
-					console.log(`${MODULE_TAG} Validating device selection:`, {
+					logger.info(`${MODULE_TAG} Validating device selection:`, {
 						selectedDeviceId: params.deviceId,
 						allowedDeviceIds: allowedDevices.map((d) => d.id),
 						allowedDeviceCount: allowedDevices.length,
@@ -815,7 +816,7 @@ export class MfaAuthenticationServiceV8 {
 				}
 				// For other errors (e.g., can't read auth data), log warning but continue
 				// The actual selection call will fail if device is invalid
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Could not validate device before selection (will attempt anyway):`,
 					validationError
 				);
@@ -867,7 +868,7 @@ export class MfaAuthenticationServiceV8 {
 			});
 
 			// Log request details for debugging
-			console.log(`${MODULE_TAG} Sending device selection request:`, {
+			logger.info(`${MODULE_TAG} Sending device selection request:`, {
 				url: '/api/pingone/mfa/select-device',
 				requestBody: {
 					...requestBody,
@@ -906,7 +907,7 @@ export class MfaAuthenticationServiceV8 {
 
 			if (!response.ok) {
 				// Log full error response for debugging
-				console.error(`${MODULE_TAG} Device selection failed:`, {
+				logger.error(`${MODULE_TAG} Device selection failed:`, {
 					status: response.status,
 					statusText: response.statusText,
 					responseData,
@@ -1086,7 +1087,7 @@ export class MfaAuthenticationServiceV8 {
 						}
 					} catch (readError) {
 						// If we can't read auth data, just use the original error
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} Could not read device authentication for better error message:`,
 							readError
 						);
@@ -1101,7 +1102,7 @@ export class MfaAuthenticationServiceV8 {
 			const result = responseData as Partial<DeviceAuthenticationResponse>;
 			// PingOne response may include selectedDevice object with id property
 			const selectedDeviceId = (result as { selectedDevice?: { id?: string } })?.selectedDevice?.id;
-			console.log(`${MODULE_TAG} Device selected for authentication`, {
+			logger.info(`${MODULE_TAG} Device selected for authentication`, {
 				status: result.status,
 				nextStep: result.nextStep,
 				selectedDeviceId: selectedDeviceId || 'not in response',
@@ -1115,7 +1116,7 @@ export class MfaAuthenticationServiceV8 {
 
 			return result as DeviceAuthenticationResponse;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+			logger.error(`${MODULE_TAG} Error selecting device for authentication`, error);
 			throw error;
 		}
 	}
@@ -1150,7 +1151,7 @@ export class MfaAuthenticationServiceV8 {
 					}
 				}
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Could not decode token to check expiry:`, error);
+				logger.warn(`${MODULE_TAG} Could not decode token to check expiry:`, error);
 			}
 		}
 
@@ -1162,7 +1163,7 @@ export class MfaAuthenticationServiceV8 {
 		const isAboutToExpire = tokenExpiry && timeRemaining <= renewalThreshold * 1000;
 		const needsRenewal = !workerToken || isExpired || isAboutToExpire;
 
-		console.log(`${MODULE_TAG} Worker token check:`, {
+		logger.info(`${MODULE_TAG} Worker token check:`, {
 			hasToken: !!workerToken,
 			timeRemainingSeconds,
 			renewalThreshold,
@@ -1174,18 +1175,18 @@ export class MfaAuthenticationServiceV8 {
 
 		if (needsRenewal) {
 			if (!autoRenewalEnabled) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`
 				);
 				if (!workerToken || isExpired) {
 					throw new Error('Worker token not found or expired. Please generate a new worker token.');
 				}
 				// Token exists but is about to expire - warn user but don't auto-renew
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Worker token is about to expire (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), but auto-renewal is disabled`
 				);
 			} else {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Token needs renewal (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), attempting automatic renewal (auto-renewal enabled)...`
 				);
 				const credentials = await workerTokenServiceV8.loadCredentials();
@@ -1252,7 +1253,7 @@ export class MfaAuthenticationServiceV8 {
 						flowType: 'mfa',
 					});
 
-					console.log(`${MODULE_TAG} Renewing worker token...`);
+					logger.info(`${MODULE_TAG} Renewing worker token...`);
 					let response: Response;
 					try {
 						response = await fetch(proxyEndpoint, {
@@ -1315,14 +1316,14 @@ export class MfaAuthenticationServiceV8 {
 						: undefined;
 
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
-					console.log(`${MODULE_TAG} Worker token renewed successfully`);
+					logger.info(`${MODULE_TAG} Worker token renewed successfully`);
 
 					// Dispatch event for status update
 					window.dispatchEvent(new Event('workerTokenUpdated'));
 
 					workerToken = newToken;
 				} catch (renewError) {
-					console.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
+					logger.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
 					throw new Error(
 						`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`
 					);
@@ -1338,7 +1339,7 @@ export class MfaAuthenticationServiceV8 {
 	}
 
 	static async validateOTP(params: OTPValidationParams): Promise<OTPValidationResult> {
-		console.log(`${MODULE_TAG} Validating OTP`, {
+		logger.info(`${MODULE_TAG} Validating OTP`, {
 			authenticationId: params.authenticationId,
 			hasOtpCheckUrl: !!params.otpCheckUrl,
 		});
@@ -1353,7 +1354,7 @@ export class MfaAuthenticationServiceV8 {
 				// Use the URL from PingOne's _links response
 				endpoint = params.otpCheckUrl;
 				contentType = 'application/vnd.pingidentity.otp.check+json';
-				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
+				logger.info(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Get userId - use provided userId or look up by username
 				let _userId: string;
@@ -1369,7 +1370,7 @@ export class MfaAuthenticationServiceV8 {
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
-					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+					logger.info(`${MODULE_TAG} Using no-username variant for device authentication`);
 					_userId = ''; // Will be omitted from request body
 				}
 
@@ -1447,7 +1448,7 @@ export class MfaAuthenticationServiceV8 {
 					typeof responseData === 'object' && responseData !== null && 'message' in responseData
 						? String(responseData.message)
 						: response.statusText;
-				console.error(`${MODULE_TAG} OTP validation failed`, {
+				logger.error(`${MODULE_TAG} OTP validation failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorText,
@@ -1481,7 +1482,7 @@ export class MfaAuthenticationServiceV8 {
 				...(data._links && { _links: data._links }),
 			};
 
-			console.log(`${MODULE_TAG} OTP validation result`, {
+			logger.info(`${MODULE_TAG} OTP validation result`, {
 				valid: result.valid,
 				status: result.status,
 				hasLinks: !!result._links,
@@ -1489,7 +1490,7 @@ export class MfaAuthenticationServiceV8 {
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error validating OTP`, error);
+			logger.error(`${MODULE_TAG} Error validating OTP`, error);
 			throw error;
 		}
 	}
@@ -1499,7 +1500,7 @@ export class MfaAuthenticationServiceV8 {
 	 * Used for Push notifications and WebAuthn challenges
 	 */
 	static async pollAuthenticationStatus(pollUrl: string): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Polling authentication status`, { pollUrl });
+		logger.info(`${MODULE_TAG} Polling authentication status`, { pollUrl });
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1519,14 +1520,14 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = await response.json();
-			console.log(`${MODULE_TAG} Authentication status polled`, {
+			logger.info(`${MODULE_TAG} Authentication status polled`, {
 				status: data.status,
 				nextStep: data.nextStep,
 			});
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error polling authentication status`, error);
+			logger.error(`${MODULE_TAG} Error polling authentication status`, error);
 			throw error;
 		}
 	}
@@ -1538,7 +1539,7 @@ export class MfaAuthenticationServiceV8 {
 	static async completeAuthentication(
 		completeUrl: string
 	): Promise<AuthenticationCompletionResult> {
-		console.log(`${MODULE_TAG} Completing authentication`, { completeUrl });
+		logger.info(`${MODULE_TAG} Completing authentication`, { completeUrl });
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1605,7 +1606,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as Record<string, unknown>;
-			console.log(`${MODULE_TAG} Authentication completed`, {
+			logger.info(`${MODULE_TAG} Authentication completed`, {
 				hasAccessToken: !!data.access_token,
 				tokenType: data.token_type,
 				expiresIn: data.expires_in,
@@ -1640,7 +1641,7 @@ export class MfaAuthenticationServiceV8 {
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error completing authentication`, error);
+			logger.error(`${MODULE_TAG} Error completing authentication`, error);
 			throw error;
 		}
 	}
@@ -1656,7 +1657,7 @@ export class MfaAuthenticationServiceV8 {
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
 		customDomain?: string
 	): Promise<{ status: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
+		logger.info(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1724,11 +1725,11 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const result = data as { status: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} Device authentication canceled`, { status: result.status });
+			logger.info(`${MODULE_TAG} Device authentication canceled`, { status: result.status });
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error canceling device authentication`, error);
+			logger.error(`${MODULE_TAG} Error canceling device authentication`, error);
 			throw error;
 		}
 	}
@@ -1763,7 +1764,7 @@ export class MfaAuthenticationServiceV8 {
 		customDomain?: string,
 		origin?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
+		logger.info(`${MODULE_TAG} Checking FIDO2 assertion`, {
 			deviceAuthId,
 			hasAssertion: !!assertion,
 		});
@@ -1775,7 +1776,7 @@ export class MfaAuthenticationServiceV8 {
 			// JWT tokens have 3 dot-separated parts and are typically 200+ characters
 			const tokenParts = cleanToken.split('.');
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
-				console.error(`${MODULE_TAG} Invalid worker token format - not a JWT:`, {
+				logger.error(`${MODULE_TAG} Invalid worker token format - not a JWT:`, {
 					tokenLength: cleanToken.length,
 					tokenParts: tokenParts.length,
 					tokenPreview: cleanToken.substring(0, 30),
@@ -1788,7 +1789,7 @@ export class MfaAuthenticationServiceV8 {
 			// Additional validation: JWT tokens are typically 200+ characters
 			// If the token is very short (like 44 chars), it might be a hash, not a JWT
 			if (cleanToken.length < 100) {
-				console.error(`${MODULE_TAG} Worker token seems too short to be a valid JWT:`, {
+				logger.error(`${MODULE_TAG} Worker token seems too short to be a valid JWT:`, {
 					tokenLength: cleanToken.length,
 					tokenPreview: cleanToken.substring(0, 30),
 					isJWTFormat: tokenParts.length === 3,
@@ -2038,7 +2039,7 @@ if (!response.ok) {
 }
 
 const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
-console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
+logger.info(`${MODULE_TAG} FIDO2 assertion checked`, {
 	status: data.status,
 	nextStep: data.nextStep,
 });
@@ -2046,7 +2047,7 @@ console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
 return data;
 } catch (error)
 {
-	console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
+	logger.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
 	throw error;
 }
 }

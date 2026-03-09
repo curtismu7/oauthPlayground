@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SQLiteStatsServiceV8 } from '@/v8/services/sqliteStatsServiceV8';
 import type { User } from '@/v8/services/userServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 USE-USER-SEARCH]';
 
 export interface UseUserSearchOptions {
@@ -92,12 +93,12 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 			setUsersFetched(userStats.success && userStats.totalUsers > 0);
 
 			if (userStats.success) {
-				console.log(`${MODULE_TAG} SQLite user count for ${environmentId}:`, userStats.totalUsers);
+				logger.info(`${MODULE_TAG} SQLite user count for ${environmentId}:`, userStats.totalUsers);
 			} else {
-				console.warn(`${MODULE_TAG} Failed to get SQLite user count:`, userStats.error);
+				logger.warn(`${MODULE_TAG} Failed to get SQLite user count:`, userStats.error);
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to check SQLite user count:`, error);
+			logger.warn(`${MODULE_TAG} Failed to check SQLite user count:`, error);
 			setUsersFetched(false);
 		}
 	}, [environmentId, tokenValid]);
@@ -121,9 +122,9 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 					useCache: useCache && !forceRefresh,
 				});
 				setUsersFetched(true);
-				console.log(`${MODULE_TAG} Cache populated, use search to query`);
+				logger.info(`${MODULE_TAG} Cache populated, use search to query`);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to fetch users:`, error);
+				logger.error(`${MODULE_TAG} Failed to fetch users:`, error);
 				setUsersFetched(false);
 			} finally {
 				setIsLoading(false);
@@ -149,7 +150,7 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 			try {
 				if (!searchQuery || !searchQuery.trim()) {
 					// No search - get recent users from server
-					console.log(`${MODULE_TAG} No search query - loading recent users from server`);
+					logger.info(`${MODULE_TAG} No search query - loading recent users from server`);
 					const response = await fetch(`/api/users/recent/${environmentId}?limit=100`);
 					if (response.ok) {
 						const data = await response.json();
@@ -159,15 +160,15 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 							: Array.isArray(data)
 								? data
 								: [];
-						console.log(`${MODULE_TAG} Loaded ${usersArray.length} recent users`);
+						logger.info(`${MODULE_TAG} Loaded ${usersArray.length} recent users`);
 						setUsers(usersArray);
 					} else {
-						console.warn(`${MODULE_TAG} Failed to fetch recent users from server`);
+						logger.warn(`${MODULE_TAG} Failed to fetch recent users from server`);
 						setUsers([]);
 					}
 				} else {
 					// Search via server API
-					console.log(`${MODULE_TAG} Searching server for: "${searchQuery}"`);
+					logger.info(`${MODULE_TAG} Searching server for: "${searchQuery}"`);
 					const response = await fetch(
 						`/api/users/search?environmentId=${environmentId}&q=${encodeURIComponent(searchQuery)}&limit=100`
 					);
@@ -179,15 +180,15 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 							: Array.isArray(data)
 								? data
 								: [];
-						console.log(`${MODULE_TAG} Found ${usersArray.length} matching users`);
+						logger.info(`${MODULE_TAG} Found ${usersArray.length} matching users`);
 						setUsers(usersArray);
 					} else {
-						console.warn(`${MODULE_TAG} Search failed on server`);
+						logger.warn(`${MODULE_TAG} Search failed on server`);
 						setUsers([]);
 					}
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Search failed:`, error);
+				logger.error(`${MODULE_TAG} Search failed:`, error);
 				setUsers([]);
 			} finally {
 				setIsLoading(false);

@@ -27,6 +27,7 @@ import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { useCredentialManager } from '@/v8/contexts/MFACredentialContext';
 import { MFAFlowControllerFactory } from '@/v8/flows/controllers/MFAFlowControllerFactory';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🪝 USE-UNIFIED-MFA-STATE]';
 
 /**
@@ -36,7 +37,7 @@ const MODULE_TAG = '[🪝 USE-UNIFIED-MFA-STATE]';
  * @returns State and actions for the unified flow
  */
 export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
-	console.log(`${MODULE_TAG} Initializing state for device type:`, deviceType);
+	logger.info(`${MODULE_TAG} Initializing state for device type:`, deviceType);
 
 	// ========================================================================
 	// LAYER 1: GLOBAL STATE (FROM CONTEXTS)
@@ -46,7 +47,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	const credentialManager = useCredentialManager();
 	const { credentials, saveCredentials, loadCredentials, validateCredentials } = credentialManager;
 
-	console.log(`${MODULE_TAG} Credentials loaded:`, {
+	logger.info(`${MODULE_TAG} Credentials loaded:`, {
 		environmentId: credentials?.environmentId,
 		username: credentials?.username,
 		deviceType: credentials?.deviceType,
@@ -58,13 +59,13 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 
 	// Load device-specific configuration
 	const config = useMemo(() => {
-		console.log(`${MODULE_TAG} Loading device config for:`, deviceType);
+		logger.info(`${MODULE_TAG} Loading device config for:`, deviceType);
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
 
 	// Create controller for this device type
 	const controller = useMemo(() => {
-		console.log(`${MODULE_TAG} Creating controller for:`, deviceType);
+		logger.info(`${MODULE_TAG} Creating controller for:`, deviceType);
 		return MFAFlowControllerFactory.create(deviceType);
 	}, [deviceType]);
 
@@ -87,7 +88,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 			fields[field] = (credentials?.[field as keyof typeof credentials] as string) || '';
 		});
 
-		console.log(`${MODULE_TAG} Initialized device fields:`, fields);
+		logger.info(`${MODULE_TAG} Initialized device fields:`, fields);
 		return fields;
 	});
 
@@ -99,7 +100,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Update a single device field
 	 */
 	const updateDeviceField = (fieldName: string, value: string) => {
-		console.log(`${MODULE_TAG} Updating field:`, fieldName, '=', value);
+		logger.info(`${MODULE_TAG} Updating field:`, fieldName, '=', value);
 		setDeviceFields((prev) => ({ ...prev, [fieldName]: value }));
 	};
 
@@ -107,7 +108,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Update multiple device fields at once
 	 */
 	const updateDeviceFields = (fields: Record<string, string>) => {
-		console.log(`${MODULE_TAG} Updating multiple fields:`, fields);
+		logger.info(`${MODULE_TAG} Updating multiple fields:`, fields);
 		setDeviceFields((prev) => ({ ...prev, ...fields }));
 	};
 
@@ -115,7 +116,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Reset device fields to empty/default values
 	 */
 	const resetDeviceFields = () => {
-		console.log(`${MODULE_TAG} Resetting device fields`);
+		logger.info(`${MODULE_TAG} Resetting device fields`);
 		const fields: Record<string, string> = {};
 		const allFields = [...config.requiredFields, ...config.optionalFields];
 		allFields.forEach((field) => {
@@ -129,7 +130,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Useful before saving or submitting
 	 */
 	const syncFieldsToCredentials = () => {
-		console.log(`${MODULE_TAG} Syncing fields to credentials`);
+		logger.info(`${MODULE_TAG} Syncing fields to credentials`);
 		const updatedCredentials = {
 			...credentials,
 			deviceType,

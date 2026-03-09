@@ -44,6 +44,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
@@ -254,15 +255,15 @@ const ClientGenerator: React.FC = () => {
 				// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
 				// Client IDs are much longer base64-like strings
 				if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
-					log.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
+					logger.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
 						envId,
 					});
 					throw new Error('Invalid Environment ID format. Please check your credentials.');
 				}
 
 				const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
-				console.log('[App Generator] Requesting token from:', tokenEndpoint);
-				console.log('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
+				logger.info('[App Generator] Requesting token from:', tokenEndpoint);
+				logger.info('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
 
 				// Prepare headers and body based on auth method
 				const headers: Record<string, string> = {
@@ -301,7 +302,7 @@ const ClientGenerator: React.FC = () => {
 
 				if (!response.ok) {
 					const errorText = await response.text();
-					log.error('ClientGenerator', '[App Generator] Token request failed:', {
+					logger.error('ClientGenerator', '[App Generator] Token request failed:', {
 						status: response.status,
 						errorText,
 					});
@@ -311,10 +312,10 @@ const ClientGenerator: React.FC = () => {
 				}
 
 				// Token is now managed by unified service
-				console.log('[App Generator] Worker token managed by unified service');
+				logger.info('[App Generator] Worker token managed by unified service');
 				return workerToken;
 			} catch (error) {
-				log.error(
+				logger.error(
 					'ClientGenerator',
 					'[App Generator] Failed to get worker token:',
 					undefined,
@@ -352,7 +353,7 @@ const ClientGenerator: React.FC = () => {
 					// Check if we have a valid token already
 					const existingToken = await workerTokenServiceV8.getToken();
 					if (existingToken) {
-						console.log('[App Generator] Using existing worker token from service');
+						logger.info('[App Generator] Using existing worker token from service');
 						setWorkerToken(existingToken);
 					} else if (
 						credentials.clientId &&
@@ -360,12 +361,12 @@ const ClientGenerator: React.FC = () => {
 						credentials.environmentId
 					) {
 						// Silently get token if we have credentials but no token
-						console.log('[App Generator] Silently requesting worker token...');
+						logger.info('[App Generator] Silently requesting worker token...');
 						await getWorkerTokenSilently(credentials);
 					}
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'ClientGenerator',
 					'[App Generator] Failed to load credentials:',
 					undefined,
@@ -388,7 +389,7 @@ const ClientGenerator: React.FC = () => {
 	const handleSaveAndGetToken = useCallback(async () => {
 		try {
 			// Credentials are now managed by unified service
-			console.log('[App Generator] Worker credentials managed by unified service');
+			logger.info('[App Generator] Worker credentials managed by unified service');
 			// Save credentials to global service
 			await workerTokenServiceV8.saveCredentials({
 				environmentId: workerCredentials.environmentId,
@@ -411,7 +412,7 @@ const ClientGenerator: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ClientGenerator',
 				'[App Generator] Failed to save and get token:',
 				undefined,
@@ -558,7 +559,7 @@ const ClientGenerator: React.FC = () => {
 							variant="danger"
 							onClick={async () => {
 								// Clear credentials through unified service
-								console.log('[App Generator] Clearing credentials through unified service');
+								logger.info('[App Generator] Clearing credentials through unified service');
 								setWorkerCredentials({
 									environmentId: '',
 									clientId: '',
@@ -609,7 +610,7 @@ const ClientGenerator: React.FC = () => {
 							}}
 							// Clear token through unified service
 							onClearToken={async () => {
-								console.log('[App Generator] Clearing token through unified service');
+								logger.info('[App Generator] Clearing token through unified service');
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
@@ -621,7 +622,7 @@ const ClientGenerator: React.FC = () => {
 							}}
 							// Clear all through unified service
 							onClearAll={async () => {
-								console.log('[App Generator] Clearing all through unified service');
+								logger.info('[App Generator] Clearing all through unified service');
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);

@@ -9,6 +9,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 TOKEN-AUTH-MODAL-V8]';
 
 interface TokenEndpointAuthModalProps {
@@ -234,7 +235,7 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 	isOpen,
 	onClose,
 }) => {
-	console.log(`${MODULE_TAG} Modal state:`, { isOpen });
+	logger.info(`${MODULE_TAG} Modal state:`, { isOpen });
 
 	// Lock body scroll when modal is open
 	React.useEffect(() => {

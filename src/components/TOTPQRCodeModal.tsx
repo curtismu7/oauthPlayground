@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 
+import { logger } from '../utils/logger';
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -52,9 +53,9 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 			setQrCodeData(result.totpUri);
 			setManualEntryKey(result.manualEntryKey);
 
-			console.log(`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`);
+			logger.info(`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'TOTPQRCodeModal',
 				'❌ [TOTP QR Code] Failed to generate TOTP config:',
 				undefined,
@@ -93,7 +94,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 			// Reset copied state after 2 seconds
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'TOTPQRCodeModal',
 				'❌ [TOTP QR Code] Failed to copy secret:',
 				undefined,

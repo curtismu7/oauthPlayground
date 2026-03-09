@@ -2,6 +2,7 @@ import { FiLoader, FiLock, FiUser } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../../../utils/logger';
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -345,7 +346,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 			await onLogin(username.trim(), password);
 		} catch (err) {
 			// Error will be handled by parent component
-			console.error('Login failed:', err);
+			logger.error('Login failed:', err);
 		}
 	};
 

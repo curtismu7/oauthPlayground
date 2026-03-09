@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -71,7 +72,7 @@ const StatusMessage = styled.p`
 `;
 
 const AuthzCallback: React.FC = () => {
-	console.log('🎯 [AuthzCallback] Component loaded!', {
+	logger.info('🎯 [AuthzCallback] Component loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
@@ -88,7 +89,7 @@ const AuthzCallback: React.FC = () => {
 	useEffect(() => {
 		// Prevent duplicate processing (especially in React Strict Mode)
 		if (processedRef.current) {
-			console.log('[AuthzCallback] Already processed, skipping duplicate call');
+			logger.info('[AuthzCallback] Already processed, skipping duplicate call');
 			return;
 		}
 
@@ -98,7 +99,7 @@ const AuthzCallback: React.FC = () => {
 		const processedCode = sessionStorage.getItem('processed_auth_code');
 
 		if (code && processedCode === code) {
-			console.log('[AuthzCallback] This authorization code has already been processed, skipping');
+			logger.info('[AuthzCallback] This authorization code has already been processed, skipping');
 			setStatus('error');
 			setMessage(
 				'This authorization code has already been used. Please start the authorization flow again.'
@@ -117,7 +118,7 @@ const AuthzCallback: React.FC = () => {
 
 			try {
 				const currentUrl = getValidatedCurrentUrl('AuthzCallback');
-				log.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
+				logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
 
 				const urlObj = new URL(currentUrl);
 				const queryParams = urlObj.searchParams;
@@ -137,7 +138,7 @@ const AuthzCallback: React.FC = () => {
 					(Boolean(implicitAccessToken) || Boolean(implicitIdToken) || Boolean(implicitError));
 
 				if (hasImplicitPayload) {
-					log.auth('AuthzCallback', 'Implicit flow payload detected, redirecting', {
+					logger.auth('AuthzCallback', 'Implicit flow payload detected, redirecting', {
 						hasAccessToken: Boolean(implicitAccessToken),
 						hasIdToken: Boolean(implicitIdToken),
 						hasError: Boolean(implicitError),
@@ -148,7 +149,7 @@ const AuthzCallback: React.FC = () => {
 						// DEBUG: Enhanced error logging with full URL details
 						// Removed duplicate console.error (log.error below captures this)
 
-						log.error('AuthzCallback', 'Implicit flow returned error parameters', {
+						logger.error('AuthzCallback', 'Implicit flow returned error parameters', {
 							error: implicitError,
 							errorDescription: implicitErrorDescription,
 							url: urlObj.href?.substring(0, 300), // Limit URL length for logging
@@ -192,7 +193,7 @@ const AuthzCallback: React.FC = () => {
 						context?.flow === 'oidc-authorization-code-v7-2';
 					isMFA = context?.flow === 'pingone-complete-mfa-v7';
 
-					console.log(' [AuthzCallback] Flow context parsing successful:', {
+					logger.info(' [AuthzCallback] Flow context parsing successful:', {
 						flowContext: context?.flow,
 						isOAuthV3,
 						isEnhancedV3,
@@ -203,13 +204,13 @@ const AuthzCallback: React.FC = () => {
 						rawFlowContext: flowContext,
 					});
 				} catch (e) {
-					log.error(
+					logger.error(
 						'AuthzCallback',
 						' [AuthzCallback] Flow context parsing failed:',
 						undefined,
 						e as Error
 					);
-					console.log(' [AuthzCallback] Raw flowContext string:', flowContext);
+					logger.info(' [AuthzCallback] Raw flowContext string:', flowContext);
 
 					// Try to detect flow type from URL or other means
 					const currentPath = window.location.pathname;
@@ -218,20 +219,20 @@ const AuthzCallback: React.FC = () => {
 						currentPath.includes('oidc')
 					) {
 						isEnhancedV3 = true;
-						console.log(' [AuthzCallback] Detected OIDC V3 flow from URL path');
+						logger.info(' [AuthzCallback] Detected OIDC V3 flow from URL path');
 					} else if (currentPath.includes('oauth-authorization-code-v3')) {
 						isOAuthV3 = true;
-						console.log(' [AuthzCallback] Detected OAuth V3 flow from URL path');
+						logger.info(' [AuthzCallback] Detected OAuth V3 flow from URL path');
 					}
 				}
 
-				console.log(' [AuthzCallback] Flow detection:', { isOAuthV3, isEnhancedV3, flowContext });
+				logger.info(' [AuthzCallback] Flow detection:', { isOAuthV3, isEnhancedV3, flowContext });
 
 				// Check if this is a popup window
 				const isPopup = window.opener && !window.opener.closed;
 
 				if (isPopup) {
-					console.log(
+					logger.info(
 						' [AuthzCallback] Popup detected - extracting code/state and sending to parent'
 					);
 
@@ -244,7 +245,7 @@ const AuthzCallback: React.FC = () => {
 					const errorDescription = urlParams.get('error_description');
 
 					if (error) {
-						log.error(
+						logger.error(
 							'AuthzCallback',
 							' [AuthzCallback] Authorization error in popup:',
 							undefined,
@@ -270,7 +271,7 @@ const AuthzCallback: React.FC = () => {
 					}
 
 					if (code && state) {
-						console.log(
+						logger.info(
 							' [AuthzCallback] Authorization successful in popup, sending code to parent'
 						);
 						setStatus('success');
@@ -292,7 +293,7 @@ const AuthzCallback: React.FC = () => {
 						}, 1000);
 						return;
 					} else {
-						log.error('AuthzCallback', ' [AuthzCallback] Missing code or state in popup callback');
+						logger.error('AuthzCallback', ' [AuthzCallback] Missing code or state in popup callback');
 						setStatus('error');
 						setMessage('Authorization failed: Missing authorization code');
 
@@ -315,7 +316,7 @@ const AuthzCallback: React.FC = () => {
 					// For OAuth V3 flows, we should ONLY handle popups, not full redirects
 					// OAuth V3 full redirects should be handled by the OAuth V3 flow itself
 					if (isOAuthV3) {
-						console.log(' [AuthzCallback] OAuth V3 flow should only use popup authorization');
+						logger.info(' [AuthzCallback] OAuth V3 flow should only use popup authorization');
 						setStatus('error');
 						setMessage(
 							'OAuth V3 flow detected but not in popup mode. Please use popup authorization.'
@@ -325,13 +326,13 @@ const AuthzCallback: React.FC = () => {
 				}
 
 				// For non-popup flows, check if this is an Enhanced V3 or OAuth V3 flow that should defer token exchange
-				console.log(' [AuthzCallback] Non-popup flow, checking for Enhanced/OAuth flow context...');
+				logger.info(' [AuthzCallback] Non-popup flow, checking for Enhanced/OAuth flow context...');
 
 				if (flowContext) {
 					try {
-						console.log(' [AuthzCallback] Flow context found:', flowContext);
-						console.log(' [AuthzCallback] Is Enhanced V3:', isEnhancedV3);
-						console.log(' [AuthzCallback] Is OAuth V3:', isOAuthV3);
+						logger.info(' [AuthzCallback] Flow context found:', flowContext);
+						logger.info(' [AuthzCallback] Is Enhanced V3:', isEnhancedV3);
+						logger.info(' [AuthzCallback] Is OAuth V3:', isOAuthV3);
 
 						if (isOAuthV3) {
 							// For OAuth V3 full redirect, extract code and state, store them, then redirect to OAuth V3 page
@@ -341,7 +342,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] OAuth V3 authorization error:',
 									undefined,
@@ -357,7 +358,7 @@ const AuthzCallback: React.FC = () => {
 							}
 
 							if (code && state) {
-								console.log(
+								logger.info(
 									' [AuthzCallback] OAuth V3 authorization successful, storing code and redirecting'
 								);
 
@@ -384,7 +385,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] V5 authorization error:',
 									undefined,
@@ -403,7 +404,7 @@ const AuthzCallback: React.FC = () => {
 							}
 
 							if (code && state) {
-								console.log(
+								logger.info(
 									' [AuthzCallback] V5 authorization successful, redirecting with URL parameters intact'
 								);
 
@@ -438,7 +439,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] V7 authorization error:',
 									undefined,
@@ -462,7 +463,7 @@ const AuthzCallback: React.FC = () => {
 							}
 
 							if (code && state) {
-								console.log(
+								logger.info(
 									' [AuthzCallback] V7 authorization successful, storing code and redirecting'
 								);
 
@@ -474,11 +475,11 @@ const AuthzCallback: React.FC = () => {
 								// Store the authorization code and state for V7 flow
 								// V7.2 expects 'oauth_auth_code', V7 expects 'oauth_v7_auth_code'
 								if (isV7_2) {
-									console.log(' [AuthzCallback] Storing auth code for V7.2 flow');
+									logger.info(' [AuthzCallback] Storing auth code for V7.2 flow');
 									sessionStorage.setItem('oauth_auth_code', code);
 									sessionStorage.setItem('oauth_state', state);
 								} else {
-									console.log(' [AuthzCallback] Storing auth code for V7 flow');
+									logger.info(' [AuthzCallback] Storing auth code for V7 flow');
 									sessionStorage.setItem('oauth_v7_auth_code', code);
 									sessionStorage.setItem('oauth_v7_state', state);
 								}
@@ -517,7 +518,7 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							// Debug: Log all URL parameters received
-							console.log(' [AuthzCallback] MFA callback URL parameters:', {
+							logger.info(' [AuthzCallback] MFA callback URL parameters:', {
 								code: code ? `${code.substring(0, 10)}...` : 'MISSING',
 								state: state ? `${state.substring(0, 10)}...` : 'MISSING',
 								error: error || 'none',
@@ -526,7 +527,7 @@ const AuthzCallback: React.FC = () => {
 							});
 
 							if (error) {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] MFA authorization error:',
 									undefined,
@@ -542,7 +543,7 @@ const AuthzCallback: React.FC = () => {
 							}
 
 							if (code && state) {
-								console.log(
+								logger.info(
 									' [AuthzCallback] MFA authorization successful, storing code and redirecting'
 								);
 
@@ -556,13 +557,13 @@ const AuthzCallback: React.FC = () => {
 								// Redirect back to MFA flow - use the returnPath from context or default to MFA page
 								// The returnPath should be set by the MFA flow when it initiates the redirect
 								const returnPath = context?.returnPath || '/pingone-authentication';
-								console.log(' [AuthzCallback] MFA redirecting to:', returnPath);
+								logger.info(' [AuthzCallback] MFA redirecting to:', returnPath);
 								setTimeout(() => {
 									navigate(returnPath);
 								}, 1500);
 								return;
 							} else {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] Missing code or state in MFA callback'
 								);
@@ -576,7 +577,7 @@ const AuthzCallback: React.FC = () => {
 							// Check if we've already processed this callback to prevent loops
 							const callbackProcessed = sessionStorage.getItem('v3_callback_processed');
 							if (callbackProcessed) {
-								console.log(
+								logger.info(
 									' [AuthzCallback] V3 callback already processed, preventing duplicate processing'
 								);
 								const returnPath =
@@ -595,7 +596,7 @@ const AuthzCallback: React.FC = () => {
 								const errorDescription = urlParams.get('error_description');
 								const allParams = Object.fromEntries(urlParams.entries());
 
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] Authorization error in V3 full redirect:',
 									{
@@ -619,7 +620,7 @@ const AuthzCallback: React.FC = () => {
 
 								// Show user-friendly error message based on error type
 								if (error === 'invalid_request') {
-									console.log(' [AuthzCallback] invalid_request error details:', {
+									logger.info(' [AuthzCallback] invalid_request error details:', {
 										possibleCauses: [
 											'Invalid client_id',
 											'Invalid redirect_uri',
@@ -677,7 +678,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 								sessionStorage.setItem(`${flowType}_v3_auth_code`, code);
 								sessionStorage.setItem(`${flowType}_v3_state`, state);
 
-								console.log(
+								logger.info(
 									` [AuthzCallback] Stored authorization code with key: ${flowType}_v3_auth_code`,
 									{
 										flowContext: context?.flow,
@@ -688,7 +689,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 									}
 								);
 
-								console.log(
+								logger.info(
 									' [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page'
 								);
 								setStatus('success');
@@ -702,7 +703,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 								}, 1500);
 								return;
 							} else {
-								log.error(
+								logger.error(
 									'AuthzCallback',
 									' [AuthzCallback] Missing code or state in V3 full redirect'
 								);
@@ -712,27 +713,27 @@ Check your PingOne application configuration and ensure all parameters match exa
 							}
 						}
 					} catch (e) {
-						log.warn('AuthzCallback', 'Failed to parse flow context in AuthzCallback:', {
+						logger.warn('AuthzCallback', 'Failed to parse flow context in AuthzCallback:', {
 							error: e,
 						});
 					}
 				}
 
 				// For non-Enhanced flows, proceed with normal handleCallback
-				console.log(' [AuthzCallback] Not an Enhanced V3 flow, proceeding with handleCallback');
+				logger.info(' [AuthzCallback] Not an Enhanced V3 flow, proceeding with handleCallback');
 				const result = await handleCallback(currentUrl);
 
 				if (result.success) {
 					setStatus('success');
 					setMessage('Authorization successful! Redirecting...');
-					log.auth('AuthzCallback', 'Authorization successful', {
+					logger.auth('AuthzCallback', 'Authorization successful', {
 						redirectUrl: result.redirectUrl,
 					});
 
-					console.log(' [AuthzCallback] Redirect URL from result:', result.redirectUrl);
-					console.log(' [AuthzCallback] Current URL:', window.location.href);
-					console.log(' [AuthzCallback] SessionStorage keys:', Object.keys(sessionStorage));
-					console.log(
+					logger.info(' [AuthzCallback] Redirect URL from result:', result.redirectUrl);
+					logger.info(' [AuthzCallback] Current URL:', window.location.href);
+					logger.info(' [AuthzCallback] SessionStorage keys:', Object.keys(sessionStorage));
+					logger.info(
 						' [AuthzCallback] Flow context in sessionStorage:',
 						sessionStorage.getItem('flowContext')
 					);
@@ -746,7 +747,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 
 						const redirectUrl = result.redirectUrl || '/';
 
-						console.log(' [AuthzCallback] Debug redirect info:', {
+						logger.info(' [AuthzCallback] Debug redirect info:', {
 							code: code ? `${code.substring(0, 10)}...` : 'none',
 							state: state ? `${state.substring(0, 10)}...` : 'none',
 							redirectUrl,
@@ -762,7 +763,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 								redirectUrl.includes('enhanced-authorization-code-v3') ||
 								redirectUrl.includes('/flows/'))
 						) {
-							console.log(
+							logger.info(
 								' [AuthzCallback] Enhanced flow (V2/V3) detected, using return path as-is:',
 								redirectUrl
 							);
@@ -770,7 +771,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 						}
 
 						// Redirect after a short delay for non-popup
-						console.log(' [AuthzCallback] Redirecting to:', redirectUrl);
+						logger.info(' [AuthzCallback] Redirecting to:', redirectUrl);
 						setTimeout(() => {
 							navigate(redirectUrl);
 						}, 1500);
@@ -779,7 +780,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 					setStatus('error');
 					setMessage('Authorization failed');
 					setError(result.error || 'Unknown error occurred');
-					log.error('AuthzCallback', 'Authorization failed', { error: result.error });
+					logger.error('AuthzCallback', 'Authorization failed', { error: result.error });
 
 					// For non-popup flows, the error is displayed in the UI
 				}
@@ -787,7 +788,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 				setStatus('error');
 				setMessage('Authorization failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				log.error(
+				logger.error(
 					'AuthzCallback',
 					'Error processing callback',
 					err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) }

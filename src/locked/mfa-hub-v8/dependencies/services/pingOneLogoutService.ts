@@ -1,4 +1,5 @@
 // src/services/pingOneLogoutService.ts
+import { logger } from '../../../utils/logger';
 // Reusable helper to initiate PingOne logout flows across the application
 
 import SessionTerminationService, {
@@ -50,7 +51,7 @@ const openLogoutUrl = (url: string, target: PingOneLogoutOpenTarget): boolean =>
 
 		// Check if popup was blocked
 		if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-			console.warn('[pingOneLogoutService] Popup may have been blocked by browser');
+			logger.warn('[pingOneLogoutService] Popup may have been blocked by browser');
 			return false;
 		}
 
@@ -58,7 +59,7 @@ const openLogoutUrl = (url: string, target: PingOneLogoutOpenTarget): boolean =>
 		newWindow.focus();
 		return true;
 	} catch (error) {
-		console.error('[pingOneLogoutService] Failed to open logout URL:', error);
+		logger.error('[pingOneLogoutService] Failed to open logout URL:', error);
 		return false;
 	}
 };

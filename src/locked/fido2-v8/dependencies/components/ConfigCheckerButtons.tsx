@@ -9,6 +9,7 @@ import { pingOneAppCreationService } from '../services/pingOneAppCreationService
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
 
+import { logger } from '../../../utils/logger';
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
 	<svg
@@ -801,7 +802,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				// Wait a moment for the token to be generated
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 			} catch (error) {
-				console.error('[CONFIG-CHECKER] Failed to refresh worker token:', error);
+				logger.error('[CONFIG-CHECKER] Failed to refresh worker token:', error);
 				v4ToastManager.showError(
 					'Failed to refresh worker token. Proceeding with existing token...'
 				);
@@ -809,7 +810,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		}
 
 		setLoading('check');
-		log.info('CONFIG-CHECKER', 'Starting configuration check', {
+		logger.info('CONFIG-CHECKER', 'Starting configuration check', {
 			clientId,
 			selectedAppType,
 			hasWorkerToken: !!workerToken,
@@ -830,13 +831,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 			if (!result.hasDiffs) {
 				v4ToastManager.showSuccess('No differences detected.');
-				log.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
+				logger.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
 					clientId,
 					selectedAppType,
 					elapsed,
 				});
 			} else {
-				log.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
+				logger.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
 					clientId,
 					selectedAppType,
 					elapsed,
@@ -861,7 +862,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					duration: 8000,
 				});
 				setShowAuthErrorModal(true);
-				log.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
+				logger.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -873,14 +874,14 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				v4ToastManager.showError('Network error. Please check your connection and try again.', {
 					duration: 6000,
 				});
-				log.error('CONFIG-CHECKER', 'CORS/Network error', {
+				logger.error('CONFIG-CHECKER', 'CORS/Network error', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
 				});
 			} else {
 				v4ToastManager.showError(`Configuration check failed: ${errorMessage}`);
-				log.error('CONFIG-CHECKER', 'Configuration check failed', {
+				logger.error('CONFIG-CHECKER', 'Configuration check failed', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -969,7 +970,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		setLoading('create');
 		setShowCreateModal(false);
-		log.info('CONFIG-CHECKER', 'Starting application creation', {
+		logger.info('CONFIG-CHECKER', 'Starting application creation', {
 			selectedAppType,
 			createFormData,
 		});
@@ -981,7 +982,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			const result = await onCreateApplication(createFormData);
 
 			const elapsed = Date.now() - startTime;
-			log.info('CONFIG-CHECKER', 'Application creation completed', {
+			logger.info('CONFIG-CHECKER', 'Application creation completed', {
 				selectedAppType,
 				elapsed,
 			});
@@ -994,7 +995,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			v4ToastManager.showError(`Application creation failed: ${errorMessage}`);
-			log.error('CONFIG-CHECKER', 'Application creation failed', {
+			logger.error('CONFIG-CHECKER', 'Application creation failed', {
 				selectedAppType,
 				error: errorMessage,
 			});
@@ -1109,7 +1110,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				v4ToastManager.showError(`Failed to update application: ${result.error}`);
 			}
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Failed to update application:', error);
+			logger.error('[CONFIG-CHECKER] Failed to update application:', error);
 			v4ToastManager.showError(
 				`Failed to update application: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -1177,7 +1178,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				throw new Error('Import configuration callback not available');
 			}
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Error updating Our App:', error);
+			logger.error('[CONFIG-CHECKER] Error updating Our App:', error);
 			v4ToastManager.showError(
 				`Failed to update Our App: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -1249,7 +1250,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 			v4ToastManager.showSuccess('PingOne configuration exported successfully!');
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Error exporting configuration:', error);
+			logger.error('[CONFIG-CHECKER] Error exporting configuration:', error);
 			v4ToastManager.showError(
 				`Failed to export configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

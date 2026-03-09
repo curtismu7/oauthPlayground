@@ -8,6 +8,7 @@ import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
 import { type PlaygroundResult, RESPONSE_TYPES, RESULT_STORAGE_KEY } from './PingOneAuthentication';
 
+import { logger } from '../utils/logger';
 const Page = styled.div`
   background: white;
   min-height: 100vh;
@@ -283,7 +284,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			log.warn(
+			logger.warn(
 				'PingOneAuthenticationResult',
 				'[PingOneAuthenticationResult] Failed to load result:',
 				{ error }

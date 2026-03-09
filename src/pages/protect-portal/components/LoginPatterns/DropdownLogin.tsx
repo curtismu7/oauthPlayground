@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -212,7 +213,7 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({
 							placeholder={`Search for ${config.content.customerTerminology ? 'customer' : 'employee'} ID...`}
 							onGetToken={() => {
 								// Could show inline error or toast for token requirement
-								console.log('Worker token required for user search');
+								logger.info('Worker token required for user search');
 							}}
 						/>
 					</InputGroup>

@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type CibaAuthRequest,
 	type CibaCredentials,
@@ -136,7 +137,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 */
 	const loadDiscoveryMetadata = useCallback(
 		async (environmentId: string) => {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Loading CIBA discovery metadata for environment: ${environmentId}`
 			);
 
@@ -165,7 +166,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					message: 'CIBA discovery metadata loaded successfully',
 					duration: 3000,
 				});
-				console.log(`${MODULE_TAG} Discovery metadata loaded:`, {
+				logger.info(`${MODULE_TAG} Discovery metadata loaded:`, {
 					supportedModes: metadata.backchannel_token_delivery_modes_supported,
 					userCodeSupported: metadata.backchannel_user_code_parameter_supported,
 					signingAlgs: metadata.backchannel_authentication_request_signing_alg_values_supported,
@@ -180,7 +181,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					message: errorMessage,
 					dismissible: true,
 				});
-				console.error(`${MODULE_TAG} Failed to load discovery metadata:`, err);
+				logger.error(`${MODULE_TAG} Failed to load discovery metadata:`, err);
 			} finally {
 				setIsLoadingDiscovery(false);
 			}
@@ -197,7 +198,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 */
 	const initiateAuthentication = useCallback(
 		async (credentials: CibaCredentials): Promise<CibaAuthRequest> => {
-			console.log(`${MODULE_TAG} Initiating CIBA authentication`);
+			logger.info(`${MODULE_TAG} Initiating CIBA authentication`);
 
 			setIsInitiating(true);
 			setError(null);
@@ -231,7 +232,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					message: 'CIBA authentication request initiated',
 					duration: 3000,
 				});
-				console.log(`${MODULE_TAG} Authentication initiated:`, {
+				logger.info(`${MODULE_TAG} Authentication initiated:`, {
 					authReqId: `${authReq.auth_req_id.substring(0, 20)}...`,
 					expiresIn: authReq.expires_in,
 					interval: authReq.interval,
@@ -250,7 +251,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					message: errorMessage,
 					dismissible: true,
 				});
-				console.error(`${MODULE_TAG} Failed to initiate authentication:`, err);
+				logger.error(`${MODULE_TAG} Failed to initiate authentication:`, err);
 				throw err;
 			} finally {
 				setIsInitiating(false);
@@ -264,7 +265,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 */
 	const pollForTokens = useCallback(
 		async (authReqId: string, credentials: CibaCredentials): Promise<CibaPollingResult> => {
-			console.log(`${MODULE_TAG} Polling for tokens: ${authReqId.substring(0, 20)}...`);
+			logger.info(`${MODULE_TAG} Polling for tokens: ${authReqId.substring(0, 20)}...`);
 
 			try {
 				const enhancedCredentials: CibaCredentials = {
@@ -325,7 +326,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					message: errorMessage,
 					dismissible: true,
 				});
-				console.error(`${MODULE_TAG} Polling failed:`, err);
+				logger.error(`${MODULE_TAG} Polling failed:`, err);
 
 				return {
 					status: 'error',
@@ -346,7 +347,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 			credentials: CibaCredentials,
 			maxRetries: number = MAX_POLLING_ATTEMPTS
 		): Promise<CibaPollingResult> => {
-			console.log(`${MODULE_TAG} Starting polling with retry: ${authReqId.substring(0, 20)}...`);
+			logger.info(`${MODULE_TAG} Starting polling with retry: ${authReqId.substring(0, 20)}...`);
 
 			setIsPolling(true);
 			abortControllerRef.current = new AbortController();
@@ -355,11 +356,11 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				for (let attempt = 1; attempt <= maxRetries; attempt++) {
 					// Check if polling was cancelled
 					if (abortControllerRef.current.signal.aborted) {
-						console.log(`${MODULE_TAG} Polling cancelled`);
+						logger.info(`${MODULE_TAG} Polling cancelled`);
 						break;
 					}
 
-					console.log(`${MODULE_TAG} Polling attempt ${attempt}/${maxRetries}`);
+					logger.info(`${MODULE_TAG} Polling attempt ${attempt}/${maxRetries}`);
 
 					const result = await pollingSpinner.withSpinner(
 						() => pollForTokens(authReqId, credentials),
@@ -368,14 +369,14 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 					// If we got a final result, return it
 					if (result.status !== 'pending') {
-						console.log(`${MODULE_TAG} Final result received: ${result.status}`);
+						logger.info(`${MODULE_TAG} Final result received: ${result.status}`);
 						return result;
 					}
 
 					// For pending status, wait before next poll
 					if (result.status === 'pending' && attempt < maxRetries) {
 						const interval = result.interval || pollingInterval;
-						console.log(`${MODULE_TAG} Waiting ${interval} seconds before next poll...`);
+						logger.info(`${MODULE_TAG} Waiting ${interval} seconds before next poll...`);
 
 						await new Promise((resolve) => {
 							const timeout = setTimeout(resolve, interval * 1000);
@@ -389,7 +390,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				}
 
 				// Max retries reached
-				console.warn(`${MODULE_TAG} Maximum polling attempts reached`);
+				logger.warn(`${MODULE_TAG} Maximum polling attempts reached`);
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -418,7 +419,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 * Reset all state
 	 */
 	const reset = useCallback(() => {
-		console.log(`${MODULE_TAG} Resetting CIBA flow state`);
+		logger.info(`${MODULE_TAG} Resetting CIBA flow state`);
 
 		// Cancel any ongoing polling
 		if (abortControllerRef.current) {

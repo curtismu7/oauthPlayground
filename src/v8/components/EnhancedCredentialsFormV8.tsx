@@ -20,6 +20,7 @@ import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';
 
+import { logger } from '../utils/logger';
 const _MODULE_TAG = '[📋 ENHANCED-CREDENTIALS-FORM-V8]';
 
 // ============================================================================
@@ -353,7 +354,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 				const backends = await EnhancedCredentialsServiceV8.getBackendStatus();
 				setStorageBackends(backends.map((b) => ({ name: b.name, available: b.available })));
 			} catch (error) {
-				console.error('Failed to load backend status:', error);
+				logger.error('Failed to load backend status:', error);
 			}
 		};
 
@@ -377,7 +378,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					});
 				}
 			} catch (error) {
-				console.error('Failed to load credentials:', error);
+				logger.error('Failed to load credentials:', error);
 			}
 		};
 
@@ -485,7 +486,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			}
 		} catch (error) {
 			setSaveStatus('error');
-			console.error('Save failed:', error);
+			logger.error('Save failed:', error);
 		}
 	}, [tracking, credentials]);
 
@@ -505,7 +506,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 				});
 			}
 		} catch (error) {
-			console.error('Load failed:', error);
+			logger.error('Load failed:', error);
 		}
 	}, [tracking]);
 
@@ -524,7 +525,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			});
 			tracking.resetSession();
 		} catch (error) {
-			console.error('Clear failed:', error);
+			logger.error('Clear failed:', error);
 		}
 	}, [environmentId, tracking]);
 

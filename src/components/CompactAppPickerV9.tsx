@@ -20,6 +20,7 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
@@ -187,7 +188,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			log.error(_MODULE_TAG, 'Discovery error:', undefined, error as Error);
+			logger.error(_MODULE_TAG, 'Discovery error:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -296,7 +297,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 
 	// Debug logging (V9 pattern)
 	if (isDisabled && process.env.NODE_ENV === 'development') {
-		console.log(`${_MODULE_TAG} App lookup button disabled:`, {
+		logger.info(`${_MODULE_TAG} App lookup button disabled:`, {
 			isLoading,
 			environmentId: environmentId.trim(),
 			environmentIdEmpty: !environmentId.trim(),

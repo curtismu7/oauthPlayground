@@ -10,6 +10,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 
+import { logger } from '../utils/logger';
 const WhiteContainer = styled.div`
 	background-color: white;
 	min-height: 100vh;
@@ -1133,13 +1134,13 @@ grant_type=client_credentials
 
 // Usage
 const sessions = await getUserSessions('env-123', 'user-456', 'access-token');
-console.log(\`User has \${sessions.length} active sessions\`);
+logger.info(\`User has \${sessions.length} active sessions\`);
 
 sessions.forEach(session => {
-  console.log(\`Session ID: \${session.id}\`);
-  console.log(\`Application: \${session.application.name}\`);
-  console.log(\`Created: \${session.createdAt}\`);
-  console.log(\`Last Accessed: \${session.lastAccessedAt}\`);
+  logger.info(\`Session ID: \${session.id}\`);
+  logger.info(\`Application: \${session.application.name}\`);
+  logger.info(\`Created: \${session.createdAt}\`);
+  logger.info(\`Last Accessed: \${session.lastAccessedAt}\`);
 });`,
 										'example-list-sessions-js'
 									)}
@@ -1198,16 +1199,16 @@ for session in sessions:
     throw new Error(\`Failed to revoke session: \${response.statusText}\`);
   }
 
-  console.log('Session successfully revoked');
+  logger.info('Session successfully revoked');
   return true;
 }
 
 // Usage - Revoke a suspicious session
 try {
   await revokeSession('env-123', 'user-456', 'session-789', 'access-token');
-  console.log('User has been logged out of that session');
+  logger.info('User has been logged out of that session');
 } catch (error) {
-  log.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
+  logger.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
 }`,
 										'example-revoke-session-js'
 									)}
@@ -1242,7 +1243,7 @@ try {
     throw new Error(\`Failed to delete sessions: \${response.statusText}\`);
   }
 
-  console.log('All user sessions successfully deleted');
+  logger.info('All user sessions successfully deleted');
   return true;
 }
 

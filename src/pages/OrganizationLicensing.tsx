@@ -25,6 +25,7 @@ import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
+import { logger } from '../utils/logger';
 type CredentialsState = {
 	environmentId: string;
 	clientId: string;
@@ -256,7 +257,7 @@ const OrganizationLicensingV2: React.FC = () => {
 		try {
 			return localStorage.getItem(ORGANIZATION_ID_STORAGE_KEY) || '';
 		} catch (error) {
-			log.warn(
+			logger.warn(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Unable to load stored organization ID:',
 				{ error }
@@ -315,7 +316,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					return { access_token: globalTokenStatus.token };
 				}
 			} catch (e) {
-				log.warn('OrganizationLicensing', '[OrganizationLicensing] Error loading worker token:', {
+				logger.warn('OrganizationLicensing', '[OrganizationLicensing] Error loading worker token:', {
 					error: e,
 				});
 			}
@@ -332,7 +333,7 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		const initializeFlow = () => {
 			// Start at step 0 (combined worker token + license info)
-			console.log(
+			logger.info(
 				'[OrganizationLicensing] Starting at step 0 (Get Worker Token & License Information)'
 			);
 
@@ -352,7 +353,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					const data = unifiedWorkerTokenService.getTokenDataSync();
 					envId = data?.credentials?.environmentId || '';
 				} catch (error) {
-					console.log('Failed to load environment ID from worker token:', error);
+					logger.info('Failed to load environment ID from worker token:', error);
 				}
 			}
 
@@ -386,7 +387,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					}));
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -427,7 +428,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				localStorage.removeItem(ORGANIZATION_ID_STORAGE_KEY);
 			}
 		} catch (error) {
-			log.warn(
+			logger.warn(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Unable to persist organization ID:',
 				{ error }
@@ -468,14 +469,14 @@ const OrganizationLicensingV2: React.FC = () => {
 		setOrgInfo(null); // Clear previous results
 
 		try {
-			console.log(
+			logger.info(
 				'[OrganizationLicensing] Fetching organization info with access token and org ID:',
 				organizationId.trim()
 			);
 			const info = await getOrganizationLicensingInfo(accessToken, organizationId.trim());
 
 			if (info) {
-				console.log('[OrganizationLicensing] Organization info received:', info);
+				logger.info('[OrganizationLicensing] Organization info received:', info);
 				setOrgInfo(info);
 				modernMessaging.showFooterMessage({
 					type: 'status',
@@ -492,14 +493,14 @@ const OrganizationLicensingV2: React.FC = () => {
 					message: 'Failed to fetch organization information. Check the error message for details.',
 					dismissible: true,
 				});
-				log.error(
+				logger.error(
 					'OrganizationLicensing',
 					'[OrganizationLicensing] getOrganizationLicensingInfo returned null'
 				);
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			log.error(
+			logger.error(
 				'OrganizationLicensing',
 				'[OrganizationLicensing] Error fetching organization info:',
 				undefined,

@@ -6,81 +6,82 @@ import { flowTestSuite } from './flowTestSuite';
 import { regressionSafeguards } from './regressionSafeguards';
 import { safeguardIntegration } from './safeguardIntegration';
 
+import { logger } from '../utils/logger';
 /**
  * Run comprehensive safeguard checks
  */
 export async function runSafeguards(): Promise<void> {
-	console.log('🛡️  Running Comprehensive Safeguard Checks');
-	console.log('==========================================');
+	logger.info('🛡️  Running Comprehensive Safeguard Checks');
+	logger.info('==========================================');
 
 	try {
 		// Run comprehensive check
 		const results = await safeguardIntegration.runComprehensiveCheck();
 
-		console.log('\n📊 Safeguard Check Results:');
-		console.log('============================');
-		console.log(`Overall Status: ${results.passed ? '✅ PASSED' : '❌ FAILED'}`);
-		console.log(`Summary: ${JSON.stringify(results.summary, null, 2)}`);
+		logger.info('\n📊 Safeguard Check Results:');
+		logger.info('============================');
+		logger.info(`Overall Status: ${results.passed ? '✅ PASSED' : '❌ FAILED'}`);
+		logger.info(`Summary: ${JSON.stringify(results.summary, null, 2)}`);
 
 		// Show detailed results
 		if (results.results.regressionTesting) {
-			console.log('\n🧪 Regression Testing Results:');
-			console.log(`Total Flows: ${results.results.regressionTesting.summary.totalFlows}`);
-			console.log(`Passed: ${results.results.regressionTesting.summary.passedFlows}`);
-			console.log(`Failed: ${results.results.regressionTesting.summary.failedFlows}`);
-			console.log(
+			logger.info('\n🧪 Regression Testing Results:');
+			logger.info(`Total Flows: ${results.results.regressionTesting.summary.totalFlows}`);
+			logger.info(`Passed: ${results.results.regressionTesting.summary.passedFlows}`);
+			logger.info(`Failed: ${results.results.regressionTesting.summary.failedFlows}`);
+			logger.info(
 				`Critical Failures: ${results.results.regressionTesting.summary.criticalFailures}`
 			);
 		}
 
 		if (results.results.preCommitChecks) {
-			console.log('\n🔍 Pre-Commit Check Results:');
-			console.log(`Total Checks: ${results.results.preCommitChecks.summary.totalChecks}`);
-			console.log(`Passed: ${results.results.preCommitChecks.summary.passedChecks}`);
-			console.log(`Failed: ${results.results.preCommitChecks.summary.failedChecks}`);
-			console.log(`Critical Failures: ${results.results.preCommitChecks.summary.criticalFailures}`);
+			logger.info('\n🔍 Pre-Commit Check Results:');
+			logger.info(`Total Checks: ${results.results.preCommitChecks.summary.totalChecks}`);
+			logger.info(`Passed: ${results.results.preCommitChecks.summary.passedChecks}`);
+			logger.info(`Failed: ${results.results.preCommitChecks.summary.failedChecks}`);
+			logger.info(`Critical Failures: ${results.results.preCommitChecks.summary.criticalFailures}`);
 		}
 
 		if (results.results.errorMonitoring) {
-			console.log('\n📈 Error Monitoring Results:');
-			console.log(`Overall: ${results.results.errorMonitoring.overall}`);
-			console.log(`Recent Errors: ${results.results.errorMonitoring.recentErrors}`);
-			console.log(`Critical Errors: ${results.results.errorMonitoring.criticalErrors}`);
+			logger.info('\n📈 Error Monitoring Results:');
+			logger.info(`Overall: ${results.results.errorMonitoring.overall}`);
+			logger.info(`Recent Errors: ${results.results.errorMonitoring.recentErrors}`);
+			logger.info(`Critical Errors: ${results.results.errorMonitoring.criticalErrors}`);
 		}
 
 		if (results.results.flowValidation) {
-			console.log('\n🔄 Flow Validation Results:');
-			console.log(`Overall: ${results.results.flowValidation.overall}`);
-			console.log(`Flows: ${results.results.flowValidation.flows.length}`);
-			console.log(`Critical Issues: ${results.results.flowValidation.criticalIssues.length}`);
+			logger.info('\n🔄 Flow Validation Results:');
+			logger.info(`Overall: ${results.results.flowValidation.overall}`);
+			logger.info(`Flows: ${results.results.flowValidation.flows.length}`);
+			logger.info(`Critical Issues: ${results.results.flowValidation.criticalIssues.length}`);
 		}
 
 		// Show health summary
 		const healthSummary = safeguardIntegration.getHealthSummary();
-		console.log('\n🏥 Health Summary:');
-		console.log(`Overall: ${healthSummary.overall}`);
-		console.log(`Components: ${healthSummary.components}`);
-		console.log(`Healthy: ${healthSummary.healthy}`);
-		console.log(`Warning: ${healthSummary.warning}`);
-		console.log(`Critical: ${healthSummary.critical}`);
+		logger.info('\n🏥 Health Summary:');
+		logger.info(`Overall: ${healthSummary.overall}`);
+		logger.info(`Components: ${healthSummary.components}`);
+		logger.info(`Healthy: ${healthSummary.healthy}`);
+		logger.info(`Warning: ${healthSummary.warning}`);
+		logger.info(`Critical: ${healthSummary.critical}`);
 
 		// Show recommendations
-		console.log('\n💡 Recommendations:');
+		logger.info('\n💡 Recommendations:');
 		if (results.passed) {
-			console.log('✅ All safeguard checks passed! Your system is healthy.');
+			logger.info('✅ All safeguard checks passed! Your system is healthy.');
 		} else {
-			console.log('❌ Some safeguard checks failed. Please review the issues above.');
+			logger.info('❌ Some safeguard checks failed. Please review the issues above.');
 
 			if (results.summary.metrics.criticalErrors > 0) {
-				console.log('🚨 Critical errors detected. Immediate attention required.');
+				logger.info('🚨 Critical errors detected. Immediate attention required.');
 			}
 
 			if (results.summary.metrics.failedTests > 0) {
-				console.log('⚠️  Some tests failed. Review and fix before proceeding.');
+				logger.info('⚠️  Some tests failed. Review and fix before proceeding.');
 			}
 		}
 	} catch (error) {
-		console.error('❌ Safeguard check failed:', error);
+		logger.error('❌ Safeguard check failed:', error);
 		throw error;
 	}
 }
@@ -89,18 +90,18 @@ export async function runSafeguards(): Promise<void> {
  * Run quick health check
  */
 export async function runQuickHealthCheck(): Promise<boolean> {
-	console.log('🏥 Running Quick Health Check...');
+	logger.info('🏥 Running Quick Health Check...');
 
 	try {
 		const status = await safeguardIntegration.runHealthCheck();
 		const healthSummary = safeguardIntegration.getHealthSummary();
 
-		console.log(`Health Status: ${status.overall}`);
-		console.log(`Components: ${healthSummary.healthy}/${healthSummary.components} healthy`);
+		logger.info(`Health Status: ${status.overall}`);
+		logger.info(`Components: ${healthSummary.healthy}/${healthSummary.components} healthy`);
 
 		return status.overall === 'healthy';
 	} catch (error) {
-		console.error('❌ Quick health check failed:', error);
+		logger.error('❌ Quick health check failed:', error);
 		return false;
 	}
 }
@@ -109,24 +110,24 @@ export async function runQuickHealthCheck(): Promise<boolean> {
  * Run specific flow test
  */
 export async function runFlowTest(flowName: string): Promise<boolean> {
-	console.log(`🧪 Running test for flow: ${flowName}`);
+	logger.info(`🧪 Running test for flow: ${flowName}`);
 
 	try {
 		const result = await flowTestSuite.runFlowTest(flowName);
 
 		if (result) {
-			console.log(`Flow ${flowName}: ${result.overallPassed ? '✅ PASSED' : '❌ FAILED'}`);
-			console.log(`Tests: ${result.tests.length}`);
-			console.log(`Passed: ${result.tests.filter((t) => t.passed).length}`);
-			console.log(`Failed: ${result.tests.filter((t) => !t.passed).length}`);
+			logger.info(`Flow ${flowName}: ${result.overallPassed ? '✅ PASSED' : '❌ FAILED'}`);
+			logger.info(`Tests: ${result.tests.length}`);
+			logger.info(`Passed: ${result.tests.filter((t) => t.passed).length}`);
+			logger.info(`Failed: ${result.tests.filter((t) => !t.passed).length}`);
 
 			return result.overallPassed;
 		} else {
-			console.error(`No test configuration found for flow: ${flowName}`);
+			logger.error(`No test configuration found for flow: ${flowName}`);
 			return false;
 		}
 	} catch (error) {
-		console.error(`❌ Flow test failed for ${flowName}:`, error);
+		logger.error(`❌ Flow test failed for ${flowName}:`, error);
 		return false;
 	}
 }
@@ -135,25 +136,25 @@ export async function runFlowTest(flowName: string): Promise<boolean> {
  * Show safeguard status
  */
 export function showSafeguardStatus(): void {
-	console.log('📊 Safeguard System Status');
-	console.log('==========================');
+	logger.info('📊 Safeguard System Status');
+	logger.info('==========================');
 
 	const status = safeguardIntegration.getStatus();
 	if (status) {
-		console.log(`Overall: ${status.overall}`);
-		console.log(`Last Run: ${new Date(status.lastRun).toISOString()}`);
-		console.log(`Total Tests: ${status.metrics.totalTests}`);
-		console.log(`Passed Tests: ${status.metrics.passedTests}`);
-		console.log(`Failed Tests: ${status.metrics.failedTests}`);
-		console.log(`Critical Errors: ${status.metrics.criticalErrors}`);
-		console.log(`Recent Errors: ${status.metrics.recentErrors}`);
+		logger.info(`Overall: ${status.overall}`);
+		logger.info(`Last Run: ${new Date(status.lastRun).toISOString()}`);
+		logger.info(`Total Tests: ${status.metrics.totalTests}`);
+		logger.info(`Passed Tests: ${status.metrics.passedTests}`);
+		logger.info(`Failed Tests: ${status.metrics.failedTests}`);
+		logger.info(`Critical Errors: ${status.metrics.criticalErrors}`);
+		logger.info(`Recent Errors: ${status.metrics.recentErrors}`);
 
-		console.log('\nComponent Status:');
+		logger.info('\nComponent Status:');
 		Object.entries(status.components).forEach(([component, health]) => {
-			console.log(`  ${component}: ${health}`);
+			logger.info(`  ${component}: ${health}`);
 		});
 	} else {
-		console.log('No status available. Run health check first.');
+		logger.info('No status available. Run health check first.');
 	}
 }
 
@@ -161,7 +162,7 @@ export function showSafeguardStatus(): void {
  * Export safeguard data
  */
 export function exportSafeguardData(): string {
-	console.log('📤 Exporting safeguard data...');
+	logger.info('📤 Exporting safeguard data...');
 	return safeguardIntegration.exportSafeguardData();
 }
 
@@ -169,9 +170,9 @@ export function exportSafeguardData(): string {
  * Clear safeguard data
  */
 export function clearSafeguardData(): void {
-	console.log('🗑️  Clearing safeguard data...');
+	logger.info('🗑️  Clearing safeguard data...');
 	safeguardIntegration.clearSafeguardData();
-	console.log('✅ Safeguard data cleared');
+	logger.info('✅ Safeguard data cleared');
 }
 
 // Export functions for use in other modules

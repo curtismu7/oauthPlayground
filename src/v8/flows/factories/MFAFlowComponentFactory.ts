@@ -14,6 +14,7 @@
 import React, { ComponentType, lazy } from 'react';
 import type { DeviceType } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🏭 MFA-COMPONENT-FACTORY]';
 
 // Lazy load flow components for code splitting
@@ -96,7 +97,7 @@ export class MFAFlowComponentFactory {
 		}
 
 		// Return placeholder for unsupported types
-		console.warn(`${MODULE_TAG} Component not found for ${deviceType}, returning placeholder`);
+		logger.warn(`${MODULE_TAG} Component not found for ${deviceType}, returning placeholder`);
 		return (() => React.createElement(ComingSoonComponent, { deviceType })) as ComponentType;
 	}
 

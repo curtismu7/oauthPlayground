@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsInput } from '../components/CredentialsInput';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
+import { logger } from '../utils/logger';
 import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
@@ -151,7 +152,7 @@ const CredentialsServicesMock: React.FC = () => {
 	// Auto-save functionality
 	const autoSaveCredentials = useCallback(async () => {
 		if (credentials.environmentId.trim() && credentials.clientId.trim()) {
-			console.log('🔄 Auto-saving credentials:', credentials);
+			logger.info('🔄 Auto-saving credentials:', credentials);
 			// Here you would call your actual save service
 			// await credentialsService.save(credentials);
 			modernMessaging.showFooterMessage({
@@ -213,7 +214,7 @@ const CredentialsServicesMock: React.FC = () => {
 		async (result: DiscoveryResult) => {
 			setIsDiscovering(false);
 			if (result.success) {
-				console.log('🎯 OIDC Discovery completed:', result.data);
+				logger.info('🎯 OIDC Discovery completed:', result.data);
 				setDiscoveryResult(result.data);
 
 				// Auto-populate environment ID if it's a PingOne issuer
@@ -252,7 +253,7 @@ const CredentialsServicesMock: React.FC = () => {
 	const handlePingOneConfigChange = useCallback(
 		async (config: PingOneApplicationState) => {
 			setPingOneConfig(config);
-			console.log('⚙️ PingOne config updated:', config);
+			logger.info('⚙️ PingOne config updated:', config);
 
 			// Auto-save if we have essential credentials
 			if (credentials.environmentId.trim() && credentials.clientId.trim()) {

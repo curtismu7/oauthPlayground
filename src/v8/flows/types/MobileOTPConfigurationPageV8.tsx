@@ -33,6 +33,7 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 MOBILE-OTP-CONFIG-V8]';
 
 export const MobileOTPConfigurationPageV8: React.FC = () => {
@@ -93,7 +94,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 	useEffect(() => {
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log('[MobileOTP] Environment ID saved globally', {
+			logger.info('[MobileOTP] Environment ID saved globally', {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -145,7 +146,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		// 3. We don't already have a user token in credentials
 		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
+			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
 				hasToken: !!authToken,
 				tokenLength: authToken.length,
 				tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -166,7 +167,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
+			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
 				hasUserToken: !!credentials.userToken,
 				registrationFlowType,
@@ -271,7 +272,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						hypothesisId: 'F',
 					});
 					// #endregion
-					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -364,7 +365,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials - mark OAuth as completed (we don't need to store the token itself)
-					console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`);
+					logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`);
 					setCredentials((prev) => {
 						const updated = {
 							...prev,
@@ -406,7 +407,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 
-					console.error(`[📱 SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
+					logger.error(`[📱 SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
 					const errorMessage =
 						error instanceof Error
 							? error.message
@@ -450,7 +451,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
 				{
 					currentTokenType: credentials.tokenType,
@@ -466,7 +467,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					// CRITICAL: Preserve existing userToken when switching to user flow (don't clear it)
 					userToken: prev.userToken || '',
 				};
-				console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
+				logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
 					tokenType: updated.tokenType,
 					hasUserToken: !!updated.userToken,
 					userTokenLength: updated.userToken?.length || 0,
@@ -479,7 +480,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
 			);
 			isSyncingRef.current = true;
@@ -502,7 +503,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -513,7 +514,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -558,7 +559,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
+			logger.error(`${MODULE_TAG} Failed to load policies:`, error);
 			setPoliciesError(errorMessage);
 			// Only show error toast if worker token is available (user expects it to work)
 			if (tokenStatus.isValid) {
@@ -750,7 +751,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Proceeding to registration with policy:`,
 				credentials.deviceAuthenticationPolicyId
 			);

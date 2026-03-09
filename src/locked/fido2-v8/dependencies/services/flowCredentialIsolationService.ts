@@ -15,6 +15,7 @@
 import { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
+import { logger } from '../../../utils/logger';
 export interface FlowCredentialConfig {
 	flowKey: string;
 	defaultCredentials?: Partial<StepCredentials>;
@@ -54,9 +55,9 @@ class FlowCredentialIsolationService {
 	): boolean {
 		try {
 			console.group(`🔒 [CREDENTIAL ISOLATION] Saving credentials for flow: ${flowKey}`);
-			console.log(`📋 Flow Key: ${flowKey}`);
-			console.log(`📋 Credentials:`, credentials);
-			console.log(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
+			logger.info(`📋 Flow Key: ${flowKey}`);
+			logger.info(`📋 Credentials:`, credentials);
+			logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
 
 			// Save to flow-specific storage (ALWAYS)
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
@@ -68,20 +69,20 @@ class FlowCredentialIsolationService {
 			};
 
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
-			console.log(`✅ Saved to flow-specific storage: ${flowStorageKey}`);
+			logger.info(`✅ Saved to flow-specific storage: ${flowStorageKey}`);
 
 			// Optionally save to shared storage (OPT-IN ONLY)
 			if (options.useSharedFallback) {
-				console.log(`📋 Saving to shared storage (opt-in)`);
+				logger.info(`📋 Saving to shared storage (opt-in)`);
 				localStorage.setItem(this.SHARED_STORAGE_KEY, JSON.stringify(credentials));
-				console.log(`✅ Saved to shared storage: ${this.SHARED_STORAGE_KEY}`);
+				logger.info(`✅ Saved to shared storage: ${this.SHARED_STORAGE_KEY}`);
 			} else {
-				console.log(`🔒 NOT saving to shared storage (isolation mode)`);
+				logger.info(`🔒 NOT saving to shared storage (isolation mode)`);
 			}
 
 			// Verify the save
 			const savedData = localStorage.getItem(flowStorageKey);
-			console.log(`📋 Verification - Flow data saved:`, !!savedData);
+			logger.info(`📋 Verification - Flow data saved:`, !!savedData);
 
 			if (options.showToast) {
 				showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
@@ -90,7 +91,7 @@ class FlowCredentialIsolationService {
 			console.groupEnd();
 			return true;
 		} catch (error) {
-			console.error(`❌ [CREDENTIAL ISOLATION] Failed to save credentials for ${flowKey}:`, error);
+			logger.error(`❌ [CREDENTIAL ISOLATION] Failed to save credentials for ${flowKey}:`, error);
 			if (options.showToast) {
 				showGlobalError(`Failed to save credentials for ${flowKey}`);
 			}
@@ -123,10 +124,10 @@ class FlowCredentialIsolationService {
 					credentials = { ...defaultCredentials, ...parsed.credentials };
 					credentialSource = 'flow-specific';
 					hasFlowSpecificCredentials = true;
-					console.log(`✅ Using flow-specific credentials from: ${flowStorageKey}`);
+					logger.info(`✅ Using flow-specific credentials from: ${flowStorageKey}`);
 				}
 			} catch (error) {
-				console.error(`❌ Failed to parse flow-specific data for ${flowKey}:`, error);
+				logger.error(`❌ Failed to parse flow-specific data for ${flowKey}:`, error);
 			}
 		}
 
@@ -143,7 +144,7 @@ class FlowCredentialIsolationService {
 						hasSharedCredentials = true;
 					}
 				} catch (error) {
-					console.error(`❌ Failed to parse shared data:`, error);
+					logger.error(`❌ Failed to parse shared data:`, error);
 				}
 			}
 		}
@@ -169,10 +170,10 @@ class FlowCredentialIsolationService {
 		try {
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
 			localStorage.removeItem(flowStorageKey);
-			console.log(`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`);
+			logger.info(`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`);
 			return true;
 		} catch (error) {
-			console.error(`❌ [CREDENTIAL ISOLATION] Failed to clear credentials for ${flowKey}:`, error);
+			logger.error(`❌ [CREDENTIAL ISOLATION] Failed to clear credentials for ${flowKey}:`, error);
 			return false;
 		}
 	}
@@ -188,14 +189,14 @@ class FlowCredentialIsolationService {
 
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 			if (!sharedData) {
-				console.log(`📋 No shared credentials to migrate`);
+				logger.info(`📋 No shared credentials to migrate`);
 				console.groupEnd();
 				return false;
 			}
 
 			const parsed = JSON.parse(sharedData);
 			if (!parsed.environmentId && !parsed.clientId) {
-				console.log(`📋 Shared credentials are empty, nothing to migrate`);
+				logger.info(`📋 Shared credentials are empty, nothing to migrate`);
 				console.groupEnd();
 				return false;
 			}
@@ -205,7 +206,7 @@ class FlowCredentialIsolationService {
 			const existingFlowData = localStorage.getItem(flowStorageKey);
 
 			if (existingFlowData) {
-				console.log(`📋 Flow-specific credentials already exist, skipping migration`);
+				logger.info(`📋 Flow-specific credentials already exist, skipping migration`);
 				console.groupEnd();
 				return false;
 			}
@@ -221,12 +222,12 @@ class FlowCredentialIsolationService {
 			};
 
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
-			console.log(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`);
+			logger.info(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`);
 			console.groupEnd();
 
 			return true;
 		} catch (error) {
-			console.error(
+			logger.error(
 				`❌ [CREDENTIAL MIGRATION] Failed to migrate credentials for ${flowKey}:`,
 				error
 			);
@@ -264,10 +265,10 @@ class FlowCredentialIsolationService {
 			.map(([flowKey, _]) => flowKey);
 
 		if (flowsUsingSharedFallback.length > 0) {
-			console.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
-			console.warn(`📋 Flows using shared fallback:`, flowsUsingSharedFallback);
+			logger.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
+			logger.warn(`📋 Flows using shared fallback:`, flowsUsingSharedFallback);
 		} else {
-			console.log(`✅ All flows are properly isolated!`);
+			logger.info(`✅ All flows are properly isolated!`);
 		}
 
 		console.groupEnd();
@@ -289,9 +290,9 @@ class FlowCredentialIsolationService {
 		const flowKeys = this.getAllFlowStorageKeys();
 		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
-			console.log(`🗑️ Cleared: ${key}`);
+			logger.info(`🗑️ Cleared: ${key}`);
 		});
-		console.log(`✅ Cleared ${flowKeys.length} flow-specific credential stores`);
+		logger.info(`✅ Cleared ${flowKeys.length} flow-specific credential stores`);
 	}
 }
 

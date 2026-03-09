@@ -18,6 +18,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 export interface UseWorkerTokenConfig {
 	/** Auto-refresh interval in milliseconds (default: 5000) */
 	refreshInterval?: number;
@@ -70,7 +71,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to initialize token status:`, error);
+				logger.error(`${MODULE_TAG} Failed to initialize token status:`, error);
 				setTokenStatus({
 					status: 'missing',
 					message: 'Failed to check worker token status',
@@ -90,7 +91,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
 				setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load worker token config:`, error);
+				logger.error(`${MODULE_TAG} Failed to load worker token config:`, error);
 			}
 		};
 
@@ -101,18 +102,18 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 	const refreshTokenStatus = useCallback(async () => {
 		// Show immediate loading state for better UX
 		setIsRefreshing(true);
-		console.log(`${MODULE_TAG} Manual token refresh triggered - showing loading state`);
+		logger.info(`${MODULE_TAG} Manual token refresh triggered - showing loading state`);
 
 		try {
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(status);
-			console.log(`${MODULE_TAG} Manual token refresh completed:`, status.status);
+			logger.info(`${MODULE_TAG} Manual token refresh completed:`, status.status);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to refresh token status:`, error);
+			logger.error(`${MODULE_TAG} Failed to refresh token status:`, error);
 		} finally {
 			// Hide loading state after refresh completes
 			setIsRefreshing(false);
-			console.log(`${MODULE_TAG} Manual token refresh completed - hiding loading state`);
+			logger.info(`${MODULE_TAG} Manual token refresh completed - hiding loading state`);
 		}
 	}, []);
 
@@ -121,18 +122,18 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		const handleTokenUpdate = async () => {
 			// Show immediate loading state for better UX
 			setIsRefreshing(true);
-			console.log(`${MODULE_TAG} Token update triggered - showing loading state`);
+			logger.info(`${MODULE_TAG} Token update triggered - showing loading state`);
 
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
-				console.log(`${MODULE_TAG} Token status updated:`, status.status);
+				logger.info(`${MODULE_TAG} Token status updated:`, status.status);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
+				logger.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
 			} finally {
 				// Hide loading state after update completes
 				setIsRefreshing(false);
-				console.log(`${MODULE_TAG} Token update completed - hiding loading state`);
+				logger.info(`${MODULE_TAG} Token update completed - hiding loading state`);
 			}
 		};
 
@@ -145,7 +146,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					event.key.includes('unified_worker_token') ||
 					event.key.includes('worker_credentials'))
 			) {
-				console.log(`${MODULE_TAG} Worker token related storage change detected:`, event.key);
+				logger.info(`${MODULE_TAG} Worker token related storage change detected:`, event.key);
 				handleTokenUpdate();
 			}
 		};
@@ -168,12 +169,12 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
 			if (!config.workerToken.silentApiRetrieval) {
-				console.log(`${MODULE_TAG} Silent API retrieval disabled, skipping auto-refresh`);
+				logger.info(`${MODULE_TAG} Silent API retrieval disabled, skipping auto-refresh`);
 				return;
 			}
 
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log(`${MODULE_TAG} Checking token for auto-refresh:`, {
+			logger.info(`${MODULE_TAG} Checking token for auto-refresh:`, {
 				status: status.status,
 				isValid: status.isValid,
 				expiresAt: status.expiresAt,
@@ -187,7 +188,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 				if (expiresIn > 0 && expiresIn < fiveMinutes && !isRefreshing) {
 					setIsRefreshing(true);
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Token expiring in ${Math.round(expiresIn / 1000)}s, auto-refreshing...`
 					);
 
@@ -203,9 +204,9 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					const success = result.success;
 
 					if (success) {
-						console.log(`${MODULE_TAG} Auto-refresh successful`);
+						logger.info(`${MODULE_TAG} Auto-refresh successful`);
 					} else {
-						console.warn(`${MODULE_TAG} Auto-refresh failed, user interaction may be required`);
+						logger.warn(`${MODULE_TAG} Auto-refresh failed, user interaction may be required`);
 					}
 
 					// Wait a bit then check status again
@@ -214,7 +215,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 						setIsRefreshing(false);
 					}, 2000);
 				} else if (expiresIn <= 0) {
-					console.log(`${MODULE_TAG} Token expired, attempting refresh...`);
+					logger.info(`${MODULE_TAG} Token expired, attempting refresh...`);
 					setIsRefreshing(true);
 
 					// Trigger silent token retrieval for expired token
@@ -229,9 +230,9 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					const success = result.success;
 
 					if (success) {
-						console.log(`${MODULE_TAG} Expired token refresh successful`);
+						logger.info(`${MODULE_TAG} Expired token refresh successful`);
 					} else {
-						console.warn(`${MODULE_TAG} Expired token refresh failed, user interaction required`);
+						logger.warn(`${MODULE_TAG} Expired token refresh failed, user interaction required`);
 					}
 
 					setTimeout(async () => {
@@ -240,7 +241,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					}, 2000);
 				}
 			} else if (!status.isValid) {
-				console.log(`${MODULE_TAG} Token invalid, attempting refresh...`);
+				logger.info(`${MODULE_TAG} Token invalid, attempting refresh...`);
 				setIsRefreshing(true);
 
 				// Trigger silent token retrieval for invalid token
@@ -255,9 +256,9 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				const success = result.success;
 
 				if (success) {
-					console.log(`${MODULE_TAG} Invalid token refresh successful`);
+					logger.info(`${MODULE_TAG} Invalid token refresh successful`);
 				} else {
-					console.warn(`${MODULE_TAG} Invalid token refresh failed, user interaction required`);
+					logger.warn(`${MODULE_TAG} Invalid token refresh failed, user interaction required`);
 				}
 
 				setTimeout(async () => {
@@ -266,7 +267,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				}, 2000);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to check/refresh token:`, error);
+			logger.error(`${MODULE_TAG} Failed to check/refresh token:`, error);
 			setIsRefreshing(false);
 		}
 	}, [enableAutoRefresh, isRefreshing, refreshTokenStatus]);

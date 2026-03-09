@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { logger } from '../../utils/logger';
+import { logger } from '../utils/logger';
 import {
 	buildPingOneImplicitAuthUrl,
 	generateNonce,
@@ -284,7 +285,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Implicit Flow URL Generation...');
+			logger.info('🧪 Testing Implicit Flow URL Generation...');
 
 			// Generate state and nonce if not provided
 			const state = config.state || generateState();
@@ -318,7 +319,7 @@ const ImplicitFlowTest: React.FC = () => {
 				duration,
 			});
 
-			console.log('✅ URL generated successfully:', url);
+			logger.info('✅ URL generated successfully:', url);
 			return url;
 		} catch (error) {
 			const duration = Date.now() - startTime;
@@ -340,7 +341,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Fragment Parsing...');
+			logger.info('🧪 Testing Fragment Parsing...');
 
 			if (!testFragment.trim()) {
 				throw new Error('No fragment provided to parse');
@@ -401,7 +402,7 @@ const ImplicitFlowTest: React.FC = () => {
 				duration,
 			});
 
-			console.log('✅ Fragment parsed successfully:', tokens);
+			logger.info('✅ Fragment parsed successfully:', tokens);
 			return tokens;
 		} catch (error) {
 			const duration = Date.now() - startTime;
@@ -423,7 +424,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Token Validation...');
+			logger.info('🧪 Testing Token Validation...');
 
 			if (!parsedTokens) {
 				throw new Error('No tokens to validate - parse a fragment first');
@@ -500,7 +501,7 @@ const ImplicitFlowTest: React.FC = () => {
 				duration,
 			});
 
-			console.log('✅ Token validation completed:', validation);
+			logger.info('✅ Token validation completed:', validation);
 			return validation;
 		} catch (error) {
 			const duration = Date.now() - startTime;

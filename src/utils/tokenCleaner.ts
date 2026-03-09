@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/tokenCleaner.ts
 // Utility for clearing all OAuth/OIDC tokens from storage
 
@@ -20,7 +21,7 @@ export function clearAllTokens(): TokenCleanupResult {
 	};
 
 	try {
-		console.log('[TokenCleaner] Starting comprehensive token cleanup...');
+		logger.info('[TokenCleaner] Starting comprehensive token cleanup...');
 
 		// Define all known token storage keys
 		const tokenKeys = [
@@ -85,7 +86,7 @@ export function clearAllTokens(): TokenCleanupResult {
 				if (localStorage.getItem(key)) {
 					localStorage.removeItem(key);
 					result.clearedCount++;
-					console.log(`[TokenCleaner] Cleared localStorage: ${key}`);
+					logger.info(`[TokenCleaner] Cleared localStorage: ${key}`);
 				}
 			} catch (error) {
 				result.errors.push(`Failed to clear localStorage key "${key}": ${error}`);
@@ -98,7 +99,7 @@ export function clearAllTokens(): TokenCleanupResult {
 				if (sessionStorage.getItem(key)) {
 					sessionStorage.removeItem(key);
 					result.clearedCount++;
-					console.log(`[TokenCleaner] Cleared sessionStorage: ${key}`);
+					logger.info(`[TokenCleaner] Cleared sessionStorage: ${key}`);
 				}
 			} catch (error) {
 				result.errors.push(`Failed to clear sessionStorage key "${key}": ${error}`);
@@ -122,7 +123,7 @@ export function clearAllTokens(): TokenCleanupResult {
 			keysToRemove.forEach((key) => {
 				localStorage.removeItem(key);
 				result.clearedCount++;
-				console.log(`[TokenCleaner] Cleared token cache: ${key}`);
+				logger.info(`[TokenCleaner] Cleared token cache: ${key}`);
 			});
 		} catch (error) {
 			result.errors.push(`Failed to clear token cache: ${error}`);
@@ -142,7 +143,7 @@ export function clearAllTokens(): TokenCleanupResult {
 			sessionKeysToRemove.forEach((key) => {
 				sessionStorage.removeItem(key);
 				result.clearedCount++;
-				console.log(`[TokenCleaner] Cleared session flow data: ${key}`);
+				logger.info(`[TokenCleaner] Cleared session flow data: ${key}`);
 			});
 		} catch (error) {
 			result.errors.push(`Failed to clear session flow data: ${error}`);
@@ -154,7 +155,7 @@ export function clearAllTokens(): TokenCleanupResult {
 				errors: result.errors,
 			});
 		} else {
-			console.log(
+			logger.info(
 				`[TokenCleaner] Token cleanup completed successfully. Cleared ${result.clearedCount} items.`
 			);
 		}
@@ -178,7 +179,7 @@ export function clearFlowTokens(flowId: string): TokenCleanupResult {
 	};
 
 	try {
-		console.log(`[TokenCleaner] Clearing tokens for flow: ${flowId}`);
+		logger.info(`[TokenCleaner] Clearing tokens for flow: ${flowId}`);
 
 		const flowKeys = [
 			`${flowId}_tokens`,
@@ -208,7 +209,7 @@ export function clearFlowTokens(flowId: string): TokenCleanupResult {
 			result.success = false;
 		}
 
-		console.log(
+		logger.info(
 			`[TokenCleaner] Flow cleanup completed. Cleared ${result.clearedCount} items for ${flowId}.`
 		);
 	} catch (error) {

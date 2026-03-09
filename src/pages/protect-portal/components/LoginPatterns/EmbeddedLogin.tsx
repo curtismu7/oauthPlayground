@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS - Real Banking Website Design
 // ============================================================================
@@ -351,7 +352,7 @@ const EmbeddedLogin: React.FC<{
 						}}
 						placeholder="Search for Online ID..."
 						onGetToken={() => {
-							console.log('Worker token required for user search');
+							logger.info('Worker token required for user search');
 						}}
 					/>
 				</InputGroup>

@@ -18,13 +18,14 @@
  * @example
  * // Check if any device is using unified flow
  * const status = getUnifiedFlowStatus();
- * console.log(status); // { SMS: '10%', EMAIL: 'disabled', ... }
+ * logger.info(status); // { SMS: '10%', EMAIL: 'disabled', ... }
  */
 
 import type { DeviceType } from '@/v8/flows/shared/MFATypes';
 import type { MFAFeatureFlag, RolloutPercentage } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 
+import { logger } from '../utils/logger';
 /**
  * Map device types to their corresponding feature flags
  */
@@ -55,12 +56,12 @@ export function enableUnifiedFlowForDevice(
 ): void {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		console.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
 		return;
 	}
 
 	MFAFeatureFlagsV8.setFlag(flag, true, rolloutPercentage);
-	console.log(`[MFA-FLAGS] ✅ Enabled unified flow for ${deviceType} at ${rolloutPercentage}%`);
+	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ${deviceType} at ${rolloutPercentage}%`);
 }
 
 /**
@@ -74,12 +75,12 @@ export function enableUnifiedFlowForDevice(
 export function disableUnifiedFlowForDevice(deviceType: DeviceType | string): void {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		console.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
 		return;
 	}
 
 	MFAFeatureFlagsV8.setFlag(flag, false, 0);
-	console.log(`[MFA-FLAGS] ❌ Disabled unified flow for ${deviceType} (rollback to legacy)`);
+	logger.info(`[MFA-FLAGS] ❌ Disabled unified flow for ${deviceType} (rollback to legacy)`);
 }
 
 /**
@@ -95,7 +96,7 @@ export function enableUnifiedFlowForAll(rolloutPercentage: RolloutPercentage = 1
 	for (const device of deviceTypes) {
 		enableUnifiedFlowForDevice(device, rolloutPercentage);
 	}
-	console.log(`[MFA-FLAGS] ✅ Enabled unified flow for ALL devices at ${rolloutPercentage}%`);
+	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ALL devices at ${rolloutPercentage}%`);
 }
 
 /**
@@ -109,7 +110,7 @@ export function disableUnifiedFlowForAll(): void {
 	for (const device of deviceTypes) {
 		disableUnifiedFlowForDevice(device);
 	}
-	console.log(`[MFA-FLAGS] ❌ Disabled unified flow for ALL devices (rollback to legacy)`);
+	logger.info(`[MFA-FLAGS] ❌ Disabled unified flow for ALL devices (rollback to legacy)`);
 }
 
 /**
@@ -154,7 +155,7 @@ export function getUnifiedFlowStatus(): Record<string, string> {
 export function isUnifiedFlowEnabled(deviceType: DeviceType | string): boolean {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		console.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
 		return false;
 	}
 
@@ -178,7 +179,7 @@ export function getDeviceStatus(deviceType: DeviceType | string): {
 } | null {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		console.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
 		return null;
 	}
 
@@ -200,25 +201,25 @@ export function getDeviceStatus(deviceType: DeviceType | string): {
  * // Outputs formatted table to console
  */
 export function printUnifiedFlowStatus(): void {
-	console.log('\n📊 MFA Unified Flow Status\n');
-	console.log('Device Type | Status    | Applies To');
-	console.log('------------|-----------|------------');
+	logger.info('\n📊 MFA Unified Flow Status\n');
+	logger.info('Device Type | Status    | Applies To');
+	logger.info('------------|-----------|------------');
 
 	const deviceTypes = ['SMS', 'EMAIL', 'MOBILE', 'WHATSAPP', 'TOTP', 'FIDO2'];
 	deviceTypes.forEach((device) => {
 		const status = getDeviceStatus(device);
 		if (status) {
 			const statusStr = status.enabled ? `${status.rolloutPercentage}%`.padEnd(9) : 'disabled ';
-			console.log(`${device.padEnd(11)} | ${statusStr} | ${status.appliesTo}`);
+			logger.info(`${device.padEnd(11)} | ${statusStr} | ${status.appliesTo}`);
 		}
 	});
 
-	console.log('\n💡 Commands:');
-	console.log('  window.mfaHelpers.enable("SMS", 10)   - Enable SMS at 10%');
-	console.log('  window.mfaHelpers.disable("SMS")      - Disable SMS (rollback)');
-	console.log('  window.mfaHelpers.enableAll(50)       - Enable all at 50%');
-	console.log('  window.mfaHelpers.disableAll()        - Disable all (rollback)');
-	console.log('  window.mfaHelpers.status()            - Show this status\n');
+	logger.info('\n💡 Commands:');
+	logger.info('  window.mfaHelpers.enable("SMS", 10)   - Enable SMS at 10%');
+	logger.info('  window.mfaHelpers.disable("SMS")      - Disable SMS (rollback)');
+	logger.info('  window.mfaHelpers.enableAll(50)       - Enable all at 50%');
+	logger.info('  window.mfaHelpers.disableAll()        - Disable all (rollback)');
+	logger.info('  window.mfaHelpers.status()            - Show this status\n');
 }
 
 /**
@@ -247,7 +248,7 @@ if (typeof window !== 'undefined') {
 		getDeviceStatus,
 	};
 
-	console.log(
+	logger.info(
 		'[MFA-FLAGS] 🛠️  Admin helpers available at window.mfaHelpers\n' +
 			'Run window.mfaHelpers.status() to see current status'
 	);

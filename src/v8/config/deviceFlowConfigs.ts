@@ -21,6 +21,7 @@
 
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { logger } from '../utils/logger';
 import type {
 	DeviceConfigKey,
 	DeviceFlowConfig,
@@ -907,7 +908,7 @@ export function getDeviceValidationRules(
  * @returns API endpoints for the device type
  * @example
  * const endpoints = getDeviceApiEndpoints('SMS');
- * console.log(endpoints.register); // '/api/pingone/mfa/register-device'
+ * logger.info(endpoints.register); // '/api/pingone/mfa/register-device'
  */
 export function getDeviceApiEndpoints(deviceType: DeviceConfigKey) {
 	const config = getDeviceConfig(deviceType);
@@ -1009,8 +1010,8 @@ export function areRequiredFieldsValid(
  * @returns Display information (name, icon, description)
  * @example
  * const info = getDeviceDisplayInfo('SMS');
- * console.log(info.displayName); // 'SMS OTP'
- * console.log(info.icon); // '📱'
+ * logger.info(info.displayName); // 'SMS OTP'
+ * logger.info(info.icon); // '📱'
  */
 export function getDeviceDisplayInfo(deviceType: DeviceConfigKey): {
 	displayName: string;

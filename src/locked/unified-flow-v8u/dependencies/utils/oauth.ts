@@ -1,10 +1,11 @@
 import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVerify } from 'jose';
 import { IdTokenPayload, UserInfo } from '../types/oauth';
 
+import { logger } from '../../../utils/logger';
 // Client logging function for server.log
 const clientLog = async (_message: string) => {
 	// Disabled to prevent 404 errors - endpoint not implemented
-	// console.log('[ClientLog]', message);
+	// logger.info('[ClientLog]', message);
 };
 
 /**
@@ -53,36 +54,36 @@ export const generateCodeChallenge = async (codeVerifier: string): Promise<strin
  * @returns {Object} Parsed parameters as key-value pairs
  */
 export const parseUrlParams = (url: string): Record<string, string> => {
-	console.log(' [OAuth] Parsing URL parameters from:', url);
+	logger.info(' [OAuth] Parsing URL parameters from:', url);
 	clientLog(`[OAuth] Parsing URL parameters from: ${url}`);
 	const params = new URLSearchParams(url.split('?')[1] || '');
 	const result = {};
 
-	console.log(' [OAuth] Query parameters:');
+	logger.info(' [OAuth] Query parameters:');
 	clientLog(`[OAuth] Query parameters:`);
 	for (const [key, value] of params.entries()) {
 		result[key] = value;
-		console.log(`   ${key}: ${value}`);
+		logger.info(`   ${key}: ${value}`);
 		clientLog(`   ${key}: ${value}`);
 	}
 
 	// Also check hash parameters
 	const hash = url.split('#')[1];
 	if (hash) {
-		console.log(' [OAuth] Hash parameters:');
+		logger.info(' [OAuth] Hash parameters:');
 		clientLog(`[OAuth] Hash parameters:`);
 		const hashParams = new URLSearchParams(hash);
 		for (const [key, value] of hashParams.entries()) {
 			result[key] = value;
-			console.log(`   ${key}: ${value}`);
+			logger.info(`   ${key}: ${value}`);
 			clientLog(`   ${key}: ${value}`);
 		}
 	} else {
-		console.log(' [OAuth] No hash parameters found');
+		logger.info(' [OAuth] No hash parameters found');
 		clientLog(`[OAuth] No hash parameters found`);
 	}
 
-	console.log(' [OAuth] Final parsed parameters:', result);
+	logger.info(' [OAuth] Final parsed parameters:', result);
 	clientLog(`[OAuth] Final parsed parameters: ${JSON.stringify(result)}`);
 	return result;
 };
@@ -104,7 +105,7 @@ export const createSignedRequestObject = async (
 		x5t?: string;
 	}
 ): Promise<string> => {
-	console.log(' [OAuth] Creating signed request object (JAR)...');
+	logger.info(' [OAuth] Creating signed request object (JAR)...');
 	clientLog(`[OAuth] Creating signed request object (JAR)...`);
 
 	const { SignJWT, importPKCS8 } = await import('jose');
@@ -124,12 +125,12 @@ export const createSignedRequestObject = async (
 		const key = await importPKCS8(options.privateKey, alg);
 		const signedRequest = await jwt.sign(key);
 
-		console.log(' [OAuth] Signed request object created successfully');
+		logger.info(' [OAuth] Signed request object created successfully');
 		clientLog(`[OAuth] Signed request object created successfully`);
 
 		return signedRequest;
 	} catch (error) {
-		console.error(' [OAuth] Error creating signed request object:', error);
+		logger.error(' [OAuth] Error creating signed request object:', error);
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		clientLog(`[OAuth] Error creating signed request object: ${errorMessage}`);
 		throw new Error(`Failed to create signed request object: ${errorMessage}`);
@@ -159,7 +160,7 @@ export const pushAuthorizationRequest = async ({
 	requestParams: Record<string, string>;
 	requestObject?: string;
 }): Promise<{ request_uri: string; expires_in: number }> => {
-	console.log(' [OAuth] Pushing authorization request to PAR endpoint...');
+	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...');
 	clientLog(`[OAuth] Pushing authorization request to PAR endpoint...`);
 
 	const body = new URLSearchParams();
@@ -194,18 +195,18 @@ export const pushAuthorizationRequest = async ({
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(' [OAuth] PAR request failed:', response.status, errorText);
+			logger.error(' [OAuth] PAR request failed:', response.status, errorText);
 			clientLog(`[OAuth] PAR request failed: ${response.status} ${errorText}`);
 			throw new Error(`PAR request failed: ${response.status} ${errorText}`);
 		}
 
 		const parResponse = await response.json();
-		console.log(' [OAuth] PAR request successful:', parResponse);
+		logger.info(' [OAuth] PAR request successful:', parResponse);
 		clientLog(`[OAuth] PAR request successful: ${JSON.stringify(parResponse)}`);
 
 		return parResponse;
 	} catch (error) {
-		console.error(' [OAuth] Error in PAR request:', error);
+		logger.error(' [OAuth] Error in PAR request:', error);
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		clientLog(`[OAuth] Error in PAR request: ${errorMessage}`);
 		throw new Error(`PAR request failed: ${errorMessage}`);
@@ -402,7 +403,7 @@ export const exchangeCodeForTokens = async ({
 	};
 }) => {
 	try {
-		console.debug('[oauth.util] Preparing token request', {
+		logger.debug('[oauth.util] Preparing token request', {
 			tokenEndpoint,
 			authMethod,
 			has_client_secret: !!clientSecret,
@@ -485,7 +486,7 @@ export const exchangeCodeForTokens = async ({
 		body,
 	});
 	try {
-		console.debug('[oauth.util] Token endpoint responded', {
+		logger.debug('[oauth.util] Token endpoint responded', {
 			ok: response.ok,
 			status: response.status,
 			statusText: response.statusText,
@@ -532,11 +533,11 @@ export const validateIdToken = async (
 	maxAge?: number,
 	accessToken?: string
 ): Promise<IdTokenPayload> => {
-	console.log(' [OAuth] Validating ID token with signature verification...');
+	logger.info(' [OAuth] Validating ID token with signature verification...');
 	clientLog(`[OAuth] Validating ID token with signature verification...`);
-	console.log(' [OAuth] Expected issuer:', issuer);
+	logger.info(' [OAuth] Expected issuer:', issuer);
 	clientLog(`[OAuth] Expected issuer: ${issuer}`);
-	console.log(' [OAuth] Expected clientId:', clientId);
+	logger.info(' [OAuth] Expected clientId:', clientId);
 	clientLog(`[OAuth] Expected clientId: ${clientId}`);
 
 	try {
@@ -552,9 +553,9 @@ export const validateIdToken = async (
 			? expectedIssuer.replace('/as', '')
 			: expectedIssuer;
 
-		console.log(' [OAuth] Issuer validation details:');
-		console.log('   Expected base issuer:', expectedIssuerBase);
-		console.log('   Expected issuer with /as:', expectedIssuerWithAs);
+		logger.info(' [OAuth] Issuer validation details:');
+		logger.info('   Expected base issuer:', expectedIssuerBase);
+		logger.info('   Expected issuer with /as:', expectedIssuerWithAs);
 
 		// Verify the JWT signature and decode the payload
 		const verifyOptions: JWTVerifyOptions = {
@@ -564,9 +565,9 @@ export const validateIdToken = async (
 
 		const { payload, protectedHeader } = await jwtVerify(idToken, JWKS, verifyOptions);
 
-		console.log(' [OAuth] Token header:', protectedHeader);
+		logger.info(' [OAuth] Token header:', protectedHeader);
 		clientLog(`[OAuth] Token header: ${JSON.stringify(protectedHeader)}`);
-		console.log(' [OAuth] Token payload:', {
+		logger.info(' [OAuth] Token payload:', {
 			iss: payload.iss,
 			aud: payload.aud,
 			exp: payload.exp,
@@ -586,32 +587,32 @@ export const validateIdToken = async (
 
 		// 4. REQUIRED: Validate issued at (iat) claim
 		if (!payload.iat || typeof payload.iat !== 'number') {
-			console.error(' [OIDC] Missing or invalid iat (issued at) claim');
+			logger.error(' [OIDC] Missing or invalid iat (issued at) claim');
 			throw new Error('ID token missing required iat (issued at) claim');
 		}
 
 		// 5. REQUIRED: Validate subject (sub) claim
 		if (!payload.sub || typeof payload.sub !== 'string' || payload.sub.trim() === '') {
-			console.error(' [OIDC] Missing or invalid sub (subject) claim');
+			logger.error(' [OIDC] Missing or invalid sub (subject) claim');
 			throw new Error('ID token missing required sub (subject) claim');
 		}
 
 		// 6. CONDITIONAL: Validate nonce if provided (Section 15.5.2) - REQUIRED for security
 		if (nonce) {
 			if (!payload.nonce || payload.nonce !== nonce) {
-				console.error(' [OIDC] Nonce validation failed');
+				logger.error(' [OIDC] Nonce validation failed');
 				clientLog(`[OIDC] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
 				throw new Error('Nonce validation failed - possible replay attack');
 			}
-			console.log(' [OIDC] Nonce validation successful');
+			logger.info(' [OIDC] Nonce validation successful');
 		} else {
-			console.warn(' [OIDC] No nonce provided - this reduces security against replay attacks');
+			logger.warn(' [OIDC] No nonce provided - this reduces security against replay attacks');
 		}
 
 		// 7. CONDITIONAL: Validate auth_time if max_age was specified (Section 3.1.2.1)
 		if (maxAge && maxAge > 0) {
 			if (!payload.auth_time || typeof payload.auth_time !== 'number') {
-				console.error(' [OIDC] Missing auth_time claim when max_age is specified');
+				logger.error(' [OIDC] Missing auth_time claim when max_age is specified');
 				throw new Error('ID token missing required auth_time claim when max_age is used');
 			}
 
@@ -619,7 +620,7 @@ export const validateIdToken = async (
 			const authAge = now - payload.auth_time;
 
 			if (authAge > maxAge) {
-				console.error(' [OIDC] Authentication too old based on max_age');
+				logger.error(' [OIDC] Authentication too old based on max_age');
 				clientLog(
 					`[OIDC] Authentication too old: auth_time=${payload.auth_time}, age=${authAge}s, max_age=${maxAge}s`
 				);
@@ -627,18 +628,18 @@ export const validateIdToken = async (
 					`Authentication too old: performed ${authAge} seconds ago, max_age allows ${maxAge} seconds`
 				);
 			}
-			console.log(' [OIDC] auth_time validation successful');
+			logger.info(' [OIDC] auth_time validation successful');
 		}
 
 		// 8. CONDITIONAL: Validate azp (authorized party) for multiple audiences
 		if (Array.isArray(payload.aud) && payload.aud.length > 1) {
 			if (!payload.azp || payload.azp !== clientId) {
-				console.error(' [OIDC] Missing or invalid azp claim for multiple audiences');
+				logger.error(' [OIDC] Missing or invalid azp claim for multiple audiences');
 				throw new Error(
 					'ID token missing required azp (authorized party) claim for multiple audiences'
 				);
 			}
-			console.log(' [OIDC] azp validation successful for multiple audiences');
+			logger.info(' [OIDC] azp validation successful for multiple audiences');
 		}
 
 		// 9. OIDC CORE 1.0: Validate at_hash if access token is present (Section 3.1.3.6)
@@ -658,33 +659,33 @@ export const validateIdToken = async (
 					.replace(/=+$/, '');
 
 				if (payload.at_hash !== expectedAtHash) {
-					console.error(' [OIDC] at_hash validation failed');
-					console.error('   Expected:', expectedAtHash);
-					console.error('   Received:', payload.at_hash);
+					logger.error(' [OIDC] at_hash validation failed');
+					logger.error('   Expected:', expectedAtHash);
+					logger.error('   Received:', payload.at_hash);
 					throw new Error('at_hash validation failed - access token may have been tampered with');
 				}
-				console.log(' [OIDC] at_hash validation successful');
+				logger.info(' [OIDC] at_hash validation successful');
 			} catch (error) {
-				console.error(' [OIDC] at_hash validation error:', error);
+				logger.error(' [OIDC] at_hash validation error:', error);
 				throw new Error(
 					`at_hash validation failed: ${error instanceof Error ? error.message : String(error)}`
 				);
 			}
 		} else if (accessToken && !payload.at_hash) {
-			console.warn(' [OIDC] Access token provided but no at_hash claim in ID token');
+			logger.warn(' [OIDC] Access token provided but no at_hash claim in ID token');
 		}
 
 		// 10. SECURITY: Check for explicitly set suspicious claims (not inherited)
 		const suspiciousClaims = ['__proto__', 'constructor', 'prototype'];
 		for (const claim of suspiciousClaims) {
 			if (Object.hasOwn(payload, claim)) {
-				console.error(' [Security] Suspicious claim explicitly set in ID token:', claim);
+				logger.error(' [Security] Suspicious claim explicitly set in ID token:', claim);
 				throw new Error(`Potentially malicious claim detected in ID token: ${claim}`);
 			}
 		}
 
-		console.log(' [OAuth] ID token signature and claims validation successful');
-		console.log(' [OAuth] Validation details:', {
+		logger.info(' [OAuth] ID token signature and claims validation successful');
+		logger.info(' [OAuth] Validation details:', {
 			nonce: nonce ? (payload.nonce === nonce ? ' Valid' : ' Invalid') : 'Not checked',
 			maxAge: maxAge ? (payload.auth_time ? ' Checked' : ' Missing auth_time') : 'Not specified',
 		});
@@ -692,7 +693,7 @@ export const validateIdToken = async (
 
 		return payload as IdTokenPayload;
 	} catch (error) {
-		console.error(' [OAuth] Error validating ID token:', error);
+		logger.error(' [OAuth] Error validating ID token:', error);
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		clientLog(`[OAuth] Error validating ID token: ${errorMessage}`);
 		throw new Error(`Invalid ID token: ${errorMessage}`);
@@ -741,7 +742,7 @@ export const parseJwt = (token) => {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (e) {
-		console.error('Error parsing JWT:', e);
+		logger.error('Error parsing JWT:', e);
 		return null;
 	}
 };
@@ -841,7 +842,7 @@ export const isTokenExpired = (token: string): boolean => {
 		const currentTime = Math.floor(Date.now() / 1000);
 		return payload.exp < currentTime;
 	} catch (error) {
-		console.error('Error checking token expiration:', error);
+		logger.error('Error checking token expiration:', error);
 		return true; // Consider parsing errors as expired
 	}
 };

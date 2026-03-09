@@ -7,6 +7,7 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import pingOneFetch from '@/utils/pingOneFetch';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🧪 DEVICE-CREATE-DEMO-V8]';
 
 export interface DeviceCreateDemoRequest {
@@ -98,10 +99,10 @@ export async function sendCreateDeviceRequest(
 			);
 		}
 
-		console.log(`${MODULE_TAG} Device created successfully for user ${trimmedUserId}`);
+		logger.info(`${MODULE_TAG} Device created successfully for user ${trimmedUserId}`);
 		return (responseData as Record<string, unknown>) ?? {};
 	} catch (error) {
-		console.error(`${MODULE_TAG} Create device request failed`, error);
+		logger.error(`${MODULE_TAG} Create device request failed`, error);
 		apiCallTrackerService.updateApiCallResponse(
 			callId,
 			{

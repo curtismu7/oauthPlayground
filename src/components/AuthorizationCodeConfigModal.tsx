@@ -15,6 +15,7 @@ import {
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 
+import { logger } from '../utils/logger';
 const FormSection = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -129,7 +130,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 	// Load saved Authorization Code credentials when modal opens (prioritize saved over initialCredentials)
 	useEffect(() => {
 		if (isOpen) {
-			console.log(
+			logger.info(
 				`[AuthorizationCodeConfigModal] 🔄 Modal opened - loading saved credentials for flowType: ${flowType}`
 			);
 
@@ -139,7 +140,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(flowType);
 
 			if (saved?.environmentId && saved.clientId && saved.clientSecret) {
-				console.log(
+				logger.info(
 					`[AuthorizationCodeConfigModal] ✅ Found saved credentials for ${flowType}, using them`
 				);
 				// Prioritize saved credentials - only use initialCredentials as fallback for missing fields
@@ -156,12 +157,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						: saved.scopes || initialCredentials?.scopes || 'openid profile email',
 				});
 			} else if (initialCredentials) {
-				console.log(
+				logger.info(
 					`[AuthorizationCodeConfigModal] ⚠️ No saved credentials found for ${flowType}, using initialCredentials`
 				);
 				setCredentials(initialCredentials);
 			} else {
-				console.log(
+				logger.info(
 					`[AuthorizationCodeConfigModal] ⚠️ No saved credentials or initialCredentials for ${flowType}`
 				);
 			}
@@ -215,7 +216,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'AuthorizationCodeConfigModal',
 				'[AuthorizationCodeConfigModal] Error saving credentials:',
 				undefined,
@@ -262,7 +263,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'AuthorizationCodeConfigModal',
 				'[AuthorizationCodeConfigModal] Export error:',
 				undefined,
@@ -317,7 +318,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					});
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'AuthorizationCodeConfigModal',
 					'[AuthorizationCodeConfigModal] Import error:',
 					undefined,

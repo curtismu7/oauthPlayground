@@ -26,6 +26,7 @@ import { useCibaFlowV8 } from '@/v8/hooks/useCibaFlowV8';
 import { type CibaCredentials, CibaServiceV8 } from '@/v8/services/cibaServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 const FLOW_KEY = 'ciba-v8';
 
@@ -384,7 +385,7 @@ const CIBAFlowV8: React.FC = () => {
 					}));
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load saved credentials:`, error);
+				logger.error(`${MODULE_TAG} Failed to load saved credentials:`, error);
 			}
 		};
 
@@ -406,7 +407,7 @@ const CIBAFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+			logger.error(`${MODULE_TAG} Failed to save credentials:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -444,7 +445,7 @@ const CIBAFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('Failed to copy to clipboard:', error);
+			logger.error('Failed to copy to clipboard:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

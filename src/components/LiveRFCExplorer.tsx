@@ -510,6 +510,7 @@ const apiResponse = await fetch('https://api.example.com/data', {
 				title: 'PKCE Implementation',
 				code: `import crypto from 'crypto';
 
+import { logger } from '../utils/logger';
 // Step 1: Generate PKCE pair
 const codeVerifier = crypto.randomBytes(32).toString('hex');
 
@@ -703,10 +704,10 @@ const tokens = await exchangeCodeForTokens(code);
 
 // Decode and validate ID token
 const idToken = jwt.verify(tokens.id_token, publicKey);
-console.log('User ID:', idToken.sub);
-console.log('Name:', idToken.name);
-console.log('Email:', idToken.email);
-console.log('Email Verified:', idToken.email_verified);
+logger.info('User ID:', idToken.sub);
+logger.info('Name:', idToken.name);
+logger.info('Email:', idToken.email);
+logger.info('Email Verified:', idToken.email_verified);
 
 // ID Token structure:
 {
@@ -819,9 +820,9 @@ const deviceData = await deviceResponse.json();
 // }
 
 // Step 2: Display to user
-console.log(\`\\n📺 To activate this device:\`);
-console.log(\`   1. Visit: \${deviceData.verification_uri}\`);
-console.log(\`   2. Enter code: \${deviceData.user_code}\\n\`);
+logger.info(\`\\n📺 To activate this device:\`);
+logger.info(\`   1. Visit: \${deviceData.verification_uri}\`);
+logger.info(\`   2. Enter code: \${deviceData.user_code}\\n\`);
 
 // OR show QR code with verification_uri_complete
 
@@ -850,7 +851,7 @@ while (Date.now() - startTime < maxTime) {
   
   if (result.error === 'authorization_pending') {
     // Still waiting for user
-    console.log('Waiting...');
+    logger.info('Waiting...');
     continue;
   } else if (result.error === 'slow_down') {
     // Polling too fast, increase interval
@@ -860,7 +861,7 @@ while (Date.now() - startTime < maxTime) {
     throw new Error(result.error);
   } else {
     // Success!
-    console.log('✅ Device authorized!');
+    logger.info('✅ Device authorized!');
     return result;
   }
 }

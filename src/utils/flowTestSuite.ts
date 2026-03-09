@@ -4,6 +4,7 @@
 import { StepCredentials } from '../types/flowTypes';
 import { FlowTestResult, RegressionTestSuite, regressionSafeguards } from './regressionSafeguards';
 
+import { logger } from '../utils/logger';
 export interface FlowTestConfig {
 	flowName: string;
 	credentials: StepCredentials;
@@ -424,7 +425,7 @@ export class FlowTestSuite {
 	 * Run comprehensive test suite
 	 */
 	async runTestSuite(): Promise<TestSuiteResult> {
-		console.log('[Flow Test Suite] Starting comprehensive test suite...');
+		logger.info('[Flow Test Suite] Starting comprehensive test suite...');
 
 		const flows: Array<{
 			flowName: string;
@@ -440,7 +441,7 @@ export class FlowTestSuite {
 
 		// Test each flow configuration
 		for (const config of this.testConfigs) {
-			console.log(`[Flow Test Suite] Testing ${config.flowName}...`);
+			logger.info(`[Flow Test Suite] Testing ${config.flowName}...`);
 
 			try {
 				// Run validation suite
@@ -475,17 +476,17 @@ export class FlowTestSuite {
 					criticalFailures++;
 				}
 
-				console.log(
+				logger.info(
 					`[Flow Test Suite] ${config.flowName}: ${testSuite.overallPassed ? 'PASSED' : 'FAILED'}`
 				);
 				if (criticalFailuresList.length > 0) {
-					console.error(
+					logger.error(
 						`[Flow Test Suite] Critical failures in ${config.flowName}:`,
 						criticalFailuresList
 					);
 				}
 			} catch (error) {
-				console.error(`[Flow Test Suite] Error testing ${config.flowName}:`, error);
+				logger.error(`[Flow Test Suite] Error testing ${config.flowName}:`, error);
 
 				flows.push({
 					flowName: config.flowName,
@@ -513,7 +514,7 @@ export class FlowTestSuite {
 			timestamp: Date.now(),
 		};
 
-		console.log('[Flow Test Suite] Test suite completed:', this.results.summary);
+		logger.info('[Flow Test Suite] Test suite completed:', this.results.summary);
 		return this.results;
 	}
 
@@ -523,11 +524,11 @@ export class FlowTestSuite {
 	async runFlowTest(flowName: string): Promise<RegressionTestSuite | null> {
 		const config = this.testConfigs.find((c) => c.flowName === flowName);
 		if (!config) {
-			console.error(`[Flow Test Suite] No configuration found for flow: ${flowName}`);
+			logger.error(`[Flow Test Suite] No configuration found for flow: ${flowName}`);
 			return null;
 		}
 
-		console.log(`[Flow Test Suite] Testing specific flow: ${flowName}`);
+		logger.info(`[Flow Test Suite] Testing specific flow: ${flowName}`);
 		return await regressionSafeguards.runValidationSuite(
 			flowName,
 			config.credentials,
@@ -540,7 +541,7 @@ export class FlowTestSuite {
 	 */
 	addTestConfig(config: FlowTestConfig): void {
 		this.testConfigs.push(config);
-		console.log(`[Flow Test Suite] Added test configuration for ${config.flowName}`);
+		logger.info(`[Flow Test Suite] Added test configuration for ${config.flowName}`);
 	}
 
 	/**

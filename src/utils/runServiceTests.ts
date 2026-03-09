@@ -8,12 +8,13 @@
 
 import { comprehensiveFlowDataServiceTest } from './comprehensiveFlowDataServiceTest';
 
+import { logger } from '../utils/logger';
 export const runServiceTests = async (): Promise<{
 	success: boolean;
 	results: any;
 	summary: string;
 }> => {
-	console.log('🧪 [PROGRAMMATIC TEST RUNNER] Starting ComprehensiveFlowDataService Tests');
+	logger.info('🧪 [PROGRAMMATIC TEST RUNNER] Starting ComprehensiveFlowDataService Tests');
 
 	try {
 		// Run all tests
@@ -45,14 +46,14 @@ export const runServiceTests = async (): Promise<{
 ${failed > 0 ? '❌ SOME TESTS FAILED - SERVICE NOT READY' : '✅ ALL TESTS PASSED - SERVICE IS ROCK SOLID'}
 		`.trim();
 
-		console.log(summary);
+		logger.info(summary);
 
 		if (failed > 0) {
-			console.log('\n❌ Failed Tests:');
+			logger.info('\n❌ Failed Tests:');
 			testResults
 				.filter((r) => !r.passed)
 				.forEach((result) => {
-					console.log(`  - ${result.testName}: ${result.error}`);
+					logger.info(`  - ${result.testName}: ${result.error}`);
 				});
 		}
 
@@ -62,7 +63,7 @@ ${failed > 0 ? '❌ SOME TESTS FAILED - SERVICE NOT READY' : '✅ ALL TESTS PASS
 			summary,
 		};
 	} catch (error) {
-		console.error('❌ Test runner error:', error);
+		logger.error('❌ Test runner error:', error);
 		return {
 			success: false,
 			results: null,
@@ -74,7 +75,7 @@ ${failed > 0 ? '❌ SOME TESTS FAILED - SERVICE NOT READY' : '✅ ALL TESTS PASS
 // Make it available globally
 if (typeof window !== 'undefined') {
 	(window as any).runServiceTests = runServiceTests;
-	console.log('🧪 runServiceTests() available globally');
+	logger.info('🧪 runServiceTests() available globally');
 }
 
 export default runServiceTests;

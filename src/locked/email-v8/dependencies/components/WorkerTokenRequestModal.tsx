@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
+import { logger } from '../../../utils/logger';
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
 	try {
@@ -20,7 +21,7 @@ const decodeJWT = (token: string) => {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (error) {
-		console.error('Failed to decode JWT:', error);
+		logger.error('Failed to decode JWT:', error);
 		return { error: 'Invalid token format' };
 	}
 };
@@ -450,7 +451,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 				throw new Error(data.error_description || 'Failed to get access token');
 			}
 		} catch (error) {
-			console.error('Error generating token:', error);
+			logger.error('Error generating token:', error);
 			// Handle error (show toast or error message)
 		} finally {
 			setIsLoading(false);
@@ -508,11 +509,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	};
 
 	if (!isOpen) {
-		console.log('[WorkerTokenRequestModal] Modal is closed (isOpen = false)');
+		logger.info('[WorkerTokenRequestModal] Modal is closed (isOpen = false)');
 		return null;
 	}
 
-	console.log('[WorkerTokenRequestModal] ✅ Rendering educational modal (isOpen = true)', {
+	logger.info('[WorkerTokenRequestModal] ✅ Rendering educational modal (isOpen = true)', {
 		tokenEndpoint,
 		clientIdLength: requestParams.client_id.length,
 		hasSecret: !!requestParams.client_secret,

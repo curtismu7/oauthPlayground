@@ -3,6 +3,7 @@
 
 import { ConfigComparisonService } from '../services/configComparisonService';
 
+import { logger } from '../utils/logger';
 // Mock test data
 const mockFormData = {
 	name: 'Test Application',
@@ -42,7 +43,7 @@ export function testConfigChecker() {
 		// Test diff function
 		const _diffs = svc.diff(normalizedForm, normalizedApp);
 	} catch (error) {
-		console.error('❌ Config Checker test failed:', error);
+		logger.error('❌ Config Checker test failed:', error);
 	}
 }
 

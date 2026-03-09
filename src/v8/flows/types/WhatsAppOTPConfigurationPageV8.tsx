@@ -36,6 +36,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📲 WHATSAPP-OTP-CONFIG-V8]';
 
 export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
@@ -80,7 +81,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	useEffect(() => {
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log('[WhatsAppOTP] Environment ID saved globally', {
+			logger.info('[WhatsAppOTP] Environment ID saved globally', {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -132,7 +133,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		// 3. We don't already have a user token in credentials
 		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			console.log(`${MODULE_TAG} ✅ Auto-populating user token from auth context`, {
+			logger.info(`${MODULE_TAG} ✅ Auto-populating user token from auth context`, {
 				hasToken: !!authToken,
 				tokenLength: authToken.length,
 				tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -153,7 +154,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
-			console.log(`${MODULE_TAG} ⚠️ Auth token available but not populating`, {
+			logger.info(`${MODULE_TAG} ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
 				hasUserToken: !!credentials.userToken,
 				registrationFlowType,
@@ -210,7 +211,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			if (code && state) {
 				// Validate state
 				if (state !== hasUserLoginState) {
-					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -273,7 +274,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials with the token
-					console.log(
+					logger.info(
 						`[📱 SMS-CONFIG-PAGE-V8] ✅ Token received from callback, updating credentials`
 					);
 					setCredentials((prev) => ({
@@ -324,7 +325,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
 				{
 					currentTokenType: credentials.tokenType,
@@ -340,7 +341,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					// CRITICAL: Preserve existing userToken when switching to user flow (don't clear it)
 					userToken: prev.userToken || '',
 				};
-				console.log(`${MODULE_TAG} ✅ Updated credentials with preserved token`, {
+				logger.info(`${MODULE_TAG} ✅ Updated credentials with preserved token`, {
 					tokenType: updated.tokenType,
 					hasUserToken: !!updated.userToken,
 					userTokenLength: updated.userToken?.length || 0,
@@ -353,7 +354,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
 			);
 			isSyncingRef.current = true;
@@ -376,7 +377,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -387,7 +388,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -574,7 +575,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Proceeding to registration with policy:`,
 				credentials.deviceAuthenticationPolicyId
 			);

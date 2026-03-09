@@ -8,6 +8,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '../utils/logger';
 import {
 	type MFAFeatureFlag,
 	MFAFeatureFlagsV8,
@@ -49,7 +50,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 		// Listen for storage changes (multi-tab support)
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key === 'mfa_feature_flags_v8') {
-				console.log('[MFA-FLAGS-ADMIN] Flags changed in another tab, refreshing...');
+				logger.info('[MFA-FLAGS-ADMIN] Flags changed in another tab, refreshing...');
 				refreshFlags();
 			}
 		};

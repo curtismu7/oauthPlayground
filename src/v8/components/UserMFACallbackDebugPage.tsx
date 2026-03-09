@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 MFA-CALLBACK-DEBUG]';
 
 interface DebugInfo {
@@ -114,30 +115,30 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 		});
 
 		// Log to console with detailed formatting
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} OAUTH CALLBACK DEBUG PAGE LOADED`);
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} Timestamp:`, info.timestamp);
-		console.log(`${MODULE_TAG} Current URL:`, info.currentUrl);
-		console.log(`${MODULE_TAG} Pathname:`, info.pathname);
-		console.log(`${MODULE_TAG} Search:`, info.search);
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} CALLBACK PARAMETERS:`);
-		console.log(`${MODULE_TAG} Code present:`, !!code);
-		console.log(`${MODULE_TAG} State present:`, !!state);
-		console.log(`${MODULE_TAG} Error:`, error || 'None');
-		console.log(`${MODULE_TAG} All params:`, callbackParams);
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} SESSION STORAGE:`);
-		console.log(`${MODULE_TAG} Total keys:`, sessionKeys.length);
-		console.log(`${MODULE_TAG} All keys:`, sessionKeys);
-		console.log(`${MODULE_TAG} Relevant data:`, sessionData);
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} NAVIGATION:`);
-		console.log(`${MODULE_TAG} Return path:`, returnPath || 'NOT FOUND');
-		console.log(`${MODULE_TAG} Will redirect:`, willRedirect);
-		console.log(`${MODULE_TAG} Redirect target:`, redirectTarget || 'N/A');
-		console.log(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} OAUTH CALLBACK DEBUG PAGE LOADED`);
+		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} Timestamp:`, info.timestamp);
+		logger.info(`${MODULE_TAG} Current URL:`, info.currentUrl);
+		logger.info(`${MODULE_TAG} Pathname:`, info.pathname);
+		logger.info(`${MODULE_TAG} Search:`, info.search);
+		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} CALLBACK PARAMETERS:`);
+		logger.info(`${MODULE_TAG} Code present:`, !!code);
+		logger.info(`${MODULE_TAG} State present:`, !!state);
+		logger.info(`${MODULE_TAG} Error:`, error || 'None');
+		logger.info(`${MODULE_TAG} All params:`, callbackParams);
+		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} SESSION STORAGE:`);
+		logger.info(`${MODULE_TAG} Total keys:`, sessionKeys.length);
+		logger.info(`${MODULE_TAG} All keys:`, sessionKeys);
+		logger.info(`${MODULE_TAG} Relevant data:`, sessionData);
+		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} NAVIGATION:`);
+		logger.info(`${MODULE_TAG} Return path:`, returnPath || 'NOT FOUND');
+		logger.info(`${MODULE_TAG} Will redirect:`, willRedirect);
+		logger.info(`${MODULE_TAG} Redirect target:`, redirectTarget || 'N/A');
+		logger.info(`${MODULE_TAG} ========================================`);
 	}, [searchParams]);
 
 	// Countdown timer for auto-redirect
@@ -159,7 +160,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 	const handleRedirect = () => {
 		if (!debugInfo?.redirectTarget) return;
 
-		console.log(`${MODULE_TAG} 🚀 Executing redirect to:`, debugInfo.redirectTarget);
+		logger.info(`${MODULE_TAG} 🚀 Executing redirect to:`, debugInfo.redirectTarget);
 
 		// Set marker that we're returning from OAuth callback
 		sessionStorage.setItem('mfa_oauth_callback_return', 'true');
@@ -174,7 +175,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 	const handleManualRedirect = () => {
 		if (!debugInfo?.redirectTarget) return;
 
-		console.log(`${MODULE_TAG} 👆 Manual redirect triggered`);
+		logger.info(`${MODULE_TAG} 👆 Manual redirect triggered`);
 		handleRedirect();
 	};
 
@@ -182,7 +183,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 		if (!debugInfo) return;
 		navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
 		// Use console.log instead of alert for better UX
-		console.log(`${MODULE_TAG} Debug info copied to clipboard:`, debugInfo);
+		logger.info(`${MODULE_TAG} Debug info copied to clipboard:`, debugInfo);
 	};
 
 	if (!debugInfo) {

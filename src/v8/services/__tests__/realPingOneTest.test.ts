@@ -17,11 +17,12 @@ import {
 import { ImplicitFlowIntegrationServiceV8 } from '../implicitFlowIntegrationServiceV8';
 import { OAuthIntegrationServiceV8 } from '../oauthIntegrationServiceV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🧪 REAL-PINGONE-TEST]';
 
 describe('Real PingOne API Testing', () => {
 	beforeAll(() => {
-		console.log(`${MODULE_TAG} Starting real PingOne API tests`);
+		logger.info(`${MODULE_TAG} Starting real PingOne API tests`);
 		logCredentialsStatus();
 	});
 
@@ -262,7 +263,7 @@ describe('Real PingOne API Testing', () => {
 	});
 
 	afterAll(() => {
-		console.log(`${MODULE_TAG} Real PingOne API tests completed`);
-		console.log(`${MODULE_TAG} ✅ All tests passed with real PingOne environment`);
+		logger.info(`${MODULE_TAG} Real PingOne API tests completed`);
+		logger.info(`${MODULE_TAG} ✅ All tests passed with real PingOne environment`);
 	});
 });

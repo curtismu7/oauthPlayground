@@ -43,6 +43,7 @@ import {
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 
+import { logger } from '../utils/logger';
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 
@@ -154,7 +155,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 	);
 
 	if (!config) {
-		console.error(`${MODULE_TAG} Unknown flow key`, { flowKey });
+		logger.error(`${MODULE_TAG} Unknown flow key`, { flowKey });
 		return <div>Error: Unknown flow type</div>;
 	}
 
@@ -168,12 +169,12 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 			);
 
 			if (redirectUri && !credentials.redirectUri) {
-				console.log(`${MODULE_TAG} Auto-setting redirect URI for flow`, { flowKey, redirectUri });
+				logger.info(`${MODULE_TAG} Auto-setting redirect URI for flow`, { flowKey, redirectUri });
 				onChange({ ...credentials, redirectUri });
 			}
 
 			if (postLogoutRedirectUri && !credentials.postLogoutRedirectUri) {
-				console.log(`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`, {
+				logger.info(`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`, {
 					flowKey,
 					postLogoutRedirectUri,
 				});
@@ -182,11 +183,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 		}
 	}, [flowKey, credentials, onChange]); // Only run when flowKey changes
 
-	console.log(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
+	logger.info(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
 
 	const handleChange = useCallback(
 		(field: string, value: string) => {
-			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey });
+			logger.info(`${MODULE_TAG} Credential changed`, { field, flowKey });
 			const updated = { ...credentials, [field]: value };
 			onChange(updated);
 
@@ -208,16 +209,16 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 		setIsDiscovering(true);
 		try {
-			console.log(`${MODULE_TAG} Starting OIDC discovery`, { input: discoveryInput });
+			logger.info(`${MODULE_TAG} Starting OIDC discovery`, { input: discoveryInput });
 			const result = await OidcDiscoveryServiceV8.discoverFromInput(discoveryInput);
 
 			if (result.success && result.data) {
-				console.log(`${MODULE_TAG} Discovery successful`, result.data);
+				logger.info(`${MODULE_TAG} Discovery successful`, result.data);
 				setDiscoveryResult(result.data);
 				setShowDiscoveryModal(true);
 				onDiscoveryComplete?.(result.data);
 			} else {
-				console.error(`${MODULE_TAG} Discovery failed`, result.error);
+				logger.error(`${MODULE_TAG} Discovery failed`, result.error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -226,7 +227,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -240,7 +241,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleApplyDiscovery = useCallback(
 		(result: OidcDiscoveryResult) => {
-			console.log(`${MODULE_TAG} Applying discovery result`, result);
+			logger.info(`${MODULE_TAG} Applying discovery result`, result);
 			const updated = {
 				...credentials,
 				issuerUrl: result.issuer,
@@ -259,7 +260,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
+			logger.info(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 			const updated = {
 				...credentials,
 				clientId: app.id,
@@ -1046,7 +1047,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 									message: 'Credentials saved successfully',
 									duration: 3000,
 								});
-								console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
+								logger.info(`${MODULE_TAG} Credentials saved`, { flowKey });
 							}}
 						>
 							💾 Save Credentials

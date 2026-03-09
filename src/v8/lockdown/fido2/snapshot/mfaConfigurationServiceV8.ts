@@ -150,7 +150,7 @@ export class MFAConfigurationServiceV8 {
 			// Configuration loaded successfully
 			return config;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to load configuration:`, error);
 			return { ...DEFAULT_CONFIG };
 		}
 	}
@@ -161,7 +161,7 @@ export class MFAConfigurationServiceV8 {
 	static saveConfiguration(config: MFAConfiguration): void {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-			console.log(`${MODULE_TAG} Configuration saved to localStorage`);
+			logger.info(`${MODULE_TAG} Configuration saved to localStorage`);
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(
@@ -170,7 +170,7 @@ export class MFAConfigurationServiceV8 {
 				})
 			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to save configuration:`, error);
 			throw new Error('Failed to save configuration to localStorage');
 		}
 	}
@@ -181,7 +181,7 @@ export class MFAConfigurationServiceV8 {
 	static resetToDefaults(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log(`${MODULE_TAG} Configuration reset to defaults`);
+			logger.info(`${MODULE_TAG} Configuration reset to defaults`);
 
 			// Dispatch custom event with default config
 			window.dispatchEvent(
@@ -190,7 +190,7 @@ export class MFAConfigurationServiceV8 {
 				})
 			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to reset configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to reset configuration:`, error);
 			throw new Error('Failed to reset configuration');
 		}
 	}
@@ -213,7 +213,7 @@ export class MFAConfigurationServiceV8 {
 
 			// Validate that it's a valid configuration object
 			if (typeof parsed !== 'object' || parsed === null) {
-				console.error(`${MODULE_TAG} Invalid configuration format: not an object`);
+				logger.error(`${MODULE_TAG} Invalid configuration format: not an object`);
 				return false;
 			}
 
@@ -235,10 +235,11 @@ export class MFAConfigurationServiceV8 {
 			}
 
 			MFAConfigurationServiceV8.saveConfiguration(config);
-			console.log(`${MODULE_TAG} Configuration imported successfully`);
+			logger.info(`${MODULE_TAG} Configuration imported successfully`);
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to import configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to import configuration:`, error);
+import { logger } from '../../../utils/logger';
 			return false;
 		}
 	}

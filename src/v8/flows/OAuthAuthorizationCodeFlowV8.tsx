@@ -25,6 +25,7 @@ import { TokenMonitoringService } from '@/v8u/services/tokenMonitoringService';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
 
@@ -61,10 +62,10 @@ interface AuthorizationState {
 }
 
 export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing flow`);
+	logger.info(`${MODULE_TAG} Initializing flow`);
 
 	const nav = useStepNavigationV8(4, {
-		onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step }),
+		onStepChange: (step) => logger.info(`${MODULE_TAG} Step changed to`, { step }),
 	});
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
@@ -116,7 +117,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 		// Restore PKCE codes from bulletproof storage
 		const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(FLOW_KEY);
 		if (storedPKCE) {
-			console.log(`${MODULE_TAG} Restored PKCE codes from bulletproof storage`, {
+			logger.info(`${MODULE_TAG} Restored PKCE codes from bulletproof storage`, {
 				hasChallenge: !!storedPKCE.codeChallenge,
 				hasVerifier: !!storedPKCE.codeVerifier,
 			});
@@ -253,7 +254,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 					await spinner.withSpinner(
 						async () => {
-							console.log(
+							logger.info(
 								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
 							);
 
@@ -297,7 +298,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 									username: redirectlessCredentials.username,
 									password: redirectlessCredentials.password,
 									onAuthCodeReceived: () => {
-										console.log(`${MODULE_TAG} Received authorization code via redirectless`);
+										logger.info(`${MODULE_TAG} Received authorization code via redirectless`);
 									},
 								});
 
@@ -383,7 +384,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					<SecondaryButton
 						onClick={() => {
 							navigator.clipboard.writeText(authState.authorizationUrl);
-							console.log(`${MODULE_TAG} URL copied to clipboard`);
+							logger.info(`${MODULE_TAG} URL copied to clipboard`);
 						}}
 						disabled={isActionInProgress}
 					>
@@ -429,7 +430,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 			<PrimaryButton
 				onClick={() => {
-					console.log(`${MODULE_TAG} Parsing callback URL`);
+					logger.info(`${MODULE_TAG} Parsing callback URL`);
 					setIsActionInProgress(true);
 					try {
 						const parsed = OAuthIntegrationServiceV8.parseCallbackUrl(
@@ -442,7 +443,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						});
 						nav.markStepComplete();
 					} catch (error) {
-						console.error(`${MODULE_TAG} Error parsing callback URL`, error);
+						logger.error(`${MODULE_TAG} Error parsing callback URL`, error);
 						nav.setValidationErrors([
 							`Failed to parse callback URL: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
@@ -472,7 +473,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<SecondaryButton
 								onClick={() => {
 									navigator.clipboard.writeText(authState.tokens.accessToken);
-									console.log(`${MODULE_TAG} Token copied to clipboard`);
+									logger.info(`${MODULE_TAG} Token copied to clipboard`);
 								}}
 								disabled={isActionInProgress}
 							>
@@ -484,9 +485,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 										const decoded = OAuthIntegrationServiceV8.decodeToken(
 											authState.tokens.accessToken
 										);
-										console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
+										logger.info(`${MODULE_TAG} Decoded token:`, decoded.payload);
 									} catch (error) {
-										console.error(
+										logger.error(
 											`${MODULE_TAG} Error decoding token:`,
 											error instanceof Error ? error.message : 'Unknown error'
 										);
@@ -507,7 +508,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.idToken || '');
-										console.log(`${MODULE_TAG} Token copied to clipboard`);
+										logger.info(`${MODULE_TAG} Token copied to clipboard`);
 									}}
 									disabled={isActionInProgress}
 								>
@@ -519,9 +520,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											const decoded = OAuthIntegrationServiceV8.decodeToken(
 												authState.tokens.idToken || ''
 											);
-											console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
+											logger.info(`${MODULE_TAG} Decoded token:`, decoded.payload);
 										} catch (error) {
-											console.error(
+											logger.error(
 												`${MODULE_TAG} Error decoding token:`,
 												error instanceof Error ? error.message : 'Unknown error'
 											);
@@ -543,7 +544,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.refreshToken || '');
-										console.log(`${MODULE_TAG} Token copied to clipboard`);
+										logger.info(`${MODULE_TAG} Token copied to clipboard`);
 									}}
 									disabled={isActionInProgress}
 								>
@@ -714,11 +715,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						onPrevious={nav.goToPrevious}
 						onNext={nav.goToNext}
 						onFinal={() => {
-							console.log(`${MODULE_TAG} Starting new flow`);
+							logger.info(`${MODULE_TAG} Starting new flow`);
 							nav.reset();
 							// Clear PKCE codes from bulletproof storage
 							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
-								console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
+								logger.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
 							});
 							codeVerifierRef.current = '';
 							// Reload credentials from storage (preserves credentials)
@@ -751,11 +752,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 					<DangerButton
 						onClick={() => {
-							console.log(`${MODULE_TAG} Resetting flow`);
+							logger.info(`${MODULE_TAG} Resetting flow`);
 							FlowResetServiceV8.resetFlow('oauth-authz-v8');
 							// Clear PKCE codes from bulletproof storage
 							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
-								console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
+								logger.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
 							});
 							codeVerifierRef.current = '';
 							// Reload credentials from storage (preserves credentials)

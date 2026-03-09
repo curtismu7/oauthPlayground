@@ -18,6 +18,7 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📊 MFA-REPORTING-V8]';
 
 export interface ReportParams {
@@ -105,7 +106,7 @@ export class MFAReportingServiceV8 {
 	 * @returns Access token
 	 */
 	private static async getWorkerToken(): Promise<string> {
-		console.log(`${MODULE_TAG} Getting worker token`);
+		logger.info(`${MODULE_TAG} Getting worker token`);
 
 		const cachedToken = await workerTokenServiceV8.getToken();
 		if (cachedToken) {
@@ -152,7 +153,7 @@ export class MFAReportingServiceV8 {
 	static async getUserAuthenticationReports(
 		params: ReportParams
 	): Promise<UserAuthenticationReport[]> {
-		console.log(`${MODULE_TAG} Getting user authentication reports`, params);
+		logger.info(`${MODULE_TAG} Getting user authentication reports`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -261,10 +262,10 @@ export class MFAReportingServiceV8 {
 					}
 				)._embedded?.userMfaDeviceAuthentications || ([] as UserAuthenticationReport[]);
 
-			console.log(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`);
 			return reports;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get user authentication reports error`, error);
+			logger.error(`${MODULE_TAG} Get user authentication reports error`, error);
 			throw error;
 		}
 	}
@@ -277,7 +278,7 @@ export class MFAReportingServiceV8 {
 	static async getDeviceAuthenticationReports(
 		params: ReportParams
 	): Promise<DeviceAuthenticationReport[]> {
-		console.log(`${MODULE_TAG} Getting device authentication reports`, params);
+		logger.info(`${MODULE_TAG} Getting device authentication reports`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -356,10 +357,10 @@ export class MFAReportingServiceV8 {
 				(reportsData as { _embedded?: { mfaDeviceAuthentications?: DeviceAuthenticationReport[] } })
 					._embedded?.mfaDeviceAuthentications || [];
 
-			console.log(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`);
 			return reports;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get device authentication reports error`, error);
+			logger.error(`${MODULE_TAG} Get device authentication reports error`, error);
 			throw error;
 		}
 	}
@@ -370,7 +371,7 @@ export class MFAReportingServiceV8 {
 	 * @returns List of FIDO2 device reports
 	 */
 	static async getFIDO2DeviceReports(params: ReportParams): Promise<FIDO2DeviceReport[]> {
-		console.log(`${MODULE_TAG} Getting FIDO2 device reports`, params);
+		logger.info(`${MODULE_TAG} Getting FIDO2 device reports`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -447,10 +448,10 @@ export class MFAReportingServiceV8 {
 				(reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded
 					?.fido2Devices || ([] as FIDO2DeviceReport[]);
 
-			console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
 			return reports;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
+			logger.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
 			throw error;
 		}
 	}
@@ -471,7 +472,7 @@ export class MFAReportingServiceV8 {
 			deliverAs?: string;
 		}
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Creating SMS devices report`, params);
+		logger.info(`${MODULE_TAG} Creating SMS devices report`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -577,10 +578,10 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to create SMS devices report: ${errorMessage}`);
 			}
 
-			console.log(`${MODULE_TAG} SMS devices report created successfully`);
+			logger.info(`${MODULE_TAG} SMS devices report created successfully`);
 			return reportData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Create SMS devices report error`, error);
+			logger.error(`${MODULE_TAG} Create SMS devices report error`, error);
 			throw error;
 		}
 	}
@@ -595,7 +596,7 @@ export class MFAReportingServiceV8 {
 	static async getReportResults(
 		params: ReportParams & { reportId: string }
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Getting report results`, params);
+		logger.info(`${MODULE_TAG} Getting report results`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -675,10 +676,10 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get report results: ${errorMessage}`);
 			}
 
-			console.log(`${MODULE_TAG} Report results retrieved successfully`);
+			logger.info(`${MODULE_TAG} Report results retrieved successfully`);
 			return reportData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get report results error`, error);
+			logger.error(`${MODULE_TAG} Get report results error`, error);
 			throw error;
 		}
 	}
@@ -699,7 +700,7 @@ export class MFAReportingServiceV8 {
 			deliverAs?: string;
 		}
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Creating MFA-enabled devices report`, params);
+		logger.info(`${MODULE_TAG} Creating MFA-enabled devices report`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -805,13 +806,13 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to create MFA-enabled devices report: ${errorMessage}`);
 			}
 
-			console.log(`${MODULE_TAG} MFA-enabled devices report created successfully`, {
+			logger.info(`${MODULE_TAG} MFA-enabled devices report created successfully`, {
 				reportId: (reportData as { id?: string })?.id,
 				status: (reportData as { status?: string })?.status,
 			});
 			return reportData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Create MFA-enabled devices report error`, error);
+			logger.error(`${MODULE_TAG} Create MFA-enabled devices report error`, error);
 			throw error;
 		}
 	}
@@ -830,7 +831,7 @@ export class MFAReportingServiceV8 {
 		maxAttempts: number = 10,
 		pollInterval: number = 2000
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Polling report results`, {
+		logger.info(`${MODULE_TAG} Polling report results`, {
 			reportId: params.reportId,
 			maxAttempts,
 			pollInterval,
@@ -843,7 +844,7 @@ export class MFAReportingServiceV8 {
 				const status = (reportData as { status?: string })?.status;
 
 				if (status === 'COMPLETED') {
-					console.log(`${MODULE_TAG} Report completed successfully`);
+					logger.info(`${MODULE_TAG} Report completed successfully`);
 					return reportData;
 				}
 
@@ -854,7 +855,7 @@ export class MFAReportingServiceV8 {
 				// Status is PENDING or IN_PROGRESS, continue polling
 				attempts++;
 				if (attempts < maxAttempts) {
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Report status: ${status}, polling again in ${pollInterval}ms (attempt ${attempts}/${maxAttempts})`
 					);
 					await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -888,7 +889,7 @@ export class MFAReportingServiceV8 {
 		params: ReportParams & { username: string },
 		deviceType: 'FIDO2' | 'EMAIL' | 'TOTP'
 	): Promise<Array<Record<string, unknown>>> {
-		console.log(`${MODULE_TAG} Getting devices by type`, { deviceType, username: params.username });
+		logger.info(`${MODULE_TAG} Getting devices by type`, { deviceType, username: params.username });
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -970,10 +971,10 @@ export class MFAReportingServiceV8 {
 			};
 			const devices = devicesResponse._embedded?.devices || [];
 
-			console.log(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);
+			logger.info(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);
 			return devices;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get devices by type error:`, error);
+			logger.error(`${MODULE_TAG} Get devices by type error:`, error);
 			throw error;
 		}
 	}
@@ -990,7 +991,7 @@ export class MFAReportingServiceV8 {
 	static async createDataExploration(
 		params: DataExplorationParams
 	): Promise<DataExplorationResponse> {
-		console.log(`${MODULE_TAG} Creating data exploration with entries`, params);
+		logger.info(`${MODULE_TAG} Creating data exploration with entries`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -1067,10 +1068,10 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Data exploration created successfully`);
+			logger.info(`${MODULE_TAG} Data exploration created successfully`);
 			return explorationData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Create data exploration error:`, error);
+			logger.error(`${MODULE_TAG} Create data exploration error:`, error);
 			throw error;
 		}
 	}
@@ -1083,7 +1084,7 @@ export class MFAReportingServiceV8 {
 	static async createAsyncDataExploration(
 		params: DataExplorationParams
 	): Promise<DataExplorationResponse> {
-		console.log(`${MODULE_TAG} Creating async data exploration`, params);
+		logger.info(`${MODULE_TAG} Creating async data exploration`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -1159,13 +1160,13 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Async data exploration created successfully, status:`,
 				explorationData.status
 			);
 			return explorationData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Create async data exploration error:`, error);
+			logger.error(`${MODULE_TAG} Create async data exploration error:`, error);
 			throw error;
 		}
 	}
@@ -1178,7 +1179,7 @@ export class MFAReportingServiceV8 {
 	static async getDataExplorationStatus(
 		params: ReportParams & { dataExplorationId: string }
 	): Promise<DataExplorationResponse> {
-		console.log(`${MODULE_TAG} Getting data exploration status`, params);
+		logger.info(`${MODULE_TAG} Getting data exploration status`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -1252,10 +1253,10 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Data exploration status retrieved:`, statusData.status);
+			logger.info(`${MODULE_TAG} Data exploration status retrieved:`, statusData.status);
 			return statusData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get data exploration status error:`, error);
+			logger.error(`${MODULE_TAG} Get data exploration status error:`, error);
 			throw error;
 		}
 	}
@@ -1268,7 +1269,7 @@ export class MFAReportingServiceV8 {
 	static async getDataExplorationEntries(
 		params: ReportParams & { dataExplorationId: string }
 	): Promise<{ _embedded: { entries: Array<Record<string, unknown>> }; _links?: any }> {
-		console.log(`${MODULE_TAG} Getting data exploration entries`, params);
+		logger.info(`${MODULE_TAG} Getting data exploration entries`, params);
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
@@ -1342,10 +1343,10 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Data exploration entries retrieved successfully`);
+			logger.info(`${MODULE_TAG} Data exploration entries retrieved successfully`);
 			return entriesData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get data exploration entries error:`, error);
+			logger.error(`${MODULE_TAG} Get data exploration entries error:`, error);
 			throw error;
 		}
 	}
@@ -1362,7 +1363,7 @@ export class MFAReportingServiceV8 {
 		maxAttempts: number = 30,
 		pollInterval: number = 2000
 	): Promise<DataExplorationResponse> {
-		console.log(`${MODULE_TAG} Starting async data exploration polling`, {
+		logger.info(`${MODULE_TAG} Starting async data exploration polling`, {
 			dataExplorationId: params.dataExplorationId,
 			maxAttempts,
 			pollInterval,
@@ -1372,10 +1373,10 @@ export class MFAReportingServiceV8 {
 			try {
 				const status = await MFAReportingServiceV8.getDataExplorationStatus(params);
 
-				console.log(`${MODULE_TAG} Poll attempt ${attempt}/${maxAttempts}, status:`, status.status);
+				logger.info(`${MODULE_TAG} Poll attempt ${attempt}/${maxAttempts}, status:`, status.status);
 
 				if (status.status === 'SUCCESS') {
-					console.log(`${MODULE_TAG} Data exploration completed successfully`);
+					logger.info(`${MODULE_TAG} Data exploration completed successfully`);
 					return status;
 				}
 
@@ -1388,7 +1389,7 @@ export class MFAReportingServiceV8 {
 					await new Promise((resolve) => setTimeout(resolve, pollInterval));
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Poll attempt ${attempt} failed:`, error);
+				logger.error(`${MODULE_TAG} Poll attempt ${attempt} failed:`, error);
 				if (attempt === maxAttempts) {
 					throw error;
 				}
@@ -1413,7 +1414,7 @@ export class MFAReportingServiceV8 {
 			mfaEnabled?: boolean;
 		}
 	): Promise<DataExplorationResponse> {
-		console.log(`${MODULE_TAG} Creating MFA devices report`, params);
+		logger.info(`${MODULE_TAG} Creating MFA devices report`, params);
 
 		// Build filter based on parameters
 		let filter = '';

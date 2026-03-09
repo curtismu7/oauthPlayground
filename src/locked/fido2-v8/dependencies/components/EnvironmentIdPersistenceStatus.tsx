@@ -4,6 +4,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
+import { logger } from '../../../utils/logger';
 const StatusContent = styled.div`
   color: #075985;
   line-height: 1.4;
@@ -66,26 +67,26 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 
 	useEffect(() => {
 		const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
-		console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
+		logger.info('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
 		setStatus(persistenceStatus);
 	}, []);
 
 	const handleCopyEnvContent = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContent();
-		console.log('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
+		logger.info('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
-			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard');
+			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard');
 			v4ToastManager.showSuccess('Environment content copied to clipboard!');
 		});
 	};
 
 	const handleUpdateEnv = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Update .env clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Update .env clicked');
 		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
-		console.log('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
+		logger.info('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
-			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
+			logger.info('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
 			v4ToastManager.showSuccess(
 				'Environment content copied! Paste into your .env file on a new line.'
 			);
@@ -93,9 +94,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 	};
 
 	const handleClearPersistence = () => {
-		console.log('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
+		logger.info('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
 		environmentIdPersistenceService.clearEnvironmentId();
-		console.log('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
+		logger.info('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
 		if (onRefresh) onRefresh();
 	};
 

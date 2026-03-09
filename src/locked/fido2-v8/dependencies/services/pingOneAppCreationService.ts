@@ -293,8 +293,8 @@ export class PingOneAppCreationService {
 			};
 
 			// Log the full request payload for debugging
-			console.log('[APP-CREATION] Request payload:', JSON.stringify(payload, null, 2));
-			console.log('[APP-CREATION] Protocol field:', payload.protocol);
+			logger.info('[APP-CREATION] Request payload:', JSON.stringify(payload, null, 2));
+			logger.info('[APP-CREATION] Protocol field:', payload.protocol);
 
 			const createdApp = await makeApiRequest<CreatedApp>(this.client, '/applications', {
 				method: 'POST',
@@ -394,7 +394,7 @@ export class PingOneAppCreationService {
 				}
 			});
 
-			console.log('[APP-CREATION] Update payload:', JSON.stringify(payload, null, 2));
+			logger.info('[APP-CREATION] Update payload:', JSON.stringify(payload, null, 2));
 
 			const updatedApp = await makeApiRequest<CreatedApp>(this.client, `/applications/${appId}`, {
 				method: 'PUT',

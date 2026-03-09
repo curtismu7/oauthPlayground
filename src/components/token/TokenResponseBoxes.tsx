@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface TokenResponseBoxesProps {
 	tokens: {
 		access_token?: string;
@@ -73,7 +74,7 @@ const TokenValue = styled.pre`
 const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 	const handleCopy = (token: string, tokenName: string) => {
 		navigator.clipboard.writeText(token);
-		log.info('Token copied to clipboard', tokenName);
+		logger.info('Token copied to clipboard', tokenName);
 		// You could add a toast notification here
 	};
 

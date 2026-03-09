@@ -7,6 +7,7 @@ import {
 } from '../services/errorHandlingService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
+import { logger } from '../utils/logger';
 const log = createModuleLogger('ErrorBoundary');
 
 const ErrorContainer = styled.div`
@@ -152,7 +153,7 @@ class ErrorBoundary extends Component<Props, State> {
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		// Log additional error context
-		log.error('[ErrorBoundary] Caught error:', {
+		logger.error('[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
 			componentStack: errorInfo.componentStack,
@@ -198,7 +199,7 @@ class ErrorBoundary extends Component<Props, State> {
 						this.resetError();
 					})
 					.catch((recoveryError) => {
-						log.error('[ErrorBoundary] Recovery action failed:', {
+						logger.error('[ErrorBoundary] Recovery action failed:', {
 							action: option.action,
 							recoveryError: recoveryError as Error,
 						});
@@ -209,7 +210,7 @@ class ErrorBoundary extends Component<Props, State> {
 				this.resetError();
 			}
 		} catch (error) {
-			log.error('[ErrorBoundary] Recovery action threw error:', {
+			logger.error('[ErrorBoundary] Recovery action threw error:', {
 				action: option.action,
 				error: error as Error,
 			});

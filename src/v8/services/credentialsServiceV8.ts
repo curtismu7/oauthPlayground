@@ -37,9 +37,10 @@ import type {
 } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
+import { logger } from '../utils/logger';
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-	console.log(...args);
+	logger.info(...args);
 };
 
 // Re-export types for backward compatibility
@@ -59,9 +60,9 @@ let migrationCompleted = false;
 const ensureMigration = async (): Promise<void> => {
 	if (!migrationCompleted) {
 		if (CredentialsServiceV8Migration.needsMigration()) {
-			console.log(`${MODULE_TAG} Starting automatic credentials migration...`);
+			logger.info(`${MODULE_TAG} Starting automatic credentials migration...`);
 			const result = await CredentialsServiceV8Migration.migrateAll();
-			console.log(`${MODULE_TAG} Credentials migration completed`, result);
+			logger.info(`${MODULE_TAG} Credentials migration completed`, result);
 		}
 		migrationCompleted = true;
 	}
@@ -84,7 +85,7 @@ export class CredentialsServiceV8 {
 	static getSmartDefaults(flowKey: string): Credentials {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, using generic defaults`, { flowKey });
+			logger.warn(`${MODULE_TAG} Unknown flow key, using generic defaults`, { flowKey });
 			return CredentialsServiceV8.getDefaultCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -149,7 +150,7 @@ export class CredentialsServiceV8 {
 	static async loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Promise<Credentials> {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
+			logger.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
 			return CredentialsServiceV8.loadCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -260,7 +261,7 @@ export class CredentialsServiceV8 {
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error loading credentials from unified storage`, {
+			logger.error(`${MODULE_TAG} Error loading credentials from unified storage`, {
 				flowKey,
 				error,
 			});
@@ -289,7 +290,7 @@ export class CredentialsServiceV8 {
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Error loading from unified storage`, { flowKey, error });
+			logger.error(`${MODULE_TAG} ❌ Error loading from unified storage`, { flowKey, error });
 		}
 
 		debugLog(`${MODULE_TAG} ⚠️ No credentials found, using defaults`, { flowKey });
@@ -339,7 +340,7 @@ export class CredentialsServiceV8 {
 
 			debugLog(`${MODULE_TAG} ✅ Credentials saved to unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving credentials to unified storage`, {
+			logger.error(`${MODULE_TAG} Error saving credentials to unified storage`, {
 				flowKey,
 				error,
 			});
@@ -358,7 +359,7 @@ export class CredentialsServiceV8 {
 			await unifiedTokenStorage.clearV8Credentials(flowKey);
 			debugLog(`${MODULE_TAG} Credentials cleared from unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error clearing credentials from unified storage`, {
+			logger.error(`${MODULE_TAG} Error clearing credentials from unified storage`, {
 				flowKey,
 				error,
 			});
@@ -373,7 +374,7 @@ export class CredentialsServiceV8 {
 	 * @example
 	 * const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
 	 * if (result.errors.length > 0) {
-	 *   console.error('Validation failed:', result.errors);
+	 *   logger.error('Validation failed:', result.errors);
 	 * }
 	 */
 	static validateCredentials(
@@ -500,7 +501,7 @@ export class CredentialsServiceV8 {
 			}
 			return parsed;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error importing credentials`, { error });
+			logger.error(`${MODULE_TAG} Error importing credentials`, { error });
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -543,7 +544,7 @@ export class CredentialsServiceV8 {
 	 *
 	 * @example
 	 * const sanitized = CredentialsServiceV8.sanitizeForLogging(credentials);
-	 * console.log('Credentials:', sanitized);
+	 * logger.info('Credentials:', sanitized);
 	 * // Output: { environmentId: '...', clientId: '...', hasClientSecret: true, ... }
 	 */
 	static sanitizeForLogging(credentials: Credentials): Record<string, unknown> {
@@ -586,7 +587,7 @@ export class CredentialsServiceV8 {
 	 *
 	 * @example
 	 * const summary = CredentialsServiceV8.getCredentialsSummary(credentials);
-	 * console.log(summary);
+	 * logger.info(summary);
 	 * // "Environment: abc-123, Client: xyz-789, Auth: client_secret_basic, Scopes: 3"
 	 */
 	static async getCredentialsSummary(flowKey: string): Promise<string> {
@@ -594,7 +595,7 @@ export class CredentialsServiceV8 {
 			await ensureMigration();
 			return await unifiedTokenStorage.getV8CredentialsSummary(flowKey);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get credentials summary`, { flowKey, error });
+			logger.error(`${MODULE_TAG} Failed to get credentials summary`, { flowKey, error });
 			return 'Error loading credentials';
 		}
 	}

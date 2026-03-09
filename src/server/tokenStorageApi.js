@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file tokenStorageApi.js
  * @description Backend API endpoints for unified token storage with SQLite
  * @version 1.0.0
@@ -16,10 +17,10 @@ function initializeDatabase() {
 	return new Promise((resolve, reject) => {
 		const db = new sqlite3.Database(DB_PATH, (err) => {
 			if (err) {
-				console.error('Error opening token database:', err);
+				logger.error('Error opening token database:', err);
 				reject(err);
 			} else {
-				console.log('Connected to SQLite token database');
+				logger.info('Connected to SQLite token database');
 
 				// Create tokens table if it doesn't exist
 				db.run(
@@ -43,31 +44,31 @@ function initializeDatabase() {
         `,
 					(err) => {
 						if (err) {
-							console.error('Error creating tokens table:', err);
+							logger.error('Error creating tokens table:', err);
 							reject(err);
 						} else {
-							console.log('Tokens table ready');
+							logger.info('Tokens table ready');
 
 							// Create indexes for performance
 							db.run('CREATE INDEX IF NOT EXISTS idx_tokens_type ON tokens(type)', (err) => {
-								if (err) console.warn('Error creating type index:', err);
+								if (err) logger.warn('Error creating type index:', err);
 							});
 
 							db.run('CREATE INDEX IF NOT EXISTS idx_tokens_source ON tokens(source)', (err) => {
-								if (err) console.warn('Error creating source index:', err);
+								if (err) logger.warn('Error creating source index:', err);
 							});
 
 							db.run(
 								'CREATE INDEX IF NOT EXISTS idx_tokens_environmentId ON tokens(environmentId)',
 								(err) => {
-									if (err) console.warn('Error creating environmentId index:', err);
+									if (err) logger.warn('Error creating environmentId index:', err);
 								}
 							);
 
 							db.run(
 								'CREATE INDEX IF NOT EXISTS idx_tokens_expiresAt ON tokens(expiresAt)',
 								(err) => {
-									if (err) console.warn('Error creating expiresAt index:', err);
+									if (err) logger.warn('Error creating expiresAt index:', err);
 								}
 							);
 
@@ -121,11 +122,11 @@ async function storeToken(req, res) {
 
 		stmt.finalize();
 
-		console.log(`[TOKEN-STORAGE] Token stored: ${token.id} (${token.type})`);
+		logger.info(`[TOKEN-STORAGE] Token stored: ${token.id} (${token.type})`);
 
 		res.json({ success: true, tokenId: token.id });
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error storing token:', error);
+		logger.error('[TOKEN-STORAGE] Error storing token:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -177,7 +178,7 @@ async function queryTokens(req, res) {
 
 		db.all(query, params, (err, rows) => {
 			if (err) {
-				console.error('[TOKEN-STORAGE] Error querying tokens:', err);
+				logger.error('[TOKEN-STORAGE] Error querying tokens:', err);
 				res.status(500).json({
 					success: false,
 					error: err.message,
@@ -192,11 +193,11 @@ async function queryTokens(req, res) {
 				metadata: row.metadata ? JSON.parse(row.metadata) : null,
 			}));
 
-			console.log(`[TOKEN-STORAGE] Queried ${tokens.length} tokens`);
+			logger.info(`[TOKEN-STORAGE] Queried ${tokens.length} tokens`);
 			res.json(tokens);
 		});
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in query endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in query endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -212,7 +213,7 @@ async function getToken(req, res) {
 
 		db.get('SELECT * FROM tokens WHERE id = ?', [tokenId], (err, row) => {
 			if (err) {
-				console.error('[TOKEN-STORAGE] Error getting token:', err);
+				logger.error('[TOKEN-STORAGE] Error getting token:', err);
 				res.status(500).json({
 					success: false,
 					error: err.message,
@@ -235,11 +236,11 @@ async function getToken(req, res) {
 				metadata: row.metadata ? JSON.parse(row.metadata) : null,
 			};
 
-			console.log(`[TOKEN-STORAGE] Retrieved token: ${tokenId}`);
+			logger.info(`[TOKEN-STORAGE] Retrieved token: ${tokenId}`);
 			res.json(token);
 		});
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in get endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in get endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -255,7 +256,7 @@ async function deleteToken(req, res) {
 
 		db.run('DELETE FROM tokens WHERE id = ?', [tokenId], function (err) {
 			if (err) {
-				console.error('[TOKEN-STORAGE] Error deleting token:', err);
+				logger.error('[TOKEN-STORAGE] Error deleting token:', err);
 				res.status(500).json({
 					success: false,
 					error: err.message,
@@ -271,11 +272,11 @@ async function deleteToken(req, res) {
 				return;
 			}
 
-			console.log(`[TOKEN-STORAGE] Deleted token: ${tokenId}`);
+			logger.info(`[TOKEN-STORAGE] Deleted token: ${tokenId}`);
 			res.json({ success: true });
 		});
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in delete endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in delete endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -290,7 +291,7 @@ async function clearTokens(_req, res) {
 
 		db.run('DELETE FROM tokens', function (err) {
 			if (err) {
-				console.error('[TOKEN-STORAGE] Error clearing tokens:', err);
+				logger.error('[TOKEN-STORAGE] Error clearing tokens:', err);
 				res.status(500).json({
 					success: false,
 					error: err.message,
@@ -298,14 +299,14 @@ async function clearTokens(_req, res) {
 				return;
 			}
 
-			console.log(`[TOKEN-STORAGE] Cleared ${this.changes} tokens`);
+			logger.info(`[TOKEN-STORAGE] Cleared ${this.changes} tokens`);
 			res.json({
 				success: true,
 				deletedCount: this.changes,
 			});
 		});
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in clear endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in clear endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -324,7 +325,7 @@ async function cleanupExpiredTokens(_req, res) {
 			[now],
 			function (err) {
 				if (err) {
-					console.error('[TOKEN-STORAGE] Error cleaning up expired tokens:', err);
+					logger.error('[TOKEN-STORAGE] Error cleaning up expired tokens:', err);
 					res.status(500).json({
 						success: false,
 						error: err.message,
@@ -332,7 +333,7 @@ async function cleanupExpiredTokens(_req, res) {
 					return;
 				}
 
-				console.log(`[TOKEN-STORAGE] Cleaned up ${this.changes} expired tokens`);
+				logger.info(`[TOKEN-STORAGE] Cleaned up ${this.changes} expired tokens`);
 				res.json({
 					success: true,
 					deletedCount: this.changes,
@@ -340,7 +341,7 @@ async function cleanupExpiredTokens(_req, res) {
 			}
 		);
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in cleanup endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in cleanup endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -409,7 +410,7 @@ async function getStorageStats(_req, res) {
 			);
 		});
 	} catch (error) {
-		console.error('[TOKEN-STORAGE] Error in stats endpoint:', error);
+		logger.error('[TOKEN-STORAGE] Error in stats endpoint:', error);
 		res.status(500).json({
 			success: false,
 			error: error.message,
@@ -419,7 +420,7 @@ async function getStorageStats(_req, res) {
 
 // Register routes
 function registerTokenStorageRoutes(app) {
-	console.log('[TOKEN-STORAGE] Registering token storage API routes');
+	logger.info('[TOKEN-STORAGE] Registering token storage API routes');
 
 	// Store token
 	app.post('/api/tokens/store', storeToken);
@@ -442,7 +443,7 @@ function registerTokenStorageRoutes(app) {
 	// Get storage statistics
 	app.get('/api/tokens/stats', getStorageStats);
 
-	console.log('[TOKEN-STORAGE] Token storage API routes registered');
+	logger.info('[TOKEN-STORAGE] Token storage API routes registered');
 }
 
 module.exports = {

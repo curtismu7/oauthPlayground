@@ -20,6 +20,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type CibaAuthRequest,
 	type CibaCredentials,
@@ -108,13 +109,13 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 */
 	const initiateAuthentication = useCallback(
 		async (credentials: CibaCredentials): Promise<CibaAuthRequest | null> => {
-			console.log(`${MODULE_TAG} Initiating CIBA authentication`);
+			logger.info(`${MODULE_TAG} Initiating CIBA authentication`);
 
 			// Validate credentials first
 			const validation = CibaServiceV8.validateCredentials(credentials);
 			if (!validation.valid) {
 				const errorMessage = validation.errors.join(', ');
-				console.error(`${MODULE_TAG} Validation failed:`, validation.errors);
+				logger.error(`${MODULE_TAG} Validation failed:`, validation.errors);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -140,11 +141,11 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					error: null,
 				}));
 
-				console.log(`${MODULE_TAG} CIBA authentication initiated successfully`);
+				logger.info(`${MODULE_TAG} CIBA authentication initiated successfully`);
 				return authRequest;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
+				logger.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
 
 				setState((prev) => ({
 					...prev,
@@ -171,7 +172,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 */
 	const pollForTokens = useCallback(
 		async (authReqId: string, credentials: CibaCredentials): Promise<void> => {
-			console.log(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
+			logger.info(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
 
 			try {
 				const result = await CibaServiceV8.pollForTokens(authReqId, credentials);
@@ -192,7 +193,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 							message: 'CIBA authentication completed successfully!',
 							duration: 3000,
 						});
-						console.log(`${MODULE_TAG} CIBA authentication completed successfully`);
+						logger.info(`${MODULE_TAG} CIBA authentication completed successfully`);
 						break;
 					case 'denied':
 						modernMessaging.showBanner({
@@ -230,7 +231,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				console.error(`${MODULE_TAG} Error during token polling:`, error);
+				logger.error(`${MODULE_TAG} Error during token polling:`, error);
 
 				setState((prev) => ({
 					...prev,
@@ -253,7 +254,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 * Stop polling
 	 */
 	const stopPolling = useCallback(() => {
-		console.log(`${MODULE_TAG} Stopping polling`);
+		logger.info(`${MODULE_TAG} Stopping polling`);
 
 		if (pollingTimeoutRef.current) {
 			clearTimeout(pollingTimeoutRef.current);
@@ -268,7 +269,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 */
 	const startPolling = useCallback(
 		(authReqId: string, credentials: CibaCredentials) => {
-			console.log(`${MODULE_TAG} Starting automatic polling for: ${authReqId.substring(0, 20)}...`);
+			logger.info(`${MODULE_TAG} Starting automatic polling for: ${authReqId.substring(0, 20)}...`);
 
 			// Clear any existing polling
 			stopPolling();
@@ -288,7 +289,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 
 				// Check if we've exceeded max attempts
 				if (state.pollingCount >= state.maxPollingAttempts) {
-					console.warn(`${MODULE_TAG} Max polling attempts reached`);
+					logger.warn(`${MODULE_TAG} Max polling attempts reached`);
 					setState((prev) => ({
 						...prev,
 						isPolling: false,
@@ -328,7 +329,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 * Reset the entire flow state
 	 */
 	const reset = useCallback(() => {
-		console.log(`${MODULE_TAG} Resetting CIBA flow state`);
+		logger.info(`${MODULE_TAG} Resetting CIBA flow state`);
 
 		stopPolling();
 

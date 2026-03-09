@@ -1,4 +1,5 @@
 // src/services/flowContextService.ts
+import { logger } from '../../../utils/logger';
 // Centralized Flow Context Service for managing flow state and redirects
 
 export interface FlowContext {
@@ -55,7 +56,7 @@ export class FlowContextService {
 			// Validate context before saving
 			const validation = FlowContextService.validateFlowContext(context);
 			if (!validation.valid) {
-				console.warn('[FlowContextService] Invalid flow context:', validation.errors);
+				logger.warn('[FlowContextService] Invalid flow context:', validation.errors);
 				return false;
 			}
 
@@ -74,7 +75,7 @@ export class FlowContextService {
 			// Check size limit
 			const contextString = JSON.stringify(enhancedContext);
 			if (contextString.length > FlowContextService.MAX_CONTEXT_SIZE) {
-				console.warn('[FlowContextService] Flow context exceeds size limit');
+				logger.warn('[FlowContextService] Flow context exceeds size limit');
 				return false;
 			}
 
@@ -83,7 +84,7 @@ export class FlowContextService {
 
 			sessionStorage.setItem(storageKey, contextString);
 
-			console.log(`[FlowContextService] Saved flow context for ${flowId}:`, {
+			logger.info(`[FlowContextService] Saved flow context for ${flowId}:`, {
 				flowType: context.flowType,
 				returnPath: context.returnPath,
 				currentStep: context.currentStep,
@@ -92,7 +93,7 @@ export class FlowContextService {
 
 			return true;
 		} catch (error) {
-			console.error('[FlowContextService] Failed to save flow context:', error);
+			logger.error('[FlowContextService] Failed to save flow context:', error);
 			return false;
 		}
 	}
@@ -117,19 +118,19 @@ export class FlowContextService {
 					// Validate context
 					const validation = FlowContextService.validateFlowContext(context);
 					if (!validation.valid) {
-						console.warn(`[FlowContextService] Invalid context from ${key}:`, validation.errors);
+						logger.warn(`[FlowContextService] Invalid context from ${key}:`, validation.errors);
 						FlowContextService.clearFlowContext(key);
 						continue;
 					}
 
 					// Check age
 					if (FlowContextService.isContextExpired(context)) {
-						console.warn(`[FlowContextService] Expired context from ${key}`);
+						logger.warn(`[FlowContextService] Expired context from ${key}`);
 						FlowContextService.clearFlowContext(key);
 						continue;
 					}
 
-					console.log(`[FlowContextService] Retrieved valid flow context from ${key}:`, {
+					logger.info(`[FlowContextService] Retrieved valid flow context from ${key}:`, {
 						flowType: context.flowType,
 						returnPath: context.returnPath,
 						age: Date.now() - context.timestamp,
@@ -139,10 +140,10 @@ export class FlowContextService {
 				}
 			}
 
-			console.log('[FlowContextService] No valid flow context found');
+			logger.info('[FlowContextService] No valid flow context found');
 			return null;
 		} catch (error) {
-			console.error('[FlowContextService] Failed to get flow context:', error);
+			logger.error('[FlowContextService] Failed to get flow context:', error);
 			return null;
 		}
 	}
@@ -166,9 +167,9 @@ export class FlowContextService {
 				keys.forEach((key) => sessionStorage.removeItem(key));
 			}
 
-			console.log('[FlowContextService] Cleared flow context');
+			logger.info('[FlowContextService] Cleared flow context');
 		} catch (error) {
-			console.error('[FlowContextService] Failed to clear flow context:', error);
+			logger.error('[FlowContextService] Failed to clear flow context:', error);
 		}
 	}
 
@@ -225,10 +226,10 @@ export class FlowContextService {
 				}
 			}
 
-			console.log(`[FlowContextService] Built return path for ${flowType}:`, basePath);
+			logger.info(`[FlowContextService] Built return path for ${flowType}:`, basePath);
 			return basePath;
 		} catch (error) {
-			console.error('[FlowContextService] Failed to build return path:', error);
+			logger.error('[FlowContextService] Failed to build return path:', error);
 			return '/dashboard';
 		}
 	}
@@ -307,7 +308,7 @@ export class FlowContextService {
 			const context = FlowContextService.getFlowContext();
 
 			if (!context) {
-				console.log('[FlowContextService] No flow context found, using default redirect');
+				logger.info('[FlowContextService] No flow context found, using default redirect');
 				return {
 					success: true,
 					redirectUrl: '/dashboard',
@@ -316,7 +317,7 @@ export class FlowContextService {
 
 			// Validate context security
 			if (!FlowContextService.validateRedirectSecurity(context)) {
-				console.warn('[FlowContextService] Security validation failed, using safe redirect');
+				logger.warn('[FlowContextService] Security validation failed, using safe redirect');
 				FlowContextService.clearFlowContext();
 				return {
 					success: true,
@@ -345,7 +346,7 @@ export class FlowContextService {
 			// Clean up context after successful redirect
 			FlowContextService.clearFlowContext();
 
-			console.log('[FlowContextService] Redirect return successful:', {
+			logger.info('[FlowContextService] Redirect return successful:', {
 				flowType: context.flowType,
 				redirectUrl,
 			});
@@ -355,7 +356,7 @@ export class FlowContextService {
 				redirectUrl,
 			};
 		} catch (error) {
-			console.error('[FlowContextService] Failed to handle redirect return:', error);
+			logger.error('[FlowContextService] Failed to handle redirect return:', error);
 			return {
 				success: false,
 				redirectUrl: '/dashboard',
@@ -391,7 +392,7 @@ export class FlowContextService {
 
 			return true;
 		} catch (error) {
-			console.error('[FlowContextService] Security validation error:', error);
+			logger.error('[FlowContextService] Security validation error:', error);
 			return false;
 		}
 	}
@@ -492,7 +493,7 @@ export class FlowContextService {
 		try {
 			return JSON.parse(jsonString);
 		} catch (error) {
-			console.warn('[FlowContextService] Failed to parse JSON:', error);
+			logger.warn('[FlowContextService] Failed to parse JSON:', error);
 			return null;
 		}
 	}

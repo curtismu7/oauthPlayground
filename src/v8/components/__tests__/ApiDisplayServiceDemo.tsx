@@ -27,17 +27,17 @@ const ControlPanel: React.FC = () => {
 	const [updateCount, setUpdateCount] = useState(0);
 
 	useEffect(() => {
-		console.log(`${MODULE_TAG} ControlPanel mounted`);
+		logger.info(`${MODULE_TAG} ControlPanel mounted`);
 
 		// Subscribe to visibility changes
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
-			console.log(`${MODULE_TAG} ControlPanel received update:`, visible);
+			logger.info(`${MODULE_TAG} ControlPanel received update:`, visible);
 			setIsVisible(visible);
 			setUpdateCount((prev) => prev + 1);
 		});
 
 		return () => {
-			console.log(`${MODULE_TAG} ControlPanel unmounted`);
+			logger.info(`${MODULE_TAG} ControlPanel unmounted`);
 			unsubscribe();
 		};
 	}, []);
@@ -77,7 +77,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						console.log(`${MODULE_TAG} Show button clicked`);
+						logger.info(`${MODULE_TAG} Show button clicked`);
 						apiDisplayServiceV8.show();
 					}}
 					style={{
@@ -97,7 +97,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						console.log(`${MODULE_TAG} Hide button clicked`);
+						logger.info(`${MODULE_TAG} Hide button clicked`);
 						apiDisplayServiceV8.hide();
 					}}
 					style={{
@@ -117,7 +117,7 @@ const ControlPanel: React.FC = () => {
 				<button
 					type="button"
 					onClick={() => {
-						console.log(`${MODULE_TAG} Toggle button clicked`);
+						logger.info(`${MODULE_TAG} Toggle button clicked`);
 						apiDisplayServiceV8.toggle();
 					}}
 					style={{
@@ -146,16 +146,16 @@ const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
 	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
 	useEffect(() => {
-		console.log(`${MODULE_TAG} StatusMonitor #${id} mounted`);
+		logger.info(`${MODULE_TAG} StatusMonitor #${id} mounted`);
 
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
-			console.log(`${MODULE_TAG} StatusMonitor #${id} received update:`, visible);
+			logger.info(`${MODULE_TAG} StatusMonitor #${id} received update:`, visible);
 			setIsVisible(visible);
 			setLastUpdate(new Date());
 		});
 
 		return () => {
-			console.log(`${MODULE_TAG} StatusMonitor #${id} unmounted`);
+			logger.info(`${MODULE_TAG} StatusMonitor #${id} unmounted`);
 			unsubscribe();
 		};
 	}, [id]);
@@ -211,7 +211,7 @@ const ApiCallGenerator: React.FC = () => {
 
 		apiCallTrackerService.trackApiCall(call);
 		setCallCount((prev) => prev + 1);
-		console.log(`${MODULE_TAG} Generated ${type} API call:`, call);
+		logger.info(`${MODULE_TAG} Generated ${type} API call:`, call);
 	};
 
 	return (
@@ -272,7 +272,7 @@ const ApiCallGenerator: React.FC = () => {
 					onClick={() => {
 						apiCallTrackerService.clearApiCalls();
 						setCallCount(0);
-						console.log(`${MODULE_TAG} Cleared all API calls`);
+						logger.info(`${MODULE_TAG} Cleared all API calls`);
 					}}
 					style={{
 						padding: '8px 16px',
@@ -480,6 +480,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 				>
 					{`import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
+import { logger } from '../../utils/logger';
 // Show/hide the API display
 apiDisplayServiceV8.show();
 apiDisplayServiceV8.hide();
@@ -490,7 +491,7 @@ const isVisible = apiDisplayServiceV8.isVisible();
 
 // Subscribe to changes
 const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
-  console.log('Visibility changed:', visible);
+  logger.info('Visibility changed:', visible);
 });
 
 // Clean up when component unmounts

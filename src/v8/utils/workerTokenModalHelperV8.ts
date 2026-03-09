@@ -13,6 +13,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
 import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
@@ -41,18 +42,18 @@ async function attemptSilentTokenRetrieval(
 		if (silentApiRetrievalOverride !== undefined) {
 			// Use explicit override if provided
 			silentApiRetrieval = silentApiRetrievalOverride;
-			console.log(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
+			logger.info(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
 		} else {
 			// Try multiple sources for configuration
 			try {
 				// First try centralized service
 				silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Using WorkerTokenConfigServiceV8 silentApiRetrieval:`,
 					silentApiRetrieval
 				);
 			} catch (serviceError) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Failed to get config from WorkerTokenConfigServiceV8:`,
 					serviceError
 				);
@@ -64,23 +65,23 @@ async function attemptSilentTokenRetrieval(
 					);
 					const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
 						silentApiRetrieval
 					);
 				} catch (fallbackError) {
-					console.error(`${MODULE_TAG} All configuration sources failed:`, fallbackError);
+					logger.error(`${MODULE_TAG} All configuration sources failed:`, fallbackError);
 					silentApiRetrieval = false;
 				}
 			}
 		}
 
 		if (!silentApiRetrieval) {
-			console.log(`${MODULE_TAG} Silent retrieval disabled`);
+			logger.info(`${MODULE_TAG} Silent retrieval disabled`);
 			return false;
 		}
 
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Attempting silent token retrieval via tokenGatewayV8...`,
 			forceRefresh ? '(force refresh)' : ''
 		);
@@ -95,7 +96,7 @@ async function attemptSilentTokenRetrieval(
 		});
 
 		if (result.success) {
-			console.log(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
+			logger.info(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Worker token automatically retrieved!',
@@ -106,7 +107,7 @@ async function attemptSilentTokenRetrieval(
 
 		// Handle specific error cases
 		if (result.error) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Silent retrieval failed:`,
 				result.error.code,
 				result.error.message
@@ -140,7 +141,7 @@ async function attemptSilentTokenRetrieval(
 
 		return false;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Unexpected error in silent retrieval:`, error);
+		logger.error(`${MODULE_TAG} Unexpected error in silent retrieval:`, error);
 		return false;
 	}
 }
@@ -183,17 +184,17 @@ export async function handleShowWorkerTokenModal(
 	// Priority 1: Explicit overrides (highest priority)
 	if (overrideSilentApiRetrieval !== undefined) {
 		silentApiRetrieval = overrideSilentApiRetrieval;
-		console.log(`${MODULE_TAG} 🎯 Using override silentApiRetrieval:`, silentApiRetrieval);
+		logger.info(`${MODULE_TAG} 🎯 Using override silentApiRetrieval:`, silentApiRetrieval);
 	} else {
 		// Priority 2: Centralized service (recommended)
 		try {
 			silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
-			console.log(
+			logger.info(
 				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 silentApiRetrieval:`,
 				silentApiRetrieval
 			);
 		} catch (serviceError) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
 				serviceError
 			);
@@ -204,12 +205,12 @@ export async function handleShowWorkerTokenModal(
 				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
 					silentApiRetrieval
 				);
 			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} ❌ All silentApiRetrieval sources failed:`, fallbackError);
+				logger.error(`${MODULE_TAG} ❌ All silentApiRetrieval sources failed:`, fallbackError);
 				silentApiRetrieval = false;
 			}
 		}
@@ -218,17 +219,17 @@ export async function handleShowWorkerTokenModal(
 	// Priority 1: Explicit overrides (highest priority)
 	if (overrideShowTokenAtEnd !== undefined) {
 		showTokenAtEnd = overrideShowTokenAtEnd;
-		console.log(`${MODULE_TAG} 🎯 Using override showTokenAtEnd:`, showTokenAtEnd);
+		logger.info(`${MODULE_TAG} 🎯 Using override showTokenAtEnd:`, showTokenAtEnd);
 	} else {
 		// Priority 2: Centralized service (recommended)
 		try {
 			showTokenAtEnd = WorkerTokenConfigServiceV8.getShowTokenAtEnd();
-			console.log(
+			logger.info(
 				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 showTokenAtEnd:`,
 				showTokenAtEnd
 			);
 		} catch (serviceError) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
 				serviceError
 			);
@@ -239,19 +240,19 @@ export async function handleShowWorkerTokenModal(
 				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`,
 					showTokenAtEnd
 				);
 			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} ❌ All showTokenAtEnd sources failed:`, fallbackError);
+				logger.error(`${MODULE_TAG} ❌ All showTokenAtEnd sources failed:`, fallbackError);
 				showTokenAtEnd = false;
 			}
 		}
 	}
 
 	// Log final configuration for debugging
-	console.log(`${MODULE_TAG} 📋 Final configuration:`, {
+	logger.info(`${MODULE_TAG} 📋 Final configuration:`, {
 		silentApiRetrieval,
 		showTokenAtEnd,
 		forceShowModal,
@@ -327,7 +328,7 @@ export async function handleShowWorkerTokenModal(
 		if (!credentialsCheck) {
 			// ALWAYS show modal when credentials are missing, even in silent mode
 			// User needs to configure credentials to continue
-			console.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`);
+			logger.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`);
 			setShowModal(true);
 			return;
 		}

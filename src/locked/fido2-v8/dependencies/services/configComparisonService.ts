@@ -3,6 +3,7 @@
 
 import { createPingOneClient } from '../utils/apiClient';
 
+import { logger } from '../../../utils/logger';
 export interface ConfigDiffResult {
 	hasDiffs: boolean;
 	diffs: Array<{
@@ -122,7 +123,7 @@ export class ConfigComparisonService {
 				normalizedDesired,
 			};
 		} catch (error) {
-			console.error('[ConfigComparisonService] Error comparing configuration:', error);
+			logger.error('[ConfigComparisonService] Error comparing configuration:', error);
 			throw new Error(
 				`Failed to compare configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -303,7 +304,7 @@ export class ConfigComparisonService {
 	private flowTypeUsesResponseTypes(flowType?: string): boolean {
 		if (!flowType) return true; // Default to true for unknown flows
 
-		console.log('[CONFIG-COMPARISON] Checking if flow type uses response types:', flowType);
+		logger.info('[CONFIG-COMPARISON] Checking if flow type uses response types:', flowType);
 
 		const noResponseTypeFlows = [
 			'client-credentials',
@@ -318,7 +319,7 @@ export class ConfigComparisonService {
 		];
 
 		const result = !noResponseTypeFlows.some((type) => flowType.toLowerCase().includes(type));
-		console.log('[CONFIG-COMPARISON] Flow type uses response types:', result);
+		logger.info('[CONFIG-COMPARISON] Flow type uses response types:', result);
 		return result;
 	}
 

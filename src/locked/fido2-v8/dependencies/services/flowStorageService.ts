@@ -1,4 +1,5 @@
 // src/services/flowStorageService.ts
+import { logger } from '../../../utils/logger';
 /**
  * Flow Storage Service
  *
@@ -264,7 +265,7 @@ export class AuthCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.authCode(flowId), JSON.stringify(data));
-		console.log(`🔑 [FlowStorage] Stored auth code for ${flowId}`);
+		logger.info(`🔑 [FlowStorage] Stored auth code for ${flowId}`);
 	}
 
 	/**
@@ -280,7 +281,7 @@ export class AuthCodeStorage {
 			const data: AuthCodeData = JSON.parse(stored);
 			return data.code;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse auth code for ${flowId}`, e);
+			logger.warn(`[FlowStorage] Failed to parse auth code for ${flowId}`, e);
 			return null;
 		}
 	}
@@ -297,7 +298,7 @@ export class AuthCodeStorage {
 		try {
 			return JSON.parse(stored) as AuthCodeData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse auth code data for ${flowId}`, e);
+			logger.warn(`[FlowStorage] Failed to parse auth code data for ${flowId}`, e);
 			return null;
 		}
 	}
@@ -308,7 +309,7 @@ export class AuthCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.authCode(flowId));
-		console.log(`🗑️ [FlowStorage] Removed auth code for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed auth code for ${flowId}`);
 	}
 
 	/**
@@ -345,7 +346,7 @@ export class DeviceCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.deviceCode(flowId), JSON.stringify(dataWithTimestamp));
-		console.log(`📱 [FlowStorage] Stored device code for ${flowId}`);
+		logger.info(`📱 [FlowStorage] Stored device code for ${flowId}`);
 	}
 
 	/**
@@ -360,7 +361,7 @@ export class DeviceCodeStorage {
 		try {
 			return JSON.parse(stored) as DeviceCodeData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse device code for ${flowId}`, e);
+			logger.warn(`[FlowStorage] Failed to parse device code for ${flowId}`, e);
 			return null;
 		}
 	}
@@ -371,7 +372,7 @@ export class DeviceCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.deviceCode(flowId));
-		console.log(`🗑️ [FlowStorage] Removed device code for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed device code for ${flowId}`);
 	}
 
 	/**
@@ -407,7 +408,7 @@ export class StateStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.state(flowId), JSON.stringify(data));
-		console.log(`🎲 [FlowStorage] Stored state for ${flowId}`);
+		logger.info(`🎲 [FlowStorage] Stored state for ${flowId}`);
 	}
 
 	/**
@@ -423,7 +424,7 @@ export class StateStorage {
 			const data: StateData = JSON.parse(stored);
 			return data.state;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse state for ${flowId}`, e);
+			logger.warn(`[FlowStorage] Failed to parse state for ${flowId}`, e);
 			return null;
 		}
 	}
@@ -434,7 +435,7 @@ export class StateStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.state(flowId));
-		console.log(`🗑️ [FlowStorage] Removed state for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed state for ${flowId}`);
 	}
 }
 
@@ -455,7 +456,7 @@ export class PKCEStorage {
 		sessionStorage.setItem(StorageKeys.pkceVerifier(flowId), pkce.codeVerifier);
 		sessionStorage.setItem(StorageKeys.pkceChallenge(flowId), pkce.codeChallenge);
 		sessionStorage.setItem(StorageKeys.pkceMethod(flowId), pkce.codeChallengeMethod);
-		console.log(`🔐 [FlowStorage] Stored PKCE for ${flowId}`);
+		logger.info(`🔐 [FlowStorage] Stored PKCE for ${flowId}`);
 	}
 
 	/**
@@ -488,7 +489,7 @@ export class PKCEStorage {
 		sessionStorage.removeItem(StorageKeys.pkceVerifier(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceChallenge(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceMethod(flowId));
-		console.log(`🗑️ [FlowStorage] Removed PKCE for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed PKCE for ${flowId}`);
 	}
 }
 
@@ -507,7 +508,7 @@ export class FlowStateStorage {
 	 */
 	static setCurrentStep(flowId: FlowId, step: number): void {
 		sessionStorage.setItem(StorageKeys.currentStep(flowId), step.toString());
-		console.log(`📍 [FlowStorage] Set current step for ${flowId}: ${step}`);
+		logger.info(`📍 [FlowStorage] Set current step for ${flowId}: ${step}`);
 	}
 
 	/**
@@ -528,7 +529,7 @@ export class FlowStateStorage {
 	 */
 	static removeCurrentStep(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.currentStep(flowId));
-		console.log(`🗑️ [FlowStorage] Removed current step for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed current step for ${flowId}`);
 	}
 }
 
@@ -547,7 +548,7 @@ export class CredentialsStorage {
 	 */
 	static set(flowId: FlowId, credentials: CredentialsData): void {
 		localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
-		console.log(`💾 [FlowStorage] Saved credentials for ${flowId}`);
+		logger.info(`💾 [FlowStorage] Saved credentials for ${flowId}`);
 	}
 
 	/**
@@ -562,7 +563,7 @@ export class CredentialsStorage {
 		try {
 			return JSON.parse(stored) as CredentialsData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse credentials for ${flowId}`, e);
+			logger.warn(`[FlowStorage] Failed to parse credentials for ${flowId}`, e);
 			return null;
 		}
 	}
@@ -573,7 +574,7 @@ export class CredentialsStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.credentials(flowId));
-		console.log(`🗑️ [FlowStorage] Removed credentials for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed credentials for ${flowId}`);
 	}
 }
 
@@ -591,7 +592,7 @@ export class TokenStorage {
 	 */
 	static set(tokens: TokenData): void {
 		sessionStorage.setItem(StorageKeys.tokens(), JSON.stringify(tokens));
-		console.log(`🎫 [FlowStorage] Stored tokens securely`);
+		logger.info(`🎫 [FlowStorage] Stored tokens securely`);
 	}
 
 	/**
@@ -605,7 +606,7 @@ export class TokenStorage {
 		try {
 			return JSON.parse(stored) as TokenData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse tokens`, e);
+			logger.warn(`[FlowStorage] Failed to parse tokens`, e);
 			return null;
 		}
 	}
@@ -615,7 +616,7 @@ export class TokenStorage {
 	 */
 	static remove(): void {
 		sessionStorage.removeItem(StorageKeys.tokens());
-		console.log(`🗑️ [FlowStorage] Removed tokens`);
+		logger.info(`🗑️ [FlowStorage] Removed tokens`);
 	}
 
 	/**
@@ -646,7 +647,7 @@ export class NavigationStorage {
 	 */
 	static setFlowContext(context: FlowNavigationData): void {
 		sessionStorage.setItem(StorageKeys.flowContext(), JSON.stringify(context));
-		console.log(`🧭 [FlowStorage] Set flow context: ${context.flowId}`);
+		logger.info(`🧭 [FlowStorage] Set flow context: ${context.flowId}`);
 	}
 
 	/**
@@ -660,7 +661,7 @@ export class NavigationStorage {
 		try {
 			return JSON.parse(stored) as FlowNavigationData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse flow context`, e);
+			logger.warn(`[FlowStorage] Failed to parse flow context`, e);
 			return null;
 		}
 	}
@@ -670,7 +671,7 @@ export class NavigationStorage {
 	 */
 	static removeFlowContext(): void {
 		sessionStorage.removeItem(StorageKeys.flowContext());
-		console.log(`🗑️ [FlowStorage] Removed flow context`);
+		logger.info(`🗑️ [FlowStorage] Removed flow context`);
 	}
 
 	/**
@@ -679,7 +680,7 @@ export class NavigationStorage {
 	 */
 	static setRestoreStep(step: number): void {
 		sessionStorage.setItem(StorageKeys.restoreStep(), step.toString());
-		console.log(`📍 [FlowStorage] Set restore step: ${step}`);
+		logger.info(`📍 [FlowStorage] Set restore step: ${step}`);
 	}
 
 	/**
@@ -698,7 +699,7 @@ export class NavigationStorage {
 	 */
 	static removeRestoreStep(): void {
 		sessionStorage.removeItem(StorageKeys.restoreStep());
-		console.log(`🗑️ [FlowStorage] Removed restore step`);
+		logger.info(`🗑️ [FlowStorage] Removed restore step`);
 	}
 }
 
@@ -715,7 +716,7 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlow(flowId: FlowId): void {
-		console.log(`🧹 [FlowStorage] Clearing session data for ${flowId}`);
+		logger.info(`🧹 [FlowStorage] Clearing session data for ${flowId}`);
 
 		AuthCodeStorage.remove(flowId);
 		DeviceCodeStorage.remove(flowId);
@@ -723,7 +724,7 @@ export class StorageCleanup {
 		PKCEStorage.remove(flowId);
 		FlowStateStorage.removeCurrentStep(flowId);
 
-		console.log(`✅ [FlowStorage] Cleared session data for ${flowId}`);
+		logger.info(`✅ [FlowStorage] Cleared session data for ${flowId}`);
 	}
 
 	/**
@@ -731,22 +732,22 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlowCompletely(flowId: FlowId): void {
-		console.log(`🧹 [FlowStorage] Completely clearing ${flowId}`);
+		logger.info(`🧹 [FlowStorage] Completely clearing ${flowId}`);
 
 		StorageCleanup.clearFlow(flowId);
 		CredentialsStorage.remove(flowId);
 
-		console.log(`✅ [FlowStorage] Completely cleared ${flowId}`);
+		logger.info(`✅ [FlowStorage] Completely cleared ${flowId}`);
 	}
 
 	/**
 	 * Clear all navigation data
 	 */
 	static clearNavigation(): void {
-		console.log(`🧹 [FlowStorage] Clearing navigation data`);
+		logger.info(`🧹 [FlowStorage] Clearing navigation data`);
 		NavigationStorage.removeFlowContext();
 		NavigationStorage.removeRestoreStep();
-		console.log(`✅ [FlowStorage] Cleared navigation data`);
+		logger.info(`✅ [FlowStorage] Cleared navigation data`);
 	}
 
 	/**
@@ -754,10 +755,10 @@ export class StorageCleanup {
 	 * ⚠️ Use with caution!
 	 */
 	static clearAll(): void {
-		console.warn(`☢️ [FlowStorage] CLEARING ALL STORAGE`);
+		logger.warn(`☢️ [FlowStorage] CLEARING ALL STORAGE`);
 		sessionStorage.clear();
 		localStorage.clear();
-		console.warn(`☢️ [FlowStorage] ALL STORAGE CLEARED`);
+		logger.warn(`☢️ [FlowStorage] ALL STORAGE CLEARED`);
 	}
 }
 
@@ -778,9 +779,9 @@ export class AdvancedParametersStorage {
 	static set(flowId: FlowId, params: AdvancedParametersData): void {
 		try {
 			localStorage.setItem(StorageKeys.advancedParameters(flowId), JSON.stringify(params));
-			console.log(`💾 [FlowStorage] Saved advanced parameters for ${flowId}:`, params);
+			logger.info(`💾 [FlowStorage] Saved advanced parameters for ${flowId}:`, params);
 		} catch (error) {
-			console.error(`❌ [FlowStorage] Failed to save advanced parameters for ${flowId}:`, error);
+			logger.error(`❌ [FlowStorage] Failed to save advanced parameters for ${flowId}:`, error);
 		}
 	}
 
@@ -795,10 +796,10 @@ export class AdvancedParametersStorage {
 			if (!stored) return null;
 
 			const params: AdvancedParametersData = JSON.parse(stored);
-			console.log(`📖 [FlowStorage] Loaded advanced parameters for ${flowId}:`, params);
+			logger.info(`📖 [FlowStorage] Loaded advanced parameters for ${flowId}:`, params);
 			return params;
 		} catch (error) {
-			console.error(`❌ [FlowStorage] Failed to load advanced parameters for ${flowId}:`, error);
+			logger.error(`❌ [FlowStorage] Failed to load advanced parameters for ${flowId}:`, error);
 			return null;
 		}
 	}
@@ -820,7 +821,7 @@ export class AdvancedParametersStorage {
 	 */
 	static clear(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.advancedParameters(flowId));
-		console.log(`🗑️ [FlowStorage] Cleared advanced parameters for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Cleared advanced parameters for ${flowId}`);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
 `;
@@ -413,7 +414,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 					}, 500); // Small delay to show the result before advancing
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'StepByStepFlow',
 					`Failed to execute step ${currentStep + 1}:`,
 					undefined,
@@ -474,7 +475,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 						<FlowButton
 							$variant="secondary"
 							onClick={() => {
-								console.log(' [StepByStepFlow] Next Step button clicked');
+								logger.info(' [StepByStepFlow] Next Step button clicked');
 								goToNextStep();
 							}}
 							disabled={currentStep >= steps.length - 1}

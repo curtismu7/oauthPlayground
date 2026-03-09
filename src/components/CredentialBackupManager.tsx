@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import ConfirmationModal from './ConfirmationModal';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
 	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
@@ -186,7 +187,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 			const data = credentialBackupService.getCredentialBackup();
 			setBackupData(data);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'CredentialBackupManager',
 				'Failed to load backup data:',
 				undefined,
@@ -218,7 +219,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 			message: 'All credential backups cleared successfully',
 			duration: 4000,
 		});
-		console.log(
+		logger.info(
 			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credential backups cleared successfully in CredentialBackupManager`
 		);
 		setShowClearModal(false);

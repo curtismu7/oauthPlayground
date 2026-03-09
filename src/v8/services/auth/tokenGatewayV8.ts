@@ -23,6 +23,7 @@ import { workerTokenServiceV8 } from '../workerTokenServiceV8';
 import type { TokenStatusInfo } from '../workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '../workerTokenStatusServiceV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 TOKEN-GATEWAY-V8]';
 
 // ============================================================================
@@ -593,7 +594,7 @@ class TokenGatewayV8 {
 			try {
 				callback(status);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in subscriber callback:`, error);
+				logger.error(`${MODULE_TAG} Error in subscriber callback:`, error);
 			}
 		});
 	}
@@ -615,9 +616,9 @@ class TokenGatewayV8 {
 				(window as { TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG)
 		) {
 			if (data) {
-				console.log(`${MODULE_TAG} ${message}`, data);
+				logger.info(`${MODULE_TAG} ${message}`, data);
 			} else {
-				console.log(`${MODULE_TAG} ${message}`);
+				logger.info(`${MODULE_TAG} ${message}`);
 			}
 		}
 	}

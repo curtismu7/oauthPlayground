@@ -67,6 +67,7 @@ import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
+import { logger } from '../utils/logger';
 import {
 	MFADeviceSelectionInfoModal,
 	MFAFIDO2ChallengeModal,
@@ -197,7 +198,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						console.error(
+						logger.error(
 							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
 						);
 						throw new Error(`Invalid return path: ${mfaPath}`);
@@ -217,13 +218,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					window.location.replace(redirectUrl);
 					return;
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
+					logger.error(`${MODULE_TAG} Failed to parse return path:`, error);
 				}
 			}
 
 			// If no return path, stay on the MFA hub page
 			// Don't redirect based on stored.deviceType as it might be from a different flow
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`
 			);
 		}
@@ -252,7 +253,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				workerTokenEnvId = data.credentials?.environmentId || '';
 			}
 		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
+			logger.info('Failed to load environment ID from worker token:', error);
 		}
 
 		return {
@@ -451,7 +452,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					return; // Token still has enough time
 				}
 
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Worker token expires in ${timeRemainingSeconds}s (threshold: ${renewalThreshold}s), attempting auto-refresh...`
 				);
 
@@ -462,7 +463,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						// Load stored credentials for token refresh
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (!credentials) {
-							console.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
+							logger.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
 							return;
 						}
 
@@ -527,7 +528,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 								await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
-								console.log(
+								logger.info(
 									`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`
 								);
 								window.dispatchEvent(new Event('workerTokenUpdated'));
@@ -549,7 +550,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						throw new Error(`Token refresh failed with status ${response.status}`);
 					} catch (error) {
 						lastError = error instanceof Error ? error : new Error(String(error));
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} ⚠️ Auto-refresh attempt ${attempt}/${retryAttempts} failed:`,
 							lastError.message
 						);
@@ -564,7 +565,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				// All retries failed
 				if (lastError) {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} ❌ Worker token auto-refresh failed after ${retryAttempts} attempts:`,
 						lastError.message
 					);
@@ -576,7 +577,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					});
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in auto-refresh check:`, error);
+				logger.error(`${MODULE_TAG} Error in auto-refresh check:`, error);
 			}
 		};
 
@@ -697,7 +698,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error('[MFA-AUTHN-MAIN-V8] Failed to check token status in event handler:', error);
+				logger.error('[MFA-AUTHN-MAIN-V8] Failed to check token status in event handler:', error);
 			}
 		};
 
@@ -736,7 +737,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								updatedLinks['complete']?.href || authState._links!['complete']!.href
 							);
 						} catch (completeError) {
-							console.warn(`${MODULE_TAG} Failed to complete push authentication:`, completeError);
+							logger.warn(`${MODULE_TAG} Failed to complete push authentication:`, completeError);
 							// Continue even if completion fails - authentication was successful
 						}
 					}
@@ -787,7 +788,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					});
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Push polling error:`, error);
+				logger.error(`${MODULE_TAG} Push polling error:`, error);
 				// Continue polling on error
 			}
 		}, 2000); // Poll every 2 seconds
@@ -870,7 +871,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					setDevicesError(errorMessage);
 				}
 
-				console.error(`${MODULE_TAG} Failed to load user devices:`, error);
+				logger.error(`${MODULE_TAG} Failed to load user devices:`, error);
 			} finally {
 				setIsLoadingDevices(false);
 			}
@@ -961,7 +962,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				setPoliciesError(errorMessage);
 			}
 
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
+			logger.error(`${MODULE_TAG} Failed to load policies:`, error);
 			return [];
 		} finally {
 			isFetchingPoliciesRef.current = false;
@@ -1000,7 +1001,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -1207,7 +1208,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				dismissible: true,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
+			logger.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
 
 			// Check for NO_USABLE_DEVICES error
 			if (handleDeviceFailureError(error)) {
@@ -1346,7 +1347,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Open in same window for better UX
 			window.location.href = authorizationUrl;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Authorization API call failed:`, error);
+			logger.error(`${MODULE_TAG} Authorization API call failed:`, error);
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			setAuthorizationError(errorMessage);
@@ -1374,7 +1375,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const handleStartMFA = useCallback(async () => {
 		return startMFAAction.executeAction(async () => {
 			// FOOLPROOF: Enhanced debugging for authentication flow
-			console.log(`${MODULE_TAG} 🚀 Starting MFA Authentication`, {
+			logger.info(`${MODULE_TAG} 🚀 Starting MFA Authentication`, {
 				hasValidToken: tokenStatus.isValid,
 				hasEnvironmentId: !!credentials.environmentId,
 				hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
@@ -1385,7 +1386,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			});
 
 			if (!tokenStatus.isValid) {
-				console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1396,7 +1397,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 
 			if (!credentials.environmentId) {
-				console.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1407,7 +1408,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				console.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1419,12 +1420,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// FOOLPROOF: Auto-proceed with username if empty, don't get stuck in modal
 			if (!usernameInput.trim()) {
-				console.log(`${MODULE_TAG} 🔄 No username provided, showing decision modal`);
+				logger.info(`${MODULE_TAG} 🔄 No username provided, showing decision modal`);
 				setShowUsernameDecisionModal(true);
 				return;
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`
 			);
 
@@ -1481,7 +1482,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					const deviceUserId = d.user?.id || d.userId;
 					const matches = !deviceUserId || deviceUserId === user.id;
 					if (!matches) {
-						console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+						logger.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
 							deviceId: d.id,
 							deviceType: d.type,
 							deviceUserId,
@@ -1547,7 +1548,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				// Validate that we got an authenticationId from the response
 				if (!response.id) {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} Authentication initialized but no ID in response:`,
 						response
 					);
@@ -1562,7 +1563,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					return;
 				}
 
-				console.log(`${MODULE_TAG} Device authentication initialized`, {
+				logger.info(`${MODULE_TAG} Device authentication initialized`, {
 					authenticationId: response.id,
 					status: response.status,
 					nextStep: response.nextStep,
@@ -1603,17 +1604,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				if (needsDeviceSelection) {
 					// Device selection is needed - the UI will show the device list automatically
 					// based on authState.showDeviceSelection being true
-					console.log(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
+					logger.info(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: 'Please select a device to continue',
 						duration: 3000,
 					});
 				} else if (needsOTP) {
-					console.log(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
+					logger.info(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
 					setShowOTPModal(true);
 				} else if (needsPush) {
-					console.log(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
+					logger.info(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
 					setShowPushModal(true);
 					modernMessaging.showFooterMessage({
 						type: 'info',
@@ -1621,10 +1622,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						duration: 3000,
 					});
 				} else if (needsAssertion) {
-					console.log(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
+					logger.info(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
 					setShowFIDO2Modal(true);
 				} else if (status === 'COMPLETED') {
-					console.log(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
+					logger.info(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: 'Authentication completed successfully!',
@@ -1636,7 +1637,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}, 1000);
 				} else {
 					// FOOLPROOF: Handle unknown status with fallback advancement
-					console.log(`${MODULE_TAG} 🤔 Unknown authentication status, using fallback`, {
+					logger.info(`${MODULE_TAG} 🤔 Unknown authentication status, using fallback`, {
 						status,
 						nextStep,
 						deviceCount: authDevices.length,
@@ -1650,16 +1651,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					// Fallback: If we have devices, show device selection. Otherwise, show success.
 					setTimeout(() => {
 						if (authDevices.length > 0) {
-							console.log(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
+							logger.info(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
 							setAuthState((prev) => ({ ...prev, showDeviceSelection: true }));
 						} else {
-							console.log(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
+							logger.info(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
 							window.location.href = '/v8/mfa/authentication/success';
 						}
 					}, 1000);
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to start authentication:`, error);
+				logger.error(`${MODULE_TAG} Failed to start authentication:`, error);
 
 				// Check for NO_USABLE_DEVICES error
 				if (handleDeviceFailureError(error)) {
@@ -1735,10 +1736,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							duration: 3000,
 						});
 					} else {
-						console.warn('[MFA-AUTHN-MAIN-V8] PingOne logout failed:', logoutResult.error);
+						logger.warn('[MFA-AUTHN-MAIN-V8] PingOne logout failed:', logoutResult.error);
 					}
 				} catch (error) {
-					console.warn('[MFA-AUTHN-MAIN-V8] Could not end PingOne session:', error);
+					logger.warn('[MFA-AUTHN-MAIN-V8] Could not end PingOne session:', error);
 				}
 			}
 
@@ -1746,7 +1747,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			try {
 				authContext.logout();
 			} catch (error) {
-				console.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
+				logger.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
 			}
 
 			// Clear worker token (preserve credentials)
@@ -1757,7 +1758,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				oauthStorage.clearTokens();
 				oauthStorage.clearUserInfo();
 			} catch (error) {
-				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear OAuth tokens:', error);
+				logger.warn('[MFA-AUTHN-MAIN-V8] Could not clear OAuth tokens:', error);
 			}
 
 			// Clear user tokens from MFA flow credentials
@@ -1770,7 +1771,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}));
 				}
 			} catch (error) {
-				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
+				logger.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
 			}
 
 			modernMessaging.showFooterMessage({
@@ -1779,7 +1780,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
+			logger.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2070,7 +2071,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												if (newValue) {
 													const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 													if (!currentStatus.isValid) {
-														console.log(
+														logger.info(
 															'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
 														);
 														const { handleShowWorkerTokenModal } = await import(
@@ -3784,7 +3785,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											duration: 3000,
 										});
 									} catch (error) {
-										console.error(`${MODULE_TAG} Failed to refresh devices:`, error);
+										logger.error(`${MODULE_TAG} Failed to refresh devices:`, error);
 										setDevicesError(
 											error instanceof Error ? error.message : 'Failed to load devices'
 										);
@@ -3974,7 +3975,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														// const _hasPublicKeyOptions = hasPublicKeyOptions; // Unused - available if needed
 
 														if (!hasChallengeId && !hasPublicKeyOptions) {
-															console.error(
+															logger.error(
 																`${MODULE_TAG} Missing challengeId and publicKeyCredentialRequestOptions for FIDO2 ASSERTION_REQUIRED from initializeDeviceAuthentication`,
 																{
 																	response,
@@ -4033,7 +4034,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													});
 												}
 											} catch (error) {
-												console.error(
+												logger.error(
 													`${MODULE_TAG} Failed to start authentication with device:`,
 													error
 												);
@@ -4123,7 +4124,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				{/* Device Selection Section - Show when authentication requires device selection */}
 				{(() => {
-					console.log(`${MODULE_TAG} Device Selection UI Check:`, {
+					logger.info(`${MODULE_TAG} Device Selection UI Check:`, {
 						showDeviceSelection: authState.showDeviceSelection,
 						devicesLength: authState.devices.length,
 						devices: authState.devices,
@@ -4229,7 +4230,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												});
 											}
 										} catch (error) {
-											console.error(`${MODULE_TAG} Failed to select device:`, error);
+											logger.error(`${MODULE_TAG} Failed to select device:`, error);
 											modernMessaging.showBanner({
 												type: 'error',
 												title: 'Error',
@@ -4778,7 +4779,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 														}
 													} catch (error) {
-														console.error(`${MODULE_TAG} Passkey registration error:`, error);
+														logger.error(`${MODULE_TAG} Passkey registration error:`, error);
 
 														// Check for NO_USABLE_DEVICES error
 														if (handleDeviceFailureError(error)) {
@@ -5224,7 +5225,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														onSelectDevice={async (deviceId) => {
 															// Validate deviceId
 															if (!deviceId || deviceId.trim() === '') {
-																console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
+																logger.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5239,7 +5240,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																allDevices.find((d) => d.id === deviceId) ||
 																authState.devices.find((d) => d.id === deviceId);
 															if (!selectedDevice) {
-																console.error(
+																logger.error(
 																	`${MODULE_TAG} Selected device not found in devices list:`,
 																	{
 																		deviceId,
@@ -5261,7 +5262,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// Validate required fields
 															if (!authState.authenticationId) {
-																console.error(`${MODULE_TAG} Missing authenticationId`);
+																logger.error(`${MODULE_TAG} Missing authenticationId`);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5273,7 +5274,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 
 															if (!usernameInput.trim()) {
-																console.error(`${MODULE_TAG} Missing username`);
+																logger.error(`${MODULE_TAG} Missing username`);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5345,7 +5346,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		if (challengeMatch?.[1]) {
 																			challengeId = challengeMatch[1];
 																		} else {
-																			console.warn(
+																			logger.warn(
 																				`${MODULE_TAG} ⚠️ challenge.poll/challenge.check URL found but couldn't extract challengeId:`,
 																				challengePollUrl
 																			);
@@ -5379,7 +5380,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		challengeId = authDetails.challengeId as string;
 																	}
 																} catch (readError) {
-																	console.warn(
+																	logger.warn(
 																		`${MODULE_TAG} Failed to read device authentication after selection (will use challengeId from selection response):`,
 																		readError
 																	);
@@ -5396,7 +5397,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			'FIDO2';
 
 																	if (isFIDO2Flow) {
-																		console.warn(
+																		logger.warn(
 																			`${MODULE_TAG} ⚠️ WARNING: challengeId is missing after device selection for FIDO2!`,
 																			{
 																				data,
@@ -5516,7 +5517,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			)?.publicKeyCredentialRequestOptions;
 
 																		if (!challengeId && !publicKeyOptions) {
-																			console.error(
+																			logger.error(
 																				`${MODULE_TAG} Missing challengeId and publicKeyCredentialRequestOptions for FIDO2 ASSERTION_REQUIRED after device selection`,
 																				{
 																					data,
@@ -5578,7 +5579,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	});
 																}
 															} catch (error) {
-																console.error(`${MODULE_TAG} Failed to select device:`, error);
+																logger.error(`${MODULE_TAG} Failed to select device:`, error);
 
 																// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 																const errorWithCode = error as Error & {
@@ -5676,7 +5677,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// Validate deviceId
 															if (!deviceId || deviceId.trim() === '') {
-																console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
+																logger.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5691,7 +5692,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																allDevices.find((d) => d.id === deviceId) ||
 																authState.devices.find((d) => d.id === deviceId);
 															if (!selectedDevice) {
-																console.error(
+																logger.error(
 																	`${MODULE_TAG} Selected device not found in devices list:`,
 																	{
 																		deviceId,
@@ -5713,7 +5714,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// Validate required fields
 															if (!authState.authenticationId) {
-																console.error(`${MODULE_TAG} Missing authenticationId`);
+																logger.error(`${MODULE_TAG} Missing authenticationId`);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5725,7 +5726,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 
 															if (!usernameInput.trim()) {
-																console.error(`${MODULE_TAG} Missing username`);
+																logger.error(`${MODULE_TAG} Missing username`);
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -6115,7 +6116,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											updatedLinks['complete'].href
 										);
 									} catch (completeError) {
-										console.warn(`${MODULE_TAG} Failed to complete authentication:`, completeError);
+										logger.warn(`${MODULE_TAG} Failed to complete authentication:`, completeError);
 										// Continue even if completion fails - OTP was validated successfully
 									}
 								}
@@ -6173,7 +6174,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								setOtpCode('');
 							}
 						} catch (error) {
-							console.error(`${MODULE_TAG} OTP validation failed:`, error);
+							logger.error(`${MODULE_TAG} OTP validation failed:`, error);
 							setOtpError(error instanceof Error ? error.message : 'Failed to validate code');
 							setOtpCode('');
 						} finally {
@@ -6192,7 +6193,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						setOtpCode(''); // Clear existing code
 
 						try {
-							console.log(`${MODULE_TAG} 🔄 Resending OTP using proper API approach`, {
+							logger.info(`${MODULE_TAG} 🔄 Resending OTP using proper API approach`, {
 								authenticationId: authState.authenticationId,
 								deviceId: authState.selectedDeviceId,
 								username: usernameInput.trim(),
@@ -6217,7 +6218,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							// Check if we have a cancel link
 							const links = authState._links as Record<string, { href: string }>;
 							if (links?.cancel) {
-								console.log(
+								logger.info(
 									`${MODULE_TAG} 🔄 Using cancel + re-initialize approach for OTP resend`
 								);
 								try {
@@ -6268,12 +6269,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}));
 
 										success = true;
-										console.log(
+										logger.info(
 											`${MODULE_TAG} ✅ OTP resent successfully via cancel + re-initialize`
 										);
 									}
 								} catch (cancelError) {
-									console.warn(
+									logger.warn(
 										`${MODULE_TAG} Cancel + re-initialize approach failed:`,
 										cancelError
 									);
@@ -6282,7 +6283,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 							// Strategy 2: Fallback - try direct device re-selection
 							if (!success) {
-								console.log(`${MODULE_TAG} 🔄 Using fallback device re-selection for OTP resend`);
+								logger.info(`${MODULE_TAG} 🔄 Using fallback device re-selection for OTP resend`);
 								const reselectResult =
 									await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
 										{
@@ -6307,7 +6308,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										{ isUserId: !!userId }
 									);
 								} catch (readError) {
-									console.warn(
+									logger.warn(
 										`${MODULE_TAG} Failed to read device authentication after resend:`,
 										readError
 									);
@@ -6326,7 +6327,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								}));
 
 								success = true;
-								console.log(`${MODULE_TAG} ✅ OTP resent successfully via direct re-selection`);
+								logger.info(`${MODULE_TAG} ✅ OTP resent successfully via direct re-selection`);
 							}
 
 							if (success) {
@@ -6339,7 +6340,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								throw new Error('Failed to resend OTP - all strategies exhausted');
 							}
 						} catch (error) {
-							console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
+							logger.error(`${MODULE_TAG} Failed to resend OTP:`, error);
 
 							// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 							const errorWithCode = error as Error & {
@@ -6423,7 +6424,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							setFido2Error(null);
 
 							try {
-								console.log(`${MODULE_TAG} Starting FIDO2 authentication...`);
+								logger.info(`${MODULE_TAG} Starting FIDO2 authentication...`);
 
 								// Get the WebAuthn credential
 								const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
@@ -6441,7 +6442,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									assertionResult as { publicKeyCredentialRequestOptions?: unknown }
 								).publicKeyCredentialRequestOptions;
 								if (newPublicKeyOptions) {
-									console.log(
+									logger.info(
 										`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
 									);
 									setAuthState((prev) => ({
@@ -6462,7 +6463,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											assertionLinks['complete']?.href || authState._links!['complete']!.href
 										);
 									} catch (completeError) {
-										console.warn(
+										logger.warn(
 											`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
 											completeError
 										);
@@ -6537,7 +6538,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															pollLinks['complete']?.href || authState._links!['complete']!.href
 														);
 												} catch (completeError) {
-													console.warn(
+													logger.warn(
 														`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
 														completeError
 													);
@@ -6598,7 +6599,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									}
 								}
 							} catch (error) {
-								console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
+								logger.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
 								setFido2Error(
 									error instanceof Error
 										? error.message

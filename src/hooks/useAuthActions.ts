@@ -94,7 +94,7 @@ const useAuthActions = ({
 		): Promise<LoginResult> => {
 			const effectiveConfig = overrideConfig ? { ...config, ...overrideConfig } : config;
 
-			console.log(' [NewAuthContext] Starting login process...', {
+			logger.info(' [NewAuthContext] Starting login process...', {
 				redirectAfterLogin,
 				callbackType,
 				hasConfig: !!effectiveConfig,
@@ -117,12 +117,12 @@ const useAuthActions = ({
 					return { success: false, error: errorMessage };
 				}
 
-				console.log(' [NewAuthContext] Configuration validated');
+				logger.info(' [NewAuthContext] Configuration validated');
 
 				const state = Math.random().toString(36).substring(2, 15);
 				const nonce = Math.random().toString(36).substring(2, 15);
 
-				console.log(' [NewAuthContext] Generated security parameters:', {
+				logger.info(' [NewAuthContext] Generated security parameters:', {
 					state: `${state.substring(0, 8)}...`,
 					nonce: `${nonce.substring(0, 8)}...`,
 				});
@@ -134,7 +134,7 @@ const useAuthActions = ({
 					Math.random().toString(36).substring(2, 15);
 				const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-				console.log(' [NewAuthContext] PKCE generation successful:', {
+				logger.info(' [NewAuthContext] PKCE generation successful:', {
 					codeVerifier: `${codeVerifier.substring(0, 20)}...`,
 					codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 					codeVerifierLength: codeVerifier.length,
@@ -150,7 +150,7 @@ const useAuthActions = ({
 				sessionStorage.setItem('oidc_v3_code_verifier', codeVerifier);
 				sessionStorage.setItem('oauth_redirect_after_login', redirectAfterLogin);
 
-				console.log(' [NewAuthContext] Stored in sessionStorage:', {
+				logger.info(' [NewAuthContext] Stored in sessionStorage:', {
 					oauth_state: `${state.substring(0, 8)}...`,
 					oauth_nonce: `${nonce.substring(0, 8)}...`,
 					code_verifier: `${codeVerifier.substring(0, 20)}...`,
@@ -159,7 +159,7 @@ const useAuthActions = ({
 				});
 
 				const configuredRedirectUri = effectiveConfig?.redirectUri;
-				console.log('🔍 [NewAuthContext] REDIRECT URI SELECTION DEBUG:', {
+				logger.info('🔍 [NewAuthContext] REDIRECT URI SELECTION DEBUG:', {
 					configRedirectUri: effectiveConfig?.redirectUri,
 					hasConfigRedirectUri: !!effectiveConfig?.redirectUri,
 					callbackType,
@@ -174,7 +174,7 @@ const useAuthActions = ({
 						? `${window.location.origin}/dashboard-callback`
 						: configuredRedirectUri || `${window.location.origin}/authz-callback`;
 
-				console.log('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
+				logger.info('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
 					configuredRedirectUri,
 					callbackType,
 					finalRedirectUri: redirectUri,
@@ -182,7 +182,7 @@ const useAuthActions = ({
 					usingFallback: !configuredRedirectUri,
 				});
 
-				console.log(' [NewAuthContext] Redirect URI configuration:', {
+				logger.info(' [NewAuthContext] Redirect URI configuration:', {
 					callbackType,
 					configuredRedirectUri,
 					redirectUri,
@@ -210,7 +210,7 @@ const useAuthActions = ({
 				// The direct clientId is what's shown in the UI and what user configured
 				const clientId = effectiveConfig?.clientId || effectiveConfig?.pingone?.clientId;
 
-				console.log('🔍 [NewAuthContext] CLIENT ID SELECTION:', {
+				logger.info('🔍 [NewAuthContext] CLIENT ID SELECTION:', {
 					directClientId: effectiveConfig?.clientId,
 					pingoneClientId: effectiveConfig?.pingone?.clientId,
 					selectedClientId: clientId,
@@ -220,7 +220,7 @@ const useAuthActions = ({
 
 				if (!authEndpoint && effectiveConfig?.environmentId) {
 					authEndpoint = `https://auth.pingone.com/${effectiveConfig.environmentId}/as/authorize`;
-					console.log(
+					logger.info(
 						' [NewAuthContext] Constructed authEndpoint from environmentId:',
 						authEndpoint
 					);
@@ -236,7 +236,7 @@ const useAuthActions = ({
 					throw new Error(errorMessage);
 				}
 
-				console.log(' [NewAuthContext] Configuration debug:', {
+				logger.info(' [NewAuthContext] Configuration debug:', {
 					hasConfig: !!effectiveConfig,
 					configKeys: effectiveConfig ? Object.keys(effectiveConfig) : [],
 					authEndpoint,
@@ -290,7 +290,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				authUrl.searchParams.set('code_challenge', codeChallenge);
 				authUrl.searchParams.set('code_challenge_method', 'S256');
 
-				console.log(' [NewAuthContext] Built authorization URL:', {
+				logger.info(' [NewAuthContext] Built authorization URL:', {
 					baseUrl: authEndpoint,
 					fullUrl: authUrl.toString(),
 					params: {
@@ -333,8 +333,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					authUrl: authUrl.toString(),
 				});
 
-				console.log('🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
-				console.log('🔍 [NewAuthContext] URL BREAKDOWN:', {
+				logger.info('🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
+				logger.info('🔍 [NewAuthContext] URL BREAKDOWN:', {
 					base: authEndpoint,
 					queryParams: Object.fromEntries(authUrl.searchParams),
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
@@ -343,7 +343,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					responseType: authUrl.searchParams.get('response_type'),
 				});
 
-				console.log('🔍 [NewAuthContext] REDIRECT URI BEING SENT:', {
+				logger.info('🔍 [NewAuthContext] REDIRECT URI BEING SENT:', {
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
 					clientId: authUrl.searchParams.get('client_id'),
 					fullUrl: authUrl.toString(),
@@ -374,7 +374,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				// CRITICAL: Clear any existing user interaction flag before showing modal
 				sessionStorage.removeItem('_user_clicked_proceed');
 
-				console.log('🐛 [NewAuthContext] DEBUG - About to show authorization modal:', {
+				logger.info('🐛 [NewAuthContext] DEBUG - About to show authorization modal:', {
 					showAuthModal: 'will be set to true',
 					authRequestData: {
 						authorizationUrl: authUrl.toString(),
@@ -386,15 +386,15 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				});
 
 				setShowAuthModal(true);
-				console.log('✅ [NewAuthContext] Modal opened - waiting for user to click Continue button');
-				console.log('✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue');
-				console.log(
+				logger.info('✅ [NewAuthContext] Modal opened - waiting for user to click Continue button');
+				logger.info('✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue');
+				logger.info(
 					'✅ [NewAuthContext] User interaction flag cleared - modal will wait for user click'
 				);
 
 				// Add a small delay to ensure state updates are processed
 				setTimeout(() => {
-					console.log('🐛 [NewAuthContext] DEBUG - Modal state after timeout:', {
+					logger.info('🐛 [NewAuthContext] DEBUG - Modal state after timeout:', {
 						showAuthModal: 'check App.tsx',
 						modalShouldBeVisible: 'if showAuthModal is true in App.tsx',
 					});
@@ -429,7 +429,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 			try {
 				FlowContextUtils.emergencyCleanup();
-				console.log(' [NewAuthContext] Flow context cleaned up during logout');
+				logger.info(' [NewAuthContext] Flow context cleaned up during logout');
 			} catch (flowCleanupError) {
 				logger.warn(
 					'useAuthActions',
@@ -472,11 +472,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				}
 
 				const flowContextRaw = sessionStorage.getItem('flowContext');
-				console.log('🔍 [NewAuthContext] Checking for V6 flow, flowContextRaw:', flowContextRaw);
+				logger.info('🔍 [NewAuthContext] Checking for V6 flow, flowContextRaw:', flowContextRaw);
 				if (flowContextRaw) {
 					try {
 						const parsed = safeJsonParse(flowContextRaw) as Record<string, unknown> | null;
-						console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
+						logger.info('🔍 [NewAuthContext] Parsed flow context:', parsed);
 
 						if (!parsed || typeof parsed !== 'object') {
 							throw new Error('Invalid flow context format');
@@ -494,7 +494,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							flow === 'oidc-authorization-code-v7-2' ||
 							flow === 'oauth-authorization-code-v7-2';
 
-						console.log(
+						logger.info(
 							'🔍 [NewAuthContext] Is V6 flow?',
 							isV6Flow,
 							'Is V7 flow?',
@@ -504,7 +504,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						);
 
 						if (isV6Flow || isV7Flow) {
-							console.log(
+							logger.info(
 								' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page'
 							);
 
@@ -512,7 +512,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								const isOIDCFlow = flow?.includes('oidc') ?? false;
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
-								console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
+								logger.info(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -520,7 +520,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 							const flowReturnPath =
 								returnPath || (flow?.includes('oidc') ? '/flows/oidc' : '/flows/oauth');
-							console.log(' [NewAuthContext] Redirecting back to flow page:', flowReturnPath);
+							logger.info(' [NewAuthContext] Redirecting back to flow page:', flowReturnPath);
 							window.location.replace(flowReturnPath);
 
 							return { success: true };
@@ -813,17 +813,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	);
 
 	const proceedWithOAuth = useCallback(() => {
-		console.log(
+		logger.info(
 			'🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button'
 		);
-		console.log('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:');
+		logger.info('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:');
 		console.trace('🚨 [NewAuthContext] FULL STACK TRACE for proceedWithOAuth call');
 
 		// CRITICAL: Check if user actually clicked the Continue button
 		// The modal sets this flag in sessionStorage when user clicks Continue
 		const userClickedProceed = sessionStorage.getItem('_user_clicked_proceed') === 'true';
 
-		console.log('🚨 [NewAuthContext] User interaction check:', {
+		logger.info('🚨 [NewAuthContext] User interaction check:', {
 			userClickedProceed,
 			flagValue: sessionStorage.getItem('_user_clicked_proceed'),
 			hasAuthRequestData: !!authRequestData,
@@ -846,7 +846,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		// Clear the flag after checking
 		sessionStorage.removeItem('_user_clicked_proceed');
 
-		console.log('🚨 [NewAuthContext] ✅ USER INTERACTION CONFIRMED - proceeding with OAuth');
+		logger.info('🚨 [NewAuthContext] ✅ USER INTERACTION CONFIRMED - proceeding with OAuth');
 
 		if (authRequestData) {
 			logger.auth(
@@ -868,7 +868,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						const authMode = parsed?.authMode as string | undefined;
 
 						if (authMode === 'redirectless') {
-							console.log(
+							logger.info(
 								'[NewAuthContext] Kroger redirectless mode detected, modifying authorization URL'
 							);
 							try {
@@ -901,7 +901,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				}
 			}
 
-			console.log('🚨 [NewAuthContext] About to redirect to:', finalAuthUrl);
+			logger.info('🚨 [NewAuthContext] About to redirect to:', finalAuthUrl);
 			window.location.href = finalAuthUrl;
 		} else {
 			logger.error('useAuthActions', 'proceedWithOAuth called but authRequestData is null!');
@@ -929,7 +929,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	const saveCredentialsV7 = useCallback(
 		async (credentials: Record<string, unknown>) => {
 			try {
-				console.log(
+				logger.info(
 					' [NewAuthContext] Saving credentials using V7 standardized system...',
 					credentials
 				);
@@ -965,7 +965,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					}
 				);
 				if (success) {
-					console.log(' [NewAuthContext] V7 credentials saved successfully');
+					logger.info(' [NewAuthContext] V7 credentials saved successfully');
 					const newConfig = await loadAuthConfiguration();
 					setConfig(newConfig);
 				} else {

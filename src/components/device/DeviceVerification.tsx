@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { formatUserCode } from '../../utils/deviceCode';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
+import { logger } from '../utils/logger';
 import {
 	formatUrlForQRCode,
 	generateQRCode,
@@ -285,12 +286,12 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 					const qrDataUrl = await generateQRCode(urlToUse, { size: 200 });
 					setQrCodeUrl(qrDataUrl);
 				} else {
-					log.warn('DeviceVerification', 'Invalid URL for QR code generation', {
+					logger.warn('DeviceVerification', 'Invalid URL for QR code generation', {
 						url: urlToUse,
 					});
 				}
 			} catch (error) {
-				log.error('DeviceVerification', 'Failed to generate QR code', error);
+				logger.error('DeviceVerification', 'Failed to generate QR code', error);
 			}
 		};
 
@@ -316,9 +317,9 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 			setCopiedUserCode(true);
 			onCopyUserCode();
 			setTimeout(() => setCopiedUserCode(false), 2000);
-			log.info('DeviceVerification', 'User code copied to clipboard');
+			logger.info('DeviceVerification', 'User code copied to clipboard');
 		} catch (error) {
-			log.error('DeviceVerification', 'Failed to copy user code', error);
+			logger.error('DeviceVerification', 'Failed to copy user code', error);
 		}
 	}, [userCode, onCopyUserCode]);
 
@@ -328,15 +329,15 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 			setCopiedVerificationUri(true);
 			onCopyVerificationUri();
 			setTimeout(() => setCopiedVerificationUri(false), 2000);
-			log.info('DeviceVerification', 'Verification URI copied to clipboard');
+			logger.info('DeviceVerification', 'Verification URI copied to clipboard');
 		} catch (error) {
-			log.error('DeviceVerification', 'Failed to copy verification URI', error);
+			logger.error('DeviceVerification', 'Failed to copy verification URI', error);
 		}
 	}, [verificationUri, onCopyVerificationUri]);
 
 	const handleOpenVerificationUri = useCallback(() => {
 		window.open(verificationUri, '_blank', 'noopener,noreferrer');
-		log.info('DeviceVerification', 'Opened verification URI in new tab');
+		logger.info('DeviceVerification', 'Opened verification URI in new tab');
 	}, [verificationUri]);
 
 	return (

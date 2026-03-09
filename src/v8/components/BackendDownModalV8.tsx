@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { backendConnectivityService } from '@/v8/services/backendConnectivityServiceV8';
 
+import { logger } from '../utils/logger';
 export const BackendDownModalV8: React.FC = () => {
 	const [isVisible, setIsVisible] = useState(false);
 
@@ -24,7 +25,7 @@ export const BackendDownModalV8: React.FC = () => {
 	}, []);
 
 	const handleRetry = () => {
-		console.log('[BACKEND-MODAL] User clicked retry - resetting connectivity state');
+		logger.info('[BACKEND-MODAL] User clicked retry - resetting connectivity state');
 		backendConnectivityService.reset();
 		setIsVisible(false);
 		// Reload the page to retry API calls
@@ -32,7 +33,7 @@ export const BackendDownModalV8: React.FC = () => {
 	};
 
 	const handleDismiss = () => {
-		console.log('[BACKEND-MODAL] User dismissed modal');
+		logger.info('[BACKEND-MODAL] User dismissed modal');
 		backendConnectivityService.dismissModal();
 		setIsVisible(false);
 	};

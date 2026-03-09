@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../utils/logger';
  * Storage utility for managing browser storage (localStorage, sessionStorage)
  */
 
@@ -41,7 +42,7 @@ export const localStorageService: StorageService = {
 			window.localStorage.setItem(getKey(key), stringValue);
 			return true;
 		} catch (error) {
-			console.error('Error saving to localStorage:', error);
+			logger.error('Error saving to localStorage:', error);
 			return false;
 		}
 	},
@@ -63,7 +64,7 @@ export const localStorageService: StorageService = {
 				return item;
 			}
 		} catch (error) {
-			console.error('Error reading from localStorage:', error);
+			logger.error('Error reading from localStorage:', error);
 			return defaultValue;
 		}
 	},
@@ -77,7 +78,7 @@ export const localStorageService: StorageService = {
 			window.localStorage.removeItem(getKey(key));
 			return true;
 		} catch (error) {
-			console.error('Error removing from localStorage:', error);
+			logger.error('Error removing from localStorage:', error);
 			return false;
 		}
 	},
@@ -94,7 +95,7 @@ export const localStorageService: StorageService = {
 			});
 			return true;
 		} catch (error) {
-			console.error('Error clearing localStorage:', error);
+			logger.error('Error clearing localStorage:', error);
 			return false;
 		}
 	},
@@ -115,7 +116,7 @@ export const sessionStorageService: StorageService = {
 			window.sessionStorage.setItem(getKey(key), stringValue);
 			return true;
 		} catch (error) {
-			console.error('Error saving to sessionStorage:', error);
+			logger.error('Error saving to sessionStorage:', error);
 			return false;
 		}
 	},
@@ -137,7 +138,7 @@ export const sessionStorageService: StorageService = {
 				return item;
 			}
 		} catch (error) {
-			console.error('Error reading from sessionStorage:', error);
+			logger.error('Error reading from sessionStorage:', error);
 			return defaultValue;
 		}
 	},
@@ -151,7 +152,7 @@ export const sessionStorageService: StorageService = {
 			window.sessionStorage.removeItem(getKey(key));
 			return true;
 		} catch (error) {
-			console.error('Error removing from sessionStorage:', error);
+			logger.error('Error removing from sessionStorage:', error);
 			return false;
 		}
 	},
@@ -168,7 +169,7 @@ export const sessionStorageService: StorageService = {
 			});
 			return true;
 		} catch (error) {
-			console.error('Error clearing sessionStorage:', error);
+			logger.error('Error clearing sessionStorage:', error);
 			return false;
 		}
 	},

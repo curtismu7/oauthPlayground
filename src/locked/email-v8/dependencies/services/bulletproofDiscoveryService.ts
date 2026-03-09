@@ -14,6 +14,7 @@
 
 import type { DiscoveryResult, OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 
+import { logger } from '../../../utils/logger';
 export class BulletproofDiscoveryService {
 	private readonly MAX_RETRIES = 3;
 	private readonly RETRY_DELAY = 1000; // ms
@@ -23,14 +24,14 @@ export class BulletproofDiscoveryService {
 	 * Discover OIDC endpoints with comprehensive fallback strategy
 	 */
 	async discover(environmentId: string, region: string = 'na'): Promise<DiscoveryResult> {
-		console.log('[Bulletproof Discovery] Starting discovery for environment:', environmentId);
-		console.log('[Bulletproof Discovery] Region:', region);
+		logger.info('[Bulletproof Discovery] Starting discovery for environment:', environmentId);
+		logger.info('[Bulletproof Discovery] Region:', region);
 
 		try {
 			// Strategy 1: Backend proxy with retry and region failover
 			try {
 				const document = await this.tryBackendProxyWithFailover(environmentId, region);
-				console.log('[Bulletproof Discovery] ✅ SUCCESS via backend proxy');
+				logger.info('[Bulletproof Discovery] ✅ SUCCESS via backend proxy');
 				return {
 					success: true,
 					document,
@@ -38,13 +39,13 @@ export class BulletproofDiscoveryService {
 					provider: 'pingone',
 				};
 			} catch (proxyError) {
-				console.warn('[Bulletproof Discovery] Backend proxy failed:', proxyError);
+				logger.warn('[Bulletproof Discovery] Backend proxy failed:', proxyError);
 			}
 
 			// Strategy 2: Direct OIDC discovery (might fail due to CORS)
 			try {
 				const document = await this.tryDirectDiscovery(environmentId);
-				console.log('[Bulletproof Discovery] ✅ SUCCESS via direct discovery');
+				logger.info('[Bulletproof Discovery] ✅ SUCCESS via direct discovery');
 				return {
 					success: true,
 					document,
@@ -52,13 +53,13 @@ export class BulletproofDiscoveryService {
 					provider: 'pingone',
 				};
 			} catch (directError) {
-				console.warn('[Bulletproof Discovery] Direct discovery failed:', directError);
+				logger.warn('[Bulletproof Discovery] Direct discovery failed:', directError);
 			}
 
 			// Strategy 3: Generate fallback document from known PingOne patterns
-			console.log('[Bulletproof Discovery] Using fallback document generation');
+			logger.info('[Bulletproof Discovery] Using fallback document generation');
 			const document = this.generateFallbackDocument(environmentId);
-			console.log('[Bulletproof Discovery] ✅ SUCCESS via fallback generation');
+			logger.info('[Bulletproof Discovery] ✅ SUCCESS via fallback generation');
 
 			return {
 				success: true,
@@ -67,7 +68,7 @@ export class BulletproofDiscoveryService {
 				provider: 'pingone',
 			};
 		} catch (error) {
-			console.error('[Bulletproof Discovery] All strategies failed:', error);
+			logger.error('[Bulletproof Discovery] All strategies failed:', error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Discovery failed after all retries',
@@ -91,7 +92,7 @@ export class BulletproofDiscoveryService {
 			try {
 				return await this.tryBackendProxyWithRetry(environmentId, region);
 			} catch (error) {
-				console.warn(`[Bulletproof Discovery] Region ${region} failed:`, error);
+				logger.warn(`[Bulletproof Discovery] Region ${region} failed:`, error);
 				// Continue to next region
 			}
 		}
@@ -111,7 +112,7 @@ export class BulletproofDiscoveryService {
 		for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
 			try {
 				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
-				console.log(
+				logger.info(
 					`[Bulletproof Discovery] Proxy attempt ${attempt}/${this.MAX_RETRIES} [${region}]:`,
 					proxyUrl
 				);
@@ -133,7 +134,7 @@ export class BulletproofDiscoveryService {
 
 					if (!response.ok) {
 						const errorBody = await response.text().catch(() => 'Unable to read response');
-						console.error(`[Bulletproof Discovery] Backend error (${response.status}):`, errorBody);
+						logger.error(`[Bulletproof Discovery] Backend error (${response.status}):`, errorBody);
 						throw new Error(`Backend returned ${response.status}: ${errorBody.substring(0, 200)}`);
 					}
 
@@ -155,11 +156,11 @@ export class BulletproofDiscoveryService {
 				}
 			} catch (error) {
 				lastError = error instanceof Error ? error : new Error(String(error));
-				console.warn(`[Bulletproof Discovery] Attempt ${attempt} failed:`, lastError.message);
+				logger.warn(`[Bulletproof Discovery] Attempt ${attempt} failed:`, lastError.message);
 
 				if (attempt < this.MAX_RETRIES) {
 					const delay = this.RETRY_DELAY * 2 ** (attempt - 1); // Exponential backoff
-					console.log(`[Bulletproof Discovery] Retrying in ${delay}ms...`);
+					logger.info(`[Bulletproof Discovery] Retrying in ${delay}ms...`);
 					await this.sleep(delay);
 				}
 			}
@@ -173,7 +174,7 @@ export class BulletproofDiscoveryService {
 	 */
 	private async tryDirectDiscovery(environmentId: string): Promise<OIDCDiscoveryDocument> {
 		const discoveryUrl = `https://auth.pingone.com/${environmentId}/as/.well-known/openid-configuration`;
-		console.log('[Bulletproof Discovery] Attempting direct discovery:', discoveryUrl);
+		logger.info('[Bulletproof Discovery] Attempting direct discovery:', discoveryUrl);
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT);
@@ -204,7 +205,7 @@ export class BulletproofDiscoveryService {
 	 * Generate fallback discovery document using known PingOne URL patterns
 	 */
 	private generateFallbackDocument(environmentId: string): OIDCDiscoveryDocument {
-		console.log('[Bulletproof Discovery] Generating fallback document for:', environmentId);
+		logger.info('[Bulletproof Discovery] Generating fallback document for:', environmentId);
 
 		const baseUrl = `https://auth.pingone.com/${environmentId}/as`;
 

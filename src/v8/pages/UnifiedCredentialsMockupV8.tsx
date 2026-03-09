@@ -27,6 +27,7 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🎨 UNIFIED-UI-MOCKUP-V8]';
 
 export const UnifiedCredentialsMockupV8: React.FC = () => {
@@ -81,7 +82,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 	}
 
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
-		console.log(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
+		logger.info(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
 		setSpecVersion(newSpec);
 		// Reset PKCE if not required in new spec
 		if (newSpec !== 'oauth2.1' || effectiveFlowType !== 'oauth-authz') {
@@ -90,7 +91,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 	};
 
 	const handleFlowTypeChange = (newFlow: FlowType) => {
-		console.log(`${MODULE_TAG} Flow type changed`, { from: flowType, to: newFlow });
+		logger.info(`${MODULE_TAG} Flow type changed`, { from: flowType, to: newFlow });
 		setFlowType(newFlow);
 	};
 

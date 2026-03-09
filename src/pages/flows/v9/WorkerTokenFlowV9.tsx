@@ -30,6 +30,7 @@ import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+import { logger } from '../../utils/logger';
 const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
@@ -489,8 +490,8 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 // Usage
 getApplications('${envId}', '${accessToken || '<worker-token>'}')
-	  .then(apps => log.info('WorkerTokenFlowV9', 'Applications:', apps))
-	  .catch(err => log.error('WorkerTokenFlowV9', 'Error:', err));`}</pre>
+	  .then(apps => logger.info('WorkerTokenFlowV9', 'Applications:', apps))
+	  .catch(err => logger.error('WorkerTokenFlowV9', 'Error:', err));`}</pre>
 					</div>
 				</div>
 

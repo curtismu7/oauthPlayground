@@ -19,6 +19,7 @@
 
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 UNIFIED-MFA-STEP-RESOLVER-V8]';
 const RESOLVER_VERSION = '1.0.0';
 
@@ -481,7 +482,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 					);
 
 					const endTime = Date.now();
-					console.log(
+					logger.info(
 						`${MODULE_TAG} ✅ Step resolved in ${endTime - startTime}ms: ${result.step} from ${result.source} (${correlationId})`
 					);
 
@@ -504,7 +505,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 		);
 
 		const endTime = Date.now();
-		console.log(
+		logger.info(
 			`${MODULE_TAG} 🔒 FOOL-PROOF fallback in ${endTime - startTime}ms: Step 2 (${correlationId})`
 		);
 

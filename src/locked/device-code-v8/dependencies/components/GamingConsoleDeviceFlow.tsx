@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Sony PlayStation 5 Console Main Container - Authentic PS5 Design
 const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
@@ -329,17 +330,17 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('GamingConsoleDeviceFlow', 'User code copied to clipboard');
+		logger.info('GamingConsoleDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('GamingConsoleDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('GamingConsoleDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('GamingConsoleDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('GamingConsoleDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

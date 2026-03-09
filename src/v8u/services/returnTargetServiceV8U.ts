@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 /**
  * @file returnTargetServiceV8U.ts
  * @module v8u/services
@@ -61,7 +62,7 @@ export class ReturnTargetServiceV8U {
 		const key = STORAGE_KEYS[kind];
 		sessionStorage.setItem(key, JSON.stringify(target));
 
-		console.log(`${MODULE_TAG} Set return target for ${kind}:`, {
+		logger.info(`${MODULE_TAG} Set return target for ${kind}:`, {
 			path,
 			step,
 			key,
@@ -116,7 +117,7 @@ export class ReturnTargetServiceV8U {
 			const key = STORAGE_KEYS[kind];
 			sessionStorage.removeItem(key);
 
-			console.log(`${MODULE_TAG} Consumed return target for ${kind}:`, {
+			logger.info(`${MODULE_TAG} Consumed return target for ${kind}:`, {
 				path: target.path,
 				step: target.step,
 				age: Date.now() - target.createdAt,
@@ -134,7 +135,7 @@ export class ReturnTargetServiceV8U {
 			sessionStorage.removeItem(key);
 		});
 
-		console.log(`${MODULE_TAG} Cleared all return targets`);
+		logger.info(`${MODULE_TAG} Cleared all return targets`);
 	}
 
 	/**

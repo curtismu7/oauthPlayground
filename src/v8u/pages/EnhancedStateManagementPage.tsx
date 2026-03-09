@@ -4,6 +4,7 @@ import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/St
 import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
 
+import { logger } from '../utils/logger';
 const PageContainer = styled.div`
   padding: 2rem;
   max-width: 1200px;
@@ -368,7 +369,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Export state
 	const handleExport = async () => {
-		log.debug('handleExport called');
+		logger.debug('handleExport called');
 		await exportSpinner.executeWithSpinner(
 			async () => {
 				const stateData = stateUtils.exportAllState();
@@ -396,7 +397,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 					setMessageType('success');
 				},
 				onError: (error) => {
-					log.error('Failed to export state:', error);
+					logger.error('Failed to export state:', error);
 					setMessage(
 						`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -442,7 +443,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Reset all state
 	const handleResetAll = () => {
-		log.debug('handleResetAll called');
+		logger.debug('handleResetAll called');
 		stateUtils.resetAllState();
 		setMessage('All state has been reset to defaults');
 		setMessageType('info');
@@ -1130,13 +1131,13 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
-						log.debug('Theme reset button clicked');
+						logger.debug('Theme reset button clicked');
 						try {
 							actions.setTheme('auto');
 							setMessage('Theme set to auto');
 							setMessageType('info');
 						} catch (error) {
-							log.error('Failed to reset theme:', error);
+							logger.error('Failed to reset theme:', error);
 							setMessage('Failed to reset theme');
 							setMessageType('error');
 						}

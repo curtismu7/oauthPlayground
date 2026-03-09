@@ -28,6 +28,7 @@ import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowSer
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
 
 // Styled Components
@@ -374,7 +375,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 					setWorkerToken(token);
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error loading credentials:`, error);
+				logger.error(`${MODULE_TAG} Error loading credentials:`, error);
 			}
 		};
 		loadCredentials();
@@ -395,7 +396,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						});
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error checking token status:`, error);
+					logger.error(`${MODULE_TAG} Error checking token status:`, error);
 				}
 			};
 			checkStatus();

@@ -14,6 +14,7 @@ import {
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   padding: 2rem;
   max-width: 1200px;
@@ -266,7 +267,7 @@ const SDKExamplesHome: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={(token) => {
-						console.log('Worker token generated for SDK examples:', token);
+						logger.info('Worker token generated for SDK examples:', token);
 					}}
 				/>
 			)}

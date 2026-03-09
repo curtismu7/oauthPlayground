@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { logger } from '../utils/logger';
 export interface FlowStepConfig {
 	flowType: string;
 	persistKey: string;
@@ -44,7 +45,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 	// Set step with persistence
 	const setStep = useCallback(
 		(stepIndex: number, reason?: string) => {
-			console.log(
+			logger.info(
 				` [${config.flowType}] Setting step to ${stepIndex}${reason ? ` - ${reason}` : ''}`
 			);
 			setCurrentStepIndex(stepIndex);
@@ -55,7 +56,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 
 	// Reset flow to beginning
 	const resetFlow = useCallback(() => {
-		console.log(` [${config.flowType}] Resetting flow to step 0`);
+		logger.info(` [${config.flowType}] Resetting flow to step 0`);
 		setCurrentStepIndex(0);
 		setStepMessages({});
 		sessionStorage.removeItem(`${config.persistKey}-step`);
@@ -70,7 +71,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		const urlCode = urlParams.get('code');
 		const storedStep = sessionStorage.getItem(`${config.persistKey}-step`);
 
-		console.log(` [${config.flowType}] Initializing step manager:`, {
+		logger.info(` [${config.flowType}] Initializing step manager:`, {
 			urlStep,
 			hasCode: !!urlCode,
 			storedStep,
@@ -101,7 +102,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		const isFreshNavigation = !urlStep && !urlCode && location.pathname.includes('/flows/');
 
 		if (isFreshNavigation) {
-			console.log(` [${config.flowType}] Fresh navigation detected - starting from step 0`);
+			logger.info(` [${config.flowType}] Fresh navigation detected - starting from step 0`);
 			setStep(0, 'fresh navigation from menu');
 			setIsInitialized(true);
 			return;

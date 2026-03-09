@@ -16,6 +16,7 @@
 import { FiKey } from '@icons';
 import React, { useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 SCOPES-V8]';
 
 export interface ScopesInputV8Props {
@@ -94,7 +95,7 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 	const isOIDC = flowType === 'oidc';
 
 	const handleChange = (newValue: string) => {
-		console.log(`${MODULE_TAG} Scopes changed`, { scopes: newValue });
+		logger.info(`${MODULE_TAG} Scopes changed`, { scopes: newValue });
 		onChange(newValue);
 	};
 

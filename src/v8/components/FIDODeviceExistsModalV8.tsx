@@ -11,6 +11,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../utils/logger';
 interface FIDODeviceExistsModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -296,7 +297,7 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 				onDeviceDeleted();
 			}
 		} catch (error) {
-			console.error('[FIDODeviceExistsModal] Failed to delete device', error);
+			logger.error('[FIDODeviceExistsModal] Failed to delete device', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

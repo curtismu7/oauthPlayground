@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // Analytics event types
 export type AnalyticsEventType =
 	| 'page_view'
@@ -318,7 +319,7 @@ export class AnalyticsManager {
 	private async sendEvents(events: AnalyticsEvent[]): Promise<void> {
 		// Mock implementation - replace with actual API call
 		if (this.config.debug) {
-			console.log('Sending events to analytics server:', events);
+			logger.info('Sending events to analytics server:', events);
 		}
 
 		// Simulate network delay

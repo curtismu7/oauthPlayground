@@ -24,6 +24,7 @@
 
 import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 
 export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info';
@@ -94,7 +95,7 @@ class UINotificationServiceV8 {
 	 */
 	showSuccess(message: string, options?: NotificationOptions): void {
 		this.log('toast', 'success', message);
-		console.log(`${MODULE_TAG} ✅ Success:`, message);
+		logger.info(`${MODULE_TAG} ✅ Success:`, message);
 		v4ToastManager.showSuccess(message, {}, options);
 	}
 
@@ -103,7 +104,7 @@ class UINotificationServiceV8 {
 	 */
 	showError(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'error', message);
-		console.error(`${MODULE_TAG} ❌ Error:`, message);
+		logger.error(`${MODULE_TAG} ❌ Error:`, message);
 		v4ToastManager.showError(message);
 	}
 
@@ -112,7 +113,7 @@ class UINotificationServiceV8 {
 	 */
 	showWarning(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'warning', message);
-		console.warn(`${MODULE_TAG} ⚠️ Warning:`, message);
+		logger.warn(`${MODULE_TAG} ⚠️ Warning:`, message);
 		v4ToastManager.showWarning(message);
 	}
 
@@ -121,7 +122,7 @@ class UINotificationServiceV8 {
 	 */
 	showInfo(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'info', message);
-		console.log(`${MODULE_TAG} ℹ️ Info:`, message);
+		logger.info(`${MODULE_TAG} ℹ️ Info:`, message);
 		v4ToastManager.showInfo(message);
 	}
 
@@ -133,22 +134,22 @@ class UINotificationServiceV8 {
 		const confirmOptions: ConfirmOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		console.log(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
+		logger.info(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
 
 		if (!this.confirmCallback) {
-			console.error(`${MODULE_TAG} No confirmation handler registered! Falling back to console.`);
+			logger.error(`${MODULE_TAG} No confirmation handler registered! Falling back to console.`);
 			// Fallback: log to console and return false (safer default)
-			console.warn(`${MODULE_TAG} Confirmation needed: ${confirmOptions.message}`);
+			logger.warn(`${MODULE_TAG} Confirmation needed: ${confirmOptions.message}`);
 			return false;
 		}
 
 		try {
 			const result = await this.confirmCallback(confirmOptions);
 			this.log('confirm', 'confirm', confirmOptions.message, result);
-			console.log(`${MODULE_TAG} Confirm result:`, result);
+			logger.info(`${MODULE_TAG} Confirm result:`, result);
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Confirmation error:`, error);
+			logger.error(`${MODULE_TAG} Confirmation error:`, error);
 			return false;
 		}
 	}
@@ -161,22 +162,22 @@ class UINotificationServiceV8 {
 		const promptOptions: PromptOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		console.log(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
+		logger.info(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
 
 		if (!this.promptCallback) {
-			console.error(`${MODULE_TAG} No prompt handler registered! Falling back to console.`);
+			logger.error(`${MODULE_TAG} No prompt handler registered! Falling back to console.`);
 			// Fallback: log to console and return null
-			console.warn(`${MODULE_TAG} Prompt needed: ${promptOptions.message}`);
+			logger.warn(`${MODULE_TAG} Prompt needed: ${promptOptions.message}`);
 			return null;
 		}
 
 		try {
 			const result = await this.promptCallback(promptOptions);
 			this.log('prompt', 'prompt', promptOptions.message, result);
-			console.log(`${MODULE_TAG} Prompt result:`, result ? `"${result}"` : 'cancelled');
+			logger.info(`${MODULE_TAG} Prompt result:`, result ? `"${result}"` : 'cancelled');
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Prompt error:`, error);
+			logger.error(`${MODULE_TAG} Prompt error:`, error);
 			return null;
 		}
 	}
@@ -217,7 +218,7 @@ class UINotificationServiceV8 {
 	 * Clear notification logs
 	 */
 	clearLogs(): void {
-		console.log(`${MODULE_TAG} Clearing notification logs`);
+		logger.info(`${MODULE_TAG} Clearing notification logs`);
 		this.logs = [];
 	}
 

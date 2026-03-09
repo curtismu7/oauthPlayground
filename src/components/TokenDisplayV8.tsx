@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
+import { logger } from '../utils/logger';
 interface TokenDisplayV8Props {
 	idToken?: string;
 	accessToken?: string;
@@ -21,7 +22,7 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 		try {
 			await navigator.clipboard.writeText(text);
 		} catch (err) {
-			log.error('TokenDisplayV8', 'Failed to copy text: ', undefined, err as Error);
+			logger.error('TokenDisplayV8', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 

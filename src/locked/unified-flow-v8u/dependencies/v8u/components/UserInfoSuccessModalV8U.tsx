@@ -9,6 +9,7 @@
 import { FiCheckCircle } from '@icons';
 import React from 'react';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 
 interface UserInfoSuccessModalV8UProps {
@@ -69,7 +70,7 @@ const extractUserInfo = (
 				if (!result.sub) result.sub = payload.sub;
 			}
 		} catch (err) {
-			console.warn(`${MODULE_TAG} Failed to decode ID token`, err);
+			logger.warn(`${MODULE_TAG} Failed to decode ID token`, err);
 		}
 	}
 

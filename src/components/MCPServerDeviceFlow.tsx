@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
@@ -318,17 +319,17 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('MCPServerDeviceFlow', 'User code copied to clipboard');
+		logger.info('MCPServerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('MCPServerDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('MCPServerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('MCPServerDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('MCPServerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

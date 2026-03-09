@@ -21,6 +21,7 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
 // Styled Components
@@ -711,7 +712,7 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 };
 
 export const SpiffeSpireFlowV8U: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing SPIFFE/SPIRE mock flow`);
+	logger.info(`${MODULE_TAG} Initializing SPIFFE/SPIRE mock flow`);
 	const navigate = useNavigate();
 
 	// State
@@ -743,7 +744,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (storedEnvId) {
 			setEnvironmentId(storedEnvId);
-			console.log(`${MODULE_TAG} Loaded environment ID from storage`);
+			logger.info(`${MODULE_TAG} Loaded environment ID from storage`);
 		}
 
 		// Try to auto-populate from worker token credentials if still empty
@@ -754,11 +755,11 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId) {
 						setEnvironmentId(data.credentials.environmentId);
-						console.log(`${MODULE_TAG} Auto-populated environment ID from worker token`);
+						logger.info(`${MODULE_TAG} Auto-populated environment ID from worker token`);
 					}
 				}
 			} catch (error) {
-				console.log('Failed to auto-populate environment ID from worker token:', error);
+				logger.info('Failed to auto-populate environment ID from worker token:', error);
 			}
 		}
 	}, [environmentId]);
@@ -769,7 +770,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 			if (storedEnvId && storedEnvId !== environmentId) {
 				setEnvironmentId(storedEnvId);
-				console.log(`${MODULE_TAG} Environment ID updated from storage`);
+				logger.info(`${MODULE_TAG} Environment ID updated from storage`);
 			}
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
@@ -785,11 +786,11 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !environmentId) {
 						setEnvironmentId(data.credentials.environmentId);
-						console.log(`${MODULE_TAG} Auto-populated environment ID from worker token update`);
+						logger.info(`${MODULE_TAG} Auto-populated environment ID from worker token update`);
 					}
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -799,7 +800,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 	// Step 1: Generate SVID
 	const handleGenerateSVID = () => {
-		console.log(`${MODULE_TAG} Generating SVID`, { workloadConfig });
+		logger.info(`${MODULE_TAG} Generating SVID`, { workloadConfig });
 		setIsLoading(true);
 		setTransitionMessage('🔐 Attesting Workload & Issuing SVID...');
 		setShowPhaseTransition(true);
@@ -872,13 +873,13 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				// Move to dedicated SVID page
 				navigate('/v8u/spiffe-spire/svid');
 			}, 300);
-			console.log(`${MODULE_TAG} SVID generated`, { spiffeId: generatedSVID.spiffeId });
+			logger.info(`${MODULE_TAG} SVID generated`, { spiffeId: generatedSVID.spiffeId });
 		}, 1500);
 	};
 
 	// Step 2: Validate SVID
 	const handleValidateSVID = () => {
-		console.log(`${MODULE_TAG} Validating SVID`);
+		logger.info(`${MODULE_TAG} Validating SVID`);
 		setIsLoading(true);
 		setTransitionMessage('✓ Validating SVID with Trust Bundle...');
 		setShowPhaseTransition(true);
@@ -940,18 +941,18 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				// Move to dedicated validation page
 				navigate('/v8u/spiffe-spire/validate');
 			}, 300);
-			console.log(`${MODULE_TAG} SVID validated successfully`);
+			logger.info(`${MODULE_TAG} SVID validated successfully`);
 		}, 1000);
 	};
 
 	// Step 3: Exchange for PingOne Token
 	const handleTokenExchange = () => {
 		if (!svid || !environmentId) {
-			console.error(`${MODULE_TAG} Missing required data for token exchange`);
+			logger.error(`${MODULE_TAG} Missing required data for token exchange`);
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Exchanging SVID for PingOne token`, { environmentId });
+		logger.info(`${MODULE_TAG} Exchanging SVID for PingOne token`, { environmentId });
 		setIsLoading(true);
 		setTransitionMessage('🔄 Exchanging SVID for PingOne Token...');
 		setShowPhaseTransition(true);
@@ -1042,7 +1043,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					},
 				});
 			}, 300);
-			console.log(`${MODULE_TAG} Token exchange successful`);
+			logger.info(`${MODULE_TAG} Token exchange successful`);
 		}, 1500);
 	};
 
@@ -1057,7 +1058,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 	// Reset flow
 	const handleReset = () => {
-		console.log(`${MODULE_TAG} Resetting flow`);
+		logger.info(`${MODULE_TAG} Resetting flow`);
 		setCurrentStep(1);
 		setSvid(null);
 		setPingOneToken(null);

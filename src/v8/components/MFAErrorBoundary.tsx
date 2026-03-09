@@ -8,6 +8,7 @@
 import { FiAlertTriangle } from '@icons';
 import { Component, ErrorInfo, ReactNode } from 'react';
 
+import { logger } from '../utils/logger';
 interface Props {
 	children: ReactNode;
 	fallback?: ReactNode;
@@ -36,7 +37,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 	}
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		console.error('[MFA-ERROR-BOUNDARY] Caught error:', error, errorInfo);
+		logger.error('[MFA-ERROR-BOUNDARY] Caught error:', error, errorInfo);
 		this.props.onError?.(error, errorInfo);
 
 		// Send to analytics/monitoring if available

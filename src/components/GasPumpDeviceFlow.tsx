@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED 50%, V9_COLORS.PRIMARY.RED_DARK 100%);
@@ -489,17 +490,17 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('GasPumpDeviceFlow', 'User code copied to clipboard');
+		logger.info('GasPumpDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('GasPumpDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('GasPumpDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('GasPumpDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('GasPumpDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

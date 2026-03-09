@@ -24,6 +24,7 @@ import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusService
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
 interface WorkerTokenModalV8Props {
@@ -135,7 +136,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						setRegion(creds.region || 'us');
 						setCustomDomain(creds.customDomain || '');
 						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-						console.log(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
+						logger.info(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
 					} else {
 						// Fallback to old storage location for backwards compatibility
 						const saved = localStorage.getItem('worker_credentials_v8');
@@ -153,15 +154,15 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								setRegion('us'); // Always default to 'us' (.com)
 								setCustomDomain(parsed.customDomain || '');
 								setAuthMethod(parsed.authMethod || 'client_secret_basic');
-								console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
+								logger.info(`${MODULE_TAG} Loaded credentials from legacy storage location`);
 							} catch (e) {
-								console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+								logger.error(`${MODULE_TAG} Failed to load saved credentials`, e);
 							}
 						}
 					}
 				})
 				.catch((error) => {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} Failed to load credentials from workerTokenServiceV8:`,
 						error
 					);
@@ -207,11 +208,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					customDomain: customDomain.trim() || undefined,
 					tokenEndpointAuthMethod: authMethod,
 				});
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Credentials saved to workerTokenServiceV8 (checkbox was checked)`
 				);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+				logger.error(`${MODULE_TAG} Failed to save credentials:`, error);
 				toastV8.error(
 					'Failed to save credentials. They will still be used for this token generation.'
 				);
@@ -371,7 +372,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			return token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Token generation error`, error);
+			logger.error(`${MODULE_TAG} Token generation error`, error);
 			toastV8.error(error instanceof Error ? error.message : 'Failed to generate token');
 			return null;
 		} finally {
@@ -528,7 +529,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														await workerTokenServiceV8.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
-														console.error(`${MODULE_TAG} Failed to save token:`, error);
+														logger.error(`${MODULE_TAG} Failed to save token:`, error);
 														toastV8.error('Failed to save token');
 													}
 												}
@@ -625,7 +626,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														await workerTokenServiceV8.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
-														console.error(`${MODULE_TAG} Failed to save token:`, error);
+														logger.error(`${MODULE_TAG} Failed to save token:`, error);
 														toastV8.error('Failed to save token');
 													}
 												}
@@ -1169,7 +1170,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														exportWorkerTokenCredentials(credentials);
 														toastV8.success('Worker token credentials exported successfully!');
 													} catch (error) {
-														console.error(`${MODULE_TAG} Export error:`, error);
+														logger.error(`${MODULE_TAG} Export error:`, error);
 														toastV8.error(
 															error instanceof Error
 																? error.message
@@ -1233,7 +1234,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																);
 															}
 														} catch (error) {
-															console.error(`${MODULE_TAG} Import error:`, error);
+															logger.error(`${MODULE_TAG} Import error:`, error);
 															toastV8.error(
 																error instanceof Error
 																	? error.message

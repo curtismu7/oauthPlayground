@@ -6,6 +6,7 @@ import { FiInfo, FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type WorkerTokenCredentials,
 	type WorkerTokenValidationResult,
@@ -360,7 +361,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'WorkerTokenCredentialsInput',
 				'[WorkerTokenCredentialsInput] Save failed:',
 				undefined,

@@ -48,6 +48,7 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
+import { logger } from '../../../../utils/logger';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -375,7 +376,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			return initial;
 		} catch (err) {
-			console.error(`${MODULE_TAG} Error loading initial credentials (using defaults):`, err);
+			logger.error(`${MODULE_TAG} Error loading initial credentials (using defaults):`, err);
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 			return {
 				environmentId: storedEnvId || '',
@@ -431,7 +432,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					setAppConfig(null);
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error fetching app config:`, error);
+				logger.error(`${MODULE_TAG} Error fetching app config:`, error);
 				setAppConfig(null);
 			}
 		};
@@ -484,7 +485,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Fallback to first available flow (usually 'oauth-authz')
 		// This ensures we always have a valid flow type
 		const fallback = availableFlows[0] || 'oauth-authz';
-		console.warn(`${MODULE_TAG} ⚠️ Flow type not available, using fallback`, {
+		logger.warn(`${MODULE_TAG} ⚠️ Flow type not available, using fallback`, {
 			requested: flowType,
 			fallback,
 		});
@@ -610,7 +611,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					flowKey,
 					config
 				).catch((err) => {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
 						err
 					);
@@ -623,7 +624,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				const shared: SharedCredentials =
 					await SharedCredentialsServiceV8.loadSharedCredentials().catch((err) => {
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} Error loading shared credentials async (using sync result)`,
 							err
 						);
@@ -736,11 +737,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 				});
 			} catch (err) {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ Error loading credentials (will preserve existing state):`,
 					err
 				);
-				console.error(
+				logger.error(
 					`${MODULE_TAG} Error stack:`,
 					err instanceof Error ? err.stack : 'No stack trace'
 				);
@@ -873,7 +874,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			};
 
 			saveCredentials().catch((err) => {
-				console.error(`${MODULE_TAG} Error saving credentials:`, err);
+				logger.error(`${MODULE_TAG} Error saving credentials:`, err);
 			});
 		}, 100);
 
@@ -941,7 +942,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				toastV8.warning('No credentials to save');
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error manually saving credentials:`, error);
+			logger.error(`${MODULE_TAG} Error manually saving credentials:`, error);
 			toastV8.error('Failed to save credentials');
 		}
 	}, [credentials, flowKey]);
@@ -1045,7 +1046,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				setSpecVersion(compatibleSpec);
 				FlowSettingsServiceV8U.saveSpecVersion(newFlowType, compatibleSpec);
 			} else {
-				console.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
+				logger.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
 				toastV8.error(`${newFlowType} flow is not supported. Please select a different flow type.`);
@@ -1607,7 +1608,7 @@ return (
 				<button
 					type="button"
 					onClick={() => {
-						console.log(`${MODULE_TAG} 🔄 Toggling credentials collapse`, {
+						logger.info(`${MODULE_TAG} 🔄 Toggling credentials collapse`, {
 							from: isCredentialsCollapsed,
 							to: !isCredentialsCollapsed,
 						});
@@ -1665,13 +1666,13 @@ return (
 							title={`${SpecVersionServiceV8.getSpecLabel(specVersion)} - ${SpecVersionServiceV8.getFlowLabel(effectiveFlowType)}`}
 							subtitle={SpecVersionServiceV8.getSpecDescription(specVersion)}
 							onAppTypeChange={(appType, suggestedFlowType) => {
-								console.log(`${MODULE_TAG} App type changed`, { appType, suggestedFlowType });
+								logger.info(`${MODULE_TAG} App type changed`, { appType, suggestedFlowType });
 
 								// Check if suggested flow type is available for current spec
 								if (suggestedFlowType) {
 									const availableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 									if (availableFlows.includes(suggestedFlowType)) {
-										console.log(`${MODULE_TAG} Auto-selecting suggested flow type`, {
+										logger.info(`${MODULE_TAG} Auto-selecting suggested flow type`, {
 											from: flowType,
 											to: suggestedFlowType,
 											appType,
@@ -1688,12 +1689,12 @@ return (
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											console.log(
+											logger.info(
 												`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`
 											);
 										}
 									} else {
-										console.log(`${MODULE_TAG} Suggested flow not available for spec`, {
+										logger.info(`${MODULE_TAG} Suggested flow not available for spec`, {
 											suggestedFlowType,
 											specVersion,
 											availableFlows,
@@ -1716,7 +1717,7 @@ return (
 					appConfig={appConfig ?? undefined}
 					onFlowReset={() => {
 						// Flow reset - preserve credentials, spec version, and flow type
-						console.log(
+						logger.info(
 							`${MODULE_TAG} 🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
 							{
 								specVersion,
@@ -1731,7 +1732,7 @@ return (
 
 						// Spec version and flow type are already preserved in React state
 						// No need to do anything - they will remain as-is
-						console.log(
+						logger.info(
 							`${MODULE_TAG} ✅ Flow reset complete - spec version and flow type preserved`,
 							{
 								specVersion,

@@ -10,6 +10,7 @@ import {
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
+import { logger } from '../../../../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;
@@ -291,12 +292,12 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			setCopySuccess(true);
 			onCopy?.(token.access_token);
 
-			log.success('TOKEN-DISPLAY', 'Token copied to clipboard');
+			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
 			v4ToastManager.showCopySuccess('Access Token');
 
 			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (error) {
-			log.error('TOKEN-DISPLAY', 'Failed to copy token', error);
+			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
 			v4ToastManager.showCopyError('Access Token');
 		}
 	}, [token.access_token, onCopy]);
@@ -304,10 +305,10 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 	const handleCopyValue = useCallback(async (value: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(value);
-			log.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
+			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
 			v4ToastManager.showCopySuccess(label);
 		} catch (error) {
-			log.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
+			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
 			v4ToastManager.showCopyError(label);
 		}
 	}, []);

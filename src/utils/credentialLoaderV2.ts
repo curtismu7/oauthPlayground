@@ -5,6 +5,7 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 /**
  * Load credentials for a specific flow using the new isolated storage system
  *
@@ -24,14 +25,14 @@ export async function loadFlowCredentialsV2(
 	const result = await credentialStorageManager.loadFlowCredentials(flowKey);
 
 	if (result.success && result.data) {
-		console.log(`✅ Loaded from ${result.source}`);
+		logger.info(`✅ Loaded from ${result.source}`);
 		console.groupEnd();
 		return result.data as StepCredentials;
 	}
 
 	// No credentials found - return empty credentials
-	console.log(`❌ No credentials found for ${flowKey}`);
-	console.log(`ℹ️ User will need to enter credentials or copy from Configuration`);
+	logger.info(`❌ No credentials found for ${flowKey}`);
+	logger.info(`ℹ️ User will need to enter credentials or copy from Configuration`);
 	console.groupEnd();
 
 	return createEmptyCredentials(defaultRedirectUri);
@@ -47,12 +48,12 @@ export async function saveFlowCredentialsV2(
 	flowKey: string,
 	credentials: StepCredentials
 ): Promise<boolean> {
-	console.log(`💾 [CredentialLoaderV2] Saving credentials for: ${flowKey}`);
+	logger.info(`💾 [CredentialLoaderV2] Saving credentials for: ${flowKey}`);
 
 	const result = await credentialStorageManager.saveFlowCredentials(flowKey, credentials);
 
 	if (result.success) {
-		console.log(`✅ Credentials saved successfully`);
+		logger.info(`✅ Credentials saved successfully`);
 		return true;
 	}
 
@@ -90,7 +91,7 @@ export function areCredentialsComplete(credentials: StepCredentials): boolean {
  * Clear credentials for a specific flow
  */
 export async function clearFlowCredentialsV2(flowKey: string): Promise<void> {
-	console.log(`🗑️ [CredentialLoaderV2] Clearing credentials for: ${flowKey}`);
+	logger.info(`🗑️ [CredentialLoaderV2] Clearing credentials for: ${flowKey}`);
 	await credentialStorageManager.clearFlowCredentials(flowKey);
-	console.log(`✅ Credentials cleared`);
+	logger.info(`✅ Credentials cleared`);
 }

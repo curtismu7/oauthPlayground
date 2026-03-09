@@ -69,6 +69,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
+import { logger } from '../../../../utils/logger';
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 
@@ -562,7 +563,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		// If flow doesn't support PKCE, clear PKCE enforcement
 		if (!supportsPKCE && pkceEnforcement !== 'OPTIONAL') {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
 			);
 			setPkceEnforcement('OPTIONAL');
@@ -579,7 +580,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				credentials.pkceEnforcement === 'S256_REQUIRED') &&
 			credentials.pkceEnforcement !== pkceEnforcement
 		) {
-			console.log(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
 				pkceEnforcement: credentials.pkceEnforcement,
 			});
 			setPkceEnforcement(credentials.pkceEnforcement);
@@ -591,7 +592,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Legacy: sync from usePKCE boolean if pkceEnforcement is not set
 			const legacyEnforcement = credentials.usePKCE ? 'REQUIRED' : 'OPTIONAL';
 			if (legacyEnforcement !== pkceEnforcement) {
-				console.log(`${MODULE_TAG} Syncing pkceEnforcement from legacy usePKCE`, {
+				logger.info(`${MODULE_TAG} Syncing pkceEnforcement from legacy usePKCE`, {
 					usePKCE: credentials.usePKCE,
 					legacyEnforcement,
 				});
@@ -605,7 +606,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			typeof credentials.enableRefreshToken === 'boolean' &&
 			credentials.enableRefreshToken !== enableRefreshToken
 		) {
-			console.log(`${MODULE_TAG} Syncing enableRefreshToken from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing enableRefreshToken from credentials`, {
 				enableRefreshToken: credentials.enableRefreshToken,
 			});
 			setEnableRefreshToken(credentials.enableRefreshToken);
@@ -613,20 +614,20 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Load responseMode from credentials if available
 		if (credentials.responseMode && credentials.responseMode !== responseMode) {
-			console.log(`${MODULE_TAG} Syncing responseMode from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing responseMode from credentials`, {
 				responseMode: credentials.responseMode,
 			});
 			setResponseMode(credentials.responseMode as ResponseMode);
 		}
 		// Legacy: Convert useRedirectless to responseMode
 		else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
-			console.log(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
+			logger.info(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
 			setResponseMode('pi.flow');
 		}
 
 		// Load loginHint from credentials if available
 		if (credentials.loginHint !== undefined && credentials.loginHint !== loginHint) {
-			console.log(`${MODULE_TAG} Syncing loginHint from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing loginHint from credentials`, {
 				loginHint: credentials.loginHint,
 			});
 			setLoginHint(credentials.loginHint);
@@ -634,7 +635,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Load maxAge from credentials if available
 		if (credentials.maxAge !== undefined && credentials.maxAge !== maxAge) {
-			console.log(`${MODULE_TAG} Syncing maxAge from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing maxAge from credentials`, {
 				maxAge: credentials.maxAge,
 			});
 			setMaxAge(credentials.maxAge);
@@ -642,7 +643,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Load display from credentials if available
 		if (credentials.display && credentials.display !== display) {
-			console.log(`${MODULE_TAG} Syncing display from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing display from credentials`, {
 				display: credentials.display,
 			});
 			setDisplay(credentials.display as DisplayMode);
@@ -650,7 +651,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Load usePAR from credentials if available
 		if (credentials.usePAR !== undefined && credentials.usePAR !== usePAR) {
-			console.log(`${MODULE_TAG} Syncing usePAR from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing usePAR from credentials`, {
 				usePAR: credentials.usePAR,
 			});
 			setUsePAR(credentials.usePAR === true);
@@ -669,7 +670,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			clientType !== recommendedClientType &&
 			(requiresConfidential || requiresPublic || !credentials.clientType)
 		) {
-			console.log(`${MODULE_TAG} Auto-updating client type based on flow and spec`, {
+			logger.info(`${MODULE_TAG} Auto-updating client type based on flow and spec`, {
 				flowType: effectiveFlowType,
 				specVersion,
 				recommendedClientType,
@@ -691,7 +692,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			!requiresConfidential &&
 			!requiresPublic
 		) {
-			console.log(`${MODULE_TAG} Syncing clientType from credentials`, {
+			logger.info(`${MODULE_TAG} Syncing clientType from credentials`, {
 				clientType: credentials.clientType,
 			});
 			setClientType(credentials.clientType as ClientType);
@@ -704,7 +705,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				validAppTypes.includes(credentials.appType as AppType) &&
 				credentials.appType !== appType
 			) {
-				console.log(`${MODULE_TAG} Syncing appType from credentials`, {
+				logger.info(`${MODULE_TAG} Syncing appType from credentials`, {
 					appType: credentials.appType,
 				});
 				setAppType(credentials.appType as AppType);
@@ -743,7 +744,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		const recommendedAppType = getRecommendedAppType(effectiveFlowType);
 		if (recommendedAppType !== appType) {
-			console.log(`${MODULE_TAG} 🔄 Auto-selecting recommended app type for flow`, {
+			logger.info(`${MODULE_TAG} 🔄 Auto-selecting recommended app type for flow`, {
 				flowType: effectiveFlowType,
 				from: appType,
 				to: recommendedAppType,
@@ -791,7 +792,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		const checkStatus = () => {
 			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log(`${MODULE_TAG} Token status updated`, status);
+			logger.info(`${MODULE_TAG} Token status updated`, status);
 			setTokenStatus(status);
 		};
 
@@ -803,7 +804,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			console.log(`${MODULE_TAG} Token update event received`);
+			logger.info(`${MODULE_TAG} Token update event received`);
 			// Use a small delay to ensure storage is fully written
 			setTimeout(() => {
 				checkStatus();
@@ -852,7 +853,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// CRITICAL: Skip sync if the change came from the checkbox itself
 		// This prevents jitter by avoiding a save loop: checkbox -> onChange -> save -> re-render -> this effect -> save -> re-render...
 		if (isUpdatingFromCheckbox.current) {
-			console.log(`${MODULE_TAG} ⏭️ Skipping sync - update came from checkbox (preventing jitter)`);
+			logger.info(`${MODULE_TAG} ⏭️ Skipping sync - update came from checkbox (preventing jitter)`);
 			// Update the previous scopes ref so we don't trigger on next render
 			previousScopesRef.current = credentials.scopes;
 			return; // DO NOT reset the flag here - it's reset by setTimeout in the checkbox handler
@@ -873,7 +874,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			const hasOfflineAccess = scopesArray.includes('offline_access');
 			// Only update if state is out of sync
 			if (hasOfflineAccess !== enableRefreshToken) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} 🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`
 				);
 				setEnableRefreshToken(hasOfflineAccess);
@@ -881,7 +882,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		} else {
 			// If scopes is empty, ensure checkbox is unchecked
 			if (enableRefreshToken) {
-				console.log(`${MODULE_TAG} ❌ Clearing refresh token checkbox - no scopes`);
+				logger.info(`${MODULE_TAG} ❌ Clearing refresh token checkbox - no scopes`);
 				setEnableRefreshToken(false);
 			}
 		}
@@ -900,7 +901,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				// Get worker token directly from global service
 				const workerTokenValue = await workerTokenServiceV8.getToken();
 				if (!workerTokenValue) {
-					console.log(`${MODULE_TAG} No worker token available to fetch allowed scopes`);
+					logger.info(`${MODULE_TAG} No worker token available to fetch allowed scopes`);
 					setIsLoadingScopes(false);
 					setAllowedScopes([]);
 					return;
@@ -913,7 +914,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				);
 
 				if (appConfig?.allowedScopes) {
-					console.log(`${MODULE_TAG} Fetched allowed scopes:`, appConfig.allowedScopes);
+					logger.info(`${MODULE_TAG} Fetched allowed scopes:`, appConfig.allowedScopes);
 					setAllowedScopes(appConfig.allowedScopes);
 				} else {
 					// If no allowedScopes in response, use common OIDC scopes as fallback
@@ -926,7 +927,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
 					// Only update if different to avoid unnecessary state changes
 					if (credentials.clientAuthMethod !== pingOneAuthMethod) {
-						console.log(`${MODULE_TAG} Updating clientAuthMethod from PingOne app config:`, {
+						logger.info(`${MODULE_TAG} Updating clientAuthMethod from PingOne app config:`, {
 							pingOne: pingOneAuthMethod,
 							current: credentials.clientAuthMethod,
 						});
@@ -934,7 +935,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					}
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error fetching allowed scopes:`, error);
+				logger.error(`${MODULE_TAG} Error fetching allowed scopes:`, error);
 				// Use common OIDC scopes as fallback
 				setAllowedScopes(['openid', 'profile', 'email', 'address', 'phone', 'offline_access']);
 			} finally {
@@ -1038,7 +1039,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const redirectUriEmpty = !credentials.redirectUri?.trim();
 		const postLogoutUriEmpty = !credentials.postLogoutRedirectUri?.trim();
 
-		console.log(`${MODULE_TAG} Redirect URI check`, {
+		logger.info(`${MODULE_TAG} Redirect URI check`, {
 			redirectFlowKey,
 			correctRedirectUri,
 			currentRedirectUri: credentials.redirectUri,
@@ -1054,7 +1055,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		if (correctRedirectUri && (redirectUriEmpty || flowKeyChanged)) {
 			// Only update if it's different from current value
 			if (credentials.redirectUri !== correctRedirectUri) {
-				console.log(`${MODULE_TAG} Auto-updating redirect URI for flow`, {
+				logger.info(`${MODULE_TAG} Auto-updating redirect URI for flow`, {
 					redirectFlowKey,
 					oldRedirectUri: credentials.redirectUri,
 					newRedirectUri: correctRedirectUri,
@@ -1070,7 +1071,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		if (correctPostLogoutUri && (postLogoutUriEmpty || flowKeyChanged)) {
 			// Only update if it's different from current value
 			if (credentials.postLogoutRedirectUri !== correctPostLogoutUri) {
-				console.log(`${MODULE_TAG} Auto-updating post-logout redirect URI for flow`, {
+				logger.info(`${MODULE_TAG} Auto-updating post-logout redirect URI for flow`, {
 					redirectFlowKey,
 					oldPostLogoutUri: credentials.postLogoutRedirectUri,
 					newPostLogoutUri: correctPostLogoutUri,
@@ -1118,12 +1119,12 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 				}
 
-				console.log(`${MODULE_TAG} Credentials saved after setting defaults`, {
+				logger.info(`${MODULE_TAG} Credentials saved after setting defaults`, {
 					flowKey,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials after setting defaults`, {
+				logger.error(`${MODULE_TAG} Error saving credentials after setting defaults`, {
 					flowKey,
 					error,
 				});
@@ -1132,7 +1133,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		}
 	}, [defaultAuthMethod, defaultResponseType, credentials, onChange, flowKey]);
 
-	console.log(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
+	logger.info(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
 
 	// Get flow-specific helper text for application type
 	const getFlowSpecificHelperText = useCallback(
@@ -1276,7 +1277,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleChange = useCallback(
 		(field: string, value: string | boolean | number | undefined) => {
-			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
+			logger.info(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
 			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
 			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
 			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
@@ -1309,18 +1310,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
+						logger.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
 					});
 				}
 
-				console.log(`${MODULE_TAG} Credentials saved to storage`, {
+				logger.info(`${MODULE_TAG} Credentials saved to storage`, {
 					field,
 					flowKey,
 					hasClientId: !!updated.clientId,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
+				logger.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
 			}
 
 			onChange(updated);
@@ -1332,7 +1333,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleAppSelected = useCallback(
 		async (app: DiscoveredApp) => {
-			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
+			logger.info(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 			setHasDiscoveredApps(true);
 			setHighlightEmptyFields(true); // Enable highlighting for empty required fields
 
@@ -1343,14 +1344,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 				try {
 					const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
 					if (workerToken) {
-						console.log(`${MODULE_TAG} Fetching application secret from PingOne API...`);
+						logger.info(`${MODULE_TAG} Fetching application secret from PingOne API...`);
 						const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
 							credentials.environmentId,
 							app.id,
 							workerToken
 						);
 						if (fetchedApp) {
-							console.log(`${MODULE_TAG} Application fetched`, {
+							logger.info(`${MODULE_TAG} Application fetched`, {
 								hasClientSecret: 'clientSecret' in fetchedApp,
 								clientSecretType: typeof fetchedApp.clientSecret,
 								clientSecretLength: fetchedApp.clientSecret?.length || 0,
@@ -1364,22 +1365,22 @@ Why it matters: Backend services communicate server-to-server without user conte
 								fetchedApp.clientSecret.trim().length > 0
 							) {
 								appWithSecret = fetchedApp;
-								console.log(`${MODULE_TAG} ✅ Application secret fetched successfully`);
+								logger.info(`${MODULE_TAG} ✅ Application secret fetched successfully`);
 								toastV8.success('Application secret retrieved from PingOne');
 							} else {
-								console.log(`${MODULE_TAG} Application secret not returned from API or is empty`, {
+								logger.info(`${MODULE_TAG} Application secret not returned from API or is empty`, {
 									hasClientSecret: 'clientSecret' in fetchedApp,
 									clientSecretValue: fetchedApp.clientSecret,
 								});
 							}
 						} else {
-							console.log(`${MODULE_TAG} Application fetch returned null`);
+							logger.info(`${MODULE_TAG} Application fetch returned null`);
 						}
 					} else {
-						console.log(`${MODULE_TAG} No worker token available, using app data without secret`);
+						logger.info(`${MODULE_TAG} No worker token available, using app data without secret`);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error fetching application secret`, {
+					logger.error(`${MODULE_TAG} Error fetching application secret`, {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					// Continue with app data even if secret fetch fails
@@ -1399,7 +1400,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				// Note: redirectUri is NOT applied - app dictates this (as user mentioned)
 			};
 
-			console.log(`${MODULE_TAG} Updated credentials`, {
+			logger.info(`${MODULE_TAG} Updated credentials`, {
 				hasClientSecret: !!updated.clientSecret,
 				clientSecretLength: updated.clientSecret?.length || 0,
 			});
@@ -1450,7 +1451,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				}
 				// Update local state to match
 				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
-				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
+				logger.info(`${MODULE_TAG} PKCE enforcement set from app config`, {
 					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
 					pkceEnforced: appWithSecretExtended.pkceEnforced,
 					pkceRequired: appWithSecretExtended.pkceRequired,
@@ -1465,7 +1466,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				}
 				// Update local state to match
 				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
-				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
+				logger.info(`${MODULE_TAG} PKCE enforcement set from app config`, {
 					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
 					pkceEnforced: appExtended.pkceEnforced,
 					pkceRequired: appExtended.pkceRequired,
@@ -1473,7 +1474,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 			}
 			// Check if app has refreshTokenDuration (indicates refresh token support)
 			if ('refreshTokenDuration' in app && app.refreshTokenDuration) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} App supports refresh tokens (duration: ${app.refreshTokenDuration}s)`
 				);
 				// Note: We no longer auto-enable refresh token checkbox by default
@@ -1493,17 +1494,17 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
+						logger.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
 					});
 				}
 
-				console.log(`${MODULE_TAG} Credentials saved after app selection`, {
+				logger.info(`${MODULE_TAG} Credentials saved after app selection`, {
 					flowKey,
 					clientId: updated.clientId,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials after app selection`, {
+				logger.error(`${MODULE_TAG} Error saving credentials after app selection`, {
 					flowKey,
 					error,
 				});
@@ -1526,23 +1527,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 		setIsDiscovering(true);
 		try {
-			console.log(`${MODULE_TAG} Starting OIDC discovery`, {
+			logger.info(`${MODULE_TAG} Starting OIDC discovery`, {
 				input: inputToUse,
 				fromCredentials: !discoveryInput.trim() && !!credentials.environmentId,
 			});
 			const result = await OidcDiscoveryServiceV8.discoverFromInput(inputToUse);
 
 			if (result.success && result.data) {
-				console.log(`${MODULE_TAG} Discovery successful`, result.data);
+				logger.info(`${MODULE_TAG} Discovery successful`, result.data);
 				setDiscoveryResult(result.data);
 				setShowDiscoveryModal(true);
 				onDiscoveryComplete?.(result.data);
 			} else {
-				console.error(`${MODULE_TAG} Discovery failed`, result.error);
+				logger.error(`${MODULE_TAG} Discovery failed`, result.error);
 				toastV8.error(result.error || 'Discovery failed');
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error('Discovery failed - check the issuer URL');
 		} finally {
 			setIsDiscovering(false);
@@ -1551,7 +1552,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleApplyDiscovery = useCallback(
 		(result: OidcDiscoveryResult) => {
-			console.log(`${MODULE_TAG} Applying discovery result`, result);
+			logger.info(`${MODULE_TAG} Applying discovery result`, result);
 			const updated = {
 				...credentials,
 				issuerUrl: result.issuer,
@@ -1614,7 +1615,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<ClientTypeRadioV8
 											value={clientType}
 											onChange={(type) => {
-												console.log(`${MODULE_TAG} Client type changed to ${type}`);
+												logger.info(`${MODULE_TAG} Client type changed to ${type}`);
 												setClientType(type);
 												handleChange('clientType', type);
 												toastV8.info(
@@ -1886,7 +1887,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 															const currentStatus =
 																WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 															if (!currentStatus.isValid) {
-																console.log(
+																logger.info(
 																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 																);
 																const { handleShowWorkerTokenModal } = await import(
@@ -2108,7 +2109,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													handleChange('pkceEnforcement', newEnforcement);
 													// Also update legacy usePKCE for backward compatibility
 													handleChange('usePKCE', newEnforcement !== 'OPTIONAL');
-													console.log(`${MODULE_TAG} PKCE enforcement changed`, {
+													logger.info(`${MODULE_TAG} PKCE enforcement changed`, {
 														from: pkceEnforcement,
 														to: newEnforcement,
 													});
@@ -3026,7 +3027,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<ResponseModeDropdownV8
 											value={responseMode}
 											onChange={(mode) => {
-												console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
+												logger.info(`${MODULE_TAG} Response mode changed to ${mode}`);
 												setResponseMode(mode);
 												handleChange('responseMode', mode);
 
@@ -3980,7 +3981,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
 																	(err) => {
-																		console.warn(
+																		logger.warn(
 																			`${MODULE_TAG} Background disk save failed (non-critical):`,
 																			err
 																		);
@@ -3988,7 +3989,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																);
 															}
 
-															console.log(
+															logger.info(
 																`${MODULE_TAG} ✅ Batched save complete for refresh token toggle`,
 																{
 																	flowKey,
@@ -3997,7 +3998,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																}
 															);
 														} catch (error) {
-															console.error(
+															logger.error(
 																`${MODULE_TAG} ❌ Error saving credentials for refresh token toggle`,
 																{ flowKey, error }
 															);
@@ -4010,7 +4011,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														// This prevents the jitter by ensuring the sync effect skips multiple render cycles
 														setTimeout(() => {
 															isUpdatingFromCheckbox.current = false;
-															console.log(`${MODULE_TAG} 🔓 Checkbox update flag cleared`);
+															logger.info(`${MODULE_TAG} 🔓 Checkbox update flag cleared`);
 														}, 300); // Increased from 100ms to 300ms for more safety
 													}}
 													style={{ cursor: 'pointer' }}
@@ -4120,7 +4121,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<PKCEInputV8
 												value={pkceEnforcement as PKCEMode}
 												onChange={(mode) => {
-													console.log(`${MODULE_TAG} PKCE mode changed to ${mode}`);
+													logger.info(`${MODULE_TAG} PKCE mode changed to ${mode}`);
 													// Map PKCEMode to PKCEEnforcement (filter out DISABLED)
 													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' =
 														mode === 'DISABLED' ? 'OPTIONAL' : mode;
@@ -4266,7 +4267,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<LoginHintInputV8
 												value={loginHint}
 												onChange={(value) => {
-													console.log(`${MODULE_TAG} Login hint changed to ${value}`);
+													logger.info(`${MODULE_TAG} Login hint changed to ${value}`);
 													setLoginHint(value);
 													handleChange('loginHint', value);
 													// Removed toast message - LoginHintInputV8 component shows visual feedback
@@ -4281,7 +4282,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<MaxAgeInputV8
 												value={maxAge}
 												onChange={(value) => {
-													console.log(`${MODULE_TAG} Max age changed to ${value}`);
+													logger.info(`${MODULE_TAG} Max age changed to ${value}`);
 													setMaxAge(value);
 													handleChange('maxAge', value);
 													if (value !== undefined) {
@@ -4308,7 +4309,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<DisplayModeDropdownV8
 												value={display}
 												onChange={(value) => {
-													console.log(`${MODULE_TAG} Display mode changed to ${value}`);
+													logger.info(`${MODULE_TAG} Display mode changed to ${value}`);
 													setDisplay(value);
 													handleChange('display', value);
 													if (value) {
@@ -4394,7 +4395,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								className="btn-save"
 								onClick={() => {
 									toastV8.credentialsSaved();
-									console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
+									logger.info(`${MODULE_TAG} Credentials saved`, { flowKey });
 								}}
 							>
 								💾 Save Credentials
@@ -5000,7 +5001,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									}}
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
-											console.log(`${MODULE_TAG} Client Secret JWT generated:`, jwt);
+											logger.info(`${MODULE_TAG} Client Secret JWT generated:`, jwt);
 											toastV8.success('JWT generated successfully!');
 										}
 									}}
@@ -5112,7 +5113,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									}}
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
-											console.log(`${MODULE_TAG} Private Key JWT generated:`, jwt);
+											logger.info(`${MODULE_TAG} Private Key JWT generated:`, jwt);
 											toastV8.success('JWT generated successfully!');
 											// Note: The private key should be saved separately in the credentials form
 											// The JWT is generated fresh for each token request, not stored

@@ -24,6 +24,7 @@ import type {
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
 
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -323,7 +324,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setError(null);
 
 		try {
-			console.log('[🔐 MFA-AUTHENTICATION] Loading MFA devices for user:', userContext.id);
+			logger.info('[🔐 MFA-AUTHENTICATION] Loading MFA devices for user:', userContext.id);
 
 			// Use real MFA service to get available devices
 			const devicesResponse = await MFAAuthenticationService.getAvailableDevices(
@@ -339,13 +340,13 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 			// If no devices found, show registration option
 			if (devicesResponse.data.devices.length === 0) {
-				console.log('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device');
+				logger.info('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device');
 				setError('No MFA devices registered. Please register an MFA device first.');
 			} else {
-				console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
+				logger.info('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
 			}
 		} catch (err) {
-			log.error(
+			logger.error(
 				'MFAAuthenticationFlow',
 				'[🔐 MFA-AUTHENTICATION] Failed to load devices:',
 				undefined,
@@ -388,7 +389,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setError(null);
 
 		try {
-			console.log('[🔐 MFA-AUTHENTICATION] Submitting OTP code for device:', selectedDevice.id);
+			logger.info('[🔐 MFA-AUTHENTICATION] Submitting OTP code for device:', selectedDevice.id);
 
 			const completeResponse = await MFAAuthenticationService.completeAuthentication(
 				userContext,
@@ -430,7 +431,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setCurrentStep('authenticating');
 
 		try {
-			console.log(
+			logger.info(
 				'[🔐 MFA-AUTHENTICATION] Starting authentication with device:',
 				selectedDevice.id
 			);
@@ -455,7 +456,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 			if (authData.requiresChallenge && authData.challengeData) {
 				// Handle challenge-based authentication (OTP, Push, Biometric)
-				console.log('[🔐 MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
+				logger.info('[🔐 MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
 
 				// Set challenge data to show OTP input UI
 				setChallengeData({
@@ -470,7 +471,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				throw new Error('Authentication completed but no tokens received');
 			}
 		} catch (err) {
-			log.error(
+			logger.error(
 				'MFAAuthenticationFlow',
 				'[🔐 MFA-AUTHENTICATION] Authentication failed:',
 				undefined,
@@ -523,7 +524,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		console.log('[🔐 MFA-AUTHENTICATION] MFA flow initialized', {
+		logger.info('[🔐 MFA-AUTHENTICATION] MFA flow initialized', {
 			userId: userContext.id,
 			riskLevel: riskEvaluation.result.level,
 			mfaCredentials: !!mfaCredentials,

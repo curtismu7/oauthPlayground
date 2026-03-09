@@ -503,8 +503,8 @@ const PingOneAuditActivities: React.FC = () => {
 		setLoading(true);
 		setError(null);
 
-		console.log('[Audit Activities] 🌍 Making API request with region:', region);
-		console.log('[Audit Activities] 📦 Environment ID:', environmentId.trim());
+		logger.info('[Audit Activities] 🌍 Making API request with region:', region);
+		logger.info('[Audit Activities] 📦 Environment ID:', environmentId.trim());
 
 		let callId: string | null = null;
 
@@ -713,7 +713,7 @@ const PingOneAuditActivities: React.FC = () => {
 
 		const effectiveWorkerToken = workerToken || undefined;
 
-		console.log('[Audit Activities] 🔍 Using token for API call:', {
+		logger.info('[Audit Activities] 🔍 Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
 			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
 			environmentId: `${environmentId.substring(0, 20)}...`,

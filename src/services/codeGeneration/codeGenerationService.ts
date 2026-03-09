@@ -16,6 +16,7 @@ import {
 import { VueTemplates } from './templates/frontend/vueTemplates';
 import { FlutterTemplates, ReactNativeTemplates } from './templates/mobile/mobileTemplates';
 
+import { logger } from '../utils/logger';
 export interface CodeGenerationConfig {
 	category: CodeCategory;
 	codeType: CodeType;
@@ -912,7 +913,7 @@ class DeviceRegistrationManager {
 // - Redirect URI: ${config.config.redirectUri}
 // - User ID: ${config.config.userId}
 
-console.log('Template not yet implemented for ${config.codeType}');`,
+logger.info('Template not yet implemented for ${config.codeType}');`,
 			language: 'typescript',
 			dependencies: [],
 			description: `Template for ${config.codeType} - ${config.flowStep} (Coming Soon)`,

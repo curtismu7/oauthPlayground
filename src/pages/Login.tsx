@@ -345,19 +345,19 @@ const Login = () => {
 	// Load existing credentials using V8 SharedCredentialsService
 	useEffect(() => {
 		const loadExistingCredentials = async () => {
-			console.log(' [Login] Loading credentials using V8 SharedCredentialsService...');
+			logger.info(' [Login] Loading credentials using V8 SharedCredentialsService...');
 
 			try {
 				// Load from V8 shared credentials service (dual storage: browser first, then disk)
 				const sharedCreds = await SharedCredentialsServiceV8.loadSharedCredentials();
-				console.log(' [Login] V8 SharedCredentialsService result:', sharedCreds);
+				logger.info(' [Login] V8 SharedCredentialsService result:', sharedCreds);
 
 				// Also check environment ID service (global storage)
 				const envId = EnvironmentIdServiceV8.getEnvironmentId();
 				const finalEnvId = sharedCreds.environmentId || envId || '';
 
 				if (sharedCreds.clientId && finalEnvId) {
-					console.log(' [Login] Using V8 SharedCredentialsService credentials');
+					logger.info(' [Login] Using V8 SharedCredentialsService credentials');
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: finalEnvId,
@@ -384,7 +384,7 @@ const Login = () => {
 				const finalEnvId = sharedCredsSync.environmentId || envId || '';
 
 				if (sharedCredsSync.clientId && finalEnvId) {
-					console.log(' [Login] Using V8 SharedCredentialsService credentials (sync)');
+					logger.info(' [Login] Using V8 SharedCredentialsService credentials (sync)');
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: finalEnvId,
@@ -404,7 +404,7 @@ const Login = () => {
 				);
 			}
 
-			console.log(' [Login] No existing credentials found in V8 storage');
+			logger.info(' [Login] No existing credentials found in V8 storage');
 			setHasExistingCredentials(false);
 		};
 
@@ -418,7 +418,7 @@ const Login = () => {
 	};
 
 	const handleRedirectModalProceed = () => {
-		console.log(' [Login] Proceeding with redirect to PingOne:', redirectUrl);
+		logger.info(' [Login] Proceeding with redirect to PingOne:', redirectUrl);
 		window.location.href = redirectUrl;
 	};
 
@@ -437,7 +437,7 @@ const Login = () => {
 		const finalEnvId = sharedCreds.environmentId || envId || '';
 
 		if (sharedCreds.clientId && finalEnvId && !credentials.clientId) {
-			console.log(' [Login] Found credentials from V8 storage (backup check):', {
+			logger.info(' [Login] Found credentials from V8 storage (backup check):', {
 				hasEnvironmentId: !!finalEnvId,
 				hasClientId: !!sharedCreds.clientId,
 				hasClientSecret: !!sharedCreds.clientSecret,
@@ -466,13 +466,13 @@ const Login = () => {
 					parsedCredentials.clientSecret ===
 					'0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
 				) {
-					console.log(' [Login] Clearing problematic hardcoded client secret');
+					logger.info(' [Login] Clearing problematic hardcoded client secret');
 					parsedCredentials.clientSecret = '';
 					// Update localStorage with cleared secret
 					localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
 				}
 
-				console.log(' [Login] Found saved credentials from localStorage:', {
+				logger.info(' [Login] Found saved credentials from localStorage:', {
 					hasEnvironmentId: !!parsedCredentials.environmentId,
 					hasClientId: !!parsedCredentials.clientId,
 					hasClientSecret: !!parsedCredentials.clientSecret,
@@ -488,7 +488,7 @@ const Login = () => {
 				);
 			}
 		} else {
-			console.log(' [Login] No saved credentials found in localStorage or credential manager');
+			logger.info(' [Login] No saved credentials found in localStorage or credential manager');
 		}
 	}, [credentials.clientId]);
 
@@ -524,7 +524,7 @@ const Login = () => {
 	};
 
 	const handleCredentialSave = async () => {
-		console.log(' [Login] Saving credentials using V8 SharedCredentialsService...');
+		logger.info(' [Login] Saving credentials using V8 SharedCredentialsService...');
 		setSaveStatus(null);
 		setIsSavingCredentials(true);
 
@@ -546,7 +546,7 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			console.log(' [Login] Saved credentials to V8 SharedCredentialsService');
+			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService');
 
 			setSaveStatus({
 				type: 'success',
@@ -580,12 +580,12 @@ const Login = () => {
 	};
 
 	const handleLogin = async () => {
-		console.log(' [Login] Starting login process...');
+		logger.info(' [Login] Starting login process...');
 		setError('');
 		setIsLoading(true);
 
 		try {
-			console.log(' [Login] Saving credentials before login:', {
+			logger.info(' [Login] Saving credentials before login:', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
@@ -611,14 +611,14 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			console.log(' [Login] Credentials saved to V8 storage before login');
+			logger.info(' [Login] Credentials saved to V8 storage before login');
 
-			console.log(' [Login] Calling login function with dashboard callback type...');
+			logger.info(' [Login] Calling login function with dashboard callback type...');
 
 			// Redirect to PingOne for authentication
 			const result = await login('/', 'dashboard');
 
-			console.log(' [Login] Login function result:', result);
+			logger.info(' [Login] Login function result:', result);
 
 			if (!result.success) {
 				logger.error('Login', ' [Login] Login failed:', { error: result.error });
@@ -631,7 +631,7 @@ const Login = () => {
 			// Show success message for successful login initiation
 			showSuccess('Redirecting to PingOne for authentication...');
 
-			console.log(' [Login] Login initiated successfully, showing URL preview modal');
+			logger.info(' [Login] Login initiated successfully, showing URL preview modal');
 
 			// Parse URL to extract parameters for modal display
 			if (result.redirectUrl) {
@@ -641,7 +641,7 @@ const Login = () => {
 					params[key] = value;
 				});
 
-				console.log(' [Login] Opening redirect modal with URL:', result.redirectUrl);
+				logger.info(' [Login] Opening redirect modal with URL:', result.redirectUrl);
 				setRedirectUrl(result.redirectUrl);
 				setRedirectParams(params);
 				setShowRedirectModal(true);

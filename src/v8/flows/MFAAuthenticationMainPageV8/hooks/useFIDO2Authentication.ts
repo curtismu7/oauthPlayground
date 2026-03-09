@@ -17,6 +17,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { UnavailableDevice } from './useMFADevices';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useFIDO2Authentication]';
 
 export interface FIDO2Credentials {
@@ -171,7 +172,7 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 						dismissible: true,
 					});
 				} catch (error) {
-					console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
+					logger.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',

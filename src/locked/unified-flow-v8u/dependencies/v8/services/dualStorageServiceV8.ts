@@ -14,6 +14,7 @@
 
 import { FileStorageUtil } from '../../utils/fileStorageUtil.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[💾 DUAL-STORAGE-V8]';
 
 export interface DualStorageOptions {
@@ -37,7 +38,7 @@ export class DualStorageServiceV8 {
 	 * @returns Result indicating success/failure
 	 */
 	static async save<T>(options: DualStorageOptions, data: T): Promise<DualStorageResult<void>> {
-		console.log(`${MODULE_TAG} Saving to dual storage`, {
+		logger.info(`${MODULE_TAG} Saving to dual storage`, {
 			browserKey: options.browserStorageKey,
 			diskPath: `${options.directory}/${options.filename}`,
 		});
@@ -45,9 +46,9 @@ export class DualStorageServiceV8 {
 		// Save to browser storage first (fastest, always available)
 		try {
 			localStorage.setItem(options.browserStorageKey, JSON.stringify(data));
-			console.log(`${MODULE_TAG} Saved to browser storage: ${options.browserStorageKey}`);
+			logger.info(`${MODULE_TAG} Saved to browser storage: ${options.browserStorageKey}`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to browser storage`, { error });
+			logger.error(`${MODULE_TAG} Failed to save to browser storage`, { error });
 			// Continue to disk storage even if browser storage fails
 		}
 
@@ -59,17 +60,17 @@ export class DualStorageServiceV8 {
 			);
 
 			if (diskResult.success) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Saved to disk storage: ${options.directory}/${options.filename}`
 				);
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Failed to save to disk storage (non-critical):`,
 					diskResult.error
 				);
 			}
 		} catch (diskError) {
-			console.warn(`${MODULE_TAG} Disk storage save failed (non-critical):`, diskError);
+			logger.warn(`${MODULE_TAG} Disk storage save failed (non-critical):`, diskError);
 			// Browser storage is primary, so this is non-critical
 		}
 
@@ -82,7 +83,7 @@ export class DualStorageServiceV8 {
 	 * @returns Result with data and source
 	 */
 	static async load<T>(options: DualStorageOptions): Promise<DualStorageResult<T>> {
-		console.log(`${MODULE_TAG} Loading from dual storage`, {
+		logger.info(`${MODULE_TAG} Loading from dual storage`, {
 			browserKey: options.browserStorageKey,
 			diskPath: `${options.directory}/${options.filename}`,
 		});
@@ -92,11 +93,11 @@ export class DualStorageServiceV8 {
 			const browserData = localStorage.getItem(options.browserStorageKey);
 			if (browserData) {
 				const parsed = JSON.parse(browserData) as T;
-				console.log(`${MODULE_TAG} Loaded from browser storage: ${options.browserStorageKey}`);
+				logger.info(`${MODULE_TAG} Loaded from browser storage: ${options.browserStorageKey}`);
 				return { success: true, data: parsed, source: 'browser' };
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Browser storage read failed, trying disk:`, error);
+			logger.warn(`${MODULE_TAG} Browser storage read failed, trying disk:`, error);
 		}
 
 		// Fallback to disk storage
@@ -110,20 +111,20 @@ export class DualStorageServiceV8 {
 				// Restore to browser storage for faster future access
 				try {
 					localStorage.setItem(options.browserStorageKey, JSON.stringify(diskResult.data));
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Restored from disk to browser storage: ${options.browserStorageKey}`
 					);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to restore to browser storage (non-critical):`, error);
+					logger.warn(`${MODULE_TAG} Failed to restore to browser storage (non-critical):`, error);
 				}
 
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Loaded from disk storage: ${options.directory}/${options.filename}`
 				);
 				return { success: true, data: diskResult.data, source: 'disk' };
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Disk storage load failed:`, error);
+			logger.error(`${MODULE_TAG} Disk storage load failed:`, error);
 		}
 
 		return {
@@ -139,7 +140,7 @@ export class DualStorageServiceV8 {
 	 * @returns Result indicating success/failure
 	 */
 	static async delete(options: DualStorageOptions): Promise<DualStorageResult<void>> {
-		console.log(`${MODULE_TAG} Deleting from dual storage`, {
+		logger.info(`${MODULE_TAG} Deleting from dual storage`, {
 			browserKey: options.browserStorageKey,
 			diskPath: `${options.directory}/${options.filename}`,
 		});
@@ -147,9 +148,9 @@ export class DualStorageServiceV8 {
 		// Delete from browser storage
 		try {
 			localStorage.removeItem(options.browserStorageKey);
-			console.log(`${MODULE_TAG} Deleted from browser storage: ${options.browserStorageKey}`);
+			logger.info(`${MODULE_TAG} Deleted from browser storage: ${options.browserStorageKey}`);
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to delete from browser storage:`, error);
+			logger.warn(`${MODULE_TAG} Failed to delete from browser storage:`, error);
 		}
 
 		// Delete from disk storage
@@ -158,11 +159,11 @@ export class DualStorageServiceV8 {
 				directory: options.directory,
 				filename: options.filename,
 			});
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Deleted from disk storage: ${options.directory}/${options.filename}`
 			);
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to delete from disk storage:`, error);
+			logger.warn(`${MODULE_TAG} Failed to delete from disk storage:`, error);
 		}
 
 		return { success: true };

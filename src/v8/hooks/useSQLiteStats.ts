@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
 	SQLiteStatsServiceV8,
 	type SQLiteSyncMetadata,
@@ -50,7 +51,7 @@ export interface UseSQLiteStatsReturn {
  * });
  *
  * if (stats) {
- *   console.log('Total users:', stats.totalUsers);
+ *   logger.info('Total users:', stats.totalUsers);
  * }
  * ```
  */
@@ -79,12 +80,12 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 			setStats(statsResult);
 			setMetadata(metadataResult);
 
-			console.log(`${MODULE_TAG} Stats loaded for ${environmentId}:`, {
+			logger.info(`${MODULE_TAG} Stats loaded for ${environmentId}:`, {
 				totalUsers: statsResult.totalUsers,
 				lastSynced: metadataResult.lastSyncedAt,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch stats:`, error);
+			logger.error(`${MODULE_TAG} Failed to fetch stats:`, error);
 			setStats(null);
 			setMetadata(null);
 		} finally {

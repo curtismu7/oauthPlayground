@@ -14,6 +14,7 @@
 import { decodeJwt, type JWTPayload, jwtVerify } from 'jose';
 import { JWKSCacheServiceV8 } from './jwksCacheServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[✅ ID-TOKEN-VALIDATION-V8]';
 
 export interface IDTokenValidationResult {
@@ -62,7 +63,7 @@ export class IDTokenValidationServiceV8 {
 			issuedAtValid: false,
 		};
 
-		console.log(`${MODULE_TAG} 🔍 Starting ID token validation with:`, {
+		logger.info(`${MODULE_TAG} 🔍 Starting ID token validation with:`, {
 			hasIdToken: !!idToken,
 			idTokenLength: idToken?.length,
 			clientId,
@@ -73,7 +74,7 @@ export class IDTokenValidationServiceV8 {
 		try {
 			// Step 1: Decode JWT to get header and payload
 			const decoded = decodeJwt(idToken);
-			console.log(`${MODULE_TAG} Decoded ID token`, {
+			logger.info(`${MODULE_TAG} Decoded ID token`, {
 				iss: decoded.iss,
 				aud: decoded.aud,
 				exp: decoded.exp,
@@ -107,7 +108,7 @@ export class IDTokenValidationServiceV8 {
 			try {
 				signingKey = await JWKSCacheServiceV8.getCachedJWKByKid(actualJwksUri, kid);
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Cache lookup failed, fetching JWKS`, { error });
+				logger.warn(`${MODULE_TAG} Cache lookup failed, fetching JWKS`, { error });
 			}
 
 			// If not in cache, fetch JWKS
@@ -199,7 +200,7 @@ export class IDTokenValidationServiceV8 {
 				const publicKey = await importJWK(signingKey as { kty: string; [key: string]: unknown });
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
-				console.log(`${MODULE_TAG} ✅ Signature verified`);
+				logger.info(`${MODULE_TAG} ✅ Signature verified`);
 			} catch (error) {
 				errors.push(
 					`Signature verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -214,7 +215,7 @@ export class IDTokenValidationServiceV8 {
 
 			// Step 5: Validate claims
 			// 5.1: Issuer (iss)
-			console.log(`${MODULE_TAG} 🔍 Validating issuer:`, {
+			logger.info(`${MODULE_TAG} 🔍 Validating issuer:`, {
 				expected: issuer,
 				actual: decoded.iss,
 				match: decoded.iss === issuer,
@@ -229,7 +230,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.2: Audience (aud)
 			const audience = Array.isArray(decoded.aud) ? decoded.aud : [decoded.aud];
-			console.log(`${MODULE_TAG} 🔍 Validating audience:`, {
+			logger.info(`${MODULE_TAG} 🔍 Validating audience:`, {
 				expected: clientId,
 				actual: audience,
 				isArray: Array.isArray(decoded.aud),
@@ -245,7 +246,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.3: Expiration (exp)
 			const now = Math.floor(Date.now() / 1000);
-			console.log(`${MODULE_TAG} 🔍 Validating expiration:`, {
+			logger.info(`${MODULE_TAG} 🔍 Validating expiration:`, {
 				exp: decoded.exp,
 				now,
 				expDate: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'missing',
@@ -277,7 +278,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.5: Nonce (if provided)
 			if (nonce) {
-				console.log(`${MODULE_TAG} 🔍 Validating nonce:`, {
+				logger.info(`${MODULE_TAG} 🔍 Validating nonce:`, {
 					expected: nonce,
 					actual: decoded.nonce,
 					match: decoded.nonce === nonce,
@@ -290,7 +291,7 @@ export class IDTokenValidationServiceV8 {
 					validationDetails.nonceValid = true;
 				}
 			} else {
-				console.log(`${MODULE_TAG} 🔍 No nonce provided for validation`);
+				logger.info(`${MODULE_TAG} 🔍 No nonce provided for validation`);
 			}
 
 			// 5.6: Authorized Party (azp) - if multiple audiences
@@ -310,7 +311,7 @@ export class IDTokenValidationServiceV8 {
 
 			const valid = errors.length === 0;
 
-			console.log(`${MODULE_TAG} 📊 Validation summary:`, {
+			logger.info(`${MODULE_TAG} 📊 Validation summary:`, {
 				valid,
 				errorCount: errors.length,
 				warningCount: warnings.length,
@@ -320,13 +321,13 @@ export class IDTokenValidationServiceV8 {
 			});
 
 			if (valid) {
-				console.log(`${MODULE_TAG} ✅ ID token validation passed`, {
+				logger.info(`${MODULE_TAG} ✅ ID token validation passed`, {
 					issuer: decoded.iss,
 					audience: decoded.aud,
 					exp: decoded.exp,
 				});
 			} else {
-				console.error(`${MODULE_TAG} ❌ ID token validation failed`, { errors });
+				logger.error(`${MODULE_TAG} ❌ ID token validation failed`, { errors });
 			}
 
 			return {
@@ -338,7 +339,7 @@ export class IDTokenValidationServiceV8 {
 			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} ❌ Validation error`, { error: message });
+			logger.error(`${MODULE_TAG} ❌ Validation error`, { error: message });
 			errors.push(`Validation error: ${message}`);
 			return {
 				valid: false,

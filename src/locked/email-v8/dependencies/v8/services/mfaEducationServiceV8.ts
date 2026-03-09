@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file mfaEducationServiceV8.ts
  * @module v8/services
  * @description Educational content service for PingOne MFA Flow
@@ -38,13 +39,13 @@ export class MFAEducationServiceV8 {
 	 *
 	 * @example
 	 * const content = MFAEducationServiceV8.getContent('factor.sms');
-	 * console.log(content.title); // "SMS Authentication"
+	 * logger.info(content.title); // "SMS Authentication"
 	 */
 	static getContent(key: string): MFAEducationContent {
 		const content = MFAEducationServiceV8.educationContent[key];
 
 		if (!content) {
-			console.warn(`${MODULE_TAG} No education content found for key: ${key}`);
+			logger.warn(`${MODULE_TAG} No education content found for key: ${key}`);
 			return {
 				title: 'Information',
 				description: 'No additional information available.',

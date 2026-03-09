@@ -11,6 +11,7 @@ import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
 
+import { logger } from '../utils/logger';
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -51,7 +52,7 @@ const UserManagementPage: React.FC = () => {
 			// setUsers(response.data);
 			setUsers([]);
 		} catch (error) {
-			log.error('UserManagementPage', 'Failed to load users:', undefined, error);
+			logger.error('UserManagementPage', 'Failed to load users:', undefined, error);
 		} finally {
 			setLoading(false);
 		}
@@ -84,17 +85,17 @@ const UserManagementPage: React.FC = () => {
 	// Event handlers
 	const handleCreateUser = () => {
 		// TODO: Implement create user modal
-		console.log('Create user clicked');
+		logger.info('Create user clicked');
 	};
 
 	const handleEditUser = (user: User) => {
 		// TODO: Implement edit user modal
-		console.log('Edit user:', user);
+		logger.info('Edit user:', user);
 	};
 
 	const handleDeleteUser = (user: User) => {
 		// TODO: Implement delete user modal
-		console.log('Delete user:', user);
+		logger.info('Delete user:', user);
 	};
 
 	// Helper functions
@@ -196,7 +197,7 @@ const UserManagementPage: React.FC = () => {
 						onChange={setSearchTerm}
 						placeholder="Search by username or email..."
 						onGetToken={() => {
-							console.log('Worker token required for user search in UserManagementPage');
+							logger.info('Worker token required for user search in UserManagementPage');
 						}}
 					/>
 				</div>

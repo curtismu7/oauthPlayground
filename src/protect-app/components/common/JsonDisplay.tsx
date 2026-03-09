@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
+import { logger } from '../../utils/logger';
 interface JsonDisplayProps {
 	/** JSON data to display */
 	data: unknown;
@@ -52,7 +53,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			log.error('JsonDisplay', 'Failed to copy JSON:', undefined, error as Error);
+			logger.error('JsonDisplay', 'Failed to copy JSON:', undefined, error as Error);
 		}
 	};
 

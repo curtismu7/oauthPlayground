@@ -34,6 +34,7 @@ import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U
 
 import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
 
+import { logger } from '../../utils/logger';
 const {
 	Container,
 	ContentWrapper,
@@ -274,7 +275,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 		if (savedToken && savedEnv === controller.credentials?.environmentId) {
 			setWorkerToken(savedToken);
-			log.info('OIDCHybridFlowV9', 'Worker token loaded from localStorage');
+			logger.info('OIDCHybridFlowV9', 'Worker token loaded from localStorage');
 		}
 	}, [controller.credentials?.environmentId]);
 
@@ -285,7 +286,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			log.info('OIDCHybridFlowV9', 'Saving credentials to flow-specific storage', {
+			logger.info('OIDCHybridFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'hybrid-flow-v7',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -412,7 +413,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 				return;
 			}
 
-			log.info('Authorization URL generated', { url });
+			logger.info('Authorization URL generated', { url });
 			setCurrentStep(2);
 			modernMessaging.showFooterMessage({
 				type: 'info',
@@ -508,7 +509,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear OIDC Hybrid Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
-			log.info('OIDCHybridFlowV9', 'Cleared flow-specific storage');
+			logger.info('OIDCHybridFlowV9', 'Cleared flow-specific storage');
 		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -521,7 +522,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
-			log.info('OIDCHybridFlowV9', 'Cleared credential backup');
+			logger.info('OIDCHybridFlowV9', 'Cleared credential backup');
 		} catch (_error) {
 			// Background credential backup clear — non-critical
 		}

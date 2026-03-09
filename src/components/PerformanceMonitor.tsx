@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 
+import { logger } from '../utils/logger';
 // Performance metrics interface
 interface PerformanceMetrics {
 	loadTime: number;
@@ -259,20 +260,20 @@ export const PerformanceMonitor: React.FC = () => {
 	// Start performance monitoring
 	const startMonitoring = useCallback(() => {
 		setIsMonitoring(true);
-		log.info('[PerformanceMonitor] Started performance monitoring');
+		logger.info('[PerformanceMonitor] Started performance monitoring');
 	}, []);
 
 	// Stop performance monitoring
 	const stopMonitoring = useCallback(() => {
 		setIsMonitoring(false);
-		log.info('[PerformanceMonitor] Stopped performance monitoring');
+		logger.info('[PerformanceMonitor] Stopped performance monitoring');
 	}, []);
 
 	// Clear performance data
 	const clearData = useCallback(() => {
 		setPerformanceHistory([]);
 		lazyLoadingMetrics.clearMetrics();
-		log.info('[PerformanceMonitor] Cleared performance data');
+		logger.info('[PerformanceMonitor] Cleared performance data');
 	}, [lazyLoadingMetrics]);
 
 	// Update metrics periodically

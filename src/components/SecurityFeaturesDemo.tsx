@@ -14,6 +14,7 @@ import {
 import { isJWT } from '../utils/jwtDecoder';
 import ConfirmationModal from './ConfirmationModal';
 
+import { logger } from '../utils/logger';
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`
 	background: white;
@@ -384,8 +385,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Scroll to top when component mounts
 	useEffect(() => {
-		console.log('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top');
-		console.log('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
+		logger.info('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top');
+		logger.info('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		// Test toast on mount
@@ -422,7 +423,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
-		console.log('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
+		logger.info('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
 		const results =
 			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
 		setSignatureResults(results);
@@ -434,7 +435,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	}, []);
 
 	const validateSignature = useCallback(() => {
-		console.log('🔔 [SecurityFeaturesDemo] validateSignature clicked');
+		logger.info('🔔 [SecurityFeaturesDemo] validateSignature clicked');
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);
@@ -558,7 +559,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					// Validate ID token before using it
 					const idToken = normalizedTokens.id_token;
 					if (idToken && !isJWT(idToken)) {
-						log.warn(
+						logger.warn(
 							'SecurityFeaturesDemo',
 							'[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call'
 						);

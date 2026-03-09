@@ -30,6 +30,7 @@
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[⚙️ FLOW-SETTINGS-V8U]';
 
 export interface FlowSettings {
@@ -56,12 +57,12 @@ export function loadSettings(flowType: FlowType): FlowSettings | null {
 		const stored = localStorage.getItem(key);
 
 		if (!stored) {
-			console.log(`${MODULE_TAG} No settings found for flow`, { flowType });
+			logger.info(`${MODULE_TAG} No settings found for flow`, { flowType });
 			return null;
 		}
 
 		const settings = JSON.parse(stored) as FlowSettings;
-		console.log(`${MODULE_TAG} Loaded settings for flow`, { flowType, settings });
+		logger.info(`${MODULE_TAG} Loaded settings for flow`, { flowType, settings });
 		return settings;
 	} catch (err) {
 		logger.error('FlowSettingsServiceV8U', `Error loading settings for flow`, { flowType, err });
@@ -89,7 +90,7 @@ export function saveSettings(flowType: FlowType, settings: Partial<FlowSettings>
 		};
 
 		localStorage.setItem(key, JSON.stringify(updated));
-		console.log(`${MODULE_TAG} Saved settings for flow`, { flowType, updated });
+		logger.info(`${MODULE_TAG} Saved settings for flow`, { flowType, updated });
 	} catch (err) {
 		logger.error('FlowSettingsServiceV8U', `Error saving settings for flow`, { flowType, err });
 	}
@@ -128,7 +129,7 @@ export function getAllSettings(): Record<FlowType, FlowSettings | null> {
 		allSettings[flowType] = loadSettings(flowType);
 	}
 
-	console.log(`${MODULE_TAG} All flow settings`, allSettings);
+	logger.info(`${MODULE_TAG} All flow settings`, allSettings);
 	return allSettings as Record<FlowType, FlowSettings | null>;
 }
 
@@ -139,7 +140,7 @@ export function clearSettings(flowType: FlowType): void {
 	try {
 		const key = getStorageKey(flowType);
 		localStorage.removeItem(key);
-		console.log(`${MODULE_TAG} Cleared settings for flow`, { flowType });
+		logger.info(`${MODULE_TAG} Cleared settings for flow`, { flowType });
 	} catch (err) {
 		logger.error('FlowSettingsServiceV8U', `Error clearing settings for flow`, { flowType, err });
 	}
@@ -162,7 +163,7 @@ export function clearAllSettings(): void {
 		clearSettings(flowType);
 	}
 
-	console.log(`${MODULE_TAG} Cleared all flow settings`);
+	logger.info(`${MODULE_TAG} Cleared all flow settings`);
 }
 
 /**
@@ -183,7 +184,7 @@ export function getMostRecentFlow(): FlowType | null {
 		}
 	}
 
-	console.log(`${MODULE_TAG} Most recent flow`, mostRecent);
+	logger.info(`${MODULE_TAG} Most recent flow`, mostRecent);
 	return mostRecent?.flowType || null;
 }
 

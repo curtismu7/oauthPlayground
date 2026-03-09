@@ -88,7 +88,7 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 			};
 
 			setCredentials(flowCredentials);
-			console.log(`${LOG_PREFIX} Loaded JWT Bearer Token credentials`, {
+			logger.info(`${LOG_PREFIX} Loaded JWT Bearer Token credentials`, {
 				hasCredentials: !!jwtBearerCredentials?.clientId,
 				hasPrivateKey: !!jwtBearerCredentials?.privateKey,
 			});
@@ -117,7 +117,7 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 		setError(null);
 
 		try {
-			console.log(`${LOG_PREFIX} [MOCK] Simulating JWT Bearer Token flow...`);
+			logger.info(`${LOG_PREFIX} [MOCK] Simulating JWT Bearer Token flow...`);
 
 			// Simulate processing delay
 			await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -147,11 +147,11 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 
 			setTokens(mockTokenResult);
 
-			console.log(
+			logger.info(
 				`${LOG_PREFIX} [MOCK SUCCESS] JWT Bearer token simulation completed:`,
 				mockTokenResult
 			);
-			console.log(`${LOG_PREFIX} [MOCK INFO] Simulated JWT assertion:`, mockJWT);
+			logger.info(`${LOG_PREFIX} [MOCK INFO] Simulated JWT assertion:`, mockJWT);
 
 			// Show success message
 			modernMessaging.showFooterMessage({
@@ -202,7 +202,7 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 			});
 
 			if (jwtBearerSuccess) {
-				console.log(`${LOG_PREFIX} Saved JWT Bearer Token credentials to flow-specific storage`);
+				logger.info(`${LOG_PREFIX} Saved JWT Bearer Token credentials to flow-specific storage`);
 				return true;
 			} else {
 				logger.error(

@@ -1529,7 +1529,7 @@ ${
 // This is the actual implementation running at https://localhost:3001/api/token-exchange
 
 app.post('/api/token-exchange', async (req, res) => {
-  console.log('🚀 [Server] Token exchange request received');
+  logger.info('🚀 [Server] Token exchange request received');
   
   try {
     const {
@@ -1620,7 +1620,7 @@ app.post('/api/token-exchange', async (req, res) => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      log.error('V8MTokenExchange', '❌ [Server] PingOne error:', { responseData });
+      logger.error('V8MTokenExchange', '❌ [Server] PingOne error:', { responseData });
       return res.status(response.status).json(responseData);
     }
 
@@ -1632,11 +1632,11 @@ app.post('/api/token-exchange', async (req, res) => {
       environment_id: environmentId
     };
 
-    console.log('✅ [Server] Token exchange successful');
+    logger.info('✅ [Server] Token exchange successful');
     res.json(enrichedResponse);
 
   } catch (error) {
-    log.error('V8MTokenExchange', '💥 [Server] Token exchange error:', undefined, error as Error);
+    logger.error('V8MTokenExchange', '💥 [Server] Token exchange error:', undefined, error as Error);
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during token exchange'
@@ -1749,6 +1749,7 @@ import React, { useState } from "react";
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { FiRefreshCw } from '@icons';
 
+import { logger } from '../utils/logger';
 function TokenExchangeComponent() {
   const [exchangeState, setExchangeState] = useState({
     subjectToken: "",

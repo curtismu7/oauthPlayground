@@ -143,7 +143,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 				};
 				localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
 
-				console.log(`[UISettings] Updated ${key}:`, value);
+				logger.info(`[UISettings] Updated ${key}:`, value);
 
 				// Apply theme changes immediately
 				applyThemeSettings(newSettings);
@@ -192,7 +192,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 			const updatedFlowConfig = { ...existingFlowConfig, ...settings };
 			localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
 
-			console.log('[UISettings] Settings saved successfully:', settings);
+			logger.info('[UISettings] Settings saved successfully:', settings);
 
 			// Dispatch save event
 			window.dispatchEvent(

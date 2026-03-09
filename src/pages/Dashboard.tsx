@@ -27,6 +27,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import '../styles/dashboard.css';
 
 type FlowPalette = 'oauth' | 'oidc' | 'pingone';
@@ -101,19 +102,19 @@ const Dashboard = () => {
 			const unifiedCreds = await unifiedStorage.getOAuthCredentials();
 
 			console.group('[Dashboard] 🔐 Credential Check');
-			console.log('✅ hasSavedCredentials:', hasCredentials);
-			console.log('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
-			console.log('📋 Config Credentials:', {
+			logger.info('✅ hasSavedCredentials:', hasCredentials);
+			logger.info('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
+			logger.info('📋 Config Credentials:', {
 				environmentId: configCreds?.environmentId || '(empty)',
 				clientId: configCreds?.clientId || '(empty)',
 				hasClientSecret: !!configCreds?.clientSecret,
 			});
-			console.log('🔑 Authz Credentials:', {
+			logger.info('🔑 Authz Credentials:', {
 				environmentId: authzCreds?.environmentId || '(empty)',
 				clientId: authzCreds?.clientId || '(empty)',
 				hasClientSecret: !!authzCreds?.clientSecret,
 			});
-			console.log('💾 LocalStorage Keys:', {
+			logger.info('💾 LocalStorage Keys:', {
 				oauth_config: localStorageCreds ? '✅ present' : '❌ missing',
 				pingone_config_credentials: pingoneCreds ? '✅ present' : '❌ missing',
 			});
@@ -151,7 +152,7 @@ const Dashboard = () => {
 				const region = await getCurrentRegion();
 				setSelectedRegion(region);
 			} catch (error) {
-				console.error('Failed to load current region:', error);
+				logger.error('Failed to load current region:', error);
 				// Default to 'na' if loading fails
 				setSelectedRegion('na');
 			}

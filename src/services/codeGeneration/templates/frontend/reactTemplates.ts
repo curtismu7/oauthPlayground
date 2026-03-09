@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       window.location.href = authUrl.toString();
     } catch (error) {
-      console.error('Login failed:', error);
+      logger.error('Login failed:', error);
     }
   };
 
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (code && state === sessionStorage.getItem('oauth_state')) {
         // Exchange code for tokens (should be done on backend)
-        console.log('Authorization code received:', code);
+        logger.info('Authorization code received:', code);
         setIsAuthenticated(true);
       }
     };
@@ -490,6 +490,7 @@ export const MFAVerification: React.FC<MFAVerificationProps> = ({
 		return `// React - Device Registration
 import React, { useState } from 'react';
 
+import { logger } from '../../../utils/logger';
 /**
  * MFA Device Registration Component
  */

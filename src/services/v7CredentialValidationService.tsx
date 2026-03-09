@@ -66,7 +66,7 @@ export interface V7FlowCredentialConfig {
  * ```typescript
  * // Access configuration for a specific flow
  * const config = V7_FLOW_CONFIGS['oidc-hybrid-v7'];
- * console.log(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
+ * logger.info(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
  * ```
  */
 export const V7_FLOW_CONFIGS: Record<string, V7FlowCredentialConfig> = {
@@ -250,8 +250,8 @@ export interface UseV7CredentialValidationReturn {
  *   flowKey: 'oidc-hybrid-v7',
  *   credentials: controller.credentials,
  *   currentStep: 0,
- *   onValidationSuccess: () => console.log('Validation passed'),
- *   onValidationFailure: (fields) => console.log('Missing fields:', fields)
+ *   onValidationSuccess: () => logger.info('Validation passed'),
+ *   onValidationFailure: (fields) => logger.info('Missing fields:', fields)
  * });
  * ```
  *

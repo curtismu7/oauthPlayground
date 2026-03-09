@@ -9,6 +9,7 @@ import EnvironmentIdInput from './EnvironmentIdInput';
 import LogoutUriInfoPanel from './LogoutUriInfoPanel';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
 
+import { logger } from '../../../utils/logger';
 // Global style to force all credential inputs to be editable
 export const GlobalInputFix = createGlobalStyle`
 	/* CRITICAL: Force all credential inputs to be editable */
@@ -519,7 +520,7 @@ export const CredentialsInput = ({
 										}
 										value={environmentId}
 										onChange={(e) => {
-											console.log('Environment ID onChange triggered:', e.target.value);
+											logger.info('Environment ID onChange triggered:', e.target.value);
 											onEnvironmentIdChange(e.target.value);
 										}}
 										disabled={false}
@@ -536,20 +537,20 @@ export const CredentialsInput = ({
 										}}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											console.log('Environment ID onMouseDown');
+											logger.info('Environment ID onMouseDown');
 										}}
 										onMouseUp={(e) => {
 											e.stopPropagation();
-											console.log('Environment ID onMouseUp');
+											logger.info('Environment ID onMouseUp');
 										}}
 										onFocus={(e) => {
-											console.log('Environment ID focused');
+											logger.info('Environment ID focused');
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';
 										}}
 										onClick={(e) => {
-											console.log('Environment ID clicked');
+											logger.info('Environment ID clicked');
 											(e.target as HTMLInputElement).focus();
 										}}
 									/>
@@ -604,7 +605,7 @@ export const CredentialsInput = ({
 										}
 										value={clientId}
 										onChange={(e) => {
-											console.log('Client ID onChange triggered:', e.target.value);
+											logger.info('Client ID onChange triggered:', e.target.value);
 											onClientIdChange(e.target.value);
 										}}
 										$hasError={emptyRequiredFields.has('clientId')}
@@ -621,21 +622,21 @@ export const CredentialsInput = ({
 										readOnly={false}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											console.log('Client ID onMouseDown');
+											logger.info('Client ID onMouseDown');
 										}}
 										onMouseUp={(e) => {
 											e.stopPropagation();
-											console.log('Client ID onMouseUp');
+											logger.info('Client ID onMouseUp');
 										}}
 										onFocus={(e) => {
-											console.log('Client ID focused');
+											logger.info('Client ID focused');
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';
 										}}
 										onClick={(e) => {
 											e.stopPropagation();
-											console.log('Client ID clicked');
+											logger.info('Client ID clicked');
 											(e.target as HTMLInputElement).focus();
 										}}
 									/>
@@ -668,7 +669,7 @@ export const CredentialsInput = ({
 											}
 											value={clientSecret}
 											onChange={(e) => {
-												console.log('Client Secret onChange triggered');
+												logger.info('Client Secret onChange triggered');
 												onClientSecretChange(e.target.value);
 											}}
 											$hasError={emptyRequiredFields.has('clientSecret')}
@@ -686,21 +687,21 @@ export const CredentialsInput = ({
 											autoComplete="current-password"
 											onMouseDown={(e) => {
 												e.stopPropagation();
-												console.log('Client Secret onMouseDown');
+												logger.info('Client Secret onMouseDown');
 											}}
 											onMouseUp={(e) => {
 												e.stopPropagation();
-												console.log('Client Secret onMouseUp');
+												logger.info('Client Secret onMouseUp');
 											}}
 											onFocus={(e) => {
-												console.log('Client Secret focused');
+												logger.info('Client Secret focused');
 												e.target.style.pointerEvents = 'auto';
 												e.target.style.userSelect = 'text';
 												e.target.style.cursor = 'text';
 											}}
 											onClick={(e) => {
 												e.stopPropagation();
-												console.log('Client Secret clicked');
+												logger.info('Client Secret clicked');
 												(e.target as HTMLInputElement).focus();
 											}}
 										/>
@@ -869,7 +870,7 @@ export const CredentialsInput = ({
 										placeholder="openid"
 										value={scopes}
 										onChange={(e) => {
-											console.log('Scopes onChange triggered:', e.target.value);
+											logger.info('Scopes onChange triggered:', e.target.value);
 											handleScopesChange(e.target.value);
 										}}
 										onBlur={(e) => handleScopesBlur(e.target.value)}
@@ -893,15 +894,15 @@ export const CredentialsInput = ({
 										readOnly={false}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											console.log('Scopes onMouseDown');
+											logger.info('Scopes onMouseDown');
 										}}
 										onClick={(e) => {
 											e.stopPropagation();
-											console.log('Scopes clicked');
+											logger.info('Scopes clicked');
 											(e.target as HTMLInputElement).focus();
 										}}
 										onFocus={(e) => {
-											console.log('Scopes focused');
+											logger.info('Scopes focused');
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';

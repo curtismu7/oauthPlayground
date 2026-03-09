@@ -29,6 +29,7 @@ import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { EmailInputV8 } from '@/v8/components/EmailInputV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[📋 DYNAMIC-FORM-RENDERER]';
 
 // ============================================================================
@@ -73,9 +74,9 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 	onTouch,
 	disabled = false,
 }) => {
-	console.log(`${MODULE_TAG} Rendering form for device:`, config.deviceType);
-	console.log(`${MODULE_TAG} Required fields:`, config.requiredFields);
-	console.log(`${MODULE_TAG} Optional fields:`, config.optionalFields);
+	logger.info(`${MODULE_TAG} Rendering form for device:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Required fields:`, config.requiredFields);
+	logger.info(`${MODULE_TAG} Optional fields:`, config.optionalFields);
 
 	// Save phone number to localStorage when it changes
 	useEffect(() => {
@@ -143,7 +144,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		const error = errors[fieldName];
 		const hasError = !!error;
 
-		console.log(`${MODULE_TAG} Rendering field:`, fieldName, { isRequired, hasError });
+		logger.info(`${MODULE_TAG} Rendering field:`, fieldName, { isRequired, hasError });
 
 		// Handle field blur (mark as touched)
 		const handleBlur = () => {
@@ -314,7 +315,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 				);
 
 			default:
-				console.warn(`${MODULE_TAG} Unknown field type:`, fieldName);
+				logger.warn(`${MODULE_TAG} Unknown field type:`, fieldName);
 				return (
 					<div key={fieldName} className="form-field unknown-field">
 						<label htmlFor={fieldName}>

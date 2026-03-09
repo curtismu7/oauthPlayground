@@ -31,6 +31,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
+import { logger } from '../../utils/logger';
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
 	loadingDevices: boolean;
@@ -1240,7 +1241,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					// Update device nickname if provided
 					if (result.deviceId && registrationCredentials.nickname) {
 						try {
-							console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
+							logger.info(`${MODULE_TAG} Updating device nickname after registration:`, {
 								deviceId: result.deviceId,
 								nickname: registrationCredentials.nickname,
 							});
@@ -1253,7 +1254,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								registrationCredentials.nickname
 							);
 						} catch (nicknameError) {
-							console.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
+							logger.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
 							// Don't fail the registration if nickname update fails
 						}
 					}

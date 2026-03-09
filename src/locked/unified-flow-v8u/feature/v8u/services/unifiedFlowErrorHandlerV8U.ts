@@ -17,11 +17,12 @@ import type { FlowType } from '../../../dependencies/v8/services/specVersionServ
 
 // Simple console fallback for locked components
 const toastV8 = {
-	error: (message: string) => console.log(`[UnifiedFlowErrorHandlerV8U] ERROR: ${message}`),
+	error: (message: string) => logger.info(`[UnifiedFlowErrorHandlerV8U] ERROR: ${message}`),
 };
 
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
 
 export interface ErrorContext {

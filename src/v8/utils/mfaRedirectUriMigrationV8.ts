@@ -8,6 +8,7 @@
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 MFA-REDIRECT-URI-MIGRATION-V8]';
 
 /**
@@ -26,7 +27,7 @@ const FLOW_KEY_TO_FLOW_TYPE: Record<string, string> = {
  * This should be run on app startup to ensure all old mfa-hub URIs are updated
  */
 export function migrateAllMFARedirectUris(): void {
-	console.log(`${MODULE_TAG} Starting redirect URI migration...`);
+	logger.info(`${MODULE_TAG} Starting redirect URI migration...`);
 
 	let migratedCount = 0;
 
@@ -45,7 +46,7 @@ export function migrateAllMFARedirectUris(): void {
 			// Check if migration is needed
 			if (MFARedirectUriServiceV8.needsMigration(credentials.redirectUri)) {
 				const correctUri = MFARedirectUriServiceV8.getRedirectUri(flowType);
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Migrating ${flowKey}: ${credentials.redirectUri} → ${correctUri} (flow: ${flowType})`
 				);
 
@@ -58,16 +59,16 @@ export function migrateAllMFARedirectUris(): void {
 				migratedCount++;
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to migrate ${flowKey}:`, error);
+			logger.warn(`${MODULE_TAG} Failed to migrate ${flowKey}:`, error);
 		}
 	}
 
 	if (migratedCount > 0) {
-		console.log(
+		logger.info(
 			`${MODULE_TAG} ✅ Migration complete! Updated ${migratedCount} credential store(s)`
 		);
 	} else {
-		console.log(`${MODULE_TAG} ✅ No migration needed - all credentials are up to date`);
+		logger.info(`${MODULE_TAG} ✅ No migration needed - all credentials are up to date`);
 	}
 }
 
@@ -76,7 +77,7 @@ export function migrateAllMFARedirectUris(): void {
  * This is a more aggressive cleanup that removes any lingering old data
  */
 export function clearOldMFAHubData(): void {
-	console.log(`${MODULE_TAG} Clearing old mfa-hub data...`);
+	logger.info(`${MODULE_TAG} Clearing old mfa-hub data...`);
 
 	try {
 		// Get all localStorage keys
@@ -91,14 +92,14 @@ export function clearOldMFAHubData(): void {
 		);
 
 		if (keysToRemove.length > 0) {
-			console.warn(`${MODULE_TAG} Removing ${keysToRemove.length} old mfa-hub keys:`, keysToRemove);
+			logger.warn(`${MODULE_TAG} Removing ${keysToRemove.length} old mfa-hub keys:`, keysToRemove);
 			for (const key of keysToRemove) {
 				localStorage.removeItem(key);
 			}
 		}
 
-		console.log(`${MODULE_TAG} ✅ Old mfa-hub data cleared`);
+		logger.info(`${MODULE_TAG} ✅ Old mfa-hub data cleared`);
 	} catch (error) {
-		console.warn(`${MODULE_TAG} Failed to clear old mfa-hub data:`, error);
+		logger.warn(`${MODULE_TAG} Failed to clear old mfa-hub data:`, error);
 	}
 }

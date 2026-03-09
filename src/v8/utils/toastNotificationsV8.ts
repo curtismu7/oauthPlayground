@@ -26,6 +26,7 @@
 
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 /**
  * V8 Toast Notification Service
  * Wrapper around modernMessaging for consistent V8 messaging
@@ -41,7 +42,7 @@ export class ToastNotificationsV8 {
 	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully', duration: 3000 });
 	 */
 	static success(message: string, options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
+		logger.info(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
 		modernMessaging.showFooterMessage({
 			type: 'info',
 			message,
@@ -84,7 +85,7 @@ export class ToastNotificationsV8 {
 	 * modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to validate credentials', dismissible: true });
 	 */
 	static error(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
+		logger.info(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
 		const shortMessage = ToastNotificationsV8.extractShortSummary(message);
 		modernMessaging.showBanner({
 			type: 'error',
@@ -102,7 +103,7 @@ export class ToastNotificationsV8 {
 	 * modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please fill in all required fields', dismissible: true });
 	 */
 	static warning(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Warning:`, message);
+		logger.info(`${ToastNotificationsV8.MODULE_TAG} Warning:`, message);
 		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message, dismissible: true });
 	}
 
@@ -114,7 +115,7 @@ export class ToastNotificationsV8 {
 	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL copied to clipboard', duration: 3000 });
 	 */
 	static info(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Info:`, message);
+		logger.info(`${ToastNotificationsV8.MODULE_TAG} Info:`, message);
 		modernMessaging.showFooterMessage({ type: 'info', message, duration: 3000 });
 	}
 

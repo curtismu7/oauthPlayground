@@ -33,11 +33,11 @@ export class AuthzSessionStorageManager {
 		if (variant === 'oauth') {
 			sessionStorage.removeItem('oidc-authz-v5-flow-active');
 			sessionStorage.setItem('oauth-authz-v5-flow-active', 'true');
-			console.log('[SessionStorageManager] OAuth Authorization Code V5 flow marked as active');
+			logger.info('[SessionStorageManager] OAuth Authorization Code V5 flow marked as active');
 		} else {
 			sessionStorage.removeItem('oauth-authz-v5-flow-active');
 			sessionStorage.setItem('oidc-authz-v5-flow-active', 'true');
-			console.log('[SessionStorageManager] OIDC Authorization Code V5 flow marked as active');
+			logger.info('[SessionStorageManager] OIDC Authorization Code V5 flow marked as active');
 		}
 	}
 
@@ -47,7 +47,7 @@ export class AuthzSessionStorageManager {
 	static clearAllFlowFlags(): void {
 		sessionStorage.removeItem('oauth-authz-v5-flow-active');
 		sessionStorage.removeItem('oidc-authz-v5-flow-active');
-		console.log('[SessionStorageManager] All authorization code flow flags cleared');
+		logger.info('[SessionStorageManager] All authorization code flow flags cleared');
 	}
 
 	/**
@@ -68,7 +68,7 @@ export class AuthzSessionStorageManager {
 	static savePingOneConfig(variant: AuthzFlowVariant, config: PingOneApplicationState): void {
 		const key = variant === 'oauth' ? 'oauth-authz-v5-app-config' : 'oidc-authz-v5-app-config';
 		sessionStorage.setItem(key, JSON.stringify(config));
-		console.log(`[SessionStorageManager] ${variant.toUpperCase()} PingOne config saved`);
+		logger.info(`[SessionStorageManager] ${variant.toUpperCase()} PingOne config saved`);
 	}
 
 	/**
@@ -336,7 +336,7 @@ export class AuthzFlowPKCEManager {
 		credentials: StepCredentials,
 		controller: AuthorizationCodeFlowController
 	): Promise<boolean> {
-		console.log('[PKCEManager] Starting PKCE generation...', {
+		logger.info('[PKCEManager] Starting PKCE generation...', {
 			variant,
 			clientId: credentials.clientId,
 			environmentId: credentials.environmentId,
@@ -345,7 +345,7 @@ export class AuthzFlowPKCEManager {
 		});
 
 		if (!credentials.clientId || !credentials.environmentId) {
-			console.log('[PKCEManager] Missing credentials:', {
+			logger.info('[PKCEManager] Missing credentials:', {
 				clientId: !!credentials.clientId,
 				environmentId: !!credentials.environmentId,
 			});
@@ -365,16 +365,16 @@ export class AuthzFlowPKCEManager {
 		}
 
 		try {
-			console.log('[PKCEManager] Calling controller.generatePkceCodes()...');
+			logger.info('[PKCEManager] Calling controller.generatePkceCodes()...');
 			await controller.generatePkceCodes();
 
-			console.log('[PKCEManager] PKCE generation completed, checking results...', {
+			logger.info('[PKCEManager] PKCE generation completed, checking results...', {
 				codeVerifier: controller.pkceCodes?.codeVerifier ? 'present' : 'missing',
 				codeChallenge: controller.pkceCodes?.codeChallenge ? 'present' : 'missing',
 			});
 
 			AuthzFlowToastManager.showPKCEGenerated();
-			console.log(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated successfully`);
+			logger.info(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated successfully`);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -523,7 +523,7 @@ export class AuthzFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, environmentId: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Authz V5] Environment ID updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Authz V5] Environment ID updated:`, value);
 		};
 	}
 
@@ -539,7 +539,7 @@ export class AuthzFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, clientId: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Authz V5] Client ID updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Authz V5] Client ID updated:`, value);
 		};
 	}
 
@@ -569,7 +569,7 @@ export class AuthzFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, redirectUri: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Authz V5] Redirect URI updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Authz V5] Redirect URI updated:`, value);
 
 			// Auto-save redirect URI to persist across refreshes
 			controller
@@ -639,7 +639,7 @@ export class AuthzFlowCredentialsHandlers {
 	 */
 	static createDiscoveryHandler(variant: AuthzFlowVariant) {
 		return (result: unknown) => {
-			console.log(`[${variant.toUpperCase()} Authz V5] OIDC Discovery completed:`, result);
+			logger.info(`[${variant.toUpperCase()} Authz V5] OIDC Discovery completed:`, result);
 			// Service already handles environment ID extraction
 		};
 	}
@@ -672,7 +672,7 @@ export class AuthzFlowAuthorizationManager {
 		credentials: StepCredentials,
 		controller: AuthorizationCodeFlowController
 	): Promise<boolean> {
-		console.log(`[${variant.toUpperCase()} Authz V5] Generate URL - Checking credentials:`, {
+		logger.info(`[${variant.toUpperCase()} Authz V5] Generate URL - Checking credentials:`, {
 			local_clientId: credentials.clientId,
 			local_environmentId: credentials.environmentId,
 			controller_clientId: controller.credentials?.clientId,
@@ -734,7 +734,7 @@ export class AuthzFlowCodeProcessor {
 		setState: (state: string) => void,
 		setCurrentStep: (step: number) => void
 	): void {
-		console.log('[CodeProcessor] Processing authorization code:', {
+		logger.info('[CodeProcessor] Processing authorization code:', {
 			code: `${code.substring(0, 20)}...`,
 			state,
 		});
@@ -805,7 +805,7 @@ export class AuthzFlowTokenExchangeManager {
 		}
 
 		try {
-			console.log(
+			logger.info(
 				`[${variant.toUpperCase()} Authz V5] Exchanging authorization code for tokens...`
 			);
 
@@ -1132,7 +1132,7 @@ export class AuthzFlowStepRestoration {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step');
-			console.log('[StepRestoration] Restoring to step:', step);
+			logger.info('[StepRestoration] Restoring to step:', step);
 			return step;
 		}
 		return 0;
@@ -1143,7 +1143,7 @@ export class AuthzFlowStepRestoration {
 	 */
 	static storeStepForRestoration(step: number): void {
 		sessionStorage.setItem('restore_step', step.toString());
-		console.log('[StepRestoration] Step stored for restoration:', step);
+		logger.info('[StepRestoration] Step stored for restoration:', step);
 	}
 
 	/**
@@ -1235,7 +1235,7 @@ export class AuthzFlowResponseTypeEnforcer {
 		const expectedType = AuthzFlowResponseTypeEnforcer.getExpectedResponseType(variant);
 
 		if (credentials.responseType !== expectedType) {
-			console.log(
+			logger.info(
 				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
 			);
 			setCredentials({
@@ -1260,7 +1260,7 @@ export class AuthzFlowCredentialsSync {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
-			console.log(
+			logger.info(
 				`[${variant.toUpperCase()} Authz V5] Syncing credentials from controller:`,
 				controllerCredentials
 			);

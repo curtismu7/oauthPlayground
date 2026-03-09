@@ -69,6 +69,7 @@ import {
 import credentialManager from '../utils/credentialManager';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
 
+import { logger } from '../utils/logger';
 export interface CompleteMFAFlowProps {
 	requireMFA?: boolean;
 	maxRetries?: number;
@@ -384,7 +385,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	// Reset flow function - same pattern as other flows
 	const handleResetFlow = useCallback(() => {
-		console.log('🔄 [MFA Flow V7] Resetting flow to initial state');
+		logger.info('🔄 [MFA Flow V7] Resetting flow to initial state');
 
 		// Reset to first step
 		setCurrentStep('username_login');
@@ -436,7 +437,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			sessionStorage.removeItem('pingone_mfa_v7_flow_context');
 		}
 
-		console.log('✅ [MFA Flow V7] Flow reset complete');
+		logger.info('✅ [MFA Flow V7] Flow reset complete');
 	}, [onStepChange]);
 
 	// Update step number when current step changes
@@ -494,7 +495,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	// Initialize flow
 	useEffect(() => {
-		console.log('🔑 [MFA Flow V7] Initializing modern PingOne MFA flow');
+		logger.info('🔑 [MFA Flow V7] Initializing modern PingOne MFA flow');
 		const flowId = `mfa_flow_v7_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 		setFlowContext((prev) => ({ ...prev, flowId }));
 
@@ -514,18 +515,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 		// Load worker token credentials from service
 		const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials();
-		console.log('🔍 [MFA Flow V7] Worker token credentials check:', {
+		logger.info('🔍 [MFA Flow V7] Worker token credentials check:', {
 			found: !!savedWorkerTokenCreds,
 			credentials: savedWorkerTokenCreds,
 		});
 		if (savedWorkerTokenCreds) {
-			console.log(
+			logger.info(
 				'🔍 [MFA Flow V7] Loading saved worker token credentials:',
 				savedWorkerTokenCreds
 			);
 			setWorkerTokenCredentials(savedWorkerTokenCreds);
 		} else {
-			console.log('🔍 [MFA Flow V7] No worker token credentials found in storage');
+			logger.info('🔍 [MFA Flow V7] No worker token credentials found in storage');
 
 			// TEMPORARY: Save worker token credentials for testing
 			const workerCreds = {
@@ -537,7 +538,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				tokenEndpointAuthMethod: 'client_secret_basic' as const,
 			};
 
-			console.log('🔍 [MFA Flow V7] Saving worker token credentials for testing:', workerCreds);
+			logger.info('🔍 [MFA Flow V7] Saving worker token credentials for testing:', workerCreds);
 			workerTokenCredentialsService.saveCredentials(workerCreds);
 			setWorkerTokenCredentials(workerCreds);
 		}
@@ -545,12 +546,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		// Load authorization code credentials from storage
 		if (typeof window !== 'undefined') {
 			const savedAuthzCreds = credentialManager.loadAuthzFlowCredentials();
-			console.log(
+			logger.info(
 				'🔍 [MFA Flow V7] Loading saved authorization code credentials:',
 				savedAuthzCreds
 			);
 			if (savedAuthzCreds) {
-				console.log(
+				logger.info(
 					'🔍 [MFA Flow V7] Setting authorization code credentials from saved data:',
 					savedAuthzCreds
 				);
@@ -568,9 +569,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				MFA_CREDENTIALS_STORAGE_KEY,
 				null
 			);
-			console.log('🔍 [MFA Flow V7] Loading saved credentials:', savedCreds);
+			logger.info('🔍 [MFA Flow V7] Loading saved credentials:', savedCreds);
 			if (savedCreds) {
-				console.log('🔍 [MFA Flow V7] Setting credentials from saved data:', savedCreds);
+				logger.info('🔍 [MFA Flow V7] Setting credentials from saved data:', savedCreds);
 				setCredentials((prev) => ({ ...prev, ...savedCreds }));
 			}
 		}
@@ -583,7 +584,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			const state = sessionStorage.getItem('mfa_v7_state');
 
 			if (authCode && state) {
-				console.log('🔐 [CompleteMFAFlowV7] Found authorization code from callback:', {
+				logger.info('🔐 [CompleteMFAFlowV7] Found authorization code from callback:', {
 					code: `${authCode.substring(0, 20)}...`,
 					state: `${state.substring(0, 20)}...`,
 				});
@@ -603,7 +604,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					state: state,
 				}));
 
-				console.log('🔐 [CompleteMFAFlowV7] Moved to token retrieval step with authorization code');
+				logger.info('🔐 [CompleteMFAFlowV7] Moved to token retrieval step with authorization code');
 			}
 		};
 
@@ -714,8 +715,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 		setIsLoading(true);
 		try {
-			console.log('🔑 [MFA Flow V7] Requesting worker token...');
-			console.log('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
+			logger.info('🔑 [MFA Flow V7] Requesting worker token...');
+			logger.info('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
 				environmentId: workerTokenCredentials.environmentId,
 				clientId: workerTokenCredentials.clientId,
 				hasClientSecret: !!workerTokenCredentials.clientSecret,
@@ -732,7 +733,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				tokenEndpoint: `https://auth.pingone.com/${workerTokenCredentials.environmentId}/as/token`,
 			};
 
-			console.log('🔍 [MFA Flow V7] Worker credentials prepared:', {
+			logger.info('🔍 [MFA Flow V7] Worker credentials prepared:', {
 				...workerCredentials,
 				clientSecret: workerCredentials.clientSecret ? '[REDACTED]' : 'MISSING',
 			});
@@ -743,7 +744,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				'client_secret_post'
 			);
 
-			console.log('✅ [MFA Flow V7] Worker token received:', tokenData);
+			logger.info('✅ [MFA Flow V7] Worker token received:', tokenData);
 
 			// Create API call data for display
 			const workerTokenCall = createApiCallData(
@@ -791,7 +792,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			// Clear any previous error details on success
 			setErrorDetails(null);
 		} catch (error: unknown) {
-			log.error('❌ [MFA Flow V7] Failed to get worker token:', error);
+			logger.error('❌ [MFA Flow V7] Failed to get worker token:', error);
 
 			// Use the new OAuth Error Handling Service
 			const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
@@ -822,8 +823,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Log detailed troubleshooting info to console for developers
 			console.group('🔧 Worker Token Error - Troubleshooting Guide');
-			log.error('Original Error:', error);
-			console.log('Error Details:', errorDetails);
+			logger.error('Original Error:', error);
+			logger.info('Error Details:', errorDetails);
 			console.groupEnd();
 		} finally {
 			setIsLoading(false);
@@ -865,7 +866,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			setIsLoading(true);
 			try {
-				console.log(`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`);
+				logger.info(`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`);
 
 				// Generate PKCE codes if not already present
 				let codeChallenge = '';
@@ -878,7 +879,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						const pkceData = JSON.parse(existingPkce);
 						codeChallenge = pkceData.codeChallenge;
 						codeVerifier = pkceData.codeVerifier;
-						console.log('🔐 [MFA Flow V7] Using existing PKCE codes');
+						logger.info('🔐 [MFA Flow V7] Using existing PKCE codes');
 					} else {
 						// Generate new PKCE codes
 						const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
@@ -894,10 +895,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								codeChallengeMethod: 'S256',
 							})
 						);
-						console.log('🔐 [MFA Flow V7] Generated new PKCE codes');
+						logger.info('🔐 [MFA Flow V7] Generated new PKCE codes');
 					}
 				} catch (error) {
-					log.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -930,7 +931,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				const validationErrors: string[] = [];
 
 				try {
-					console.log(`🔧 [MFA Flow V7] Validating authorization URL: ${mfaUrl}`);
+					logger.info(`🔧 [MFA Flow V7] Validating authorization URL: ${mfaUrl}`);
 
 					// Validate URL format
 					const url = new URL(mfaUrl);
@@ -969,12 +970,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					if (validationErrors.length > 0) {
 						isSuccess = false;
 						errorMessage = validationErrors.join('; ');
-						log.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
+						logger.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
 					} else {
-						console.log(`✅ [MFA Flow V7] Authorization URL validation passed`);
+						logger.info(`✅ [MFA Flow V7] Authorization URL validation passed`);
 					}
 				} catch (error) {
-					log.error(`❌ [MFA Flow V7] URL validation error:`, error);
+					logger.error(`❌ [MFA Flow V7] URL validation error:`, error);
 					isSuccess = false;
 					errorMessage = `URL validation error: ${error instanceof Error ? error.message : 'Unknown error'}`;
 				}
@@ -1047,7 +1048,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 			} catch (error: unknown) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				log.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
+				logger.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1077,7 +1078,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const handleSaveWorkerTokenCredentials = useCallback(async () => {
 		setIsSaving(true);
 		try {
-			console.log('[CompleteMFAFlowV7] Saving worker token credentials:', workerTokenCredentials);
+			logger.info('[CompleteMFAFlowV7] Saving worker token credentials:', workerTokenCredentials);
 
 			const saveSuccess = workerTokenCredentialsService.saveCredentials(workerTokenCredentials);
 
@@ -1091,9 +1092,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				message: 'Worker Token credentials saved successfully',
 				duration: 4000,
 			});
-			console.log('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
+			logger.info('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
 		} catch (error) {
-			log.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
+			logger.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1107,7 +1108,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	const handleUsernameLogin = useCallback(
 		async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
-			console.log(`🔐 [MFA Flow V7] handleUsernameLogin called with mode: ${mode}`);
+			logger.info(`🔐 [MFA Flow V7] handleUsernameLogin called with mode: ${mode}`);
 
 			// Clear any existing flow context when starting a new authentication
 			setFlowContext((prev) => ({
@@ -1131,11 +1132,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					return;
 				}
 
-				console.log(
+				logger.info(
 					`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`
 				);
-				console.log(`🔐 [MFA Flow V7] Username: ${credentials.username}`);
-				console.log(`🔐 [MFA Flow V7] Password: ${credentials.password ? '***' : 'NOT SET'}`);
+				logger.info(`🔐 [MFA Flow V7] Username: ${credentials.username}`);
+				logger.info(`🔐 [MFA Flow V7] Password: ${credentials.password ? '***' : 'NOT SET'}`);
 
 				// Store current scroll position to prevent jumping to top
 				const currentScrollY = window.scrollY;
@@ -1153,7 +1154,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							const pkceData = JSON.parse(existingPkce);
 							codeVerifier = pkceData.codeVerifier;
 							codeChallenge = pkceData.codeChallenge;
-							console.log('🔐 [MFA Flow V7] Using existing PKCE codes for redirectless auth');
+							logger.info('🔐 [MFA Flow V7] Using existing PKCE codes for redirectless auth');
 						} else {
 							// Generate new PKCE codes
 							const { generateCodeVerifier, generateCodeChallenge } = await import(
@@ -1171,10 +1172,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									codeChallengeMethod: 'S256',
 								})
 							);
-							console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth');
+							logger.info('🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth');
 						}
 					} catch (error) {
-						log.error(
+						logger.error(
 							'🔐 [MFA Flow V7] Failed to generate PKCE codes for redirectless auth:',
 							error
 						);
@@ -1202,7 +1203,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						credentials.redirectUri ||
 						'https://localhost:3000/oauth-callback';
 
-					console.log('🔐 [MFA Flow V7] Credential Debug:', {
+					logger.info('🔐 [MFA Flow V7] Credential Debug:', {
 						authCodeCredentials: {
 							environmentId: authCodeCredentials.environmentId,
 							clientId: authCodeCredentials.clientId,
@@ -1235,7 +1236,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					const authEndpoint = `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`;
 
 					// Use direct authorization request with response_mode=pi.flow (like V5/V6 flows)
-					console.log(
+					logger.info(
 						`🔐 [MFA Flow V7] Using direct authorization request with response_mode=pi.flow`
 					);
 
@@ -1254,11 +1255,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						password: credentials.password,
 					});
 
-					console.log(
+					logger.info(
 						`🔐 [MFA Flow V7] Making POST request to authorize endpoint with response_mode=pi.flow`
 					);
-					console.log(`🔐 [MFA Flow V7] Authorization endpoint:`, authEndpoint);
-					console.log(`🔐 [MFA Flow V7] Request body:`, {
+					logger.info(`🔐 [MFA Flow V7] Authorization endpoint:`, authEndpoint);
+					logger.info(`🔐 [MFA Flow V7] Request body:`, {
 						response_type: 'code',
 						client_id: effectiveClientId,
 						scope: 'openid profile email',
@@ -1272,8 +1273,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					// Make the POST request to PingOne authorize endpoint with response_mode=pi.flow
-					console.log(`🔐 [MFA Flow V7] Making POST request to: ${authEndpoint}`);
-					console.log(`🔐 [MFA Flow V7] Request body: ${authRequestBody.toString()}`);
+					logger.info(`🔐 [MFA Flow V7] Making POST request to: ${authEndpoint}`);
+					logger.info(`🔐 [MFA Flow V7] Request body: ${authRequestBody.toString()}`);
 
 					const response = await fetch(authEndpoint, {
 						method: 'POST',
@@ -1284,42 +1285,42 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						body: authRequestBody.toString(),
 					});
 
-					console.log(
+					logger.info(
 						`🔐 [MFA Flow V7] Response status: ${response.status} ${response.statusText}`
 					);
-					console.log(
+					logger.info(
 						`🔐 [MFA Flow V7] Response headers:`,
 						Object.fromEntries(response.headers.entries())
 					);
 
 					// Check if response is JSON or HTML
 					const contentType = response.headers.get('content-type');
-					console.log(`🔐 [MFA Flow V7] Response content-type:`, contentType);
+					logger.info(`🔐 [MFA Flow V7] Response content-type:`, contentType);
 
 					let responseData: unknown;
 					if (contentType?.includes('application/json')) {
 						responseData = await response.json();
-						console.log(`🔐 [MFA Flow V7] Response data:`, responseData);
+						logger.info(`🔐 [MFA Flow V7] Response data:`, responseData);
 					} else {
 						// Response is HTML, not JSON - this usually means an error page
 						const responseText = await response.text();
-						console.log(
+						logger.info(
 							`🔐 [MFA Flow V7] HTML Response (first 500 chars):`,
 							responseText.substring(0, 500)
 						);
-						console.log(`🔐 [MFA Flow V7] Full HTML Response:`, responseText);
+						logger.info(`🔐 [MFA Flow V7] Full HTML Response:`, responseText);
 
 						// Try to extract error information from HTML
 						const errorMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
 						const title = errorMatch ? errorMatch[1] : 'Unknown Error';
-						console.log(`🔐 [MFA Flow V7] HTML Page Title:`, title);
+						logger.info(`🔐 [MFA Flow V7] HTML Page Title:`, title);
 
 						throw new Error(
 							`PingOne returned HTML instead of JSON. Page title: "${title}". This usually means invalid credentials or unsupported flow.`
 						);
 					}
 
-					console.log(`🔐 [MFA Flow V7] PingOne pi.flow response:`, {
+					logger.info(`🔐 [MFA Flow V7] PingOne pi.flow response:`, {
 						status: response.status,
 						statusText: response.statusText,
 						hasFlow: !!(responseData.id && responseData.resumeUrl),
@@ -1329,7 +1330,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					if (!response.ok) {
-						log.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
+						logger.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
@@ -1370,8 +1371,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 					// Handle the pi.flow response - the responseData IS the flow object
 					if (responseData.id && responseData.resumeUrl) {
-						console.log(`🔐 [MFA Flow V7] Received flow object:`, responseData);
-						console.log(`🔐 [MFA Flow V7] Flow object details:`, {
+						logger.info(`🔐 [MFA Flow V7] Received flow object:`, responseData);
+						logger.info(`🔐 [MFA Flow V7] Flow object details:`, {
 							id: responseData.id,
 							state: responseData.state,
 							resumeUrl: responseData.resumeUrl,
@@ -1393,12 +1394,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						// 1. Try direct userId property
 						if (responseData.userId) {
 							extractedUserId = responseData.userId;
-							console.log(`🔐 [MFA Flow V7] Found userId in responseData.userId:`, extractedUserId);
+							logger.info(`🔐 [MFA Flow V7] Found userId in responseData.userId:`, extractedUserId);
 						}
 						// 2. Try user.id property
 						else if (responseData.user?.id) {
 							extractedUserId = responseData.user.id;
-							console.log(
+							logger.info(
 								`🔐 [MFA Flow V7] Found userId in responseData.user.id:`,
 								extractedUserId
 							);
@@ -1406,7 +1407,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						// 3. Try _embedded.user.id
 						else if (responseData._embedded?.user?.id) {
 							extractedUserId = responseData._embedded.user.id;
-							console.log(`🔐 [MFA Flow V7] Found userId in _embedded.user.id:`, extractedUserId);
+							logger.info(`🔐 [MFA Flow V7] Found userId in _embedded.user.id:`, extractedUserId);
 						}
 						// 4. Try extracting from id_token if available
 						else if (responseData.id_token) {
@@ -1414,16 +1415,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								const payload = JSON.parse(atob(responseData.id_token.split('.')[1]));
 								extractedUserId = payload.sub || payload.user_id || payload.id;
 								if (extractedUserId) {
-									console.log(`🔐 [MFA Flow V7] Extracted userId from id_token:`, extractedUserId);
+									logger.info(`🔐 [MFA Flow V7] Extracted userId from id_token:`, extractedUserId);
 								}
 							} catch (error) {
-								log.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+								logger.warn(`🔐 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 							}
 						}
 
 						// Only set userId if we found one - don't use fallback as it's not a real userId
 						if (extractedUserId) {
-							console.log(`🔐 [MFA Flow V7] Setting userId in flow context:`, extractedUserId);
+							logger.info(`🔐 [MFA Flow V7] Setting userId in flow context:`, extractedUserId);
 							setFlowContext((prev) => {
 								const newContext = {
 									...prev,
@@ -1434,11 +1435,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									flowEmbedded: responseData._embedded,
 									userId: extractedUserId,
 								};
-								console.log(`🔐 [MFA Flow V7] Updated flow context:`, newContext);
+								logger.info(`🔐 [MFA Flow V7] Updated flow context:`, newContext);
 								return newContext;
 							});
 						} else {
-							log.warn(
+							logger.warn(
 								`⚠️ [MFA Flow V7] No userId found in flow response. User must complete authentication first.`
 							);
 							// Don't set userId - it will be extracted after flow completes
@@ -1452,19 +1453,19 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									flowEmbedded: responseData._embedded,
 									// userId will be set after flow completes
 								};
-								console.log(`🔐 [MFA Flow V7] Updated flow context (no userId yet):`, newContext);
+								logger.info(`🔐 [MFA Flow V7] Updated flow context (no userId yet):`, newContext);
 								return newContext;
 							});
 						}
 
 						// For redirectless flow, we need to get a worker token for device registration
-						console.log(
+						logger.info(
 							'🔐 [MFA Flow V7] Redirectless flow established - getting worker token for device registration'
 						);
 
 						// Get worker token using client credentials
 						try {
-							console.log('🔐 [MFA Flow V7] Getting worker token for device registration');
+							logger.info('🔐 [MFA Flow V7] Getting worker token for device registration');
 
 							// Use worker token credentials instead of authorization code credentials
 							const workerCredentials = workerTokenCredentials || authCodeCredentials;
@@ -1476,7 +1477,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								'';
 							const workerEnvironmentId = workerCredentials.environmentId || effectiveEnvironmentId;
 
-							console.log('🔐 [MFA Flow V7] Worker token request details:', {
+							logger.info('🔐 [MFA Flow V7] Worker token request details:', {
 								environmentId: workerEnvironmentId,
 								clientId: workerClientId,
 								hasClientSecret: !!workerClientSecret,
@@ -1492,18 +1493,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
 							});
 
-							console.log(
+							logger.info(
 								'🔐 [MFA Flow V7] Making worker token request to:',
 								`https://auth.pingone.com/${workerEnvironmentId}/as/token`
 							);
-							console.log('🔐 [MFA Flow V7] Using Basic Authentication');
-							console.log('🔐 [MFA Flow V7] Client ID:', workerClientId);
-							console.log('🔐 [MFA Flow V7] Client Secret length:', workerClientSecret.length);
-							console.log(
+							logger.info('🔐 [MFA Flow V7] Using Basic Authentication');
+							logger.info('🔐 [MFA Flow V7] Client ID:', workerClientId);
+							logger.info('🔐 [MFA Flow V7] Client Secret length:', workerClientSecret.length);
+							logger.info(
 								'🔐 [MFA Flow V7] Basic Auth header:',
 								`Basic ${basicAuth.substring(0, 20)}...`
 							);
-							console.log('🔐 [MFA Flow V7] Request body:', tokenRequestBody.toString());
+							logger.info('🔐 [MFA Flow V7] Request body:', tokenRequestBody.toString());
 
 							const tokenResponse = await fetch(
 								`https://auth.pingone.com/${workerEnvironmentId}/as/token`,
@@ -1520,7 +1521,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 							if (tokenResponse.ok) {
 								const tokenData = await tokenResponse.json();
-								console.log('🔐 [MFA Flow V7] Worker token obtained:', {
+								logger.info('🔐 [MFA Flow V7] Worker token obtained:', {
 									access_token: tokenData.access_token ? '***' : 'none',
 									token_type: tokenData.token_type,
 									expires_in: tokenData.expires_in,
@@ -1539,7 +1540,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								});
 							} else {
 								const errorData = await tokenResponse.json();
-								console.log('🔐 [MFA Flow V7] Worker token request failed:', {
+								logger.info('🔐 [MFA Flow V7] Worker token request failed:', {
 									status: tokenResponse.status,
 									statusText: tokenResponse.statusText,
 									error: errorData,
@@ -1558,15 +1559,15 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								});
 							}
 						} catch (error) {
-							console.log('🔐 [MFA Flow V7] Worker token request failed:', error);
-							console.log(
+							logger.info('🔐 [MFA Flow V7] Worker token request failed:', error);
+							logger.info(
 								'🔐 [MFA Flow V7] Continuing without worker token - device registration will use alternative method'
 							);
 							// Don't show error to user - worker token is optional for basic MFA flow
 						}
 
 						// For redirectless flow, we need to complete the authentication by calling the resumeUrl
-						console.log(
+						logger.info(
 							'🔐 [MFA Flow V7] Completing redirectless authentication by calling resumeUrl'
 						);
 
@@ -1587,11 +1588,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 							if (resumeResponse.ok) {
 								const resumeData = await resumeResponse.json();
-								console.log('🔐 [MFA Flow V7] Resume response:', resumeData);
+								logger.info('🔐 [MFA Flow V7] Resume response:', resumeData);
 
 								// Check if we got tokens or need to continue the flow
 								if (resumeData.access_token) {
-									console.log('🔐 [MFA Flow V7] Authentication completed with tokens');
+									logger.info('🔐 [MFA Flow V7] Authentication completed with tokens');
 									// Store tokens and get real user ID
 									const realUserId = resumeData.id_token
 										? JSON.parse(atob(resumeData.id_token.split('.')[1])).sub
@@ -1601,7 +1602,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										userId: realUserId,
 									}));
 								} else if (resumeData.userId) {
-									console.log('🔐 [MFA Flow V7] Authentication completed with user ID');
+									logger.info('🔐 [MFA Flow V7] Authentication completed with user ID');
 									setFlowContext((prev) => ({
 										...prev,
 										userId: resumeData.userId,
@@ -1609,7 +1610,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}
 							} else {
 								const errorData = await resumeResponse.json().catch(() => ({}));
-								console.log(
+								logger.info(
 									'🔐 [MFA Flow V7] Resume URL returned error:',
 									resumeResponse.status,
 									resumeResponse.statusText,
@@ -1618,7 +1619,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								// Continue with flow even if resume fails - user can still proceed to device pairing
 							}
 						} catch (error) {
-							console.log('🔐 [MFA Flow V7] Error calling resume URL:', error);
+							logger.info('🔐 [MFA Flow V7] Error calling resume URL:', error);
 						}
 
 						// Advance to device pairing step
@@ -1630,7 +1631,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							duration: 4000,
 						});
 					} else {
-						log.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
+						logger.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
 						modernMessaging.showBanner({
 							type: 'warning',
 							title: 'Warning',
@@ -1640,7 +1641,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				} catch (authError: unknown) {
 					const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
-					log.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
+					logger.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1671,19 +1672,19 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						const pkceData = JSON.parse(existingPkce);
 						codeVerifier = pkceData.codeVerifier;
 						codeChallenge = pkceData.codeChallenge;
-						console.log('🔐 [MFA Flow V7] Using existing PKCE codes for redirect auth');
+						logger.info('🔐 [MFA Flow V7] Using existing PKCE codes for redirect auth');
 					} else {
 						// Generate new PKCE codes
-						console.log('🔐 [MFA Flow V7] Starting PKCE generation for redirect auth...');
+						logger.info('🔐 [MFA Flow V7] Starting PKCE generation for redirect auth...');
 						const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
 						codeVerifier = generateCodeVerifier();
-						console.log(
+						logger.info(
 							'🔐 [MFA Flow V7] Generated codeVerifier:',
 							`${codeVerifier.substring(0, 20)}...`
 						);
 
 						codeChallenge = await generateCodeChallenge(codeVerifier);
-						console.log(
+						logger.info(
 							'🔐 [MFA Flow V7] Generated codeChallenge:',
 							`${codeChallenge.substring(0, 20)}...`
 						);
@@ -1697,10 +1698,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								codeChallengeMethod: 'S256',
 							})
 						);
-						console.log('🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth');
+						logger.info('🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth');
 					}
 				} catch (error) {
-					log.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1711,16 +1712,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				// Debug PKCE codes before building URL
-				console.log(`🔐 [MFA Flow V7] PKCE Debug - codeChallenge length:`, codeChallenge.length);
-				console.log(
+				logger.info(`🔐 [MFA Flow V7] PKCE Debug - codeChallenge length:`, codeChallenge.length);
+				logger.info(
 					`🔐 [MFA Flow V7] PKCE Debug - codeChallenge value:`,
 					`${codeChallenge.substring(0, 20)}...`
 				);
-				console.log(`🔐 [MFA Flow V7] PKCE Debug - codeVerifier length:`, codeVerifier.length);
+				logger.info(`🔐 [MFA Flow V7] PKCE Debug - codeVerifier length:`, codeVerifier.length);
 
 				// Validate PKCE codes before building URL
 				if (!codeChallenge || codeChallenge.length === 0) {
-					log.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
+					logger.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1731,7 +1732,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				if (!codeVerifier || codeVerifier.length === 0) {
-					log.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
+					logger.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1750,7 +1751,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					credentials.redirectUri ||
 					'https://localhost:3000/oauth-callback';
 
-				console.log('🔐 [MFA Flow V7] Redirect Credential Debug:', {
+				logger.info('🔐 [MFA Flow V7] Redirect Credential Debug:', {
 					authCodeCredentials: {
 						environmentId: authCodeCredentials.environmentId,
 						clientId: authCodeCredentials.clientId,
@@ -1793,13 +1794,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				const mockAuthUrl = `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize?${urlParams.toString()}`;
 
-				console.log(`🔐 [MFA Flow V7] Starting redirect authentication with URL:`, mockAuthUrl);
-				console.log(`🔐 [MFA Flow V7] URL Parameters:`, Object.fromEntries(urlParams));
-				console.log(`🔐 [MFA Flow V7] PKCE parameters:`, {
+				logger.info(`🔐 [MFA Flow V7] Starting redirect authentication with URL:`, mockAuthUrl);
+				logger.info(`🔐 [MFA Flow V7] URL Parameters:`, Object.fromEntries(urlParams));
+				logger.info(`🔐 [MFA Flow V7] PKCE parameters:`, {
 					code_challenge: `${codeChallenge.substring(0, 20)}...`,
 					code_challenge_method: 'S256',
 				});
-				console.log(`🔐 [MFA Flow V7] Authorization URL breakdown:`, {
+				logger.info(`🔐 [MFA Flow V7] Authorization URL breakdown:`, {
 					baseUrl: `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`,
 					clientId: effectiveClientId,
 					redirectUri: effectiveRedirectUri,
@@ -1817,7 +1818,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				sessionStorage.setItem('flowContext', JSON.stringify(mfaFlowContext));
 				sessionStorage.setItem('active_oauth_flow', 'pingone-complete-mfa-v7');
 
-				console.log(`🔐 [MFA Flow V7] Set flow context for callback:`, mfaFlowContext);
+				logger.info(`🔐 [MFA Flow V7] Set flow context for callback:`, mfaFlowContext);
 
 				setAuthUrl(mockAuthUrl);
 				// Modal showing removed - redirect flows are now triggered manually via button click
@@ -1833,15 +1834,15 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		setError(null);
 
 		try {
-			console.log('🔐 [MFA Flow V7] User confirmed redirect/flow');
+			logger.info('🔐 [MFA Flow V7] User confirmed redirect/flow');
 
 			// Check if we have flow context (from redirectless authentication)
 			if (flowContext.flowId && flowContext.resumeUrl) {
-				console.log(
+				logger.info(
 					'🔐 [MFA Flow V7] Redirectless flow confirmed - opening resumeUrl for user to complete authentication'
 				);
-				console.log('🔐 [MFA Flow V7] Flow ID:', flowContext.flowId);
-				console.log('🔐 [MFA Flow V7] Resume URL:', flowContext.resumeUrl);
+				logger.info('🔐 [MFA Flow V7] Flow ID:', flowContext.flowId);
+				logger.info('🔐 [MFA Flow V7] Resume URL:', flowContext.resumeUrl);
 
 				// For redirectless flow, we need to open the resumeUrl in a popup
 				// so the user can complete the authentication steps (MFA, consent, etc.)
@@ -1857,7 +1858,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					);
 				}
 
-				console.log(
+				logger.info(
 					'🔐 [MFA Flow V7] Opened resumeUrl in popup - waiting for user to complete authentication'
 				);
 
@@ -1865,7 +1866,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				const checkClosed = setInterval(() => {
 					if (popup.closed) {
 						clearInterval(checkClosed);
-						console.log(
+						logger.info(
 							'🔐 [MFA Flow V7] Authentication popup closed - assuming user completed authentication'
 						);
 
@@ -1881,7 +1882,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				}, 1000);
 			} else {
-				console.log('🔐 [MFA Flow V7] Simulating redirect authentication');
+				logger.info('🔐 [MFA Flow V7] Simulating redirect authentication');
 				// Simulate authentication process for regular redirect
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -1895,7 +1896,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-			log.error('Authentication Error:', error);
+			logger.error('Authentication Error:', error);
 			setError(errorMessage);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -1918,7 +1919,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		setRetryCount((prev) => prev + 1);
 		setError(null);
 		setCurrentStep('username_login');
-		console.log('🔄 [MFA Flow V7] Flow retried');
+		logger.info('🔄 [MFA Flow V7] Flow retried');
 	}, []);
 
 	// Device registration validation
@@ -1956,7 +1957,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		}
 
 		// Check if we have userId from authentication
-		console.log(`📱 [MFA Flow V7] Device registration - checking userId:`, {
+		logger.info(`📱 [MFA Flow V7] Device registration - checking userId:`, {
 			userId: flowContext.userId,
 			flowId: flowContext.flowId,
 			resumeUrl: flowContext.resumeUrl,
@@ -1970,7 +1971,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 		if (!effectiveUserId && flowContext.flowEmbedded?.user?.id) {
 			effectiveUserId = flowContext.flowEmbedded.user.id;
-			console.log(`📱 [MFA Flow V7] Extracted userId from flowEmbedded.user.id:`, effectiveUserId);
+			logger.info(`📱 [MFA Flow V7] Extracted userId from flowEmbedded.user.id:`, effectiveUserId);
 			// Update flowContext with the extracted userId (only if it's a valid string)
 			if (effectiveUserId) {
 				setFlowContext((prev) => ({ ...prev, userId: effectiveUserId! }));
@@ -1983,17 +1984,17 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				const extractedId = payload.sub || payload.user_id || payload.id;
 				if (extractedId && typeof extractedId === 'string') {
 					effectiveUserId = extractedId;
-					console.log(`📱 [MFA Flow V7] Extracted userId from id_token:`, effectiveUserId);
+					logger.info(`📱 [MFA Flow V7] Extracted userId from id_token:`, effectiveUserId);
 					// Update flowContext with the extracted userId
 					setFlowContext((prev) => ({ ...prev, userId: effectiveUserId! }));
 				}
 			} catch (error) {
-				log.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
+				logger.warn(`📱 [MFA Flow V7] Failed to extract userId from id_token:`, error);
 			}
 		}
 
 		if (!effectiveUserId) {
-			log.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
+			logger.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2015,12 +2016,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			) {
 				// Use the selected country code from the PhoneNumberInput component
 				finalPhoneNumber = selectedCountryCode + deviceInfo.phoneNumber;
-				console.log(
+				logger.info(
 					`📱 [MFA Flow V7] Concatenating country code: ${deviceInfo.phoneNumber} -> ${finalPhoneNumber} (using ${selectedCountryCode})`
 				);
 			}
 
-			console.log(`📱 [MFA Flow V7] Registering ${selectedDeviceType} device:`, {
+			logger.info(`📱 [MFA Flow V7] Registering ${selectedDeviceType} device:`, {
 				deviceType: selectedDeviceType,
 				deviceInfo: {
 					...deviceInfo,
@@ -2049,7 +2050,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				workerToken: flowContext.workerToken,
 			};
 
-			console.log(`📱 [MFA Flow V7] Making API call through backend proxy:`, {
+			logger.info(`📱 [MFA Flow V7] Making API call through backend proxy:`, {
 				url: deviceRegistrationUrl,
 				method: 'POST',
 				headers: {
@@ -2069,14 +2070,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			if (!deviceRegistrationResponse.ok) {
 				const errorData = await deviceRegistrationResponse.json();
-				log.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
+				logger.error(`❌ [MFA Flow V7] PingOne device registration failed:`, errorData);
 				throw new Error(
 					`Device registration failed: ${errorData.message || errorData.error || 'Unknown error'}`
 				);
 			}
 
 			const deviceRegistrationData = await deviceRegistrationResponse.json();
-			console.log(
+			logger.info(
 				`✅ [MFA Flow V7] PingOne device registration successful:`,
 				deviceRegistrationData
 			);
@@ -2151,10 +2152,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				message: `${selectedDeviceType.toUpperCase()} device registered successfully!`,
 				duration: 4000,
 			});
-			console.log(`✅ [MFA Flow V7] Device registered:`, newDevice);
+			logger.info(`✅ [MFA Flow V7] Device registered:`, newDevice);
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			log.error(`❌ [MFA Flow V7] Device registration failed:`, error);
+			logger.error(`❌ [MFA Flow V7] Device registration failed:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2240,7 +2241,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Register the FIDO2 device with PingOne
 			try {
-				console.log('🔑 [MFA Flow V7] Registering FIDO2 device with PingOne...', {
+				logger.info('🔑 [MFA Flow V7] Registering FIDO2 device with PingOne...', {
 					credentialId: `${credentialId.substring(0, 20)}...`,
 					deviceName: deviceInfo.deviceName,
 					selectedDeviceType,
@@ -2267,7 +2268,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 				}, 1000);
 			} catch (error) {
-				log.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
+				logger.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2295,7 +2296,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			setIsLoading(true);
 			try {
-				console.log('🔐 [MFA Flow V7] Initiating MFA challenge for device:', device);
+				logger.info('🔐 [MFA Flow V7] Initiating MFA challenge for device:', device);
 
 				// Store current scroll position to prevent jumping to top
 				const currentScrollY = window.scrollY;
@@ -2330,7 +2331,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 
 					const challengeData = await challengeResponse.json();
-					console.log('✅ [MFA Flow V7] MFA challenge initiated:', challengeData);
+					logger.info('✅ [MFA Flow V7] MFA challenge initiated:', challengeData);
 
 					// Create API call data for display
 					const challengeInitiateCall = createApiCallData(
@@ -2386,7 +2387,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				log.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
+				logger.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2424,7 +2425,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			setIsLoading(true);
 			try {
-				console.log('🔐 [MFA Flow V7] Verifying MFA challenge code:', challengeCode);
+				logger.info('🔐 [MFA Flow V7] Verifying MFA challenge code:', challengeCode);
 
 				// Store current scroll position to prevent jumping to top
 				const currentScrollY = window.scrollY;
@@ -2458,7 +2459,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 
 					const verifyData = await verifyResponse.json();
-					console.log('✅ [MFA Flow V7] MFA challenge verified:', verifyData);
+					logger.info('✅ [MFA Flow V7] MFA challenge verified:', verifyData);
 
 					// Create API call data for display
 					const challengeVerifyCall = createApiCallData(
@@ -2521,7 +2522,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
-				log.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
+				logger.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -2582,7 +2583,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				environment_id: authCodeCredentials.environmentId,
 			};
 
-			console.log('🔐 [MFA Flow V7] Exchanging authorization code for tokens:', {
+			logger.info('🔐 [MFA Flow V7] Exchanging authorization code for tokens:', {
 				tokenEndpoint,
 				hasCode: !!flowContext.authCode,
 				hasCodeVerifier: !!codeVerifier,
@@ -2604,7 +2605,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				throw new Error(tokenData.error_description || 'Token exchange failed');
 			}
 
-			console.log('✅ [MFA Flow V7] Token exchange successful:', {
+			logger.info('✅ [MFA Flow V7] Token exchange successful:', {
 				hasAccessToken: !!tokenData.access_token,
 				hasIdToken: !!tokenData.id_token,
 				hasRefreshToken: !!tokenData.refresh_token,
@@ -2616,9 +2617,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				try {
 					const payload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
 					userId = payload.sub || payload.user_id || payload.id || '';
-					console.log(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`);
+					logger.info(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`);
 				} catch (error) {
-					log.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
+					logger.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
 				}
 			}
 
@@ -2677,7 +2678,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			onStepChange?.('success');
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			log.error('❌ [MFA Flow V7] Token exchange failed:', error);
+			logger.error('❌ [MFA Flow V7] Token exchange failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2861,7 +2862,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								redirectUri: '', // Worker token flow doesn't use redirect URI
 							}}
 							onCredentialsChange={(credentials) => {
-								console.log('[CompleteMFA-V7] Worker Token credentials changed:', credentials);
+								logger.info('[CompleteMFA-V7] Worker Token credentials changed:', credentials);
 								setWorkerTokenCredentials((prev) => ({
 									...prev,
 									environmentId: credentials.environmentId || prev.environmentId,
@@ -2873,7 +2874,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								setHasUnsavedWorkerTokenChanges(true);
 							}}
 							onClientAuthMethodChange={(method) => {
-								console.log('[CompleteMFA-V7] Worker Token Client Auth Method changed:', method);
+								logger.info('[CompleteMFA-V7] Worker Token Client Auth Method changed:', method);
 								setWorkerTokenCredentials((prev) => ({
 									...prev,
 									tokenEndpointAuthMethod: method,
@@ -2884,13 +2885,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								workerTokenCredentials.tokenEndpointAuthMethod || 'client_secret_post'
 							}
 							onDiscoveryComplete={(result) => {
-								console.log('🔍 [CompleteMFA-V7] Worker Token OIDC Discovery completed:', result);
+								logger.info('🔍 [CompleteMFA-V7] Worker Token OIDC Discovery completed:', result);
 								if (result.success && result.document) {
 									const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
 										result.document.issuer
 									);
 									if (extractedEnvId) {
-										console.log('✅ [CompleteMFA-V7] Extracted environment ID:', extractedEnvId);
+										logger.info('✅ [CompleteMFA-V7] Extracted environment ID:', extractedEnvId);
 										setWorkerTokenCredentials((prev) => ({
 											...prev,
 											environmentId: extractedEnvId,
@@ -4550,7 +4551,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						scopes: 'openid profile email',
 					}}
 					onCredentialsChange={(credentials) => {
-						console.log('[CompleteMFA-V7] Credentials changed:', credentials);
+						logger.info('[CompleteMFA-V7] Credentials changed:', credentials);
 						setAuthCodeCredentials((prev) => ({
 							...prev,
 							environmentId: credentials.environmentId || prev.environmentId,
@@ -4563,7 +4564,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						}));
 					}}
 					onClientAuthMethodChange={(method) => {
-						console.log('[CompleteMFA-V7] Client Auth Method changed:', method);
+						logger.info('[CompleteMFA-V7] Client Auth Method changed:', method);
 						setAuthCodeCredentials((prev) => ({
 							...prev,
 							tokenEndpointAuthMethod: method,
@@ -4571,13 +4572,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}}
 					clientAuthMethod={authCodeCredentials.tokenEndpointAuthMethod || 'client_secret_post'}
 					onDiscoveryComplete={(result) => {
-						console.log('🔍 [CompleteMFA-V7] OIDC Discovery completed:', result);
+						logger.info('🔍 [CompleteMFA-V7] OIDC Discovery completed:', result);
 						if (result.success && result.document) {
 							const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
 								result.document.issuer
 							);
 							if (extractedEnvId) {
-								console.log('✅ [CompleteMFA-V7] Extracted environment ID:', extractedEnvId);
+								logger.info('✅ [CompleteMFA-V7] Extracted environment ID:', extractedEnvId);
 								setAuthCodeCredentials((prev) => ({
 									...prev,
 									environmentId: extractedEnvId,

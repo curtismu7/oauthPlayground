@@ -14,7 +14,7 @@
  *
  * // Validate all fields
  * if (validate()) {
- *   console.log('All fields valid!');
+ *   logger.info('All fields valid!');
  * }
  *
  * // Validate single field
@@ -25,6 +25,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { areRequiredFieldsValid, validateDeviceFields } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceFlowConfig, ValidationResult } from '@/v8/config/deviceFlowConfigTypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🪝 USE-DYNAMIC-FORM-VALIDATION]';
 
 /**
@@ -79,12 +80,12 @@ export const useDynamicFormValidation = (
 			const value = values[fieldName] || '';
 
 			if (!validator) {
-				console.warn(`${MODULE_TAG} No validator found for field:`, fieldName);
+				logger.warn(`${MODULE_TAG} No validator found for field:`, fieldName);
 				return { valid: true };
 			}
 
 			const result = validator(value);
-			console.log(`${MODULE_TAG} Validated field ${fieldName}:`, result);
+			logger.info(`${MODULE_TAG} Validated field ${fieldName}:`, result);
 
 			return result;
 		},
@@ -97,7 +98,7 @@ export const useDynamicFormValidation = (
 	 * @returns True if all fields valid
 	 */
 	const validate = useCallback((): boolean => {
-		console.log(`${MODULE_TAG} Validating all fields for device:`, config.deviceType);
+		logger.info(`${MODULE_TAG} Validating all fields for device:`, config.deviceType);
 
 		// Use helper from deviceFlowConfigs to validate all fields
 		const validationResults = validateDeviceFields(config.deviceType, values);
@@ -115,7 +116,7 @@ export const useDynamicFormValidation = (
 		// Check if all required fields are valid
 		const allValid = areRequiredFieldsValid(config.deviceType, values);
 
-		console.log(`${MODULE_TAG} Validation complete:`, {
+		logger.info(`${MODULE_TAG} Validation complete:`, {
 			allValid,
 			errorCount: Object.keys(newErrors).length,
 			warningCount: Object.keys(newWarnings).length,
@@ -133,7 +134,7 @@ export const useDynamicFormValidation = (
 	 * (Useful to avoid showing errors before user interacts)
 	 */
 	const validateTouchedFields = useCallback((): boolean => {
-		console.log(`${MODULE_TAG} Validating touched fields:`, Array.from(touchedFields));
+		logger.info(`${MODULE_TAG} Validating touched fields:`, Array.from(touchedFields));
 
 		const validationResults = validateDeviceFields(config.deviceType, values);
 		const newErrors: Record<string, string> = {};
@@ -158,7 +159,7 @@ export const useDynamicFormValidation = (
 	 * Mark a field as touched
 	 */
 	const touchField = useCallback((fieldName: string) => {
-		console.log(`${MODULE_TAG} Field touched:`, fieldName);
+		logger.info(`${MODULE_TAG} Field touched:`, fieldName);
 		setTouchedFields((prev) => new Set([...prev, fieldName]));
 	}, []);
 
@@ -166,7 +167,7 @@ export const useDynamicFormValidation = (
 	 * Mark multiple fields as touched
 	 */
 	const touchFields = useCallback((fieldNames: string[]) => {
-		console.log(`${MODULE_TAG} Fields touched:`, fieldNames);
+		logger.info(`${MODULE_TAG} Fields touched:`, fieldNames);
 		setTouchedFields((prev) => new Set([...prev, ...fieldNames]));
 	}, []);
 
@@ -174,7 +175,7 @@ export const useDynamicFormValidation = (
 	 * Clear errors for a specific field
 	 */
 	const clearFieldError = useCallback((fieldName: string) => {
-		console.log(`${MODULE_TAG} Clearing error for field:`, fieldName);
+		logger.info(`${MODULE_TAG} Clearing error for field:`, fieldName);
 		setErrors((prev) => {
 			const newErrors = { ...prev };
 			delete newErrors[fieldName];
@@ -186,7 +187,7 @@ export const useDynamicFormValidation = (
 	 * Clear all errors
 	 */
 	const clearErrors = useCallback(() => {
-		console.log(`${MODULE_TAG} Clearing all errors`);
+		logger.info(`${MODULE_TAG} Clearing all errors`);
 		setErrors({});
 		setWarnings({});
 	}, []);
@@ -195,7 +196,7 @@ export const useDynamicFormValidation = (
 	 * Reset validation state
 	 */
 	const reset = useCallback(() => {
-		console.log(`${MODULE_TAG} Resetting validation state`);
+		logger.info(`${MODULE_TAG} Resetting validation state`);
 		setErrors({});
 		setWarnings({});
 		setIsValid(false);
@@ -209,7 +210,7 @@ export const useDynamicFormValidation = (
 	// Validate on mount if requested
 	useEffect(() => {
 		if (validateOnMount) {
-			console.log(`${MODULE_TAG} Validating on mount`);
+			logger.info(`${MODULE_TAG} Validating on mount`);
 			validate();
 		}
 	}, [validate, validateOnMount]); // Only run once on mount
@@ -217,7 +218,7 @@ export const useDynamicFormValidation = (
 	// Validate on change if requested
 	useEffect(() => {
 		if (validateOnChange && touchedFields.size > 0) {
-			console.log(`${MODULE_TAG} Validating on change`);
+			logger.info(`${MODULE_TAG} Validating on change`);
 			validateTouchedFields();
 		}
 	}, [validateOnChange, validateTouchedFields, touchedFields]);

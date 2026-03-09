@@ -23,6 +23,7 @@
 import React, { useId, useState } from 'react';
 import { StepValidationFeedbackProps } from '@/v8/types/stepNavigation';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
 const ENABLE_VALIDATION_DEBUG_LOGGING = false;
 
@@ -87,7 +88,7 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 				onValidationRecheck();
 			}
 		} catch (error) {
-			console.error('Failed to fix errors:', error);
+			logger.error('Failed to fix errors:', error);
 		} finally {
 			setIsFixing(false);
 		}
@@ -98,7 +99,7 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 	}
 
 	if (ENABLE_VALIDATION_DEBUG_LOGGING) {
-		console.log(`${MODULE_TAG} Rendering feedback`, {
+		logger.info(`${MODULE_TAG} Rendering feedback`, {
 			errorCount: errors.length,
 			warningCount: warnings.length,
 		});

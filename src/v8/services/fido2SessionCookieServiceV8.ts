@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * FIDO2 Session Cookie Service
  *
  * Detects PingOne session cookies and determines if FIDO2 platform devices
@@ -43,7 +44,7 @@ export function hasPingOneSessionCookie(): boolean {
 				name.toLowerCase().includes(pingOneName.toLowerCase())
 			)
 		) {
-			console.log(`${MODULE_TAG} ✅ Found PingOne session cookie: ${name}`);
+			logger.info(`${MODULE_TAG} ✅ Found PingOne session cookie: ${name}`);
 			return true;
 		}
 	}
@@ -61,13 +62,13 @@ export function hasPingOneSessionCookie(): boolean {
 
 		for (const indicator of sessionIndicators) {
 			if (localStorage.getItem(indicator) || sessionStorage.getItem(indicator)) {
-				console.log(`${MODULE_TAG} ✅ Found PingOne session indicator in storage: ${indicator}`);
+				logger.info(`${MODULE_TAG} ✅ Found PingOne session indicator in storage: ${indicator}`);
 				return true;
 			}
 		}
 	} catch (error) {
 		// Storage access might be blocked in some contexts
-		console.warn(`${MODULE_TAG} Could not check storage for session indicators:`, error);
+		logger.warn(`${MODULE_TAG} Could not check storage for session indicators:`, error);
 	}
 
 	return false;
@@ -98,7 +99,7 @@ export function isNativeAppContext(): boolean {
 		(window as unknown as { __NATIVE_APP__?: boolean }).__NATIVE_APP__ === true;
 
 	if (isNativeApp) {
-		console.log(`${MODULE_TAG} ✅ Detected native app context`);
+		logger.info(`${MODULE_TAG} ✅ Detected native app context`);
 	}
 
 	return isNativeApp;
@@ -128,16 +129,16 @@ export function isDeviceAuthorizationEnabled(): boolean {
 
 		for (const indicator of deviceAuthIndicators) {
 			if (sessionStorage.getItem(indicator) || localStorage.getItem(indicator)) {
-				console.log(`${MODULE_TAG} ✅ Found device authorization indicator: ${indicator}`);
+				logger.info(`${MODULE_TAG} ✅ Found device authorization indicator: ${indicator}`);
 				return true;
 			}
 		}
 	} catch (error) {
-		console.warn(`${MODULE_TAG} Could not check storage for device authorization:`, error);
+		logger.warn(`${MODULE_TAG} Could not check storage for device authorization:`, error);
 	}
 
 	if (hasDeviceCode || hasDeviceAuth) {
-		console.log(`${MODULE_TAG} ✅ Device authorization detected from URL parameters`);
+		logger.info(`${MODULE_TAG} ✅ Device authorization detected from URL parameters`);
 		return true;
 	}
 
@@ -188,7 +189,7 @@ export function shouldPreferFIDO2PlatformDevice(): {
 	};
 
 	if (prefer) {
-		console.log(`${MODULE_TAG} ✅ Should prefer FIDO2 platform device:`, result);
+		logger.info(`${MODULE_TAG} ✅ Should prefer FIDO2 platform device:`, result);
 	}
 
 	return result;
@@ -207,7 +208,7 @@ export function getAuthenticatorSelectionPreferences(): {
 	const { prefer, reason } = shouldPreferFIDO2PlatformDevice();
 
 	if (prefer) {
-		console.log(`${MODULE_TAG} Using platform authenticator preference: ${reason}`);
+		logger.info(`${MODULE_TAG} Using platform authenticator preference: ${reason}`);
 		return {
 			authenticatorAttachment: 'platform',
 			userVerification: 'preferred',

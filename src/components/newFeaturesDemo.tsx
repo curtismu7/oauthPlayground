@@ -40,7 +40,7 @@ function AppWithErrorHandling() {
 		<ErrorBoundary
 			fallback={<div>Something went wrong. Please try again.</div>}
 			onError={(error, errorInfo) => {
-				console.log('Error caught by boundary:', error, errorInfo);
+				logger.info('Error caught by boundary:', error, errorInfo);
 			}}
 		>
 			<YourAppComponents />
@@ -51,6 +51,7 @@ function AppWithErrorHandling() {
 // Example 4: Programmatic usage of services
 import { EnhancedConfigurationService, ServiceDiscoveryService } from './services/';
 
+import { logger } from '../utils/logger';
 // Get service recommendations for a flow
 const _recommendations = ServiceDiscoveryService.getServiceRecommendations(
 	FlowType.OAUTH_AUTHORIZATION_CODE

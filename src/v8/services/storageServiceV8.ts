@@ -29,6 +29,7 @@ import { StorageServiceV8Migration } from '../../services/storageServiceV8Migrat
 import type { Migration, StorageData } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
+import { logger } from '../utils/logger';
 // ============================================================================
 // STORAGE KEYS (Preserved for compatibility)
 // ============================================================================
@@ -63,9 +64,9 @@ let migrationCompleted = false;
 const ensureMigration = async (): Promise<void> => {
 	if (!migrationCompleted) {
 		if (StorageServiceV8Migration.needsMigration()) {
-			console.log(`${MODULE_TAG} Starting automatic migration...`);
+			logger.info(`${MODULE_TAG} Starting automatic migration...`);
 			const result = await StorageServiceV8Migration.migrateAll();
-			console.log(`${MODULE_TAG} Migration completed`, result);
+			logger.info(`${MODULE_TAG} Migration completed`, result);
 		}
 		// Single-threaded; no other code mutates migrationCompleted during await
 		// eslint-disable-next-line require-atomic-updates
@@ -93,13 +94,13 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			await unifiedTokenStorage.saveV8Versioned(key, data, version, flowKey);
 
-			console.log(`${MODULE_TAG} Data saved`, {
+			logger.info(`${MODULE_TAG} Data saved`, {
 				key,
 				version,
 				flowKey,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save data`, {
+			logger.error(`${MODULE_TAG} Failed to save data`, {
 				key,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -121,14 +122,14 @@ export class StorageServiceV8 {
 			const data = await unifiedTokenStorage.loadV8Versioned<T>(key, migrations);
 
 			if (data) {
-				console.log(`${MODULE_TAG} Data loaded`, { key });
+				logger.info(`${MODULE_TAG} Data loaded`, { key });
 			} else {
-				console.log(`${MODULE_TAG} No data found`, { key });
+				logger.info(`${MODULE_TAG} No data found`, { key });
 			}
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load data`, {
+			logger.error(`${MODULE_TAG} Failed to load data`, {
 				key,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -146,9 +147,9 @@ export class StorageServiceV8 {
 		try {
 			await ensureMigration();
 			await unifiedTokenStorage.clearV8Key(key);
-			console.log(`${MODULE_TAG} Data cleared`, { key });
+			logger.info(`${MODULE_TAG} Data cleared`, { key });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear data`, {
+			logger.error(`${MODULE_TAG} Failed to clear data`, {
 				key,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -164,9 +165,9 @@ export class StorageServiceV8 {
 		try {
 			await ensureMigration();
 			await unifiedTokenStorage.clearAllV8();
-			console.log(`${MODULE_TAG} All V8 data cleared`);
+			logger.info(`${MODULE_TAG} All V8 data cleared`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear all data`, {
+			logger.error(`${MODULE_TAG} Failed to clear all data`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
@@ -182,7 +183,7 @@ export class StorageServiceV8 {
 			const keys = await unifiedTokenStorage.getAllV8Keys();
 			return keys.filter((key) => key.startsWith(STORAGE_KEYS.PREFIX));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get all keys`, {
+			logger.error(`${MODULE_TAG} Failed to get all keys`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return [];
@@ -201,13 +202,13 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			const exported = await unifiedTokenStorage.exportAllV8();
 
-			console.log(`${MODULE_TAG} Data exported`, {
+			logger.info(`${MODULE_TAG} Data exported`, {
 				size: exported.length,
 			});
 
 			return exported;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to export data`, {
+			logger.error(`${MODULE_TAG} Failed to export data`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			throw new Error(`Failed to export data: ${error}`);
@@ -226,9 +227,9 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			await unifiedTokenStorage.importAllV8(jsonData, overwrite);
 
-			console.log(`${MODULE_TAG} Data imported`, { overwrite });
+			logger.info(`${MODULE_TAG} Data imported`, { overwrite });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to import data`, {
+			logger.error(`${MODULE_TAG} Failed to import data`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			throw new Error(`Failed to import data: ${error}`);
@@ -240,7 +241,7 @@ export class StorageServiceV8 {
 	 * @returns Total size of V8 storage in bytes
 	 * @example
 	 * const size = StorageServiceV8.getSize();
-	 * console.log(`Storage size: ${size} bytes`);
+	 * logger.info(`Storage size: ${size} bytes`);
 	 */
 	static async getSize(): Promise<number> {
 		try {
@@ -253,7 +254,7 @@ export class StorageServiceV8 {
 				totalSize += key.length * 2; // Rough estimate
 			});
 
-			console.log(`${MODULE_TAG} Storage size calculated`, {
+			logger.info(`${MODULE_TAG} Storage size calculated`, {
 				bytes: totalSize,
 				kb: (totalSize / 1024).toFixed(2),
 				keyCount: keys.length,
@@ -261,7 +262,7 @@ export class StorageServiceV8 {
 
 			return totalSize;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to calculate storage size`, {
+			logger.error(`${MODULE_TAG} Failed to calculate storage size`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return 0;
@@ -294,7 +295,7 @@ export class StorageServiceV8 {
 				const available = quota - usage;
 				const percentUsed = quota > 0 ? (usage / quota) * 100 : 0;
 
-				console.log(`${MODULE_TAG} Storage quota`, {
+				logger.info(`${MODULE_TAG} Storage quota`, {
 					usage,
 					quota,
 					available,
@@ -306,7 +307,7 @@ export class StorageServiceV8 {
 
 			return null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get storage quota`, {
+			logger.error(`${MODULE_TAG} Failed to get storage quota`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
@@ -323,7 +324,7 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			return await unifiedTokenStorage.hasV8Key(key);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to check key existence`, {
+			logger.error(`${MODULE_TAG} Failed to check key existence`, {
 				key,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -341,7 +342,7 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			return await unifiedTokenStorage.getV8Age(key);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get data age`, {
+			logger.error(`${MODULE_TAG} Failed to get data age`, {
 				key,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -360,7 +361,7 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			return await unifiedTokenStorage.isV8Expired(key, maxAge);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to check expiration`, {
+			logger.error(`${MODULE_TAG} Failed to check expiration`, {
 				key,
 				maxAge,
 				error: error instanceof Error ? error.message : String(error),
@@ -379,14 +380,14 @@ export class StorageServiceV8 {
 			await ensureMigration();
 			const cleaned = await unifiedTokenStorage.cleanupExpiredV8(maxAge);
 
-			console.log(`${MODULE_TAG} Expired data cleaned up`, {
+			logger.info(`${MODULE_TAG} Expired data cleaned up`, {
 				cleaned,
 				maxAge,
 			});
 
 			return cleaned;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to cleanup expired data`, {
+			logger.error(`${MODULE_TAG} Failed to cleanup expired data`, {
 				maxAge,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -421,14 +422,14 @@ export class StorageServiceV8 {
 				}
 			}
 
-			console.log(`${MODULE_TAG} Flow data retrieved`, {
+			logger.info(`${MODULE_TAG} Flow data retrieved`, {
 				flowKey,
 				count: flowData.length,
 			});
 
 			return flowData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get flow data`, {
+			logger.error(`${MODULE_TAG} Failed to get flow data`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -451,14 +452,14 @@ export class StorageServiceV8 {
 				cleared++;
 			}
 
-			console.log(`${MODULE_TAG} Flow data cleared`, {
+			logger.info(`${MODULE_TAG} Flow data cleared`, {
 				flowKey,
 				cleared,
 			});
 
 			return cleared;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear flow data`, {
+			logger.error(`${MODULE_TAG} Failed to clear flow data`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});

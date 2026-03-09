@@ -21,6 +21,7 @@
 
 import { STORAGE_KEYS, StorageServiceV8 } from './storageServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 FLOW-RESET-V8]';
 
 // ============================================================================
@@ -58,7 +59,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.resetFlow('authz-code');
 	 */
 	static resetFlow(flowKey: string, keepWorkerToken = true): ResetResult {
-		console.log(`${MODULE_TAG} Resetting flow`, { flowKey, keepWorkerToken });
+		logger.info(`${MODULE_TAG} Resetting flow`, { flowKey, keepWorkerToken });
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -93,7 +94,7 @@ export class FlowResetServiceV8 {
 				kept.push('worker_token');
 			}
 
-			console.log(`${MODULE_TAG} Flow reset complete`, {
+			logger.info(`${MODULE_TAG} Flow reset complete`, {
 				flowKey,
 				cleared: cleared.length,
 				kept: kept.length,
@@ -106,7 +107,7 @@ export class FlowResetServiceV8 {
 				message: `Flow reset complete. Cleared ${cleared.length} items, kept ${kept.length} items.`,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to reset flow`, {
+			logger.error(`${MODULE_TAG} Failed to reset flow`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -128,7 +129,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.fullReset('authz-code');
 	 */
 	static fullReset(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Full reset requested`, { flowKey });
+		logger.info(`${MODULE_TAG} Full reset requested`, { flowKey });
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -152,7 +153,7 @@ export class FlowResetServiceV8 {
 				cleared.push('step_progress');
 			}
 
-			console.log(`${MODULE_TAG} Full reset complete`, {
+			logger.info(`${MODULE_TAG} Full reset complete`, {
 				flowKey,
 				cleared: cleared.length,
 			});
@@ -164,7 +165,7 @@ export class FlowResetServiceV8 {
 				message: `Full reset complete. Cleared ${cleared.length} items.`,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to perform full reset`, {
+			logger.error(`${MODULE_TAG} Failed to perform full reset`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -186,7 +187,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearTokens('authz-code');
 	 */
 	static clearTokens(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing tokens`, { flowKey });
+		logger.info(`${MODULE_TAG} Clearing tokens`, { flowKey });
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -197,7 +198,7 @@ export class FlowResetServiceV8 {
 				cleared.push('tokens');
 			}
 
-			console.log(`${MODULE_TAG} Tokens cleared`, { flowKey });
+			logger.info(`${MODULE_TAG} Tokens cleared`, { flowKey });
 
 			return {
 				success: true,
@@ -206,7 +207,7 @@ export class FlowResetServiceV8 {
 				message: 'Tokens cleared.',
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear tokens`, {
+			logger.error(`${MODULE_TAG} Failed to clear tokens`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -228,7 +229,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearSession('authz-code');
 	 */
 	static clearSession(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing session`, { flowKey });
+		logger.info(`${MODULE_TAG} Clearing session`, { flowKey });
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -252,7 +253,7 @@ export class FlowResetServiceV8 {
 				}
 			});
 
-			console.log(`${MODULE_TAG} Session cleared`, {
+			logger.info(`${MODULE_TAG} Session cleared`, {
 				flowKey,
 				cleared: cleared.length,
 			});
@@ -264,7 +265,7 @@ export class FlowResetServiceV8 {
 				message: `Session cleared. Cleared ${cleared.length} items.`,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear session`, {
+			logger.error(`${MODULE_TAG} Failed to clear session`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -286,7 +287,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearProgress('authz-code');
 	 */
 	static clearProgress(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing progress`, { flowKey });
+		logger.info(`${MODULE_TAG} Clearing progress`, { flowKey });
 
 		const cleared: string[] = [];
 
@@ -296,7 +297,7 @@ export class FlowResetServiceV8 {
 				cleared.push('step_progress');
 			}
 
-			console.log(`${MODULE_TAG} Progress cleared`, { flowKey });
+			logger.info(`${MODULE_TAG} Progress cleared`, { flowKey });
 
 			return {
 				success: true,
@@ -305,7 +306,7 @@ export class FlowResetServiceV8 {
 				message: 'Progress cleared.',
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear progress`, {
+			logger.error(`${MODULE_TAG} Failed to clear progress`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -328,7 +329,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearPingOneSession('authz-code');
 	 */
 	static clearPingOneSession(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing PingOne session`, { flowKey });
+		logger.info(`${MODULE_TAG} Clearing PingOne session`, { flowKey });
 
 		const cleared: string[] = [];
 
@@ -345,7 +346,7 @@ export class FlowResetServiceV8 {
 				cleared.push('preferences');
 			}
 
-			console.log(`${MODULE_TAG} PingOne session cleared`, {
+			logger.info(`${MODULE_TAG} PingOne session cleared`, {
 				flowKey,
 				cleared: cleared.length,
 			});
@@ -357,7 +358,7 @@ export class FlowResetServiceV8 {
 				message: `PingOne session cleared. Cleared ${cleared.length} items.`,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear PingOne session`, {
+			logger.error(`${MODULE_TAG} Failed to clear PingOne session`, {
 				flowKey,
 				error: error instanceof Error ? error.message : String(error),
 			});

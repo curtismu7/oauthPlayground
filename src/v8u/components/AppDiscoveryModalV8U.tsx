@@ -16,6 +16,7 @@ import {
 } from '@/v8/services/appDiscoveryServiceV8';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {
@@ -104,7 +105,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			}
 
 			// Use worker token from unified service
-			console.log(`${MODULE_TAG} Worker token retrieved from unified service:`, {
+			logger.info(`${MODULE_TAG} Worker token retrieved from unified service:`, {
 				token: workerToken ? `${workerToken.substring(0, 20)}...` : 'null',
 				type: typeof workerToken,
 				hasValue: !!workerToken,

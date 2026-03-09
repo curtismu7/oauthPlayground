@@ -15,6 +15,7 @@
 import type { DeviceFlowConfig, ValidationResult } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFACredentials } from '@/v8/flows/shared/MFATypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[✅ UNIFIED-FLOW-VALIDATION]';
 
 // ============================================================================
@@ -36,7 +37,7 @@ export function validateRequiredFields(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string> } {
-	console.log(`${MODULE_TAG} Validating required fields for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating required fields for ${config.deviceType}`);
 
 	const errors: Record<string, string> = {};
 
@@ -51,7 +52,7 @@ export function validateRequiredFields(
 
 	const valid = Object.keys(errors).length === 0;
 
-	console.log(`${MODULE_TAG} Required fields validation:`, {
+	logger.info(`${MODULE_TAG} Required fields validation:`, {
 		valid,
 		errorCount: Object.keys(errors).length,
 	});
@@ -74,7 +75,7 @@ export function runValidationRules(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): Record<string, ValidationResult> {
-	console.log(`${MODULE_TAG} Running validation rules for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Running validation rules for ${config.deviceType}`);
 
 	const results: Record<string, ValidationResult> = {};
 
@@ -98,7 +99,7 @@ export function validateAllFields(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string>; warnings: Record<string, string> } {
-	console.log(`${MODULE_TAG} Validating all fields for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating all fields for ${config.deviceType}`);
 
 	const errors: Record<string, string> = {};
 	const warnings: Record<string, string> = {};
@@ -118,7 +119,7 @@ export function validateAllFields(
 
 	const valid = Object.keys(errors).length === 0;
 
-	console.log(`${MODULE_TAG} All fields validation:`, {
+	logger.info(`${MODULE_TAG} All fields validation:`, {
 		valid,
 		errorCount: Object.keys(errors).length,
 		warningCount: Object.keys(warnings).length,
@@ -142,7 +143,7 @@ export function validateConfigurationStep(
 	credentials: MFACredentials,
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): { valid: boolean; errors: string[] } {
-	console.log(`${MODULE_TAG} Validating configuration step`);
+	logger.info(`${MODULE_TAG} Validating configuration step`);
 
 	const errors: string[] = [];
 
@@ -172,7 +173,7 @@ export function validateConfigurationStep(
 
 	const valid = errors.length === 0;
 
-	console.log(`${MODULE_TAG} Configuration validation:`, { valid, errorCount: errors.length });
+	logger.info(`${MODULE_TAG} Configuration validation:`, { valid, errorCount: errors.length });
 
 	return { valid, errors };
 }
@@ -188,7 +189,7 @@ export function validateRegistrationStep(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string> } {
-	console.log(`${MODULE_TAG} Validating registration step for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating registration step for ${config.deviceType}`);
 
 	// Validate using config-driven rules
 	const { valid, errors } = validateAllFields(config, values);
@@ -203,7 +204,7 @@ export function validateRegistrationStep(
  * @returns Validation result
  */
 export function validateActivationOTP(otp: string): { valid: boolean; error?: string } {
-	console.log(`${MODULE_TAG} Validating OTP code`);
+	logger.info(`${MODULE_TAG} Validating OTP code`);
 
 	// OTP must be exactly 6 digits
 	if (!otp || otp.length !== 6) {
@@ -266,7 +267,7 @@ export function canProceedToNextStep(
 	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
-	console.log(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
+	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
 
 	switch (currentStep) {
 		case 0: {
@@ -296,7 +297,7 @@ export function canProceedToNextStep(
 		}
 
 		default: {
-			console.warn(`${MODULE_TAG} Unknown step: ${currentStep}`);
+			logger.warn(`${MODULE_TAG} Unknown step: ${currentStep}`);
 			return false;
 		}
 	}

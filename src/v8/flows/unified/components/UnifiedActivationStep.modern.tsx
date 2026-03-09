@@ -33,6 +33,7 @@ import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-MODERN]';
 
 // ============================================================================
@@ -57,8 +58,8 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 	nav,
 	config,
 }) => {
-	console.log(`${MODULE_TAG} Rendering for:`, config.deviceType);
-	console.log(`${MODULE_TAG} Device status:`, mfaState.deviceStatus);
+	logger.info(`${MODULE_TAG} Rendering for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Device status:`, mfaState.deviceStatus);
 
 	// -------------------------------------------------------------------------
 	// Local state
@@ -107,7 +108,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 	useEffect(() => {
 		if (credentials.flowType === 'admin') return;
 		if (mfaState.deviceStatus === 'ACTIVE') {
-			console.log(`${MODULE_TAG} Device already activated, proceeding to success`);
+			logger.info(`${MODULE_TAG} Device already activated, proceeding to success`);
 			nav.markStepComplete();
 			setTimeout(() => nav.goToNext(), 1500);
 		}
@@ -494,7 +495,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 								try {
 									nav.goToStep(0);
 								} catch (err) {
-									console.error(`${MODULE_TAG} Failed to navigate to QR step:`, err);
+									logger.error(`${MODULE_TAG} Failed to navigate to QR step:`, err);
 								}
 								return;
 							}

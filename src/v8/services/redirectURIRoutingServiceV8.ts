@@ -7,6 +7,7 @@
 
 import { useCallback } from 'react';
 
+import { logger } from '../utils/logger';
 // Redirect URI routing table based on inventory documentation
 interface RedirectURIRouteEntry {
 	redirectUri: string;
@@ -108,7 +109,7 @@ export const useRedirectURIRouting = () => {
 		);
 
 		if (routeEntry) {
-			console.log(`[RedirectURIRouting] ✅ Found route entry for ${uriPath}`, {
+			logger.info(`[RedirectURIRouting] ✅ Found route entry for ${uriPath}`, {
 				routeEntry: routeEntry.description,
 				targetStep: routeEntry.returnTarget,
 				flowType: routeEntry.flowType,
@@ -126,7 +127,7 @@ export const useRedirectURIRouting = () => {
 		const defaultStep = getDefaultStep(uriPath);
 		const defaultFlowType = determineFlowType(uriPath);
 
-		console.warn(`[RedirectURIRouting] ⚠️ No route entry found for ${uriPath}, using default`, {
+		logger.warn(`[RedirectURIRouting] ⚠️ No route entry found for ${uriPath}, using default`, {
 			defaultStep,
 			flowType: defaultFlowType,
 		});
@@ -151,7 +152,7 @@ export const useRedirectURIRouting = () => {
 			(entry) => uriPath.includes(entry.redirectUri) || entry.redirectUri.includes(uriPath)
 		);
 
-		console.log(
+		logger.info(
 			`[RedirectURIRouting] Validation for ${uriPath}: ${isValid ? '✅ VALID' : '❌ INVALID'}`
 		);
 		return isValid;

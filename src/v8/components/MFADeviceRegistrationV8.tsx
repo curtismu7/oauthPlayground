@@ -14,6 +14,7 @@ import { type DeviceType, type MFACredentials, type MFAState } from '@/v8/flows/
 import { type DeviceRegistrationResult, MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
 
 interface MFADeviceRegistrationV8Props {
@@ -179,7 +180,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Registration failed`, error);
+			logger.error(`${MODULE_TAG} Registration failed`, error);
 			setValidationErrors([errorMessage]);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -226,7 +227,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			onComplete(registrationResult.deviceId);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Registration completion failed`, error);
+			logger.error(`${MODULE_TAG} Registration completion failed`, error);
 			setValidationErrors([errorMessage]);
 			modernMessaging.showBanner({
 				type: 'error',

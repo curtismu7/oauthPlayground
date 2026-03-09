@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	flowRequiresRedirectUri,
 	getCallbackDescription,
@@ -211,19 +212,19 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(callbackUrl);
 			setCopied(true);
-			log.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', {
+			logger.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', {
 				flowType,
 				callbackUrl,
 			});
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			log.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
+			logger.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
 		}
 	};
 
 	const handleOpenInNewTab = () => {
 		window.open(callbackUrl, '_blank');
-		log.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
+		logger.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
 	};
 
 	if (!requiresRedirect) {

@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/idTokenValidation.ts
 // Comprehensive ID token validation service for OIDC flows
 
@@ -244,7 +245,7 @@ export class IDTokenValidationService {
 
 			// In a real implementation, you would validate the signature using the public key
 			// For now, we'll return true as a placeholder
-			console.log('Signature validation would be performed here with key:', key);
+			logger.info('Signature validation would be performed here with key:', key);
 			return true;
 		} catch (error) {
 			logger.error('IDTokenValidation', 'Signature validation failed:', undefined, error as Error);
@@ -313,7 +314,7 @@ export class IDTokenValidationService {
 
 			// Use backend proxy for PingOne JWKS
 			const proxyUrl = `/api/jwks?environment_id=${environmentId}`;
-			console.log(`[ID Token Validation] Fetching JWKS via backend proxy: ${proxyUrl}`);
+			logger.info(`[ID Token Validation] Fetching JWKS via backend proxy: ${proxyUrl}`);
 
 			const response = await fetch(proxyUrl);
 			if (!response.ok) {

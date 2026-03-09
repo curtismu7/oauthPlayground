@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 /**
  * @file deviceAuthorizationSecurityService.ts
  * @module v8u/services
@@ -324,7 +325,7 @@ export class DeviceAuthorizationSecurityService {
 		Object.values(DeviceAuthorizationSecurityService.STORAGE_KEYS).forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
-		console.log(`${MODULE_TAG} Security metrics cleared`);
+		logger.info(`${MODULE_TAG} Security metrics cleared`);
 	}
 
 	/**

@@ -26,6 +26,7 @@
 import React, { useState } from 'react';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 
 /**
@@ -60,19 +61,19 @@ export const StepActionButtonsV8: React.FC<
 	const canGoPrevious = currentStep > 0;
 
 	const handlePreviousClick = () => {
-		console.log(`${MODULE_TAG} Previous button clicked`, { currentStep });
+		logger.info(`${MODULE_TAG} Previous button clicked`, { currentStep });
 		onPrevious();
 	};
 
 	const handleNextClick = () => {
 		if (!isNextDisabled) {
-			console.log(`${MODULE_TAG} Next button clicked`, { currentStep });
+			logger.info(`${MODULE_TAG} Next button clicked`, { currentStep });
 			onNext();
 		}
 	};
 
 	const handleFinalClick = () => {
-		console.log(`${MODULE_TAG} Final button clicked`, { currentStep });
+		logger.info(`${MODULE_TAG} Final button clicked`, { currentStep });
 		if (onFinal) {
 			onFinal();
 		}

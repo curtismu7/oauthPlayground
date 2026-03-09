@@ -7,6 +7,7 @@ import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 
+import { logger } from '../utils/logger';
 interface DevicePollingProps {
 	deviceCode: string;
 	clientId: string;
@@ -210,7 +211,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setCurrentStatus(status);
 				setProgress((attempt / (totalAttempts || 120)) * 100);
 				onProgress(attempt, status);
-				log.info('DevicePolling', 'Polling progress', { attempt, status });
+				logger.info('DevicePolling', 'Polling progress', { attempt, status });
 			},
 			onSuccess: (response) => {
 				setPollingStatus('success');
@@ -218,17 +219,17 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setProgress(100);
 				setTokens(response as DeviceCodeTokens);
 				onSuccess(response as DeviceCodeTokens);
-				log.success('DevicePolling', 'Polling completed successfully', { tokens: response });
+				logger.success('DevicePolling', 'Polling completed successfully', { tokens: response });
 			},
 			onError: (error) => {
 				setPollingStatus('error');
 				setErrorMessage(error.message);
 				setCurrentStatus('Authorization failed');
 				onError(error);
-				log.error('DevicePolling', 'Polling failed', error);
+				logger.error('DevicePolling', 'Polling failed', error);
 			},
 			onSlowDown: (newInterval) => {
-				log.info('DevicePolling', 'Polling slowed down', { newInterval });
+				logger.info('DevicePolling', 'Polling slowed down', { newInterval });
 			},
 		};
 
@@ -257,7 +258,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 				setCurrentStatus('Authorization failed');
 				setErrorMessage(error.message);
 				onError(error);
-				log.error('DevicePolling', 'Polling start failed', error);
+				logger.error('DevicePolling', 'Polling start failed', error);
 			});
 
 		return () => {

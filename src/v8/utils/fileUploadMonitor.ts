@@ -1,4 +1,5 @@
 // File: src/v8/utils/fileUploadMonitor.ts
+import { logger } from '../utils/logger';
 // Purpose: Runtime monitoring for file upload issues
 
 export interface FileInfo {
@@ -25,14 +26,14 @@ export class FileUploadMonitor {
 		// Check if customLogoUrl contains base64 data while uploadedFileInfo is null
 		if (customLogoUrl.startsWith('data:') && !uploadedFileInfo) {
 			const warning = '⚠️ WARNING: Base64 data detected in customLogoUrl without uploadedFileInfo';
-			console.warn(warning);
+			logger.warn(warning);
 			this.warnings.push(warning);
 		}
 
 		// Check if both states are set (potential state mixing)
 		if (customLogoUrl && uploadedFileInfo && customLogoUrl.startsWith('data:')) {
 			const warning = '⚠️ WARNING: Both customLogoUrl (base64) and uploadedFileInfo are set';
-			console.warn(warning);
+			logger.warn(warning);
 			this.warnings.push(warning);
 		}
 	}
@@ -49,7 +50,7 @@ export class FileUploadMonitor {
 
 	// Log current state for debugging
 	logState(customLogoUrl: string, uploadedFileInfo: FileInfo | null): void {
-		console.log('🔍 File Upload State Monitor:', {
+		logger.info('🔍 File Upload State Monitor:', {
 			hasCustomLogoUrl: !!customLogoUrl,
 			isBase64Url: customLogoUrl?.startsWith('data:'),
 			hasUploadedFileInfo: !!uploadedFileInfo,

@@ -8,6 +8,7 @@
 
 import React from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📱 MFA-DEVICE-SELECTOR-V8]';
 
 interface Device {
@@ -41,7 +42,7 @@ export const MFADeviceSelectorV8: React.FC<MFADeviceSelectorV8Props> = ({
 	deviceType,
 	disabled = false,
 }) => {
-	console.log(`${MODULE_TAG} Rendering device selector`, {
+	logger.info(`${MODULE_TAG} Rendering device selector`, {
 		deviceCount: devices.length,
 		loading,
 		selectedDeviceId,

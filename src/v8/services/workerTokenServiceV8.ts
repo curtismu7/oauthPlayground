@@ -15,6 +15,7 @@ import type {
 } from '../../services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
+import { logger } from '../utils/logger';
 // Re-export types for backward compatibility
 export type { WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
 
@@ -149,7 +150,7 @@ class WorkerTokenServiceV8 {
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				if (!data || !data.credentials) {
-					console.warn('[WorkerTokenServiceV8] No credentials found in stored data');
+					logger.warn('[WorkerTokenServiceV8] No credentials found in stored data');
 					return null;
 				}
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -157,7 +158,7 @@ class WorkerTokenServiceV8 {
 				return v8Credentials as WorkerTokenCredentials;
 			}
 		} catch (error) {
-			console.error('[WorkerTokenServiceV8] Failed to load credentials sync', error);
+			logger.error('[WorkerTokenServiceV8] Failed to load credentials sync', error);
 		}
 		return null;
 	}

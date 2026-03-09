@@ -30,6 +30,7 @@ import {
 } from '../utils/redirectUriHelpers';
 import { safeSessionStorageParse } from '../utils/secureJson';
 
+import { logger } from '../utils/logger';
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
 	defaultFlowVariant?: HybridFlowVariant;
@@ -160,7 +161,7 @@ export const useHybridFlowController = (
 	useEffect(() => {
 		const config = HybridFlowDefaults.getFlowConfig(flowVariant);
 		setFlowConfig(config);
-		log.info('Flow config updated', { variant: flowVariant, config });
+		logger.info('Flow config updated', { variant: flowVariant, config });
 	}, [flowVariant]);
 
 	// Load saved credentials on mount using FlowCredentialService
@@ -188,18 +189,18 @@ export const useHybridFlowController = (
 							const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 							if (globalEnvId) {
 								loadedCreds.environmentId = globalEnvId;
-								log.info('🔧 Applied global environment ID fallback', {
+								logger.info('🔧 Applied global environment ID fallback', {
 									globalEnvId: `${globalEnvId.substring(0, 8)}...`,
 								});
 							}
 						} catch (importError) {
-							log.warn('Failed to import EnvironmentIdServiceV8 for fallback', importError);
+							logger.warn('Failed to import EnvironmentIdServiceV8 for fallback', importError);
 						}
 					}
 
 					setCredentialsState(loadedCreds);
 					setHasValidCredentials(true);
-					log.info('Loaded saved credentials from FlowCredentialService', {
+					logger.info('Loaded saved credentials from FlowCredentialService', {
 						hasSharedCredentials,
 						environmentId: loadedCreds.environmentId,
 						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
@@ -208,7 +209,7 @@ export const useHybridFlowController = (
 					});
 				}
 			} catch (error) {
-				log.error('Failed to load credentials', error);
+				logger.error('Failed to load credentials', error);
 			}
 		};
 
@@ -223,7 +224,7 @@ export const useHybridFlowController = (
 		);
 		if (pkce) {
 			setPkceCodes(pkce);
-			log.info('Loaded PKCE codes from session storage');
+			logger.info('Loaded PKCE codes from session storage');
 		}
 	}, [persistKey]);
 
@@ -231,7 +232,7 @@ export const useHybridFlowController = (
 	useEffect(() => {
 		if (pkceCodes) {
 			sessionStorage.setItem(`${persistKey}-pkce`, JSON.stringify(pkceCodes));
-			log.info('PKCE codes persisted to session storage');
+			logger.info('PKCE codes persisted to session storage');
 		}
 	}, [pkceCodes, persistKey]);
 
@@ -240,7 +241,7 @@ export const useHybridFlowController = (
 		const tokens = safeSessionStorageParse<HybridTokens | null>(`${persistKey}-tokens`, null);
 		if (tokens) {
 			setTokensState(tokens);
-			log.info('Loaded tokens from session storage');
+			logger.info('Loaded tokens from session storage');
 		}
 	}, [persistKey]);
 
@@ -248,7 +249,7 @@ export const useHybridFlowController = (
 	useEffect(() => {
 		if (tokens) {
 			sessionStorage.setItem(`${persistKey}-tokens`, JSON.stringify(tokens));
-			log.info('Tokens persisted to session storage');
+			logger.info('Tokens persisted to session storage');
 		}
 	}, [tokens, persistKey]);
 
@@ -276,7 +277,7 @@ export const useHybridFlowController = (
 				const clientIdPreview = resolved.clientId
 					? `${resolved.clientId.substring(0, 8)}...`
 					: undefined;
-				log.info('Credentials updated', {
+				logger.info('Credentials updated', {
 					environmentId: resolved.environmentId,
 					clientId: clientIdPreview,
 					responseType: resolved.responseType,
@@ -304,7 +305,7 @@ export const useHybridFlowController = (
 			);
 
 			if (success) {
-				log.success('Credentials saved via FlowCredentialService');
+				logger.success('Credentials saved via FlowCredentialService');
 
 				// CRITICAL: Also save to authz flow credentials for callback page to load
 				credentialManager.saveAuthzFlowCredentials({
@@ -317,13 +318,13 @@ export const useHybridFlowController = (
 					tokenEndpoint: credentials.tokenEndpoint,
 					userInfoEndpoint: credentials.userInfoEndpoint,
 				});
-				log.success('Credentials saved to authz flow storage for callback');
+				logger.success('Credentials saved to authz flow storage for callback');
 			} else {
 				throw new Error('Failed to save credentials');
 			}
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to save credentials';
-			log.error('Failed to save credentials', error);
+			logger.error('Failed to save credentials', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -342,13 +343,13 @@ export const useHybridFlowController = (
 			setIsLoading(true);
 			const pkce = await generatePKCE();
 			setPkceCodes(pkce);
-			log.success('PKCE codes generated', {
+			logger.success('PKCE codes generated', {
 				codeVerifierLength: pkce.codeVerifier.length,
 				codeChallengeLength: pkce.codeChallenge.length,
 			});
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to generate PKCE codes';
-			log.error('Failed to generate PKCE codes', error);
+			logger.error('Failed to generate PKCE codes', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -365,7 +366,7 @@ export const useHybridFlowController = (
 	const clearPKCE = useCallback(() => {
 		setPkceCodes(null);
 		sessionStorage.removeItem(`${persistKey}-pkce`);
-		log.info('PKCE codes cleared');
+		logger.info('PKCE codes cleared');
 	}, [persistKey]);
 
 	// Generate state parameter
@@ -373,7 +374,7 @@ export const useHybridFlowController = (
 		const newState = generateRandomString(32);
 		setState(newState);
 		sessionStorage.setItem(`${persistKey}-state`, newState);
-		log.info('State parameter generated');
+		logger.info('State parameter generated');
 	}, [persistKey]);
 
 	// Generate nonce parameter
@@ -381,13 +382,13 @@ export const useHybridFlowController = (
 		const newNonce = generateRandomString(32);
 		setNonce(newNonce);
 		sessionStorage.setItem(`${persistKey}-nonce`, newNonce);
-		log.info('Nonce parameter generated');
+		logger.info('Nonce parameter generated');
 	}, [persistKey]);
 
 	// Generate authorization URL
 	const generateAuthUrl = useCallback((): string | null => {
 		if (!credentials || !flowConfig) {
-			log.warn('Cannot generate authorization URL: missing credentials or flow config');
+			logger.warn('Cannot generate authorization URL: missing credentials or flow config');
 			return null;
 		}
 
@@ -428,7 +429,7 @@ export const useHybridFlowController = (
 			const redirectUri = credentials.redirectUri || `${getAppOrigin()}/hybrid-callback`;
 			auditRedirectUri('authorization', redirectUri, flowKey);
 
-			log.success('Authorization URL generated', {
+			logger.success('Authorization URL generated', {
 				responseType: flowConfig.responseType,
 				hasState: !!state,
 				hasNonce: !!nonce,
@@ -439,7 +440,7 @@ export const useHybridFlowController = (
 		} catch (error) {
 			const errorMsg =
 				error instanceof Error ? error.message : 'Failed to generate authorization URL';
-			log.error('Failed to generate authorization URL', error);
+			logger.error('Failed to generate authorization URL', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -453,7 +454,7 @@ export const useHybridFlowController = (
 	// Set tokens
 	const setTokens = useCallback((newTokens: HybridTokens) => {
 		setTokensState(newTokens);
-		log.success('Tokens updated', {
+		logger.success('Tokens updated', {
 			hasAccessToken: !!newTokens.access_token,
 			hasIdToken: !!newTokens.id_token,
 			hasRefreshToken: !!newTokens.refresh_token,
@@ -539,7 +540,7 @@ export const useHybridFlowController = (
 				// Merge with existing tokens if any
 				const mergedTokens = tokens ? mergeTokens(tokens, exchangeTokens) : exchangeTokens;
 
-				log.success('Code exchanged for tokens', {
+				logger.success('Code exchanged for tokens', {
 					hasAccessToken: !!mergedTokens.access_token,
 					hasIdToken: !!mergedTokens.id_token,
 					hasRefreshToken: !!mergedTokens.refresh_token,
@@ -549,7 +550,7 @@ export const useHybridFlowController = (
 			} catch (error) {
 				const errorMsg =
 					error instanceof Error ? error.message : 'Failed to exchange authorization code';
-				log.error('Code exchange failed', error);
+				logger.error('Code exchange failed', error);
 				setError(errorMsg);
 				modernMessaging.showBanner({
 					type: 'error',
@@ -572,7 +573,7 @@ export const useHybridFlowController = (
 
 	// Reset flow
 	const reset = useCallback(() => {
-		log.info('Resetting hybrid flow');
+		logger.info('Resetting hybrid flow');
 
 		setCredentialsState(null);
 		setHasValidCredentials(false);

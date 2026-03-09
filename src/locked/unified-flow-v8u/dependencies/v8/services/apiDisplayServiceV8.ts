@@ -12,6 +12,7 @@
  *
  * @example
  * import { apiDisplayServiceV8 } from './apiDisplayServiceV8.ts';
+import { logger } from '../../../../utils/logger';
  *
  * // Show/hide the display
  * apiDisplayServiceV8.show();
@@ -23,7 +24,7 @@
  *
  * // Subscribe to changes
  * const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
- *   console.log('Visibility changed:', isVisible);
+ *   logger.info('Visibility changed:', isVisible);
  * });
  */
 
@@ -43,7 +44,7 @@ class ApiDisplayServiceV8 {
 				this.visible = saved === 'true';
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to load visibility state:`, error);
+			logger.warn(`${MODULE_TAG} Failed to load visibility state:`, error);
 		}
 	}
 
@@ -107,7 +108,7 @@ class ApiDisplayServiceV8 {
 			try {
 				listener(this.visible);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in listener:`, error);
+				logger.error(`${MODULE_TAG} Error in listener:`, error);
 			}
 		});
 	}
@@ -119,7 +120,7 @@ class ApiDisplayServiceV8 {
 		try {
 			localStorage.setItem('apiDisplay.visible', String(this.visible));
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to save visibility state:`, error);
+			logger.warn(`${MODULE_TAG} Failed to save visibility state:`, error);
 		}
 	}
 }

@@ -8,6 +8,7 @@
 
 import { backupDatabaseService } from '../services/backupDatabaseService.js';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 BACKUP-API]';
 
 /**
@@ -30,7 +31,7 @@ export function setupBackupApiRoutes(app) {
 			res.json({ success: true });
 		} catch (error) {
 			if (error?.code === 'SQLITE_READONLY') {
-				console.warn(`${MODULE_TAG} Save skipped (read-only database):`, {
+				logger.warn(`${MODULE_TAG} Save skipped (read-only database):`, {
 					code: error.code,
 					key: req.body?.key,
 					environmentId: req.body?.environmentId,
@@ -45,7 +46,7 @@ export function setupBackupApiRoutes(app) {
 				});
 			}
 
-			console.error(`${MODULE_TAG} Save error:`, error);
+			logger.error(`${MODULE_TAG} Save error:`, error);
 			res.status(500).json({
 				error: 'Failed to save backup',
 				details: error.message,
@@ -74,7 +75,7 @@ export function setupBackupApiRoutes(app) {
 
 			res.json(backup);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Load error:`, error);
+			logger.error(`${MODULE_TAG} Load error:`, error);
 			res.status(500).json({
 				error: 'Failed to load backup',
 				details: error.message,
@@ -97,7 +98,7 @@ export function setupBackupApiRoutes(app) {
 
 			res.json({ success: true });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Delete error:`, error);
+			logger.error(`${MODULE_TAG} Delete error:`, error);
 			res.status(500).json({
 				error: 'Failed to delete backup',
 				details: error.message,
@@ -120,7 +121,7 @@ export function setupBackupApiRoutes(app) {
 
 			res.json({ backups });
 		} catch (error) {
-			console.error(`${MODULE_TAG} List error:`, error);
+			logger.error(`${MODULE_TAG} List error:`, error);
 			res.status(500).json({
 				error: 'Failed to list backups',
 				details: error.message,
@@ -146,7 +147,7 @@ export function setupBackupApiRoutes(app) {
 				deletedCount: count,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Clear error:`, error);
+			logger.error(`${MODULE_TAG} Clear error:`, error);
 			res.status(500).json({
 				error: 'Failed to clear environment',
 				details: error.message,
@@ -160,7 +161,7 @@ export function setupBackupApiRoutes(app) {
 			const stats = await backupDatabaseService.getStats(null);
 			res.json(stats);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Stats error:`, error);
+			logger.error(`${MODULE_TAG} Stats error:`, error);
 			res.status(500).json({
 				error: 'Failed to get stats',
 				details: error.message,
@@ -173,7 +174,7 @@ export function setupBackupApiRoutes(app) {
 			const stats = await backupDatabaseService.getStats(environmentId);
 			res.json(stats);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Stats error:`, error);
+			logger.error(`${MODULE_TAG} Stats error:`, error);
 			res.status(500).json({
 				error: 'Failed to get stats',
 				details: error.message,
@@ -191,7 +192,7 @@ export function setupBackupApiRoutes(app) {
 				cleanedCount: count,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Cleanup error:`, error);
+			logger.error(`${MODULE_TAG} Cleanup error:`, error);
 			res.status(500).json({
 				error: 'Failed to cleanup',
 				details: error.message,

@@ -10,6 +10,7 @@ import { V7EducationalContentService } from '../services/v7EducationalContentSer
 import { V7FlowTemplateService } from '../services/v7FlowTemplateService';
 import { V7SharedService } from '../services/v7SharedService';
 
+import { logger } from '../utils/logger';
 export interface V7TestResult {
 	testName: string;
 	passed: boolean;
@@ -41,7 +42,7 @@ export class V7ServicesTestSuite {
 		const startTime = Date.now();
 		V7ServicesTestSuite.testResults = [];
 
-		console.log('🧪 Starting V7 Services Test Suite...');
+		logger.info('🧪 Starting V7 Services Test Suite...');
 
 		// Run all test categories
 		await V7ServicesTestSuite.runIDTokenValidationTests();
@@ -57,8 +58,8 @@ export class V7ServicesTestSuite {
 		const passedTests = V7ServicesTestSuite.testResults.filter((t) => t.passed).length;
 		const failedTests = V7ServicesTestSuite.testResults.filter((t) => !t.passed).length;
 
-		console.log(`✅ V7 Services Test Suite completed in ${duration}ms`);
-		console.log(`📊 Results: ${passedTests} passed, ${failedTests} failed`);
+		logger.info(`✅ V7 Services Test Suite completed in ${duration}ms`);
+		logger.info(`📊 Results: ${passedTests} passed, ${failedTests} failed`);
 
 		return {
 			suiteName: 'V7 Services Test Suite',
@@ -74,7 +75,7 @@ export class V7ServicesTestSuite {
 	 * Test ID Token Validation Service
 	 */
 	private static async runIDTokenValidationTests(): Promise<void> {
-		console.log('🔍 Testing ID Token Validation...');
+		logger.info('🔍 Testing ID Token Validation...');
 
 		// Test valid ID token
 		await V7ServicesTestSuite.runTest('ID Token Validation - Valid Token', async () => {
@@ -134,7 +135,7 @@ export class V7ServicesTestSuite {
 	 * Test Error Handling Service
 	 */
 	private static async runErrorHandlingTests(): Promise<void> {
-		console.log('🚨 Testing Error Handling...');
+		logger.info('🚨 Testing Error Handling...');
 
 		// Test OAuth error handling
 		await V7ServicesTestSuite.runTest('Error Handling - OAuth Error', async () => {
@@ -186,7 +187,7 @@ export class V7ServicesTestSuite {
 	 * Test Parameter Validation Service
 	 */
 	private static async runParameterValidationTests(): Promise<void> {
-		console.log('📋 Testing Parameter Validation...');
+		logger.info('📋 Testing Parameter Validation...');
 
 		// Test OAuth parameter validation
 		await V7ServicesTestSuite.runTest('Parameter Validation - OAuth Parameters', async () => {
@@ -246,7 +247,7 @@ export class V7ServicesTestSuite {
 	 * Test Security Headers Service
 	 */
 	private static async runSecurityHeadersTests(): Promise<void> {
-		console.log('🔒 Testing Security Headers...');
+		logger.info('🔒 Testing Security Headers...');
 
 		// Test OAuth security headers
 		await V7ServicesTestSuite.runTest('Security Headers - OAuth Headers', async () => {
@@ -291,7 +292,7 @@ export class V7ServicesTestSuite {
 	 * Test Specification Compliance Service
 	 */
 	private static async runSpecificationComplianceTests(): Promise<void> {
-		console.log('📖 Testing Specification Compliance...');
+		logger.info('📖 Testing Specification Compliance...');
 
 		// Test flow configuration
 		await V7ServicesTestSuite.runTest('Specification Compliance - Flow Configuration', async () => {
@@ -325,7 +326,7 @@ export class V7ServicesTestSuite {
 	 * Test Flow Integration Service
 	 */
 	private static async runFlowIntegrationTests(): Promise<void> {
-		console.log('🔗 Testing Flow Integration...');
+		logger.info('🔗 Testing Flow Integration...');
 
 		// Test flow initialization
 		await V7ServicesTestSuite.runTest('Flow Integration - Flow Initialization', async () => {
@@ -357,7 +358,7 @@ export class V7ServicesTestSuite {
 	 * Test Template Service
 	 */
 	private static async runTemplateServiceTests(): Promise<void> {
-		console.log('📋 Testing Template Service...');
+		logger.info('📋 Testing Template Service...');
 
 		// Test template configuration
 		await V7ServicesTestSuite.runTest('Template Service - Template Configuration', async () => {
@@ -390,7 +391,7 @@ export class V7ServicesTestSuite {
 	 * Test Educational Content Service
 	 */
 	private static async runEducationalContentTests(): Promise<void> {
-		console.log('📚 Testing Educational Content...');
+		logger.info('📚 Testing Educational Content...');
 
 		// Test educational content
 		await V7ServicesTestSuite.runTest('Educational Content - Content Retrieval', async () => {
@@ -447,7 +448,7 @@ export class V7ServicesTestSuite {
 				duration,
 			});
 
-			console.log(`${result ? '✅' : '❌'} ${testName} (${duration}ms)`);
+			logger.info(`${result ? '✅' : '❌'} ${testName} (${duration}ms)`);
 		} catch (error) {
 			const duration = Date.now() - startTime;
 
@@ -459,7 +460,7 @@ export class V7ServicesTestSuite {
 				details: error,
 			});
 
-			console.log(
+			logger.info(
 				`❌ ${testName} - Error: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		}

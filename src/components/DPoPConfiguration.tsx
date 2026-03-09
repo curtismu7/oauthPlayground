@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 
+import { logger } from '../utils/logger';
 export interface DPoPConfigurationProps {
 	enabled: boolean;
 	onEnabledChange: (enabled: boolean) => void;
@@ -232,7 +233,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'DPoPConfiguration',
 				'Failed to generate DPoP key pair:',
 				undefined,

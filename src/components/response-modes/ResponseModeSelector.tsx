@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
 
+import { logger } from '../utils/logger';
 // Types
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
 type FlowKey = 'authorization_code' | 'implicit' | 'hybrid' | 'device' | 'client_credentials';
@@ -371,7 +372,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	const savePreference = useCallback(
 		(mode: ResponseMode) => {
 			localStorage.setItem(`response_mode:${flowKey}`, mode);
-			console.log(`[🪪 RESPONSE-MODE] changed to ${mode} for ${flowKey}`);
+			logger.info(`[🪪 RESPONSE-MODE] changed to ${mode} for ${flowKey}`);
 		},
 		[flowKey]
 	);
@@ -379,7 +380,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Handle mode selection
 	const handleModeChange = useCallback(
 		(mode: ResponseMode) => {
-			console.log(`[🪪 RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`);
+			logger.info(`[🪪 RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`);
 			setSelectedMode(mode);
 			savePreference(mode);
 			onModeChange?.(mode);
@@ -390,7 +391,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Build authorization URL
 	const buildAuthUrl = useCallback(
 		(mode: ResponseMode) => {
-			console.log(`[🪪 RESPONSE-MODE] Building URL for mode: ${mode}`);
+			logger.info(`[🪪 RESPONSE-MODE] Building URL for mode: ${mode}`);
 			const params = new URLSearchParams({
 				client_id: clientId,
 				redirect_uri: redirectUri,
@@ -402,7 +403,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 			// Always add response_mode parameter for clarity
 			params.set('response_mode', mode);
-			console.log(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`);
+			logger.info(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`);
 
 			// Add nonce for OIDC flows with id_token
 			if (responseType.includes('id_token') && nonce) {
@@ -410,7 +411,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 			}
 
 			const url = `https://auth.pingone.com/{envID}/as/authorize?${params.toString()}`;
-			console.log(`[🪪 RESPONSE-MODE] Generated URL:`, url);
+			logger.info(`[🪪 RESPONSE-MODE] Generated URL:`, url);
 			return url;
 		},
 		[clientId, redirectUri, responseType, scope, state, nonce, extraParams]

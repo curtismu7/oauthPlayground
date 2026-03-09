@@ -8,6 +8,7 @@
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 // Token Types
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
@@ -236,7 +237,7 @@ export class ComprehensiveTokenUIService {
 			this.notifyListeners();
 			this.notifyTokenUpdate('sync');
 		} catch (error) {
-			console.error('[ComprehensiveTokenUIService] Failed to sync with global tokens:', error);
+			logger.error('[ComprehensiveTokenUIService] Failed to sync with global tokens:', error);
 		}
 	}
 
@@ -249,7 +250,7 @@ export class ComprehensiveTokenUIService {
 			const status = await unifiedWorkerTokenService.getStatus();
 			return status.environmentId || null;
 		} catch (error) {
-			console.error('[ComprehensiveTokenUIService] Failed to get global environment ID:', error);
+			logger.error('[ComprehensiveTokenUIService] Failed to get global environment ID:', error);
 			return null;
 		}
 	}
@@ -506,7 +507,7 @@ export class ComprehensiveTokenUIService {
 		try {
 			localStorage.setItem('tokenUIChoice', choice);
 		} catch (error) {
-			console.error('[ComprehensiveTokenUIService] Failed to persist choice:', error);
+			logger.error('[ComprehensiveTokenUIService] Failed to persist choice:', error);
 		}
 	}
 
@@ -520,7 +521,7 @@ export class ComprehensiveTokenUIService {
 				this.tokenState.lastChoice = savedChoice;
 			}
 		} catch (error) {
-			console.error('[ComprehensiveTokenUIService] Failed to load persisted choice:', error);
+			logger.error('[ComprehensiveTokenUIService] Failed to load persisted choice:', error);
 		}
 	}
 

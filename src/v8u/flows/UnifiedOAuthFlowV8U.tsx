@@ -61,6 +61,7 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
+import { logger } from '../utils/logger';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -632,7 +633,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					workerTokenEnvId = data.credentials?.environmentId || '';
 				}
 			} catch (error) {
-				console.log('Failed to load environment ID from worker token:', error);
+				logger.info('Failed to load environment ID from worker token:', error);
 			}
 
 			const initialFlowKey = getInitialFlowKey();
@@ -726,7 +727,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					workerTokenEnvId = data.credentials?.environmentId || '';
 				}
 			} catch (error) {
-				console.log('Failed to load environment ID from worker token:', error);
+				logger.info('Failed to load environment ID from worker token:', error);
 			}
 
 			return {
@@ -849,7 +850,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -1126,7 +1127,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						workerTokenEnvId = data.credentials?.environmentId || '';
 					}
 				} catch (error) {
-					console.log('Failed to load environment ID from worker token:', error);
+					logger.info('Failed to load environment ID from worker token:', error);
 				}
 
 				// Merge credentials: flow-specific takes priority (allows per-flow clientId/environmentId)
@@ -2844,7 +2845,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								<ShowTokenConfigCheckboxV8
 									onChange={async (newValue) => {
 										// Configuration is handled automatically by the centralized component
-										console.log('Show token at end setting changed to:', newValue);
+										logger.info('Show token at end setting changed to:', newValue);
 									}}
 									style={{ marginBottom: '12px' }}
 								/>

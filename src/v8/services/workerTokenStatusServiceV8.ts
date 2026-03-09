@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file workerTokenStatusServiceV8.ts
  * @module v8/services
  * @description Worker token status checking and formatting for V8
@@ -86,7 +87,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 
 		// Debug logging for expired tokens
 		if (isExpired) {
-			console.warn('[WORKER-TOKEN-STATUS] Token expired:', {
+			logger.warn('[WORKER-TOKEN-STATUS] Token expired:', {
 				now: new Date(now).toISOString(),
 				expiresAt: new Date(expiresAt).toISOString(),
 				minutesOverdue: Math.floor((now - expiresAt) / 60000),
@@ -115,7 +116,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			token: token, // Use the extracted token from either old or new structure
 		};
 	} catch (error) {
-		console.error('Error checking worker token status (sync):', error);
+		logger.error('Error checking worker token status (sync):', error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status.',
@@ -235,8 +236,8 @@ export const getExpirationWarning = async (
  * @example
  * const health = await getHealthCheck();
  * if (!health.healthy) {
- *   health.issues.forEach(issue => console.error(issue));
- *   health.recommendations.forEach(rec => console.log(rec));
+ *   health.issues.forEach(issue => logger.error(issue));
+ *   health.recommendations.forEach(rec => logger.info(rec));
  * }
  */
 export const getHealthCheck = async (): Promise<{

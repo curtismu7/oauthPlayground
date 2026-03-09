@@ -28,6 +28,7 @@ import { toastV8 } from '../../../dependencies/v8/utils/toastNotificationsV8.ts'
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-OTP-CONFIG-V8]';
 
 export const EmailOTPConfigurationPageV8: React.FC = () => {
@@ -162,7 +163,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			if (code && state) {
 				// Validate state only if both storedState and state from URL exist
 				if (storedState && state && storedState !== state) {
-					console.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					toastV8.error('Security validation failed. Please try again.');
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
@@ -211,7 +212,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials with the token
-					console.log(
+					logger.info(
 						`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Token received from callback, updating credentials`
 					);
 					setCredentials((prev) => ({
@@ -222,7 +223,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 					toastV8.success('User token received and saved!');
 				} catch (error) {
-					console.error(`[📧 EMAIL-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
+					logger.error(`[📧 EMAIL-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
 					const errorMessage =
 						error instanceof Error
 							? error.message
@@ -258,7 +259,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
 				{
 					currentTokenType: credentials.tokenType,
@@ -274,7 +275,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					// CRITICAL: Preserve existing userToken when switching to user flow (don't clear it)
 					userToken: prev.userToken || '',
 				};
-				console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
+				logger.info(`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
 					tokenType: updated.tokenType,
 					hasUserToken: !!updated.userToken,
 					userTokenLength: updated.userToken?.length || 0,
@@ -287,7 +288,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
 			);
 			isSyncingRef.current = true;
@@ -310,7 +311,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -321,7 +322,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -366,7 +367,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
+			logger.error(`${MODULE_TAG} Failed to load policies:`, error);
 			setPoliciesError(errorMessage);
 			// Only show error toast if worker token is available (user expects it to work)
 			if (tokenStatus.isValid) {
@@ -484,7 +485,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Proceeding to registration with policy:`,
 				credentials.deviceAuthenticationPolicyId
 			);

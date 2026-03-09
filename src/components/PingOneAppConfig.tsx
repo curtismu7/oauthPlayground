@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;
 `;
@@ -264,7 +265,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 				const parsed = JSON.parse(savedConfig);
 				setConfig((prev) => ({ ...prev, ...parsed }));
 			} catch (err) {
-				log.error(
+				logger.error(
 					'PingOneAppConfig',
 					'Failed to load saved configuration:',
 					undefined,

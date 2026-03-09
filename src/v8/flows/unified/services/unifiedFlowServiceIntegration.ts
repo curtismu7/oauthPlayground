@@ -11,6 +11,7 @@ import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService
 import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../../../utils/logger';
 /**
  * Unified Flow Service Integration
  *
@@ -54,7 +55,7 @@ export class UnifiedFlowServiceIntegration {
 		status: string;
 		qrCode?: string;
 	}> {
-		console.log('[UnifiedFlowServiceIntegration] Registering device:', {
+		logger.info('[UnifiedFlowServiceIntegration] Registering device:', {
 			deviceType,
 			username,
 			deviceData,
@@ -89,7 +90,7 @@ export class UnifiedFlowServiceIntegration {
 		success: boolean;
 		status: string;
 	}> {
-		console.log('[UnifiedFlowServiceIntegration] Activating device:', deviceId);
+		logger.info('[UnifiedFlowServiceIntegration] Activating device:', deviceId);
 
 		const credentials = await this.buildCredentials(username);
 

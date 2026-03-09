@@ -8,6 +8,7 @@ import {
 } from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
+import { logger } from '../../../utils/logger';
 export interface PingOneApplicationPickerProps {
 	environmentId: string;
 	clientId: string;
@@ -266,7 +267,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	onApplicationSelect,
 	disabled = false,
 }) => {
-	console.log('[PingOneApplicationPicker] Component initialized with props:', {
+	logger.info('[PingOneApplicationPicker] Component initialized with props:', {
 		hasEnvironmentId: !!environmentId,
 		hasClientId: !!clientId,
 		hasClientSecret: !!clientSecret,
@@ -306,7 +307,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 			setSuccess(`Found ${apps.length} applications`);
 			if (apps.length === 0) setError('No applications found in this environment');
 		} catch (err) {
-			console.error('[PingOneApplicationPicker] Error fetching applications:', err);
+			logger.error('[PingOneApplicationPicker] Error fetching applications:', err);
 			setError(err instanceof Error ? err.message : 'Failed to fetch applications');
 		} finally {
 			setLoading(false);
@@ -315,19 +316,19 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 	const handleApplicationChange = useCallback(
 		(appId: string) => {
-			console.log('[PingOneApplicationPicker] Application changed:', appId);
+			logger.info('[PingOneApplicationPicker] Application changed:', appId);
 			setSelectedAppId(appId);
 
 			// Auto-fill credentials when app is selected
 			if (appId && appId !== '') {
 				const selectedApp = applications.find((app) => app.id === appId);
-				console.log('[PingOneApplicationPicker] Found application:', selectedApp);
+				logger.info('[PingOneApplicationPicker] Found application:', selectedApp);
 				if (selectedApp) {
-					console.log('[PingOneApplicationPicker] Calling onApplicationSelect with:', selectedApp);
+					logger.info('[PingOneApplicationPicker] Calling onApplicationSelect with:', selectedApp);
 					onApplicationSelect(selectedApp);
 					setSuccess(`Selected application: ${selectedApp.name}`);
 				} else {
-					console.log('[PingOneApplicationPicker] No application found for ID:', appId);
+					logger.info('[PingOneApplicationPicker] No application found for ID:', appId);
 				}
 			}
 		},
@@ -348,7 +349,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 			applications.length === 0 &&
 			!loading
 		) {
-			console.log('[PingOneApplicationPicker] Auto-fetching applications with:', {
+			logger.info('[PingOneApplicationPicker] Auto-fetching applications with:', {
 				hasEnvironmentId: !!environmentId,
 				hasClientId: !!clientId,
 				hasClientSecret: !!clientSecret,
@@ -610,7 +611,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 								<ButtonContainer>
 									<ApplyButton
 										onClick={() => {
-											console.log(
+											logger.info(
 												'[PingOneApplicationPicker] Apply Configuration clicked, calling onApplicationSelect with:',
 												selectedApp
 											);

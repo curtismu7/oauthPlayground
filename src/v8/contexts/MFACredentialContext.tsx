@@ -26,6 +26,7 @@ import type { MFACredentials } from '../flows/shared/MFATypes';
 import type { ValidationResult } from '../services/mfaCredentialManagerV8';
 import { MFACredentialManagerV8 } from '../services/mfaCredentialManagerV8';
 
+import { logger } from '../utils/logger';
 interface MFACredentialContextValue {
 	credentials: MFACredentials | null;
 	loadCredentials: (flowKey?: string) => MFACredentials;
@@ -144,7 +145,7 @@ export const MFACredentialProvider: React.FC<{ children: React.ReactNode }> = ({
  * @example
  * const { credentials, saveCredentials } = useCredentialManager();
  * if (credentials) {
- *   console.log('Current user:', credentials.username);
+ *   logger.info('Current user:', credentials.username);
  * }
  */
 export const useCredentialManager = (): MFACredentialContextValue => {

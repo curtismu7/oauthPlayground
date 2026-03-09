@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface JsonEditorProps {
 	value: unknown;
 	onChange?: (value: unknown) => void;
@@ -112,7 +113,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			log.error('JsonEditor', 'Failed to copy JSON:', undefined, err as Error);
+			logger.error('JsonEditor', 'Failed to copy JSON:', undefined, err as Error);
 		}
 	};
 
@@ -127,7 +128,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			onChange?.(parsed);
 			setIsEditing(false);
 		} catch (err) {
-			log.error('JsonEditor', 'Invalid JSON:', undefined, err as Error);
+			logger.error('JsonEditor', 'Invalid JSON:', undefined, err as Error);
 			// Could show error message to user
 		}
 	};

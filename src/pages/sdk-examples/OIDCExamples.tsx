@@ -282,7 +282,7 @@ const OIDCExamples: React.FC = () => {
 				};
 
 				// Log the received parameters for debugging
-				console.log('OAuth callback received:', { code, state });
+				logger.info('OAuth callback received:', { code, state });
 
 				setTokens(mockTokens);
 				setStatus({ type: 'success', message: 'OAuth callback processed successfully!' });
@@ -467,6 +467,7 @@ const OIDCExamples: React.FC = () => {
 					<CodeBlock>{`// Implementation using TokenManager
 import { TokenManager } from '@pingidentity-developers-experience/ping-oidc-client-sdk';
 
+import { logger } from '../utils/logger';
 const tokens = await TokenManager.getTokens({
   login: 'redirect',        // Redirect to server UI
   forceRenew: false,        // Use existing tokens if available
@@ -532,7 +533,7 @@ const renewTokensSilently = async () => {
       return true;
     }
   } catch (error) {
-    log.warn('OIDCExamples', 'Silent renewal failed:');
+    logger.warn('OIDCExamples', 'Silent renewal failed:');
     return false;
   }
 };`}</CodeBlock>

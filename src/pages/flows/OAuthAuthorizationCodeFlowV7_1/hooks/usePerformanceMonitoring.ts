@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '../../../../utils/logger';
 
+import { logger } from '../../../utils/logger';
 interface PerformanceMetrics {
 	componentName: string;
 	mountTime: number;
@@ -190,7 +191,7 @@ export const usePerformanceMonitoring = (
 	// Log performance report
 	const logPerformanceReport = useCallback(() => {
 		const report = getPerformanceReport();
-		console.log(`[Performance] ${componentName} Report:`, report);
+		logger.info(`[Performance] ${componentName} Report:`, report);
 		return report;
 	}, [componentName, getPerformanceReport]);
 
@@ -220,12 +221,12 @@ export const usePerformanceMonitoring = (
 			mountTime: mountTime.current,
 		}));
 
-		console.log(`[Performance] ${componentName} mounted at ${mountTime.current.toFixed(2)}ms`);
+		logger.info(`[Performance] ${componentName} mounted at ${mountTime.current.toFixed(2)}ms`);
 
 		return () => {
 			const unmountTime = performance.now();
 			const totalTime = unmountTime - mountTime.current;
-			console.log(`[Performance] ${componentName} unmounted after ${totalTime.toFixed(2)}ms`);
+			logger.info(`[Performance] ${componentName} unmounted after ${totalTime.toFixed(2)}ms`);
 		};
 	}, [componentName]);
 

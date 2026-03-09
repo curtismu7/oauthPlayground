@@ -16,6 +16,7 @@ import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 // Re-export type for backward compatibility
 export type PKCECodes = V8UPKCECodes;
 
@@ -38,9 +39,9 @@ const ensureMigration = async (): Promise<void> => {
 		migrationPromise = (async () => {
 			try {
 				if (PKCEStorageServiceV8UMigration.needsMigration()) {
-					console.log(`${MODULE_TAG} Starting automatic PKCE migration...`);
+					logger.info(`${MODULE_TAG} Starting automatic PKCE migration...`);
 					const result = await PKCEStorageServiceV8UMigration.migrateAll();
-					console.log(`${MODULE_TAG} PKCE migration completed`, result);
+					logger.info(`${MODULE_TAG} PKCE migration completed`, result);
 				}
 				migrationCompleted = true;
 			} finally {
@@ -90,7 +91,7 @@ export async function savePKCECodes(
 			const jsonData = JSON.stringify(pkceData);
 			sessionStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
 			sessionStorage.setItem('v8u_pkce_codes', jsonData); // Legacy key for compatibility
-			console.log(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
 		} catch (err) {
 			logger.error('PkceStorageServiceV8U', `Failed to save to sessionStorage`, undefined, err);
 		}
@@ -99,16 +100,16 @@ export async function savePKCECodes(
 		try {
 			const jsonData = JSON.stringify(pkceData);
 			localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
-			console.log(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
 		} catch (err) {
 			logger.error('PkceStorageServiceV8U', `Failed to save to localStorage`, undefined, err);
 		}
 
 		// BACKUP 3: Save to memory cache (fastest access)
 		memoryCache.set(flowKey, pkceData);
-		console.log(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
+		logger.info(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
 
-		console.log(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
+		logger.info(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
 			flowKey,
 			verifierLength: codes.codeVerifier.length,
 			challengeLength: codes.codeChallenge.length,
@@ -126,12 +127,12 @@ export async function savePKCECodes(
  * Tries: memory → sessionStorage → localStorage → unified storage
  */
 export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | null> {
-	console.log(`${MODULE_TAG} 🔍 Loading PKCE codes (async)`, { flowKey });
+	logger.info(`${MODULE_TAG} 🔍 Loading PKCE codes (async)`, { flowKey });
 
 	// 1. Try memory cache first (fastest)
 	const memoryData = memoryCache.get(flowKey);
 	if (memoryData) {
-		console.log(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
+		logger.info(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
 		return memoryData;
 	}
 
@@ -141,7 +142,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 			sessionStorage.getItem(`v8u_pkce_${flowKey}`) || sessionStorage.getItem('v8u_pkce_codes');
 		if (sessionData) {
 			const parsed = JSON.parse(sessionData) as PKCECodes;
-			console.log(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
 			memoryCache.set(flowKey, parsed);
 			return parsed;
 		}
@@ -154,7 +155,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 		const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
 		if (localData) {
 			const parsed = JSON.parse(localData) as PKCECodes;
-			console.log(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
 			memoryCache.set(flowKey, parsed);
 			try {
 				sessionStorage.setItem(`v8u_pkce_${flowKey}`, localData);
@@ -170,7 +171,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 		await ensureMigration();
 		const unifiedData = await unifiedTokenStorage.loadV8UPKCECodesWithFallback(flowKey);
 		if (unifiedData) {
-			console.log(`${MODULE_TAG} ✅ Found in unified storage (ultimate backup)`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Found in unified storage (ultimate backup)`, { flowKey });
 			// Restore to all other storages
 			memoryCache.set(flowKey, unifiedData);
 			try {
@@ -192,12 +193,12 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
  * Synchronous load (tries memory, sessionStorage, localStorage only)
  */
 export function loadPKCECodes(flowKey: string): PKCECodes | null {
-	console.log(`${MODULE_TAG} 🔍 Loading PKCE codes (sync)`, { flowKey });
+	logger.info(`${MODULE_TAG} 🔍 Loading PKCE codes (sync)`, { flowKey });
 
 	// 1. Try memory cache
 	const memoryData = memoryCache.get(flowKey);
 	if (memoryData) {
-		console.log(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
+		logger.info(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
 		return memoryData;
 	}
 
@@ -207,7 +208,7 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
 			sessionStorage.getItem(`v8u_pkce_${flowKey}`) || sessionStorage.getItem('v8u_pkce_codes');
 		if (sessionData) {
 			const parsed = JSON.parse(sessionData) as PKCECodes;
-			console.log(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
 			memoryCache.set(flowKey, parsed);
 			return parsed;
 		}
@@ -220,7 +221,7 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
 		const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
 		if (localData) {
 			const parsed = JSON.parse(localData) as PKCECodes;
-			console.log(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
+			logger.info(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
 			memoryCache.set(flowKey, parsed);
 			try {
 				sessionStorage.setItem(`v8u_pkce_${flowKey}`, localData);
@@ -243,7 +244,7 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
  * Clear PKCE codes from all storage locations
  */
 export async function clearPKCECodes(flowKey: string): Promise<void> {
-	console.log(`${MODULE_TAG} 🗑️ Clearing PKCE codes`, { flowKey });
+	logger.info(`${MODULE_TAG} 🗑️ Clearing PKCE codes`, { flowKey });
 
 	// Clear from all locations
 	memoryCache.delete(flowKey);
@@ -265,7 +266,7 @@ export async function clearPKCECodes(flowKey: string): Promise<void> {
 		logger.error('PkceStorageServiceV8U', `Failed to clear from unified storage`, undefined, err);
 	}
 
-	console.log(`${MODULE_TAG} ✅ PKCE codes cleared from all 4 storage locations`, { flowKey });
+	logger.info(`${MODULE_TAG} ✅ PKCE codes cleared from all 4 storage locations`, { flowKey });
 }
 
 /**

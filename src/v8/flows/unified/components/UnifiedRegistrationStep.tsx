@@ -36,6 +36,7 @@ import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-STEP]';
 
 // Exported helper to determine final device status after registration
@@ -118,7 +119,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	validate,
 	touchField,
 }) => {
-	console.log(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
 
 	// State for registration result
 	const [_registrationResult, setRegistrationResult] = useState<unknown>(null);
@@ -132,7 +133,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 		// Check token validity based on token type
 		if (requiresWorkerToken && !tokenStatus.isValid) {
-			console.log(`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`);
+			logger.info(`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`);
 			return false;
 		}
 
@@ -143,7 +144,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			return value && value.trim() !== '';
 		});
 
-		console.log(`${MODULE_TAG} Form validation:`, {
+		logger.info(`${MODULE_TAG} Form validation:`, {
 			tokenType,
 			requiresWorkerToken,
 			tokenValid: tokenStatus.isValid,
@@ -157,7 +158,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 	// Handle device registration
 	const handleRegisterDevice = useCallback(async () => {
-		console.log(`${MODULE_TAG} Starting device registration for ${config.deviceType}`);
+		logger.info(`${MODULE_TAG} Starting device registration for ${config.deviceType}`);
 
 		try {
 			setIsLoading(true);
@@ -165,14 +166,14 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 
 			// Validate form
 			if (!validate()) {
-				console.warn(`${MODULE_TAG} Validation failed`);
+				logger.warn(`${MODULE_TAG} Validation failed`);
 				return;
 			}
 
 			// Call controller to register device
 			const result = await controller.registerDevice(config.deviceType, deviceFields);
 
-			console.log(`${MODULE_TAG} Registration successful:`, result);
+			logger.info(`${MODULE_TAG} Registration successful:`, result);
 			setRegistrationResult(result);
 
 			// Update MFA state with registration result
@@ -198,7 +199,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			// Navigate to next step (activation)
 			nav.next();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Registration failed:`, error);
+			logger.error(`${MODULE_TAG} Registration failed:`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Registration failed';
 			setRegistrationError(errorMessage);
 			modernMessaging.showBanner({

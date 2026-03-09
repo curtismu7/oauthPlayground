@@ -25,6 +25,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { ButtonSpinner } from '../../components/ui';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 
 interface MFADeviceManagerV8Props {
@@ -97,20 +98,20 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	const loadDevices = useCallback(async () => {
 		await loadDevicesSpinner.executeWithSpinner(
 			async () => {
-				console.log(`${MODULE_TAG} Loading devices for user`, { username });
+				logger.info(`${MODULE_TAG} Loading devices for user`, { username });
 				const deviceList = await MFAServiceV8.getAllDevices({
 					environmentId,
 					username,
 				});
 				setDevices(deviceList);
-				console.log(`${MODULE_TAG} Loaded ${deviceList.length} devices`);
+				logger.info(`${MODULE_TAG} Loaded ${deviceList.length} devices`);
 			},
 			{
 				onSuccess: () => {
 					// Success handled in main function
 				},
 				onError: (error) => {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					logger.error(`${MODULE_TAG} Failed to load devices`, error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -129,7 +130,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	}, [environmentId, username, loadDevices]);
 
 	const handleAllowBypass = async () => {
-		console.log(`${MODULE_TAG} Allowing MFA bypass for user`, {
+		logger.info(`${MODULE_TAG} Allowing MFA bypass for user`, {
 			environmentId,
 			username,
 		});
@@ -151,7 +152,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to allow MFA bypass`, error);
+			logger.error(`${MODULE_TAG} Failed to allow MFA bypass`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -185,7 +186,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to copy device ID`, error);
+			logger.error(`${MODULE_TAG} Failed to copy device ID`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -196,7 +197,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleCheckBypass = async () => {
-		console.log(`${MODULE_TAG} Checking MFA bypass status for user`, {
+		logger.info(`${MODULE_TAG} Checking MFA bypass status for user`, {
 			environmentId,
 			username,
 		});
@@ -220,9 +221,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				}`,
 				duration: 3000,
 			});
-			console.log(`${MODULE_TAG} MFA bypass status response`, status);
+			logger.info(`${MODULE_TAG} MFA bypass status response`, status);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to check MFA bypass status`, error);
+			logger.error(`${MODULE_TAG} Failed to check MFA bypass status`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -235,7 +236,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const _handleSetDeviceOrder = async () => {
-		console.log(`${MODULE_TAG} Setting device order`, {
+		logger.info(`${MODULE_TAG} Setting device order`, {
 			environmentId,
 			username,
 			deviceCount: devices.length,
@@ -268,7 +269,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to set device order`, error);
+			logger.error(`${MODULE_TAG} Failed to set device order`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -279,7 +280,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const _handleRemoveDeviceOrder = async () => {
-		console.log(`${MODULE_TAG} Removing device order`, {
+		logger.info(`${MODULE_TAG} Removing device order`, {
 			environmentId,
 			username,
 		});
@@ -301,7 +302,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to remove device order`, error);
+			logger.error(`${MODULE_TAG} Failed to remove device order`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -324,7 +325,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					throw new Error('Device nickname cannot be empty');
 				}
 
-				console.log(`${MODULE_TAG} Renaming device`, { deviceId, newName });
+				logger.info(`${MODULE_TAG} Renaming device`, { deviceId, newName });
 				await MFAServiceV8.updateDeviceNickname(
 					{
 						environmentId,
@@ -348,7 +349,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					// Success handled in main function
 				},
 				onError: (error) => {
-					console.error(`${MODULE_TAG} Failed to rename device`, error);
+					logger.error(`${MODULE_TAG} Failed to rename device`, error);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -373,7 +374,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Blocking device`, { deviceId });
+		logger.info(`${MODULE_TAG} Blocking device`, { deviceId });
 		setProcessingDeviceId(deviceId);
 		try {
 			await MFAServiceV8.blockDevice({
@@ -399,7 +400,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			});
 			await loadDevices();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to block device`, error);
+			logger.error(`${MODULE_TAG} Failed to block device`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -412,7 +413,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleUnblock = async (deviceId: string) => {
-		console.log(`${MODULE_TAG} Unblocking device`, { deviceId });
+		logger.info(`${MODULE_TAG} Unblocking device`, { deviceId });
 		setProcessingDeviceId(deviceId);
 		try {
 			await MFAServiceV8.unblockDevice({
@@ -438,7 +439,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			});
 			await loadDevices();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to unblock device`, error);
+			logger.error(`${MODULE_TAG} Failed to unblock device`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -451,7 +452,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleUnlock = async (deviceId: string) => {
-		console.log(`${MODULE_TAG} Unlocking device`, { deviceId });
+		logger.info(`${MODULE_TAG} Unlocking device`, { deviceId });
 		setProcessingDeviceId(deviceId);
 		try {
 			await MFAServiceV8.unlockDevice({
@@ -477,7 +478,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			});
 			await loadDevices();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to unlock device`, error);
+			logger.error(`${MODULE_TAG} Failed to unlock device`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -502,7 +503,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Deleting device`, { deviceId });
+		logger.info(`${MODULE_TAG} Deleting device`, { deviceId });
 		try {
 			await MFAServiceV8.deleteDevice({
 				environmentId,
@@ -517,7 +518,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			});
 			await loadDevices();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to delete device`, error);
+			logger.error(`${MODULE_TAG} Failed to delete device`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -530,7 +531,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	const handleAdminActivate = async (deviceId: string) => {
 		setProcessingDeviceId(deviceId);
 		try {
-			console.log(`${MODULE_TAG} Admin activating device`, { deviceId });
+			logger.info(`${MODULE_TAG} Admin activating device`, { deviceId });
 
 			// For admin activation, we can directly activate the device without OTP
 			// This uses the worker token which has admin privileges
@@ -586,7 +587,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			});
 			await loadDevices();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to activate device`, error);
+			logger.error(`${MODULE_TAG} Failed to activate device`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

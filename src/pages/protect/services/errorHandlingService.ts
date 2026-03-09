@@ -11,6 +11,7 @@
 
 import type { PortalError } from '../types/protectPortal.types';
 
+import { logger } from '../../utils/logger';
 // ============================================================================
 // INTERFACES
 // ============================================================================
@@ -306,7 +307,7 @@ class ErrorHandlingService {
 	private static logErrorToService(report: ErrorReport): void {
 		// TODO: Implement external logging service integration
 		// This could send errors to services like Sentry, LogRocket, or custom endpoints
-		console.log('[🚨 PROTECT-PORTAL-ERROR] Would log to service:', report);
+		logger.info('[🚨 PROTECT-PORTAL-ERROR] Would log to service:', report);
 	}
 
 	/**

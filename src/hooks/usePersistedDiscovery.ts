@@ -13,6 +13,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
 	comprehensiveDiscoveryService,
 	DiscoveryResult,
@@ -109,7 +110,7 @@ export function usePersistedDiscovery(
 			if (data) {
 				setPersistedData(data);
 				onRestore?.(data);
-				console.log('[usePersistedDiscovery] Restored discovery for:', envId);
+				logger.info('[usePersistedDiscovery] Restored discovery for:', envId);
 			}
 			return data;
 		},
@@ -125,7 +126,7 @@ export function usePersistedDiscovery(
 			if (data) {
 				setPersistedData(data);
 				onRestore?.(data);
-				console.log('[usePersistedDiscovery] Restored discovery for issuer:', issuer);
+				logger.info('[usePersistedDiscovery] Restored discovery for issuer:', issuer);
 			}
 			return data;
 		},
@@ -147,7 +148,7 @@ export function usePersistedDiscovery(
 					discoveryPersistenceService.getDiscovery(input);
 
 				if (cached) {
-					console.log('[usePersistedDiscovery] Using cached discovery');
+					logger.info('[usePersistedDiscovery] Using cached discovery');
 					setPersistedData(cached);
 					setIsLoading(false);
 					return {
@@ -185,7 +186,7 @@ export function usePersistedDiscovery(
 					setPersistedData(dataToSave);
 					onSave?.(dataToSave);
 
-					console.log('[usePersistedDiscovery] Discovered and saved:', extractedEnvId);
+					logger.info('[usePersistedDiscovery] Discovered and saved:', extractedEnvId);
 				} else {
 					setError(result.error || 'Discovery failed');
 				}
@@ -260,7 +261,7 @@ export function usePersistedDiscovery(
 		if (lastUsed) {
 			setPersistedData(lastUsed);
 			onRestore?.(lastUsed);
-			console.log('[usePersistedDiscovery] Restored last used discovery');
+			logger.info('[usePersistedDiscovery] Restored last used discovery');
 		}
 	}, [environmentId, issuerUrl, autoRestore, restore, restoreByIssuer, onRestore]);
 

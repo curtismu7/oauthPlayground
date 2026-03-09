@@ -11,6 +11,7 @@
 import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { DeviceType } from '../flows/shared/MFATypes';
+import { logger } from '../../../../utils/logger';
 import {
 	downloadAsMarkdown,
 	downloadAsPDF,
@@ -113,7 +114,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			console.error('Failed to download documentation:', error);
+			logger.error('Failed to download documentation:', error);
 			alert('Failed to download documentation. Please try again.');
 		}
 	};

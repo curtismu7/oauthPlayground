@@ -9,6 +9,7 @@ import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
+import { logger } from '../utils/logger';
 interface TokenPayload {
 	client_id?: string;
 	iss?: string;
@@ -323,7 +324,7 @@ const _WorkerTokenTester: React.FC = () => {
 
 			return decoded;
 		} catch (err) {
-			log.error('WorkerTokenTester', 'Failed to decode token:', undefined, err as Error);
+			logger.error('WorkerTokenTester', 'Failed to decode token:', undefined, err as Error);
 			return null;
 		}
 	};
@@ -689,7 +690,7 @@ const _WorkerTokenTester: React.FC = () => {
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={(token) => {
-					console.log('Worker token generated:', token);
+					logger.info('Worker token generated:', token);
 				}}
 			/>
 		</div>

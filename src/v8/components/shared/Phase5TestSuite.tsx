@@ -3,6 +3,7 @@ import { ComponentTestSuiteV8 } from './ComponentTestSuiteV8';
 import { FlowProgressTrackerV8 } from './FlowProgressTrackerV8';
 import { ComponentPreloader, LazyLoadWrapperV8 } from './LazyLoadWrapperV8';
 
+import { logger } from '../../utils/logger';
 // Test component for lazy loading
 const TestComponent: React.FC<{ message: string; delay?: number }> = ({
 	message,
@@ -107,7 +108,7 @@ export const Phase5TestSuite: React.FC = () => {
 
 			setPreloadTest('loaded');
 		} catch (error) {
-			console.error('Preload test failed:', error);
+			logger.error('Preload test failed:', error);
 			setPreloadTest('idle');
 		}
 	};
@@ -117,7 +118,7 @@ export const Phase5TestSuite: React.FC = () => {
 
 	const handleTestComplete = (results: any[]) => {
 		setTestResults(results);
-		console.log('Test Results:', results);
+		logger.info('Test Results:', results);
 	};
 
 	// Manual lazy loading test
@@ -137,7 +138,7 @@ export const Phase5TestSuite: React.FC = () => {
 						showProgress={true}
 						showTimeEstimates={true}
 						variant="horizontal"
-						onStepClick={(stepId) => console.log('Step clicked:', stepId)}
+						onStepClick={(stepId) => logger.info('Step clicked:', stepId)}
 					/>
 				</div>
 
@@ -376,8 +377,8 @@ export const Phase5TestSuite: React.FC = () => {
 						}
 						threshold={0.1}
 						delay={500}
-						onLoad={() => console.log('Lazy component loaded!')}
-						onError={(error) => console.error('Lazy load error:', error)}
+						onLoad={() => logger.info('Lazy component loaded!')}
+						onError={(error) => logger.error('Lazy load error:', error)}
 					>
 						<div
 							style={{

@@ -11,6 +11,7 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { logger } from '../utils/logger';
 // Icons replaced with emojis - no more react-icons/fi dependency
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Not used in this file
 
@@ -426,7 +427,7 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 
 const warnMissingProvider = () => {
 	if (!globalBridge && typeof console !== 'undefined') {
-		log.warn('NotificationSystem', 'NotificationProvider is not mounted. Notification skipped.');
+		logger.warn('NotificationSystem', 'NotificationProvider is not mounted. Notification skipped.');
 	}
 };
 

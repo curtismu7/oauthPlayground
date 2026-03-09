@@ -4,6 +4,7 @@
 import { exportImportService, exportUtils } from '../services/exportImportService';
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
 
+import { logger } from '../utils/logger';
 export function testExportImportFunctionality() {
 	try {
 		// Test configuration for testing
@@ -49,12 +50,12 @@ export function testExportImportFunctionality() {
 
 		// Simulate import validation
 		exportImportService.importConfiguration(testFile).catch((error) => {
-			console.error('❌ Import test failed:', error);
+			logger.error('❌ Import test failed:', error);
 		});
 
 		return true;
 	} catch (error) {
-		console.error('❌ Export/Import test failed:', error);
+		logger.error('❌ Export/Import test failed:', error);
 		return false;
 	}
 }

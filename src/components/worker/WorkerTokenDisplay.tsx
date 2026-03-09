@@ -4,6 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	formatScopes,
 	JWTPayload,
@@ -304,7 +305,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			setCopySuccess(true);
 			onCopy?.(token.access_token);
 
-			log.success('TOKEN-DISPLAY', 'Token copied to clipboard');
+			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: 'Access Token copied to clipboard',
@@ -313,7 +314,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 
 			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (error) {
-			log.error('TOKEN-DISPLAY', 'Failed to copy token', error);
+			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -326,14 +327,14 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 	const handleCopyValue = useCallback(async (value: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(value);
-			log.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
+			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: `${label} copied to clipboard`,
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
+			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

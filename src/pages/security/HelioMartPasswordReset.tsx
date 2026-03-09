@@ -50,6 +50,7 @@ import {
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { trackedFetch } from '../../utils/trackedFetch';
 
+import { logger } from '../utils/logger';
 // Type for PingOne user objects
 interface PingOneUserName {
 	given?: string;
@@ -653,7 +654,7 @@ const HelioMartPasswordReset: React.FC = () => {
 					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.info('Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -813,7 +814,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				throw new Error('Failed to generate PKCE code verifier');
 			}
 
-			console.log('[PasswordReset] PKCE codes generated:', {
+			logger.info('[PasswordReset] PKCE codes generated:', {
 				hasVerifier: !!verifier,
 				hasChallenge: !!challenge,
 				verifierLength: verifier?.length,
@@ -930,7 +931,7 @@ const HelioMartPasswordReset: React.FC = () => {
 									username: payload.preferred_username || loginUsername,
 								});
 							} catch (e) {
-								log.error(
+								logger.error(
 									'HelioMartPasswordReset',
 									'Failed to parse ID token:',
 									undefined,
@@ -961,7 +962,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				throw new Error('Login timeout - please try again');
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'HelioMartPasswordReset',
 				'[PasswordReset] Login failed:',
 				undefined,
@@ -985,7 +986,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		// Log for debugging if environment ID is missing
 		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
-			log.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
+			logger.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
 				sharedEnvId: sharedEnv?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
 				effectiveEnvId: effectiveEnvId || '(empty)',
@@ -1010,7 +1011,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1023,7 +1024,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1182,7 +1183,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1195,7 +1196,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1377,7 +1378,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1390,7 +1391,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1514,7 +1515,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1527,7 +1528,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1636,7 +1637,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1649,7 +1650,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1758,7 +1759,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1771,7 +1772,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -1895,7 +1896,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1908,7 +1909,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -2032,7 +2033,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -2045,7 +2046,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
 				sharedEnvId:
 					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
@@ -2188,7 +2189,7 @@ async function sendRecoveryCode(userId) {
   }
 
   // Success - recovery code sent to user
-  console.log('Recovery code sent successfully');
+  logger.info('Recovery code sent successfully');
   return { success: true };
 }
 
@@ -2218,7 +2219,7 @@ async function recoverPassword(userId, recoveryCode, newPassword) {
   }
 
   const data = await response.json();
-  console.log('Password recovered successfully:', data);
+  logger.info('Password recovered successfully:', data);
   return { success: true, transactionId: data.id };
 }
 
@@ -2227,16 +2228,16 @@ async function handlePasswordRecovery(userId, recoveryCode, newPassword) {
   try {
     // Step 1: Send recovery code (usually done when user clicks "Forgot Password")
     await sendRecoveryCode(userId);
-    console.log('Recovery code sent to user');
+    logger.info('Recovery code sent to user');
     
     // Step 2: User enters recovery code and new password
     // This would typically be in a separate form/step
     const result = await recoverPassword(userId, recoveryCode, newPassword);
-    console.log('Password recovered:', result);
+    logger.info('Password recovered:', result);
     
     return result;
   } catch (error) {
-    log.error('HelioMartPasswordReset', 'Password recovery error:', undefined, error as Error);
+    logger.error('HelioMartPasswordReset', 'Password recovery error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2287,7 +2288,7 @@ async function forcePasswordChange(userId) {
   }
 
   const data = await response.json();
-  console.log('Password change forced successfully:', data);
+  logger.info('Password change forced successfully:', data);
   return { 
     success: true, 
     transactionId: data.id,
@@ -2299,10 +2300,10 @@ async function forcePasswordChange(userId) {
 async function handleForcePasswordChange(userId) {
   try {
     const result = await forcePasswordChange(userId);
-    console.log('Password change forced:', result);
+    logger.info('Password change forced:', result);
     return result;
   } catch (error) {
-    log.error('HelioMartPasswordReset', 'Force password change error:', undefined, error as Error);
+    logger.error('HelioMartPasswordReset', 'Force password change error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2358,7 +2359,7 @@ async function changePassword(userId, accessToken, oldPassword, newPassword) {
   }
 
   const data = await response.json();
-  console.log('Password changed successfully:', data);
+  logger.info('Password changed successfully:', data);
   return { 
     success: true, 
     transactionId: data.id,
@@ -2375,10 +2376,10 @@ async function handleChangePassword(userId, accessToken, oldPassword, newPasswor
     }
 
     const result = await changePassword(userId, accessToken, oldPassword, newPassword);
-    console.log('Password changed:', result);
+    logger.info('Password changed:', result);
     return result;
   } catch (error) {
-    log.error('HelioMartPasswordReset', 'Change password error:', undefined, error as Error);
+    logger.error('HelioMartPasswordReset', 'Change password error:', undefined, error as Error);
     throw error;
   }
 }
@@ -2400,7 +2401,7 @@ export { changePassword, handleChangePassword };`;
 			});
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			log.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
+			logger.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2550,7 +2551,7 @@ export { changePassword, handleChangePassword };`;
 								onAppSelected={(app) => {
 									setSelectedApp(app);
 									// App selected - user can manually configure clientId
-									console.log('Selected app:', app.name);
+									logger.info('Selected app:', app.name);
 								}}
 							/>
 						)} */}

@@ -22,6 +22,7 @@ import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
 import { sendAnalyticsLog } from '../utils/analyticsLoggerV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import type { DiscoveredApp } from './AppPickerV8.tsx';
+import { logger } from '../../../../utils/logger';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -282,7 +283,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
-				console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 				toastV8.error('Security validation failed. Please try again.');
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -365,7 +366,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						try {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								console.log(
+								logger.info(
 									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
 								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -382,7 +383,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										'client_secret_post';
 
 									if (currentAuthMethod !== pingOneAuthMethod) {
-										console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+										logger.info(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 											from: currentAuthMethod,
 											to: pingOneAuthMethod,
 										});
@@ -395,7 +396,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								}
 							}
 						} catch (configError) {
-							console.warn(
+							logger.warn(
 								`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
 								configError
 							);
@@ -453,7 +454,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						tokenType: 'user', // Mark as user token type
 					};
 					CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-					console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
 
 					// Store session info for success page
 					const newSessionInfo: SessionInfo = {
@@ -520,7 +521,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					toastV8.success('Access token received successfully!');
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+					logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 
 					// Remove from processed set so user can retry with a new code
 					processedCodesRef.current.delete(code);
@@ -650,7 +651,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (!storedState) return;
 
 				if (storedState && state && storedState !== state) {
-					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -682,7 +683,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							try {
 								const workerToken = await workerTokenServiceV8.getToken();
 								if (workerToken) {
-									console.log(
+									logger.info(
 										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
 									);
 									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -699,7 +700,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											'client_secret_post';
 
 										if (currentAuthMethod !== pingOneAuthMethod) {
-											console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+											logger.info(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 												from: currentAuthMethod,
 												to: pingOneAuthMethod,
 											});
@@ -712,7 +713,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}
 								}
 							} catch (configError) {
-								console.warn(
+								logger.warn(
 									`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
 									configError
 								);
@@ -751,11 +752,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							tokenType: 'user', // Mark as user token type
 						};
 						CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-						console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+						logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+						logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 						processedCodesRef.current.delete(code);
 						// eslint-disable-next-line require-atomic-updates
 						isProcessingRef.current = false;
@@ -788,7 +789,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Get worker token
 					const workerToken = await workerTokenServiceV8.getToken();
 					if (!workerToken) {
-						console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -808,7 +809,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					);
 
 					if (!app) {
-						console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
+						logger.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -833,12 +834,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							toastV8.warning(
 								`Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`
 							);
-							console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
+							logger.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
 						}
 						setIsUpdatingApp(false);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
+					logger.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
 					toastV8.warning(
 						`Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`
 					);
@@ -884,7 +885,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+			logger.error(`${MODULE_TAG} Failed to save credentials:`, error);
 			toastV8.error('Failed to save credentials. Please try again.');
 		} finally {
 			setIsSaving(false);
@@ -1053,7 +1054,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				});
 				// #endregion
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,
 					currentPath
 				);
@@ -1065,7 +1066,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Redirect to PingOne
 			window.location.href = authorizationUrl;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
+			logger.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
 			toastV8.error(error instanceof Error ? error.message : 'Failed to start login flow');
 			setIsRedirecting(false);
 		}
@@ -1398,7 +1399,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											environmentId={environmentId}
 											onAppSelected={async (app: DiscoveredApp) => {
 												try {
-													console.log(`${MODULE_TAG} App selected:`, {
+													logger.info(`${MODULE_TAG} App selected:`, {
 														appId: app.id,
 														appName: app.name,
 													});
@@ -1409,7 +1410,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														try {
 															const workerToken = await workerTokenServiceV8.getToken();
 															if (workerToken) {
-																console.log(
+																logger.info(
 																	`${MODULE_TAG} Fetching application secret from PingOne API...`
 																);
 																const fetchedApp =
@@ -1424,7 +1425,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 																}
 															}
 														} catch (error) {
-															console.warn(
+															logger.warn(
 																`${MODULE_TAG} Could not fetch app secret, continuing with app data:`,
 																error
 															);
@@ -1460,7 +1461,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														if (validMethods.includes(methodValue as AuthMethodV8)) {
 															setAuthMethod(methodValue as AuthMethodV8);
 														} else {
-															console.warn(
+															logger.warn(
 																`${MODULE_TAG} Unsupported auth method from app: ${methodValue}, using default`
 															);
 														}
@@ -1468,7 +1469,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 													toastV8.success(`Application "${app.name}" loaded`);
 												} catch (error) {
-													console.error(`${MODULE_TAG} Error applying app selection:`, error);
+													logger.error(`${MODULE_TAG} Error applying app selection:`, error);
 													toastV8.error('Failed to load application details');
 												}
 											}}

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -93,7 +94,7 @@ const HybridCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('HybridCallback');
-				log.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
+				logger.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
 
 				// #region agent log - Use safe analytics fetch
 				(async () => {
@@ -168,7 +169,7 @@ const HybridCallback: React.FC = () => {
 				// #endregion
 
 				// Log what we found for debugging
-				log.info('HybridCallback', 'Parsing hybrid callback', {
+				logger.info('HybridCallback', 'Parsing hybrid callback', {
 					hasCode: !!code,
 					hasIdToken: !!idToken,
 					hasAccessToken: !!accessToken,
@@ -184,7 +185,7 @@ const HybridCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Hybrid flow failed');
 					setError(errorDescription || error);
-					log.error('HybridCallback', 'OAuth error in hybrid callback', {
+					logger.error('HybridCallback', 'OAuth error in hybrid callback', {
 						error,
 						errorDescription,
 					});
@@ -266,7 +267,7 @@ const HybridCallback: React.FC = () => {
 						setMessage('ID token received! Redirecting to flow...');
 					}
 
-					log.success('HybridCallback', 'Hybrid flow successful, stored tokens', {
+					logger.success('HybridCallback', 'Hybrid flow successful, stored tokens', {
 						hasCode: !!code,
 						hasIdToken: !!idToken,
 						hasAccessToken: !!accessToken,
@@ -283,7 +284,7 @@ const HybridCallback: React.FC = () => {
 					if (isUnifiedFlow) {
 						// Unified flow - redirect to step 3 (callback handling step)
 						targetRoute = '/v8u/unified/hybrid/3';
-						log.info('HybridCallback', 'Detected unified flow, redirecting to unified route', {
+						logger.info('HybridCallback', 'Detected unified flow, redirecting to unified route', {
 							state,
 							targetRoute,
 						});
@@ -297,7 +298,7 @@ const HybridCallback: React.FC = () => {
 							sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
 						}
 
-						log.info('HybridCallback', 'Detected legacy flow, redirecting to legacy route', {
+						logger.info('HybridCallback', 'Detected legacy flow, redirecting to legacy route', {
 							targetRoute,
 						});
 					}
@@ -314,7 +315,7 @@ const HybridCallback: React.FC = () => {
 						if (isUnifiedFlow && window.location.hash) {
 							// Preserve fragment for unified flow (tokens are in fragment)
 							const redirectUrl = `${targetRoute}${window.location.hash}`;
-							log.info('HybridCallback', 'Redirecting with fragment preserved', {
+							logger.info('HybridCallback', 'Redirecting with fragment preserved', {
 								redirectUrl: redirectUrl.substring(0, 200),
 							});
 
@@ -334,7 +335,7 @@ const HybridCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('No authorization code or ID token found');
 					setError('Expected authorization code and/or ID token in callback URL');
-					log.error('HybridCallback', 'No code or id_token in hybrid callback', {
+					logger.error('HybridCallback', 'No code or id_token in hybrid callback', {
 						hasCode: !!code,
 						hasIdToken: !!idToken,
 						hasAccessToken: !!accessToken,
@@ -347,7 +348,7 @@ const HybridCallback: React.FC = () => {
 				setStatus('error');
 				setMessage('Hybrid flow failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				log.error('HybridCallback', 'Error processing hybrid callback', err);
+				logger.error('HybridCallback', 'Error processing hybrid callback', err);
 			}
 		};
 

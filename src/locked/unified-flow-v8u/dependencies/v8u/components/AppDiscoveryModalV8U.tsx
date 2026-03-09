@@ -16,6 +16,7 @@ import { workerTokenServiceV8 } from '../../v8/services/workerTokenServiceV8.ts'
 import { WorkerTokenStatusServiceV8 } from '../../v8/services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from '../../v8/utils/toastNotificationsV8.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {
@@ -90,14 +91,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			const workerToken = await workerTokenServiceV8.getToken();
 
 			// Debug logging
-			console.log(`${MODULE_TAG} Worker token retrieved from global service:`, {
+			logger.info(`${MODULE_TAG} Worker token retrieved from global service:`, {
 				token: workerToken ? `${workerToken.substring(0, 20)}...` : 'null',
 				type: typeof workerToken,
 				hasValue: !!workerToken,
 			});
 
 			if (!workerToken || typeof workerToken !== 'string') {
-				console.error(`${MODULE_TAG} Invalid worker token:`, {
+				logger.error(`${MODULE_TAG} Invalid worker token:`, {
 					token: workerToken,
 					type: typeof workerToken,
 				});
@@ -129,7 +130,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				toastV8.error('No applications found in this environment');
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error('Failed to discover applications - check worker token');
 		} finally {
 			setIsLoading(false);

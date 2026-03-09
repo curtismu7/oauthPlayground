@@ -14,6 +14,7 @@ import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
 
+import { logger } from '../../utils/logger';
 const PageContainer = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
@@ -533,7 +534,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 			// Navigate to the Protect Portal with the new company
 			const companyTheme = newCompany.name.toLowerCase().replace(/\s+/g, '-');
-			console.log('Company created:', newCompany);
+			logger.info('Company created:', newCompany);
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: `Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`,

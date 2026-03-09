@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../utils/logger';
 export interface UseMFAPoliciesConfig {
 	/** Environment ID for policy queries */
 	environmentId?: string;
@@ -98,7 +99,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 			lastFetchedEnvIdRef.current = envId;
 			setPolicies(loadedPolicies);
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Loaded ${loadedPolicies.length} policies for environment ${envId}`
 			);
 
@@ -122,7 +123,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 				setError(errorMessage);
 			}
 
-			console.error(`${MODULE_TAG} Failed to load policies:`, err);
+			logger.error(`${MODULE_TAG} Failed to load policies:`, err);
 			return [];
 		} finally {
 			isFetchingRef.current = false;
@@ -142,7 +143,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 
 	// Select policy
 	const selectPolicy = useCallback((policyId: string) => {
-		console.log(`${MODULE_TAG} Policy selected: ${policyId}`);
+		logger.info(`${MODULE_TAG} Policy selected: ${policyId}`);
 		setInternalSelectedPolicyId(policyId);
 	}, []);
 

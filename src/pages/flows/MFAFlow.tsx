@@ -10,6 +10,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
+import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -319,7 +320,7 @@ const mfaConfig = {
 // PingOne MFA API Base URL
 const mfaApiBaseUrl = \`https://api.pingone.com/v1/environments/\${environmentId}\`;
 
-console.log('MFA flow configured with PingOne MFA API:', mfaConfig);`,
+logger.info('MFA flow configured with PingOne MFA API:', mfaConfig);`,
 			execute: async () => {
 				logger.info('MFAFlow', 'Configuring MFA flow settings with PingOne MFA API');
 			},
@@ -359,8 +360,8 @@ const tokenResponse = await fetch('https://auth.pingone.com/${formData.environme
 });
 
 const { access_token } = await tokenResponse.json();
-console.log('MFA Authorization URL:', fullAuthUrl);
-console.log('Access token for MFA API:', access_token);`,
+logger.info('MFA Authorization URL:', fullAuthUrl);
+logger.info('Access token for MFA API:', access_token);`,
 			execute: async () => {
 				logger.info('MFAFlow', 'Starting MFA authorization with PingOne MFA API');
 				setDemoStatus('loading');
@@ -418,7 +419,7 @@ const mfaMethods = [
 ];
 
 const selectedMethod = '${formData.selectedMFA}';
-console.log('Selected MFA method:', selectedMethod);
+logger.info('Selected MFA method:', selectedMethod);
 
 // Get available MFA methods from PingOne MFA API via backend proxy
 const mfaMethodsResponse = await fetch('/api/pingone/mfa/get-methods', {
@@ -433,7 +434,7 @@ const mfaMethodsResponse = await fetch('/api/pingone/mfa/get-methods', {
 });
 
 const availableMethods = await mfaMethodsResponse.json();
-console.log('Available MFA methods:', availableMethods);
+logger.info('Available MFA methods:', availableMethods);
 
 // Select MFA method via backend proxy
 const mfaSelectionResponse = await fetch('/api/pingone/mfa/select-method', {
@@ -449,7 +450,7 @@ const mfaSelectionResponse = await fetch('/api/pingone/mfa/select-method', {
 });
 
 const selectionResult = await mfaSelectionResponse.json();
-console.log('MFA method selection result:', selectionResult);`,
+logger.info('MFA method selection result:', selectionResult);`,
 			execute: async () => {
 				logger.info('MFAFlow', 'Selecting MFA method with PingOne MFA API', {
 					method: formData.selectedMFA,
@@ -553,7 +554,7 @@ const verificationResponse = await fetch('/api/pingone/mfa/verify-code', {
 const verificationResult = await verificationResponse.json();
 
 if (verificationResponse.ok) {
-  console.log('MFA verification successful:', verificationResult);
+  logger.info('MFA verification successful:', verificationResult);
   // Continue with token exchange
 } else {
   logger.error('MFAFlow', 'MFA verification failed:', { verificationResult });
@@ -642,7 +643,7 @@ const tokenResponse = await fetch(tokenUrl, {
 
 if (tokenResponse.ok) {
   const tokens = await tokenResponse.json();
-  console.log('Tokens received with MFA verification:', tokens);
+  logger.info('Tokens received with MFA verification:', tokens);
   
   // Store tokens with MFA context
   const tokensWithMFA = {

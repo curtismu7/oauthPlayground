@@ -11,6 +11,7 @@ import {
 } from '../services/codeExamplesService';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
+import { logger } from '../utils/logger';
 interface CodeExamplesInlineProps {
 	flowType: string;
 	stepId: string;
@@ -207,7 +208,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			log.error('CodeExamplesInline', 'Failed to copy code:', undefined, err as Error);
+			logger.error('CodeExamplesInline', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

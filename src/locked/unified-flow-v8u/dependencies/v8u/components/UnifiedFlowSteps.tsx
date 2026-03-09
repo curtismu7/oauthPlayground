@@ -48,6 +48,7 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
+import { logger } from '../../../../utils/logger';
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
 const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';
@@ -418,7 +419,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const navigateToStep = useCallback(
 		(step: number) => {
 			if (step < 0 || step >= totalSteps) {
-				console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
+				logger.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
 				return;
 			}
 			const path = `/v8u/unified/${flowType}/${step}`;
@@ -510,7 +511,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const tokens = JSON.parse(storedTokens);
 					initialState.tokens = tokens;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored ${flowType} tokens`, err);
+					logger.error(`${MODULE_TAG} Failed to parse stored ${flowType} tokens`, err);
 				}
 			}
 		} else if (flowType === 'client-credentials') {
@@ -521,7 +522,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Restored client-credentials tokens from sessionStorage
 					initialState.tokens = tokens;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored client-credentials tokens`, err);
+					logger.error(`${MODULE_TAG} Failed to parse stored client-credentials tokens`, err);
 				}
 			}
 		} else if (flowType === 'device-code') {
@@ -539,7 +540,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// CRITICAL: Initialize ref with restored device code
 					deviceCodeRef.current = deviceData.deviceCode;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored device code data`, err);
+					logger.error(`${MODULE_TAG} Failed to parse stored device code data`, err);
 				}
 			}
 		}
@@ -633,7 +634,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			isPKCERequired &&
 			(!flowState.codeVerifier || !flowState.codeChallenge)
 		) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} [PKCE VALIDATION] PKCE codes required but missing - redirecting to PKCE step`,
 				{
 					currentStep,
@@ -721,7 +722,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// However, when OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it includes id_token (OIDC Core 1.0 using OAuth 2.1 (draft) baseline).
 			if (specVersion === 'oauth2.0' || specVersion === 'oauth2.1') {
 				if (tokens.id_token) {
-					console.log(
+					logger.info(
 						`${MODULE_TAG} 🔒 SPEC COMPLIANCE: Filtering out id_token for ${specVersion}. ` +
 							`OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) only returns access_token and refresh_token when used without OpenID Connect. ` +
 							`ID tokens are only part of OpenID Connect Core 1.0.`
@@ -739,7 +740,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Helper function to handle token success - skip modal and proceed to next step
 	const showTokenSuccessModal = useCallback(
 		(tokens: TokenResponse) => {
-			console.log(`${MODULE_TAG} ✅ Tokens received - proceeding to next step`);
+			logger.info(`${MODULE_TAG} ✅ Tokens received - proceeding to next step`);
 
 			// Filter tokens based on spec version
 			const filteredTokens = filterTokensBySpec(tokens);
@@ -797,8 +798,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 * @example
 	 * const userInfo = await fetchUserInfoWithDiscovery(accessToken, environmentId);
 	 * if (userInfo) {
-	 *   console.log('User email:', userInfo.email);
-	 *   console.log('User name:', userInfo.name);
+	 *   logger.info('User email:', userInfo.email);
+	 *   logger.info('User name:', userInfo.name);
 	 * }
 	 */
 	const fetchUserInfoWithDiscovery = useCallback(
@@ -827,13 +828,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Fallback to standard PingOne UserInfo endpoint format
 					// This is the default endpoint format for PingOne environments
 					userInfoEndpoint = `https://auth.pingone.com/${environmentId}/as/userinfo`;
-					console.warn(`${MODULE_TAG} Discovery failed, using fallback UserInfo endpoint`, {
+					logger.warn(`${MODULE_TAG} Discovery failed, using fallback UserInfo endpoint`, {
 						userInfoEndpoint,
 						discoveryError: discoveryResult.error,
 					});
 				} else {
 					userInfoEndpoint = discoveryResult.data.userInfoEndpoint;
-					console.log(`${MODULE_TAG} Fetching UserInfo via backend proxy`, { userInfoEndpoint });
+					logger.info(`${MODULE_TAG} Fetching UserInfo via backend proxy`, { userInfoEndpoint });
 				}
 
 				/**
@@ -913,7 +914,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const userInfo = responseData as Record<string, unknown>;
 				return userInfo;
 			} catch (err) {
-				console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
+				logger.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 				return null;
 			}
 		},
@@ -950,7 +951,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 * @callback
 	 */
 	const handleRestartFlow = useCallback(() => {
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Restarting flow - clearing OAuth tokens and flow state (preserving credentials and worker token)`
 		);
 
@@ -991,7 +992,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		 * and are preserved across restarts.
 		 */
 		PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
-			console.error(`${MODULE_TAG} Failed to clear PKCE codes from all storage`, err);
+			logger.error(`${MODULE_TAG} Failed to clear PKCE codes from all storage`, err);
 		});
 		sessionStorage.removeItem('v8u_callback_data');
 		sessionStorage.removeItem('v8u_implicit_tokens');
@@ -1041,7 +1042,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			'Flow restarted - OAuth tokens and state cleared (credentials and worker token preserved)'
 		);
 
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Flow restarted successfully - OAuth tokens and state cleared, credentials and worker token preserved`
 		);
 	}, [navigateToStep, setValidationErrorsState, setValidationWarningsState, onFlowReset, flowKey]);
@@ -1051,7 +1052,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Note: prevFlowTypeRef and deviceCodeRef are declared earlier (before useState initializers)
 	useEffect(() => {
 		if (prevFlowTypeRef.current !== flowType) {
-			console.log(`${MODULE_TAG} Flow type changed - clearing tokens and flow state`, {
+			logger.info(`${MODULE_TAG} Flow type changed - clearing tokens and flow state`, {
 				from: prevFlowTypeRef.current,
 				to: flowType,
 			});
@@ -1098,10 +1099,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Clear PKCE codes for the previous flow type
 			const prevFlowKey = `${prevFlowTypeRef.current}-${specVersion}-v8u`;
 			PKCEStorageServiceV8U.clearPKCECodes(prevFlowKey).catch((err) => {
-				console.error(`${MODULE_TAG} Failed to clear PKCE codes for previous flow type`, err);
+				logger.error(`${MODULE_TAG} Failed to clear PKCE codes for previous flow type`, err);
 			});
 
-			console.log(`${MODULE_TAG} Cleared tokens and flow state due to flow type change`);
+			logger.info(`${MODULE_TAG} Cleared tokens and flow state due to flow type change`);
 
 			// Update the ref to track the current flow type
 			prevFlowTypeRef.current = flowType;
@@ -1184,11 +1185,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Mark step as complete if no errors
 			if (errors.length === 0 && !completedSteps.includes(0)) {
-				console.log(`${MODULE_TAG} Step 0 validation passed - marking as complete`);
+				logger.info(`${MODULE_TAG} Step 0 validation passed - marking as complete`);
 				setCompletedSteps((prev) => [...prev, 0]);
 			} else if (errors.length > 0 && completedSteps.includes(0)) {
 				// Remove from completed steps if errors appear
-				console.log(`${MODULE_TAG} Step 0 validation failed - removing from completed steps`);
+				logger.info(`${MODULE_TAG} Step 0 validation failed - removing from completed steps`);
 				setCompletedSteps((prev) => prev.filter((step) => step !== 0));
 			}
 		}
@@ -1234,11 +1235,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				: errors.length === 0; // Optional: can proceed even without codes
 
 			if (canProceed && !completedSteps.includes(1)) {
-				console.log(`${MODULE_TAG} Step 1 (PKCE) validation passed - marking as complete`);
+				logger.info(`${MODULE_TAG} Step 1 (PKCE) validation passed - marking as complete`);
 				setCompletedSteps((prev) => [...prev, 1]);
 			} else if (errors.length > 0 && completedSteps.includes(1)) {
 				// Remove from completed steps if codes are missing
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Step 1 (PKCE) validation failed - removing from completed steps`
 				);
 				setCompletedSteps((prev) => prev.filter((step) => step !== 1));
@@ -1263,10 +1264,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Users should manually generate PKCE codes in Step 1 - this is an educational tool
 
 			// CRITICAL DEBUG: Log what we're checking
-			console.log(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG ==========`);
-			console.log(`${MODULE_TAG} Current Step:`, currentStep);
-			console.log(`${MODULE_TAG} Flow Type:`, flowType);
-			console.log(`${MODULE_TAG} Credentials at validation time:`, {
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG ==========`);
+			logger.info(`${MODULE_TAG} Current Step:`, currentStep);
+			logger.info(`${MODULE_TAG} Flow Type:`, flowType);
+			logger.info(`${MODULE_TAG} Credentials at validation time:`, {
 				environmentId: credentials.environmentId || 'MISSING',
 				clientId: credentials.clientId || 'MISSING',
 				hasClientSecret: credentials.clientSecret !== undefined,
@@ -1275,7 +1276,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				pkceEnforcement: credentials.pkceEnforcement,
 				allKeys: Object.keys(credentials),
 			});
-			console.log(`${MODULE_TAG} Flow State:`, {
+			logger.info(`${MODULE_TAG} Flow State:`, {
 				hasAuthorizationCode: !!flowState.authorizationCode,
 				authorizationCode: `${flowState.authorizationCode?.substring(0, 30)}...`,
 				hasCodeVerifier: !!flowState.codeVerifier,
@@ -1325,10 +1326,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 			}
 
-			console.log(`${MODULE_TAG} Validation Errors Found:`, errors.length);
+			logger.info(`${MODULE_TAG} Validation Errors Found:`, errors.length);
 			// Set validation errors if any are found
 			if (errors.length > 0) {
-				console.warn(`${MODULE_TAG} Missing required fields on token exchange step`, {
+				logger.warn(`${MODULE_TAG} Missing required fields on token exchange step`, {
 					usePKCE: isPKCERequired,
 					pkceEnforcement: credentials.pkceEnforcement,
 					hasAuthorizationCode: !!flowState.authorizationCode,
@@ -1346,10 +1347,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setValidationErrorsState(errors);
 			} else {
 				// Clear errors if all required fields are present
-				console.log(`${MODULE_TAG} ✅ All validation checks passed`);
+				logger.info(`${MODULE_TAG} ✅ All validation checks passed`);
 				setValidationErrorsState([]);
 			}
-			console.log(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG END ==========`);
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG END ==========`);
 		}
 	}, [
 		currentStep,
@@ -1390,7 +1391,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Mark the token step as complete if tokens are available
 			if (tokenStep >= 0 && !completedSteps.includes(tokenStep)) {
-				console.log(`${MODULE_TAG} Tokens available - auto-marking step ${tokenStep} as complete`, {
+				logger.info(`${MODULE_TAG} Tokens available - auto-marking step ${tokenStep} as complete`, {
 					flowType,
 					tokenStep,
 					hasTokens: !!flowState.tokens?.accessToken,
@@ -1415,7 +1416,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// If we're currently on the tokens step and it's not marked complete, mark it
 			if (currentStep === tokenStep && !completedSteps.includes(currentStep)) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} On tokens step with tokens available - marking step ${currentStep} as complete`
 				);
 				nav.markStepComplete();
@@ -1442,14 +1443,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						flowType,
 					})
 				);
-				console.log(`${MODULE_TAG} Tokens auto-saved to sessionStorage`, {
+				logger.info(`${MODULE_TAG} Tokens auto-saved to sessionStorage`, {
 					flowType,
 					hasAccessToken: !!flowState.tokens.accessToken,
 					hasIdToken: !!flowState.tokens.idToken,
 					hasRefreshToken: !!flowState.tokens.refreshToken,
 				});
 			} catch (err) {
-				console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
+				logger.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
 			}
 		}
 	}, [flowState.tokens, flowType]);
@@ -1474,13 +1475,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						savedAt: Date.now(),
 					})
 				);
-				console.log(`${MODULE_TAG} Device code data auto-saved to sessionStorage`, {
+				logger.info(`${MODULE_TAG} Device code data auto-saved to sessionStorage`, {
 					hasDeviceCode: !!flowState.deviceCode,
 					hasUserCode: !!flowState.userCode,
 					hasVerificationUri: !!flowState.verificationUri,
 				});
 			} catch (err) {
-				console.error(`${MODULE_TAG} Failed to save device code data to sessionStorage`, err);
+				logger.error(`${MODULE_TAG} Failed to save device code data to sessionStorage`, err);
 			}
 		}
 	}, [
@@ -1518,12 +1519,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				sessionStorage.setItem('v8u_callback_data', JSON.stringify(callbackData));
-				console.log(`${MODULE_TAG} Authorization code auto-saved to sessionStorage`, {
+				logger.info(`${MODULE_TAG} Authorization code auto-saved to sessionStorage`, {
 					hasCode: !!flowState.authorizationCode,
 					hasState: !!flowState.state,
 				});
 			} catch (err) {
-				console.error(`${MODULE_TAG} Failed to save authorization code to sessionStorage`, err);
+				logger.error(`${MODULE_TAG} Failed to save authorization code to sessionStorage`, err);
 			}
 		}
 	}, [flowState.authorizationCode, flowState.state, flowType]);
@@ -1539,7 +1540,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	useEffect(() => {
 		// Only run on step 3 (callback handling step) for authorization code and hybrid flows
 		if (currentStep === 3 && (flowType === 'oauth-authz' || flowType === 'hybrid')) {
-			console.log(`${MODULE_TAG} Step 3 mounted - checking for callback data`, { flowType });
+			logger.info(`${MODULE_TAG} Step 3 mounted - checking for callback data`, { flowType });
 
 			let callbackUrl: string | null = null;
 			let detectedCode: string | null = null;
@@ -1551,7 +1552,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowType === 'hybrid' && !flowState.tokens?.accessToken) {
 				const fragment = window.location.hash.substring(1);
 				if (fragment && (fragment.includes('access_token') || fragment.includes('id_token'))) {
-					console.log(`${MODULE_TAG} Hybrid flow: Fragment detected in URL`, {
+					logger.info(`${MODULE_TAG} Hybrid flow: Fragment detected in URL`, {
 						fragmentLength: fragment.length,
 					});
 					hasFragment = true;
@@ -1576,37 +1577,37 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 
-						console.log(`${MODULE_TAG} Hybrid flow: Tokens extracted from fragment`, {
+						logger.info(`${MODULE_TAG} Hybrid flow: Tokens extracted from fragment`, {
 							hasAccessToken: !!fragmentTokens?.access_token,
 							hasIdToken: !!fragmentTokens?.id_token,
 						});
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to parse fragment for hybrid flow`, err);
+						logger.error(`${MODULE_TAG} Failed to parse fragment for hybrid flow`, err);
 					}
 				}
 			}
 
 			// First, try sessionStorage (set by CallbackHandlerV8U if callback goes through /authz-callback)
 			const callbackDataStr = sessionStorage.getItem('v8u_callback_data');
-			console.log(`${MODULE_TAG} Checking sessionStorage`, { hasData: !!callbackDataStr });
+			logger.info(`${MODULE_TAG} Checking sessionStorage`, { hasData: !!callbackDataStr });
 
 			if (callbackDataStr) {
 				try {
 					const callbackData = JSON.parse(callbackDataStr);
-					console.log(`${MODULE_TAG} Found callback data in sessionStorage`, callbackData);
+					logger.info(`${MODULE_TAG} Found callback data in sessionStorage`, callbackData);
 
 					if (callbackData.code) {
 						callbackUrl = callbackData.fullUrl || window.location.href;
 						detectedCode = callbackData.code;
 						detectedState = callbackData.state;
-						console.log(`${MODULE_TAG} Extracted from sessionStorage`, {
+						logger.info(`${MODULE_TAG} Extracted from sessionStorage`, {
 							code: detectedCode,
 							state: detectedState,
 						});
 						// Don't remove from sessionStorage yet - we'll do it after parsing
 					}
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse callback data from sessionStorage`, err);
+					logger.error(`${MODULE_TAG} Failed to parse callback data from sessionStorage`, err);
 				}
 			}
 
@@ -1616,10 +1617,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const code = urlParams.get('code');
 				const state = urlParams.get('state');
 
-				console.log(`${MODULE_TAG} Checking URL params`, { hasCode: !!code, hasState: !!state });
+				logger.info(`${MODULE_TAG} Checking URL params`, { hasCode: !!code, hasState: !!state });
 
 				if (code) {
-					console.log(`${MODULE_TAG} Found authorization code in URL params`);
+					logger.info(`${MODULE_TAG} Found authorization code in URL params`);
 					callbackUrl = window.location.href;
 					detectedCode = code;
 					detectedState = state;
@@ -1650,11 +1651,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							updates.state = detectedState;
 						}
 						hasUpdates = true;
-						console.log(`${MODULE_TAG} Hybrid flow: Authorization code extracted`, {
+						logger.info(`${MODULE_TAG} Hybrid flow: Authorization code extracted`, {
 							code: parsed.code,
 						});
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to parse authorization code for hybrid flow`, err);
+						logger.error(`${MODULE_TAG} Failed to parse authorization code for hybrid flow`, err);
 					}
 				}
 
@@ -1679,9 +1680,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								extractedAt: Date.now(),
 							})
 						);
-						console.log(`${MODULE_TAG} Hybrid flow: Tokens saved to sessionStorage`);
+						logger.info(`${MODULE_TAG} Hybrid flow: Tokens saved to sessionStorage`);
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to save hybrid tokens to sessionStorage`, err);
+						logger.error(`${MODULE_TAG} Failed to save hybrid tokens to sessionStorage`, err);
 					}
 				}
 
@@ -1703,7 +1704,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.removeItem('v8u_callback_data');
 					}
 
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Hybrid flow: Callback data extracted and step marked complete`
 					);
 					return;
@@ -1717,7 +1718,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				callbackUrl &&
 				!flowState.authorizationCode
 			) {
-				console.log(`${MODULE_TAG} Auto-parsing callback URL and extracting code`, { callbackUrl });
+				logger.info(`${MODULE_TAG} Auto-parsing callback URL and extracting code`, { callbackUrl });
 
 				try {
 					// Parse the callback URL to extract the authorization code
@@ -1726,7 +1727,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						flowState.state || detectedState || ''
 					);
 
-					console.log(`${MODULE_TAG} Successfully parsed callback`, { extractedCode: parsed.code });
+					logger.info(`${MODULE_TAG} Successfully parsed callback`, { extractedCode: parsed.code });
 
 					// Extract all parameters from callback URL
 					const url = new URL(callbackUrl);
@@ -1763,9 +1764,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.removeItem('v8u_callback_data');
 					}
 
-					console.log(`${MODULE_TAG} Authorization code extracted - showing success modal`);
+					logger.info(`${MODULE_TAG} Authorization code extracted - showing success modal`);
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to auto-parse callback URL`, err);
+					logger.error(`${MODULE_TAG} Failed to auto-parse callback URL`, err);
 					// If auto-parsing fails, just set the URL so user can manually parse
 					setFlowState((prev) => ({
 						...prev,
@@ -1775,14 +1776,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					toastV8.warning('Callback URL detected - click "Parse Callback URL" to continue');
 				}
 			} else if (!detectedCode && !hasFragment) {
-				console.log(`${MODULE_TAG} No callback data found - user will need to paste URL manually`);
+				logger.info(`${MODULE_TAG} No callback data found - user will need to paste URL manually`);
 			}
 		}
 	}, [currentStep, flowType, flowState.authorizationCode, flowState.tokens, flowState.state, nav]);
 
 	// Step 2: Parse Fragment handler (moved to top level to fix React hooks error)
 	const handleParseFragment = useCallback(async () => {
-		console.log(`${MODULE_TAG} Parsing callback fragment`);
+		logger.info(`${MODULE_TAG} Parsing callback fragment`);
 		setIsLoading(true);
 		setError(null);
 
@@ -1859,7 +1860,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Show success modal with token details
-				console.log(`${MODULE_TAG} 🎉 SHOWING SUCCESS MODAL`, {
+				logger.info(`${MODULE_TAG} 🎉 SHOWING SUCCESS MODAL`, {
 					hasCallbackDetails: !!callbackDetails,
 					allParamsKeys: Object.keys(allParams),
 					accessToken: allParams.access_token
@@ -1878,12 +1879,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							extractedAt: Date.now(),
 						})
 					);
-					console.log(`${MODULE_TAG} Tokens saved to sessionStorage`, {
+					logger.info(`${MODULE_TAG} Tokens saved to sessionStorage`, {
 						hasAccessToken: !!tokens.accessToken,
 						hasIdToken: !!tokens.idToken,
 					});
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
+					logger.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
 				}
 
 				// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
@@ -1905,7 +1906,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setShowUserInfoModal(true);
 						}
 					} catch (err) {
-						console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
+						logger.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 
 						// Still show modal if we have ID token with user info
 						if (tokens.idToken) {
@@ -1950,7 +1951,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			(flowType === 'implicit' || flowType === 'hybrid') &&
 			!flowState.tokens?.accessToken
 		) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Step 2 mounted for implicit/hybrid flow - checking for fragment in URL`
 			);
 
@@ -1962,7 +1963,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (callbackDataStr) {
 				try {
 					const callbackData = JSON.parse(callbackDataStr);
-					console.log(`${MODULE_TAG} Restoring callback data from sessionStorage`, {
+					logger.info(`${MODULE_TAG} Restoring callback data from sessionStorage`, {
 						hasState: !!callbackData.state,
 						flowType: callbackData.flowType,
 					});
@@ -1977,7 +1978,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					}
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse callback data from sessionStorage`, err);
+					logger.error(`${MODULE_TAG} Failed to parse callback data from sessionStorage`, err);
 				}
 			}
 
@@ -1985,7 +1986,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Check if fragment contains tokens
 			if (fragment && (fragment.includes('access_token') || fragment.includes('id_token'))) {
-				console.log(`${MODULE_TAG} 🎯 Fragment detected in URL - auto-parsing tokens`, {
+				logger.info(`${MODULE_TAG} 🎯 Fragment detected in URL - auto-parsing tokens`, {
 					fragmentLength: fragment.length,
 					fragmentPreview: `${fragment.substring(0, 100)}...`,
 					currentStep,
@@ -2056,13 +2057,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							})
 						);
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
+						logger.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
 					}
 
 					nav.markStepComplete();
 					toastV8.success('Tokens extracted automatically from URL fragment');
 				} catch (err) {
-					console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
+					logger.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
 					// Fall back to manual parsing via handleParseFragment
 					handleParseFragment();
 				}
@@ -2072,7 +2073,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (storedTokens) {
 					try {
 						const tokens = JSON.parse(storedTokens);
-						console.log(`${MODULE_TAG} Restoring tokens from sessionStorage on step 2`, {
+						logger.info(`${MODULE_TAG} Restoring tokens from sessionStorage on step 2`, {
 							hasAccessToken: !!tokens.accessToken,
 						});
 						setFlowState((prev) => ({
@@ -2082,7 +2083,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						nav.markStepComplete();
 						toastV8.success('Tokens restored from previous session');
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to restore tokens from sessionStorage`, err);
+						logger.error(`${MODULE_TAG} Failed to restore tokens from sessionStorage`, err);
 					}
 				}
 			}
@@ -2581,7 +2582,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					};
 
 		const handlePKCEChange = (codes: PKCECodes) => {
-			console.log(`${MODULE_TAG} 🔑 handlePKCEChange called`, {
+			logger.info(`${MODULE_TAG} 🔑 handlePKCEChange called`, {
 				hasVerifier: !!codes.codeVerifier,
 				hasChallenge: !!codes.codeChallenge,
 				verifierLength: codes.codeVerifier?.length,
@@ -2602,12 +2603,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					codeChallengeMethod: codes.codeChallengeMethod || 'S256',
 				});
 			} else {
-				console.warn(`${MODULE_TAG} ⚠️ handlePKCEChange called but codes are incomplete`);
+				logger.warn(`${MODULE_TAG} ⚠️ handlePKCEChange called but codes are incomplete`);
 			}
 		};
 
 		const handlePKCEGenerate = async () => {
-			console.log(`${MODULE_TAG} PKCE codes generated`);
+			logger.info(`${MODULE_TAG} PKCE codes generated`);
 			// PKCE codes are already updated via handlePKCEChange, which uses bulletproof storage
 			// No need for additional save here - the service handles all 4 storage locations
 			if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
@@ -2812,7 +2813,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					throw new Error('Session ID not found. Please restart the flow.');
 				}
 
-				console.log(`${MODULE_TAG} 🔌 Resuming redirectless flow`, {
+				logger.info(`${MODULE_TAG} 🔌 Resuming redirectless flow`, {
 					flowId,
 					hasSessionId: !!sessionId,
 					resumeUrl: `${resumeUrl.substring(0, 100)}...`,
@@ -2889,7 +2890,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const resumeData = responseData as Record<string, unknown>;
-				console.log(`${MODULE_TAG} 🔌 Resume response:`, resumeData);
+				logger.info(`${MODULE_TAG} 🔌 Resume response:`, resumeData);
 
 				// Try to extract code from various possible locations
 				// PingOne might return code directly, or nested in a flow object, or in authorizeResponse
@@ -2931,7 +2932,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				if (!authCode) {
 					// Log full response for debugging
-					console.error(`${MODULE_TAG} 🔌 Authorization code not found in resume response`, {
+					logger.error(`${MODULE_TAG} 🔌 Authorization code not found in resume response`, {
 						responseKeys: Object.keys(resumeData),
 						hasCode: !!resumeData.code,
 						hasFlow: !!resumeData.flow,
@@ -2946,7 +2947,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				// Store authorization code in flow state for display (similar to callback parsing)
-				console.log(`${MODULE_TAG} 🔌 Authorization code received from resume`, {
+				logger.info(`${MODULE_TAG} 🔌 Authorization code received from resume`, {
 					code: `${authCode.substring(0, 20)}...`,
 				});
 
@@ -2987,7 +2988,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// For oauth-authz and hybrid: Step 2 is callback (PKCE is in Advanced Options, not a separate step)
 				const callbackStepIndex = 2; // Step 2 for oauth-authz and hybrid
 
-				console.log(`${MODULE_TAG} 🔌 Navigating to callback step to display authorization code`, {
+				logger.info(`${MODULE_TAG} 🔌 Navigating to callback step to display authorization code`, {
 					callbackStepIndex,
 					flowType,
 					usePKCE: isPKCERequired,
@@ -3028,7 +3029,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setError(null);
 
 			try {
-				console.log(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
+				logger.info(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
 				// In development: Vite proxy routes /api/* to http://localhost:3001
@@ -3096,7 +3097,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const tokenData = responseData as Record<string, unknown>;
-				console.log(`${MODULE_TAG} 🔌 Token exchange successful`);
+				logger.info(`${MODULE_TAG} 🔌 Token exchange successful`);
 
 				// Store tokens in flow state (conditionally include optional properties)
 				const updatedState: FlowState = {
@@ -3158,7 +3159,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					throw new Error('Flow state not found. Please restart the flow.');
 				}
 
-				console.log(`${MODULE_TAG} 🔌 Submitting credentials to PingOne Flow API`, {
+				logger.info(`${MODULE_TAG} 🔌 Submitting credentials to PingOne Flow API`, {
 					flowId,
 					username,
 					hasSessionId: !!sessionId,
@@ -3240,13 +3241,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const credentialsData = responseData2 as Record<string, unknown>;
-				console.log(`${MODULE_TAG} 🔌 Credentials response:`, credentialsData);
+				logger.info(`${MODULE_TAG} 🔌 Credentials response:`, credentialsData);
 
 				// Extract and update sessionId from credentials response
 				const updatedSessionId = credentialsData._sessionId as string | undefined;
 				if (updatedSessionId) {
 					sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, updatedSessionId);
-					console.log(`${MODULE_TAG} 🔌 Updated sessionId from credentials response`);
+					logger.info(`${MODULE_TAG} 🔌 Updated sessionId from credentials response`);
 				}
 
 				const status = String(credentialsData.status || '').toUpperCase();
@@ -3254,7 +3255,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Handle MUST_CHANGE_PASSWORD status
 				if (status === 'MUST_CHANGE_PASSWORD') {
-					console.log(`${MODULE_TAG} 🔌 Password change required detected`);
+					logger.info(`${MODULE_TAG} 🔌 Password change required detected`);
 
 					// Extract userId from response if available, otherwise we'll need to look it up
 					const userId = (credentialsData.userId ||
@@ -3314,7 +3315,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								throw new Error('Failed to lookup user');
 							}
 						} catch (lookupError) {
-							console.error(`${MODULE_TAG} 🔌 Failed to lookup user:`, lookupError);
+							logger.error(`${MODULE_TAG} 🔌 Failed to lookup user:`, lookupError);
 							const errorMsg =
 								'Password change is required, but user ID could not be determined. Please contact your administrator.';
 							setRedirectlessAuthError(errorMsg);
@@ -3331,7 +3332,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} else if (status === 'COMPLETED') {
 					// Flow completed immediately - check for authorization code or tokens
 					// Log full response structure for debugging
-					console.log(`${MODULE_TAG} 🔌 COMPLETED flow response structure:`, {
+					logger.info(`${MODULE_TAG} 🔌 COMPLETED flow response structure:`, {
 						hasAuthorizeResponse: !!credentialsData.authorizeResponse,
 						hasCode: !!credentialsData.code,
 						keys: Object.keys(credentialsData),
@@ -3353,7 +3354,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						(authorizeResponse as Record<string, unknown>)?.accessToken ||
 						credentialsData.accessToken) as string | undefined;
 
-					console.log(`${MODULE_TAG} 🔌 Extracted from COMPLETED flow:`, {
+					logger.info(`${MODULE_TAG} 🔌 Extracted from COMPLETED flow:`, {
 						hasAuthCode: !!authCode,
 						hasAccessToken: !!accessToken,
 						authCodePreview: authCode ? `${authCode.substring(0, 20)}...` : 'none',
@@ -3361,7 +3362,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					if (accessToken) {
 						// Tokens received directly - store them and navigate to tokens step
-						console.log(`${MODULE_TAG} 🔌 Tokens received directly from COMPLETED flow`);
+						logger.info(`${MODULE_TAG} 🔌 Tokens received directly from COMPLETED flow`);
 						const updatedState: FlowState = {
 							...flowState,
 							tokens: {
@@ -3394,7 +3395,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						navigateToStep(tokensStepIndex);
 					} else if (authCode) {
 						// Authorization code received - proceed to token exchange
-						console.log(`${MODULE_TAG} 🔌 Authorization code received from COMPLETED flow`);
+						logger.info(`${MODULE_TAG} 🔌 Authorization code received from COMPLETED flow`);
 						const codeVerifier = sessionStorage.getItem(`${flowKey}-redirectless-codeVerifier`);
 						if (codeVerifier) {
 							await handleRedirectlessTokenExchange(authCode, codeVerifier);
@@ -3423,14 +3424,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Check if there's a resumeUrl even though status is COMPLETED
 						const resumeUrl = credentialsData.resumeUrl as string | undefined;
 						if (resumeUrl) {
-							console.log(
+							logger.info(
 								`${MODULE_TAG} 🔌 COMPLETED status but resumeUrl present - attempting resume`
 							);
 							sessionStorage.setItem(`${flowKey}-redirectless-resumeUrl`, resumeUrl);
 							await handleResumeRedirectlessFlow(flowId, stateValue, resumeUrl);
 						} else {
 							// COMPLETED but no code, tokens, or resumeUrl - log full response for debugging
-							console.warn(
+							logger.warn(
 								`${MODULE_TAG} 🔌 Flow COMPLETED but no code, tokens, or resumeUrl found`,
 								{
 									responseKeys: Object.keys(credentialsData),
@@ -3450,7 +3451,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-				console.error(`${MODULE_TAG} 🔌 Failed to submit credentials:`, errorMessage);
+				logger.error(`${MODULE_TAG} 🔌 Failed to submit credentials:`, errorMessage);
 				setRedirectlessAuthError(errorMessage);
 				toastV8.error(`❌ Authentication failed: ${errorMessage}`);
 			} finally {
@@ -3520,7 +3521,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Re-open the login modal so user can try again
 				setShowRedirectlessModal(true);
 			} catch (error) {
-				console.error(`${MODULE_TAG} 🔌 Password change failed:`, error);
+				logger.error(`${MODULE_TAG} 🔌 Password change failed:`, error);
 				throw error; // Re-throw to let modal handle the error display
 			}
 		},
@@ -3531,7 +3532,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const handleStartRedirectlessAuth = useCallback(async () => {
 		const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 		if (!isRedirectless || !flowState.authorizationUrl) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} ⚠️ Cannot start redirectless auth - missing URL or not in redirectless mode`
 			);
 			return;
@@ -3625,7 +3626,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		try {
 			// Redirectless mode (pi.flow): Make POST request to PingOne Flow API
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔌 Redirectless mode (response_mode=pi.flow) enabled - making POST request to PingOne Flow API`
 			);
 
@@ -3637,17 +3638,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const url = new URL(flowState.authorizationUrl);
 					parRequestUri = url.searchParams.get('request_uri') || undefined;
 					if (parRequestUri) {
-						console.log(
+						logger.info(
 							`${MODULE_TAG} 🔌 PAR request_uri found in authorization URL (already pushed):`,
 							`${parRequestUri.substring(0, 50)}...`
 						);
 					} else {
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} ⚠️ PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`
 						);
 					}
 				} catch (error) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} ⚠️ Failed to parse authorization URL for PAR request_uri:`,
 						error
 					);
@@ -3666,7 +3667,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (parRequestUri) {
 				backendRequestBody.requestUri = parRequestUri;
 				backendRequestBody.state = pendingPingOneRequest.body.state as string;
-				console.log(`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`);
+				logger.info(`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`);
 			} else {
 				// Regular flow - send all parameters
 				backendRequestBody.redirectUri = credentials.redirectUri;
@@ -3759,13 +3760,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			const flowData = responseData3 as Record<string, unknown>;
-			console.log(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
+			logger.info(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
 
 			const flowId = flowData.id as string | undefined;
 			const flowStatus = (flowData.status as string | undefined)?.toUpperCase();
 			const sessionId = flowData._sessionId as string | undefined;
 
-			console.log(`${MODULE_TAG} 🔌 Redirectless flow status check:`, {
+			logger.info(`${MODULE_TAG} 🔌 Redirectless flow status check:`, {
 				flowId,
 				flowStatus,
 				hasSessionId: !!sessionId,
@@ -3785,7 +3786,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 			if (sessionId) {
 				sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, sessionId);
-				console.log(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`);
+				logger.info(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`);
 			}
 
 			// Store flow state first
@@ -3800,22 +3801,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS') {
 				// Show login modal - user needs to enter credentials
-				console.log(`${MODULE_TAG} 🔌 Credentials required - showing login modal`);
-				console.log(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
+				logger.info(`${MODULE_TAG} 🔌 Credentials required - showing login modal`);
+				logger.info(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
 
 				// Set modal state - ensure it's visible
 				setShowRedirectlessModal(true);
 				setIsLoading(false);
 
-				console.log(
+				logger.info(
 					`${MODULE_TAG} 🔌 Modal state after setShowRedirectlessModal(true) - modal should now be visible`
 				);
-				console.log(`${MODULE_TAG} 🔌 Flow ID stored:`, flowId);
-				console.log(`${MODULE_TAG} 🔌 Flow Status:`, flowStatus);
+				logger.info(`${MODULE_TAG} 🔌 Flow ID stored:`, flowId);
+				logger.info(`${MODULE_TAG} 🔌 Flow Status:`, flowStatus);
 
 				// Force re-render check
 				setTimeout(() => {
-					console.log(
+					logger.info(
 						`${MODULE_TAG} 🔌 Modal visibility check after timeout - showRedirectlessModal should be true`
 					);
 				}, 100);
@@ -3826,7 +3827,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowStatus === 'READY_TO_RESUME' || flowData.resumeUrl) {
 				// Flow is ready to resume - proceed directly (skip modal)
 				const resumeUrl = flowData.resumeUrl as string | undefined;
-				console.log(`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`);
+				logger.info(`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`);
 				await handleResumeRedirectlessFlow(flowId || '', stateValue, resumeUrl);
 				return;
 			}
@@ -3834,7 +3835,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Fallback: If we have a flowId but unexpected status, still show modal for manual entry
 			// This handles edge cases where PingOne might return a different status format
 			if (flowId) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ Unexpected flow status "${flowStatus}" but have flowId - showing modal as fallback to allow manual credential entry`
 				);
 				setShowRedirectlessModal(true);
@@ -3843,7 +3844,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// If we don't have a flowId, something went wrong
-			console.error(`${MODULE_TAG} ❌ No flowId in redirectless response:`, flowData);
+			logger.error(`${MODULE_TAG} ❌ No flowId in redirectless response:`, flowData);
 			throw new Error(`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`);
 		} catch (err) {
 			const message =
@@ -3879,7 +3880,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// For implicit, this is Step 1
 	const renderStep1AuthUrl = () => {
 		const handleGenerateAuthUrl = async () => {
-			console.log(`${MODULE_TAG} Generating authorization URL`, {
+			logger.info(`${MODULE_TAG} Generating authorization URL`, {
 				flowType,
 				hasPKCE: !!(flowState.codeVerifier && flowState.codeChallenge),
 				redirectUri: credentials.redirectUri,
@@ -3893,11 +3894,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Debug: Check if redirectless mode (pi.flow) is enabled
 			const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 			if (isRedirectless) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} ✅ Redirectless mode (response_mode=pi.flow) is ENABLED - will generate URL first, then make POST request`
 				);
 			} else {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} ⚠️ Standard redirect mode - will generate URL normally (response_mode=${credentials.responseMode || 'default'})`
 				);
 			}
@@ -3969,7 +3970,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					};
 					setFlowState(updatedStateWithUrl);
 
-					console.log(
+					logger.info(
 						`${MODULE_TAG} 🔌 Authorization URL generated for redirectless flow (display only):`,
 						{
 							url: `${urlResult.authorizationUrl.substring(0, 100)}...`,
@@ -4521,7 +4522,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							height="200px"
 							editable={true}
 							onChange={(newUrl) => {
-								console.log(`${MODULE_TAG} Authorization URL edited`, { newUrl });
+								logger.info(`${MODULE_TAG} Authorization URL edited`, { newUrl });
 								setFlowState((prev) => ({
 									...prev,
 									authorizationUrl: newUrl,
@@ -4601,13 +4602,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									type="button"
 									className="btn btn-next"
 									onClick={() => {
-										console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
+										logger.info(`${MODULE_TAG} Opening authorization URL for authentication`);
 										const urlToOpen = flowState.authorizationUrl || '';
 										if (urlToOpen) {
 											window.open(urlToOpen, '_blank', 'noopener,noreferrer');
 											// Mark step complete after opening PingOne
 											if (!completedSteps.includes(currentStep)) {
-												console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
+												logger.info(`${MODULE_TAG} User opened PingOne - marking step complete`);
 												nav.markStepComplete();
 												toastV8.success(
 													"PingOne opened! Complete authentication and you'll be redirected back."
@@ -5128,7 +5129,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const isRedirectlessCallback =
 			credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 		if (isRedirectlessCallback) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} ⚠️ Redirectless mode (response_mode=pi.flow) is enabled but user is on callback step - this shouldn't happen in redirectless mode`
 			);
 
@@ -5220,7 +5221,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		const handleParseCallback = () => {
-			console.log(`${MODULE_TAG} Parsing callback URL`, { flowType });
+			logger.info(`${MODULE_TAG} Parsing callback URL`, { flowType });
 			setIsLoading(true);
 			setLoadingMessage('📋 Parsing Callback URL...');
 			setError(null);
@@ -5272,7 +5273,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								updates.tokens = tokens;
 							}
 						} catch (fragmentErr) {
-							console.warn(`${MODULE_TAG} Failed to parse fragment for hybrid flow`, fragmentErr);
+							logger.warn(`${MODULE_TAG} Failed to parse fragment for hybrid flow`, fragmentErr);
 						}
 					}
 
@@ -5329,14 +5330,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (callbackData.error) {
 					callbackError = callbackData.error;
 					callbackErrorDescription = callbackData.errorDescription || callbackData.error;
-					console.error(
+					logger.error(
 						`${MODULE_TAG} ❌ Error in callback:`,
 						callbackError,
 						callbackErrorDescription
 					);
 				}
 			} catch (err) {
-				console.error(`${MODULE_TAG} Failed to parse callback data:`, err);
+				logger.error(`${MODULE_TAG} Failed to parse callback data:`, err);
 			}
 		}
 
@@ -6191,7 +6192,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Requesting device authorization`);
+		logger.info(`${MODULE_TAG} Requesting device authorization`);
 		// CRITICAL: Stop any running polling before requesting new device code
 		// This ensures old polling loops don't continue with stale device codes
 		pollingAbortRef.current = true;
@@ -6336,7 +6337,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			!isPollingExecutingRef.current &&
 			!hasErrors // Don't auto-start if there are errors
 		) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Auto-starting polling on step ${currentStep} - will trigger via ref`
 			);
 			autoPollTriggeredRef.current = true;
@@ -6427,7 +6428,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			!isPollingExecutingRef.current &&
 			handlePollForTokensRef.current
 		) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Auto-starting polling on step ${currentStep} - calling handlePollForTokens now`
 			);
 			autoPollInitiatedRef.current = true; // Mark as initiated to prevent multiple calls
@@ -6472,7 +6473,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Step 2: Poll for Tokens (device code flow)
 	const renderStep2Poll = () => {
 		const handleStopPolling = () => {
-			console.log(`${MODULE_TAG} User requested to stop polling`);
+			logger.info(`${MODULE_TAG} User requested to stop polling`);
 			pollingAbortRef.current = true;
 			isPollingExecutingRef.current = false;
 
@@ -6502,7 +6503,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const handlePollForTokens = async () => {
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
-				console.log(`${MODULE_TAG} Polling aborted - not starting new polling`);
+				logger.info(`${MODULE_TAG} Polling aborted - not starting new polling`);
 
 				return;
 			}
@@ -6525,7 +6526,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Prevent multiple simultaneous calls using ref (immediate check) and state (React state check)
 			if (isPollingExecutingRef.current || isLoading || flowState.pollingStatus?.isPolling) {
-				console.log(`${MODULE_TAG} Polling already in progress, skipping duplicate call`, {
+				logger.info(`${MODULE_TAG} Polling already in progress, skipping duplicate call`, {
 					isPollingExecutingRef: isPollingExecutingRef.current,
 					isLoading,
 					isPolling: flowState.pollingStatus?.isPolling,
@@ -6536,7 +6537,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Mark as executing immediately to prevent race conditions
 			isPollingExecutingRef.current = true;
 
-			console.log(`${MODULE_TAG} Starting polling for tokens`);
+			logger.info(`${MODULE_TAG} Starting polling for tokens`);
 			setIsLoading(true);
 			setError(null);
 			autoPollTriggeredRef.current = true;
@@ -6564,7 +6565,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const performPoll = async (): Promise<TokenResponse | null> => {
 				// CRITICAL: Check abort flag FIRST - if polling was stopped, exit immediately
 				if (pollingAbortRef.current) {
-					console.log(`${MODULE_TAG} Polling aborted at start of performPoll`);
+					logger.info(`${MODULE_TAG} Polling aborted at start of performPoll`);
 					return null;
 				}
 
@@ -6579,13 +6580,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// CRITICAL: Check abort flag again after reading device code
 					if (pollingAbortRef.current) {
-						console.log(`${MODULE_TAG} Polling aborted after reading device code`);
+						logger.info(`${MODULE_TAG} Polling aborted after reading device code`);
 						return null;
 					}
 
 					// Validate device code before sending
 					if (!currentDeviceCode || currentDeviceCode === '') {
-						console.error(`${MODULE_TAG} Device code is missing or empty`, {
+						logger.error(`${MODULE_TAG} Device code is missing or empty`, {
 							deviceCode: currentDeviceCode,
 							hasDeviceCode: !!currentDeviceCode,
 							refValue: deviceCodeRef.current,
@@ -6594,7 +6595,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						throw new Error('Device code is missing. Please request a new device code.');
 					}
 
-					console.log(
+					logger.info(
 						`${MODULE_TAG} [DEBUG] Using device code for poll: ${currentDeviceCode.substring(0, 20)}... (length: ${currentDeviceCode.length})`
 					);
 
@@ -6619,7 +6620,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					}
 
-					console.log(`${MODULE_TAG} Polling request via backend proxy`, {
+					logger.info(`${MODULE_TAG} Polling request via backend proxy`, {
 						endpoint: tokenEndpoint,
 						clientId: credentials.clientId,
 						deviceCodeLength: currentDeviceCode.length,
@@ -6684,7 +6685,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						);
 					} catch (fetchError) {
 						// Log to console with full details
-						console.error(`${MODULE_TAG} ❌ Fetch error during polling (attempt ${pollCount}):`, {
+						logger.error(`${MODULE_TAG} ❌ Fetch error during polling (attempt ${pollCount}):`, {
 							error: fetchError,
 							tokenEndpoint,
 							windowLocation: window.location.href,
@@ -6707,7 +6708,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// CRITICAL DEBUG: Log response status before checking
 
 					if (response.ok) {
-						console.log(`${MODULE_TAG} [DEBUG] Response is OK (200) - attempting to parse tokens`);
+						logger.info(`${MODULE_TAG} [DEBUG] Response is OK (200) - attempting to parse tokens`);
 						let tokens: TokenResponse;
 						let responseText = '';
 						try {
@@ -6719,7 +6720,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								`Failed to parse token response: ${parseError instanceof Error ? parseError.message : String(parseError)}`
 							);
 						}
-						console.log(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
+						logger.info(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
 
 						return tokens;
 					}
@@ -6732,23 +6733,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						errorData = JSON.parse(responseText);
 					} catch (_parseErr) {
-						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
+						logger.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
 					}
 
-					console.log(`${MODULE_TAG} Poll response (attempt ${pollCount}):`, {
+					logger.info(`${MODULE_TAG} Poll response (attempt ${pollCount}):`, {
 						status: response.status,
 						error: errorData.error,
 						errorDescription: errorData.error_description,
 					});
-					console.log(
+					logger.info(
 						`${MODULE_TAG} [DEBUG] Full error response data:`,
 						JSON.stringify(errorData, null, 2)
 					);
 
 					// Check for authorization_pending (user hasn't approved yet) - this is EXPECTED and normal
 					if (errorData.error === 'authorization_pending') {
-						console.log(
+						logger.info(
 							`${MODULE_TAG} ⏳ Authorization pending (attempt ${pollCount}/${maxAttempts}) - user hasn't authorized yet, will continue polling in ${currentInterval}s...`
 						);
 						// Update status to show we're waiting
@@ -6769,7 +6770,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (errorData.error === 'slow_down' && errorData.interval) {
 						const newInterval = Math.max(errorData.interval, currentInterval + 5); // RFC 8628: minimum increase
 						currentInterval = newInterval;
-						console.log(
+						logger.info(
 							`${MODULE_TAG} Rate limited, adjusting interval from ${pollInterval}s to ${currentInterval}s`
 						);
 						// Persist adjusted interval to state
@@ -6787,7 +6788,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Handle access_denied (user denied authorization) - RFC 8628 Section 3.5
 					if (errorData.error === 'access_denied') {
-						console.error(`${MODULE_TAG} User denied authorization`, {
+						logger.error(`${MODULE_TAG} User denied authorization`, {
 							error: errorData.error,
 							description: errorData.error_description,
 						});
@@ -6798,7 +6799,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Handle expired_token or invalid_grant (device code expired/invalid) - RFC 8628 Section 3.5
 					if (errorData.error === 'expired_token' || errorData.error === 'invalid_grant') {
-						console.error(`${MODULE_TAG} Device code expired or invalid`, {
+						logger.error(`${MODULE_TAG} Device code expired or invalid`, {
 							error: errorData.error,
 							description: errorData.error_description,
 						});
@@ -6808,7 +6809,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Other errors (unknown errors)
-					console.error(`${MODULE_TAG} Token polling error`, {
+					logger.error(`${MODULE_TAG} Token polling error`, {
 						error: errorData.error,
 						description: errorData.error_description,
 					});
@@ -6819,7 +6820,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (error instanceof Error && error.message.includes('Token polling failed')) {
 						throw error;
 					}
-					console.warn(`${MODULE_TAG} Polling error (attempt ${pollCount}/${maxAttempts})`, error);
+					logger.warn(`${MODULE_TAG} Polling error (attempt ${pollCount}/${maxAttempts})`, error);
 					return null; // Retry on network errors
 				}
 			};
@@ -6834,7 +6835,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				for (let attempt = 0; attempt < maxAttempts; attempt++) {
 					// Check if polling was stopped (before each operation)
 					if (pollingAbortRef.current) {
-						console.log(`${MODULE_TAG} Polling stopped by user`);
+						logger.info(`${MODULE_TAG} Polling stopped by user`);
 						setIsLoading(false);
 						setLoadingMessage('');
 						isPollingExecutingRef.current = false; // Reset execution flag
@@ -6847,13 +6848,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return;
 					}
 
-					console.log(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
+					logger.info(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
 
 					const tokens = await performPoll();
 
 					// Check again after async operation
 					if (pollingAbortRef.current) {
-						console.log(`${MODULE_TAG} Polling stopped after poll attempt`);
+						logger.info(`${MODULE_TAG} Polling stopped after poll attempt`);
 						setIsLoading(false);
 						setLoadingMessage('');
 						isPollingExecutingRef.current = false;
@@ -6917,7 +6918,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setShowUserInfoModal(true);
 								}
 							} catch (err) {
-								console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
+								logger.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 								if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
 								}
@@ -6936,7 +6937,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (attempt < maxAttempts - 1) {
 						// Check abort before waiting
 						if (pollingAbortRef.current) {
-							console.log(`${MODULE_TAG} Polling stopped before wait`);
+							logger.info(`${MODULE_TAG} Polling stopped before wait`);
 							setIsLoading(false);
 							isPollingExecutingRef.current = false;
 							setFlowState((prev) => ({
@@ -6948,7 +6949,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							return;
 						}
 
-						console.log(`${MODULE_TAG} Waiting ${currentInterval}s before next poll...`);
+						logger.info(`${MODULE_TAG} Waiting ${currentInterval}s before next poll...`);
 						// Use a cancellable timeout
 						await new Promise<void>((resolve) => {
 							pollingTimeoutRef.current = setTimeout(() => {
@@ -6959,7 +6960,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// Check abort after wait
 						if (pollingAbortRef.current) {
-							console.log(`${MODULE_TAG} Polling stopped after wait`);
+							logger.info(`${MODULE_TAG} Polling stopped after wait`);
 							setIsLoading(false);
 							isPollingExecutingRef.current = false;
 							setFlowState((prev) => ({
@@ -7135,19 +7136,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											pollCount: flowState.pollingStatus?.pollCount || 0,
 										}}
 										onStateUpdate={(newState: unknown) => {
-											console.log(`${MODULE_TAG} Device flow state updated`, newState);
+											logger.info(`${MODULE_TAG} Device flow state updated`, newState);
 										}}
 										onComplete={(tokens: unknown) => {
-											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
+											logger.info(`${MODULE_TAG} Device authorization completed`, tokens);
 										}}
 										onError={(error: string) => {
-											console.error(`${MODULE_TAG} Device authorization error`, error);
+											logger.error(`${MODULE_TAG} Device authorization error`, error);
 											setError(error);
 										}}
 									/>
 								);
 							} catch (error) {
-								console.error(`${MODULE_TAG} Error rendering DynamicDeviceFlow:`, error);
+								logger.error(`${MODULE_TAG} Error rendering DynamicDeviceFlow:`, error);
 								return (
 									<div
 										style={{
@@ -7514,7 +7515,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			}
 
-			console.log(`${MODULE_TAG} Requesting token`, { flowType });
+			logger.info(`${MODULE_TAG} Requesting token`, { flowType });
 			setIsLoading(true);
 			setLoadingMessage('🔑 Requesting Access Token...');
 			setError(null);
@@ -7957,7 +7958,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Step 3: Exchange Code for Tokens (authorization code, hybrid)
 	const renderStep3ExchangeTokens = () => {
 		const handleExchangeTokens = async () => {
-			console.log(`${MODULE_TAG} ========== TOKEN EXCHANGE DEBUG START ==========`);
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE DEBUG START ==========`);
 
 			// CRITICAL: ALWAYS use sessionStorage as source of truth for PKCE codes
 			// flowState can get lost during navigation, but sessionStorage persists
@@ -7969,14 +7970,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			let storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 
 			if (!storedPKCE) {
-				console.log(`${MODULE_TAG} 🔄 Sync load failed, trying async load (IndexedDB)...`);
+				logger.info(`${MODULE_TAG} 🔄 Sync load failed, trying async load (IndexedDB)...`);
 				storedPKCE = await PKCEStorageServiceV8U.loadPKCECodesAsync(flowKey);
 			}
 
 			if (storedPKCE) {
 				effectiveCodeVerifier = storedPKCE.codeVerifier;
 				effectiveCodeChallenge = storedPKCE.codeChallenge;
-				console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from bulletproof storage`, {
+				logger.info(`${MODULE_TAG} ✅ Loaded PKCE codes from bulletproof storage`, {
 					codeVerifierLength: effectiveCodeVerifier.length,
 					codeChallengeLength: effectiveCodeChallenge.length,
 					savedAt: new Date(storedPKCE.savedAt).toISOString(),
@@ -7987,7 +7988,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					flowState.codeVerifier !== effectiveCodeVerifier ||
 					flowState.codeChallenge !== effectiveCodeChallenge
 				) {
-					console.log(`${MODULE_TAG} 🔄 Syncing flowState with storage`);
+					logger.info(`${MODULE_TAG} 🔄 Syncing flowState with storage`);
 					setFlowState((prev) => ({
 						...prev,
 						...(effectiveCodeVerifier ? { codeVerifier: effectiveCodeVerifier } : {}),
@@ -7995,21 +7996,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}));
 				}
 			} else {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ CRITICAL: No PKCE codes found in ANY of 4 storage locations!`
 				);
 				// If PKCE is enabled but codes are missing, this is a critical error
 				if (isPKCERequired) {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} ❌ CRITICAL: PKCE enabled but no codes found in sessionStorage or flowState`
 					);
-					console.error(
+					logger.error(
 						`${MODULE_TAG} User must either: 1) Go to Step 0 (Configuration) and generate PKCE codes in Advanced Options, or 2) Disable PKCE in configuration`
 					);
 				}
 			}
 
-			console.log(`${MODULE_TAG} Flow State:`, {
+			logger.info(`${MODULE_TAG} Flow State:`, {
 				authorizationCode: `${flowState.authorizationCode?.substring(0, 20)}...`,
 				codeVerifier: `${effectiveCodeVerifier?.substring(0, 20)}...`,
 				codeChallenge: `${effectiveCodeChallenge?.substring(0, 20)}...`,
@@ -8023,7 +8024,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				pkceCodesMissing: isPKCERequired && !effectiveCodeVerifier,
 			});
 
-			console.log(`${MODULE_TAG} Credentials:`, {
+			logger.info(`${MODULE_TAG} Credentials:`, {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
@@ -8036,12 +8037,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				responseType: credentials.responseType,
 			});
 
-			console.log(`${MODULE_TAG} Flow Type:`, flowType);
-			console.log(`${MODULE_TAG} Spec Version:`, specVersion);
+			logger.info(`${MODULE_TAG} Flow Type:`, flowType);
+			logger.info(`${MODULE_TAG} Spec Version:`, specVersion);
 
 			// Validate required fields before attempting token exchange
 			if (!flowState.authorizationCode) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing authorization code`);
+				logger.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing authorization code`);
 				setError('Authorization code is required. Please complete the callback step first.');
 				nav.setValidationErrors(['Authorization code is required']);
 				return;
@@ -8050,7 +8051,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// CRITICAL: If PKCE is required, we MUST have a code verifier
 			// The service layer will reject the request if PKCE is required but no verifier is provided
 			if (isPKCERequired && !effectiveCodeVerifier) {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`
 				);
 				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
@@ -8061,19 +8062,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			if (isPKCERequired && effectiveCodeVerifier) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} ✅ PKCE required and code verifier present - will use PKCE flow`
 				);
 			}
 
 			// Validate credentials are present
 			if (!credentials.clientId || !credentials.clientId.trim()) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing client ID`);
+				logger.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing client ID`);
 				const errorMsg =
 					'Client ID is required for token exchange. Credentials may have been lost. Please check your configuration.';
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing clientId in credentials:`, {
+				logger.error(`${MODULE_TAG} Missing clientId in credentials:`, {
 					credentials,
 					hasClientId: !!credentials.clientId,
 					clientIdValue: credentials.clientId,
@@ -8082,12 +8083,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			if (!credentials.environmentId || !credentials.environmentId.trim()) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing environment ID`);
+				logger.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing environment ID`);
 				const errorMsg =
 					'Environment ID is required for token exchange. Please check your configuration.';
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing environmentId in credentials:`, {
+				logger.error(`${MODULE_TAG} Missing environmentId in credentials:`, {
 					credentials,
 					hasEnvironmentId: !!credentials.environmentId,
 				});
@@ -8096,14 +8097,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Redirect URI is only required when PKCE is NOT required
 			if (!isPKCERequired && (!credentials.redirectUri || !credentials.redirectUri.trim())) {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE not required and missing redirect URI`
 				);
 				const errorMsg =
 					'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing redirectUri in credentials (PKCE not required):`, {
+				logger.error(`${MODULE_TAG} Missing redirectUri in credentials (PKCE not required):`, {
 					credentials,
 					usePKCE: isPKCERequired,
 					pkceEnforcement: credentials.pkceEnforcement,
@@ -8112,8 +8113,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				return;
 			}
 
-			console.log(`${MODULE_TAG} ✅ All validations passed`);
-			console.log(`${MODULE_TAG} Preparing token exchange request with:`, {
+			logger.info(`${MODULE_TAG} ✅ All validations passed`);
+			logger.info(`${MODULE_TAG} Preparing token exchange request with:`, {
 				flowType,
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -8141,7 +8142,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const workerToken = await workerTokenServiceV8.getToken();
 
 					if (workerToken) {
-						console.log(
+						logger.info(
 							`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`
 						);
 						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -8154,7 +8155,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							appConfig?.tokenEndpointAuthMethod &&
 							credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod
 						) {
-							console.log(
+							logger.info(
 								`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`,
 								{
 									from: credentials.clientAuthMethod || 'client_secret_post (default)',
@@ -8174,7 +8175,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					}
 				} catch (configError) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`,
 						configError
 					);
@@ -8187,13 +8188,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			nav.setValidationErrors([]);
 
 			try {
-				console.log(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`);
-				console.log(`${MODULE_TAG} 🔑 Using code verifier:`, {
+				logger.info(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`);
+				logger.info(`${MODULE_TAG} 🔑 Using code verifier:`, {
 					hasCodeVerifier: !!effectiveCodeVerifier,
 					codeVerifierLength: effectiveCodeVerifier?.length,
 					codeVerifierPreview: `${effectiveCodeVerifier?.substring(0, 20)}...`,
 				});
-				console.log(`${MODULE_TAG} 🔐 Using auth method:`, {
+				logger.info(`${MODULE_TAG} 🔐 Using auth method:`, {
 					clientAuthMethod: effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
 					source:
 						effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod
@@ -8209,7 +8210,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					effectiveCodeVerifier // Use the effective code verifier (from flowState or sessionStorage)
 				);
 
-				console.log(`${MODULE_TAG} ✅ Token exchange successful!`, {
+				logger.info(`${MODULE_TAG} ✅ Token exchange successful!`, {
 					hasAccessToken: !!tokens.access_token,
 					hasIdToken: !!tokens.id_token,
 					hasRefreshToken: !!tokens.refresh_token,
@@ -8262,7 +8263,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 					} catch (err) {
-						console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
+						logger.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 						toastV8.warning('UserInfo could not be fetched, but tokens were received');
 
 						// Still show modal if we have ID token with user info
@@ -8363,7 +8364,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (!canCallUserInfo) {
 			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
 			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
-			console.warn(`${MODULE_TAG} ${errorMsg}`);
+			logger.warn(`${MODULE_TAG} ${errorMsg}`);
 			toastV8.error(errorMsg);
 			setUserInfoError(errorMsg);
 			return;
@@ -8404,9 +8405,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Introspect token (access, refresh, or ID token)
 	const handleIntrospectToken = useCallback(
 		async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
-			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
-			console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
-			console.log(`${MODULE_TAG} Credentials check:`, {
+			logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
+			logger.info(`${MODULE_TAG} Introspecting ${tokenType} token`);
+			logger.info(`${MODULE_TAG} Credentials check:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
@@ -8446,7 +8447,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} else {
 					errorMsg = `Access token introspection is not available for this flow. ${rules.introspectionReason}`;
 				}
-				console.warn(`${MODULE_TAG} ${errorMsg}`);
+				logger.warn(`${MODULE_TAG} ${errorMsg}`);
 				toastV8.error(errorMsg);
 				setIntrospectionError(errorMsg);
 				return;
@@ -8456,7 +8457,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (credentials.clientAuthMethod === 'none') {
 				const errorMsg =
 					'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
-				console.warn(`${MODULE_TAG} ${errorMsg}`);
+				logger.warn(`${MODULE_TAG} ${errorMsg}`);
 				toastV8.error(errorMsg);
 				setIntrospectionError(errorMsg);
 				return;
@@ -8487,7 +8488,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				!tokenToIntrospect
 			) {
 				const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
-				console.error(`${MODULE_TAG} ${errorMsg}`, {
+				logger.error(`${MODULE_TAG} ${errorMsg}`, {
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret ? 'present' : 'missing',
@@ -8504,10 +8505,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			try {
 				// Discover the introspection endpoint from OIDC well-known configuration
 				const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
-				console.log(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
+				logger.info(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
 
 				const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
-				console.log(`${MODULE_TAG} Discovery result:`, {
+				logger.info(`${MODULE_TAG} Discovery result:`, {
 					success: discoveryResult.success,
 					hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
 					introspectionEndpoint: discoveryResult.data?.introspectionEndpoint,
@@ -8519,7 +8520,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Fallback to standard endpoint if discovery fails or endpoint not found
 				if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
 					introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} Discovery failed or no introspection endpoint, using fallback`,
 						{
 							introspectionEndpoint,
@@ -8530,7 +8531,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					introspectionEndpoint = discoveryResult.data.introspectionEndpoint;
 				}
 
-				console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
+				logger.info(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
 
 				// Use backend proxy to avoid CORS issues
 				// Use relative URL in development to go through Vite proxy (avoids SSL errors)
@@ -8539,7 +8540,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						? 'https://oauth-playground.vercel.app/api/introspect-token'
 						: '/api/introspect-token';
 
-				console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
+				logger.info(`${MODULE_TAG} Sending introspection request via proxy:`, {
 					tokenType,
 					tokenLength: tokenToIntrospect.length,
 					clientId: credentials.clientId,
@@ -8619,7 +8620,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					Date.now() - startTime5
 				);
 
-				console.log(`${MODULE_TAG} Introspection response status:`, {
+				logger.info(`${MODULE_TAG} Introspection response status:`, {
 					status: response.status,
 					statusText: response.statusText,
 					ok: response.ok,
@@ -8628,25 +8629,25 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (!response.ok) {
 					const errorData = responseData5 as { error?: string; message?: string };
 					const errorText = errorData.error || errorData.message || 'Unknown error';
-					console.error(`${MODULE_TAG} Introspection error response:`, errorText);
+					logger.error(`${MODULE_TAG} Introspection error response:`, errorText);
 					throw new Error(
 						`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
 					);
 				}
 
 				const data = responseData5 as Record<string, unknown>;
-				console.log(`${MODULE_TAG} Introspection data received:`, data);
+				logger.info(`${MODULE_TAG} Introspection data received:`, data);
 
 				setIntrospectionData(data);
 				setIntrospectionTokenType(tokenType);
 				toastV8.success(`${tokenName} introspected successfully!`);
-				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
+				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to introspect token';
-				console.error(`${MODULE_TAG} Introspection error:`, err);
+				logger.error(`${MODULE_TAG} Introspection error:`, err);
 				setIntrospectionError(message);
 				toastV8.error(message);
-				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
+				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
 			} finally {
 				setIntrospectionLoading(false);
 			}
@@ -10129,7 +10130,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const renderStepContent = () => {
 		// Only log when step or flow type changes (not on every render)
 		if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
-			console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
+			logger.info(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
 				currentStep,
 				flowType,
 				usePKCE: isPKCERequired,
@@ -10153,17 +10154,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 				// For oauth-authz and hybrid, Step 1 is PKCE generation
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
+					logger.info(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
 					return renderStep1PKCE();
 				}
 				// For implicit flow, show Authorization URL step
-				console.log(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
+				logger.info(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
 				return renderStep1AuthUrl();
 
 			case 2:
 				// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(
+					logger.info(
 						`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
 					);
 					return renderStep1AuthUrl();

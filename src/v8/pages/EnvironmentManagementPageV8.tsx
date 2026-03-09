@@ -4,6 +4,7 @@
 import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	type EnvironmentListOptions,
 	type EnvironmentStatus,
@@ -529,7 +530,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments(response.environments);
 			setTotalCount(response.totalCount);
 		} catch (error) {
-			console.error('Failed to load environments:', error);
+			logger.error('Failed to load environments:', error);
 		} finally {
 			setLoading(false);
 			setRefreshing(false);

@@ -25,6 +25,7 @@ import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
+import { logger } from '../../../utils/logger';
 import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
@@ -120,14 +121,14 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 	// Debug logging for flowType changes
 	useEffect(() => {
-		console.log('🔍 [FLOW TYPE DEBUG] flowType state changed:', flowType);
+		logger.info('🔍 [FLOW TYPE DEBUG] flowType state changed:', flowType);
 	}, [flowType]);
 
 	// Debug logging on mount
 	useEffect(() => {
-		console.log('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted');
-		console.log('🔍 [FLOW TYPE DEBUG] Initial flowType:', flowType);
-		console.log('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
+		logger.info('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted');
+		logger.info('🔍 [FLOW TYPE DEBUG] Initial flowType:', flowType);
+		logger.info('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
 	}, [flowType, selectedTab]);
 
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
@@ -190,11 +191,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	);
 
 	const handleSubmit = useCallback(() => {
-		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
+		logger.info(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
 		const fields = deviceFields[selectedTab];
 
 		// ========== DEBUG: FORM SUBMISSION ==========
-		console.log('🔍 [FORM DEBUG] Submit handler called:', {
+		logger.info('🔍 [FORM DEBUG] Submit handler called:', {
 			selectedTab,
 			flowType,
 			fields,
@@ -211,7 +212,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				message: 'Worker token is invalid or expired. Please refresh the worker token.',
 				dismissible: true,
 			});
-			console.log('🔍 [FORM DEBUG] Token invalid, blocking submission');
+			logger.info('🔍 [FORM DEBUG] Token invalid, blocking submission');
 			return;
 		}
 
@@ -227,11 +228,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 		if (Object.keys(newErrors).length > 0) {
 			setErrors(newErrors);
-			console.log('🔍 [FORM DEBUG] Validation errors:', newErrors);
+			logger.info('🔍 [FORM DEBUG] Validation errors:', newErrors);
 			return;
 		}
 
-		console.log('🔍 [FORM DEBUG] Calling onSubmit callback');
+		logger.info('🔍 [FORM DEBUG] Calling onSubmit callback');
 
 		// Special handling for FIDO2
 		if (selectedTab === 'FIDO2') {
@@ -244,7 +245,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 	const handleFido2Success = useCallback(
 		(credentialId: string, publicKey: string) => {
-			console.log(`${MODULE_TAG} FIDO2 registration successful`, { credentialId });
+			logger.info(`${MODULE_TAG} FIDO2 registration successful`, { credentialId });
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'FIDO2 device registered successfully!',
@@ -339,8 +340,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="admin-active"
 								checked={flowType === 'admin-active'}
 								onChange={(e) => {
-									console.log('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected');
-									console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									logger.info('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected');
+									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -376,8 +377,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 									value="admin-activation"
 									checked={flowType === 'admin-activation'}
 									onChange={(e) => {
-										console.log('🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected');
-										console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+										logger.info('🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected');
+										logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 										setFlowType(e.target.value as FlowType);
 									}}
 									style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -414,8 +415,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="user"
 								checked={flowType === 'user'}
 								onChange={(e) => {
-									console.log('🔍 [FLOW TYPE DEBUG] User Flow radio selected');
-									console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									logger.info('🔍 [FLOW TYPE DEBUG] User Flow radio selected');
+									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -789,7 +790,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								<Button
 									variant="secondary"
 									onClick={() => {
-										console.log('[UNIFIED-FLOW] Manual fallback: User clicked continue button');
+										logger.info('[UNIFIED-FLOW] Manual fallback: User clicked continue button');
 
 										// Store flow context for callback handler (Unified OAuth pattern)
 										const flowContext = {
@@ -804,7 +805,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 											JSON.stringify(flowContext)
 										);
 
-										console.log('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback');
+										logger.info('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback');
 
 										// Proceed with registration
 										handleSubmit();
@@ -842,7 +843,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							environment: environmentId,
 						}}
 						onExport={() => {
-							console.log(`${MODULE_TAG} MFA credentials exported`);
+							logger.info(`${MODULE_TAG} MFA credentials exported`);
 							modernMessaging.showFooterMessage({
 								type: 'info',
 								message: 'MFA credentials exported successfully',
@@ -850,7 +851,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							});
 						}}
 						onImport={(imported) => {
-							console.log(`${MODULE_TAG} MFA credentials imported`, {
+							logger.info(`${MODULE_TAG} MFA credentials imported`, {
 								importedApp: imported.appName,
 								importedType: imported.appType,
 							});
@@ -862,7 +863,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							// Note: Form will need to be refreshed to show imported credentials
 						}}
 						onError={(error) => {
-							console.error(`${MODULE_TAG} Credential export/import failed`, {
+							logger.error(`${MODULE_TAG} Credential export/import failed`, {
 								error: error.message,
 							});
 							modernMessaging.showBanner({

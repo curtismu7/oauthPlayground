@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // HP Smart App Interface - Authentic HP Design with Green Theme
 const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
@@ -409,17 +410,17 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('SmartPrinterDeviceFlow', 'User code copied to clipboard');
+		logger.info('SmartPrinterDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('SmartPrinterDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('SmartPrinterDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('SmartPrinterDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('SmartPrinterDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

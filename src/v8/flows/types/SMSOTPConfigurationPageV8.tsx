@@ -33,6 +33,7 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
 
 export const SMSOTPConfigurationPageV8: React.FC = () => {
@@ -93,7 +94,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	useEffect(() => {
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log('[SMSOTP] Environment ID saved globally', {
+			logger.info('[SMSOTP] Environment ID saved globally', {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -147,7 +148,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		// 3. We don't already have a user token in credentials
 		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
+			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
 				hasToken: !!authToken,
 				tokenLength: authToken.length,
 				tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -168,7 +169,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
+			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
 				hasUserToken: !!credentials.userToken,
 				registrationFlowType,
@@ -308,7 +309,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						hypothesisId: 'F',
 					});
 					// #endregion
-					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -488,7 +489,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
 				{
 					currentTokenType: credentials.tokenType,
@@ -504,7 +505,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					// CRITICAL: Preserve existing userToken when switching to user flow (don't clear it)
 					userToken: prev.userToken || '',
 				};
-				console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
+				logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
 					tokenType: updated.tokenType,
 					hasUserToken: !!updated.userToken,
 					userTokenLength: updated.userToken?.length || 0,
@@ -517,7 +518,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
 			);
 			isSyncingRef.current = true;
@@ -540,7 +541,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -551,7 +552,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(
+			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
 			);
 			isSyncingRef.current = true;
@@ -783,9 +784,9 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			e.preventDefault();
 			e.stopPropagation();
 
-			console.log(`${_MODULE_TAG} handleProceedToRegistration called`);
-			console.log(`${_MODULE_TAG} credentials:`, credentials);
-			console.log(`${_MODULE_TAG} tokenStatus:`, tokenStatus);
+			logger.info(`${_MODULE_TAG} handleProceedToRegistration called`);
+			logger.info(`${_MODULE_TAG} credentials:`, credentials);
+			logger.info(`${_MODULE_TAG} tokenStatus:`, tokenStatus);
 
 			const tokenType = credentials.tokenType || 'worker';
 			// For admin flow: check if worker token exists (not necessarily valid)
@@ -797,11 +798,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						? tokenStatus.isValid // User flow with worker token: must be valid
 						: !!credentials.userToken?.trim(); // User flow with user token
 
-			console.log(`${_MODULE_TAG} tokenType:`, tokenType);
-			console.log(`${_MODULE_TAG} isTokenValid:`, isTokenValid);
+			logger.info(`${_MODULE_TAG} tokenType:`, tokenType);
+			logger.info(`${_MODULE_TAG} isTokenValid:`, isTokenValid);
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				console.log(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`);
+				logger.info(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`);
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -812,7 +813,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!isTokenValid) {
-				console.log(
+				logger.info(
 					`${_MODULE_TAG} Invalid token - tokenType: ${tokenType}, isTokenValid: ${isTokenValid}`
 				);
 				modernMessaging.showBanner({
@@ -825,7 +826,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!credentials.environmentId) {
-				console.log(`${_MODULE_TAG} Missing environmentId`);
+				logger.info(`${_MODULE_TAG} Missing environmentId`);
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -836,7 +837,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!credentials.username) {
-				console.log(`${_MODULE_TAG} Missing username`);
+				logger.info(`${_MODULE_TAG} Missing username`);
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -846,7 +847,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			console.log(`${_MODULE_TAG} All validations passed - navigating to device registration`);
+			logger.info(`${_MODULE_TAG} All validations passed - navigating to device registration`);
 			// Navigate to actual SMS registration flow device route
 			navigate('/v8/mfa/register/sms/device', {
 				replace: false,

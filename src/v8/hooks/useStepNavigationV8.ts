@@ -27,6 +27,7 @@
 
 import { useCallback, useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🪝 STEP-HOOK-V8]';
 
 export interface UseStepNavigationV8Options {
@@ -113,13 +114,13 @@ export const useStepNavigationV8 = (
 	const goToStep = useCallback(
 		(step: number) => {
 			if (step < 0 || step >= totalSteps) {
-				console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
+				logger.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
 				return;
 			}
 
 			// Prevent navigation during transition
 			if (isTransitioning) {
-				console.warn(`${MODULE_TAG} Navigation blocked - transition in progress`);
+				logger.warn(`${MODULE_TAG} Navigation blocked - transition in progress`);
 				return;
 			}
 
@@ -148,7 +149,7 @@ export const useStepNavigationV8 = (
 	// Go to next step
 	const goToNext = useCallback(() => {
 		if (!canGoNext) {
-			console.warn(`${MODULE_TAG} Cannot go to next step - validation errors present`);
+			logger.warn(`${MODULE_TAG} Cannot go to next step - validation errors present`);
 			return;
 		}
 
@@ -175,7 +176,7 @@ export const useStepNavigationV8 = (
 	// Set validation errors
 	const setValidationErrors = useCallback(
 		(errors: string[]) => {
-			console.log(`${MODULE_TAG} Setting validation errors`, {
+			logger.info(`${MODULE_TAG} Setting validation errors`, {
 				step: currentStep,
 				errorCount: errors.length,
 			});
@@ -189,7 +190,7 @@ export const useStepNavigationV8 = (
 	// Set validation warnings
 	const setValidationWarnings = useCallback(
 		(warnings: string[]) => {
-			console.log(`${MODULE_TAG} Setting validation warnings`, {
+			logger.info(`${MODULE_TAG} Setting validation warnings`, {
 				step: currentStep,
 				warningCount: warnings.length,
 			});
@@ -201,7 +202,7 @@ export const useStepNavigationV8 = (
 
 	// Reset to first step
 	const reset = useCallback(() => {
-		console.log(`${MODULE_TAG} Resetting navigation`);
+		logger.info(`${MODULE_TAG} Resetting navigation`);
 
 		setCurrentStep(initialStep);
 		setCompletedSteps([]);

@@ -18,6 +18,7 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
 export interface OAuthCredentials {
@@ -118,7 +119,7 @@ export class OAuthIntegrationServiceV8 {
 
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For user authentication flows, 'openid' scope is required for OIDC. Adding it automatically.`
 			);
 		}
@@ -193,11 +194,11 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			console.log(`${MODULE_TAG} Callback URL parsed successfully`);
+			logger.info(`${MODULE_TAG} Callback URL parsed successfully`);
 
 			return { code, state };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error parsing callback URL`, { error });
+			logger.error(`${MODULE_TAG} Error parsing callback URL`, { error });
 			throw error;
 		}
 	}
@@ -277,7 +278,7 @@ export class OAuthIntegrationServiceV8 {
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
+					logger.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
 					throw new Error(
 						`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -363,9 +364,9 @@ export class OAuthIntegrationServiceV8 {
 			);
 
 			if (!response.ok) {
-				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
+				logger.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
 				const errorData = responseData as Record<string, unknown>;
-				console.error(`${MODULE_TAG} Error response:`, errorData);
+				logger.error(`${MODULE_TAG} Error response:`, errorData);
 
 				// Check for MUST_CHANGE_PASSWORD requirement
 				const requiresPasswordChange =
@@ -378,7 +379,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					console.log(`${MODULE_TAG} 🔐 Password change required detected`);
+					logger.info(`${MODULE_TAG} 🔐 Password change required detected`);
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 					(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 					(passwordChangeError as any).requiresPasswordChange = true;
@@ -471,7 +472,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							payload.password_state || payload.password_status || payload.pwd_state;
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
-							console.log(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
+							logger.info(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 							(passwordChangeError as any).requiresPasswordChange = true;
@@ -484,7 +485,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				} catch (_parseError) {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
-						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
+						logger.info(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 						(passwordChangeError as any).requiresPasswordChange = true;
@@ -496,7 +497,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				}
 			}
 
-			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
+			logger.info(`${MODULE_TAG} ✅ Tokens received successfully!`, {
 				hasAccessToken: !!tokens.access_token,
 				accessTokenLength: tokens.access_token?.length,
 				hasIdToken: !!tokens.id_token,
@@ -510,10 +511,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Error exchanging code for tokens:`, error);
+			logger.error(`${MODULE_TAG} ❌ Error exchanging code for tokens:`, error);
 			if (error instanceof Error) {
-				console.error(`${MODULE_TAG} Error message:`, error.message);
-				console.error(`${MODULE_TAG} Error stack:`, error.stack);
+				logger.error(`${MODULE_TAG} Error message:`, error.message);
+				logger.error(`${MODULE_TAG} Error stack:`, error.stack);
 			}
 			throw error;
 		}
@@ -529,7 +530,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 		credentials: OAuthCredentials,
 		refreshToken: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Refreshing access token`, {
+		logger.info(`${MODULE_TAG} Refreshing access token`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 		});
@@ -569,11 +570,11 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Access token refreshed successfully`);
+			logger.info(`${MODULE_TAG} Access token refreshed successfully`);
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error refreshing access token`, { error });
+			logger.error(`${MODULE_TAG} Error refreshing access token`, { error });
 			throw error;
 		}
 	}
@@ -584,7 +585,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -597,11 +598,11 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			logger.error(`${MODULE_TAG} Error decoding token`, { error });
 			throw error;
 		}
 	}
@@ -682,7 +683,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 		// Fallback: simple base64 encoding (not cryptographically secure, but works)
 		// This should not happen in modern browsers
-		console.warn(`${MODULE_TAG} Web Crypto API not available, using fallback`);
+		logger.warn(`${MODULE_TAG} Web Crypto API not available, using fallback`);
 		return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
 	}
 
@@ -707,7 +708,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			// Convert to base64url (RFC 4648 §5)
 			return hashBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 		} catch (err) {
-			console.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
+			logger.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
 			// Fallback to base64url encoding (not secure, but better than failing)
 			return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
 		}

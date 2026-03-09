@@ -6,6 +6,7 @@ import { FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type ClientSecretJWTConfig,
 	type JWTGenerationResult,
@@ -255,7 +256,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			});
 
 			if (strength.recommendations.length > 0) {
-				console.log(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
+				logger.info(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
 			}
 		} catch (error) {
 			modernMessaging.showBanner({
@@ -264,7 +265,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 				message: 'Failed to generate client secret',
 				dismissible: true,
 			});
-			log.error('JWTConfigV8', 'Secret generation error:', undefined, error as Error);
+			logger.error('JWTConfigV8', 'Secret generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
 		}
@@ -301,7 +302,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 				message: 'Failed to generate RSA key pair',
 				dismissible: true,
 			});
-			log.error('JWTConfigV8', 'Key generation error:', undefined, error as Error);
+			logger.error('JWTConfigV8', 'Key generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
 		}

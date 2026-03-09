@@ -84,7 +84,7 @@ export class AuthService {
 
       window.location.href = authUrl.toString();
     } catch (error) {
-      console.error('Login failed:', error);
+      logger.error('Login failed:', error);
     }
   }
 
@@ -182,7 +182,7 @@ export class WorkerTokenService {
         return response.access_token;
       }),
       catchError(error => {
-        console.error('Failed to get worker token:', error);
+        logger.error('Failed to get worker token:', error);
         return throwError(() => error);
       }),
       shareReplay(1)
@@ -255,7 +255,7 @@ export class MFADeviceService {
     return this.http.get<any>(url, { headers }).pipe(
       map(response => response._embedded?.devices || []),
       catchError(error => {
-        console.error('Failed to list devices:', error);
+        logger.error('Failed to list devices:', error);
         return throwError(() => error);
       })
     );
@@ -352,7 +352,7 @@ export class MFAChallengeService {
 
     return this.http.post<ChallengeResponse>(url, {}, { headers }).pipe(
       catchError(error => {
-        console.error('Failed to send challenge:', error);
+        logger.error('Failed to send challenge:', error);
         return throwError(() => error);
       })
     );
@@ -454,7 +454,7 @@ export class MFAVerificationService {
     return this.http.post<VerificationResponse>(url, { otp }, { headers }).pipe(
       map(response => response.status === 'VERIFIED'),
       catchError(error => {
-        console.error('Verification failed:', error);
+        logger.error('Verification failed:', error);
         return throwError(() => error);
       })
     );
@@ -595,7 +595,7 @@ export class DeviceRegistrationService {
 
     return this.http.post(url, payload, { headers }).pipe(
       catchError(error => {
-        console.error('Registration failed:', error);
+        logger.error('Registration failed:', error);
         return throwError(() => error);
       })
     );
@@ -606,6 +606,7 @@ export class DeviceRegistrationService {
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import { logger } from '../../../utils/logger';
 @Component({
   selector: 'app-device-registration',
   template: \`

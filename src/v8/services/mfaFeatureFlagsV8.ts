@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file mfaFeatureFlagsV8.ts
  * @module v8/services
  * @description Simple feature flag service for MFA consolidation migration
@@ -115,7 +116,7 @@ export class MFAFeatureFlagsV8 {
 			lastUpdated: Date.now(),
 		};
 		localStorage.setItem(MFAFeatureFlagsV8.STORAGE_KEY, JSON.stringify(flags));
-		console.log(
+		logger.info(
 			`[MFA-FLAGS] ${flag} set to ${enabled ? 'ENABLED' : 'DISABLED'} (${rolloutPercentage}% rollout)`
 		);
 	}
@@ -151,7 +152,7 @@ export class MFAFeatureFlagsV8 {
 	 */
 	static resetAllFlags(): void {
 		localStorage.removeItem(MFAFeatureFlagsV8.STORAGE_KEY);
-		console.log('[MFA-FLAGS] All flags reset to defaults (all disabled)');
+		logger.info('[MFA-FLAGS] All flags reset to defaults (all disabled)');
 	}
 
 	/**
@@ -223,7 +224,7 @@ export class MFAFeatureFlagsV8 {
 // Admin UI helper - expose to browser console
 if (typeof window !== 'undefined') {
 	(window as any).mfaFlags = MFAFeatureFlagsV8;
-	console.log(
+	logger.info(
 		'[MFA-FLAGS] Admin helpers available at window.mfaFlags\n' +
 			'Examples:\n' +
 			'  window.mfaFlags.setFlag("mfa_unified_sms", true, 10)  // Enable SMS at 10%\n' +
