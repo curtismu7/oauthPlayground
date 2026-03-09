@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file mfaFeatureFlagsV8.ts
  * @module v8/services
  * @description Simple feature flag service for MFA consolidation migration
@@ -25,6 +24,8 @@ import { logger } from '../../utils/logger';
  * // Admin: Instant rollback to old flow
  * window.mfaFlags.setFlag('mfa_unified_sms', false, 0);
  */
+
+import { logger } from '../../utils/logger';
 
 export type MFAFeatureFlag =
 	| 'mfa_unified_sms'
@@ -117,7 +118,8 @@ export class MFAFeatureFlagsV8 {
 		};
 		localStorage.setItem(MFAFeatureFlagsV8.STORAGE_KEY, JSON.stringify(flags));
 		logger.info(
-			`[MFA-FLAGS] ${flag} set to ${enabled ? 'ENABLED' : 'DISABLED'} (${rolloutPercentage}% rollout)`
+			`[MFA-FLAGS] ${flag} set to ${enabled ? 'ENABLED' : 'DISABLED'} (${rolloutPercentage}% rollout)`,
+			'MFA Feature Flag Updated'
 		);
 	}
 
@@ -152,7 +154,7 @@ export class MFAFeatureFlagsV8 {
 	 */
 	static resetAllFlags(): void {
 		localStorage.removeItem(MFAFeatureFlagsV8.STORAGE_KEY);
-		logger.info('[MFA-FLAGS] All flags reset to defaults (all disabled)');
+		logger.info('[MFA-FLAGS] All flags reset to defaults (all disabled)', 'MFA Feature Flags Reset');
 	}
 
 	/**
@@ -228,8 +230,9 @@ if (typeof window !== 'undefined') {
 		'[MFA-FLAGS] Admin helpers available at window.mfaFlags\n' +
 			'Examples:\n' +
 			'  window.mfaFlags.setFlag("mfa_unified_sms", true, 10)  // Enable SMS at 10%\n' +
-			'  window.mfaFlags.isEnabled("mfa_unified_sms")          // Check status\n' +
-			'  window.mfaFlags.getFlagsSummary()                     // View all flags\n' +
-			'  window.mfaFlags.resetAllFlags()                       // Reset all to defaults'
+			'  window.mfaFlags.setFlag("mfa_unified_email", false, 0) // Disable email\n' +
+			'  window.mfaFlags.resetAllFlags()  // Reset all to defaults\n' +
+			'  window.mfaFlags.getAllFlags()  // View all current states',
+		'MFA Feature Flags Admin Helpers Loaded'
 	);
 }
