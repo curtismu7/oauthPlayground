@@ -1,0 +1,62 @@
+import { test, expect } from '@playwright/test'
+
+test.describe('OAuth Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+  })
+
+  test('should load main page', async ({ page }) => {
+    await expect(page.locator('h1')).toContainText('MasterFlow API')
+  })
+
+  test('should navigate to OAuth flow', async ({ page }) => {
+    await page.click('[data-testid="oauth-flow-link"]')
+    await expect(page).toHaveURL('/oauth/authorization-code')
+    await expect(page.locator('h2')).toContainText('Authorization Code Flow')
+  })
+
+  test('should handle form validation', async ({ page }) => {
+    await page.goto('/oauth/authorization-code')
+    
+    // Try to submit without required fields
+    await page.click('[data-testid="submit-button"]')
+    
+    // Should show validation errors
+    await expect(page.locator('[data-testid="validation-error"]')).toBeVisible()
+  })
+
+  test('should complete OAuth flow successfully', async ({ page }) => {
+    await page.goto('/oauth/authorization-code')
+    
+    // Fill in credentials
+    await page.fill('[data-testid="client-id-input"]', 'test-client-id')
+    await page.fill('[data-testid="environment-id-input"]', 'test-env-id')
+    
+    // Submit form
+    await page.click('[data-testid="submit-button"]')
+    
+    // Should redirect to authorization page
+    await expect(page).toHaveURL(/authorization/)
+    
+    // Should show authorization form
+    await expect(page.locator('[data-testid="auth-form"]')).toBeVisible()
+  })
+})
+
+test.describe('MFA Flow', () => {
+  test('should load MFA device management', async ({ page }) => {
+    await page.goto('/mfa/device-management')
+    await expect(page.locator('h1')).toContainText('MFA Device Management')
+  })
+
+  test('should add new MFA device', async ({ page }) => {
+    await page.goto('/mfa/device-management')
+    
+    await page.click('[data-testid="add-device-button"]')
+    await page.selectOption('[data-testid="device-type-select"]', 'MOBILE')
+    await page.fill('[data-testid="phone-number-input"]', '+1234567890')
+    await page.click('[data-testid="register-device-button"]')
+    
+    await expect(page.locator('[data-testid="success-message"]')).toContainText('Device registered successfully')
+  })
+})
