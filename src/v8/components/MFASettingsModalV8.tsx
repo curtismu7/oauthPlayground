@@ -68,7 +68,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		if (isOpen && environmentId) {
 			fetchSettings();
 		}
-	}, [isOpen, environmentId]);
+	}, [isOpen, environmentId, fetchSettings]);
 
 	const handleSave = async () => {
 		setIsSaving(true);
