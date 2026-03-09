@@ -6,9 +6,8 @@
  * for validation before updating flows.
  */
 
-import { comprehensiveFlowDataServiceTest } from './comprehensiveFlowDataServiceTest';
-
 import { logger } from '../utils/logger';
+import { comprehensiveFlowDataServiceTest } from './comprehensiveFlowDataServiceTest';
 export const runServiceTests = async (): Promise<{
 	success: boolean;
 	results: any;

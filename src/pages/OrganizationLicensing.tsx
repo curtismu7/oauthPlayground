@@ -22,10 +22,10 @@ import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
-import { logger } from '../utils/logger';
 type CredentialsState = {
 	environmentId: string;
 	clientId: string;
@@ -316,9 +316,13 @@ const OrganizationLicensingV2: React.FC = () => {
 					return { access_token: globalTokenStatus.token };
 				}
 			} catch (e) {
-				logger.warn('OrganizationLicensing', '[OrganizationLicensing] Error loading worker token:', {
-					error: e,
-				});
+				logger.warn(
+					'OrganizationLicensing',
+					'[OrganizationLicensing] Error loading worker token:',
+					{
+						error: e,
+					}
+				);
 			}
 
 			// Check secure storage (fallback)

@@ -7,6 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { AppDiscoveryServiceV8 } from '../services/appDiscoveryServiceV8.ts';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8.ts';
@@ -14,7 +15,6 @@ import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🎯 APP-PICKER-V8]';
 
 export interface DiscoveredApp {

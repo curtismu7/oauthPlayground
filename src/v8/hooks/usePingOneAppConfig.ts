@@ -6,9 +6,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { PingOneAppConfig, PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
-
 import { logger } from '../../utils/logger';
+import { PingOneAppConfig, PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 
 const STORAGE_KEY = 'pingone_app_config';
 

@@ -12,9 +12,9 @@ import {
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
+import { logger } from '../utils/logger';
 import ConfirmationModal from './ConfirmationModal';
 
-import { logger } from '../utils/logger';
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`
 	background: white;

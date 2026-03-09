@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import TokenDisplayService from '../../services/tokenDisplayService';
+import { logger } from '../../utils/logger';
 import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
-import { logger } from '../../utils/logger';
 import {
 	type RevocationMethod,
 	type TokenInfo,
@@ -443,7 +443,9 @@ export const TokenMonitoringPage: React.FC = () => {
 					featureCount,
 					lastApiCall: Date.now(),
 				});
-				logger.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
+				logger.debug(
+					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
+				);
 			} catch (enhancedErr) {
 				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
 					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),

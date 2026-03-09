@@ -7,6 +7,7 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { logger } from '../../../utils/logger';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { FIDODeviceExistsModalV8 } from '../../dependencies/v8/components/FIDODeviceExistsModalV8.tsx';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';
@@ -33,7 +34,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
 const PUBLIC_KEY_OPTION_KEYS = [

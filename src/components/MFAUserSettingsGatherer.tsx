@@ -9,6 +9,7 @@ import { ClientCredentialsTokenRequest } from '../services/clientCredentialsShar
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 
 import { logger } from '../utils/logger';
+
 // Types
 interface MFAUserSettings {
 	username: string;

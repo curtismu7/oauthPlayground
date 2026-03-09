@@ -26,11 +26,11 @@ import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplaySer
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscoveryService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
+import { logger } from '../../../utils/logger';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-import { logger } from '../../../utils/logger';
 const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;

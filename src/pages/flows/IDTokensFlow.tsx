@@ -10,9 +10,9 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { logger } from '../../utils/logger';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 
-import { logger } from '../../utils/logger';
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;

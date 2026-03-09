@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import {
 	JWTPayload,
 	TokenIntrospectionResponse,
@@ -10,7 +11,6 @@ import {
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
-import { logger } from '../../../../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;

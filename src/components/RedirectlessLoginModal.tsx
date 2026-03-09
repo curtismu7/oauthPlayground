@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 import { logger } from '../utils/logger';
+
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
 	onClose: () => void;

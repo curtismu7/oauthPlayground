@@ -6,7 +6,6 @@ import { FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import {
 	type ClientSecretJWTConfig,
 	type JWTGenerationResult,
@@ -20,6 +19,7 @@ import {
 	generateClientSecret,
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
+import { logger } from '../utils/logger';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 

@@ -12,6 +12,7 @@
 import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {
 	EducationalContent,
@@ -21,7 +22,6 @@ import type {
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
 
-import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

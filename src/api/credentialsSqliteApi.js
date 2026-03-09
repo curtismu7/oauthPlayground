@@ -14,6 +14,7 @@ import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
 import { logger } from '../utils/logger';
+
 const MODULE_TAG = '[🔐 CREDENTIALS-SQLITE-API]';
 
 // Database configuration

@@ -14,6 +14,7 @@
 import { userDatabaseService } from '../services/userDatabaseService.js';
 
 import { logger } from '../utils/logger';
+
 const MODULE_TAG = '[🔍 USER-API]';
 
 /**

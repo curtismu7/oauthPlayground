@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
 
 import { logger } from '../utils/logger';
+
 interface RARExampleSelectorProps {
 	onSelectExample: (details: AuthorizationDetail[]) => void;
 	className?: string;

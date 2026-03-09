@@ -1,10 +1,10 @@
 import { FiClock, FiRefreshCw } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { type SecurityScan, securityService } from '../services/securityService';
 
-import { logger } from '../../utils/logger';
 const PageContainer = styled.div`
 	padding: 2rem;
 	max-width: 1400px;

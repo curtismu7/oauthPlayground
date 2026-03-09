@@ -48,10 +48,10 @@ function AppWithErrorHandling() {
 	);
 }
 
+import { logger } from '../utils/logger';
 // Example 4: Programmatic usage of services
 import { EnhancedConfigurationService, ServiceDiscoveryService } from './services/';
 
-import { logger } from '../utils/logger';
 // Get service recommendations for a flow
 const _recommendations = ServiceDiscoveryService.getServiceRecommendations(
 	FlowType.OAUTH_AUTHORIZATION_CODE

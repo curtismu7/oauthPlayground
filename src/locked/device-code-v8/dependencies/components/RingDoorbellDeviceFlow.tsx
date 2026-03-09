@@ -5,10 +5,10 @@
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Ring Doorbell Physical Housing
 const RingDoorbellContainer = styled.div`
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);

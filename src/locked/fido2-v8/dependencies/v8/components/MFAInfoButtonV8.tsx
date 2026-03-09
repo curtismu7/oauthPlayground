@@ -17,6 +17,7 @@ import React, { useMemo, useState } from 'react';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';
 
 /**

@@ -20,11 +20,11 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
+import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
 

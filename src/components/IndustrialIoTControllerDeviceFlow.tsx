@@ -5,9 +5,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // Industrial IoT Controller Main Container - Metallic gray with industrial design
 const IndustrialContainer = styled.div`
   background: linear-gradient(135deg, #2c2c2c 0%, #404040 50%, #2c2c2c 100%);
