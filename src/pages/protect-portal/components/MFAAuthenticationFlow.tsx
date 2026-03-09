@@ -12,6 +12,7 @@
 import { FiAlertTriangle, FiCheckCircle, FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { showGlobalInfo } from '../../../contexts/NotificationSystem';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
 	EducationalContent,
@@ -497,7 +498,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		// For now, we'll show an alert with instructions
 		// biome-ignore lint/suspicious/noAlert: instructional MFA alert for demo portal
 		// eslint-disable-next-line no-alert
-		alert(
+		showGlobalInfo(
 			'MFA Registration: Please visit the MFA registration page to set up your authentication devices.'
 		);
 	}, []);
