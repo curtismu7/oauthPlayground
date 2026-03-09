@@ -1,4 +1,5 @@
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
 const WorkerActions: React.FC<{
 	onNext: () => void;
 	onClearToken: () => void;
@@ -29,7 +30,7 @@ const WorkerActions: React.FC<{
 	</div>
 );
 
-
+import { FiKey } from '@icons';
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +44,6 @@ import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
-import { FiKey } from '@icons';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -448,12 +448,12 @@ const ClientGenerator: React.FC = () => {
 						<FiKey style={{ marginRight: '0.5rem' }} />
 						Worker Application Credentials
 					</FormTitle>
-					<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.5rem' }}>
+					<p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
 						Enter your Worker application credentials to manage PingOne applications.
 					</p>
 					<p
 						style={{
-							color: 'V9_COLORS.PRIMARY.YELLOW',
+							color: '#f59e0b',
 							fontSize: '0.875rem',
 							marginBottom: '1.5rem',
 							display: 'flex',
@@ -485,9 +485,9 @@ const ClientGenerator: React.FC = () => {
 					<FormGroup style={{ marginTop: '1rem' }}>
 						<Label>
 							Token Endpoint Authentication Method
-							<span style={{ color: 'V9_COLORS.PRIMARY.RED', marginLeft: '0.25rem' }}>*</span>
+							<span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
 						</Label>
-						<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.5rem' }}>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
 							This must match the authentication method configured in your PingOne worker
 							application.
 						</p>
@@ -510,7 +510,7 @@ const ClientGenerator: React.FC = () => {
 						<p
 							style={{
 								fontSize: '0.75rem',
-								color: 'V9_COLORS.PRIMARY.YELLOW',
+								color: '#f59e0b',
 								marginTop: '0.5rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -579,7 +579,7 @@ const ClientGenerator: React.FC = () => {
 
 						{tokenError && (
 							<span
-								style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}
+								style={{ color: '#ef4444', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}
 							>
 								⚠️ {tokenError}
 							</span>
@@ -659,21 +659,21 @@ const ClientGenerator: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								marginBottom: '0.75rem',
-								color: 'V9_COLORS.PRIMARY.GREEN',
+								color: '#10b981',
 								fontWeight: 600,
 							}}
 						>
 							<span style={{ fontSize: '20px' }}>🔑</span>
 							Worker Token Response (OAuth 2.0 Token)
 						</div>
-						<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
+						<div style={{ fontSize: '0.875rem', color: '#10b981', marginBottom: '1rem' }}>
 							This is the access token that will be used to authenticate API calls to PingOne's
 							Management API.
 						</div>
 
 						{/* Token Response */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#10b981' }}>
 								OAuth 2.0 Token Response:
 							</div>
 							<div
@@ -687,7 +687,7 @@ const ClientGenerator: React.FC = () => {
 								<pre
 									style={{
 										background: '#1e293b',
-										color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										color: '#e5e7eb',
 										padding: '1rem',
 										borderRadius: '0.5rem',
 										overflowX: 'auto',
@@ -749,7 +749,7 @@ const ClientGenerator: React.FC = () => {
 							<div
 								style={{
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 									marginTop: '0.5rem',
 									fontStyle: 'italic',
 								}}
@@ -761,14 +761,14 @@ const ClientGenerator: React.FC = () => {
 
 						{/* Authentication Header */}
 						<div>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#10b981' }}>
 								Authentication Header:
 							</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 								<pre
 									style={{
 										background: '#1e293b',
-										color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										color: '#e5e7eb',
 										padding: '1rem',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
@@ -799,26 +799,30 @@ const ClientGenerator: React.FC = () => {
 											: 'Show full header (not recommended)'
 									}
 								>
-									{tokenDecodeStates['auth-header'] ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+									{tokenDecodeStates['auth-header'] ? (
+										<span style={{ fontSize: '16px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '16px' }}>👁️</span>
+									)}
 								</button>
 							</div>
 							{tokenDecodeStates['auth-header'] && (
 								<div
 									style={{
-										background: 'V9_COLORS.BG.WARNING',
+										background: '#fef3c7',
 										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 										borderRadius: '0.5rem',
 										padding: '1rem',
 										marginTop: '0.5rem',
 									}}
 								>
-									<div style={{ fontWeight: 600, color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '0.5rem' }}>
+									<div style={{ fontWeight: 600, color: '#d97706', marginBottom: '0.5rem' }}>
 										⚠️ Full Header Revealed:
 									</div>
 									<pre
 										style={{
 											background: '#1e293b',
-											color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+											color: '#e5e7eb',
 											padding: '1rem',
 											borderRadius: '0.5rem',
 											fontSize: '0.875rem',
@@ -835,7 +839,7 @@ const ClientGenerator: React.FC = () => {
 							<div
 								style={{
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 									marginTop: '0.5rem',
 									fontStyle: 'italic',
 								}}
@@ -849,7 +853,7 @@ const ClientGenerator: React.FC = () => {
 					<div style={{ marginTop: '1.5rem' }}>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
 								padding: '1.25rem',
@@ -861,20 +865,20 @@ const ClientGenerator: React.FC = () => {
 									alignItems: 'center',
 									gap: '0.5rem',
 									marginBottom: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontWeight: 600,
 								}}
 							>
 								<span style={{ fontSize: '20px' }}>🛡️</span>
 								Token Analysis (TokenDisplayService)
 							</div>
-							<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>
+							<div style={{ fontSize: '0.875rem', color: '#1f2937', marginBottom: '1rem' }}>
 								Detailed token analysis using our secure TokenDisplayService.
 							</div>
 
 							{/* Token Metadata */}
 							<div style={{ marginBottom: '1rem' }}>
-								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
 									Token Metadata:
 								</div>
 								<div
@@ -892,10 +896,10 @@ const ClientGenerator: React.FC = () => {
 											borderRadius: '0.5rem',
 										}}
 									>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
 											Token Type
 										</div>
-										<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<div style={{ fontWeight: 600, color: '#1f2937' }}>
 											{TokenDisplayService.getTokenLabel('access', false)}
 										</div>
 									</div>
@@ -907,10 +911,10 @@ const ClientGenerator: React.FC = () => {
 											borderRadius: '0.5rem',
 										}}
 									>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
 											Length
 										</div>
-										<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<div style={{ fontWeight: 600, color: '#1f2937' }}>
 											{workerToken.length} characters
 										</div>
 									</div>
@@ -922,14 +926,14 @@ const ClientGenerator: React.FC = () => {
 											borderRadius: '0.5rem',
 										}}
 									>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
 											Format
 										</div>
-										<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<div style={{ fontWeight: 600, color: '#1f2937' }}>
 											{TokenDisplayService.isJWT(workerToken) ? (
-												<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>JWT ✓</span>
+												<span style={{ color: '#059669' }}>JWT ✓</span>
 											) : (
-												<span style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Opaque ✗</span>
+												<span style={{ color: '#dc2626' }}>Opaque ✗</span>
 											)}
 										</div>
 									</div>
@@ -941,10 +945,10 @@ const ClientGenerator: React.FC = () => {
 											borderRadius: '0.5rem',
 										}}
 									>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
 											Flow Context
 										</div>
-										<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Client Credentials</div>
+										<div style={{ fontWeight: 600, color: '#1f2937' }}>Client Credentials</div>
 									</div>
 								</div>
 							</div>
@@ -952,7 +956,7 @@ const ClientGenerator: React.FC = () => {
 							{/* JWT Decode Section */}
 							{TokenDisplayService.isJWT(workerToken) && (
 								<div style={{ marginBottom: '1rem' }}>
-									<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+									<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
 										JWT Structure:
 									</div>
 									<div
@@ -966,7 +970,7 @@ const ClientGenerator: React.FC = () => {
 										<pre
 											style={{
 												background: '#1e293b',
-												color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+												color: '#e5e7eb',
 												padding: '1rem',
 												borderRadius: '0.5rem',
 												overflowX: 'auto',
@@ -1004,7 +1008,7 @@ const ClientGenerator: React.FC = () => {
 												);
 											})()}
 										</pre>
-										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', maxWidth: '200px' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', maxWidth: '200px' }}>
 											<strong>JWT Decoded:</strong> Header and payload shown with sensitive data
 											masked for security.
 										</div>
@@ -1018,18 +1022,18 @@ const ClientGenerator: React.FC = () => {
 									style={{
 										marginBottom: '1rem',
 										padding: '1rem',
-										background: 'V9_COLORS.BG.WARNING',
+										background: '#fef3c7',
 										border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 										borderRadius: '0.5rem',
 									}}
 								>
-									<div style={{ fontWeight: 600, color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '0.5rem' }}>
+									<div style={{ fontWeight: 600, color: '#d97706', marginBottom: '0.5rem' }}>
 										Opaque Token
 									</div>
 									<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
 										{TokenDisplayService.getOpaqueTokenMessage('access')}
 									</div>
-									<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginTop: '0.5rem' }}>
+									<div style={{ fontSize: '0.75rem', color: '#d97706', marginTop: '0.5rem' }}>
 										This is normal for access tokens in many OAuth implementations for security
 										reasons.
 									</div>
@@ -1045,10 +1049,10 @@ const ClientGenerator: React.FC = () => {
 									borderRadius: '0.5rem',
 								}}
 							>
-								<div style={{ fontWeight: 600, color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: '#10b981', marginBottom: '0.5rem' }}>
 									Security Features
 								</div>
-								<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+								<div style={{ fontSize: '0.875rem', color: '#10b981' }}>
 									• Token values are never logged or stored insecurely
 									<br />• Sensitive JWT claims are automatically masked
 									<br />• All operations use secure TokenDisplayService methods
@@ -1077,21 +1081,21 @@ const ClientGenerator: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								marginBottom: '0.75rem',
-								color: 'V9_COLORS.PRIMARY.GREEN',
+								color: '#10b981',
 								fontWeight: 600,
 							}}
 						>
 							<span style={{ fontSize: '20px' }}>🔑</span>
 							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
-						<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1rem' }}>
+						<div style={{ fontSize: '0.875rem', color: '#10b981', marginBottom: '1rem' }}>
 							This shows how to obtain an access token using the Client Credentials grant type with
 							Client Secret Post authentication (credentials sent in request body).
 						</div>
 
 						{/* Token Endpoint */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#10b981' }}>
 								Token Endpoint:
 							</div>
 							<ColoredUrlDisplay url={workerTokenRequest.url} label="POST" showCopyButton={true} />
@@ -1102,7 +1106,7 @@ const ClientGenerator: React.FC = () => {
 							style={{
 								marginBottom: '1rem',
 								padding: '1rem',
-								background: 'V9_COLORS.BG.WARNING',
+								background: '#fef3c7',
 								border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 								borderRadius: '0.5rem',
 							}}
@@ -1111,7 +1115,7 @@ const ClientGenerator: React.FC = () => {
 								style={{
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: '#d97706',
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
@@ -1166,13 +1170,13 @@ const ClientGenerator: React.FC = () => {
 
 						{/* Headers */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#10b981' }}>
 								Headers:
 							</div>
 							<pre
 								style={{
 									background: '#1e293b',
-									color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+									color: '#e5e7eb',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									overflowX: 'auto',
@@ -1192,13 +1196,13 @@ const ClientGenerator: React.FC = () => {
 
 						{/* Request Body - JSON Format */}
 						<div>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#10b981' }}>
 								Request Body (as JSON for readability):
 							</div>
 							<pre
 								style={{
 									background: '#1e293b',
-									color: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+									color: '#e5e7eb',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									overflowX: 'auto',
@@ -1224,7 +1228,7 @@ const ClientGenerator: React.FC = () => {
 							<div
 								style={{
 									fontSize: '0.75rem',
-									color: 'V9_COLORS.PRIMARY.GREEN',
+									color: '#10b981',
 									marginTop: '0.5rem',
 									fontStyle: 'italic',
 								}}

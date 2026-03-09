@@ -10,15 +10,15 @@
  * functionality that was previously scattered across MFAConfigurationStepV8.
  */
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useState } from 'react';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
-import { FiRefreshCw } from '@icons';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 
@@ -117,9 +117,30 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	};
 
 	const handleGetToken = async () => {
-		// Use the silent retrieval helper
-		// If silentApiRetrieval is enabled, don't force modal (allow silent retrieval)
-		// If silentApiRetrieval is disabled, force modal for explicit credential configuration
+		// If the token is invalid but credentials are already stored, try a silent re-fetch
+		// before asking the user to re-enter credentials in the modal.
+		if (!tokenStatus.isValid) {
+			try {
+				const credsResult = await unifiedWorkerTokenService.loadCredentials();
+				if (credsResult.success) {
+					const newToken = await workerTokenManager.refreshToken();
+					if (newToken) {
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+						if (onTokenUpdated) onTokenUpdated(newToken);
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Worker token refreshed automatically',
+							duration: 3000,
+						});
+						return;
+					}
+				}
+			} catch {
+				// Credentials may be invalid or network unavailable — fall through to modal
+			}
+		}
+		// Token is valid (user wants to reconfigure) or silent refresh failed → show modal
 		await handleShowWorkerTokenModal(
 			setShowModal,
 			setTokenStatus,

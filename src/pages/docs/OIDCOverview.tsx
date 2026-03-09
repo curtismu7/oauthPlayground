@@ -1,11 +1,21 @@
-
+import {
+	FiAlertTriangle,
+	FiArrowRight,
+	FiBookOpen,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiLock,
+	FiShield,
+	FiUsers,
+	FiZap,
+} from '@icons';
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { FiAlertTriangle, FiArrowRight, FiBookOpen, FiCheckCircle, FiCode, FiInfo, FiLock, FiShield, FiUsers, FiZap } from '@icons';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {
@@ -137,17 +147,17 @@ const FilterContainer = styled.div`
 
 const FilterButton = styled.button<{ $active?: boolean }>`
   padding: 0.5rem 1rem;
-  border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
-  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;
-    background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
   }
 `;
 
@@ -685,7 +695,7 @@ const OIDCOverview = () => {
 								fontSize: '2.5rem',
 								fontWeight: '700',
 								marginBottom: '1rem',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							OIDC Authentication Flows
@@ -693,7 +703,7 @@ const OIDCOverview = () => {
 						<p
 							style={{
 								fontSize: '1.125rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								maxWidth: '600px',
 								margin: '0 auto',
 							}}
@@ -706,7 +716,7 @@ const OIDCOverview = () => {
 								display: 'inline-block',
 								fontSize: '0.875rem',
 								fontWeight: '500',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								marginTop: '0.5rem',
 								padding: '0.25rem 0.75rem',
 								backgroundColor: '#f3f4f6',
@@ -735,8 +745,8 @@ const OIDCOverview = () => {
 										{flow.deprecated && (
 											<span
 												style={{
-													background: 'V9_COLORS.BG.WARNING',
-													color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+													background: '#fef3c7',
+													color: '#d97706',
 													padding: '0.25rem 0.5rem',
 													borderRadius: '0.25rem',
 													fontSize: '0.75rem',
@@ -752,7 +762,7 @@ const OIDCOverview = () => {
 										{flow.title}
 									</h3>
 
-									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem', lineHeight: '1.5' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
 										{flow.description}
 									</p>
 
@@ -766,7 +776,7 @@ const OIDCOverview = () => {
 												marginBottom: '0.5rem',
 											}}
 										>
-											<strong style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+											<strong style={{ fontSize: '0.875rem', color: '#1f2937' }}>
 												Security Level:
 											</strong>
 											<div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -777,12 +787,12 @@ const OIDCOverview = () => {
 															width: '8px',
 															height: '8px',
 															borderRadius: '50%',
-															backgroundColor: i < flow.securityLevel ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+															backgroundColor: i < flow.securityLevel ? '#10b981' : '#e5e7eb',
 														}}
 													/>
 												))}
 											</div>
-											<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 												{flow.securityLevel}/10
 											</span>
 										</div>
@@ -794,20 +804,20 @@ const OIDCOverview = () => {
 												fontWeight: '500',
 												backgroundColor:
 													flow.security === 'Very High'
-														? 'V9_COLORS.BG.SUCCESS'
+														? '#ecfdf5'
 														: flow.security === 'High'
 															? '#dbeafe'
 															: flow.security === 'Medium-High'
-																? 'V9_COLORS.BG.SUCCESS'
-																: 'V9_COLORS.BG.WARNING',
+																? '#ecfdf5'
+																: '#fef3c7',
 												color:
 													flow.security === 'Very High'
-														? 'V9_COLORS.PRIMARY.GREEN'
+														? '#10b981'
 														: flow.security === 'High'
-															? 'V9_COLORS.PRIMARY.BLUE_DARK'
+															? '#2563eb'
 															: flow.security === 'Medium-High'
-																? 'V9_COLORS.PRIMARY.GREEN_DARK'
-																: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+																? '#059669'
+																: '#d97706',
 											}}
 										>
 											{flow.security}
@@ -819,7 +829,7 @@ const OIDCOverview = () => {
 										<strong
 											style={{
 												fontSize: '0.875rem',
-												color: 'V9_COLORS.TEXT.GRAY_DARK',
+												color: '#1f2937',
 												display: 'block',
 												marginBottom: '0.5rem',
 											}}
@@ -832,7 +842,7 @@ const OIDCOverview = () => {
 													key={index}
 													style={{
 														background: '#f3f4f6',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 														padding: '0.125rem 0.375rem',
 														borderRadius: '0.25rem',
 														fontSize: '0.75rem',
@@ -843,7 +853,7 @@ const OIDCOverview = () => {
 												</span>
 											))}
 											{flow.bestFor.length > 2 && (
-												<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 													+{flow.bestFor.length - 2} more
 												</span>
 											)}
@@ -892,7 +902,7 @@ const OIDCOverview = () => {
 														fontSize: '1rem',
 														fontWeight: '600',
 														marginBottom: '0.75rem',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 													}}
 												>
 													Flow Steps:
@@ -901,7 +911,7 @@ const OIDCOverview = () => {
 													style={{
 														fontFamily: 'monospace',
 														fontSize: '0.875rem',
-														background: 'V9_COLORS.TEXT.GRAY_DARK',
+														background: '#1f2937',
 														color: '#f9fafb',
 														padding: '1rem',
 														borderRadius: '0.375rem',
@@ -927,7 +937,7 @@ const OIDCOverview = () => {
 															fontSize: '0.875rem',
 															fontWeight: '600',
 															marginBottom: '0.5rem',
-															color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+															color: '#059669',
 														}}
 													>
 														✅ Pros:
@@ -935,7 +945,7 @@ const OIDCOverview = () => {
 													<ul
 														style={{
 															fontSize: '0.875rem',
-															color: 'V9_COLORS.TEXT.GRAY_DARK',
+															color: '#1f2937',
 															margin: 0,
 															paddingLeft: '1rem',
 														}}
@@ -953,7 +963,7 @@ const OIDCOverview = () => {
 															fontSize: '0.875rem',
 															fontWeight: '600',
 															marginBottom: '0.5rem',
-															color: 'V9_COLORS.PRIMARY.RED_DARK',
+															color: '#dc2626',
 														}}
 													>
 														❌ Cons:
@@ -961,7 +971,7 @@ const OIDCOverview = () => {
 													<ul
 														style={{
 															fontSize: '0.875rem',
-															color: 'V9_COLORS.TEXT.GRAY_DARK',
+															color: '#1f2937',
 															margin: 0,
 															paddingLeft: '1rem',
 														}}
@@ -982,7 +992,7 @@ const OIDCOverview = () => {
 														fontSize: '0.875rem',
 														fontWeight: '600',
 														marginBottom: '0.5rem',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 													}}
 												>
 													🎯 Best For:
@@ -993,7 +1003,7 @@ const OIDCOverview = () => {
 															key={index}
 															style={{
 																background: '#dbeafe',
-																color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+																color: '#2563eb',
 																padding: '0.25rem 0.5rem',
 																borderRadius: '0.25rem',
 																fontSize: '0.75rem',
@@ -1056,7 +1066,7 @@ const OIDCOverview = () => {
 				{/* Key OIDC Concepts */}
 				<section style={{ marginBottom: '3rem' }}>
 					<h2
-						style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+						style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937' }}
 					>
 						Key OpenID Connect Concepts
 					</h2>
@@ -1073,23 +1083,23 @@ const OIDCOverview = () => {
 											marginBottom: '1rem',
 										}}
 									>
-										<concept.icon size={20} style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
-										<h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+										<concept.icon size={20} style={{ color: '#3b82f6' }} />
+										<h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
 											{concept.title}
 										</h3>
 									</div>
-									<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem', lineHeight: '1.5' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
 										{concept.description}
 									</p>
 									<div>
-										<strong style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Examples:</strong>
+										<strong style={{ fontSize: '0.875rem', color: '#1f2937' }}>Examples:</strong>
 										<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
 											{concept.examples.map((example, idx) => (
 												<li
 													key={idx}
 													style={{
 														fontSize: '0.875rem',
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														marginBottom: '0.25rem',
 													}}
 												>
@@ -1111,7 +1121,7 @@ const OIDCOverview = () => {
 							fontSize: '2rem',
 							fontWeight: '600',
 							marginBottom: '2rem',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 							textAlign: 'center',
 						}}
 					>
@@ -1120,7 +1130,7 @@ const OIDCOverview = () => {
 					<p
 						style={{
 							textAlign: 'center',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							marginBottom: '2rem',
 							fontSize: '1.125rem',
 						}}
@@ -1139,7 +1149,7 @@ const OIDCOverview = () => {
 						</h2>
 					</CardHeader>
 					<CardBody>
-						<p style={{ marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+						<p style={{ marginBottom: '1.5rem', color: '#6b7280', lineHeight: '1.6' }}>
 							Following security best practices is crucial for protecting user data and maintaining
 							trust. Here are the key recommendations for implementing OpenID Connect securely:
 						</p>
@@ -1149,7 +1159,7 @@ const OIDCOverview = () => {
 								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Use Authorization Code Flow with PKCE</strong>
-									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
 										Always use PKCE for enhanced security, especially for public clients without
 										client secrets.
 									</p>
@@ -1159,7 +1169,7 @@ const OIDCOverview = () => {
 								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Validate ID Tokens Properly</strong>
-									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
 										Always validate issuer (iss), audience (aud), and expiration (exp) claims.
 									</p>
 								</div>
@@ -1168,7 +1178,7 @@ const OIDCOverview = () => {
 								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Use HTTPS Everywhere</strong>
-									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
 										Never transmit tokens over HTTP - always use HTTPS for all OAuth/OIDC endpoints.
 									</p>
 								</div>
@@ -1177,7 +1187,7 @@ const OIDCOverview = () => {
 								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Implement Proper State Parameter</strong>
-									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
 										Use cryptographically secure random state values to prevent CSRF attacks.
 									</p>
 								</div>
@@ -1186,7 +1196,7 @@ const OIDCOverview = () => {
 								<span style={{ fontSize: '16px' }}>✅</span>
 								<div>
 									<strong>Regular Token Rotation</strong>
-									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<p style={{ margin: '0.25rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
 										Implement refresh token rotation and regular access token expiration.
 									</p>
 								</div>
@@ -1200,7 +1210,7 @@ const OIDCOverview = () => {
 					style={{
 						marginTop: '3rem',
 						padding: '2rem',
-						backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+						backgroundColor: '#f8fafc',
 						borderRadius: '0.75rem',
 					}}
 				>
@@ -1209,7 +1219,7 @@ const OIDCOverview = () => {
 							fontSize: '1.5rem',
 							fontWeight: '600',
 							marginBottom: '1rem',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						Implementation Notes
@@ -1227,12 +1237,12 @@ const OIDCOverview = () => {
 									fontSize: '1.125rem',
 									fontWeight: '600',
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								For Web Applications
 							</h3>
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
+							<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 								Use Authorization Code Flow with PKCE. Store tokens securely and implement proper
 								logout flows.
 							</p>
@@ -1243,12 +1253,12 @@ const OIDCOverview = () => {
 									fontSize: '1.125rem',
 									fontWeight: '600',
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								For Mobile Applications
 							</h3>
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
+							<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 								Use Authorization Code Flow with PKCE. Implement secure token storage and
 								certificate pinning.
 							</p>
@@ -1259,12 +1269,12 @@ const OIDCOverview = () => {
 									fontSize: '1.125rem',
 									fontWeight: '600',
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								For APIs
 							</h3>
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
+							<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 								Validate JWT tokens, implement proper scopes, and use refresh tokens for long-lived
 								sessions.
 							</p>

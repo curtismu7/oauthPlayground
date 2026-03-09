@@ -1,8 +1,8 @@
 // src/hooks/useRedirectUriEducation.ts
 // Hook for flows to easily integrate Redirect URI educational service
 
-import React, { useState, useCallback } from 'react';
-import { redirectUriService, type FlowUriInfo } from '../services/redirectUriService';
+import React, { useCallback, useState } from 'react';
+import { type FlowUriInfo, redirectUriService } from '../services/redirectUriService';
 import { logger } from '../utils/logger';
 
 interface UseRedirectUriEducationProps {
@@ -51,7 +51,9 @@ export const useRedirectUriEducation = ({
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 			setError(`Failed to load URI information: ${errorMessage}`);
-			logger.error('useRedirectUriEducation', 'Error loading URI information', { error: errorMessage });
+			logger.error('useRedirectUriEducation', 'Error loading URI information', {
+				error: errorMessage,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -85,12 +87,12 @@ export const useRedirectUriEducation = ({
 		}
 
 		const allSecurityConsiderations: string[] = [];
-		
-		flowInfo.redirectUris.forEach(uri => {
+
+		flowInfo.redirectUris.forEach((uri) => {
 			allSecurityConsiderations.push(...uri.securityConsiderations);
 		});
-		
-		flowInfo.logoutUris.forEach(uri => {
+
+		flowInfo.logoutUris.forEach((uri) => {
 			allSecurityConsiderations.push(...uri.securityConsiderations);
 		});
 
@@ -104,12 +106,12 @@ export const useRedirectUriEducation = ({
 		}
 
 		const allBestPractices: string[] = [];
-		
-		flowInfo.redirectUris.forEach(uri => {
+
+		flowInfo.redirectUris.forEach((uri) => {
 			allBestPractices.push(...uri.bestPractices);
 		});
-		
-		flowInfo.logoutUris.forEach(uri => {
+
+		flowInfo.logoutUris.forEach((uri) => {
 			allBestPractices.push(...uri.bestPractices);
 		});
 

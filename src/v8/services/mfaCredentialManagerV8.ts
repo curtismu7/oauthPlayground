@@ -147,8 +147,11 @@ export class MFACredentialManagerV8 {
 				email: ((stored as Record<string, unknown>).email as string) || '',
 				deviceName: ((stored as Record<string, unknown>).deviceName as string) || '',
 				deviceStatus: (stored as Record<string, unknown>).deviceStatus as string | undefined,
-				deviceAuthenticationPolicyId: (stored as Record<string, unknown>).deviceAuthenticationPolicyId as string | undefined,
-				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as string | undefined,
+				deviceAuthenticationPolicyId: (stored as Record<string, unknown>)
+					.deviceAuthenticationPolicyId as string | undefined,
+				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as
+					| string
+					| undefined,
 				fido2PolicyId: (stored as Record<string, unknown>).fido2PolicyId as string | undefined,
 				tokenType: ((stored as Record<string, unknown>).tokenType as string) || 'worker',
 				userToken: (stored as Record<string, unknown>).userToken as string | undefined,
@@ -202,8 +205,11 @@ export class MFACredentialManagerV8 {
 				email: ((stored as Record<string, unknown>).email as string) || '',
 				deviceName: ((stored as Record<string, unknown>).deviceName as string) || '',
 				deviceStatus: (stored as Record<string, unknown>).deviceStatus as string | undefined,
-				deviceAuthenticationPolicyId: (stored as Record<string, unknown>).deviceAuthenticationPolicyId as string | undefined,
-				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as string | undefined,
+				deviceAuthenticationPolicyId: (stored as Record<string, unknown>)
+					.deviceAuthenticationPolicyId as string | undefined,
+				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as
+					| string
+					| undefined,
 				fido2PolicyId: (stored as Record<string, unknown>).fido2PolicyId as string | undefined,
 				tokenType: ((stored as Record<string, unknown>).tokenType as string) || 'worker',
 				userToken: (stored as Record<string, unknown>).userToken as string | undefined,
@@ -239,7 +245,10 @@ export class MFACredentialManagerV8 {
 
 		try {
 			// Save using existing service
-			CredentialsServiceV8.saveCredentials(flowKey, credentials as unknown as Parameters<typeof CredentialsServiceV8.saveCredentials>[1]);
+			CredentialsServiceV8.saveCredentials(
+				flowKey,
+				credentials as unknown as Parameters<typeof CredentialsServiceV8.saveCredentials>[1]
+			);
 
 			// Update internal state
 			this.credentials = credentials;

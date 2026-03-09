@@ -1,11 +1,10 @@
-
+import { FiRefreshCw, FiTrendingUp } from '@icons';
 import { BarChart3 } from 'lucide-react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiRefreshCw, FiTrendingUp } from '@icons';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -60,7 +59,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   border: 1px solid ${({ $variant, theme }) =>
 		$variant === 'primary' ? theme.colors.primary : theme.colors.gray300};
   background: ${({ $variant, theme }) => ($variant === 'primary' ? theme.colors.primary : 'white')};
-  color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#1f2937')};
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -499,7 +498,7 @@ export const AnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<BarChart3 size={48} style={{ marginBottom: '1rem' }} />
 							<p>User engagement chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -514,7 +513,7 @@ export const AnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiTrendingUp style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Flow performance chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Integration with charting library required
 							</p>
 						</div>

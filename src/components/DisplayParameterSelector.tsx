@@ -1,10 +1,9 @@
 // src/components/DisplayParameterSelector.tsx
 // OIDC Display Parameter Selector - Controls UI presentation mode
 
-
+import { FiLayout, FiMonitor, FiSmartphone } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { FiLayout, FiMonitor, FiSmartphone } from '@icons';
 
 export type DisplayMode = 'page' | 'popup' | 'touch' | 'wap';
 
@@ -39,14 +38,14 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 2px solid ${(props) => (props.$selected ? '#10b981' : '#e5e7eb')};
 	border-radius: 0.5rem;
-	background: ${(props) => (props.$selected ? '#f0fdf4' : 'V9_COLORS.TEXT.WHITE')};
+	background: ${(props) => (props.$selected ? '#f0fdf4' : '#ffffff')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+		border-color: ${(props) => (props.$selected ? '#10b981' : '#e5e7eb')};
 		background: ${(props) => (props.$selected ? '#f0fdf4' : '#f9fafb')};
 	}
 
@@ -58,13 +57,13 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 
 const DisplayIcon = styled.div<{ $selected: boolean }>`
 	font-size: 2rem;
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$selected ? '#10b981' : '#6b7280')};
 `;
 
 const DisplayTitle = styled.div<{ $selected: boolean }>`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	color: ${(props) => (props.$selected ? '#059669' : '#1f2937')};
 `;
 
 const DisplayDescription = styled.div`

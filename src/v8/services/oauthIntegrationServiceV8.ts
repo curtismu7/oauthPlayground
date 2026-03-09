@@ -32,7 +32,6 @@ interface PasswordChangeError extends Error {
 	tokens?: unknown;
 }
 
-
 /**
  * Extended Error type for password change requirements.
  */
@@ -44,7 +43,6 @@ interface PasswordChangeError extends Error {
 	accessToken?: string;
 	tokens?: unknown;
 }
-
 
 /**
  * Format authentication method for display
@@ -582,7 +580,8 @@ export class OAuthIntegrationServiceV8 {
 			const revealableBody: Record<string, string> = {};
 			if (bodyParams.code) revealableBody['code'] = bodyParams.code;
 			if (bodyParams.code_verifier) revealableBody['code_verifier'] = bodyParams.code_verifier;
-			if (bodyParams.client_assertion) revealableBody['client_assertion'] = bodyParams.client_assertion;
+			if (bodyParams.client_assertion)
+				revealableBody['client_assertion'] = bodyParams.client_assertion;
 
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 			const callId = apiCallTrackerService.trackApiCall({
@@ -936,7 +935,8 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 						passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 						passwordChangeError.requiresPasswordChange = true;
-						passwordChangeError.userId = (responseData as Record<string, unknown>).user_id as string;
+						passwordChangeError.userId = (responseData as Record<string, unknown>)
+							.user_id as string;
 						passwordChangeError.accessToken = tokens.access_token;
 						passwordChangeError.tokens = tokens;
 						throw passwordChangeError;

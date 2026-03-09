@@ -1,7 +1,6 @@
 // src/components/ApiCallTable.tsx
 // Table component to display tracked API calls with full details
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { ApiCall } from '../services/apiCallTrackerService';
@@ -284,7 +283,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 												<div
 													style={{
 														fontSize: '0.75rem',
-														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														color: '#6b7280',
 														marginTop: '0.25rem',
 														fontStyle: 'italic',
 													}}
@@ -299,18 +298,14 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.response.status}
 												</StatusBadge>
 											) : (
-												<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Pending</span>
+												<span style={{ color: '#6b7280' }}>Pending</span>
 											)}
 										</TableCell>
 										<TableCell>
-											<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-												{formatTime(call.timestamp)}
-											</small>
+											<small style={{ color: '#6b7280' }}>{formatTime(call.timestamp)}</small>
 										</TableCell>
 										<TableCell>
-											<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-												{formatDuration(call.duration)}
-											</small>
+											<small style={{ color: '#6b7280' }}>{formatDuration(call.duration)}</small>
 										</TableCell>
 									</TableRow>
 									{isExpanded && (
@@ -416,7 +411,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																{call.response.data ? (
 																	<JSONHighlighter data={call.response.data as JSONData} />
 																) : call.response.error ? (
-																	<CodeBlock style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+																	<CodeBlock style={{ color: '#dc2626' }}>
 																		{call.response.error}
 																	</CodeBlock>
 																) : (

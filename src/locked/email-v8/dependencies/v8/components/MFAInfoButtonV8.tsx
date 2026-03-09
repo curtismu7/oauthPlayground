@@ -13,7 +13,6 @@
  * <MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
  */
 
-
 import React, { useMemo, useState } from 'react';
 import { MFAEducationServiceV8 } from '../services/mfaEducationServiceV8.ts';
 

@@ -8,7 +8,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-
+import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
 import {
@@ -17,7 +17,6 @@ import {
 	downloadAsPDF,
 	generateUnifiedFlowMarkdown,
 } from './UnifiedFlowDocumentationPageV8U';
-import { FiDownload, FiFileText } from '@icons';
 
 interface UseCase {
 	id: string;

@@ -37,7 +37,7 @@ const ModalContent = styled.div<{ $severity: 'error' | 'warning' }>`
 	box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
 	padding: 2rem;
 	position: relative;
-	border-top: 6px solid ${({ $severity }) => ($severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW')};
+	border-top: 6px solid ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#f59e0b')};
 `;
 
 const ModalHeader = styled.div`
@@ -51,7 +51,7 @@ const ModalTitle = styled.h3<{ $severity: 'error' | 'warning' }>`
 	margin: 0;
 	font-size: 1.35rem;
 	font-weight: 700;
-	color: ${({ $severity }) => ($severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+	color: ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#d97706')};
 `;
 
 const ModalBody = styled.div`
@@ -94,7 +94,7 @@ const CloseButton = styled.button`
 `;
 
 const PrimaryButton = styled.button<{ $severity: 'error' | 'warning' }>`
-	background: ${({ $severity }) => ($severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+	background: ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#d97706')};
 	color: V9_COLORS.TEXT.WHITE;
 	border: none;
 	border-radius: 0.5rem;
@@ -105,7 +105,7 @@ const PrimaryButton = styled.button<{ $severity: 'error' | 'warning' }>`
 	transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
 	&:hover {
-		background: ${({ $severity }) => ($severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : '#b45309')};
+		background: ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#b45309')};
 		transform: translateY(-1px);
 		box-shadow: 0 8px 18px rgba(17, 24, 39, 0.1);
 	}
@@ -121,7 +121,7 @@ const HighlightCallout = styled.div<{ $severity: 'error' | 'warning' }>`
 	padding: 0.85rem 1rem;
 	border-radius: 0.75rem;
 	background: ${({ $severity }) => ($severity === 'error' ? 'rgba(220, 38, 38, 0.08)' : 'rgba(245, 158, 11, 0.12)')};
-	color: ${({ $severity }) => ($severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
+	color: ${({ $severity }) => ($severity === 'error' ? '#dc2626' : '#d97706')};
 	border: 1px solid ${({ $severity }) => ($severity === 'error' ? 'rgba(220, 38, 38, 0.35)' : 'rgba(245, 158, 11, 0.35)')};
 `;
 
@@ -165,10 +165,7 @@ export const PasswordResetErrorModal: React.FC<PasswordResetErrorModalProps> = (
 					<FiX size={18} />
 				</CloseButton>
 				<ModalHeader>
-					<FiAlertCircle
-						size={28}
-						color={severity === 'error' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW'}
-					/>
+					<FiAlertCircle size={28} color={severity === 'error' ? '#dc2626' : '#f59e0b'} />
 					<ModalTitle id={modalTitleId} $severity={severity}>
 						{error.title}
 					</ModalTitle>
@@ -179,7 +176,7 @@ export const PasswordResetErrorModal: React.FC<PasswordResetErrorModalProps> = (
 					{error.detail && <HighlightCallout $severity={severity}>{error.detail}</HighlightCallout>}
 
 					{error.suggestion && (
-						<p style={{ marginTop: '1.25rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+						<p style={{ marginTop: '1.25rem', color: '#1f2937' }}>
 							<strong>What you can do:</strong> {error.suggestion}
 						</p>
 					)}

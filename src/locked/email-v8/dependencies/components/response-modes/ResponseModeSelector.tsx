@@ -1,7 +1,6 @@
 // src/components/response-modes/ResponseModeSelector.tsx
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
@@ -537,7 +536,11 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 					{warning && (
 						<WarningChip $level={warning.level}>
-							{warning.level === 'error' ? <span style={{ fontSize: '12px' }}>⚠️</span> : <span style={{ fontSize: '12px' }}>ℹ️</span>}
+							{warning.level === 'error' ? (
+								<span style={{ fontSize: '12px' }}>⚠️</span>
+							) : (
+								<span style={{ fontSize: '12px' }}>ℹ️</span>
+							)}
 							{warning.reason}
 						</WarningChip>
 					)}

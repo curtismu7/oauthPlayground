@@ -2,7 +2,6 @@
 // Bose Smart Speaker Style Device Authorization Flow Interface
 // Designed to look like actual Bose smart speakers
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,7 +10,6 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design

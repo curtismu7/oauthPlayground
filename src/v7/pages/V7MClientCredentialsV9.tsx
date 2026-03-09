@@ -1,7 +1,7 @@
 // src/v7/pages/V7MClientCredentialsV9.tsx
 /* eslint-disable no-alert */
 
-
+import { FiBook } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
@@ -20,7 +20,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { FiBook } from '@icons';
 
 export const V7MClientCredentialsV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-client-credentials');
@@ -185,7 +184,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -203,10 +202,10 @@ export const V7MClientCredentialsV9: React.FC = () => {
 									>
 										Inspect Access Token
 									</button>
-									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo (Note: May not work for client_credentials tokens)
 									</button>
 								</div>

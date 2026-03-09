@@ -6,7 +6,7 @@
  */
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { useWorkerToken } from '../useWorkerToken';
@@ -330,9 +330,7 @@ describe('useWorkerToken', () => {
 
 			// Dispatch storage event with a worker_token key to satisfy the handler filter
 			await act(async () => {
-				window.dispatchEvent(
-					new StorageEvent('storage', { key: 'worker_token_data' }),
-				);
+				window.dispatchEvent(new StorageEvent('storage', { key: 'worker_token_data' }));
 			});
 
 			await waitFor(() => {

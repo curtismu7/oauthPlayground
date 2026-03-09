@@ -1,8 +1,8 @@
+import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import ColorCodedURL from './ColorCodedURL';
-import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -151,7 +151,7 @@ const AuthorizationUrl = styled.div`
 `;
 
 const CopyButton = styled.button<{ $copied: boolean }>`
-  background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+  background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -165,7 +165,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
   width: fit-content;
 
   &:hover {
-    background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
   }
 `;
 

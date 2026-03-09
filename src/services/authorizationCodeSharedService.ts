@@ -12,7 +12,10 @@ import { useCallback, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import type { AuthorizationCodeFlowController, AuthorizationTokens } from '../hooks/useAuthorizationCodeFlowController';
+import type {
+	AuthorizationCodeFlowController,
+	AuthorizationTokens,
+} from '../hooks/useAuthorizationCodeFlowController';
 import { logger } from '../utils/logger';
 import { validateForStep } from './credentialsValidationService';
 
@@ -464,7 +467,10 @@ export class AuthzFlowValidationManager {
 	/**
 	 * Check if credentials are valid for generating auth URL
 	 */
-	static canGenerateAuthUrl(credentials: StepCredentials, controller: AuthorizationCodeFlowController): boolean {
+	static canGenerateAuthUrl(
+		credentials: StepCredentials,
+		controller: AuthorizationCodeFlowController
+	): boolean {
 		if (!credentials.clientId || !credentials.environmentId) {
 			AuthzFlowToastManager.showMissingCredentials();
 			return false;
@@ -580,7 +586,10 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(controller: AuthorizationCodeFlowController, setCredentials: (creds: StepCredentials) => void) {
+	static createScopesHandler(
+		controller: AuthorizationCodeFlowController,
+		setCredentials: (creds: StepCredentials) => void
+	) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -591,7 +600,10 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(controller: AuthorizationCodeFlowController, setCredentials: (creds: StepCredentials) => void) {
+	static createLoginHintHandler(
+		controller: AuthorizationCodeFlowController,
+		setCredentials: (creds: StepCredentials) => void
+	) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -602,7 +614,10 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(_variant: AuthzFlowVariant, controller: AuthorizationCodeFlowController) {
+	static createSaveHandler(
+		_variant: AuthzFlowVariant,
+		controller: AuthorizationCodeFlowController
+	) {
 		return async () => {
 			try {
 				await controller.saveCredentials();

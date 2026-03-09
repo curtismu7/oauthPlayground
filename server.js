@@ -1173,6 +1173,45 @@ app.get('/api/settings/debug-log-viewer', async (req, res) => {
  * POST /api/settings/custom-domain — body: { domain: string }; validates and saves.
  */
 const CUSTOM_DOMAIN_KEY = 'custom_domain';
+
+// ─── PingOne region → Management API base URL ─────────────────────────────────
+// Single source of truth. No hardcoded default — region MUST be stored in settings.
+const PINGONE_MGMT_REGION_MAP = {
+	us:   'https://api.pingone.com',
+	na:   'https://api.pingone.com',
+	eu:   'https://api.pingone.eu',
+	ca:   'https://api.pingone.ca',
+	ap:   'https://api.pingone.asia',
+	asia: 'https://api.pingone.asia',
+	au:   'https://api.pingone.com.au',
+};
+
+/**
+ * Resolve the PingOne Management API base URL from a region string.
+ * Returns null when region is unknown or not supplied — never falls back to a hardcoded default.
+ * @param {string|undefined} region
+ * @returns {string|null}
+ */
+function resolvePingOneMgmtBase(region) {
+	if (!region || typeof region !== 'string') return null;
+	return PINGONE_MGMT_REGION_MAP[region.trim().toLowerCase()] ?? null;
+}
+
+/**
+ * Load the stored region from SQLite settings, or return null if none saved.
+ * @returns {Promise<string|null>}
+ */
+async function getStoredRegion() {
+	try {
+		let raw = await settingsDB.get('pingone_region');
+		if (raw != null) {
+			try { raw = JSON.parse(raw); } catch { raw = null; }
+		}
+		return typeof raw === 'string' && raw.trim() ? raw.trim().toLowerCase() : null;
+	} catch {
+		return null;
+	}
+}
 const DEFAULT_CUSTOM_DOMAIN = 'api.pingdemo.com';
 const DOMAIN_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/;
 
@@ -1256,6 +1295,54 @@ app.post('/api/settings/environment-id', async (req, res) => {
 	} catch (error) {
 		console.error('[Settings] Failed to save environment ID:', error);
 		res.status(500).json({ error: 'Failed to save environment ID', message: error.message });
+	}
+});
+
+
+// ============================================================================
+// SETTINGS: PINGONE REGION
+// ============================================================================
+/**
+ * GET  /api/settings/region — returns { value: string | null }
+ * POST /api/settings/region — body: { value: 'us'|'eu'|'ca'|'ap'|'au' }; validates and saves.
+ *
+ * The region drives the correct PingOne Management API base URL (see PINGONE_REGION_MAP).
+ * No default is applied here — callers must require the user to explicitly configure a region.
+ */
+const REGION_KEY = 'pingone_region';
+const VALID_REGIONS = ['us', 'eu', 'ca', 'ap', 'au', 'na', 'asia'];
+
+app.get('/api/settings/region', async (_req, res) => {
+	try {
+		let raw = await settingsDB.get(REGION_KEY);
+		if (raw != null) {
+			try { raw = JSON.parse(raw); } catch { raw = null; }
+		}
+		const value = typeof raw === 'string' && VALID_REGIONS.includes(raw.trim().toLowerCase())
+			? raw.trim().toLowerCase()
+			: null;
+		res.status(200).json({ value });
+	} catch (error) {
+		console.error('[Settings] Failed to get region:', error);
+		res.status(500).json({ error: 'Failed to retrieve region', message: error.message });
+	}
+});
+
+app.post('/api/settings/region', async (req, res) => {
+	try {
+		const { value } = req.body || {};
+		if (typeof value !== 'string' || !VALID_REGIONS.includes(value.trim().toLowerCase())) {
+			return res.status(400).json({
+				error: 'Invalid or missing region',
+				allowedValues: VALID_REGIONS,
+			});
+		}
+		const normalized = value.trim().toLowerCase();
+		await settingsDB.set(REGION_KEY, normalized);
+		res.status(200).json({ success: true, value: normalized });
+	} catch (error) {
+		console.error('[Settings] Failed to save region:', error);
+		res.status(500).json({ error: 'Failed to save region', message: error.message });
 	}
 });
 
@@ -3935,7 +4022,7 @@ app.get('/api/pingone/user/:userId', async (req, res) => {
 
 app.post('/api/pingone/users/lookup', async (req, res) => {
 	try {
-		const { environmentId, accessToken, identifier } = req.body || {};
+		const { environmentId, accessToken, identifier, region } = req.body || {};
 
 		console.log('[PingOne User Lookup] Request received:', {
 			hasEnvironmentId: !!environmentId,
@@ -3994,8 +4081,23 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 			});
 		}
 
-		// Use Management API for direct ID lookups
-		const apiBaseUrl = `https://api.pingone.com/v1/environments/${trimmedEnvironmentId}/users`;
+		// Use Management API for direct ID lookups — resolve base URL from region
+		// Region comes from the request body first; if omitted, fall back to the stored setting.
+		// If neither is available the caller must configure a region in Settings first.
+		const requestRegion = region ? String(region).trim().toLowerCase() : null;
+		const storedRegion = requestRegion ? null : await getStoredRegion();
+		const effectiveRegion = requestRegion || storedRegion;
+		const pingOneBase = resolvePingOneMgmtBase(effectiveRegion);
+		if (!pingOneBase) {
+			console.error('[PingOne User Lookup] No region configured. Region:', effectiveRegion);
+			return res.status(400).json({
+				error: 'region_required',
+				error_description: 'PingOne region is not configured. Open Settings → PingOne Region and choose your region (us, eu, ca, ap, or au).',
+				hint: 'Set the region in the Configuration page, or pass a "region" field in the request body.',
+			});
+		}
+		console.log(`[PingOne User Lookup] Using region: ${effectiveRegion} → ${pingOneBase}`);
+		const apiBaseUrl = `${pingOneBase}/v1/environments/${trimmedEnvironmentId}/users`;
 
 		const headers = {
 			Authorization: `Bearer ${trimmedAccessToken}`,
@@ -4217,6 +4319,32 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 						return res.json({ user: foundUser, matchType });
 					}
 					console.log(`[PingOne User Lookup] Filter returned no results: ${filter}`);
+				} else if (searchResponse.status === 401) {
+					// Token is expired or invalid — no point trying remaining filters
+					const errDesc =
+						searchData?.detail ||
+						searchData?.message ||
+						searchData?.error_description ||
+						'Worker token is expired or invalid';
+					console.warn('[PingOne User Lookup] PingOne returned 401 — aborting search:', errDesc);
+					return res.status(401).json({
+						error: 'unauthorized',
+						error_description: `Worker token is expired or invalid. Please refresh your worker token. (PingOne: ${errDesc})`,
+						hint: 'Use the Worker Token section to get a fresh token with p1:read:user scope.',
+					});
+				} else if (searchResponse.status === 403) {
+					// Token lacks required scope — no point trying remaining filters
+					const errDesc =
+						searchData?.detail ||
+						searchData?.message ||
+						searchData?.error_description ||
+						'Worker token lacks required permissions';
+					console.warn('[PingOne User Lookup] PingOne returned 403 — aborting search:', errDesc);
+					return res.status(403).json({
+						error: 'forbidden',
+						error_description: `Worker token lacks required permissions. Ensure it has p1:read:user scope. (PingOne: ${errDesc})`,
+						hint: 'Re-generate your worker token and verify the application has p1:read:user scope.',
+					});
 				} else if (searchResponse.status === 400) {
 					const errorMsg =
 						searchData?.detail ||

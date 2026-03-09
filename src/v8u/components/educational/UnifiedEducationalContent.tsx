@@ -6,10 +6,9 @@
  * @since 2026-01-25
  */
 
-
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 import React from 'react';
 import { useUnifiedFlowStore } from '../../services/UnifiedFlowStateManager';
-import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 
 // Educational section styles
 const sectionStyle: React.CSSProperties = {
@@ -110,7 +109,7 @@ export const EducationalSection: React.FC<EducationalSectionProps> = ({
 
 	return (
 		<section style={sectionStyle}>
-			<button type="button" style={headerButtonStyle} onClick={handleToggle}>
+			<button type="button" type="button" style={headerButtonStyle} onClick={handleToggle}>
 				<span>{title}</span>
 				<FiChevronDown
 					size={16}

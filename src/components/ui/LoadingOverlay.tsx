@@ -15,7 +15,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 	children,
 	message = 'Loading...',
 	spinnerSize = 24,
-	backgroundColor = 'V9_COLORS.TEXT.WHITE',
+	backgroundColor = '#ffffff',
 	opacity = 0.75,
 }) => {
 	return (

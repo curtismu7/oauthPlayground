@@ -524,7 +524,7 @@ describe('Phase 2: Visual Feedback', () => {
 			background:
 				'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 			borderLeft: '3px solid V9_COLORS.PRIMARY.BLUE',
-			color: 'V9_COLORS.TEXT.WHITE',
+			color: '#ffffff',
 		});
 	});
 

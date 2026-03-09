@@ -1,7 +1,6 @@
 // src/pages/PARvsRAR.tsx - PAR vs RAR Comparison and Examples
 // lint-file-disable: token-value-in-jsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -54,7 +53,7 @@ const ComparisonGrid = styled.div`
 `;
 
 const ComparisonCard = styled(Card)<{ $type: 'par' | 'rar' }>`
-  border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE')};
+  border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? '#059669' : '#3b82f6')};
 `;
 
 const CodeBlock = styled.pre`

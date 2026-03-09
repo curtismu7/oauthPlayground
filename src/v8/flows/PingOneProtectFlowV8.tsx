@@ -500,8 +500,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep1 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				⚙️
-				Configuration
+				⚙️ Configuration
 			</h3>
 
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '600px' }}>
@@ -570,11 +569,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					>
 						<div style={{ fontWeight: '600' }}>Worker Token Status</div>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-							{tokenStatus.isValid ? (
-								<span>✅</span>
-							) : (
-								<span>❌</span>
-							)}
+							{tokenStatus.isValid ? <span>✅</span> : <span>❌</span>}
 							<span
 								style={{ fontSize: '14px', color: tokenStatus.isValid ? '#10b981' : '#ef4444' }}
 							>
@@ -760,8 +755,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep2 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				🗄️
-				Risk Policies
+				🗄️ Risk Policies
 			</h3>
 
 			<div style={{ marginBottom: '24px' }}>
@@ -837,8 +831,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep3 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				📊
-				Risk Evaluation
+				📊 Risk Evaluation
 			</h3>
 
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '800px' }}>
@@ -1196,8 +1189,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep4 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				📈
-				Integration Patterns
+				📈 Integration Patterns
 			</h3>
 
 			<div style={{ display: 'grid', gap: '24px' }}>

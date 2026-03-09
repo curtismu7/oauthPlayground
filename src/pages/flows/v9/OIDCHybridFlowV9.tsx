@@ -1,6 +1,5 @@
 // src/pages/flows/v9/OIDCHybridFlowV9.tsx
 
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
@@ -26,9 +25,9 @@ import {
 	HybridFlowResponseTypeManager,
 	HybridFlowTokenProcessor,
 } from '../../../services/hybridFlowSharedService';
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';

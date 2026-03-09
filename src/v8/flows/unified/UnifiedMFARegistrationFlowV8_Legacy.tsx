@@ -22,7 +22,6 @@
  * />
  */
 
-
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
@@ -61,7 +60,6 @@ import { UnifiedRegistrationStepModern } from './components/UnifiedRegistrationS
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import { UnifiedSuccessStepModern } from './components/UnifiedSuccessStep.modern';
 import './UnifiedMFAFlow.css';
-import { logger } from '../../../utils/logger';
 
 const FLOW_KEY = 'mfa-flow-v8';
 
@@ -1774,9 +1772,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
 
-        // Modern registration step state (Phase 3: used by UnifiedRegistrationStepModern)
-        const [modernDeviceFields, setModernDeviceFields] = useState<Record<string, string>>({});
-        const [modernFieldErrors, setModernFieldErrors] = useState<Record<string, string>>({});
+	// Modern registration step state (Phase 3: used by UnifiedRegistrationStepModern)
+	const [modernDeviceFields, setModernDeviceFields] = useState<Record<string, string>>({});
+	const [modernFieldErrors, setModernFieldErrors] = useState<Record<string, string>>({});
 
 	// State for User Login Modal (OAuth authentication for User Flow)
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
@@ -2011,11 +2009,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					...mappedFields,
 				};
 
-				log.debug(
-					'UnifiedMFARegistrationFlowV8',
-					'Registering device with params:',
-					deviceParams
-				);
+				log.debug('UnifiedMFARegistrationFlowV8', 'Registering device with params:', deviceParams);
 
 				const result = await MFAServiceV8.registerDevice(deviceParams);
 				log.debug('UnifiedMFARegistrationFlowV8', 'Device registered:', result);
@@ -2302,10 +2296,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 			// Continue with registration
 			setTimeout(() => {
-				log.debug(
-					'UnifiedMFARegistrationFlowV8',
-					'Now executing performRegistrationWithToken...'
-				);
+				log.debug('UnifiedMFARegistrationFlowV8', 'Now executing performRegistrationWithToken...');
 				performRegistrationWithToken(props, pendingDeviceType, fields, flowType, userToken);
 			}, 100);
 		}
@@ -2382,119 +2373,129 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-         * Render Step 0: Registration form
-         * Uses modern design-system variant when mfa_modern_ui flag is enabled.
-         */
-        const renderStep0 = useCallback(
-                (props: MFAFlowBaseRenderProps) => {
-                        if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
-                                // Minimal adapter: maps form fields to API params and calls MFAServiceV8
-                                // The modern component handles setMfaState + nav.next() itself
-                                const registrationAdapter = {
-                                        async registerDevice(dType: string, fields: Record<string, string>) {
-                                                const { environmentId, username } = props.credentials;
+	 * Render Step 0: Registration form
+	 * Uses modern design-system variant when mfa_modern_ui flag is enabled.
+	 */
+	const renderStep0 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+				// Minimal adapter: maps form fields to API params and calls MFAServiceV8
+				// The modern component handles setMfaState + nav.next() itself
+				const registrationAdapter = {
+					async registerDevice(dType: string, fields: Record<string, string>) {
+						const { environmentId, username } = props.credentials;
 
-                                                // Map form field names to API field names
-                                                const mappedFields: Record<string, string> = { ...fields };
-                                                if (mappedFields.deviceName) {
-                                                        mappedFields.nickname = mappedFields.deviceName;
-                                                        mappedFields.name = mappedFields.deviceName;
-                                                        delete mappedFields.deviceName;
-                                                }
-                                                if (mappedFields.phoneNumber && mappedFields.countryCode) {
-                                                        const cc = mappedFields.countryCode.replace('+', '');
-                                                        const ph = mappedFields.phoneNumber.replace(/\D/g, '');
-                                                        mappedFields.phone = `+${cc}.${ph}`;
-                                                        delete mappedFields.phoneNumber;
-                                                        delete mappedFields.countryCode;
-                                                }
+						// Map form field names to API field names
+						const mappedFields: Record<string, string> = { ...fields };
+						if (mappedFields.deviceName) {
+							mappedFields.nickname = mappedFields.deviceName;
+							mappedFields.name = mappedFields.deviceName;
+							delete mappedFields.deviceName;
+						}
+						if (mappedFields.phoneNumber && mappedFields.countryCode) {
+							const cc = mappedFields.countryCode.replace('+', '');
+							const ph = mappedFields.phoneNumber.replace(/\D/g, '');
+							mappedFields.phone = `+${cc}.${ph}`;
+							delete mappedFields.phoneNumber;
+							delete mappedFields.countryCode;
+						}
 
-                                                const result = await MFAServiceV8.registerDevice({
-                                                        environmentId,
-                                                        username,
-                                                        type: dType as RegisterDeviceParams['type'],
-                                                        tokenType: 'worker' as const,
-                                                        status: 'ACTIVATION_REQUIRED' as const,
-                                                        ...mappedFields,
-                                                } as RegisterDeviceParams);
+						const result = await MFAServiceV8.registerDevice({
+							environmentId,
+							username,
+							type: dType as RegisterDeviceParams['type'],
+							tokenType: 'worker' as const,
+							status: 'ACTIVATION_REQUIRED' as const,
+							...mappedFields,
+						} as RegisterDeviceParams);
 
-                                                return result as { deviceId: string; status: string; [key: string]: unknown };
-                                        },
-                                };
+						return result as { deviceId: string; status: string; [key: string]: unknown };
+					},
+				};
 
-                                return (
-                                        <UnifiedRegistrationStepModern
-                                                {...props}
-                                                config={config}
-                                                controller={registrationAdapter}
-                                                deviceFields={modernDeviceFields}
-                                                setDeviceFields={setModernDeviceFields}
-                                                errors={modernFieldErrors}
-                                                validate={() => {
-                                                        const required = config.requiredFields || [];
-                                                        const newErrors: Record<string, string> = {};
-                                                        for (const field of required) {
-                                                                if (!modernDeviceFields[field]?.trim()) {
-                                                                        newErrors[field] = `${field} is required`;
-                                                                }
-                                                        }
-                                                        setModernFieldErrors(newErrors);
-                                                        return Object.keys(newErrors).length === 0;
-                                                }}
-                                        />
-                                );
-                        }
+				return (
+					<UnifiedRegistrationStepModern
+						{...props}
+						config={config}
+						controller={registrationAdapter}
+						deviceFields={modernDeviceFields}
+						setDeviceFields={setModernDeviceFields}
+						errors={modernFieldErrors}
+						validate={() => {
+							const required = config.requiredFields || [];
+							const newErrors: Record<string, string> = {};
+							for (const field of required) {
+								if (!modernDeviceFields[field]?.trim()) {
+									newErrors[field] = `${field} is required`;
+								}
+							}
+							setModernFieldErrors(newErrors);
+							return Object.keys(newErrors).length === 0;
+						}}
+					/>
+				);
+			}
 
-                        return (
-                                <UnifiedDeviceRegistrationForm
-                                        initialDeviceType={deviceType}
-                                        onSubmit={async (selectedDeviceType, fields, flowType) => {
-                                                await performRegistration(props, selectedDeviceType, fields, flowType);
-                                        }}
-                                        onCancel={() => {
-                                                log.debug(
-                                                        'UnifiedMFARegistrationFlowV8',
-                                                        'Registration cancelled - navigating to unified main page'
-                                                );
-                                                if (onCancel) {
-                                                        onCancel();
-                                                } else {
-                                                        // Default: navigate to unified MFA main page
-                                                        navigate('/v8/mfa-unified');
-                                                }
-                                        }}
-                                        isLoading={props.isLoading}
-                                        tokenStatus={_tokenStatus}
-                                        registrationError={registrationError}
-                                        onClearError={() => setRegistrationError(null)}
-                                        username={props.credentials?.username}
-                                />
-                        );
-                },
-                // biome-ignore lint/correctness/useExhaustiveDependencies: modernFieldErrors/setModernFieldErrors intentional
-                [deviceType, performRegistration, _tokenStatus, registrationError, onCancel, navigate, config, modernDeviceFields, setModernDeviceFields, modernFieldErrors, setModernFieldErrors]
-        );
+			return (
+				<UnifiedDeviceRegistrationForm
+					initialDeviceType={deviceType}
+					onSubmit={async (selectedDeviceType, fields, flowType) => {
+						await performRegistration(props, selectedDeviceType, fields, flowType);
+					}}
+					onCancel={() => {
+						log.debug(
+							'UnifiedMFARegistrationFlowV8',
+							'Registration cancelled - navigating to unified main page'
+						);
+						if (onCancel) {
+							onCancel();
+						} else {
+							// Default: navigate to unified MFA main page
+							navigate('/v8/mfa-unified');
+						}
+					}}
+					isLoading={props.isLoading}
+					tokenStatus={_tokenStatus}
+					registrationError={registrationError}
+					onClearError={() => setRegistrationError(null)}
+					username={props.credentials?.username}
+				/>
+			);
+		},
+		// biome-ignore lint/correctness/useExhaustiveDependencies: modernFieldErrors/setModernFieldErrors intentional
+		[
+			deviceType,
+			performRegistration,
+			_tokenStatus,
+			registrationError,
+			onCancel,
+			navigate,
+			config,
+			modernDeviceFields,
+			modernFieldErrors,
+		]
+	);
 
 	/**
 	 * Render Step 1: Activation
-         * Uses modern design-system variant when mfa_modern_ui flag is enabled.
-         */
-        const renderStep1 = useCallback(
-                (props: MFAFlowBaseRenderProps) => {
-                        if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
-                                return <UnifiedActivationStepModern {...props} config={config} />;
-                        }
-                        return <UnifiedActivationStep {...props} config={config} />;
-                },
-                [config]
-        );
+	 * Uses modern design-system variant when mfa_modern_ui flag is enabled.
+	 */
+	const renderStep1 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+				return <UnifiedActivationStepModern {...props} config={config} />;
+			}
+			return <UnifiedActivationStep {...props} config={config} />;
+		},
+		[config]
+	);
 
-        /**
-         * Render Step 2: API Documentation
-         */
-        const renderStep2 = useCallback(
-                (props: MFAFlowBaseRenderProps) => {
-                        return (
+	/**
+	 * Render Step 2: API Documentation
+	 */
+	const renderStep2 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return (
 				<MFADocumentationPageV8
 					deviceType={deviceType}
 					flowType="registration"
@@ -2531,17 +2532,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	/**
 	 * Render Step 3: Success
-         * Uses modern design-system variant when mfa_modern_ui flag is enabled.
-         */
-        const renderStep3 = useCallback(
-                (props: MFAFlowBaseRenderProps) => {
-                        if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
-                                return <UnifiedSuccessStepModern {...props} config={config} />;
-                        }
-                        return <UnifiedSuccessStep {...props} config={config} />;
-                },
-                [config]
-        );
+	 * Uses modern design-system variant when mfa_modern_ui flag is enabled.
+	 */
+	const renderStep3 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+				return <UnifiedSuccessStepModern {...props} config={config} />;
+			}
+			return <UnifiedSuccessStep {...props} config={config} />;
+		},
+		[config]
+	);
 
 	// ========================================================================
 	// STEP LABELS

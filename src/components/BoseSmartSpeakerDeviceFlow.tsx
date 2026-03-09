@@ -2,7 +2,6 @@
 // Bose Smart Speaker Style Device Authorization Flow Interface
 // Designed to look like actual Bose smart speakers
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -144,13 +143,13 @@ const ControlValue = styled.div<{ $status?: string }>`
   color: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'disconnected':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			default:
-				return 'V9_COLORS.TEXT.WHITE';
+				return '#ffffff';
 		}
 	}};
   display: flex;
@@ -162,7 +161,7 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
   box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -267,7 +266,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
@@ -378,9 +377,9 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 		{ label: 'Amazon Music', icon: '🎧', color: '#ff9900' },
 		{ label: 'Pandora', icon: '📻', color: '#005483' },
 		{ label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
-		{ label: 'Bose Music', icon: '🔊', color: 'V9_COLORS.TEXT.BLACK' },
+		{ label: 'Bose Music', icon: '🔊', color: '#000000' },
 		{ label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
-		{ label: 'Settings', icon: '⚙️', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' },
+		{ label: 'Settings', icon: '⚙️', color: '#6b7280' },
 	];
 
 	return (

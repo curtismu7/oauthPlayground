@@ -1,14 +1,13 @@
 // src/components/MobilePhoneDeviceFlow.tsx
 // Mobile Phone Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCheckCircle } from '@icons';
 
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
 const MobilePhoneContainer = styled.div`
@@ -244,7 +243,7 @@ const TouchButtons = styled.div`
 
 const TouchButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   background: ${(props) => (props.$variant === 'primary' ? '#0a84ff' : 'rgba(120, 120, 128, 0.24)')};
-  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : '#0a84ff')};
+  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#0a84ff')};
   border: none;
   border-radius: 0.75rem;
   padding: 0.875rem 1.25rem;

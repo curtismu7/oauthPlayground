@@ -12,9 +12,8 @@
  * />
  */
 
-
-import React, { useEffect, useRef, useState } from 'react';
 import { FiUser } from '@icons';
+import React, { useEffect, useRef, useState } from 'react';
 
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
 

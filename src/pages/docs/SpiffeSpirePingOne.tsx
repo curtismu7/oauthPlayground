@@ -1,12 +1,12 @@
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-
+import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -63,7 +63,7 @@ const SectionTitle = styled.h2`
 
 const InfoCard = styled(Card)`
 	margin-bottom: 1.5rem;
-	border-left: 4px solid ${(props) => props.$color || 'V9_COLORS.PRIMARY.BLUE'};
+	border-left: 4px solid ${(props) => props.$color || '#3b82f6'};
 `;
 
 const FeatureGrid = styled.div`
@@ -181,19 +181,19 @@ const Alert = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 	align-items: flex-start;
 	gap: 1rem;
 	background: ${(props) => {
-		if (props.$type === 'warning') return 'V9_COLORS.BG.WARNING';
-		if (props.$type === 'success') return 'V9_COLORS.BG.SUCCESS';
+		if (props.$type === 'warning') return '#fef3c7';
+		if (props.$type === 'success') return '#ecfdf5';
 		return '#dbeafe';
 	}};
 	border-left: 4px solid ${(props) => {
-		if (props.$type === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
-		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
-		return 'V9_COLORS.PRIMARY.BLUE';
+		if (props.$type === 'warning') return '#f59e0b';
+		if (props.$type === 'success') return '#10b981';
+		return '#3b82f6';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'warning') return 'V9_COLORS.PRIMARY.YELLOW_DARK';
-		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN_DARK';
-		return 'V9_COLORS.PRIMARY.BLUE_DARK';
+		if (props.$type === 'warning') return '#d97706';
+		if (props.$type === 'success') return '#059669';
+		return '#2563eb';
 	}};
 `;
 
@@ -254,7 +254,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								SPIFFE ID
@@ -286,7 +286,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								SVID (SPIFFE Verifiable Identity Document)
@@ -308,7 +308,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Trust Domain
@@ -349,7 +349,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								SPIRE Server
@@ -371,7 +371,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								SPIRE Agent
@@ -394,7 +394,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Workload API
@@ -460,7 +460,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 				</SectionTitle>
 				<InfoCard $color="#8b5cf6">
 					<CardHeader>
-						<h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+						<h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1f2937' }}>
 							How SPIFFE/SPIRE Works with PingOne SSO
 						</h3>
 					</CardHeader>
@@ -621,7 +621,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Short-Lived SVIDs
@@ -643,7 +643,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Principle of Least Privilege
@@ -665,7 +665,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Monitor and Audit
@@ -687,7 +687,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									fontSize: '1.25rem',
 									fontWeight: 600,
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Federation Security

@@ -1,8 +1,7 @@
-
+import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { FiLoader } from '@icons';
 
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -730,7 +729,11 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					<IssuerUrlDisplay>
 						{issuerUrl}
 						<CopyButton onClick={handleCopyIssuerUrl}>
-							{copied ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+							{copied ? (
+								<span style={{ fontSize: '12px' }}>✅</span>
+							) : (
+								<span style={{ fontSize: '12px' }}>📋</span>
+							)}
 							{copied ? 'Copied!' : 'Copy'}
 						</CopyButton>
 					</IssuerUrlDisplay>
@@ -803,7 +806,11 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 								borderColor: isApplying ? '#d97706' : '#059669',
 							}}
 						>
-							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <span style={{ fontSize: '16px' }}>✅</span>}
+							{isApplying ? (
+								<FiLoader className="animate-spin" size={16} />
+							) : (
+								<span style={{ fontSize: '16px' }}>✅</span>
+							)}
 							{isApplying ? 'Applying...' : isSaved ? 'Applied!' : 'Save & Apply'}
 						</SaveButton>
 					</ButtonGroup>

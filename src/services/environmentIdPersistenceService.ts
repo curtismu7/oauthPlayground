@@ -266,5 +266,6 @@ export const environmentIdPersistenceService = new EnvironmentIdPersistenceServi
 
 // Export for global access in development
 if (typeof window !== 'undefined') {
-	(window as Record<string, unknown>).environmentIdPersistenceService = environmentIdPersistenceService;
+	(window as Record<string, unknown>).environmentIdPersistenceService =
+		environmentIdPersistenceService;
 }

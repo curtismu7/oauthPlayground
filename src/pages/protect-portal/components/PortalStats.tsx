@@ -9,16 +9,15 @@
  * for low risk score scenarios before proceeding to success page.
  */
 
-
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type {
 	EducationalContent,
 	RiskEvaluationResult,
 	UserContext,
 } from '../types/protectPortal.types';
 import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -192,7 +191,7 @@ const PortalStats: React.FC<PortalStatsProps> = ({
 							<span>🔄</span>
 						</StatIcon>
 						<StatTitle>Risk Level</StatTitle>
-						<StatValue style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>LOW</StatValue>
+						<StatValue style={{ color: '#10b981' }}>LOW</StatValue>
 						<StatDescription>Your login attempt passed all security checks</StatDescription>
 					</StatCard>
 				</StatsGrid>

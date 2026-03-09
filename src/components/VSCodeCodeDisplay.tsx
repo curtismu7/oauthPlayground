@@ -1,6 +1,5 @@
 // src/components/VSCodeCodeDisplay.tsx
 
-
 import Prism from 'prismjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -20,8 +19,8 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // VS Code-inspired color scheme
 const vscodeColors = {
-	background: 'V9_COLORS.TEXT.WHITE',
-	text: 'V9_COLORS.TEXT.BLACK',
+	background: '#ffffff',
+	text: '#000000',
 	lineNumber: '#237893',
 	comment: '#6a9955',
 	keyword: 'V9_COLORS.TEXT.BLACK0ff',
@@ -30,8 +29,8 @@ const vscodeColors = {
 	function: '#795e26',
 	variable: '#001080',
 	type: '#267f99',
-	operator: 'V9_COLORS.TEXT.BLACK',
-	bracket: 'V9_COLORS.TEXT.BLACK',
+	operator: '#000000',
+	bracket: '#000000',
 };
 
 const Container = styled.div`
@@ -69,10 +68,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button<{ $active: boolean }>`
 	padding: 0.25rem 0.5rem;
-	border: 1px solid ${({ $active }) => ($active ? '#0366d6' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${({ $active }) => ($active ? '#0366d6' : '#e5e7eb')};
 	border-radius: 4px;
-	background: ${({ $active }) => ($active ? '#0366d6' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : '#24292e')};
+	background: ${({ $active }) => ($active ? '#0366d6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#24292e')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;

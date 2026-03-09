@@ -16,6 +16,7 @@ import {
 	TokenValidationCard,
 	ValidationStatus,
 } from '../components/token/TokenStyles';
+import { BootstrapIcon } from '../components/v9/BootstrapIcon';
 import {
 	createTokenError,
 	isTokenError,
@@ -24,8 +25,8 @@ import {
 } from '../types/oauthErrors';
 import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
-import { oauthStorage } from '../utils/storage';
 import { logger } from '../utils/logger';
+import { oauthStorage } from '../utils/storage';
 
 /**
  * Utility function to mask tokens for security
@@ -245,7 +246,14 @@ const TokenInspector: React.FC = () => {
 						<h3>Token Input</h3>
 					</CardHeader>
 					<CardBody>
-						<div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+						<div
+							style={{
+								marginBottom: '1rem',
+								display: 'flex',
+								gap: '0.5rem',
+								alignItems: 'flex-end',
+							}}
+						>
 							<div style={{ flex: 1 }}>
 								<textarea
 									value={maskInput ? maskToken(token) : token}
@@ -257,45 +265,43 @@ const TokenInspector: React.FC = () => {
 										padding: '0.5rem',
 										borderRadius: '4px',
 										border: '1px solid #ced4da',
-									fontFamily: 'monospace',
-									fontSize: '14px',
-								}}
-							/>
+										fontFamily: 'monospace',
+										fontSize: '14px',
+									}}
+								/>
+							</div>
+							<div style={{ display: 'flex', gap: '0.5rem' }}>
+								<ActionButton
+									onClick={() => {
+										const storedTokens = oauthStorage.getTokens();
+										if (storedTokens?.access_token) {
+											setToken(storedTokens.access_token);
+										}
+									}}
+									variant="secondary"
+								>
+									👁️ Load from Storage
+								</ActionButton>
+								<ActionButton onClick={() => setMaskInput(!maskInput)} variant="secondary">
+									{maskInput ? <span>👁️‍🗨️</span> : <span>👁️</span>}{' '}
+									{maskInput ? 'Show Token' : 'Hide Token'}
+								</ActionButton>
+								<ActionButton
+									onClick={() => {
+										setInspectionResult({
+											formattedToken: null,
+											validation: null,
+											claims: [],
+											error: null,
+										});
+										setToken('');
+									}}
+									variant="danger"
+								>
+									Clear
+								</ActionButton>
+							</div>
 						</div>
-						<div style={{ display: 'flex', gap: '0.5rem' }}>
-							<ActionButton
-								onClick={() => {
-									const storedTokens = oauthStorage.getTokens();
-									if (storedTokens?.access_token) {
-										setToken(storedTokens.access_token);
-									}
-								}}
-								variant="secondary"
-							>
-								👁️ Load from Storage
-							</ActionButton>
-							<ActionButton
-								onClick={() => setMaskInput(!maskInput)}
-								variant="secondary"
-							>
-								{maskInput ? <span>👁️‍🗨️</span> : <span>👁️</span>} {maskInput ? 'Show Token' : 'Hide Token'}
-							</ActionButton>
-							<ActionButton
-								onClick={() => {
-									setInspectionResult({
-										formattedToken: null,
-										validation: null,
-										claims: [],
-										error: null,
-									});
-									setToken('');
-								}}
-								variant="danger"
-							>
-								Clear
-							</ActionButton>
-						</div>
-					</div>
 					</CardBody>
 				</TokenPartCard>
 
@@ -361,13 +367,11 @@ const TokenInspector: React.FC = () => {
 									<ValidationStatus valid={validation.valid}>
 										{validation.valid ? (
 											<>
-												✅
-												<span>Token is valid</span>
+												✅<span>Token is valid</span>
 											</>
 										) : (
 											<>
-												❌
-												<span>Token is invalid</span>
+												❌<span>Token is invalid</span>
 											</>
 										)}
 									</ValidationStatus>

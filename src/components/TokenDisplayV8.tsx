@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -57,7 +56,11 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								{showIdToken ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+								{showIdToken ? (
+									<span style={{ fontSize: '14px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '14px' }}>👁️</span>
+								)}
 								{showIdToken ? 'Hide' : 'Show'}
 							</ButtonSpinner>
 							<ButtonSpinner
@@ -96,7 +99,11 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
-								{showAccessToken ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+								{showAccessToken ? (
+									<span style={{ fontSize: '14px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '14px' }}>👁️</span>
+								)}
 								{showAccessToken ? 'Hide' : 'Show'}
 							</ButtonSpinner>
 							<ButtonSpinner

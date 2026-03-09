@@ -1,7 +1,20 @@
 // src/pages/docs/OIDCOverviewV7.tsx
 // V7 OIDC Overview with Enhanced Architecture
 
-
+import {
+	FiArrowRight,
+	FiCode,
+	FiGitBranch,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiSettings,
+	FiSmartphone,
+	FiUsers,
+	FiZap,
+} from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -13,7 +26,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-import { FiArrowRight, FiCode, FiGitBranch, FiGlobe, FiInfo, FiKey, FiLock, FiRefreshCw, FiSettings, FiSmartphone, FiUsers, FiZap } from '@icons';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();
@@ -122,7 +134,7 @@ const SecurityLevel = styled.div<{ $level: number }>`
 	.star {
 		width: 1rem;
 		height: 1rem;
-		background: ${(props) => (props.$level >= 3 ? 'V9_COLORS.PRIMARY.GREEN' : props.$level >= 2 ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.RED')};
+		background: ${(props) => (props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444')};
 		clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 	}
 `;
@@ -227,7 +239,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'The most secure flow for applications that can securely store client credentials. Provides both access and ID tokens.',
 		icon: FiKey,
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		securityLevel: 5,
 		oauth21Status: 'included',
 		path: '/flows/oauth-authorization-code-v7',
@@ -241,7 +253,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Legacy flow for browser-based applications. Returns tokens directly from authorization endpoint.',
 		icon: FiZap,
-		color: 'V9_COLORS.PRIMARY.YELLOW',
+		color: '#f59e0b',
 		securityLevel: 2,
 		deprecated: true,
 		oauth21Status: 'deprecated',
@@ -310,7 +322,7 @@ const oidcFlows: OIDCFlow[] = [
 		title: 'Resource Owner Password',
 		description: 'Direct username/password authentication. Deprecated for most use cases.',
 		icon: FiLock,
-		color: 'V9_COLORS.PRIMARY.RED',
+		color: '#ef4444',
 		securityLevel: 2,
 		deprecated: true,
 		oauth21Status: 'deprecated',
@@ -325,7 +337,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Client Initiated Backchannel Authentication for decoupled authentication scenarios.',
 		icon: FiUsers,
-		color: 'V9_COLORS.PRIMARY.GREEN',
+		color: '#10b981',
 		securityLevel: 5,
 		oauth21Status: 'not-specified',
 		path: '/flows/ciba-v7',
@@ -339,7 +351,7 @@ const oidcFlows: OIDCFlow[] = [
 		description:
 			'Exchange tokens for different audiences or scopes (RFC 8693). Modern microservices pattern.',
 		icon: FiCode,
-		color: 'V9_COLORS.PRIMARY.YELLOW',
+		color: '#f59e0b',
 		securityLevel: 4,
 		oauth21Status: 'not-specified',
 		path: '/flows/token-exchange-v7',
@@ -450,7 +462,7 @@ const OIDCOverviewV7: React.FC = () => {
 								</div>
 								<h4>{concept.title}</h4>
 								<p>{concept.description}</p>
-								<div style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								<div style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
 									<strong>Examples:</strong> {concept.examples.join(', ')}
 								</div>
 							</ConceptCard>
@@ -478,22 +490,22 @@ const OIDCOverviewV7: React.FC = () => {
 										textTransform: 'uppercase',
 										backgroundColor:
 											flow.oauth21Status === 'included'
-												? 'V9_COLORS.BG.SUCCESS'
+												? '#ecfdf5'
 												: flow.oauth21Status === 'deprecated'
-													? 'V9_COLORS.BG.WARNING'
+													? '#fef3c7'
 													: '#f3f4f6',
 										color:
 											flow.oauth21Status === 'included'
-												? 'V9_COLORS.PRIMARY.GREEN'
+												? '#10b981'
 												: flow.oauth21Status === 'deprecated'
-													? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-													: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+													? '#d97706'
+													: '#6b7280',
 										border: `1px solid ${
 											flow.oauth21Status === 'included'
-												? 'V9_COLORS.BG.SUCCESS_BORDER'
+												? '#10b981'
 												: flow.oauth21Status === 'deprecated'
-													? 'V9_COLORS.BG.WARNING_BORDER'
-													: 'V9_COLORS.TEXT.GRAY_LIGHTER'
+													? '#f59e0b'
+													: '#e5e7eb'
 										}`,
 									}}
 								>
@@ -514,13 +526,13 @@ const OIDCOverviewV7: React.FC = () => {
 								{renderSecurityLevel(flow.securityLevel)}
 
 								<div style={{ marginBottom: '1rem' }}>
-									<strong style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', fontSize: '0.875rem' }}>Best For:</strong>
+									<strong style={{ color: '#1f2937', fontSize: '0.875rem' }}>Best For:</strong>
 									<ul
 										style={{
 											margin: '0.5rem 0',
 											paddingLeft: '1rem',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										{flow.bestFor.map((item, index) => (
@@ -539,8 +551,8 @@ const OIDCOverviewV7: React.FC = () => {
 										borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Click to explore</span>
-									<FiArrowRight style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
+									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Click to explore</span>
+									<FiArrowRight style={{ color: '#3b82f6' }} />
 								</div>
 							</FlowCard>
 						))}
@@ -591,9 +603,9 @@ const OIDCOverviewV7: React.FC = () => {
 										</td>
 										<td>
 											{flow.deprecated ? (
-												<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW', fontWeight: '600' }}>Deprecated</span>
+												<span style={{ color: '#f59e0b', fontWeight: '600' }}>Deprecated</span>
 											) : (
-												<span style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontWeight: '600' }}>Recommended</span>
+												<span style={{ color: '#10b981', fontWeight: '600' }}>Recommended</span>
 											)}
 										</td>
 									</tr>

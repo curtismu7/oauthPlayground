@@ -1,10 +1,9 @@
-
+import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
-import { FiLoader } from '@icons';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -22,23 +21,23 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' | 'warn
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
   border: 1px solid ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'warning':
 				return '#fed7aa';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -52,13 +51,13 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' | 'warn
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   margin-bottom: 1rem;
@@ -232,15 +231,11 @@ const ImplicitCallback: React.FC = () => {
 
 						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
 
-						log.auth(
-							'ImplicitCallback',
-							'V7 implicit grant received, returning to unified flow',
-							{
-								hasAccessToken: !!accessToken,
-								hasIdToken: !!idToken,
-								variant: isOIDCFlow ? 'oidc' : 'oauth',
-							}
-						);
+						log.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
+							hasAccessToken: !!accessToken,
+							hasIdToken: !!idToken,
+							variant: isOIDCFlow ? 'oidc' : 'oauth',
+						});
 
 						setTimeout(() => {
 							// Redirect to the unified V7 flow with fragment

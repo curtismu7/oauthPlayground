@@ -16,7 +16,6 @@
  * Use the mock ROPC flow instead.
  */
 
-
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -42,6 +41,7 @@ import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8
 // Create module-specific logger
 const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
+import { FiArrowRight } from '@icons';
 import { ButtonSpinner } from '@/components/ui';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 // Enhanced state management for token synchronization
@@ -58,7 +58,6 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
-import { FiArrowRight } from '@icons';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 

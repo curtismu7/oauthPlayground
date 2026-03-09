@@ -1,58 +1,20 @@
 // src/pages/AdvancedSecuritySettingsComparison.tsx
 // Comparison page showing both compact and full versions
 
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CompactAdvancedSecuritySettings from '../components/CompactAdvancedSecuritySettings';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: V9_COLORS.BG.GRAY_LIGHT;
+  background: #f8fafc;
+  padding: 0;
+`;
+
+const ContentArea = styled.div`
   padding: 2rem;
-`;
-
-const Header = styled.div`
-  max-width: 1400px;
-  margin: 0 auto 2rem auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const BackButton = styled(Link)`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #f9fafb;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
-`;
-
-const Subtitle = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1rem;
-  margin: 0.5rem 0 0 0;
 `;
 
 const ComparisonContainer = styled.div`
@@ -76,8 +38,8 @@ const VersionCard = styled.div`
 
 const VersionHeader = styled.div`
   padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -101,12 +63,12 @@ const VersionInfo = styled.div`
 const VersionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   margin: 0 0 0.25rem 0;
 `;
 
 const VersionDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: #6b7280;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
@@ -128,11 +90,11 @@ const UseCaseItem = styled.li`
   gap: 0.5rem;
   padding: 0.5rem 0;
   font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: #1f2937;
   
   &::before {
     content: '✓';
-    color: V9_COLORS.PRIMARY.GREEN;
+    color: #10b981;
     font-weight: bold;
   }
 `;
@@ -141,15 +103,15 @@ const InfoCard = styled.div`
   max-width: 1400px;
   margin: 0 auto 2rem auto;
   padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
 `;
 
 const InfoTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
+  color: #2563eb;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -157,7 +119,7 @@ const InfoTitle = styled.h3`
 `;
 
 const InfoText = styled.p`
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
+  color: #2563eb;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
@@ -166,16 +128,8 @@ const InfoText = styled.p`
 const AdvancedSecuritySettingsComparison: React.FC = () => {
 	return (
 		<PageContainer>
-			<Header>
-				<BackButton to="/">
-					<span style={{ fontSize: '16px' }}>⬅️</span>
-					Back to Dashboard
-				</BackButton>
-				<div>
-					<Title>Advanced Security Settings Comparison</Title>
-					<Subtitle>Compact vs Full Implementation</Subtitle>
-				</div>
-			</Header>
+			<FlowHeader flowId="advanced-security-settings-comparison" />
+			<ContentArea>
 
 			<InfoCard>
 				<InfoTitle>
@@ -193,7 +147,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 				{/* Compact Version */}
 				<VersionCard>
 					<VersionHeader>
-						<VersionIcon style={{ background: 'V9_COLORS.PRIMARY.BLUE' }}>
+						<VersionIcon style={{ background: '#3b82f6' }}>
 							<span style={{ fontSize: '20px' }}>📱</span>
 						</VersionIcon>
 						<VersionInfo>
@@ -220,7 +174,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 									margin: '0 0 1rem 0',
 									fontSize: '0.875rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Live Demo:
@@ -233,7 +187,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 				{/* Full Version */}
 				<VersionCard>
 					<VersionHeader>
-						<VersionIcon style={{ background: 'V9_COLORS.PRIMARY.GREEN' }}>
+						<VersionIcon style={{ background: '#10b981' }}>
 							<span style={{ fontSize: '20px' }}>🖥️</span>
 						</VersionIcon>
 						<VersionInfo>
@@ -260,7 +214,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 									margin: '0 0 1rem 0',
 									fontSize: '0.875rem',
 									fontWeight: '600',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Full Demo Available:
@@ -272,7 +226,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 									alignItems: 'center',
 									gap: '0.5rem',
 									padding: '0.75rem 1rem',
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									textDecoration: 'none',
 									borderRadius: '6px',
@@ -292,7 +246,7 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 			{/* Integration Examples */}
 			<div style={{ maxWidth: '1400px', margin: '2rem auto 0 auto' }}>
 				<h2
-					style={{ fontSize: '1.5rem', fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK', margin: '0 0 1rem 0' }}
+					style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', margin: '0 0 1rem 0' }}
 				>
 					Integration Examples
 				</h2>
@@ -308,27 +262,27 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 							background: 'white',
 							padding: '1rem',
 							borderRadius: '8px',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid #e5e7eb',
 						}}
 					>
 						<h3
 							style={{
 								fontSize: '1rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								margin: '0 0 0.5rem 0',
 							}}
 						>
 							Inside Flow Components
 						</h3>
-						<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: '0 0 1rem 0' }}>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0 0 1rem 0' }}>
 							The compact version can be embedded directly into flow components like
 							ComprehensiveCredentialsService.
 						</p>
 						<code
 							style={{
 								fontSize: '0.75rem',
-								background: 'V9_COLORS.BG.GRAY_MEDIUM',
+								background: '#f1f5f9',
 								padding: '0.5rem',
 								borderRadius: '4px',
 								display: 'block',
@@ -343,27 +297,27 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 							background: 'white',
 							padding: '1rem',
 							borderRadius: '8px',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: '1px solid #e5e7eb',
 						}}
 					>
 						<h3
 							style={{
 								fontSize: '1rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 								margin: '0 0 0.5rem 0',
 							}}
 						>
 							Standalone Configuration
 						</h3>
-						<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: '0 0 1rem 0' }}>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0 0 1rem 0' }}>
 							The full version provides comprehensive configuration with educational content and
 							advanced features.
 						</p>
 						<code
 							style={{
 								fontSize: '0.75rem',
-								background: 'V9_COLORS.BG.GRAY_MEDIUM',
+								background: '#f1f5f9',
 								padding: '0.5rem',
 								borderRadius: '4px',
 								display: 'block',
@@ -374,8 +328,8 @@ const AdvancedSecuritySettingsComparison: React.FC = () => {
 					</div>
 				</div>
 			</div>
+			</ContentArea>
 		</PageContainer>
 	);
 };
-
 export default AdvancedSecuritySettingsComparison;

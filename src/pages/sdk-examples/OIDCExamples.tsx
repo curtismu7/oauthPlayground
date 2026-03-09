@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const log = createModuleLogger('pages/sdk-examples/OIDCExamples.tsx');
+
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';

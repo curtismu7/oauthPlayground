@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -60,10 +59,10 @@ const TH = styled.th`
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : 'V9_COLORS.TEXT.WHITE')};
+  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : '#ffffff')};
 
   &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
   }
 `;
 
@@ -102,7 +101,7 @@ const ActionRow = styled.div`
 const Note = styled.p<{ $muted?: boolean }>`
   margin: 0.35rem 0 0;
   font-size: 0.8rem;
-  color: ${({ $muted }) => ($muted ? '#94a3b8' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${({ $muted }) => ($muted ? '#94a3b8' : '#6b7280')};
   display: flex;
   gap: 0.35rem;
   align-items: flex-start;
@@ -311,9 +310,7 @@ const FlowUriEducationModal: React.FC<{
 										<TR key={entry.flowType} $highlight={isFocus}>
 											<TD>
 												<UriCell>
-													<span style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-														{entry.title}
-													</span>
+													<span style={{ fontWeight: 600, color: '#1f2937' }}>{entry.title}</span>
 													<Tag>
 														<span style={{ fontSize: '12px' }}>❓</span>
 														{entry.flowType}
@@ -325,7 +322,7 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresRedirectUri ? (
 														<>
 															<UriRow>
-																<span style={{ fontSize: 14, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>❓</span>
+																<span style={{ fontSize: 14, color: '#2563eb' }}>❓</span>
 																{entry.redirectUri}
 															</UriRow>
 															<ActionRow>
@@ -350,8 +347,8 @@ const FlowUriEducationModal: React.FC<{
 																		<Button
 																			onClick={() => handleSelectBoth(entry)}
 																			style={{
-																				background: 'V9_COLORS.PRIMARY.BLUE',
-																				color: 'V9_COLORS.TEXT.WHITE',
+																				background: '#3b82f6',
+																				color: '#ffffff',
 																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
@@ -402,8 +399,8 @@ const FlowUriEducationModal: React.FC<{
 																		<Button
 																			onClick={() => handleSelectBoth(entry)}
 																			style={{
-																				background: 'V9_COLORS.PRIMARY.BLUE',
-																				color: 'V9_COLORS.TEXT.WHITE',
+																				background: '#3b82f6',
+																				color: '#ffffff',
 																				border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 																			}}
 																		>
@@ -434,9 +431,7 @@ const FlowUriEducationModal: React.FC<{
 															background: entry.requiresLogoutUri
 																? 'rgba(16, 185, 129, 0.14)'
 																: 'rgba(148, 163, 184, 0.16)',
-															color: entry.requiresLogoutUri
-																? '#047857'
-																: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+															color: entry.requiresLogoutUri ? '#047857' : '#6b7280',
 														}}
 													>
 														{entry.requiresLogoutUri ? 'Logout required' : 'Logout optional'}
@@ -446,14 +441,15 @@ const FlowUriEducationModal: React.FC<{
 															<Button
 																onClick={() => handleSelectBoth(entry)}
 																style={{
-																	background: 'V9_COLORS.PRIMARY.GREEN',
-																	color: 'V9_COLORS.TEXT.WHITE',
+																	background: '#10b981',
+																	color: '#ffffff',
 																	fontWeight: 600,
 																	padding: '0.5rem 1rem',
 																	fontSize: '0.8rem',
 																}}
 															>
-																<span style={{ fontSize: '14px' }}>✅</span> Apply Both URIs to Credentials
+																<span style={{ fontSize: '14px' }}>✅</span> Apply Both URIs to
+																Credentials
 															</Button>
 														</ActionRow>
 													)}

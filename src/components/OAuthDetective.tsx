@@ -4,12 +4,11 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-
+import { FiInfo } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiInfo } from '@icons';
 
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
@@ -178,15 +177,15 @@ const ParameterCard = styled.div<{
 	border-left: 4px solid ${({ status }) => {
 		switch (status) {
 			case 'standard':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'provider-specific':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'advanced':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'security':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 	padding: 1rem;
@@ -215,15 +214,15 @@ const StatusBadge = styled.span<{ status: string }>`
 	background: ${({ status }) => {
 		switch (status) {
 			case 'standard':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'provider-specific':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'advanced':
 				return '#1e3a8a';
 			case 'security':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
 	color: white;
@@ -594,7 +593,7 @@ const OAuthDetective: React.FC = () => {
 						</div>
 						<div
 							style={{
-								color: 'V9_COLORS.PRIMARY.BLUE_LIGHT',
+								color: '#60a5fa',
 								fontFamily: 'Monaco, monospace',
 								fontSize: '0.9rem',
 								wordBreak: 'break-all',
@@ -606,7 +605,7 @@ const OAuthDetective: React.FC = () => {
 
 					<div
 						style={{
-							color: 'V9_COLORS.BG.GRAY_MEDIUM',
+							color: '#f1f5f9',
 							fontSize: '1.1rem',
 							fontWeight: 600,
 							marginBottom: '1rem',
@@ -636,7 +635,7 @@ const OAuthDetective: React.FC = () => {
 											float: 'right',
 											background: 'transparent',
 											border: 'none',
-											color: 'V9_COLORS.PRIMARY.BLUE_LIGHT',
+											color: '#60a5fa',
 											cursor: 'pointer',
 											padding: '0.25rem',
 										}}

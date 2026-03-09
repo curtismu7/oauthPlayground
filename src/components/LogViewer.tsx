@@ -6,7 +6,6 @@
  * @since 2025-01-27
  */
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { LogEntry, LogLevel, logger } from '@/services/loggingService';
@@ -228,7 +227,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({ visible = true, onClose })
 		<Container>
 			<Header>
 				<div>
-					<h3 style={{ margin: 0, color: 'V9_COLORS.TEXT.WHITE' }}>Log Viewer</h3>
+					<h3 style={{ margin: 0, color: '#ffffff' }}>Log Viewer</h3>
 					<span style={{ fontSize: '11px', color: '#888' }}>
 						{filteredLogs.length} / {logs.length} entries
 					</span>

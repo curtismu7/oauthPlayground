@@ -264,7 +264,11 @@ export class FlowAnalyzer {
 	}
 
 	// Generate reasons for recommendation
-	private generateReasons(_flowType: string, metrics: FlowMetrics, flowData: Record<string, unknown>): string[] {
+	private generateReasons(
+		_flowType: string,
+		metrics: FlowMetrics,
+		flowData: Record<string, unknown>
+	): string[] {
 		const reasons: string[] = [];
 
 		if (metrics.security >= 8) {
@@ -325,7 +329,10 @@ export class FlowAnalyzer {
 	}
 
 	// Generate comparison summary
-	private generateComparisonSummary(flows: Record<string, unknown>[], bestFlows: Record<string, unknown>): string {
+	private generateComparisonSummary(
+		flows: Record<string, unknown>[],
+		bestFlows: Record<string, unknown>
+	): string {
 		const totalFlows = flows.length;
 		const bestOverallFlow = flows.find((f) => f.type === bestFlows.bestOverall);
 
@@ -422,7 +429,9 @@ export const compareFlows = (flowTypes: string[]): FlowComparisonResult => {
 	return flowAnalyzer.compareFlows(flowTypes);
 };
 
-export const getFlowRecommendations = (requirements: Record<string, unknown>): FlowRecommendation[] => {
+export const getFlowRecommendations = (
+	requirements: Record<string, unknown>
+): FlowRecommendation[] => {
 	return flowAnalyzer.getRecommendations(requirements);
 };
 

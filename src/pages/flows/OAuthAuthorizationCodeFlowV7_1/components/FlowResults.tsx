@@ -1,12 +1,11 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowResults.tsx
 // V7.1 Flow Results - Display tokens, user info, and flow results
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
-import { logger } from '../../../../utils/logger';
 
 interface FlowResultsProps {
 	tokens: TokenResponse | null;

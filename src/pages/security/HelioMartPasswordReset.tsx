@@ -2,7 +2,6 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
-
 import Prism from 'prismjs';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -14,6 +13,7 @@ import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
@@ -23,7 +23,6 @@ import { PageLayoutService } from '../../services/pageLayoutService';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
 // Create layout components at module level so styled.header is never created inside a hook.
 // styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.
@@ -35,6 +34,7 @@ const _helioMartLayout = PageLayoutService.createPageLayout({
 	responsive: true,
 });
 
+import { FiAlertCircle, FiCheckCircle, FiLock } from '@icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	changePassword,
@@ -51,7 +51,6 @@ import {
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { trackedFetch } from '../../utils/trackedFetch';
-import { FiAlertCircle, FiCheckCircle, FiLock } from '@icons';
 
 // Type for PingOne user objects
 interface PingOneUserName {
@@ -1026,16 +1025,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1202,16 +1197,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1401,16 +1392,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1542,16 +1529,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1668,16 +1651,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1794,16 +1773,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1935,16 +1910,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2076,16 +2047,12 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			log.error(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ❌ Missing environment ID:',
-				{
-					sharedEnvId:
-						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvironmentId || '(empty)',
-				}
-			);
+			log.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -4524,12 +4491,12 @@ export { changePassword, handleChangePassword };`;
 									for user authentication. Please configure your PingOne authorization code client
 									credentials to continue.
 								</p>
-								<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
+								<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 									You'll need:
 								</p>
 								<ul
 									style={{
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										fontSize: '0.875rem',
 										lineHeight: '1.8',
 										marginLeft: '1.5rem',

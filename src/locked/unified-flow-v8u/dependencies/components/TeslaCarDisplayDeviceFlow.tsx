@@ -1,7 +1,7 @@
 // src/components/TeslaCarDisplayDeviceFlow.tsx
 // Tesla Car Display Style Device Authorization Flow Interface
 
-
+import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,8 +10,6 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheckCircle } from '@icons';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`
