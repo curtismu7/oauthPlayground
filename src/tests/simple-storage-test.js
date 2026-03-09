@@ -1,5 +1,5 @@
 // src/tests/simple-storage-test.js
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 // Simple test for unified storage service functionality
 
