@@ -52,7 +52,8 @@ export const FIDO2SampleApp: React.FC = () => {
 	const handleDeleteDevice = async (deviceId: string) => {
 		if (!sdk || !userId) return;
 
-		if (!confirm('Are you sure you want to delete this device?')) return;
+// eslint-disable-next-line no-alert
+                if (!confirm('Are you sure you want to delete this device?')) return;
 
 		try {
 			await sdk.deleteDevice(userId, deviceId);

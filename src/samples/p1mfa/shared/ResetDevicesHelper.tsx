@@ -30,6 +30,7 @@ export const ResetDevicesHelper: React.FC<ResetDevicesHelperProps> = ({
 		if (!sdk || !userId) return;
 
 		if (
+			// eslint-disable-next-line no-alert
 			!confirm(
 				`Are you sure you want to delete ALL MFA devices for user ${userId}? This action cannot be undone.`
 			)

@@ -740,7 +740,14 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				}}
 				onClick={onClose}
 				onKeyUp={(e) => e.key === 'Enter' && onClose()}
-				onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+					if (e.key === 'Enter') {
+						e.preventDefault();
+					}
+				}}
 				aria-label="Close modal"
 			/>
 
@@ -763,8 +770,16 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				}}
 				onClick={(e) => e.stopPropagation()}
 				onKeyUp={(e) => e.key === 'Escape' && onClose()}
-				onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+					if (e.key === 'Enter') {
+						e.preventDefault();
+					}
+				}}
 				tabIndex={-1}
+				role="dialog"
 				aria-modal="true"
 				aria-labelledby="modal-title"
 			>

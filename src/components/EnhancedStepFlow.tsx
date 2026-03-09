@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import '../styles/enhanced-flow.css';
 import { FiRefreshCw } from '@icons';
+import { logger } from '../utils/logger';
 
 // Enhanced step interface with more options
 export interface EnhancedFlowStep {
@@ -407,10 +408,10 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 					setCurrentStepIndex(state.currentStepIndex || 0);
 					setStepResults(state.stepResults || {});
 					setStepHistory(state.stepHistory || []);
-					log.info('EnhancedStepFlow', 'Loaded persisted state', state);
+					logger.info('EnhancedStepFlow', 'Loaded persisted state', state);
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'EnhancedStepFlow',
 					'Failed to load persisted state',
 					error instanceof Error ? error.message : String(error),
@@ -431,9 +432,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 					timestamp: Date.now(),
 				};
 				localStorage.setItem(persistKey, JSON.stringify(state));
-				log.debug('EnhancedStepFlow', 'Saved state to localStorage', state);
+				logger.debug('EnhancedStepFlow', 'Saved state to localStorage', state);
 			} catch (error) {
-				log.error(
+				logger.error(
 					'EnhancedStepFlow',
 					'Failed to save state',
 					error instanceof Error ? error.message : String(error),
@@ -458,7 +459,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			const startTime = Date.now();
 
 			try {
-				log.info('EnhancedStepFlow', `Executing step: ${stepId}`, `step: ${step.title}`);
+				logger.info('EnhancedStepFlow', `Executing step: ${stepId}`, `step: ${step.title}`);
 
 				const result = await step.execute();
 				const duration = Date.now() - startTime;
@@ -485,7 +486,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				// Notify parent
 				onStepComplete?.(stepId, result);
 
-				log.success(
+				logger.success(
 					'EnhancedStepFlow',
 					`Step completed: ${stepId}`,
 					`result: ${JSON.stringify(result)}, duration: ${duration}ms`
@@ -516,7 +517,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				// Notify parent
 				onStepError?.(stepId, errorMessage);
 
-				log.error(
+				logger.error(
 					'EnhancedStepFlow',
 					`Step failed: ${stepId}`,
 					error instanceof Error ? error.message : String(error),
@@ -538,7 +539,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				(allowStepJumping || Math.abs(index - currentStepIndex) <= 1)
 			) {
 				setCurrentStepIndex(index);
-				log.debug('EnhancedStepFlow', `Navigated to step ${index}`, `stepId: ${steps[index]?.id}`);
+				logger.debug('EnhancedStepFlow', `Navigated to step ${index}`, `stepId: ${steps[index]?.id}`);
 			}
 		},
 		[steps, currentStepIndex, allowStepJumping]
@@ -565,7 +566,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 		if (persistKey) {
 			localStorage.removeItem(persistKey);
 		}
-		log.info('EnhancedStepFlow', 'Flow reset');
+		logger.info('EnhancedStepFlow', 'Flow reset');
 	}, [persistKey]);
 
 	// Copy code to clipboard
@@ -574,9 +575,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 			await navigator.clipboard.writeText(code);
 			setCopiedCode(stepId);
 			setTimeout(() => setCopiedCode(null), 2000);
-			log.debug('EnhancedStepFlow', 'Code copied to clipboard', `stepId: ${stepId}`);
+			logger.debug('EnhancedStepFlow', 'Code copied to clipboard', `stepId: ${stepId}`);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'EnhancedStepFlow',
 				'Failed to copy code',
 				error instanceof Error ? error.message : String(error),
@@ -623,7 +624,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 	useEffect(() => {
 		if (isFlowComplete) {
 			onFlowComplete?.(stepResults);
-			log.success('EnhancedStepFlow', 'Flow completed', `results: ${JSON.stringify(stepResults)}`);
+			logger.success('EnhancedStepFlow', 'Flow completed', `results: ${JSON.stringify(stepResults)}`);
 		}
 	}, [isFlowComplete, stepResults, onFlowComplete]);
 
