@@ -18,6 +18,7 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { OAuthErrorHandlingService } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscoveryService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
@@ -44,14 +45,14 @@ const StepTitle = styled.h2`
 	font-size: 24px;
 	font-weight: 600;
 	margin-bottom: 16px;
-	color: V9_COLORS.TEXT.BLACK;
+	color: ${V9_COLORS.TEXT.BLACK};
 	display: flex;
 	align-items: center;
 	gap: 12px;
 `;
 
 const StyledHelperText = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 14px;
 	line-height: 1.6;
 	margin-bottom: 20px;
@@ -65,7 +66,7 @@ const TokenSection = styled.div`
 
 const StyledSectionDivider = styled.div`
 	height: 1px;
-	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	margin: 24px 0;
 `;
 
@@ -444,7 +445,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 				<div
 					style={{
 						background: '#fef3c7',
-						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+						border: `1px solid ${V9_COLORS.PRIMARY.YELLOW}`,
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
 						marginBottom: '1.5rem',
@@ -463,7 +464,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 					<div
 						style={{
 							background: '#ffffff',
-							border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+							border: '1px solid #fbbf24',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontFamily: 'monospace',
@@ -512,7 +513,7 @@ getApplications('${envId}', '${accessToken || '<worker-token>'}')
 					<div
 						style={{
 							background: '#ffffff',
-							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+							border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontFamily: 'monospace',
