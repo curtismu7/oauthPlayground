@@ -24,7 +24,7 @@
 
 import { v4ToastManager } from '@/utils/v4ToastMessages';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 

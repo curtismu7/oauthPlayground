@@ -71,7 +71,7 @@ export interface WorkerTokenInfo {
 // APP DISCOVERY SERVICE CLASS
 // ============================================================================
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 // DualStorageServiceV8 import removed - no longer needed for worker token storage
 // import { DualStorageServiceV8 } from './dualStorageServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';

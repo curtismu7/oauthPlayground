@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file mfaEducationServiceV8.ts
  * @module v8/services
  * @description Educational content service for PingOne MFA Flow

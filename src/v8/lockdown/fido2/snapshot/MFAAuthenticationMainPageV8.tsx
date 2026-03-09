@@ -53,7 +53,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,

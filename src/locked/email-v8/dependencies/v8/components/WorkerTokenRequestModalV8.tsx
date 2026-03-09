@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 interface WorkerTokenRequestModalV8Props {

@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVerify } from 'jose';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { IdTokenPayload, UserInfo } from '../types/oauth';
 
 // Client logging function for server.log

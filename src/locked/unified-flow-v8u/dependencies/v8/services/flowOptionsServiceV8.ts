@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file flowOptionsServiceV8.ts
  * @module v8/services
  * @description Flow-aware options service - determines which OAuth/OIDC options are valid for each flow

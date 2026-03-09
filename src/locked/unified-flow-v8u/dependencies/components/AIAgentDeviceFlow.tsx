@@ -5,7 +5,7 @@ import { FiActivity, FiCpu } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import {
 	DeviceFlowState,
 	type DeviceTokenResponse,
