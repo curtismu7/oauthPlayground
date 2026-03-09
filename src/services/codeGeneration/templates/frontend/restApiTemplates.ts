@@ -606,7 +606,7 @@ verifyMfaCode();`;
 		return `// REST API (Axios) - Device Registration
 import axios from 'axios';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * Register new MFA device
  */

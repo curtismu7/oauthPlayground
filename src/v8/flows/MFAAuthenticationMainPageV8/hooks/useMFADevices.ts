@@ -17,7 +17,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔐 useMFADevices]';
 
 export interface UnavailableDevice {

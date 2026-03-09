@@ -5,7 +5,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 interface Props {
 	children: ReactNode;
 	fallback?: ReactNode;

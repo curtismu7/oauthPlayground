@@ -27,7 +27,7 @@ import CorporateNavigation from './Shared/CorporateNavigation';
 import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

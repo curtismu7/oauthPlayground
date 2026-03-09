@@ -16,6 +16,8 @@
  * const authUrl = service.generateAuthorizationUrl(credentials);
  */
 
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 
 export interface ImplicitFlowCredentials {
@@ -111,7 +113,6 @@ export class ImplicitFlowIntegrationServiceV8 {
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
 
-import { logger } from '../utils/logger';
 				// Determine signing algorithm (default to HS256, use RS256 if private key is available)
 				const algorithm = credentials.privateKey ? 'RS256' : 'HS256';
 

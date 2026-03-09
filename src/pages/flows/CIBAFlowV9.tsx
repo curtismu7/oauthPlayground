@@ -44,7 +44,7 @@ import {
 } from '@/v8/services/cibaServiceV8Enhanced';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';
 

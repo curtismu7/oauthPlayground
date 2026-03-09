@@ -1,5 +1,4 @@
 import { logger } from '../../../utils/logger';
-import { logger } from '../../utils/logger';
 // DaVinci Todo Service interfaces and types
 export interface DavinciTodo {
 	id: string;

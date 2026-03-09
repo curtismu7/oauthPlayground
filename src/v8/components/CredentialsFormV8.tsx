@@ -43,7 +43,8 @@ import {
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 
@@ -639,7 +640,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							<div className="section-content">
 								<div className="form-group">
 									<div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-										<label style={{ margin: 0 }}>
+										<label htmlFor="redirect-uri" style={{ margin: 0 }}>
 											Redirect URI <span className="required">*</span>
 										</label>
 										<TooltipV8
@@ -648,6 +649,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 										/>
 									</div>
 									<input
+										id="redirect-uri"
 										type="text"
 										placeholder={RedirectUriServiceV8.getRedirectUriPlaceholder(flowKey)}
 										value={credentials.redirectUri || ''}
@@ -731,7 +733,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							<div className="section-content">
 								<div className="form-group">
 									<div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-										<label style={{ margin: 0 }}>
+										<label htmlFor="post-logout-redirect-uri" style={{ margin: 0 }}>
 											Post-Logout Redirect URI <span className="optional">(optional)</span>
 										</label>
 										<TooltipV8
@@ -740,6 +742,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 										/>
 									</div>
 									<input
+										id="post-logout-redirect-uri"
 										type="text"
 										placeholder={RedirectUriServiceV8.getPostLogoutRedirectUriPlaceholder(flowKey)}
 										value={credentials.postLogoutRedirectUri || ''}
@@ -770,7 +773,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							<div className="section-content">
 								<div className="form-group">
 									<div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-										<label style={{ margin: 0 }}>
+										<label htmlFor="scopes" style={{ margin: 0 }}>
 											Scopes <span className="required">*</span>
 										</label>
 										<TooltipV8
@@ -779,6 +782,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 										/>
 									</div>
 									<input
+										id="scopes"
 										type="text"
 										placeholder="openid profile email"
 										value={credentials.scopes || ''}

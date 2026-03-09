@@ -232,7 +232,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 				tabIndex={0}
 				aria-label="Close modal"
 			/>
-			<ModalContainer 
+			<ModalContainer
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="education-modal-title"

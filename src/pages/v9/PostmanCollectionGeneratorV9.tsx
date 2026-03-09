@@ -16,7 +16,7 @@ import { BootstrapIcon } from '../../components/v9/BootstrapIcon';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	COLLECTION_VERSION,
 	downloadPostmanCollection,

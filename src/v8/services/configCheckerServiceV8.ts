@@ -20,6 +20,8 @@
  * const comparison = ConfigCheckerServiceV8.compareConfigs(userConfig, pingOneConfig);
  */
 
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔍 CONFIG-CHECKER-V8]';
 
 // ============================================================================
@@ -136,7 +138,6 @@ export class ConfigCheckerServiceV8 {
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-import { logger } from '../utils/logger';
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',

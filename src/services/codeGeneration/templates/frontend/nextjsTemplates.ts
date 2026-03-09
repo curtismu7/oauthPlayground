@@ -607,7 +607,7 @@ export default async function handler(
 
 import { useState } from 'react';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 type DeviceType = 'SMS' | 'EMAIL' | 'TOTP';
 
 export const RegisterDeviceForm = ({ 

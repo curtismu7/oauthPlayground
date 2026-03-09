@@ -14,10 +14,10 @@ import {
 	logCredentialsStatus,
 	validateTestCredentials,
 } from '../../config/testCredentials';
+import { logger } from '../../../utils/logger';
 import { ImplicitFlowIntegrationServiceV8 } from '../implicitFlowIntegrationServiceV8';
 import { OAuthIntegrationServiceV8 } from '../oauthIntegrationServiceV8';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🧪 REAL-PINGONE-TEST]';
 
 describe('Real PingOne API Testing', () => {

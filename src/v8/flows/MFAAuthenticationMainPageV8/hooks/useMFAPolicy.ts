@@ -17,9 +17,9 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../../../utils/logger';
 import type { DeviceAuthenticationPolicy, DeviceType } from '../../shared/MFATypes';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useMFAPolicy]';
 const FLOW_KEY = 'mfa-flow-v8';
 

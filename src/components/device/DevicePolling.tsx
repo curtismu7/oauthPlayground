@@ -7,7 +7,7 @@ import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 interface DevicePollingProps {
 	deviceCode: string;
 	clientId: string;

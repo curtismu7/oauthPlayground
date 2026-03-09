@@ -23,9 +23,9 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { logger } from '../../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
 
 export interface AuthenticationCredentials {
@@ -302,9 +302,7 @@ export class MfaAuthenticationServiceV8 {
 			// Check if response has content
 			const contentLength = response.headers.get('content-length');
 			if (contentLength === '0') {
-				logger.error(
-					`${MODULE_TAG} Empty response received from initialize device authentication`
-				);
+				logger.error(`${MODULE_TAG} Empty response received from initialize device authentication`);
 				throw new Error('Empty response received from server');
 			}
 

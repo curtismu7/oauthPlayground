@@ -17,7 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface UseMFAPoliciesConfig {
 	/** Environment ID for policy queries */
 	environmentId?: string;

@@ -21,9 +21,9 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { TooltipV8 } from './TooltipV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 REFRESH-TOKEN-TYPE-DROPDOWN-V8]';
 
 export type RefreshTokenType = 'JWT' | 'OPAQUE';

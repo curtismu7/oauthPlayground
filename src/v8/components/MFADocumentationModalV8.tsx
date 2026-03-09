@@ -12,7 +12,7 @@ import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import { showGlobalError, showGlobalWarning } from '../../contexts/NotificationSystem';
 import type { DeviceType } from '../flows/shared/MFATypes';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	downloadAsMarkdown,
 	downloadAsPDF,

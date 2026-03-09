@@ -8,7 +8,8 @@
 
 import React from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📱 MFA-DEVICE-SELECTOR-V8]';
 
 interface Device {

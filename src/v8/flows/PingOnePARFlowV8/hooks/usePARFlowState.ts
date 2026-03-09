@@ -3,8 +3,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
+import { logger } from '../../../../utils/logger';
 import { PAR_FLOW_CONSTANTS } from '../constants/parFlowConstants';
-import { logger } from '../../../utils/logger';
 import type {
 	FlowCredentials,
 	FlowVariant,

@@ -2,7 +2,7 @@
 // Integration tests for Password Reset Service with backend
 
 import { beforeAll, describe, expect, it } from 'vitest';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	checkPassword,
 	readPasswordState,

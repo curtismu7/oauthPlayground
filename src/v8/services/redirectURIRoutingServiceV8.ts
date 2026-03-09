@@ -7,7 +7,8 @@
 
 import { useCallback } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Redirect URI routing table based on inventory documentation
 interface RedirectURIRouteEntry {
 	redirectUri: string;
