@@ -61,7 +61,7 @@ const authUrl = \`\${config.baseUrl}/\${config.environmentId}/as/authorize?\` +
   \`scope=\${config.scopes.join(' ')}&\` +
   \`state=random-state-value\`;
 
-console.log('Visit this URL:', authUrl);`,
+logger.info('Visit this URL:', authUrl);`,
 		dependencies: ['node-fetch'],
 	},
 	{
@@ -191,7 +191,7 @@ class OAuthClient {
 // Usage
 const oauthClient = new OAuthClient(config);
 const authUrl = oauthClient.generateAuthUrl();
-console.log('Visit this URL:', authUrl);`,
+logger.info('Visit this URL:', authUrl);`,
 		dependencies: ['axios', '@types/node'],
 	},
 ];
@@ -533,10 +533,10 @@ async function startOIDCLogin() {
     const result = await pingOne.login();
     
     if (result.success) {
-      console.log('Login successful!');
-      console.log('Access Token:', result.tokens?.accessToken);
-      console.log('ID Token:', result.tokens?.idToken);
-      console.log('User Info:', result.user);
+      logger.info('Login successful!');
+      logger.info('Access Token:', result.tokens?.accessToken);
+      logger.info('ID Token:', result.tokens?.idToken);
+      logger.info('User Info:', result.user);
       
       return {
         success: true,
@@ -557,7 +557,7 @@ async function startOIDCLogin() {
 async function logout() {
   try {
     await pingOne.logout();
-    console.log('Logout successful');
+    logger.info('Logout successful');
   } catch (error) {
     logger.error('Logout failed:', error);
     throw error;
@@ -588,7 +588,7 @@ async function completeOIDCLogin() {
   try {
     // Check if already authenticated
     if (isAuthenticated()) {
-      console.log('User already authenticated');
+      logger.info('User already authenticated');
       const user = await getCurrentUser();
       return { success: true, user };
     }
@@ -626,9 +626,9 @@ async function startAuthJourney() {
     const journey = await pingOne.startJourney();
     
     if (journey.success) {
-      console.log('Journey started successfully');
-      console.log('Journey ID:', journey.journeyId);
-      console.log('Next Step:', journey.nextStep);
+      logger.info('Journey started successfully');
+      logger.info('Journey ID:', journey.journeyId);
+      logger.info('Next Step:', journey.nextStep);
       
       return journey;
     } else {
@@ -647,9 +647,9 @@ async function handleJourneyStep(stepData: any) {
     const result = await pingOne.handleJourneyStep(stepData);
     
     if (result.success) {
-      console.log('Step completed successfully');
-      console.log('Next Step:', result.nextStep);
-      console.log('Tokens:', result.tokens);
+      logger.info('Step completed successfully');
+      logger.info('Next Step:', result.nextStep);
+      logger.info('Tokens:', result.tokens);
       
       return result;
     } else {
@@ -689,7 +689,7 @@ async function completeAuthJourney() {
 async function getJourneyStatus(journeyId: string) {
   try {
     const status = await pingOne.getJourneyStatus(journeyId);
-    console.log('Journey Status:', status);
+    logger.info('Journey Status:', status);
     return status;
   } catch (error) {
     logger.error('Failed to get journey status:', error);
@@ -749,8 +749,8 @@ async function startJourney(widget: any) {
     const result = await widget.startJourney();
     
     if (result.success) {
-      console.log('Journey started successfully');
-      console.log('Journey ID:', result.journeyId);
+      logger.info('Journey started successfully');
+      logger.info('Journey ID:', result.journeyId);
       return result;
     } else {
       logger.error('Failed to start journey:', result.error);
@@ -766,17 +766,17 @@ async function startJourney(widget: any) {
 function subscribeToEvents(widget: any) {
   // Step 5: Subscribe to widget events
   widget.on('journey:start', (data: any) => {
-    console.log('Journey started:', data);
+    logger.info('Journey started:', data);
   });
   
   widget.on('journey:step', (data: any) => {
-    console.log('Journey step:', data);
+    logger.info('Journey step:', data);
   });
   
   widget.on('journey:complete', (data: any) => {
-    console.log('Journey completed:', data);
-    console.log('Tokens:', data.tokens);
-    console.log('User:', data.user);
+    logger.info('Journey completed:', data);
+    logger.info('Tokens:', data.tokens);
+    logger.info('User:', data.user);
   });
   
   widget.on('journey:error', (error: any) => {
@@ -860,7 +860,7 @@ function generateRARAuthUrl() {
 
 // Example usage
 const authUrl = generateRARAuthUrl();
-console.log('RAR Authorization URL:', authUrl);`,
+logger.info('RAR Authorization URL:', authUrl);`,
 		description: 'Generate RAR authorization URL with granular permissions',
 		dependencies: ['crypto'],
 	},
@@ -929,7 +929,7 @@ const config: RARConfig = {
 };
 
 const authUrl = generateRARAuthUrl(config);
-console.log('RAR Authorization URL:', authUrl);`,
+logger.info('RAR Authorization URL:', authUrl);`,
 		description: 'TypeScript implementation of RAR authorization request',
 		dependencies: ['@types/node'],
 	},
@@ -1151,9 +1151,9 @@ async function pushAuthorizationRequest() {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('PAR successful!');
-      console.log('Request URI:', result.request_uri);
-      console.log('Expires in:', result.expires_in, 'seconds');
+      logger.info('PAR successful!');
+      logger.info('Request URI:', result.request_uri);
+      logger.info('Expires in:', result.expires_in, 'seconds');
       
       // Store for later use
       return {
@@ -1189,7 +1189,7 @@ async function completePARFlow() {
     
     // Step 2: Generate authorization URL
     const authUrl = generateAuthUrlWithPAR(parResult.request_uri);
-    console.log('Authorization URL:', authUrl);
+    logger.info('Authorization URL:', authUrl);
     
     return {
       authUrl,
@@ -1210,6 +1210,7 @@ async function completePARFlow() {
 		code: `// PAR (Pushed Authorization Requests) - TypeScript
 import { randomBytes, createHash } from 'crypto';
 
+import { logger } from '../utils/logger';
 interface PARConfig {
   baseUrl: string;
   environmentId: string;
@@ -1263,9 +1264,9 @@ async function pushAuthorizationRequest(config: PARConfig): Promise<PARResult> {
     const result: PARResponse = await response.json();
     
     if (response.ok) {
-      console.log('PAR successful!');
-      console.log('Request URI:', result.request_uri);
-      console.log('Expires in:', result.expires_in, 'seconds');
+      logger.info('PAR successful!');
+      logger.info('Request URI:', result.request_uri);
+      logger.info('Expires in:', result.expires_in, 'seconds');
       
       return {
         request_uri: result.request_uri,
@@ -1306,7 +1307,7 @@ async function completePARFlow() {
   try {
     const parResult = await pushAuthorizationRequest(config);
     const authUrl = generateAuthUrlWithPAR(config, parResult.request_uri);
-    console.log('Authorization URL:', authUrl);
+    logger.info('Authorization URL:', authUrl);
     return { authUrl, codeVerifier: parResult.code_verifier };
   } catch (error) {
     logger.error('PAR flow failed:', error);
@@ -1853,7 +1854,7 @@ async function getUserProfile() {
     }
     
     const userInfo = await response.json();
-    console.log('User Info:', userInfo);
+    logger.info('User Info:', userInfo);
     return userInfo;
   } catch (error) {
     logger.error('Error fetching user profile:', error);
@@ -1872,7 +1873,7 @@ async function callProtectedAPI() {
     });
     
     const data = await response.json();
-    console.log('Protected Resource Data:', data);
+    logger.info('Protected Resource Data:', data);
     return data;
   } catch (error) {
     logger.error('Error calling protected API:', error);
@@ -1920,7 +1921,7 @@ async function getUserProfile(): Promise<UserInfo | null> {
     }
     
     const userInfo: UserInfo = await response.json();
-    console.log('User Info:', userInfo);
+    logger.info('User Info:', userInfo);
     return userInfo;
   } catch (error) {
     logger.error('Error fetching user profile:', error);

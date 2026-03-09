@@ -25,6 +25,7 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
 
+import { logger } from '../../utils/logger';
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
 	deviceTypeLabel: string; // "SMS", "Email", "TOTP", etc.
@@ -134,7 +135,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		if (!credentials.environmentId && tokenStatus.isValid) {
 			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
 			if (workerCreds?.environmentId) {
-				console.log(
+				logger.info(
 					`[⚙️ MFA-CONFIG-STEP-V8] Auto-populating environment ID from worker token: ${workerCreds.environmentId}`
 				);
 				setCredentials((prev) => ({
@@ -151,7 +152,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	React.useEffect(() => {
 		if (deviceAuthPolicies.length > 0 && !credentials.deviceAuthenticationPolicyId) {
 			const firstPolicy = deviceAuthPolicies[0];
-			console.log(
+			logger.info(
 				`[⚙️ MFA-CONFIG-STEP-V8] Auto-selecting default device authentication policy: ${firstPolicy.name} (${firstPolicy.id})`
 			);
 			setCredentials((prev) => ({
@@ -212,7 +213,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			// Basic JWT format check (3 parts separated by dots)
 			const parts = cleanToken.split('.');
 			if (parts.length !== 3) {
-				console.log(
+				logger.info(
 					`[⚙️ MFA-CONFIG-STEP-V8] Token validation failed: expected 3 parts, got ${parts.length}`,
 					{
 						tokenLength: cleanToken.length,
@@ -224,7 +225,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 			// Check that each part is not empty
 			if (!parts[0] || !parts[1] || !parts[2]) {
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Token validation failed: empty parts`, {
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Token validation failed: empty parts`, {
 					hasHeader: !!parts[0],
 					hasPayload: !!parts[1],
 					hasSignature: !!parts[2],
@@ -255,7 +256,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				}
 			} catch (error) {
 				// Invalid JWT format
-				console.error(`[⚙️ MFA-CONFIG-STEP-V8] Token validation error:`, error, {
+				logger.error(`[⚙️ MFA-CONFIG-STEP-V8] Token validation error:`, error, {
 					tokenLength: cleanToken.length,
 					tokenPreview: `${cleanToken.substring(0, 50)}...`,
 				});
@@ -286,7 +287,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// CRITICAL: When Admin Flow is selected (registrationFlowType === 'admin'),
 		// tokenType MUST be 'worker' - sync immediately
 		if (registrationFlowType === 'admin' && tokenType !== 'worker') {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Admin Flow selected - forcing tokenType to 'worker'`, {
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Admin Flow selected - forcing tokenType to 'worker'`, {
 				currentTokenType: tokenType,
 				credentialsTokenType: credentials.tokenType,
 			});
@@ -301,7 +302,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// CRITICAL: When User Flow is selected (registrationFlowType === 'user'),
 		// tokenType MUST be 'user' - sync immediately
 		if (registrationFlowType === 'user' && tokenType !== 'user') {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] User Flow selected - forcing tokenType to 'user'`, {
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] User Flow selected - forcing tokenType to 'user'`, {
 				currentTokenType: tokenType,
 				credentialsTokenType: credentials.tokenType,
 			});
@@ -319,7 +320,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				});
 
 				if (userLoginCreds.userToken && userLoginCreds.tokenType === 'user') {
-					console.log(
+					logger.info(
 						`[⚙️ MFA-CONFIG-STEP-V8] Syncing user token from user-login-v8 when User Flow selected`
 					);
 					setCredentials((prev) => ({
@@ -336,7 +337,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 		// Normal sync: update local tokenType when credentials.tokenType changes
 		if (credentials.tokenType && credentials.tokenType !== tokenType) {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing tokenType from credentials`, {
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Syncing tokenType from credentials`, {
 				from: tokenType,
 				to: credentials.tokenType,
 			});
@@ -372,7 +373,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			const shouldSync = !credentials.userToken || credentials.userToken !== authToken;
 
 			if (shouldSync) {
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, {
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, {
 					hasToken: !!authToken,
 					tokenLength: authToken.length,
 					tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -448,7 +449,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// Handle both cases: token added or token removed
 		if (credentials.userToken !== userToken) {
 			if (credentials.userToken) {
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] ✅ Syncing token from credentials to local state`);
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] ✅ Syncing token from credentials to local state`);
 				setUserToken(credentials.userToken);
 				const status = validateUserToken(credentials.userToken);
 				setUserTokenStatus(status);
@@ -463,7 +464,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 					isUpdatingCredentialsRef.current;
 
 				if (shouldPreserveToken) {
-					console.log(`[⚙️ MFA-CONFIG-STEP-V8] ⚠️ Preserving userToken - preventing token loss`, {
+					logger.info(`[⚙️ MFA-CONFIG-STEP-V8] ⚠️ Preserving userToken - preventing token loss`, {
 						showUserLoginModal,
 						tokenType,
 						credentialsTokenType: credentials.tokenType,
@@ -476,7 +477,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 					setTimeout(() => {
 						if (!credentials.userToken && userToken && tokenType === 'user') {
 							// If after delay still no token in credentials but we have one locally, restore it
-							console.log(
+							logger.info(
 								`[⚙️ MFA-CONFIG-STEP-V8] 🔄 Restoring userToken to credentials after delay`
 							);
 							setCredentials((prev) => ({
@@ -490,7 +491,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				}
 
 				// Token was cleared
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] User token cleared`);
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] User token cleared`);
 				setUserToken('');
 				setUserTokenStatus('invalid');
 			}
@@ -505,11 +506,11 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		) {
 			// No token in credentials but we have one in auth context - validate it
 			const authToken = authContext.tokens.access_token;
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Validating user token from auth context`);
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Validating user token from auth context`);
 			const status = validateUserToken(authToken);
 			setUserTokenStatus(status);
 			setUserToken(authToken);
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Auth context token validated`, {
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Auth context token validated`, {
 				status,
 				tokenLength: authToken.length,
 			});
@@ -546,7 +547,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// Only update if credentials.tokenType doesn't match our local tokenType
 		if (credentials.tokenType !== tokenType) {
 			isUpdatingCredentialsRef.current = true;
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing credentials.tokenType to match local tokenType`, {
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Syncing credentials.tokenType to match local tokenType`, {
 				credentialsTokenType: credentials.tokenType,
 				localTokenType: tokenType,
 			});
@@ -708,7 +709,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 	// Removed verbose debug logging - was causing console spam
 	// React.useEffect(() => {
-	// 	console.log(`[⚙️ MFA-CONFIG-STEP-V8] Rendering configuration step for ${deviceTypeLabel}`, {
+	// 	logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Rendering configuration step for ${deviceTypeLabel}`, {
 	// 		tokenType,
 	// 		hasUserToken: !!userToken,
 	// 		hasWorkerToken: tokenStatus.isValid,

@@ -27,6 +27,7 @@ import {
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
 import { clearAllTokens } from '../utils/tokenCleaner';
+import { logger } from '../utils/logger';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
@@ -488,7 +489,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens and reset to step 1 on component mount
 	useEffect(() => {
-		console.log('🧹 [App Generator] Clearing all tokens and resetting to step 1');
+		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1');
 		clearAllTokens();
 		setCurrentStep(1);
 		setCreationResult(null);
@@ -502,7 +503,7 @@ const ApplicationGenerator: React.FC = () => {
 		try {
 			localStorage.setItem('app-generator-current-step', currentStep.toString());
 		} catch (error) {
-			log.warn('ApplicationGenerator', 'Failed to save current step:', { error });
+			logger.warn('ApplicationGenerator', 'Failed to save current step:', { error });
 		}
 	}, [currentStep]);
 
@@ -534,15 +535,15 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens when the page loads
 	useEffect(() => {
-		console.log('[ApplicationGenerator] Starting comprehensive token cleanup on page load...');
+		logger.info('[ApplicationGenerator] Starting comprehensive token cleanup on page load...');
 
 		// Force clear tokens immediately
 		const result = clearAllTokens();
 
-		console.log('[ApplicationGenerator] Token clearing result:', result);
+		logger.info('[ApplicationGenerator] Token clearing result:', result);
 
 		if (result.success) {
-			console.log(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
+			logger.info(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
 			if (result.clearedCount > 0) {
 				modernMessaging.showFooterMessage({
 					type: 'status',
@@ -550,10 +551,10 @@ const ApplicationGenerator: React.FC = () => {
 					duration: 4000,
 				});
 			} else {
-				console.log('[ApplicationGenerator] No tokens found to clear');
+				logger.info('[ApplicationGenerator] No tokens found to clear');
 			}
 		} else {
-			log.error(
+			logger.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Token clearing completed with errors:',
 				{ errors: result.errors }
@@ -579,9 +580,9 @@ const ApplicationGenerator: React.FC = () => {
 			localStorage.removeItem('auth_tokens');
 			localStorage.removeItem('pingone_tokens');
 
-			console.log('[ApplicationGenerator] Additional token cleanup completed');
+			logger.info('[ApplicationGenerator] Additional token cleanup completed');
 		} catch (error) {
-			log.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
+			logger.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
 				error,
 			});
 		}
@@ -633,7 +634,7 @@ const ApplicationGenerator: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			log.warn(
+			logger.warn(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to load saved configuration:',
 				{ error }
@@ -846,7 +847,7 @@ const ApplicationGenerator: React.FC = () => {
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to apply preset:',
 				undefined,
@@ -880,7 +881,7 @@ const ApplicationGenerator: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Failed to apply imported configuration:',
 				undefined,
@@ -1148,7 +1149,7 @@ const ApplicationGenerator: React.FC = () => {
 					redirectUris: [redirectUri], // Update with the redirect URI from modal or form
 				}));
 
-				console.log('[ApplicationGenerator] Updated form with new app credentials:', {
+				logger.info('[ApplicationGenerator] Updated form with new app credentials:', {
 					clientId: result.app.clientId,
 					redirectUri: redirectUri,
 					hasSecret: !!result.app.clientSecret,
@@ -1178,7 +1179,7 @@ const ApplicationGenerator: React.FC = () => {
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ApplicationGenerator',
 				'[ApplicationGenerator] Application creation failed:',
 				undefined,

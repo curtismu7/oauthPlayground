@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file oidcDiscoveryServiceV8.ts
  * @module v8/services
  * @description OIDC Discovery service for V8 flows
@@ -13,7 +14,7 @@
  * @example
  * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
  * if (result.success) {
- *   console.log('Discovered endpoints:', result.data);
+ *   logger.info('Discovered endpoints:', result.data);
  * }
  */
 
@@ -44,13 +45,13 @@ export class OidcDiscoveryServiceV8 {
 	 * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
 	 */
 	static async discover(issuerUrl: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl });
+		logger.info(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl });
 
 		try {
 			// Normalize issuer URL
 			const normalized = OidcDiscoveryServiceV8.normalizeIssuerUrl(issuerUrl);
 
-			console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
+			logger.info(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
 
 			// Use backend proxy to avoid CORS issues
 			const response = await fetch('/api/pingone/oidc-discovery', {
@@ -91,7 +92,7 @@ Original error: ${errorMessage}`;
 					errorMessage = `OIDC Discovery endpoint not found (404). Please verify the issuer URL is correct: ${normalized}`;
 				}
 
-				console.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
+				logger.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
 					issuerUrl: normalized,
 					error: errorMessage,
 					details: errorBody.details,
@@ -102,7 +103,7 @@ Original error: ${errorMessage}`;
 
 			const data = await response.json();
 
-			console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
+			logger.info(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
 
 			return {
 				success: true,
@@ -120,7 +121,7 @@ Original error: ${errorMessage}`;
 			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Discovery failed`, { error: message });
+			logger.error(`${MODULE_TAG} Discovery failed`, { error: message });
 
 			return {
 				success: false,
@@ -180,11 +181,11 @@ Original error: ${errorMessage}`;
 	 * @returns Discovery result
 	 */
 	static async discoverFromInput(input: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Attempting discovery from input`, { input });
+		logger.info(`${MODULE_TAG} Attempting discovery from input`, { input });
 
 		// Check if it's an environment ID (UUID)
 		if (OidcDiscoveryServiceV8.isValidEnvironmentId(input)) {
-			console.log(`${MODULE_TAG} Input appears to be environment ID, constructing PingOne URL`);
+			logger.info(`${MODULE_TAG} Input appears to be environment ID, constructing PingOne URL`);
 			// Construct PingOne issuer URL from environment ID
 			const issuerUrl = `https://auth.pingone.com/${input}/as`;
 			return OidcDiscoveryServiceV8.discover(issuerUrl);

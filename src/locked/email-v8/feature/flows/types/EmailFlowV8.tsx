@@ -27,6 +27,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
 type DeviceSelectionState = {
@@ -126,7 +127,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 				if (cancelled) {
 					return;
 				}
-				console.error(`${MODULE_TAG} Failed to load devices`, error);
+				logger.error(`${MODULE_TAG} Failed to load devices`, error);
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -199,7 +200,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+			logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
 			toastV8.error(`Authentication failed: ${message}`);
 			updateOtpState({ otpSent: false });
@@ -835,7 +836,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						showRegisterForm: devices.length === 0,
 					});
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					logger.error(`${MODULE_TAG} Failed to load devices`, error);
 					setDeviceSelection((prev) => ({
 						...prev,
 						loadingDevices: false,
@@ -909,7 +910,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			} catch (error) {
 				// Silently fail - user can manually enter email
-				console.error(`${MODULE_TAG} Failed to fetch user email from PingOne:`, error);
+				logger.error(`${MODULE_TAG} Failed to fetch user email from PingOne:`, error);
 			}
 		};
 
@@ -1259,7 +1260,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						);
 					} else {
 						// Unknown status - default behavior
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} Device registered with unknown status: ${actualDeviceStatus}, defaulting to OTP flow`
 						);
 						nav.markStepComplete();
@@ -1895,7 +1896,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 														const currentStatus =
 															WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 														if (!currentStatus.isValid) {
-															console.log(
+															logger.info(
 																'[EMAIL-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 															);
 															const { handleShowWorkerTokenModal } = await import(
@@ -2596,7 +2597,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 												} catch (error) {
 													const errorMessage =
 														error instanceof Error ? error.message : 'Unknown error';
-													console.error(`${MODULE_TAG} Failed to activate device:`, error);
+													logger.error(`${MODULE_TAG} Failed to activate device:`, error);
 													setValidationAttempts((prev) => prev + 1);
 													setLastValidationError(errorMessage);
 													nav.setValidationErrors([`Activation failed: ${errorMessage}`]);

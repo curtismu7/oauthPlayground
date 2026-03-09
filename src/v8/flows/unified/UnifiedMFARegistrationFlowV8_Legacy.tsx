@@ -18,7 +18,7 @@
  * @example
  * <UnifiedMFARegistrationFlowV8
  *   deviceType="SMS"
- *   onSuccess={(result) => console.log('Device registered:', result.deviceId)}
+ *   onSuccess={(result) => logger.info('Device registered:', result.deviceId)}
  * />
  */
 
@@ -59,6 +59,7 @@ import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelection
 import { UnifiedRegistrationStepModern } from './components/UnifiedRegistrationStep.modern';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import { UnifiedSuccessStepModern } from './components/UnifiedSuccessStep.modern';
+import { logger } from '../../utils/logger';
 import './UnifiedMFAFlow.css';
 
 const FLOW_KEY = 'mfa-flow-v8';
@@ -171,7 +172,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Debug: Log environment and token status
 	useEffect(() => {
-		log.debug('UnifiedMFARegistrationFlowV8', 'environment and token status:', {
+		logger.debug('UnifiedMFARegistrationFlowV8', 'environment and token status:', {
 			environmentId,
 			tokenStatus: globalTokenStatus,
 			isValid: globalTokenStatus.isValid,
@@ -267,7 +268,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		deviceName?: string;
 		nickname?: string;
 	}) => {
-		log.debug('UnifiedMFARegistrationFlowV8', 'Selected device for authentication:', device);
+		logger.debug('UnifiedMFARegistrationFlowV8', 'Selected device for authentication:', device);
 		setShowDeviceSelectionModal(false);
 		setSelectedAuthDevice(device);
 
@@ -292,7 +293,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				region: 'na',
 			});
 
-			log.debug('UnifiedMFARegistrationFlowV8', 'Auth initialized - full response:', response);
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Auth initialized - full response:', response);
 			setAuthenticationId(response.id);
 
 			const status = (response.status || '').toUpperCase();
@@ -303,7 +304,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				(links.otp || links['otp.check'] || (links as Record<string, unknown>)['checkOtp'])
 			);
 
-			log.debug('UnifiedMFARegistrationFlowV8', 'Auth status:', {
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Auth status:', {
 				status,
 				nextStep,
 				hasOtpLink,
@@ -312,7 +313,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 			// Show appropriate UI based on response (normalize status/nextStep for PingOne variants)
 			if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED' || hasOtpLink) {
-				log.debug('UnifiedMFARegistrationFlowV8', 'Opening OTP modal for device:', device.type);
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Opening OTP modal for device:', device.type);
 				setShowOTPModal(true);
 				modernMessaging.showFooterMessage({
 					type: 'info',
@@ -320,7 +321,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					duration: 3000,
 				});
 			} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
-				log.debug('UnifiedMFARegistrationFlowV8', 'FIDO2 assertion required');
+				logger.debug('UnifiedMFARegistrationFlowV8', 'FIDO2 assertion required');
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message:
@@ -332,7 +333,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				status === 'PUSH_CONFIRMATION_REQUIRED' ||
 				nextStep === 'PUSH_CONFIRMATION_REQUIRED'
 			) {
-				log.debug('UnifiedMFARegistrationFlowV8', 'Push confirmation required');
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Push confirmation required');
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message: 'Push notification sent! Please approve on your mobile device.',
@@ -356,13 +357,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				nextStep === 'SELECTION_REQUIRED' ||
 				nextStep === 'DEVICE_SELECTION_REQUIRED'
 			) {
-				log.debug(
+				logger.debug(
 					'UnifiedMFARegistrationFlowV8',
 					'Device selection required - showing modal again'
 				);
 				setShowDeviceSelectionModal(true);
 			} else {
-				log.warn('UnifiedMFARegistrationFlowV8', 'Unexpected authentication status:', {
+				logger.warn('UnifiedMFARegistrationFlowV8', 'Unexpected authentication status:', {
 					status,
 					nextStep,
 					response,
@@ -375,7 +376,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				// Stay in authentication flow so user can try another device
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'UnifiedMFARegistrationFlowV8',
 				'Failed to initialize authentication',
 				undefined,
@@ -487,7 +488,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'UnifiedMFARegistrationFlowV8',
 				'OTP verification failed',
 				undefined,
@@ -1255,7 +1256,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 												message: 'Failed to resend code',
 												dismissible: true,
 											});
-											log.error(
+											logger.error(
 												'UnifiedMFARegistrationFlowV8',
 												'Resend error',
 												undefined,
@@ -1616,7 +1617,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	// Handler for device type selection that captures environment ID and username
 	const handleDeviceTypeSelection = useCallback(
 		(deviceType: DeviceConfigKey, environmentId: string, username: string) => {
-			log.debug('UnifiedMFARegistrationFlowV8', 'Device type selected:', {
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Device type selected:', {
 				deviceType,
 				environmentId,
 				username,
@@ -1624,7 +1625,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 
 			// IMPORTANT: Save credentials to storage IMMEDIATELY before state update
 			// This prevents race condition where MFAFlowBaseV8 loads before credentials are saved
-			log.debug('UnifiedMFARegistrationFlowV8', 'Saving credentials to storage IMMEDIATELY:', {
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Saving credentials to storage IMMEDIATELY:', {
 				environmentId,
 				username,
 				deviceType,
@@ -1806,7 +1807,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 		// If we have OAuth callback params and stored state, re-open the modal to process callback
 		if (code && hasStoredState && !showUserLoginModal) {
-			log.debug(
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'OAuth callback detected - re-opening modal to process'
 			);
@@ -1886,21 +1887,21 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			flowType: string,
 			token?: string
 		) => {
-			log.debug('UnifiedMFARegistrationFlowV8', '===== PERFORM REGISTRATION WITH TOKEN =====');
-			log.debug('UnifiedMFARegistrationFlowV8', 'Device:', selectedDeviceType);
-			log.debug('UnifiedMFARegistrationFlowV8', 'Flow type:', flowType);
-			log.debug(
+			logger.debug('UnifiedMFARegistrationFlowV8', '===== PERFORM REGISTRATION WITH TOKEN =====');
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Device:', selectedDeviceType);
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Flow type:', flowType);
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Token:',
 				token ? `Present (${token.length} chars)` : 'Missing'
 			);
-			log.debug('UnifiedMFARegistrationFlowV8', 'Fields:', fields);
-			log.debug(
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Fields:', fields);
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Props.setIsLoading available:',
 				typeof props.setIsLoading
 			);
-			log.debug(
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Props.setCredentials available:',
 				typeof props.setCredentials
@@ -1938,14 +1939,14 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				// Special note for FIDO2: WebAuthn verification proves device works,
 				// but we still respect the flow type for status determination
 				if (selectedDeviceType === 'FIDO2') {
-					log.debug(
+					logger.debug(
 						'UnifiedMFARegistrationFlowV8',
 						'FIDO2 device - status determined by flow type:',
 						deviceStatus
 					);
 				}
 
-				log.debug('UnifiedMFARegistrationFlowV8', 'Device status determined:', {
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Device status determined:', {
 					flowType,
 					deviceType: selectedDeviceType,
 					deviceStatus,
@@ -1973,7 +1974,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					baseParams.status = deviceStatus;
 				}
 
-				log.debug('UnifiedMFARegistrationFlowV8', 'Registration base params:', {
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Registration base params:', {
 					environmentId: baseParams.environmentId,
 					username: baseParams.username,
 					type: baseParams.type,
@@ -1998,7 +1999,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
 					const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
 					mappedFields.phone = `+${countryCode}.${phoneNumber}`;
-					log.debug('UnifiedMFARegistrationFlowV8', 'Formatted phone:', mappedFields.phone);
+					logger.debug('UnifiedMFARegistrationFlowV8', 'Formatted phone:', mappedFields.phone);
 					delete mappedFields.phoneNumber;
 					delete mappedFields.countryCode;
 				}
@@ -2009,17 +2010,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					...mappedFields,
 				};
 
-				log.debug('UnifiedMFARegistrationFlowV8', 'Registering device with params:', deviceParams);
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Registering device with params:', deviceParams);
 
 				const result = await MFAServiceV8.registerDevice(deviceParams);
-				log.debug('UnifiedMFARegistrationFlowV8', 'Device registered:', result);
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Device registered:', result);
 
 				// Update MFA state with device info
 				const registrationResult = result as unknown as Record<string, unknown>;
 
 				// ========== DEBUG: TOTP QR CODE DATA ==========
 				if (selectedDeviceType === 'TOTP') {
-					log.debug('UnifiedMFARegistrationFlowV8', '🔍 Registration result for TOTP:', {
+					logger.debug('UnifiedMFARegistrationFlowV8', '🔍 Registration result for TOTP:', {
 						deviceId: result.deviceId,
 						status: result.status,
 						qrCode: registrationResult.qrCode,
@@ -2074,7 +2075,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 					// ========== DEBUG: TOTP MFA STATE UPDATE ==========
 					if (selectedDeviceType === 'TOTP') {
-						log.debug('UnifiedMFARegistrationFlowV8', '🔍 Updated mfaState:', {
+						logger.debug('UnifiedMFARegistrationFlowV8', '🔍 Updated mfaState:', {
 							qrCodeUrl: newState.qrCodeUrl,
 							totpSecret: newState.totpSecret,
 							showQr: newState.showQr,
@@ -2092,7 +2093,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				if (selectedDeviceType === 'FIDO2') {
 					if (fields.credentialId && fields.publicKey) {
 						// WebAuthn already completed via modal - device fully registered
-						log.debug(
+						logger.debug(
 							'UnifiedMFARegistrationFlowV8',
 							'FIDO2 device fully registered with credentials - proceeding to next step'
 						);
@@ -2111,7 +2112,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						}
 					} else {
 						// Device created, but user needs to complete WebAuthn biometric/security key interaction
-						log.debug(
+						logger.debug(
 							'UnifiedMFARegistrationFlowV8',
 							'FIDO2 device created - user must complete biometric authentication'
 						);
@@ -2132,7 +2133,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					flowType === 'admin-activation' ||
 					result.status === 'ACTIVE'
 				) {
-					log.debug(
+					logger.debug(
 						'UnifiedMFARegistrationFlowV8',
 						'Admin flow or ACTIVE status - proceeding to show QR without OTP requirement'
 					);
@@ -2172,7 +2173,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					}
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'UnifiedMFARegistrationFlowV8',
 					'Registration failed',
 					undefined,
@@ -2208,9 +2209,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const handleUserTokenReceived = useCallback(
 		(token: string) => {
-			log.debug('UnifiedMFARegistrationFlowV8', '===== USER TOKEN RECEIVED =====');
-			log.debug('UnifiedMFARegistrationFlowV8', 'Token length:', token.length);
-			log.debug(
+			logger.debug('UnifiedMFARegistrationFlowV8', '===== USER TOKEN RECEIVED =====');
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Token length:', token.length);
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Current pending registration:',
 				pendingRegistrationRef.current
@@ -2233,9 +2234,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				const username =
 					payload.username || payload.preferred_username || payload.sub || 'Unknown User';
 				setUsernameFromToken(username);
-				log.debug('UnifiedMFARegistrationFlowV8', 'Extracted username:', username);
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Extracted username:', username);
 			} catch (error) {
-				log.error(
+				logger.error(
 					'UnifiedMFARegistrationFlowV8',
 					'Failed to decode JWT',
 					undefined,
@@ -2247,11 +2248,11 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			// If we have pending registration, show success page first
 			const pending = pendingRegistrationRef.current;
 			if (pending) {
-				log.debug(
+				logger.debug(
 					'UnifiedMFARegistrationFlowV8',
 					'Found pending registration, showing success page first...'
 				);
-				log.debug('UnifiedMFARegistrationFlowV8', 'Pending data:', {
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Pending data:', {
 					deviceType: pending.deviceType,
 					flowType: pending.flowType,
 					hasProps: !!pending.props,
@@ -2268,7 +2269,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				setShowUserLoginModal(false);
 				setShowUserTokenSuccess(true);
 			} else {
-				log.debug(
+				logger.debug(
 					'UnifiedMFARegistrationFlowV8',
 					'WARNING: No pending registration found after OAuth!'
 				);
@@ -2281,7 +2282,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 * Handle continue from user token success page
 	 */
 	const handleContinueAfterUserLogin = useCallback(() => {
-		log.debug(
+		logger.debug(
 			'UnifiedMFARegistrationFlowV8',
 			'User clicked continue after login, proceeding with registration...'
 		);
@@ -2296,7 +2297,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 			// Continue with registration
 			setTimeout(() => {
-				log.debug('UnifiedMFARegistrationFlowV8', 'Now executing performRegistrationWithToken...');
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Now executing performRegistrationWithToken...');
 				performRegistrationWithToken(props, pendingDeviceType, fields, flowType, userToken);
 			}, 100);
 		}
@@ -2313,23 +2314,23 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			fields: Record<string, string>,
 			flowType: string
 		) => {
-			log.debug('UnifiedMFARegistrationFlowV8', '===== DEVICE REGISTRATION SUBMITTED =====');
-			log.debug('UnifiedMFARegistrationFlowV8', 'Device:', selectedDeviceType);
-			log.debug('UnifiedMFARegistrationFlowV8', 'Flow type:', flowType);
-			log.debug(
+			logger.debug('UnifiedMFARegistrationFlowV8', '===== DEVICE REGISTRATION SUBMITTED =====');
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Device:', selectedDeviceType);
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Flow type:', flowType);
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Current userToken:',
 				userToken ? 'Present' : 'Missing'
 			);
-			log.debug('UnifiedMFARegistrationFlowV8', 'Fields:', fields);
+			logger.debug('UnifiedMFARegistrationFlowV8', 'Fields:', fields);
 
 			// For User Flow, check if we need OAuth authentication first
 			if (flowType === 'user' && !userToken) {
-				log.debug(
+				logger.debug(
 					'UnifiedMFARegistrationFlowV8',
 					'User flow selected but no token - showing OAuth modal'
 				);
-				log.debug('UnifiedMFARegistrationFlowV8', 'Storing pending registration...');
+				logger.debug('UnifiedMFARegistrationFlowV8', 'Storing pending registration...');
 
 				// Store pending registration data
 				pendingRegistrationRef.current = {
@@ -2339,7 +2340,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					props,
 				};
 
-				log.debug(
+				logger.debug(
 					'UnifiedMFARegistrationFlowV8',
 					'Pending registration stored:',
 					pendingRegistrationRef.current
@@ -2356,7 +2357,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				return;
 			}
 
-			log.debug(
+			logger.debug(
 				'UnifiedMFARegistrationFlowV8',
 				'Proceeding directly with registration (token exists or admin flow)'
 			);
@@ -2443,7 +2444,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						await performRegistration(props, selectedDeviceType, fields, flowType);
 					}}
 					onCancel={() => {
-						log.debug(
+						logger.debug(
 							'UnifiedMFARegistrationFlowV8',
 							'Registration cancelled - navigating to unified main page'
 						);

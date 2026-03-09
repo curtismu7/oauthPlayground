@@ -18,6 +18,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { logger } from '../../../../utils/logger';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -278,7 +279,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
-				console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 				toastV8.error('Security validation failed. Please try again.');
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -459,7 +460,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					toastV8.success('Access token received successfully!');
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+					logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 
 					// Remove from processed set so user can retry with a new code
 					processedCodesRef.current.delete(code);
@@ -589,7 +590,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (!storedState) return;
 
 				if (storedState && state && storedState !== state) {
-					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -637,7 +638,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+						logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 						processedCodesRef.current.delete(code);
 						// eslint-disable-next-line require-atomic-updates
 						isProcessingRef.current = false;
@@ -670,7 +671,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Get worker token
 					const workerToken = await workerTokenServiceV8.getToken();
 					if (!workerToken) {
-						console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -690,7 +691,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					);
 
 					if (!app) {
-						console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
+						logger.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -715,12 +716,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							toastV8.warning(
 								`Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`
 							);
-							console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
+							logger.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
 						}
 						setIsUpdatingApp(false);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
+					logger.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
 					toastV8.warning(
 						`Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`
 					);
@@ -766,7 +767,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+			logger.error(`${MODULE_TAG} Failed to save credentials:`, error);
 			toastV8.error('Failed to save credentials. Please try again.');
 		} finally {
 			setIsSaving(false);
@@ -935,7 +936,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				});
 				// #endregion
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,
 					currentPath
 				);
@@ -947,7 +948,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Redirect to PingOne
 			window.location.href = authorizationUrl;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
+			logger.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
 			toastV8.error(error instanceof Error ? error.message : 'Failed to start login flow');
 			setIsRedirecting(false);
 		}

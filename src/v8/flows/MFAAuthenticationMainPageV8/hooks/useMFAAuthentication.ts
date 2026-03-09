@@ -22,6 +22,7 @@ import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { Device } from '../../components/MFADeviceSelector';
 import type { DeviceAuthenticationPolicy } from '../../shared/MFATypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useMFAAuthentication]';
 
 export interface AuthenticationState {
@@ -237,7 +238,7 @@ export const useMFAAuthentication = (
 						const deviceUserId = d.user?.id || d.userId;
 						const matches = !deviceUserId || deviceUserId === user.id;
 						if (!matches) {
-							console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+							logger.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
 								deviceId: d.id,
 								deviceType: d.type,
 								deviceUserId,
@@ -300,7 +301,7 @@ export const useMFAAuthentication = (
 
 					// Validate that we got an authenticationId from the response
 					if (!response.id) {
-						console.error(
+						logger.error(
 							`${MODULE_TAG} Authentication initialized but no ID in response:`,
 							response
 						);
@@ -360,7 +361,7 @@ export const useMFAAuthentication = (
 						});
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to start authentication:`, error);
+					logger.error(`${MODULE_TAG} Failed to start authentication:`, error);
 
 					// Check for NO_USABLE_DEVICES error
 					if (onDeviceFailureError?.(error)) {

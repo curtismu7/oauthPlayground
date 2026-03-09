@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 
+import { logger } from '../utils/logger';
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;
@@ -233,7 +234,7 @@ export const PerformanceDashboard: React.FC = () => {
 	}, [lazyLoadingMetrics]);
 
 	const handleRefreshMetrics = () => {
-		log.info('[PerformanceDashboard] Refreshing performance metrics');
+		logger.info('[PerformanceDashboard] Refreshing performance metrics');
 		// Force update of performance data
 		const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
 		const paint = performance.getEntriesByType('paint');
@@ -250,7 +251,7 @@ export const PerformanceDashboard: React.FC = () => {
 	};
 
 	const handleClearMetrics = () => {
-		log.info('[PerformanceDashboard] Clearing performance metrics');
+		logger.info('[PerformanceDashboard] Clearing performance metrics');
 		lazyLoadingMetrics.clearMetrics();
 		setPerformanceData((prev) => ({
 			...prev,

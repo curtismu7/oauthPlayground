@@ -13,6 +13,7 @@ import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
 
 export interface OTPState {
@@ -99,7 +100,7 @@ export abstract class MFAFlowController {
 		}
 
 		try {
-			console.log(`${MODULE_TAG} Loading existing ${this.deviceType} devices`);
+			logger.info(`${MODULE_TAG} Loading existing ${this.deviceType} devices`);
 			const devices = await MFAServiceV8.getAllDevices({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
@@ -111,10 +112,10 @@ export abstract class MFAFlowController {
 			});
 
 			const filteredDevices = this.filterDevicesByType(devices);
-			console.log(`${MODULE_TAG} Loaded ${filteredDevices.length} ${this.deviceType} devices`);
+			logger.info(`${MODULE_TAG} Loaded ${filteredDevices.length} ${this.deviceType} devices`);
 			return filteredDevices;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load devices`, error);
+			logger.error(`${MODULE_TAG} Failed to load devices`, error);
 			return [];
 		}
 	}
@@ -242,7 +243,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<void> {
-		console.log(`${MODULE_TAG} Sending OTP to ${this.deviceType} device`);
+		logger.info(`${MODULE_TAG} Sending OTP to ${this.deviceType} device`);
 		setIsLoading(true);
 		setState({ sendError: null });
 
@@ -255,7 +256,7 @@ export abstract class MFAFlowController {
 				customDomain: credentials.customDomain,
 			});
 
-			console.log(`${MODULE_TAG} OTP sent successfully`, {
+			logger.info(`${MODULE_TAG} OTP sent successfully`, {
 				hasOtpCheckUrl: !!otpCheckUrl,
 				deviceAuthId,
 				deviceId,
@@ -286,7 +287,7 @@ export abstract class MFAFlowController {
 				this.callbacks.onOTPSent();
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to send OTP`, error);
+			logger.error(`${MODULE_TAG} Failed to send OTP`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setState({
 				sendError: errorMessage,
@@ -328,7 +329,7 @@ export abstract class MFAFlowController {
 		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
 		_nav: ReturnType<typeof useStepNavigationV8>
 	): Promise<any> {
-		console.log(`${MODULE_TAG} Validating OTP (unified flow)`, {
+		logger.info(`${MODULE_TAG} Validating OTP (unified flow)`, {
 			deviceId,
 			deviceType: this.deviceType,
 		});
@@ -349,10 +350,10 @@ export abstract class MFAFlowController {
 				throw new Error(result.message || 'Invalid OTP code');
 			}
 
-			console.log(`${MODULE_TAG} OTP validated successfully (unified flow)`);
+			logger.info(`${MODULE_TAG} OTP validated successfully (unified flow)`);
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} OTP validation failed (unified flow)`, error);
+			logger.error(`${MODULE_TAG} OTP validation failed (unified flow)`, error);
 			throw error;
 		}
 	}
@@ -376,7 +377,7 @@ export abstract class MFAFlowController {
 		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
 		_nav: ReturnType<typeof useStepNavigationV8>
 	): Promise<void> {
-		console.log(`${MODULE_TAG} Resending OTP (unified flow)`, {
+		logger.info(`${MODULE_TAG} Resending OTP (unified flow)`, {
 			deviceId,
 			deviceType: this.deviceType,
 		});
@@ -388,17 +389,17 @@ export abstract class MFAFlowController {
 				deviceId,
 			});
 
-			console.log(`${MODULE_TAG} OTP resent successfully (unified flow)`, {
+			logger.info(`${MODULE_TAG} OTP resent successfully (unified flow)`, {
 				hasOtpCheckUrl: !!otpCheckUrl,
 				deviceAuthId,
 			});
 
 			// Update mfaState with new deviceAuthId if needed
 			if (deviceAuthId && mfaState.deviceAuthId !== deviceAuthId) {
-				console.log(`${MODULE_TAG} Updating deviceAuthId in mfaState`);
+				logger.info(`${MODULE_TAG} Updating deviceAuthId in mfaState`);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to resend OTP (unified flow)`, error);
+			logger.error(`${MODULE_TAG} Failed to resend OTP (unified flow)`, error);
 			throw error;
 		}
 	}
@@ -419,7 +420,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
-		console.log(`${MODULE_TAG} Validating OTP`);
+		logger.info(`${MODULE_TAG} Validating OTP`);
 		setIsLoading(true);
 		setValidationState({ lastValidationError: null });
 
@@ -488,7 +489,7 @@ export abstract class MFAFlowController {
 				return false;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} OTP validation failed`, error);
+			logger.error(`${MODULE_TAG} OTP validation failed`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
 			// Normalize error message for invalid OTP codes
@@ -599,14 +600,14 @@ export abstract class MFAFlowController {
 		if (!credentials.deviceAuthenticationPolicyId) {
 			const errorMessage =
 				'Device Authentication Policy ID is required. Configure it via PingOne (Settings ▶ Device Authentication Policies).';
-			console.error(`${MODULE_TAG} Missing deviceAuthenticationPolicyId`, {
+			logger.error(`${MODULE_TAG} Missing deviceAuthenticationPolicyId`, {
 				deviceType: this.deviceType,
 				username: credentials.username,
 			});
 			throw new Error(errorMessage);
 		}
 
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Initializing device authentication for ${this.deviceType} via PingOne MFA API`,
 			{
 				policyId: credentials.deviceAuthenticationPolicyId,
@@ -625,7 +626,7 @@ export abstract class MFAFlowController {
 		});
 
 		if (result.status === 'DEVICE_SELECTION_REQUIRED' && deviceId && result.id) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} initializeDeviceAuthentication returned DEVICE_SELECTION_REQUIRED even though a deviceId was provided. Returning initial response; backend should already be triggering authentication.`
 			);
 		}
@@ -671,7 +672,7 @@ export abstract class MFAFlowController {
 		authenticationId: string,
 		deviceId: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Selecting device for authentication`);
+		logger.info(`${MODULE_TAG} Selecting device for authentication`);
 		const result = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
 			environmentId: credentials.environmentId,
 			username: credentials.username,
@@ -704,7 +705,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
-		console.log(`${MODULE_TAG} Validating OTP for device authentication`);
+		logger.info(`${MODULE_TAG} Validating OTP for device authentication`);
 		setIsLoading(true);
 		setValidationState({ lastValidationError: null });
 
@@ -766,7 +767,7 @@ export abstract class MFAFlowController {
 				return false;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} OTP validation for device authentication failed`, error);
+			logger.error(`${MODULE_TAG} OTP validation for device authentication failed`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
 			// Normalize error message for invalid OTP codes

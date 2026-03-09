@@ -19,6 +19,7 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';
 
 export interface HybridFlowCredentials {
@@ -83,7 +84,7 @@ export class HybridFlowIntegrationServiceV8 {
 		},
 		appConfig?: { requireSignedRequestObject?: boolean }
 	): Promise<HybridAuthorizationUrlParams> {
-		console.log(`${MODULE_TAG} Generating authorization URL`, {
+		logger.info(`${MODULE_TAG} Generating authorization URL`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			responseType: credentials.responseType,
@@ -99,7 +100,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For hybrid flow with id_token, 'openid' scope is required. Adding it automatically.`
 			);
 		}
@@ -124,7 +125,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			logger.info(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -182,7 +183,7 @@ export class HybridFlowIntegrationServiceV8 {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
+				logger.info(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
 					algorithm,
 					jti: jarResult.payload?.jti,
 				});
@@ -209,7 +210,7 @@ export class HybridFlowIntegrationServiceV8 {
 			} catch (error) {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error during JAR generation';
-				console.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
+				logger.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
 				throw new Error(`Failed to generate JAR authorization URL: ${errorMessage}`);
 			}
 		}
@@ -284,7 +285,7 @@ export class HybridFlowIntegrationServiceV8 {
 			Date.now() - startTime
 		);
 
-		console.log(`${MODULE_TAG} Authorization URL generated`, {
+		logger.info(`${MODULE_TAG} Authorization URL generated`, {
 			url: `${authorizationUrl.substring(0, 100)}...`,
 			responseType,
 		});
@@ -317,7 +318,7 @@ export class HybridFlowIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code?: string; access_token?: string; id_token?: string; state: string } {
-		console.log(`${MODULE_TAG} Parsing callback fragment for hybrid flow`);
+		logger.info(`${MODULE_TAG} Parsing callback fragment for hybrid flow`);
 
 		try {
 			const url = new URL(callbackUrl);
@@ -362,7 +363,7 @@ export class HybridFlowIntegrationServiceV8 {
 				throw new Error('No authorization code or ID token found in callback URL');
 			}
 
-			console.log(`${MODULE_TAG} Callback parsed successfully`, {
+			logger.info(`${MODULE_TAG} Callback parsed successfully`, {
 				hasCode: !!code,
 				hasAccessToken: !!accessToken,
 				hasIdToken: !!idToken,
@@ -380,7 +381,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error parsing callback fragment`, { error });
+			logger.error(`${MODULE_TAG} Error parsing callback fragment`, { error });
 			throw error;
 		}
 	}
@@ -397,7 +398,7 @@ export class HybridFlowIntegrationServiceV8 {
 		code: string,
 		codeVerifier?: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Exchanging authorization code for tokens`, {
+		logger.info(`${MODULE_TAG} Exchanging authorization code for tokens`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 		});
@@ -428,7 +429,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Handle client authentication based on method
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
-			console.log(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
+			logger.info(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
 
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 				// JWT assertion authentication
@@ -463,9 +464,9 @@ export class HybridFlowIntegrationServiceV8 {
 					bodyParams.client_assertion_type =
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
-					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
+					logger.info(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
+					logger.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
 					throw new Error(
 						`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -479,12 +480,12 @@ export class HybridFlowIntegrationServiceV8 {
 						bodyParams.client_secret = credentials.clientSecret;
 
 						if (authMethod === 'client_secret_post') {
-							console.log(
+							logger.info(
 								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
 							);
 						} else {
 							// client_secret_basic - backend will reconstruct Authorization header from client_secret in body
-							console.log(
+							logger.info(
 								`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`
 							);
 						}
@@ -493,7 +494,7 @@ export class HybridFlowIntegrationServiceV8 {
 					}
 				} else {
 					// none - public client, no authentication
-					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
+					logger.info(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
 				}
 			}
 
@@ -512,7 +513,7 @@ export class HybridFlowIntegrationServiceV8 {
 			if (authMethod === 'client_secret_basic' && credentials.clientSecret) {
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 				headers.Authorization = `Basic ${basicAuth}`;
-				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
+				logger.info(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
 			// Track API call for display
@@ -601,7 +602,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Tokens received successfully`, {
+			logger.info(`${MODULE_TAG} Tokens received successfully`, {
 				hasAccessToken: !!tokens.access_token,
 				hasIdToken: !!tokens.id_token,
 				hasRefreshToken: !!tokens.refresh_token,
@@ -610,7 +611,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error exchanging code for tokens`, { error });
+			logger.error(`${MODULE_TAG} Error exchanging code for tokens`, { error });
 			throw error;
 		}
 	}
@@ -621,7 +622,7 @@ export class HybridFlowIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -634,11 +635,11 @@ export class HybridFlowIntegrationServiceV8 {
 			const payload = JSON.parse(HybridFlowIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			logger.error(`${MODULE_TAG} Error decoding token`, { error });
 			throw error;
 		}
 	}
@@ -678,19 +679,19 @@ export class HybridFlowIntegrationServiceV8 {
 			const payload = decoded.payload as { nonce?: string };
 
 			if (!payload.nonce) {
-				console.warn(`${MODULE_TAG} No nonce in ID token`);
+				logger.warn(`${MODULE_TAG} No nonce in ID token`);
 				return false;
 			}
 
 			const nonceMatches = payload.nonce === expectedNonce;
 
 			if (!nonceMatches) {
-				console.error(`${MODULE_TAG} Nonce mismatch`);
+				logger.error(`${MODULE_TAG} Nonce mismatch`);
 			}
 
 			return nonceMatches;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error validating nonce`, { error });
+			logger.error(`${MODULE_TAG} Error validating nonce`, { error });
 			return false;
 		}
 	}
@@ -739,7 +740,7 @@ export class HybridFlowIntegrationServiceV8 {
 			// Convert to base64url (RFC 4648 §5)
 			return hashBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 		} catch (err) {
-			console.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
+			logger.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
 			// Fallback to base64url encoding (not secure, but better than failing)
 			return HybridFlowIntegrationServiceV8.base64UrlEncode(codeVerifier);
 		}

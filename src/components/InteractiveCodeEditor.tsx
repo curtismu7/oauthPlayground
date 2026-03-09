@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 
+import { logger } from '../utils/logger';
 export type FlowStep =
 	| 'authorization'
 	| 'workerToken'
@@ -601,7 +602,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				duration: 4000,
 			});
 		} catch (err) {
-			log.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
+			logger.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -651,7 +652,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 				duration: 4000,
 			});
 		} catch (err) {
-			log.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
+			logger.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -672,7 +673,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			message: 'Code reset to original',
 			duration: 4000,
 		});
-		console.log(
+		logger.info(
 			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`
 		);
 		setShowResetModal(false);

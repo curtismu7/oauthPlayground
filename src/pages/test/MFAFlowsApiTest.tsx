@@ -8,6 +8,7 @@ import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
+import { logger } from '../utils/logger';
 // Test Configuration for MFA flows
 interface MFATestConfig {
 	environmentId: string;
@@ -289,7 +290,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing OTP Registration...');
+			logger.info('🧪 Testing OTP Registration...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP registration test');
@@ -356,7 +357,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing OTP Verification...');
+			logger.info('🧪 Testing OTP Verification...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP verification test');
@@ -421,7 +422,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing TOTP Registration...');
+			logger.info('🧪 Testing TOTP Registration...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP registration test');
@@ -486,7 +487,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing TOTP Verification...');
+			logger.info('🧪 Testing TOTP Verification...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP verification test');
@@ -551,7 +552,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing FIDO2 Registration...');
+			logger.info('🧪 Testing FIDO2 Registration...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for FIDO2 registration test');
@@ -618,7 +619,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Admin Authentication (Activation Required)...');
+			logger.info('🧪 Testing Admin Authentication (Activation Required)...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for admin authentication test');
@@ -693,7 +694,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			console.log('🚀 Starting MFA Flow Tests...');
+			logger.info('🚀 Starting MFA Flow Tests...');
 
 			// Test 1: OTP Registration
 			await testOTPRegistration();
@@ -710,9 +711,9 @@ const MFAFlowsApiTest: React.FC = () => {
 			// Test 5: FIDO2 Registration
 			await testFIDO2Registration();
 
-			console.log('✅ MFA Flow tests completed!');
+			logger.info('✅ MFA Flow tests completed!');
 		} catch (error) {
-			log.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
+			logger.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
 		} finally {
 			setIsRunning(false);
 		}
@@ -730,14 +731,14 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			console.log('🚀 Starting Admin Authentication Tests...');
+			logger.info('🚀 Starting Admin Authentication Tests...');
 
 			// Test 1: Admin Authentication - Activation Required
 			await testAdminAuthActivationRequired();
 
-			console.log('✅ Admin Authentication tests completed!');
+			logger.info('✅ Admin Authentication tests completed!');
 		} catch (error) {
-			log.error(
+			logger.error(
 				'MFAFlowsApiTest',
 				'❌ Admin Authentication test suite failed:',
 				undefined,
@@ -963,7 +964,7 @@ const MFAFlowsApiTest: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={(token) => {
-						console.log('Worker token generated for MFA test:', token);
+						logger.info('Worker token generated for MFA test:', token);
 					}}
 				/>
 			)}

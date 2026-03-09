@@ -7,6 +7,7 @@ import { Card, CardBody, CardHeader } from './Card';
 import FlowCredentials from './FlowCredentials';
 import PageTitle from './PageTitle';
 
+import { logger } from '../utils/logger';
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
 	__PINGONE_ENVIRONMENT_ID__?: string;
@@ -182,11 +183,11 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
 }) => {
 	const { user, isAuthenticated } = useAuth();
 	useEffect(() => {
-		log.info(`[${flowType}] Flow component mounted`);
+		logger.info(`[${flowType}] Flow component mounted`);
 
 		// Log flow access
 		if (isAuthenticated && user) {
-			log.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
+			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
 		}
 	}, [flowType, isAuthenticated, user]);
 
@@ -250,7 +251,7 @@ export const useOAuthFlowBase = (flowType: string) => {
 	const [error, setError] = useState<string | null>(null);
 
 	const handleError = (error: Error, context: string) => {
-		log.error(`[${flowType}] ${context}:`, error);
+		logger.error(`[${flowType}] ${context}:`, error);
 		setError(error.message);
 		setIsLoading(false);
 	};

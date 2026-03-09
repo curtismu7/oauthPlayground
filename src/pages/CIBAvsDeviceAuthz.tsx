@@ -10,6 +10,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { copyToClipboard } from '../utils/clipboard';
 
+import { logger } from '../utils/logger';
 // Container styling handled by PageLayoutService
 
 const OverviewCard = styled(Card)`
@@ -1213,8 +1214,8 @@ function sleep(ms) {
   } = await deviceResponse.json();
   
   // Step 2: Display user code to user
-  console.log('Please visit:', verification_uri);
-  console.log('Enter code:', user_code);
+  logger.info('Please visit:', verification_uri);
+  logger.info('Enter code:', user_code);
   // In real app, display on device screen or CLI output
   
   // Step 3: Poll token endpoint until user completes authorization
@@ -1293,8 +1294,8 @@ function sleep(ms) {
   } = await deviceResponse.json();
   
   // Step 2: Display user code to user
-  console.log('Please visit:', verification_uri);
-  console.log('Enter code:', user_code);
+  logger.info('Please visit:', verification_uri);
+  logger.info('Enter code:', user_code);
   // In real app, display on device screen or CLI output
   
   // Step 3: Poll token endpoint until user completes authorization

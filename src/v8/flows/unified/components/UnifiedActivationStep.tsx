@@ -32,6 +32,7 @@ import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
 
 // ============================================================================
@@ -66,8 +67,8 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	nav,
 	config,
 }) => {
-	console.log(`${MODULE_TAG} Rendering activation step for:`, config.deviceType);
-	console.log(`${MODULE_TAG} Device status:`, mfaState.deviceStatus);
+	logger.info(`${MODULE_TAG} Rendering activation step for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Device status:`, mfaState.deviceStatus);
 
 	// ========================================================================
 	// LOCAL STATE
@@ -103,7 +104,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	 */
 	useEffect(() => {
 		if (config.deviceType === 'TOTP' && (mfaState.qrCodeUrl || mfaState.totpSecret)) {
-			console.log('🔍 [TOTP DEBUG] Scrolling to top - QR code data available');
+			logger.info('🔍 [TOTP DEBUG] Scrolling to top - QR code data available');
 
 			const scrollToTop = () => {
 				// Scroll main window
@@ -155,7 +156,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		}
 
 		if (mfaState.deviceStatus === 'ACTIVE') {
-			console.log(`${MODULE_TAG} Device already activated, proceeding to success`);
+			logger.info(`${MODULE_TAG} Device already activated, proceeding to success`);
 			nav.markStepComplete();
 			setTimeout(() => nav.goToNext(), 1500); // Auto-advance after 1.5s
 		}
@@ -183,7 +184,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	 * - validateOTP(): Used for authentication flows with an existing active device
 	 */
 	const handleValidateOtp = useCallback(async () => {
-		console.log(`${MODULE_TAG} Activating device with OTP:`, otp);
+		logger.info(`${MODULE_TAG} Activating device with OTP:`, otp);
 
 		if (!otp || otp.length !== 6) {
 			setOtpError('Please enter a valid 6-digit code');
@@ -193,7 +194,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		setIsLoading(true);
 
 		try {
-			console.log(`${MODULE_TAG} Activating device via activateDevice API`);
+			logger.info(`${MODULE_TAG} Activating device via activateDevice API`);
 
 			// Activate device via MFAServiceV8.activateDevice()
 			// This is the correct method for registration flows (not validateOTP)
@@ -215,7 +216,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 					String(activationResult.error || activationResult.message || 'Device activation failed')
 				);
 			}
-			console.log(`${MODULE_TAG} Device activation successful:`, result);
+			logger.info(`${MODULE_TAG} Device activation successful:`, result);
 
 			// Update MFA state with activation result
 			setMfaState((prev) => ({
@@ -240,7 +241,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			// Increment validation attempts
 			setValidationAttempts((prev) => prev + 1);
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} Device activation failed:`, error);
+			logger.error(`${MODULE_TAG} Device activation failed:`, error);
 
 			// Increment validation attempts
 			setValidationAttempts((prev) => prev + 1);
@@ -273,7 +274,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	 * This is different from authentication flows which use initializeDeviceAuthentication().
 	 */
 	const handleResendOtp = useCallback(async () => {
-		console.log(`${MODULE_TAG} Resending pairing code for device:`, mfaState.deviceId);
+		logger.info(`${MODULE_TAG} Resending pairing code for device:`, mfaState.deviceId);
 
 		setIsLoading(true);
 		setCanResend(false);
@@ -289,7 +290,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 				deviceId: mfaState.deviceId,
 			});
 
-			console.log(`${MODULE_TAG} Pairing code resent successfully`);
+			logger.info(`${MODULE_TAG} Pairing code resent successfully`);
 
 			// Show success toast
 			modernMessaging.showFooterMessage({
@@ -302,7 +303,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			setOtp('');
 			setOtpError(null);
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} Resend pairing code failed:`, error);
+			logger.error(`${MODULE_TAG} Resend pairing code failed:`, error);
 
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to resend verification code';
@@ -379,7 +380,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		if (config.requiresOTP) {
 			// ========== DEBUG: TOTP ACTIVATION STATE ==========
 			if (config.deviceType === 'TOTP') {
-				console.log('🔍 [TOTP DEBUG] Activation step rendering:', {
+				logger.info('🔍 [TOTP DEBUG] Activation step rendering:', {
 					qrCodeUrl: mfaState.qrCodeUrl,
 					totpSecret: mfaState.totpSecret,
 					showQr: mfaState.showQr,
@@ -559,7 +560,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 										nav.goToStep(0); // Show registration step where QR is displayed
 										return;
 									} catch (err) {
-										console.error('[UNIFIED-ACTIVATION] Failed to navigate to QR step:', err);
+										logger.error('[UNIFIED-ACTIVATION] Failed to navigate to QR step:', err);
 									}
 								}
 								await handleResendOtp();

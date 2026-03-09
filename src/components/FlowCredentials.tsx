@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 
+import { logger } from '../utils/logger';
 // Flow configuration mapping based on OAuth/OIDC standards
 const FLOW_FIELD_CONFIG: Record<
 	string,
@@ -411,7 +412,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			try {
 				// Mark as loading to prevent concurrent loads
 				hasLoadedCredentialsRef.current = true;
-				log.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
+				logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
 
 				// Load credentials from appropriate storage based on flow type
 				let flowCredentials: Record<string, unknown> = {};
@@ -443,11 +444,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 				// Call the callback using the ref to avoid dependency issues
 				onCredentialsChangeRef.current?.(finalCredentials);
-				log.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
+				logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
 			} catch (error) {
 				// Reset flag on error so we can retry
 				hasLoadedCredentialsRef.current = false;
-				log.error(
+				logger.error(
 					'FlowCredentials',
 					'Failed to load credentials',
 					error instanceof Error ? error.message : String(error),
@@ -483,7 +484,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					additionalScopes: parsed.additionalScopes || '',
 				};
 			} catch (error) {
-				log.error('FlowCredentials', 'Failed to parse global config:', undefined, error as Error);
+				logger.error('FlowCredentials', 'Failed to parse global config:', undefined, error as Error);
 			}
 		}
 
@@ -495,7 +496,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 	}, [credentials]);
 
 	const handleFieldChange = (field: keyof FlowCredentialsData, value: string) => {
-		log.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
+		logger.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
 		setCredentials((prev) => ({ ...prev, [field]: value }));
 		setErrors((prev) => ({ ...prev, [field]: undefined }));
 	};
@@ -504,16 +505,16 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		if (!text) return;
 
 		try {
-			log.ui('FlowCredentials', `Copying ${fieldName} to clipboard`, {
+			logger.ui('FlowCredentials', `Copying ${fieldName} to clipboard`, {
 				fieldName,
 				textLength: text.length,
 			});
 			await navigator.clipboard.writeText(text);
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
-			log.success('FlowCredentials', `Successfully copied ${fieldName}`);
+			logger.success('FlowCredentials', `Successfully copied ${fieldName}`);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'FlowCredentials',
 				'Failed to copy to clipboard',
 				error instanceof Error ? error.message : String(error),
@@ -551,7 +552,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleSaveCredentials = () => {
 		try {
-			log.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
+			logger.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
 
 			// Convert to PermanentCredentials format
 			const permanentCredentials = {
@@ -593,7 +594,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			// Notify parent component
 			onCredentialsChange?.(credentials);
 
-			log.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
+			logger.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
 
 			// Clear save message after 3 seconds
 			setTimeout(() => {
@@ -601,7 +602,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				setSaveMessage(null);
 			}, 3000);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'FlowCredentials',
 				'Failed to save credentials',
 				error instanceof Error ? error.message : String(error),
@@ -614,7 +615,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleResetCredentials = () => {
 		try {
-			log.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
+			logger.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
 
 			// Reset to original credentials
 			setCredentials({ ...originalCredentials });
@@ -624,9 +625,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			setIsSaved(false);
 			setSaveMessage(null);
 
-			log.success('FlowCredentials', `Credentials reset for ${flowType}`);
+			logger.success('FlowCredentials', `Credentials reset for ${flowType}`);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'FlowCredentials',
 				'Failed to reset credentials',
 				error instanceof Error ? error.message : String(error),

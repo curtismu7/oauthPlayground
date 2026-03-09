@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file specVersionServiceV8.ts
  * @module v8/services
  * @description Spec version management service for OAuth 2.0 Authorization Framework (RFC 6749), OAuth 2.1 Authorization Framework (draft), and OpenID Connect Core 1.0
@@ -102,7 +103,7 @@ export class SpecVersionServiceV8 {
 	 * @returns Array of available flow types
 	 */
 	static getAvailableFlows(specVersion: SpecVersion): FlowType[] {
-		console.log(`${MODULE_TAG} Getting available flows for`, { specVersion });
+		logger.info(`${MODULE_TAG} Getting available flows for`, { specVersion });
 		return SPEC_CONFIGS[specVersion].supportedFlows;
 	}
 
@@ -114,7 +115,7 @@ export class SpecVersionServiceV8 {
 	 */
 	static isFlowAvailable(specVersion: SpecVersion, flowType: FlowType): boolean {
 		const available = SpecVersionServiceV8.getAvailableFlows(specVersion).includes(flowType);
-		console.log(`${MODULE_TAG} Flow availability check`, { specVersion, flowType, available });
+		logger.info(`${MODULE_TAG} Flow availability check`, { specVersion, flowType, available });
 		return available;
 	}
 
@@ -157,7 +158,7 @@ export class SpecVersionServiceV8 {
 		flowType: FlowType,
 		config: Record<string, unknown>
 	): ValidationResult {
-		console.log(`${MODULE_TAG} Validating configuration`, { specVersion, flowType });
+		logger.info(`${MODULE_TAG} Validating configuration`, { specVersion, flowType });
 
 		const errors: string[] = [];
 		const warnings: string[] = [];
@@ -203,7 +204,7 @@ export class SpecVersionServiceV8 {
 		}
 
 		const valid = errors.length === 0;
-		console.log(`${MODULE_TAG} Validation complete`, {
+		logger.info(`${MODULE_TAG} Validation complete`, {
 			valid,
 			errorCount: errors.length,
 			warningCount: warnings.length,

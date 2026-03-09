@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
+import { logger } from '../utils/logger';
 // Styled Components
 const Card = styled.div`
 	background: white;
@@ -163,7 +164,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 				return;
 			}
 
-			console.log('🔄 [ConfigurationSummaryCard] Starting export...', configuration);
+			logger.info('🔄 [ConfigurationSummaryCard] Starting export...', configuration);
 
 			// Create a copy of the configuration
 			const configToExport = {
@@ -174,12 +175,12 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 			// Encrypt the client secret if it exists
 			if (configToExport.clientSecret?.trim()) {
-				console.log('🔐 [ConfigurationSummaryCard] Encrypting client secret...');
+				logger.info('🔐 [ConfigurationSummaryCard] Encrypting client secret...');
 				configToExport.clientSecret = await encryptSecret(configToExport.clientSecret);
 				configToExport.isEncrypted = true;
 			}
 
-			console.log('📝 [ConfigurationSummaryCard] Creating JSON blob...', configToExport);
+			logger.info('📝 [ConfigurationSummaryCard] Creating JSON blob...', configToExport);
 
 			// Create JSON blob
 			const jsonString = JSON.stringify(configToExport, null, 2);
@@ -196,10 +197,10 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			console.log('✅ [ConfigurationSummaryCard] Export completed successfully');
+			logger.info('✅ [ConfigurationSummaryCard] Export completed successfully');
 			showGlobalSuccess('Configuration exported successfully!');
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ConfigurationSummaryCard',
 				'❌ [ConfigurationSummaryCard] Export failed:',
 				undefined,
@@ -211,7 +212,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 	const handleImportConfiguration = async () => {
 		try {
-			console.log('🔄 [ConfigurationSummaryCard] Starting import...');
+			logger.info('🔄 [ConfigurationSummaryCard] Starting import...');
 
 			// Create file input element
 			const input = document.createElement('input');
@@ -222,22 +223,22 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					const file = (event.target as HTMLInputElement).files?.[0];
 					if (!file) return;
 
-					console.log('📁 [ConfigurationSummaryCard] File selected:', file.name);
+					logger.info('📁 [ConfigurationSummaryCard] File selected:', file.name);
 
 					const text = await file.text();
 					const importedConfig = JSON.parse(text);
 
-					console.log('📝 [ConfigurationSummaryCard] Config parsed:', importedConfig);
+					logger.info('📝 [ConfigurationSummaryCard] Config parsed:', importedConfig);
 
 					// Decrypt the client secret if it's encrypted
 					if (importedConfig.isEncrypted && importedConfig.clientSecret) {
 						try {
-							console.log('🔓 [ConfigurationSummaryCard] Decrypting client secret...');
+							logger.info('🔓 [ConfigurationSummaryCard] Decrypting client secret...');
 							importedConfig.clientSecret = await decryptSecret(importedConfig.clientSecret);
 							delete importedConfig.isEncrypted;
-							console.log('✅ [ConfigurationSummaryCard] Client secret decrypted successfully');
+							logger.info('✅ [ConfigurationSummaryCard] Client secret decrypted successfully');
 						} catch (error) {
-							log.error(
+							logger.error(
 								'ConfigurationSummaryCard',
 								'❌ [ConfigurationSummaryCard] Failed to decrypt secret:',
 								undefined,
@@ -252,7 +253,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					onLoadConfiguration?.(importedConfig);
 					showGlobalSuccess('Configuration imported successfully!');
 				} catch (error) {
-					log.error(
+					logger.error(
 						'ConfigurationSummaryCard',
 						'❌ [ConfigurationSummaryCard] Import processing failed:',
 						undefined,
@@ -263,7 +264,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			};
 			input.click();
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ConfigurationSummaryCard',
 				'❌ [ConfigurationSummaryCard] Import failed:',
 				undefined,

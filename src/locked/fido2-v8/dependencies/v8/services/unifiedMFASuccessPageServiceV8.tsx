@@ -28,6 +28,7 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
+import { logger } from '../../../../utils/logger';
 export interface UnifiedMFASuccessPageData {
 	// Flow type
 	flowType: 'registration' | 'authentication';
@@ -132,7 +133,7 @@ const decodeJWT = (token: string): Record<string, unknown> | null => {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (error) {
-		console.error('Failed to decode JWT:', error);
+		logger.error('Failed to decode JWT:', error);
 		return null;
 	}
 };
@@ -161,7 +162,7 @@ const fetchUserInfo = async (
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			console.warn(
+			logger.warn(
 				'UserInfo request failed:',
 				response.status,
 				errorData.message || errorData.error
@@ -172,7 +173,7 @@ const fetchUserInfo = async (
 		const userInfo = await response.json();
 		return userInfo;
 	} catch (error) {
-		console.error('Failed to fetch user info:', error);
+		logger.error('Failed to fetch user info:', error);
 		return null;
 	}
 };
@@ -253,7 +254,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						setUserInfo(info);
 					}
 				} catch (error) {
-					console.error('Failed to load user info:', error);
+					logger.error('Failed to load user info:', error);
 				} finally {
 					setIsLoadingUserInfo(false);
 				}
@@ -339,7 +340,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 
 	// Debug logging for FIDO2 documentation button
 	if (deviceTypeStr === 'FIDO2' || deviceType === 'FIDO2') {
-		console.log('[UnifiedMFASuccessPageV8] FIDO2 documentation button check:', {
+		logger.info('[UnifiedMFASuccessPageV8] FIDO2 documentation button check:', {
 			deviceType,
 			deviceTypeStr,
 			flowType,

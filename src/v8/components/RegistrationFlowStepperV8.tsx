@@ -32,6 +32,7 @@ import type {
 } from '@/v8/flows/shared/MFATypes';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
@@ -187,7 +188,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 					false // forceShowModal=false: automatic mount check
 				);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in worker token check:`, error);
+				logger.error(`${MODULE_TAG} Error in worker token check:`, error);
 			}
 		};
 
@@ -200,7 +201,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 		const currentPath = location.pathname;
 
 		if (isOAuthCallbackReturn) {
-			console.log(`${MODULE_TAG} OAuth callback detected, processing return...`);
+			logger.info(`${MODULE_TAG} OAuth callback detected, processing return...`);
 
 			// Store flow context for callback handler (Unified OAuth pattern)
 			const flowContext = {
@@ -212,7 +213,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-			console.log(`${MODULE_TAG} 🎯 Stored flow context for registration`);
+			logger.info(`${MODULE_TAG} 🎯 Stored flow context for registration`);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
@@ -395,7 +396,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 						if (
 							validateStep0(credsToValidate, WorkerTokenStatusServiceV8.getCachedTokenStatus(), nav)
 						) {
-							console.log(`${MODULE_TAG} Step 0 validation passed`);
+							logger.info(`${MODULE_TAG} Step 0 validation passed`);
 						}
 					}
 				}}

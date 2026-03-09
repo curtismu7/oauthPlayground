@@ -7,6 +7,7 @@ import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CopyButtonVariants } from './copyButtonService';
 
+import { logger } from '../../../utils/logger';
 export interface PKCECodes {
 	codeVerifier: string;
 	codeChallenge: string;
@@ -403,7 +404,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 
 			v4ToastManager.showSuccess('PKCE codes generated successfully!');
 		} catch (error) {
-			console.error('PKCE generation failed:', error);
+			logger.error('PKCE generation failed:', error);
 			v4ToastManager.showError('Failed to generate PKCE codes');
 		} finally {
 			setIsLocalGenerating(false);

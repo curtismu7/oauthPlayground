@@ -455,7 +455,7 @@ export const useClientCredentialsFlowController = (
 								flowVariant: flowState?.flowVariant || defaultFlowVariant,
 							})
 						);
-						console.log(
+						logger.info(
 							'[ClientCredsController] Migrated legacy admin scopes to CLAIMICFACILITY scope for client credentials'
 						);
 					}
@@ -470,7 +470,7 @@ export const useClientCredentialsFlowController = (
 					if (flowState.flowVariant) setFlowVariant(flowState.flowVariant as FlowVariant);
 				}
 
-				console.log('[ClientCredsController] Loaded data:', {
+				logger.info('[ClientCredsController] Loaded data:', {
 					hasSharedCredentials,
 					hasFlowState: !!flowState,
 					environmentId: loadedCreds?.environmentId,
@@ -567,7 +567,7 @@ export const useClientCredentialsFlowController = (
 		}
 
 		setIsRequesting(true);
-		console.log('Requesting access token...', {
+		logger.info('Requesting access token...', {
 			authMethod: flowConfig.authMethod,
 			scopes: flowConfig.scopes,
 			audience: flowConfig.audience,
@@ -591,9 +591,9 @@ export const useClientCredentialsFlowController = (
 			// Apply client authentication
 			const { headers, body } = await applyClientAuthentication(flowConfig, requestBody);
 
-			console.log('Token endpoint:', tokenEndpoint);
-			console.log('Request headers:', headers);
-			console.log('Request body:', body);
+			logger.info('Token endpoint:', tokenEndpoint);
+			logger.info('Request headers:', headers);
+			logger.info('Request body:', body);
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -645,7 +645,7 @@ export const useClientCredentialsFlowController = (
 			);
 
 			showGlobalSuccess(`Access token retrieved successfully using ${flowConfig.authMethod}!`);
-			console.log('Token request successful:', tokenData);
+			logger.info('Token request successful:', tokenData);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			showGlobalError(`Token request failed: ${errorMessage}`);
@@ -823,7 +823,7 @@ export const useClientCredentialsFlowController = (
 
 		// Log validation details for debugging
 		if (!isValid) {
-			console.log('[ClientCredsController] Validation failed:', {
+			logger.info('[ClientCredsController] Validation failed:', {
 				authMethod,
 				baseRequirementsMet,
 				authRequirementsMet,

@@ -39,6 +39,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialGuardService } from '../credentialGuardService';
 import ModalPresentationService from '../modalPresentationService';
 
+import { logger } from '../utils/logger';
 // Flow-specific credential requirements
 export type V9CredentialValues = Record<string, unknown>;
 export type V9CredentialInput = V9CredentialValues | null | undefined;
@@ -65,7 +66,7 @@ export interface V9FlowCredentialConfig {
  * ```typescript
  * // Access configuration for a specific flow
  * const config = V9_FLOW_CONFIGS['oidc-hybrid-v9'];
- * console.log(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
+ * logger.info(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
  * ```
  */
 export const V9_FLOW_CONFIGS: Record<string, V9FlowCredentialConfig> = {
@@ -249,8 +250,8 @@ export interface UseV9CredentialValidationReturn {
  *   flowKey: 'oidc-hybrid-v9',
  *   credentials: controller.credentials,
  *   currentStep: 0,
- *   onValidationSuccess: () => console.log('Validation passed'),
- *   onValidationFailure: (fields) => console.log('Missing fields:', fields)
+ *   onValidationSuccess: () => logger.info('Validation passed'),
+ *   onValidationFailure: (fields) => logger.info('Missing fields:', fields)
  * });
  * ```
  *

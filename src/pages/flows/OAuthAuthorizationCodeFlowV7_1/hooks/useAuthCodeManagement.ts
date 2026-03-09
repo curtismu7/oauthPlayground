@@ -6,6 +6,7 @@ import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { AuthCodeState } from '../types/flowTypes';
 
+import { logger } from '../../../utils/logger';
 export const useAuthCodeManagement = () => {
 	const [authCode, setAuthCode] = useState<string | null>(null);
 	const [authCodeSource, setAuthCodeSource] = useState<AuthCodeState['source']>('manual');
@@ -114,7 +115,7 @@ export const useAuthCodeManagement = () => {
 	useEffect(() => {
 		const detectedCode = detectAuthCode();
 		if (detectedCode) {
-			console.log('🔍 Auth code detected:', {
+			logger.info('🔍 Auth code detected:', {
 				code: `${detectedCode.substring(0, 20)}...`,
 				source: authCodeSource,
 				timestamp: new Date(authCodeTimestamp).toISOString(),

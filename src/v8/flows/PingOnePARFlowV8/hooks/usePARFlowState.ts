@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
 import { PAR_FLOW_CONSTANTS } from '../constants/parFlowConstants';
+import { logger } from '../../../utils/logger';
 import type {
 	FlowCredentials,
 	FlowVariant,
@@ -77,7 +78,7 @@ export const usePARFlowState = () => {
 				}
 			}
 		} catch (error) {
-			console.warn('Failed to load PAR flow state:', error);
+			logger.warn('Failed to load PAR flow state:', error);
 		}
 	}, []);
 
@@ -102,7 +103,7 @@ export const usePARFlowState = () => {
 				});
 			}
 		} catch (error) {
-			console.warn('Failed to save PAR flow state:', error);
+			logger.warn('Failed to save PAR flow state:', error);
 		}
 	}, [flowState, credentials, pkceCodes, tokens, userInfo, stepCompletion]);
 
@@ -212,7 +213,7 @@ export const usePARFlowState = () => {
 		sessionStorage.removeItem(`${STORAGE_PREFIX}-state`);
 		// Clear PKCE codes from bulletproof storage
 		PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
-			console.error('Failed to clear PKCE codes from bulletproof storage:', err);
+			logger.error('Failed to clear PKCE codes from bulletproof storage:', err);
 		});
 	}, []);
 

@@ -24,6 +24,7 @@ import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from './MFATypes';
 
+import { logger } from '../../utils/logger';
 export interface MFASuccessPageData {
 	deviceId: string;
 	deviceType: DeviceType;
@@ -156,7 +157,7 @@ const convertToUnifiedData = (
 
 	// Debug logging for FIDO2
 	if (deviceType === 'FIDO2' || successData.deviceType === 'FIDO2') {
-		console.log('[MFASuccessPageV8] Converting FIDO2 success data:', {
+		logger.info('[MFASuccessPageV8] Converting FIDO2 success data:', {
 			successDataDeviceType: successData.deviceType,
 			credentialsDeviceType: credentials.deviceType,
 			finalDeviceType: deviceType,

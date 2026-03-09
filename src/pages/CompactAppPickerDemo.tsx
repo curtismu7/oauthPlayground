@@ -9,6 +9,7 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
+import { logger } from '../utils/logger';
 const PageContainer = styled.div`
 	max-width: 90rem;
 	margin: 0 auto;
@@ -229,7 +230,7 @@ const CompactAppPickerDemo: React.FC = () => {
 
 	const handleAppSelect = useCallback((app: any) => {
 		setSelectedApp(app);
-		console.log('Selected application:', app);
+		logger.info('Selected application:', app);
 	}, []);
 
 	return (

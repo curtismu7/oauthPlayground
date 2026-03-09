@@ -6,6 +6,7 @@ import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/worke
 import { validateCredentialFormat } from '../../utils/clientCredentials';
 import { validateEnvironmentId } from '../../utils/workerToken';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;
@@ -290,7 +291,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 		setIsValidating(true);
 
 		try {
-			log.info('WORKER-CREDENTIALS', 'Testing connection', {
+			logger.info('WORKER-CREDENTIALS', 'Testing connection', {
 				clientId: `${credentials.client_id.substring(0, 8)}...`,
 				environmentId: credentials.environment_id,
 			});
@@ -313,13 +314,13 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 			);
 
 			if (response.ok) {
-				log.success('WORKER-CREDENTIALS', 'Connection test successful');
+				logger.success('WORKER-CREDENTIALS', 'Connection test successful');
 				setValidationErrors([]);
 			} else {
 				throw new Error(`Token endpoint returned ${response.status}`);
 			}
 		} catch (error) {
-			log.error('WORKER-CREDENTIALS', 'Connection test failed', error);
+			logger.error('WORKER-CREDENTIALS', 'Connection test failed', error);
 			setValidationErrors([
 				`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			]);
@@ -331,7 +332,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 	const handleLoadFromEnv = useCallback(() => {
 		// In a real implementation, this would load from actual environment variables
 		// For now, we'll just show a placeholder
-		log.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
+		logger.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
 		// This would be implemented based on the actual environment variable loading mechanism
 	}, []);
 

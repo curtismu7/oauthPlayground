@@ -14,6 +14,7 @@ import { workerTokenServiceV8 } from '../../../dependencies/v8/services/workerTo
 import { WorkerTokenStatusServiceV8 } from '../../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from '../../../dependencies/v8/utils/toastNotificationsV8.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {
@@ -131,7 +132,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error(
 				error instanceof Error
 					? error.message

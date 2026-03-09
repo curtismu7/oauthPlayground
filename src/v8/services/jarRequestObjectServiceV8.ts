@@ -211,7 +211,7 @@ export class JARRequestObjectServiceV8 {
 			...(params.requestUri && { request_uri: params.requestUri }),
 		};
 
-		console.log(`${MODULE_TAG} Request object payload built`, {
+		logger.info(`${MODULE_TAG} Request object payload built`, {
 			iss: payload.iss,
 			aud: payload.aud,
 			response_type: payload.response_type,
@@ -257,7 +257,7 @@ export class JARRequestObjectServiceV8 {
 
 			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(secretKey);
 
-			console.log(`${MODULE_TAG} Request object signed with HS256`, {
+			logger.info(`${MODULE_TAG} Request object signed with HS256`, {
 				jti: payload.jti,
 				hasKeyId: !!keyId,
 			});
@@ -266,7 +266,7 @@ export class JARRequestObjectServiceV8 {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error during HS256 signing';
-			console.error(`${MODULE_TAG} HS256 signing failed:`, errorMessage);
+			logger.error(`${MODULE_TAG} HS256 signing failed:`, errorMessage);
 			throw new Error(`Failed to sign request object with HS256: ${errorMessage}`);
 		}
 	}
@@ -300,12 +300,13 @@ export class JARRequestObjectServiceV8 {
 			// Import private key from PKCS#8 format
 			const key = await importPKCS8(privateKey, 'RS256');
 
+import { logger } from '../utils/logger';
 			// Convert payload to plain object (remove type assertion to avoid issues)
 			const payloadObj: Record<string, unknown> = { ...payload };
 
 			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(key);
 
-			console.log(`${MODULE_TAG} Request object signed with RS256`, {
+			logger.info(`${MODULE_TAG} Request object signed with RS256`, {
 				jti: payload.jti,
 				hasKeyId: !!keyId,
 			});
@@ -314,7 +315,7 @@ export class JARRequestObjectServiceV8 {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error during RS256 signing';
-			console.error(`${MODULE_TAG} RS256 signing failed:`, errorMessage);
+			logger.error(`${MODULE_TAG} RS256 signing failed:`, errorMessage);
 
 			// Provide helpful error messages for common issues
 			if (errorMessage.includes('PKCS8') || errorMessage.includes('parse')) {
@@ -430,7 +431,7 @@ export class JARRequestObjectServiceV8 {
 				// Ignore header decode errors
 			}
 
-			console.log(`${MODULE_TAG} ✅ Request object JWT generated successfully`, {
+			logger.info(`${MODULE_TAG} ✅ Request object JWT generated successfully`, {
 				algorithm: config.algorithm,
 				jti: payload.jti,
 				length: requestObject.length,
@@ -445,7 +446,7 @@ export class JARRequestObjectServiceV8 {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error during request object generation';
-			console.error(`${MODULE_TAG} ❌ Failed to generate request object:`, errorMessage);
+			logger.error(`${MODULE_TAG} ❌ Failed to generate request object:`, errorMessage);
 
 			return {
 				success: false,

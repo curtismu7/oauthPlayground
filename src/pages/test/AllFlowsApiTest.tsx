@@ -13,6 +13,7 @@ import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenServ
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
+import { logger } from '../utils/logger';
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
 	environmentId: string;
@@ -297,7 +298,7 @@ const AllFlowsApiTest: React.FC = () => {
 		let envId = '';
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
-			console.log('[AllFlowsApiTest] Initializing config - checking worker token:', {
+			logger.info('[AllFlowsApiTest] Initializing config - checking worker token:', {
 				hasStored: !!stored,
 				storedLength: stored?.length || 0,
 			});
@@ -305,14 +306,14 @@ const AllFlowsApiTest: React.FC = () => {
 			if (stored) {
 				const data = JSON.parse(stored);
 				envId = data.credentials?.environmentId || '';
-				console.log('[AllFlowsApiTest] Worker token data:', {
+				logger.info('[AllFlowsApiTest] Worker token data:', {
 					hasCredentials: !!data.credentials,
 					environmentId: data.credentials?.environmentId || 'NOT_FOUND',
 					extractedEnvId: envId || 'EXTRACTED_EMPTY',
 				});
 			}
 		} catch (error) {
-			console.log('[AllFlowsApiTest] Failed to load environment ID from worker token:', error);
+			logger.info('[AllFlowsApiTest] Failed to load environment ID from worker token:', error);
 		}
 
 		return {
@@ -351,10 +352,10 @@ const AllFlowsApiTest: React.FC = () => {
 	// Listen for worker token updates and update environment ID
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			console.log('[AllFlowsApiTest] Worker token update triggered');
+			logger.info('[AllFlowsApiTest] Worker token update triggered');
 			try {
 				const stored = localStorage.getItem('unified_worker_token');
-				console.log('[AllFlowsApiTest] Checking stored worker token:', {
+				logger.info('[AllFlowsApiTest] Checking stored worker token:', {
 					hasStored: !!stored,
 					currentConfigEnvId: config.environmentId || 'EMPTY',
 				});
@@ -363,7 +364,7 @@ const AllFlowsApiTest: React.FC = () => {
 					const data = JSON.parse(stored);
 					const workerTokenEnvId = data.credentials?.environmentId || '';
 
-					console.log('[AllFlowsApiTest] Worker token update data:', {
+					logger.info('[AllFlowsApiTest] Worker token update data:', {
 						hasCredentials: !!data.credentials,
 						workerTokenEnvId: workerTokenEnvId || 'NOT_FOUND',
 						shouldUpdate: workerTokenEnvId && !config.environmentId,
@@ -371,21 +372,21 @@ const AllFlowsApiTest: React.FC = () => {
 
 					// Update environment ID if worker token has one and config doesn't
 					if (workerTokenEnvId && !config.environmentId) {
-						console.log('[AllFlowsApiTest] Updating environment ID to:', workerTokenEnvId);
+						logger.info('[AllFlowsApiTest] Updating environment ID to:', workerTokenEnvId);
 						setConfig((prev) => ({
 							...prev,
 							environmentId: workerTokenEnvId,
 						}));
 					} else {
-						console.log(
+						logger.info(
 							'[AllFlowsApiTest] No update needed - either no envId in token or config already has envId'
 						);
 					}
 				} else {
-					console.log('[AllFlowsApiTest] No worker token found in storage');
+					logger.info('[AllFlowsApiTest] No worker token found in storage');
 				}
 			} catch (error) {
-				console.log('[AllFlowsApiTest] Failed to update environment ID from worker token:', error);
+				logger.info('[AllFlowsApiTest] Failed to update environment ID from worker token:', error);
 			}
 		};
 
@@ -468,7 +469,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing URL Generation for:', config.flowType);
+			logger.info('🧪 Testing URL Generation for:', config.flowType);
 
 			// Generate state and nonce
 			const state = config.state || generateState();
@@ -541,7 +542,7 @@ const AllFlowsApiTest: React.FC = () => {
 				duration,
 			});
 
-			console.log('✅ URL generated successfully:', url);
+			logger.info('✅ URL generated successfully:', url);
 			return url;
 		} catch (error) {
 			const duration = Date.now() - startTime;
@@ -565,7 +566,7 @@ const AllFlowsApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				console.log('🧪 Testing Token Exchange...');
+				logger.info('🧪 Testing Token Exchange...');
 
 				const codeVerifier = config.usePkce ? generateCodeVerifier() : undefined;
 
@@ -615,9 +616,9 @@ const AllFlowsApiTest: React.FC = () => {
 				});
 
 				if (response.ok) {
-					console.log('✅ Token exchange successful');
+					logger.info('✅ Token exchange successful');
 				} else {
-					console.log(
+					logger.info(
 						'ℹ️ Token exchange failed (expected for test without real auth code):',
 						responseData
 					);
@@ -647,7 +648,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Client Credentials Flow...');
+			logger.info('🧪 Testing Client Credentials Flow...');
 
 			const requestBody = {
 				grant_type: 'client_credentials',
@@ -691,9 +692,9 @@ const AllFlowsApiTest: React.FC = () => {
 			});
 
 			if (response.ok) {
-				console.log('✅ Client credentials successful');
+				logger.info('✅ Client credentials successful');
 			} else {
-				console.log('ℹ️ Client credentials failed:', responseData);
+				logger.info('ℹ️ Client credentials failed:', responseData);
 			}
 
 			return responseData;
@@ -718,7 +719,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing Device Code Flow...');
+			logger.info('🧪 Testing Device Code Flow...');
 
 			const requestBody = {
 				client_id: config.clientId,
@@ -761,9 +762,9 @@ const AllFlowsApiTest: React.FC = () => {
 			});
 
 			if (response.ok) {
-				console.log('✅ Device code successful');
+				logger.info('✅ Device code successful');
 			} else {
-				console.log('ℹ️ Device code failed:', responseData);
+				logger.info('ℹ️ Device code failed:', responseData);
 			}
 
 			return responseData;
@@ -788,7 +789,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing MFA Device Registration for:', config.deviceType);
+			logger.info('🧪 Testing MFA Device Registration for:', config.deviceType);
 
 			if (!config.username || !config.deviceType) {
 				throw new Error('Username and device type are required for MFA registration');
@@ -821,7 +822,7 @@ const AllFlowsApiTest: React.FC = () => {
 					output: data,
 					duration,
 				});
-				console.log('✅ MFA Device Registration successful:', data);
+				logger.info('✅ MFA Device Registration successful:', data);
 				return data;
 			} else {
 				throw new Error(data.message || 'MFA registration failed');
@@ -847,7 +848,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			console.log('🧪 Testing MFA Authentication for:', config.deviceType);
+			logger.info('🧪 Testing MFA Authentication for:', config.deviceType);
 
 			if (!config.username || !config.deviceType) {
 				throw new Error('Username and device type are required for MFA authentication');
@@ -897,7 +898,7 @@ const AllFlowsApiTest: React.FC = () => {
 					output: authData,
 					duration,
 				});
-				console.log('✅ MFA Authentication Challenge successful:', authData);
+				logger.info('✅ MFA Authentication Challenge successful:', authData);
 				return authData;
 			} else {
 				throw new Error(authData.message || 'MFA authentication failed');
@@ -924,7 +925,7 @@ const AllFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			console.log('🚀 Starting API Tests for:', config.flowType);
+			logger.info('🚀 Starting API Tests for:', config.flowType);
 
 			// Test URL generation for all flows except client credentials
 			if (config.flowType !== 'client_credentials') {
@@ -950,7 +951,7 @@ const AllFlowsApiTest: React.FC = () => {
 					await testMFAAuthentication();
 					break;
 				case 'implicit':
-					console.log('ℹ️ Implicit flow requires manual redirect - URL generated above');
+					logger.info('ℹ️ Implicit flow requires manual redirect - URL generated above');
 					break;
 			}
 		} catch (error) {

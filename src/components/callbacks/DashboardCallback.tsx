@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
   min-height: 100vh;
   display: flex;
@@ -113,7 +114,7 @@ const DashboardCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('DashboardCallback');
-				log.auth('DashboardCallback', 'Processing dashboard login callback', {
+				logger.auth('DashboardCallback', 'Processing dashboard login callback', {
 					url: currentUrl,
 				});
 
@@ -122,7 +123,7 @@ const DashboardCallback: React.FC = () => {
 				if (result.success) {
 					setStatus('success');
 					setMessage('Dashboard login successful! Redirecting to dashboard...');
-					log.auth('DashboardCallback', 'Dashboard login successful', {
+					logger.auth('DashboardCallback', 'Dashboard login successful', {
 						redirectUrl: '/dashboard',
 					});
 
@@ -134,13 +135,13 @@ const DashboardCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Dashboard login failed');
 					setError(result.error || 'Unknown error occurred');
-					log.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
+					logger.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
 				}
 			} catch (err) {
 				setStatus('error');
 				setMessage('Dashboard login failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				log.error('DashboardCallback', 'Error processing dashboard callback', err);
+				logger.error('DashboardCallback', 'Error processing dashboard callback', err);
 			}
 		};
 

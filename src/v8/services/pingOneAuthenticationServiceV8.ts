@@ -12,6 +12,7 @@
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 PINGONE-AUTH-V8]';
 
 export interface PingOneAuthResult {
@@ -27,7 +28,7 @@ export interface PingOneAuthResult {
  * Always provides success message for user feedback
  */
 export function checkPingOneAuthentication(): PingOneAuthResult {
-	console.log(`${MODULE_TAG} 🔍 Checking PingOne authentication status...`);
+	logger.info(`${MODULE_TAG} 🔍 Checking PingOne authentication status...`);
 
 	// Check for session cookies first (most reliable indicator)
 	const hasSessionCookie = hasPingOneSessionCookie();
@@ -41,7 +42,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'PingOne session cookie detected - user is authenticated',
 		};
 
-		console.log(`${MODULE_TAG} ✅ Session cookie authentication detected:`, result);
+		logger.info(`${MODULE_TAG} ✅ Session cookie authentication detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -61,7 +62,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 
 	if (hasError) {
 		const error = urlParams.get('error') || fragmentParams.get('error');
-		console.warn(`${MODULE_TAG} ⚠️ Authentication error detected:`, error);
+		logger.warn(`${MODULE_TAG} ⚠️ Authentication error detected:`, error);
 
 		const result: PingOneAuthResult = {
 			isAuthenticated: false,
@@ -83,7 +84,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'OAuth authorization code received from PingOne',
 		};
 
-		console.log(`${MODULE_TAG} ✅ OAuth flow authentication detected:`, result);
+		logger.info(`${MODULE_TAG} ✅ OAuth flow authentication detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -97,7 +98,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'Implicit flow access token received from PingOne',
 		};
 
-		console.log(`${MODULE_TAG} ✅ Implicit flow authentication detected:`, result);
+		logger.info(`${MODULE_TAG} ✅ Implicit flow authentication detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -115,7 +116,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'ID token received from PingOne',
 		};
 
-		console.log(`${MODULE_TAG} ✅ ID token authentication detected:`, result);
+		logger.info(`${MODULE_TAG} ✅ ID token authentication detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -129,7 +130,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'OAuth state parameter present - likely authenticated',
 		};
 
-		console.log(`${MODULE_TAG} 🔍 OAuth state detected:`, result);
+		logger.info(`${MODULE_TAG} 🔍 OAuth state detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -143,7 +144,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 		details: 'No clear authentication indicators, assuming authenticated for user experience',
 	};
 
-	console.log(`${MODULE_TAG} 🤔 Default authentication assumption:`, result);
+	logger.info(`${MODULE_TAG} 🤔 Default authentication assumption:`, result);
 	showAuthenticationSuccess(result);
 	return result;
 }
@@ -184,7 +185,7 @@ function showAuthenticationSuccess(result: PingOneAuthResult): void {
 	}
 
 	// Log detailed authentication info for debugging
-	console.log(`${MODULE_TAG} 📊 Authentication Summary:`, {
+	logger.info(`${MODULE_TAG} 📊 Authentication Summary:`, {
 		method: result.method,
 		confidence: result.confidence,
 		hasSessionCookie: result.hasSessionCookie,
@@ -247,7 +248,7 @@ export function performDetailedAuthenticationCheck(): {
 		storageKeys,
 	};
 
-	console.log(`${MODULE_TAG} 🔬 Detailed Authentication Diagnostics:`, {
+	logger.info(`${MODULE_TAG} 🔬 Detailed Authentication Diagnostics:`, {
 		result,
 		diagnostics,
 	});
@@ -289,7 +290,7 @@ export function shouldRedirectToPingOne(): boolean {
 	}
 
 	// Otherwise, recommend redirect
-	console.log(`${MODULE_TAG} 🔄 Recommend redirect to PingOne for authentication`);
+	logger.info(`${MODULE_TAG} 🔄 Recommend redirect to PingOne for authentication`);
 	return true;
 }
 

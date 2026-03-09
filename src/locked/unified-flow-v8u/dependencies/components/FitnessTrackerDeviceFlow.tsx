@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Fitbit Main Container - Authentic Fitbit Design
 const FitnessTrackerContainer = styled.div`
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
@@ -292,17 +293,17 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('FitnessTrackerDeviceFlow', 'User code copied to clipboard');
+		logger.info('FitnessTrackerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const _handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('FitnessTrackerDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('FitnessTrackerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('FitnessTrackerDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('FitnessTrackerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusText = () => {

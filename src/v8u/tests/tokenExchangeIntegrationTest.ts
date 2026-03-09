@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file tokenExchangeIntegrationTest.ts
  * @module v8u/tests
  * @description Integration test for token exchange flow with real DOM manipulation
@@ -393,20 +394,20 @@ class TokenExchangeIntegrationTest {
 		const hasTokens = !!sessionStorage.getItem(tokensKey);
 		// PKCE variable unused - remove to fix lint warning
 
-		console.log('');
+		logger.info('');
 
 		if (!onFlowPage) {
 		} else if (!hasTokens) {
 		} else {
 		}
-		console.log('');
+		logger.info('');
 	}
 
 	/**
 	 * Run all integration tests
 	 */
 	public async runAllTests(): Promise<void> {
-		console.log('');
+		logger.info('');
 
 		// Check flow state first
 		this.checkFlowState();
@@ -429,8 +430,8 @@ class TokenExchangeIntegrationTest {
 	 * Print test results
 	 */
 	private printResults(): void {
-		console.log('');
-		console.log('');
+		logger.info('');
+		logger.info('');
 
 		// Passed variable unused - remove to fix lint warning
 		const skipped = this.results.filter((r) => r.message.includes('⏭️')).length;
@@ -442,7 +443,7 @@ class TokenExchangeIntegrationTest {
 			// Icon variable unused - remove to fix lint warning
 			if (result.domState && !result.message.includes('⏭️')) {
 			}
-			console.log('');
+			logger.info('');
 		});
 
 		if (actualTests > 0) {
@@ -471,18 +472,18 @@ function _checkTokenExchangeState() {
 	const pkceKey = `v8u_flow_${flowKey}_pkce`;
 	const callbackKey = `v8u_flow_${flowKey}_callback`;
 
-	console.log('');
+	logger.info('');
 
 	// Check location
 	const onFlowPage = window.location.pathname.includes('/v8u/unified/oauth-authz');
-	console.log('');
+	logger.info('');
 
 	// Check storage
 	const tokensData = sessionStorage.getItem(tokensKey);
 	const pkceData = sessionStorage.getItem(pkceKey);
 	const callbackData = sessionStorage.getItem(callbackKey);
 
-	console.log('');
+	logger.info('');
 
 	// Check DOM
 	const successMessages = Array.from(document.querySelectorAll('div')).filter((div) => {
@@ -507,7 +508,7 @@ function _checkTokenExchangeState() {
 	} else {
 	}
 
-	console.log('');
+	logger.info('');
 
 	return {
 		onFlowPage,

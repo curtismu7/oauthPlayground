@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // VIZIO TV Physical Housing
 const VizioTVContainer = styled.div`
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
@@ -317,12 +318,12 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('VizioTVDeviceFlow', 'User code copied to clipboard');
+		logger.info('VizioTVDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

@@ -261,7 +261,7 @@ export class HybridFlowCredentialsSync {
 	 * Sync credentials from controller
 	 */
 	static syncCredentials(variant: HybridFlowVariant, credentials: StepCredentials): void {
-		log.info(`Syncing credentials for ${variant} hybrid flow`, {
+		logger.info(`Syncing credentials for ${variant} hybrid flow`, {
 			environmentId: credentials.environmentId,
 			clientId: `${credentials.clientId?.substring(0, 8)}...`,
 			responseType: credentials.responseType,
@@ -270,13 +270,13 @@ export class HybridFlowCredentialsSync {
 
 		// Validate credentials
 		if (!credentials.environmentId || !credentials.clientId) {
-			log.warn('Missing required credentials for hybrid flow');
+			logger.warn('Missing required credentials for hybrid flow');
 			return;
 		}
 
 		// Validate response type for hybrid flow
 		if (!HybridFlowDefaults.validateResponseType(credentials.responseType || '')) {
-			log.warn('Invalid response type for hybrid flow', credentials.responseType);
+			logger.warn('Invalid response type for hybrid flow', credentials.responseType);
 		}
 	}
 
@@ -345,7 +345,7 @@ export class HybridFlowStepRestoration {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step');
-			log.info('Restoring step from session storage', { step });
+			logger.info('Restoring step from session storage', { step });
 			return step;
 		}
 
@@ -354,7 +354,7 @@ export class HybridFlowStepRestoration {
 		const urlStep = urlParams.get('step');
 		if (urlStep) {
 			const step = parseInt(urlStep, 10);
-			log.info('Using step from URL parameter', { step });
+			logger.info('Using step from URL parameter', { step });
 			return step;
 		}
 
@@ -367,7 +367,7 @@ export class HybridFlowStepRestoration {
 	 */
 	static storeStepForRestoration(step: number): void {
 		sessionStorage.setItem('hybrid_flow_step', step.toString());
-		log.info('Stored step for restoration', { step });
+		logger.info('Stored step for restoration', { step });
 	}
 
 	/**
@@ -400,7 +400,7 @@ export class HybridFlowCollapsibleSectionsManager {
 				...prev,
 				[key]: !prev[key],
 			}));
-			log.info('Toggled collapsible section', { key, collapsed: !setCollapsedSections[key] });
+			logger.info('Toggled collapsible section', { key, collapsed: !setCollapsedSections[key] });
 		};
 	}
 
@@ -415,7 +415,7 @@ export class HybridFlowCollapsibleSectionsManager {
 			...prev,
 			[key]: !prev[key],
 		}));
-		log.info('Toggled section', { key });
+		logger.info('Toggled section', { key });
 	}
 }
 
@@ -449,7 +449,7 @@ export class HybridFlowTokenProcessor {
 			tokens.expires_in = parseInt(params.get('expires_in')!, 10);
 		}
 
-		log.info('Processed fragment tokens', {
+		logger.info('Processed fragment tokens', {
 			hasAccessToken: !!tokens.access_token,
 			hasIdToken: !!tokens.id_token,
 			hasRefreshToken: !!tokens.refresh_token,
@@ -473,7 +473,7 @@ export class HybridFlowTokenProcessor {
 			merged.refresh_token = exchangeTokens.refresh_token;
 		}
 
-		log.info('Merged tokens from fragment and exchange', {
+		logger.info('Merged tokens from fragment and exchange', {
 			hasAccessToken: !!merged.access_token,
 			hasIdToken: !!merged.id_token,
 			hasRefreshToken: !!merged.refresh_token,

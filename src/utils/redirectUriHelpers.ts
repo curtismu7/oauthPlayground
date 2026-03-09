@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/redirectUriHelpers.ts
 // Utility functions to ensure redirect_uri consistency between authorization request and token exchange
 
@@ -18,7 +19,7 @@ export function storeRedirectUriFromAuthUrl(authUrl: string, flowKey: string): s
 		if (redirectUri) {
 			const storageKey = `${flowKey}_actual_redirect_uri`;
 			sessionStorage.setItem(storageKey, redirectUri);
-			console.log(`🔐 [RedirectURI] Stored from auth URL for ${flowKey}: ${redirectUri}`);
+			logger.info(`🔐 [RedirectURI] Stored from auth URL for ${flowKey}: ${redirectUri}`);
 			return redirectUri;
 		}
 
@@ -48,7 +49,7 @@ export function getStoredRedirectUri(flowKey: string, fallback?: string): string
 	const stored = sessionStorage.getItem(storageKey);
 
 	if (stored) {
-		console.log(`🔐 [RedirectURI] Retrieved stored value for ${flowKey}: ${stored}`);
+		logger.info(`🔐 [RedirectURI] Retrieved stored value for ${flowKey}: ${stored}`);
 		return stored;
 	}
 
@@ -70,7 +71,7 @@ export function getStoredRedirectUri(flowKey: string, fallback?: string): string
 export function clearRedirectUri(flowKey: string): void {
 	const storageKey = `${flowKey}_actual_redirect_uri`;
 	sessionStorage.removeItem(storageKey);
-	console.log(`🗑️ [RedirectURI] Cleared for ${flowKey}`);
+	logger.info(`🗑️ [RedirectURI] Cleared for ${flowKey}`);
 }
 
 /**
@@ -106,7 +107,7 @@ export function redirectUrisMatch(uri1: string, uri2: string): boolean {
  * @param flowKey - The flow identifier
  */
 export function auditRedirectUri(phase: string, redirectUri: string, flowKey: string): void {
-	console.log(`🔍 [RedirectURI Audit] ${phase} for ${flowKey}:`, {
+	logger.info(`🔍 [RedirectURI Audit] ${phase} for ${flowKey}:`, {
 		redirectUri,
 		hasTrailingSlash: redirectUri.endsWith('/'),
 		protocol: redirectUri.split(':')[0],
@@ -125,7 +126,7 @@ export function auditRedirectUri(phase: string, redirectUri: string, flowKey: st
 				willFail: true,
 			});
 		} else if (stored) {
-			console.log('✅ [RedirectURI] Match confirmed between authorization and token exchange');
+			logger.info('✅ [RedirectURI] Match confirmed between authorization and token exchange');
 		}
 	}
 }

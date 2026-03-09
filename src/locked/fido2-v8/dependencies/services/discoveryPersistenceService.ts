@@ -17,6 +17,7 @@
 
 import { OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 
+import { logger } from '../../../utils/logger';
 export interface PersistedDiscoveryData {
 	environmentId: string;
 	issuerUrl: string;
@@ -51,9 +52,9 @@ export class DiscoveryPersistenceService {
 			// Also save as last used
 			this.setLastUsedEnvironment(data.environmentId);
 
-			console.log('[Discovery Persistence] Saved discovery for environment:', data.environmentId);
+			logger.info('[Discovery Persistence] Saved discovery for environment:', data.environmentId);
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to save discovery:', error);
+			logger.error('[Discovery Persistence] Failed to save discovery:', error);
 		}
 	}
 
@@ -71,15 +72,15 @@ export class DiscoveryPersistenceService {
 
 			// Check if cache is still valid
 			if (Date.now() - data.timestamp > this.CACHE_DURATION) {
-				console.log('[Discovery Persistence] Cache expired for:', environmentId);
+				logger.info('[Discovery Persistence] Cache expired for:', environmentId);
 				this.removeDiscovery(environmentId);
 				return null;
 			}
 
-			console.log('[Discovery Persistence] Found cached discovery for:', environmentId);
+			logger.info('[Discovery Persistence] Found cached discovery for:', environmentId);
 			return data;
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to get discovery:', error);
+			logger.error('[Discovery Persistence] Failed to get discovery:', error);
 			return null;
 		}
 	}
@@ -96,19 +97,19 @@ export class DiscoveryPersistenceService {
 				if (data.issuerUrl === issuerUrl) {
 					// Check if cache is still valid
 					if (Date.now() - data.timestamp > this.CACHE_DURATION) {
-						console.log('[Discovery Persistence] Cache expired for issuer:', issuerUrl);
+						logger.info('[Discovery Persistence] Cache expired for issuer:', issuerUrl);
 						this.removeDiscovery(data.environmentId);
 						return null;
 					}
 
-					console.log('[Discovery Persistence] Found cached discovery for issuer:', issuerUrl);
+					logger.info('[Discovery Persistence] Found cached discovery for issuer:', issuerUrl);
 					return data;
 				}
 			}
 
 			return null;
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to get discovery by issuer:', error);
+			logger.error('[Discovery Persistence] Failed to get discovery by issuer:', error);
 			return null;
 		}
 	}
@@ -121,9 +122,9 @@ export class DiscoveryPersistenceService {
 			const cache = this.getCache();
 			delete cache[environmentId];
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cache));
-			console.log('[Discovery Persistence] Removed discovery for:', environmentId);
+			logger.info('[Discovery Persistence] Removed discovery for:', environmentId);
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to remove discovery:', error);
+			logger.error('[Discovery Persistence] Failed to remove discovery:', error);
 		}
 	}
 
@@ -154,7 +155,7 @@ export class DiscoveryPersistenceService {
 
 			return validDiscoveries;
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to get all discoveries:', error);
+			logger.error('[Discovery Persistence] Failed to get all discoveries:', error);
 			return [];
 		}
 	}
@@ -166,9 +167,9 @@ export class DiscoveryPersistenceService {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
 			localStorage.removeItem(this.LAST_USED_KEY);
-			console.log('[Discovery Persistence] Cleared all discoveries');
+			logger.info('[Discovery Persistence] Cleared all discoveries');
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to clear discoveries:', error);
+			logger.error('[Discovery Persistence] Failed to clear discoveries:', error);
 		}
 	}
 
@@ -180,7 +181,7 @@ export class DiscoveryPersistenceService {
 			const cached = localStorage.getItem(this.STORAGE_KEY);
 			return cached ? JSON.parse(cached) : {};
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to parse cache:', error);
+			logger.error('[Discovery Persistence] Failed to parse cache:', error);
 			return {};
 		}
 	}
@@ -192,7 +193,7 @@ export class DiscoveryPersistenceService {
 		try {
 			localStorage.setItem(this.LAST_USED_KEY, environmentId);
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to set last used environment:', error);
+			logger.error('[Discovery Persistence] Failed to set last used environment:', error);
 		}
 	}
 
@@ -203,7 +204,7 @@ export class DiscoveryPersistenceService {
 		try {
 			return localStorage.getItem(this.LAST_USED_KEY);
 		} catch (error) {
-			console.error('[Discovery Persistence] Failed to get last used environment:', error);
+			logger.error('[Discovery Persistence] Failed to get last used environment:', error);
 			return null;
 		}
 	}
@@ -277,10 +278,10 @@ export class DiscoveryPersistenceService {
 
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.getCache()));
 
-			console.log('[Discovery Persistence] Imported', count, 'discoveries');
+			logger.info('[Discovery Persistence] Imported', count, 'discoveries');
 			return { success: true, count };
 		} catch (error) {
-			console.error('[Discovery Persistence] Import failed:', error);
+			logger.error('[Discovery Persistence] Import failed:', error);
 			return {
 				success: false,
 				count: 0,

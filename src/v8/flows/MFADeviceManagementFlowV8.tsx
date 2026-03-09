@@ -32,6 +32,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
 
@@ -42,7 +43,7 @@ interface Credentials {
 }
 
 export const MFADeviceManagementFlowV8: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing device management flow`);
+	logger.info(`${MODULE_TAG} Initializing device management flow`);
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Device Management V8', force: true });
@@ -77,7 +78,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		const environmentId = stored.environmentId || globalEnvId || '';
 
-		console.log(`${MODULE_TAG} Loading credentials`, {
+		logger.info(`${MODULE_TAG} Loading credentials`, {
 			unifiedMfaEnvId: unifiedMfaCredentials.environmentId,
 			deviceMgmtEnvId: deviceMgmtCredentials.environmentId,
 			globalEnvId,
@@ -105,7 +106,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				const status = await unifiedWorkerTokenService.getStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error('[DEVICE-MGMT-FLOW-V8] Failed to load token status:', error);
+				logger.error('[DEVICE-MGMT-FLOW-V8] Failed to load token status:', error);
 				setTokenStatus(null);
 			}
 		};
@@ -145,7 +146,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	// Listen for credential updates from unified MFA flow
 	useEffect(() => {
 		const handleCredentialUpdate = () => {
-			console.log(`${MODULE_TAG} Credential update detected, refreshing credentials`);
+			logger.info(`${MODULE_TAG} Credential update detected, refreshing credentials`);
 
 			// Reload credentials from unified MFA flow first
 			const unifiedMfaCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
@@ -181,7 +182,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				username: stored.username || '',
 			};
 
-			console.log(`${MODULE_TAG} Updated credentials`, {
+			logger.info(`${MODULE_TAG} Updated credentials`, {
 				newEnvironmentId: newCredentials.environmentId,
 				newUsername: newCredentials.username,
 				source: unifiedMfaCredentials.environmentId ? 'unified-mfa-flow' : 'device-mgmt-flow',
@@ -260,13 +261,13 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 	// Save credentials when they change
 	useEffect(() => {
-		console.log(`${MODULE_TAG} Credentials changed, saving`, credentials);
+		logger.info(`${MODULE_TAG} Credentials changed, saving`, credentials);
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 
 		// Save environment ID globally so it's shared across all flows
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log(`${MODULE_TAG} Environment ID saved globally`, {
+			logger.info(`${MODULE_TAG} Environment ID saved globally`, {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -497,7 +498,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 											if (newValue) {
 												const currentStatus = await unifiedWorkerTokenService.getStatus();
 												if (!currentStatus.tokenValid) {
-													console.log(
+													logger.info(
 														'[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 													);
 													const { handleShowWorkerTokenModal } = await import(

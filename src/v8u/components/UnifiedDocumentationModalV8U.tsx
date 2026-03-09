@@ -12,6 +12,7 @@
 import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { logger } from '../utils/logger';
 import {
 	type DocumentationApiCall,
 	downloadAsMarkdown,
@@ -249,7 +250,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			log.error('Failed to download documentation:', error);
+			logger.error('Failed to download documentation:', error);
 			// biome-ignore lint/suspicious/noAlert: user-facing error alert for download failure
 			// eslint-disable-next-line no-alert
 			alert('Failed to download documentation. Please try again.');

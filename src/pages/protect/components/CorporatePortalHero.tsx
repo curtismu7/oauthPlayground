@@ -27,6 +27,7 @@ import CorporateNavigation from './Shared/CorporateNavigation';
 import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
 
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -101,7 +102,7 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 	if (!portalConfig || !portalConfig.login) {
 		// Only log in development mode to reduce console noise in production
 		if (process.env.NODE_ENV === 'development') {
-			console.info('[CorporatePortalHero] No portal configuration found for theme:', theme.name);
+			logger.info('[CorporatePortalHero] No portal configuration found for theme:', theme.name);
 		}
 		return (
 			<CorporateContainer theme={theme}>

@@ -26,6 +26,7 @@ import {
 } from '../services/v9/V9CredentialStorageService';
 import MenuVersionBadge from './MenuVersionBadge';
 
+import { logger } from '../utils/logger';
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
 	display: flex;
@@ -326,7 +327,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				const serializable = createSerializableGroups(groups);
 				localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 				localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-				console.log('💾 Menu layout saved to localStorage:', serializable);
+				logger.info('💾 Menu layout saved to localStorage:', serializable);
 
 				// Update save button state
 				setSaveButtonState('saved');
@@ -338,7 +339,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 				// Removed toast to prevent setState during render
 			} catch (error) {
-				log.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
+				logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 				// Removed toast to prevent setState during render
 			}
 		},
@@ -1959,7 +1960,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 		// If version changed, clear old menu layout and use new structure
 		if (savedVersion !== MENU_VERSION) {
-			console.log('🔄 Menu version changed, using default structure');
+			logger.info('🔄 Menu version changed, using default structure');
 			V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, {
 				version: MENU_VERSION,
 				menuOrder: null,
@@ -1976,10 +1977,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		if (savedSidebarData?.menuOrder) {
 			try {
 				const serializedGroups = savedSidebarData.menuOrder;
-				console.log('🔄 Restoring menu layout from V9 storage');
+				logger.info('🔄 Restoring menu layout from V9 storage');
 				return restoreMenuGroups(serializedGroups, defaultGroups);
 			} catch (error) {
-				log.warn('DragDropSidebar', 'Failed to parse saved menu order from V9 storage:', {
+				logger.warn('DragDropSidebar', 'Failed to parse saved menu order from V9 storage:', {
 					error,
 				});
 			}
@@ -1990,7 +1991,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		if (savedOrder) {
 			try {
 				const serializedGroups = JSON.parse(savedOrder);
-				console.log('🔄 Migrating menu layout from localStorage to V9 storage');
+				logger.info('🔄 Migrating menu layout from localStorage to V9 storage');
 				const restoredGroups = restoreMenuGroups(serializedGroups, defaultGroups);
 
 				// Save to V9 storage after successful migration
@@ -2005,7 +2006,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 				return restoredGroups;
 			} catch (error) {
-				log.warn('DragDropSidebar', 'Failed to migrate saved menu order from localStorage:', {
+				logger.warn('DragDropSidebar', 'Failed to migrate saved menu order from localStorage:', {
 					error,
 				});
 			}
@@ -2030,7 +2031,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				menuOrder: serializable,
 			});
 
-			console.log('💾 Menu layout saved to both localStorage and V9 storage:', serializable);
+			logger.info('💾 Menu layout saved to both localStorage and V9 storage:', serializable);
 
 			setSaveButtonState('saved');
 
@@ -2041,7 +2042,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 			// Removed toast to prevent setState during render
 		} catch (error) {
-			log.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
+			logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 			setSaveButtonState('default');
 			// Removed toast to prevent setState during render
 		}
@@ -2056,7 +2057,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					const seenIds = new Set<string>();
 					const uniqueItems = group.items.filter((item) => {
 						if (seenIds.has(item.id)) {
-							log.warn(
+							logger.warn(
 								'DragDropSidebar',
 								`[DragDropSidebar] Removing duplicate menu item: ${item.id}`
 							);
@@ -2085,9 +2086,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				menuOrder: serializable,
 			});
 
-			console.log('💾 Menu layout saved to V9 storage');
+			logger.info('💾 Menu layout saved to V9 storage');
 		} catch (error) {
-			log.warn('DragDropSidebar', '❌ Failed to persist menu layout:', { error });
+			logger.warn('DragDropSidebar', '❌ Failed to persist menu layout:', { error });
 		}
 	}, [menuGroups, createSerializableGroups]);
 
@@ -2323,7 +2324,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				return data;
 			}
 		} catch (err) {
-			log.warn('DragDropSidebar', 'Failed to parse drag data from dataTransfer:', {
+			logger.warn('DragDropSidebar', 'Failed to parse drag data from dataTransfer:', {
 				error: err,
 			});
 		}

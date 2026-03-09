@@ -18,6 +18,7 @@
 
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📱 DEVICE-CODE-V8]';
 
 export interface DeviceCodeCredentials {
@@ -90,7 +91,7 @@ export class DeviceCodeIntegrationServiceV8 {
 				);
 
 				if (managementApiScopes.length > 0) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} WARNING: Management API scopes detected: ${managementApiScopes.join(', ')}. ` +
 							`Device Authorization Flow is for user authentication, not machine-to-machine. ` +
 							`Management API scopes (p1:read:*, p1:update:*, etc.) are intended for Client Credentials flow. ` +
@@ -101,7 +102,7 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Warn if 'openid' is missing (Device Flow is typically used for user authentication with OIDC)
 				if (!scopeList.some((scope) => scope.toLowerCase() === 'openid')) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} WARNING: 'openid' scope is missing. ` +
 							`Device Authorization Flow is typically used for user authentication with OIDC. ` +
 							`Without 'openid', you won't receive an ID token. ` +
@@ -110,7 +111,7 @@ export class DeviceCodeIntegrationServiceV8 {
 				}
 			} else {
 				// Suggest default scopes if none provided
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} No scopes provided. ` +
 						`For Device Authorization Flow with user authentication, consider using: 'openid profile email offline_access'. ` +
 						`These scopes allow the device to authenticate users and access their profile information.`
@@ -226,7 +227,7 @@ export class DeviceCodeIntegrationServiceV8 {
 catch (importError)
 {
 	// If import fails or times out, continue without tracking (non-blocking)
-	console.warn(
+	logger.warn(
 		`${MODULE_TAG} Failed to import apiCallTrackerService, continuing without tracking:`,
 		importError
 	);
@@ -319,7 +320,7 @@ if (callId) {
 		);
 	} catch (e) {
 		// Ignore tracking errors - non-blocking
-		console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
+		logger.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
 	}
 }
 
@@ -380,7 +381,7 @@ if (!response.ok) {
 		const authMethod =
 			credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
 
-		console.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
+		logger.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
 			errorCode,
 			errorMessage,
 			correlationId,
@@ -423,7 +424,7 @@ if (!response.ok) {
 	}
 
 	if (errorCode === 'unauthorized_client' && isMissingGrantType) {
-		console.error(`${MODULE_TAG} Missing grant type error`, {
+		logger.error(`${MODULE_TAG} Missing grant type error`, {
 			errorCode,
 			errorMessage,
 			correlationId,
@@ -443,7 +444,7 @@ if (!response.ok) {
 		);
 	}
 
-	console.error(`${MODULE_TAG} Device authorization failed`, {
+	logger.error(`${MODULE_TAG} Device authorization failed`, {
 		status: response.status,
 		statusText: response.statusText,
 		errorCode,
@@ -486,7 +487,7 @@ catch (_e)
 }
 // #endregion
 
-console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
+logger.error(`${MODULE_TAG} Error requesting device authorization`, { error });
 throw error;
 }
 	}
@@ -631,7 +632,7 @@ throw error;
 			}
 
 			// Network or other errors - log and retry
-			console.warn(`${MODULE_TAG} Polling error (attempt ${attempt + 1}/${maxAttempts})`, {
+			logger.warn(`${MODULE_TAG} Polling error (attempt ${attempt + 1}/${maxAttempts})`, {
 				error,
 			});
 
@@ -669,7 +670,7 @@ decodeToken(token: string)
 
 		return { header, payload, signature };
 	} catch (error) {
-		console.error(`${MODULE_TAG} Error decoding token`, { error });
+		logger.error(`${MODULE_TAG} Error decoding token`, { error });
 		throw error;
 	}
 }

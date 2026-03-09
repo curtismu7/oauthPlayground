@@ -284,7 +284,7 @@ const authAge = Date.now()/1000 - idToken.auth_time;
 
 if (authAge > 300) {
   // User authentication is too old, re-authenticate
-  console.log('Auth too old, forcing re-login');
+  logger.info('Auth too old, forcing re-login');
 }`,
 	},
 	prompt: {
@@ -557,6 +557,7 @@ if (idToken.nonce !== expectedNonce) {
 import crypto from 'crypto';
 import { FiCheckCircle, FiShield } from '@icons';
 
+import { logger } from '../utils/logger';
 const codeVerifier = crypto.randomBytes(32).toString('hex');
 const codeChallenge = crypto
   .createHash('sha256')

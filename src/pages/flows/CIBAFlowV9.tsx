@@ -44,6 +44,7 @@ import {
 } from '@/v8/services/cibaServiceV8Enhanced';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';
 
@@ -352,7 +353,7 @@ const CIBAFlowV9: React.FC = () => {
 			// Check cache first (cache for 5 minutes)
 			const cached = discoveryCache.get(envId);
 			if (cached && Date.now() - cached.timestamp < 300000) {
-				console.log(`${MODULE_TAG} Using cached discovery metadata for ${envId}`);
+				logger.info(`${MODULE_TAG} Using cached discovery metadata for ${envId}`);
 				return;
 			}
 
@@ -389,12 +390,12 @@ const CIBAFlowV9: React.FC = () => {
 				setDiscoveryRetryCount((prev) => prev + 1);
 				// Don't show toast for 429 errors
 				if (error instanceof Error && error.message?.includes('429')) {
-					console.log(`${MODULE_TAG} Got 429 error, will retry later`);
+					logger.info(`${MODULE_TAG} Got 429 error, will retry later`);
 				} else if (
 					error instanceof Error &&
 					error.message?.includes('ERR_INSUFFICIENT_RESOURCES')
 				) {
-					console.log(`${MODULE_TAG} Browser resource exhaustion detected, waiting before retry`);
+					logger.info(`${MODULE_TAG} Browser resource exhaustion detected, waiting before retry`);
 					// Wait longer for resource exhaustion errors - use ref to manage timeout
 					discoveryRetryTimeoutRef.current = setTimeout(() => {
 						setDiscoveryRetryCount(0); // Reset retry count after waiting
@@ -481,7 +482,7 @@ const CIBAFlowV9: React.FC = () => {
 				loginHintToken: data.login_hint_token,
 			}));
 
-			console.log(`${MODULE_TAG} Generated login hint token successfully`);
+			logger.info(`${MODULE_TAG} Generated login hint token successfully`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			modernMessaging.showBanner({
