@@ -1324,48 +1324,48 @@ const PingOneWebhookViewer: React.FC = () => {
 					/>
 
 					<div style={{ ...styles.sectionCard, marginBottom: '1rem' }}>
-						<label
-							htmlFor="webhook-env-id"
+						<div
 							style={{
 								fontWeight: 600,
 								fontSize: '0.875rem',
 								color: '#334155',
-								display: 'block',
-								marginBottom: '0.5rem',
+								marginBottom: '0.4rem',
 							}}
 						>
 							Environment ID
-						</label>
-						<input
-							id="webhook-env-id"
-							type="text"
-							value={environmentId}
-							onChange={(e) => {
-								setEnvironmentId(e.target.value);
-								localStorage.setItem('environmentId', e.target.value);
-							}}
-							placeholder="12345678-1234-1234-1234-123456789abc"
-							style={{
-								width: '100%',
-								padding: '0.6rem 0.85rem',
-								borderRadius: '0.5rem',
-								border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
-								background: !environmentId.trim() ? '#fef3c7' : '#f8fafc',
-								fontSize: '0.875rem',
-								fontFamily: "'Monaco', 'Menlo', monospace",
-							}}
-						/>
-						{!environmentId.trim() && (
-							<p
+						</div>
+						{environmentId.trim() ? (
+							<div
 								style={{
-									margin: '0.4rem 0 0',
-									fontSize: '0.78rem',
-									color: '#d97706',
-									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									padding: '0.55rem 0.85rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #bbf7d0',
+									background: '#f0fdf4',
+									fontSize: '0.875rem',
+									fontFamily: "'Monaco', 'Menlo', monospace",
+									color: '#166534',
 								}}
 							>
-								⚠️ Environment ID required to manage subscriptions.
-							</p>
+								<span>✅</span>
+								{environmentId}
+							</div>
+						) : (
+							<div
+								style={{
+									padding: '0.55rem 0.85rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #fcd34d',
+									background: '#fef3c7',
+									fontSize: '0.82rem',
+									color: '#92400e',
+									fontWeight: 500,
+								}}
+							>
+								⚠️ No environment ID found. Configure your worker token credentials above to auto-populate.
+							</div>
 						)}
 					</div>
 

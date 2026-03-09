@@ -298,7 +298,8 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 				onDeviceDeleted();
 			}
 		} catch (error) {
-			logger.error('[FIDODeviceExistsModal] Failed to delete device', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error('[FIDODeviceExistsModal] Failed to delete device', errorMessage, { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

@@ -373,8 +373,9 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 						const availableStores = Array.from(db.objectStoreNames);
 						if (availableStores.length === 0) {
 							logger.warn(
-								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`
-							, "Logger warning");
+								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`,
+								'Logger warning'
+							);
 							db.close();
 							resolve([]); // Graceful fallback: empty result instead of hard error
 							return;

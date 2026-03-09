@@ -25,7 +25,7 @@ export const BackendDownModalV8: React.FC = () => {
 	}, []);
 
 	const handleRetry = () => {
-		logger.info('[BACKEND-MODAL] User clicked retry - resetting connectivity state', "Logger info");
+		logger.info('[BACKEND-MODAL] User clicked retry - resetting connectivity state', 'User clicked retry', {});
 		backendConnectivityService.reset();
 		setIsVisible(false);
 		// Reload the page to retry API calls
@@ -33,7 +33,7 @@ export const BackendDownModalV8: React.FC = () => {
 	};
 
 	const handleDismiss = () => {
-		logger.info('[BACKEND-MODAL] User dismissed modal', "Logger info");
+		logger.info('[BACKEND-MODAL] User dismissed modal', 'User dismissed modal', {});
 		backendConnectivityService.dismissModal();
 		setIsVisible(false);
 	};

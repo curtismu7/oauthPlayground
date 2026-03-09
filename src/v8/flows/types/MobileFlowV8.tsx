@@ -363,7 +363,7 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
 			// User Flow selected - ensure User Token is used
-			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, "Logger info");
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, 'Logger info');
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -377,13 +377,17 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
-				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			, "Logger info");
+				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`,
+				'Logger info'
+			);
 			isSyncingRef.current = true;
 
 			// Close UserLoginModal if it's open (Admin Flow uses worker token, not user token)
 			if (props.showUserLoginModal) {
-				logger.info(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`, "Logger info");
+				logger.info(
+					`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`,
+					'Logger info'
+				);
 				props.setShowUserLoginModal(false);
 			}
 
@@ -416,22 +420,25 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
 			// User Flow must use User Token, so we should switch to Admin Flow
 			logger.info(
-				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
-			, "Logger info");
+				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`,
+				'Logger info'
+			);
 			setRegistrationFlowType('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
 			logger.info(
-				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
-			, "Logger info");
+				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`,
+				'Logger info'
+			);
 			setRegistrationFlowType('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
-				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			, "Logger info");
+				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`,
+				'Logger info'
+			);
 			isSyncingRef.current = true;
 			setRegistrationFlowType?.('admin');
 			// Reset flag after state update
@@ -860,8 +867,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 				// Disabled: Always show Step 0 now
 				setTimeout(() => {
 					logger.info(
-						`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`
-					, "Logger info");
+						`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`,
+						'Logger info'
+					);
 					// nav.goToStep(1);
 				}, 0);
 				// return null;
@@ -1342,7 +1350,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								},
 								deviceNickname
 							);
-							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`, "Logger info");
+							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`, 'Logger info');
 						} catch (nicknameError) {
 							logger.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
 							// Don't fail the registration if nickname update fails

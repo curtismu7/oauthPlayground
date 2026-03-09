@@ -202,8 +202,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// If no return path, stay on the MFA hub page
 			// Don't redirect based on stored.deviceType as it might be from a different flow
 			logger.warn(
-				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`
-			, "Logger warning");
+				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`,
+				'Logger warning'
+			);
 		}
 	}, [searchParams]);
 
@@ -361,7 +362,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						// Load stored credentials for token refresh
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (!credentials) {
-							logger.warn(`${MODULE_TAG} No stored credentials for auto-refresh`, "Logger warning");
+							logger.warn(`${MODULE_TAG} No stored credentials for auto-refresh`, 'Logger warning');
 							return;
 						}
 
@@ -812,7 +813,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						errorMessage.toLowerCase().includes('econnrefused');
 
 					if (isServerError) {
-						logger.error(`${MODULE_TAG} Backend server is not running or unreachable`, "Logger error");
+						logger.error(
+							`${MODULE_TAG} Backend server is not running or unreachable`,
+							'Logger error'
+						);
 						// Could show a toast here if needed
 					} else {
 						logger.error(`${MODULE_TAG} Failed to load user devices for modal:`, error);
@@ -4421,7 +4425,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 														// Validate required fields
 														if (!authState.authenticationId) {
-															logger.error(`${MODULE_TAG} Missing authenticationId`, "Logger error");
+															logger.error(
+																`${MODULE_TAG} Missing authenticationId`,
+																'Logger error'
+															);
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
@@ -4433,7 +4440,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}
 
 														if (!usernameInput.trim()) {
-															logger.error(`${MODULE_TAG} Missing username`, "Logger error");
+															logger.error(`${MODULE_TAG} Missing username`, 'Logger error');
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
@@ -4871,7 +4878,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 														// Validate required fields
 														if (!authState.authenticationId) {
-															logger.error(`${MODULE_TAG} Missing authenticationId`, "Logger error");
+															logger.error(
+																`${MODULE_TAG} Missing authenticationId`,
+																'Logger error'
+															);
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
@@ -4883,7 +4893,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}
 
 														if (!usernameInput.trim()) {
-															logger.error(`${MODULE_TAG} Missing username`, "Logger error");
+															logger.error(`${MODULE_TAG} Missing username`, 'Logger error');
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
@@ -5477,7 +5487,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					setFido2Error(null);
 
 					try {
-						logger.info(`${MODULE_TAG} Starting FIDO2 authentication...`, "Logger info");
+						logger.info(`${MODULE_TAG} Starting FIDO2 authentication...`, 'Logger info');
 
 						// Get the WebAuthn credential
 						const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
@@ -5496,8 +5506,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						).publicKeyCredentialRequestOptions;
 						if (newPublicKeyOptions) {
 							logger.info(
-								`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
-							, "Logger info");
+								`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`,
+								'Logger info'
+							);
 							setAuthState((prev) => ({
 								...prev,
 								publicKeyCredentialRequestOptions: newPublicKeyOptions,

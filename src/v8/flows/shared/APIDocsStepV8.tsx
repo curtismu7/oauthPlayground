@@ -162,7 +162,7 @@ export const APIDocsStepV8: React.FC<APIDocsStepV8Props> = ({ renderProps }) => 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text).then(() => {
 			// Show success feedback
-			logger.info(`${MODULE_TAG} Copied to clipboard: ${text}`, "Logger info");
+			logger.info(`${MODULE_TAG} Copied to clipboard: ${text}`, 'Logger info');
 		});
 	};
 
