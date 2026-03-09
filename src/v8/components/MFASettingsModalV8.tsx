@@ -46,12 +46,6 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		return () => window.removeEventListener('keydown', handleEscape);
 	}, [isOpen, onClose]);
 
-	useEffect(() => {
-		if (isOpen && environmentId) {
-			fetchSettings();
-		}
-	}, [isOpen, environmentId, fetchSettings]);
-
 	const fetchSettings = async () => {
 		setIsLoading(true);
 		try {
@@ -69,6 +63,12 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			setIsLoading(false);
 		}
 	};
+
+	useEffect(() => {
+		if (isOpen && environmentId) {
+			fetchSettings();
+		}
+	}, [isOpen, environmentId]);
 
 	const handleSave = async () => {
 		setIsSaving(true);
