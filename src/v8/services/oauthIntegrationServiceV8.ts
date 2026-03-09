@@ -191,7 +191,10 @@ export class OAuthIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			logger.info(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} 🔐 JAR required - generating signed request object...`,
+				'Logger info'
+			);
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -229,8 +232,9 @@ export class OAuthIntegrationServiceV8 {
 					if (finalScopes.includes('openid')) {
 						(jarRequestParams as Record<string, unknown>).login_hint = credentials.username;
 						logger.info(
-							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`
-						, "Logger info");
+							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`,
+							'Logger info'
+						);
 					} else {
 						logger.warn(
 							`${MODULE_TAG} WARNING: login_hint skipped in JAR - not an OIDC flow (missing openid scope)`
@@ -339,7 +343,10 @@ export class OAuthIntegrationServiceV8 {
 			// Only add for OIDC flows (openid scope is present)
 			if (finalScopes.includes('openid')) {
 				params.append('login_hint', credentials.username);
-				logger.info(`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`, "Logger info");
+				logger.info(
+					`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`,
+					'Logger info'
+				);
 			} else {
 				logger.warn(
 					`${MODULE_TAG} WARNING: login_hint skipped - not an OIDC flow (missing openid scope)`
@@ -445,7 +452,7 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`, "Logger info");
+			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`, 'Logger info');
 			return { code, state };
 		} catch (error) {
 			logger.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
@@ -642,7 +649,10 @@ export class OAuthIntegrationServiceV8 {
 			);
 
 			if (!response.ok) {
-				logger.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`, "Logger error");
+				logger.error(
+					`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`,
+					'Logger error'
+				);
 				const errorData = responseData as Record<string, unknown>;
 				logger.error(`${MODULE_TAG} Error response:`, errorData);
 
@@ -657,7 +667,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					logger.info(`${MODULE_TAG} 🔐 Password change required detected`, "Logger info");
+					logger.info(`${MODULE_TAG} 🔐 Password change required detected`, 'Logger info');
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 					passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 					passwordChangeError.requiresPasswordChange = true;
@@ -699,7 +709,10 @@ export class OAuthIntegrationServiceV8 {
 						if (credentials.environmentId && credentials.clientId) {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								logger.info(`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`, "Logger info");
+								logger.info(
+									`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`,
+									'Logger info'
+								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
@@ -742,8 +755,9 @@ export class OAuthIntegrationServiceV8 {
 
 										if (pingOneConfig.clientSecret) {
 											logger.info(
-												`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`
-											, "Logger info");
+												`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`,
+												'Logger info'
+											);
 										} else {
 											logger.warn(
 												`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`
@@ -920,7 +934,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							payload.password_state || payload.password_status || payload.pwd_state;
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
-							logger.info(`${MODULE_TAG} 🔐 Password change required detected in ID token`, "Logger info");
+							logger.info(
+								`${MODULE_TAG} 🔐 Password change required detected in ID token`,
+								'Logger info'
+							);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 							passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 							passwordChangeError.requiresPasswordChange = true;
@@ -933,7 +950,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				} catch {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
-						logger.info(`${MODULE_TAG} 🔐 Password change required detected in response metadata`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} 🔐 Password change required detected in response metadata`,
+							'Logger info'
+						);
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 						passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 						passwordChangeError.requiresPasswordChange = true;
@@ -1019,7 +1039,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			const tokens: TokenResponse = await response.json();
 
-			logger.info(`${MODULE_TAG} Access token refreshed successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Access token refreshed successfully`, 'Logger info');
 
 			return tokens;
 		} catch (error) {
@@ -1034,7 +1054,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
+		logger.info(`${MODULE_TAG} Decoding JWT token`, 'Logger info');
 
 		try {
 			const parts = token.split('.');
@@ -1047,7 +1067,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Token decoded successfully`, 'Logger info');
 
 			return { header, payload, signature };
 		} catch (error) {

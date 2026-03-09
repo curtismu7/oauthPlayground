@@ -1608,7 +1608,7 @@ export class MFAServiceV8 {
 	 * @param environmentId - PingOne environment ID
 	 */
 	static async getMFASettings(environmentId: string): Promise<MFASettings> {
-		logger.info(`${MODULE_TAG} Getting MFA settings`, "Logger info");
+		logger.info(`${MODULE_TAG} Getting MFA settings`, 'Logger info');
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1669,7 +1669,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} MFA settings retrieved`, "Logger info");
+			logger.info(`${MODULE_TAG} MFA settings retrieved`, 'Logger info');
 			return settingsData as MFASettings;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get MFA settings error`, error);
@@ -1689,7 +1689,7 @@ export class MFAServiceV8 {
 		environmentId: string,
 		settings: MFASettings
 	): Promise<MFASettings> {
-		logger.info(`${MODULE_TAG} Updating MFA settings`, "Logger info");
+		logger.info(`${MODULE_TAG} Updating MFA settings`, 'Logger info');
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1751,7 +1751,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} MFA settings updated`, "Logger info");
+			logger.info(`${MODULE_TAG} MFA settings updated`, 'Logger info');
 			return settingsData as MFASettings;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Update MFA settings error`, error);
@@ -1766,7 +1766,7 @@ export class MFAServiceV8 {
 	 * @param environmentId - PingOne environment ID
 	 */
 	static async resetMFASettings(environmentId: string): Promise<void> {
-		logger.info(`${MODULE_TAG} Resetting MFA settings to defaults`, "Logger info");
+		logger.info(`${MODULE_TAG} Resetting MFA settings to defaults`, 'Logger info');
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1819,7 +1819,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} MFA settings reset to defaults`, "Logger info");
+			logger.info(`${MODULE_TAG} MFA settings reset to defaults`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Reset MFA settings error`, error);
 			throw error;
@@ -1902,7 +1902,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device deleted successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device deleted successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Delete device error`, error);
 			throw error;
@@ -2194,7 +2194,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device nickname updated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device nickname updated successfully`, 'Logger info');
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Update device nickname error`, error);
@@ -2310,7 +2310,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device updated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device updated successfully`, 'Logger info');
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Update device error`, error);
@@ -2408,7 +2408,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device blocked successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device blocked successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Block device error`, error);
 			throw error;
@@ -2505,7 +2505,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device unblocked successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device unblocked successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Unblock device error`, error);
 			throw error;
@@ -2602,7 +2602,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device unlocked successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device unlocked successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Unlock device error`, error);
 			throw error;
@@ -2711,7 +2711,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} TOTP device activated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} TOTP device activated successfully`, 'Logger info');
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Activate TOTP device error`, error);
@@ -3093,8 +3093,9 @@ export class MFAServiceV8 {
 
 				if (deviceStatus === 'ACTIVE') {
 					logger.warn(
-						`${MODULE_TAG} [RESEND] Device is already ACTIVE. Resend pairing code may fail. Consider using device authentication flow instead.`
-					, "Logger warning");
+						`${MODULE_TAG} [RESEND] Device is already ACTIVE. Resend pairing code may fail. Consider using device authentication flow instead.`,
+						'Logger warning'
+					);
 				}
 			} catch (deviceError) {
 				logger.warn(
@@ -3256,7 +3257,7 @@ export class MFAServiceV8 {
 				throw new Error(`Failed to resend pairing code: ${errorMessage}`);
 			}
 
-			logger.info(`${MODULE_TAG} Pairing code resent successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Pairing code resent successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Resend pairing code error`, error);
 			throw error;
@@ -3500,7 +3501,10 @@ export class MFAServiceV8 {
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-				logger.error(`${MODULE_TAG} ❌ Token validation failed: token is empty or invalid type`, "Logger error");
+				logger.error(
+					`${MODULE_TAG} ❌ Token validation failed: token is empty or invalid type`,
+					'Logger error'
+				);
 				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
 			}
 
@@ -3721,7 +3725,7 @@ export class MFAServiceV8 {
 				throw new Error(userFriendlyMessage);
 			}
 
-			logger.info(`${MODULE_TAG} FIDO2 device activated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} FIDO2 device activated successfully`, 'Logger info');
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} activateFIDO2Device error`, error);
@@ -3822,7 +3826,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} FIDO2 registration options retrieved successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} FIDO2 registration options retrieved successfully`, 'Logger info');
 			return optionsData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} getFIDO2RegistrationOptions error`, error);
@@ -3933,7 +3937,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Device activated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Device activated successfully`, 'Logger info');
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Activate device error`, error);
@@ -5182,7 +5186,7 @@ export class MFAServiceV8 {
 				);
 
 				if (!rawResponseText || !rawResponseText.trim()) {
-					logger.warn(`${MODULE_TAG} Empty response body from backend`, "Logger warning");
+					logger.warn(`${MODULE_TAG} Empty response body from backend`, 'Logger warning');
 					responseData = {
 						error: 'Empty response',
 						message: 'Backend returned an empty response body',
@@ -5289,7 +5293,10 @@ export class MFAServiceV8 {
 						? (policiesResponse.deviceAuthenticationPolicies ?? [])
 						: [];
 
-			logger.info(`${MODULE_TAG} Retrieved ${policies.length} device authentication policies`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Retrieved ${policies.length} device authentication policies`,
+				'Logger info'
+			);
 			return policies;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} List device authentication policies error`, error);

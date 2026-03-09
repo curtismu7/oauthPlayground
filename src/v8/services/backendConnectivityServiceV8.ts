@@ -6,6 +6,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔌 BACKEND-CONNECTIVITY]';
 
 interface BackendConnectivityState {
@@ -98,7 +99,7 @@ class BackendConnectivityServiceV8 {
 		this.state.modalShown = false;
 
 		if (wasDisconnected) {
-			logger.info(`${MODULE_TAG} Backend connection restored`, "Logger info");
+			logger.info(`${MODULE_TAG} Backend connection restored`, 'Logger info');
 			this.notifyListeners(true);
 		}
 	}

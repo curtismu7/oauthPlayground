@@ -44,7 +44,7 @@ interface Credentials {
 }
 
 export const MFADeviceManagementFlowV8: React.FC = () => {
-	logger.info(`${MODULE_TAG} Initializing device management flow`, "Logger info");
+	logger.info(`${MODULE_TAG} Initializing device management flow`, 'Logger info');
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Device Management V8', force: true });

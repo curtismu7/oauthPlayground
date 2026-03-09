@@ -117,7 +117,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Reset device fields to empty/default values
 	 */
 	const resetDeviceFields = () => {
-		logger.info(`${MODULE_TAG} Resetting device fields`, "Logger info");
+		logger.info(`${MODULE_TAG} Resetting device fields`, 'Logger info');
 		const fields: Record<string, string> = {};
 		const allFields = [...config.requiredFields, ...config.optionalFields];
 		allFields.forEach((field) => {
@@ -131,7 +131,7 @@ export const useUnifiedMFAState = (deviceType: DeviceConfigKey) => {
 	 * Useful before saving or submitting
 	 */
 	const syncFieldsToCredentials = () => {
-		logger.info(`${MODULE_TAG} Syncing fields to credentials`, "Logger info");
+		logger.info(`${MODULE_TAG} Syncing fields to credentials`, 'Logger info');
 		const updatedCredentials = {
 			...credentials,
 			deviceType,

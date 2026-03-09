@@ -138,7 +138,7 @@ export const useWorkerTokenConfigV8 = () => {
 				message: `Silent API Token Retrieval set to: ${value}`,
 				duration: 3000,
 			});
-			logger.info(`${MODULE_TAG} SilentApiRetrieval updated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} SilentApiRetrieval updated successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
 			modernMessaging.showBanner({
@@ -191,7 +191,7 @@ export const useWorkerTokenConfigV8 = () => {
 				message: `Show Token After Generation set to: ${value}`,
 				duration: 3000,
 			});
-			logger.info(`${MODULE_TAG} ShowTokenAtEnd updated successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} ShowTokenAtEnd updated successfully`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
 			modernMessaging.showBanner({

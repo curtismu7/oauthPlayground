@@ -9,6 +9,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 AUTH-HEADER-UTILS-V8]';
 
 /**
@@ -36,7 +37,7 @@ export function createAuthHeader(
 	const { validate = false, trim = true } = options || {};
 
 	if (!token) {
-		logger.warn(`${MODULE_TAG} No token provided to createAuthHeader`, "Logger warning");
+		logger.warn(`${MODULE_TAG} No token provided to createAuthHeader`, 'Logger warning');
 		return '';
 	}
 

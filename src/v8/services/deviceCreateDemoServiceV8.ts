@@ -100,7 +100,10 @@ export async function sendCreateDeviceRequest(
 			);
 		}
 
-		logger.info(`${MODULE_TAG} Device created successfully for user ${trimmedUserId}`, "Logger info");
+		logger.info(
+			`${MODULE_TAG} Device created successfully for user ${trimmedUserId}`,
+			'Logger info'
+		);
 		return (responseData as Record<string, unknown>) ?? {};
 	} catch (error) {
 		logger.error(`${MODULE_TAG} Create device request failed`, error);

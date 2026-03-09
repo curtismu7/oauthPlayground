@@ -41,7 +41,7 @@ interface Device {
 }
 
 export const MFADeviceOrderingFlowV8: React.FC = () => {
-	logger.info(`${MODULE_TAG} Initializing device ordering flow`, "Logger info");
+	logger.info(`${MODULE_TAG} Initializing device ordering flow`, 'Logger info');
 
 	usePageScroll({ pageName: 'MFA Device Ordering V8', force: true });
 
@@ -292,12 +292,12 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		}
 
 		if (!result.destination) {
-			logger.info(`${MODULE_TAG} Drag cancelled - no destination`, "Logger info");
+			logger.info(`${MODULE_TAG} Drag cancelled - no destination`, 'Logger info');
 			return;
 		}
 
 		if (result.destination.index === result.source.index) {
-			logger.info(`${MODULE_TAG} Drag ended at same position - no change`, "Logger info");
+			logger.info(`${MODULE_TAG} Drag ended at same position - no change`, 'Logger info');
 			return;
 		}
 
@@ -1026,7 +1026,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 									}
 								}}
 								onDragStart={() => {
-									logger.info(`${MODULE_TAG} Drag started`, "Logger info");
+									logger.info(`${MODULE_TAG} Drag started`, 'Logger info');
 								}}
 								onDragUpdate={(update) => {
 									logger.info(`${MODULE_TAG} Drag update:`, update);

@@ -17,6 +17,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📋 SPEC-VERSION-V8]';
 
 export type SpecVersion = 'oauth2.0' | 'oauth2.1' | 'oidc';

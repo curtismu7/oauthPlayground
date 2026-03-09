@@ -1,6 +1,8 @@
 // src/services/apiCallTrackerService.ts
 // Service to track all API calls made to PingOne for educational display
 
+import { logger } from '../utils/logger';
+
 export interface ApiCall {
 	id: string;
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -57,18 +59,16 @@ class ApiCallTrackerService {
 			logger.info(
 				'ApiCallTrackerService',
 				'[ApiCallTrackerService] Tracking API call with headers:',
-				{
-					arg0: {
-						id,
-						url: call.url,
-						method: call.method,
-						hasHeaders: !!call.headers,
-						headersType: typeof call.headers,
-						headersKeys: call.headers ? Object.keys(call.headers) : [],
-						headers: call.headers,
-						headersCount: call.headers ? Object.keys(call.headers).length : 0,
-					},
-				}
+				JSON.stringify({
+					id,
+					url: call.url,
+					method: call.method,
+					hasHeaders: !!call.headers,
+					headersType: typeof call.headers,
+					headersKeys: call.headers ? Object.keys(call.headers) : [],
+					headers: call.headers,
+					headersCount: call.headers ? Object.keys(call.headers).length : 0,
+				})
 			);
 		}
 		// #endregion
@@ -92,7 +92,9 @@ class ApiCallTrackerService {
 	updateApiCallResponse(id: string, response: ApiCall['response'], duration?: number): void {
 		const call = this.apiCalls.find((c) => c.id === id);
 		if (call) {
-			call.response = response || undefined;
+			if (response) {
+				call.response = response;
+			}
 			if (duration !== undefined) {
 				call.duration = duration;
 			}

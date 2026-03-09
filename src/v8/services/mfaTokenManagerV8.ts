@@ -92,7 +92,7 @@ export class MFATokenManagerV8 {
 			MFATokenManagerV8.instance.subscribers.clear();
 			MFATokenManagerV8.instance = null;
 		}
-		logger.info('[MFATokenManagerV8] Instance reset', "Logger info");
+		logger.info('[MFATokenManagerV8] Instance reset', 'Logger info');
 	}
 
 	/**
@@ -143,7 +143,10 @@ export class MFATokenManagerV8 {
 	 */
 	async refreshToken(): Promise<void> {
 		try {
-			logger.info('[MFATokenManagerV8] Refreshing token state via tokenGatewayV8...', "Logger info");
+			logger.info(
+				'[MFATokenManagerV8] Refreshing token state via tokenGatewayV8...',
+				'Logger info'
+			);
 
 			// Delegate to tokenGatewayV8 for status check
 			const newState = await tokenGatewayV8.getWorkerTokenStatus();
@@ -161,7 +164,7 @@ export class MFATokenManagerV8 {
 				logger.info('[MFATokenManagerV8] Token state changed:', newState.status);
 				this.notify();
 			} else {
-				logger.info('[MFATokenManagerV8] Token state unchanged', "Logger info");
+				logger.info('[MFATokenManagerV8] Token state unchanged', 'Logger info');
 			}
 		} catch (error) {
 			logger.error('[MFATokenManagerV8] Error refreshing token:', error);
@@ -183,12 +186,12 @@ export class MFATokenManagerV8 {
 	 */
 	startAutoRefresh(): void {
 		if (!this.config.autoRefresh) {
-			logger.info('[MFATokenManagerV8] Auto-refresh disabled in config', "Logger info");
+			logger.info('[MFATokenManagerV8] Auto-refresh disabled in config', 'Logger info');
 			return;
 		}
 
 		if (this.refreshTimer) {
-			logger.info('[MFATokenManagerV8] Auto-refresh already running', "Logger info");
+			logger.info('[MFATokenManagerV8] Auto-refresh already running', 'Logger info');
 			return;
 		}
 
@@ -208,7 +211,7 @@ export class MFATokenManagerV8 {
 		if (this.refreshTimer) {
 			clearInterval(this.refreshTimer);
 			this.refreshTimer = null;
-			logger.info('[MFATokenManagerV8] Auto-refresh stopped', "Logger info");
+			logger.info('[MFATokenManagerV8] Auto-refresh stopped', 'Logger info');
 		}
 	}
 
@@ -216,7 +219,10 @@ export class MFATokenManagerV8 {
 	 * Notify all subscribers of state change
 	 */
 	private notify(): void {
-		logger.info(`[MFATokenManagerV8] Notifying ${this.subscribers.size} subscribers`, "Logger info");
+		logger.info(
+			`[MFATokenManagerV8] Notifying ${this.subscribers.size} subscribers`,
+			'Logger info'
+		);
 		this.subscribers.forEach((callback) => {
 			try {
 				callback(this.tokenState);

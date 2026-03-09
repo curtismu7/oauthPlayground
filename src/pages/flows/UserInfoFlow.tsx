@@ -14,7 +14,6 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
 
@@ -274,17 +273,12 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	);
 };
 
-const _log = createModuleLogger('src/pages/flows/UserInfoFlow.tsx');
-
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();
 
 	usePageScroll();
 
 	// Token and config available via useAuth() hook
-
-	// Check if tokens exist in any form
-	const _hasTokens = tokens?.access_token;
 
 	// Enhanced token detection and loading system
 	const [localTokens, setLocalTokens] = useState<OAuthTokens | null>(null);
@@ -444,11 +438,9 @@ const UserInfoFlow: React.FC = () => {
 		headers: Record<string, string>;
 		method: string;
 	} | null>(null);
-	const [_decodedToken, _setDecodedToken] = useState<Record<string, unknown> | null>(null);
-
 	// Track execution results for each step
-	const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
-	const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+	const [, setStepResults] = useState<Record<number, unknown>>({});
+	const [, setExecutedSteps] = useState<Set<number>>(new Set());
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
 	// UserInfo authentication mode
