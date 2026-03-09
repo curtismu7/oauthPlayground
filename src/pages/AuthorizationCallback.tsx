@@ -58,7 +58,7 @@ const Title = styled.h1<{ $success: boolean; $error: boolean }>`
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
-  color: ${({ $success, $error }) => ($success ? 'V9_COLORS.PRIMARY.GREEN' : $error ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  color: ${({ $success, $error }) => ($success ? '#10b981' : $error ? '#ef4444' : '#1f2937')};
 `;
 
 const Message = styled.p`

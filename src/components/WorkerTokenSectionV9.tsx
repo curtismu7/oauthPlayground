@@ -13,7 +13,7 @@
  * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
  */
 
-
+import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -23,7 +23,6 @@ import {
 } from '../services/v9/V9WorkerTokenStatusService';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 import WorkerTokenModalV9Styled from './WorkerTokenModalV9Styled';
-import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '@icons';
 
 // ---------------------------------------------------------------------------
 // Styled components — V9 blue palette
@@ -68,7 +67,7 @@ const Description = styled.p`
 `;
 
 const StatusBox = styled.div<{ $valid: boolean }>`
-	background: ${({ $valid }) => ($valid ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+	background: ${({ $valid }) => ($valid ? '#f0fdf4' : '#fef2f2')};
 	border: 1px solid ${({ $valid }) => ($valid ? '#86efac' : '#fca5a5')};
 	border-radius: 0.375rem;
 	padding: 0.75rem;
@@ -82,7 +81,7 @@ const StatusBox = styled.div<{ $valid: boolean }>`
 const StatusText = styled.div<{ $valid: boolean }>`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${({ $valid }) => ($valid ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
+	color: ${({ $valid }) => ($valid ? '#10b981' : '#dc2626')};
 `;
 
 const StatusSub = styled.div`
@@ -138,18 +137,10 @@ const Btn = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
 	transition: background 0.15s, transform 0.1s;
 	color: white;
 	background: ${({ $variant }) =>
-		$variant === 'primary'
-			? 'V9_COLORS.PRIMARY.BLUE_DARK'
-			: $variant === 'success'
-				? 'V9_COLORS.PRIMARY.GREEN'
-				: 'V9_COLORS.PRIMARY.RED'};
+		$variant === 'primary' ? '#2563eb' : $variant === 'success' ? '#10b981' : '#ef4444'};
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary'
-				? 'V9_COLORS.PRIMARY.BLUE_DARK'
-				: $variant === 'success'
-					? 'V9_COLORS.PRIMARY.GREEN_DARK'
-					: 'V9_COLORS.PRIMARY.RED_DARK'};
+			$variant === 'primary' ? '#2563eb' : $variant === 'success' ? '#059669' : '#dc2626'};
 		transform: translateY(-1px);
 	}
 	&:active {
@@ -260,7 +251,7 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 		<>
 			<Section $compact={compact}>
 				<Header>
-					<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>🔑</span>
+					<span style={{ fontSize: 20, color: '#2563eb' }}>🔑</span>
 					<Title>Worker Token (Admin Flow)</Title>
 					{!compact && <Badge>Service Account</Badge>}
 				</Header>

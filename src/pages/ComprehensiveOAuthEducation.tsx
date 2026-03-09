@@ -302,12 +302,14 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 						<TopicList>
 							{section.topics.map((topic, topicIndex) => (
 								<TopicItem key={topicIndex}>
-									<span>✅</span>{topic}
+									<span>✅</span>
+									{topic}
 								</TopicItem>
 							))}
 						</TopicList>
 						<ActionButton href="#flows">
-							Explore Flows <span>➡️</span></ActionButton>
+							Explore Flows <span>➡️</span>
+						</ActionButton>
 					</EducationCard>
 				))}
 			</EducationGrid>
@@ -329,7 +331,8 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 							<h3>{flow.name}</h3>
 							<p>{flow.description}</p>
 							<ActionButton href={flow.url}>
-								Try Flow <span>➡️</span></ActionButton>
+								Try Flow <span>➡️</span>
+							</ActionButton>
 						</FlowCard>
 					))}
 				</FlowGrid>
@@ -347,28 +350,37 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				</CardHeader>
 				<TopicList>
 					<TopicItem>
-						<span>✅</span><strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource
+						<span>✅</span>
+						<strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource
 						attributes
 					</TopicItem>
 					<TopicItem>
-						<span>✅</span><strong>Security Impact:</strong> Violates principle of least privilege
+						<span>✅</span>
+						<strong>Security Impact:</strong> Violates principle of least privilege
 					</TopicItem>
 					<TopicItem>
-						<span>✅</span><strong>Expected Behavior:</strong> Scope-specific attribute mapping (like mappedClaims)
+						<span>✅</span>
+						<strong>Expected Behavior:</strong> Scope-specific attribute mapping (like mappedClaims)
 					</TopicItem>
 					<TopicItem>
-						<span>✅</span><strong>Workaround:</strong> Use multiple resources with specific attribute sets
+						<span>✅</span>
+						<strong>Workaround:</strong> Use multiple resources with specific attribute sets
 					</TopicItem>
 					<TopicItem>
-						<span>✅</span><strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
+						<span>✅</span>
+						<strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
 					</TopicItem>
 				</TopicList>
 
 				<EducationCard
-					style={{ marginTop: '1rem', backgroundColor: 'V9_COLORS.BG.WARNING', border: '1px solid V9_COLORS.PRIMARY.YELLOW' }}
+					style={{
+						marginTop: '1rem',
+						backgroundColor: '#fef3c7',
+						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
+					}}
 				>
 					<CardHeader>
-						<h3 style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.125rem' }}>
+						<h3 style={{ color: '#d97706', fontSize: '1.125rem' }}>
 							<span>🛡️</span>Security Considerations
 						</h3>
 					</CardHeader>
@@ -386,7 +398,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				</EducationCard>
 
 				<EducationCard
-					style={{ marginTop: '1rem', backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', border: '1px solid #0ea5e9' }}
+					style={{ marginTop: '1rem', backgroundColor: '#f8fafc', border: '1px solid #0ea5e9' }}
 				>
 					<CardHeader>
 						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>
@@ -395,16 +407,20 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					</CardHeader>
 					<TopicList>
 						<TopicItem>
-							<span>✅</span><strong>Problem:</strong> One resource with attributes: name, email, phone, department
+							<span>✅</span>
+							<strong>Problem:</strong> One resource with attributes: name, email, phone, department
 						</TopicItem>
 						<TopicItem>
-							<span>✅</span><strong>Current:</strong> Scope read:profile.basic returns ALL attributes
+							<span>✅</span>
+							<strong>Current:</strong> Scope read:profile.basic returns ALL attributes
 						</TopicItem>
 						<TopicItem>
-							<span>✅</span><strong>Workaround:</strong> Create separate resources for different attribute sets
+							<span>✅</span>
+							<strong>Workaround:</strong> Create separate resources for different attribute sets
 						</TopicItem>
 						<TopicItem>
-							<span>✅</span><strong>Future:</strong> Configure scope-to-attribute mapping per resource
+							<span>✅</span>
+							<strong>Future:</strong> Configure scope-to-attribute mapping per resource
 						</TopicItem>
 					</TopicList>
 				</EducationCard>
@@ -414,7 +430,8 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					Learn More in PingOne Docs <span>➡️</span></ActionButton>
+					Learn More in PingOne Docs <span>➡️</span>
+				</ActionButton>
 			</EducationCard>
 
 			<EducationCard>
@@ -444,7 +461,8 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					</TopicItem>
 				</TopicList>
 				<ActionButton href="/configuration">
-					Start Configuration <span>➡️</span></ActionButton>
+					Start Configuration <span>➡️</span>
+				</ActionButton>
 			</EducationCard>
 		</Container>
 	);

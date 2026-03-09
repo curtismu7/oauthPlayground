@@ -1,6 +1,5 @@
 // src/pages/CIBAvsDeviceAuthz.tsx - CIBA vs Device Authorization Comparison Guide
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -26,7 +25,7 @@ const ComparisonGrid = styled.div`
 `;
 
 const ComparisonCard = styled(Card)<{ $type: 'ciba' | 'device' }>`
-  border-left: 4px solid ${({ $type }) => ($type === 'ciba' ? '#8b5cf6' : 'V9_COLORS.PRIMARY.BLUE')};
+  border-left: 4px solid ${({ $type }) => ($type === 'ciba' ? '#8b5cf6' : '#3b82f6')};
 `;
 
 const CodeBlock = styled.pre`

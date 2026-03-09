@@ -1,4 +1,5 @@
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+
 /**
  * @file SpecVersionSelector.tsx
  * @module v8u/components
@@ -7,11 +8,9 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  * @since 2024-11-16
  */
 
-
+import { FiHelpCircle } from '@icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { FiHelpCircle } from '@icons';
 
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;
@@ -235,57 +234,57 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 			)}
 
 			{showGuidance && selectedGuidance && currentGuidance && (
-        <div
-          style={{
-            background: V9_COLORS.PRIMARY.YELLOW,
-            border: `1px solid ${V9_COLORS.PRIMARY.YELLOW_DARK}`,
-            borderRadius: '6px',
-            padding: '12px',
-            marginBottom: '12px',
-            fontSize: '13px',
-            color: V9_COLORS.TEXT.GRAY_DARK,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '8px',
-            }}
-          >
-            <strong style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
-              📖 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
-            </strong>
-            <button
-              type="button"
-              onClick={() => {
-                setShowGuidance(false);
-                setSelectedGuidance(null);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0',
-                display: 'flex',
-                alignItems: 'center',
-                color: V9_COLORS.TEXT.GRAY_DARK,
-              }}
-            >
-              <span style={{ fontSize: '16px' }}>❌</span>
-            </button>
-          </div>
-          <div>
-            <strong style={{ color: V9_COLORS.TEXT.GRAY_DARK, fontSize: '12px' }}>
-              Available flows:
-            </strong>
-            <span style={{ marginLeft: '6px', fontSize: '12px' }}>
-              {currentGuidance.flows.join(', ')}
-            </span>
-          </div>
-        </div>
-      )}
+				<div
+					style={{
+						background: V9_COLORS.PRIMARY.YELLOW,
+						border: `1px solid ${V9_COLORS.PRIMARY.YELLOW_DARK}`,
+						borderRadius: '6px',
+						padding: '12px',
+						marginBottom: '12px',
+						fontSize: '13px',
+						color: V9_COLORS.TEXT.GRAY_DARK,
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'flex-start',
+							marginBottom: '8px',
+						}}
+					>
+						<strong style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
+							📖 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
+						</strong>
+						<button
+							type="button"
+							onClick={() => {
+								setShowGuidance(false);
+								setSelectedGuidance(null);
+							}}
+							style={{
+								background: 'none',
+								border: 'none',
+								cursor: 'pointer',
+								padding: '0',
+								display: 'flex',
+								alignItems: 'center',
+								color: V9_COLORS.TEXT.GRAY_DARK,
+							}}
+						>
+							<span style={{ fontSize: '16px' }}>❌</span>
+						</button>
+					</div>
+					<div>
+						<strong style={{ color: V9_COLORS.TEXT.GRAY_DARK, fontSize: '12px' }}>
+							Available flows:
+						</strong>
+						<span style={{ marginLeft: '6px', fontSize: '12px' }}>
+							{currentGuidance.flows.join(', ')}
+						</span>
+					</div>
+				</div>
+			)}
 
 			<div
 				style={{

@@ -12,7 +12,6 @@
  * />
  */
 
-
 import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';

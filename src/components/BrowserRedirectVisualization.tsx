@@ -1,6 +1,5 @@
-
-import React, { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle } from '@icons';
+import React, { useEffect, useState } from 'react';
 
 interface BrowserRedirectVisualizationProps {
 	authorizationUrl: string;
@@ -137,13 +136,13 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 	const getStepColor = (status: RedirectStep['status']) => {
 		switch (status) {
 			case 'completed':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'active':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	};
 
@@ -170,7 +169,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 		<div
 			style={{
 				padding: '1rem',
-				backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+				backgroundColor: '#f8fafc',
 				borderRadius: '8px',
 				border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 			}}
@@ -179,7 +178,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 				<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: '600' }}>
 					Browser Redirect to PingOne
 				</h3>
-				<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.9rem' }}>
+				<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
 					Visualizing the OAuth 2.0 authorization flow redirect process
 				</p>
 			</div>
@@ -200,7 +199,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							marginBottom: '0.5rem',
 							fontSize: '0.85rem',
 							fontWeight: '500',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						Authorization URL:
@@ -210,7 +209,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							wordBreak: 'break-all',
 							fontSize: '0.8rem',
 							fontFamily: 'monospace',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						{baseUrl}
@@ -221,7 +220,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 								style={{
 									fontSize: '0.8rem',
 									fontWeight: '500',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									marginBottom: '0.25rem',
 								}}
 							>
@@ -233,7 +232,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 									style={{
 										fontSize: '0.75rem',
 										fontFamily: 'monospace',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
 									{key}={value}
@@ -254,7 +253,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							alignItems: 'flex-start',
 							gap: '0.75rem',
 							padding: '0.75rem',
-							backgroundColor: step.status === 'active' ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
+							backgroundColor: step.status === 'active' ? '#f8fafc' : 'white',
 							borderRadius: '6px',
 							border: `1px solid ${getStepColor(step.status)}20`,
 							transition: 'all 0.3s ease',
@@ -277,15 +276,13 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							{step.icon}
 						</div>
 						<div style={{ flex: 1, minWidth: 0 }}>
-							<div
-								style={{ fontWeight: '500', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-							>
+							<div style={{ fontWeight: '500', fontSize: '0.9rem', color: '#1f2937' }}>
 								{step.title}
 							</div>
 							<div
 								style={{
 									fontSize: '0.8rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									marginTop: '0.25rem',
 								}}
 							>
@@ -295,7 +292,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_LIGHT',
+										color: '#9ca3af',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -316,10 +313,10 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							/>
 						)}
 						{step.status === 'completed' && (
-							<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN', fontSize: '1rem' }} />
+							<FiCheckCircle style={{ color: '#10b981', fontSize: '1rem' }} />
 						)}
 						{step.status === 'error' && (
-							<FiAlertCircle style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '1rem' }} />
+							<FiAlertCircle style={{ color: '#ef4444', fontSize: '1rem' }} />
 						)}
 					</div>
 				))}
@@ -331,7 +328,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 					style={{
 						marginTop: '1rem',
 						padding: '0.75rem',
-						backgroundColor: 'V9_COLORS.BG.WARNING',
+						backgroundColor: '#fef3c7',
 						borderRadius: '6px',
 						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 					}}
@@ -342,7 +339,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							alignItems: 'center',
 							gap: '0.5rem',
 							fontSize: '0.85rem',
-							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+							color: '#d97706',
 						}}
 					>
 						<span>🕐</span>

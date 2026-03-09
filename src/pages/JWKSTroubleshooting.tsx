@@ -1,11 +1,11 @@
+import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '@icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
-import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '@icons';
+import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -159,7 +159,7 @@ const Button = styled.button<{
 			case 'danger':
 				return '#f56565';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   color: ${(props) => (props.$variant === 'secondary' ? '#4a5568' : 'white')};
@@ -305,35 +305,35 @@ const Link = styled.a`
 `;
 
 interface CommandResult {
-command: string;
-output: string;
-status: 'success' | 'error';
-timestamp: Date;
-};
+	command: string;
+	output: string;
+	status: 'success' | 'error';
+	timestamp: Date;
+}
 
 const log = createModuleLogger('src/pages/JWKSTroubleshooting.tsx');
 
 const JWKSTroubleshooting: React.FC = () => {
-const environmentInputId = useId();
-const [environmentId, setEnvironmentId] = useState(() => {
-// Auto-populate from worker token credentials
-try {
-// Try synchronous check from localStorage for worker token credentials
-const stored = localStorage.getItem('unified_worker_token');
-if (stored) {
-const data = JSON.parse(stored);
-if (data.credentials?.environmentId) {
-return data.credentials.environmentId;
-}
-}
-} catch {
-return '';
-}
-return '';
-});
-const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
-const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
-const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
+	const environmentInputId = useId();
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Auto-populate from worker token credentials
+		try {
+			// Try synchronous check from localStorage for worker token credentials
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					return data.credentials.environmentId;
+				}
+			}
+		} catch {
+			return '';
+		}
+		return '';
+	});
+	const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
+	const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
+	const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 
 	const toggleOutput = useCallback((key: string) => {
 		setExpandedOutputs((prev) => {
@@ -573,7 +573,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							display: 'block',
 							marginBottom: '0.5rem',
 							fontWeight: '500',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 						}}
 					>
 						Environment ID:
@@ -621,7 +621,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 						borderRadius: '0.5rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Regional Endpoints:</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>Regional Endpoints:</h4>
 					<p style={{ margin: '0', color: '#4a5568', fontSize: '0.9rem' }}>
 						<strong>EU:</strong> https://auth.pingone.eu/{'{environmentId}'}
 						/as/jwks
@@ -719,7 +719,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Ping JWT Decoder:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>Ping JWT Decoder:</h4>
 						<p style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
 							<Link
 								href="https://jwt-decoder.pingidentity.com/"
@@ -730,7 +730,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							</Link>{' '}
 							- Decode and validate JWT tokens with PingOne keys
 						</p>
-						<p style={{ margin: '0', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<p style={{ margin: '0', fontSize: '0.875rem', color: '#6b7280' }}>
 							Official Ping Identity tool for decoding JWT tokens and validating signatures using
 							PingOne JWKS endpoints.
 						</p>
@@ -743,7 +743,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>PingOne SSO Documentation:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>PingOne SSO Documentation:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
@@ -780,7 +780,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							style={{
 								margin: '0.5rem 0 0 0',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 							}}
 						>
 							Official Ping Identity documentation for configuring and troubleshooting JWKS in
@@ -795,7 +795,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Online Validators:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>Online Validators:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link href="https://jwt.io" target="_blank" rel="noopener noreferrer">
@@ -819,7 +819,7 @@ const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>RFC Standards:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>RFC Standards:</h4>
 						<div style={{ display: 'grid', gap: '0.5rem' }}>
 							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link

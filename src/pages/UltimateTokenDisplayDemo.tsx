@@ -1,7 +1,6 @@
 // src/pages/UltimateTokenDisplayDemo.tsx
 // Demo page showcasing the UltimateTokenDisplay component
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -361,8 +360,8 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>🎨 Visual Features</h3>
-							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🎨 Visual Features</h3>
+							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>Color-coded token types with gradients</li>
 								<li>Responsive design with hover effects</li>
 								<li>Professional styling and animations</li>
@@ -379,8 +378,8 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>🔧 Functional Features</h3>
-							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🔧 Functional Features</h3>
+							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>JWT decoding with header/payload separation</li>
 								<li>Token masking/unmasking</li>
 								<li>Copy to clipboard with feedback</li>
@@ -397,8 +396,8 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', marginBottom: '1rem' }}>📊 Metadata Features</h3>
-							<ul style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: '1.6' }}>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>📊 Metadata Features</h3>
+							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>Token expiry formatting</li>
 								<li>Scope display</li>
 								<li>Token type indicators</li>

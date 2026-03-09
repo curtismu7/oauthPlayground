@@ -26,6 +26,16 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
+import {
+	FiAlertTriangle,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSave,
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
@@ -36,7 +46,6 @@ import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { StandardizedCredentialExportImport } from './StandardizedCredentialExportImport';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
-import { FiAlertTriangle, FiExternalLink, FiEye, FiEyeOff, FiInfo, FiKey, FiRefreshCw, FiSave } from '@icons';
 
 type RequestDetails = {
 	tokenEndpoint: string;
@@ -88,12 +97,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
   border-radius: 0.375rem;
   border: none;
   background: ${({ $variant }) =>
-		$variant === 'secondary'
-			? 'V9_COLORS.TEXT.GRAY_LIGHTER'
-			: $variant === 'success'
-				? 'V9_COLORS.PRIMARY.GREEN'
-				: 'V9_COLORS.PRIMARY.BLUE_DARK'};
-  color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
+		$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#10b981' : '#2563eb'};
+  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
@@ -102,11 +107,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 
   &:hover {
     background: ${({ $variant }) =>
-			$variant === 'secondary'
-				? 'V9_COLORS.TEXT.GRAY_LIGHTER'
-				: $variant === 'success'
-					? 'V9_COLORS.PRIMARY.GREEN_DARK'
-					: 'V9_COLORS.PRIMARY.BLUE_DARK'};
+			$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#059669' : '#2563eb'};
   }
 
   &:disabled {
@@ -1438,7 +1439,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							<MDIIcon
 								icon="FiAlertTriangle"
 								size={16}
-								style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.YELLOW', marginTop: '0.125rem' }}
+								style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }}
 							/>
 							<InfoContent>
 								<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
@@ -1457,14 +1458,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 								<MDIIcon
 									icon="FiInfo"
 									size={16}
-									style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.GREEN', marginTop: '0.125rem' }}
+									style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }}
 								/>
 								<InfoContent>
 									<InfoTitle
 										style={{
 											fontSize: '0.875rem',
 											marginBottom: '0.125rem',
-											color: 'V9_COLORS.PRIMARY.GREEN',
+											color: '#10b981',
 										}}
 									>
 										✅ Worker Token Generated Successfully!
@@ -1500,7 +1501,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 								<MDIIcon
 									icon="FiInfo"
 									size={16}
-									style={{ flexShrink: 0, color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '0.125rem' }}
+									style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
 								/>
 								<InfoContent>
 									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
@@ -1536,7 +1537,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										size={16}
 										style={{
 											flexShrink: 0,
-											color: 'V9_COLORS.PRIMARY.BLUE',
+											color: '#3b82f6',
 											marginTop: '0.125rem',
 										}}
 									/>
@@ -1555,7 +1556,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										size={16}
 										style={{
 											flexShrink: 0,
-											color: 'V9_COLORS.PRIMARY.BLUE',
+											color: '#3b82f6',
 											marginTop: '0.125rem',
 										}}
 									/>
@@ -1571,7 +1572,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							<FormSection>
 								<FormField>
 									<FormLabel>
-										Environment ID <span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>*</span>
+										Environment ID <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="text"
@@ -1584,16 +1585,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}))
 										}
 										style={{
-											borderColor: !workerCredentials.environmentId
-												? 'V9_COLORS.PRIMARY.RED'
-												: undefined,
+											borderColor: !workerCredentials.environmentId ? '#ef4444' : undefined,
 										}}
 									/>
 									{!workerCredentials.environmentId && (
 										<div
 											style={{
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.PRIMARY.RED',
+												color: '#ef4444',
 												marginTop: '0.25rem',
 											}}
 										>
@@ -1678,7 +1677,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									<div
 										style={{
 											fontSize: '0.75rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											marginTop: '0.125rem',
 											lineHeight: '1.3',
 										}}
@@ -1701,7 +1700,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										<div
 											style={{
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 												marginTop: '0.125rem',
 												lineHeight: '1.3',
 											}}

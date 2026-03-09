@@ -1,6 +1,5 @@
 // src/components/GeneratedParametersDisplay.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -56,18 +55,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.5rem 0.75rem;
-	border: 1px solid ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 6px;
-	background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-	color: ${(props) => (props.$variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$variant === 'primary' ? 'white' : '#1f2937')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
-		border-color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+		background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
+		border-color: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#9ca3af')};
 	}
 
 	&:disabled {
@@ -115,7 +114,7 @@ const ValueContainer = styled.div<{ $isVisible?: boolean }>`
 	line-height: 1.5;
 	word-break: break-all;
 	white-space: pre-wrap;
-	color: ${(props) => (props.$isVisible ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	color: ${(props) => (props.$isVisible ? '#1f2937' : '#6b7280')};
 	position: relative;
 	min-height: 2.5rem;
 	display: flex;
@@ -308,7 +307,11 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 											onClick={() => toggleVisibility(param.label)}
 											title={isVisible ? 'Hide value' : 'Show value'}
 										>
-											{isVisible ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+											{isVisible ? (
+												<span style={{ fontSize: '14px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '14px' }}>👁️</span>
+											)}
 											{isVisible ? 'Hide' : 'Show'}
 										</ActionButton>
 									)}

@@ -10,26 +10,21 @@ import React from 'react';
 import styled from 'styled-components';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiInfo': 'mdi-information',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiZap': 'mdi-lightning-bolt',
+		FiCheckCircle: 'mdi-check-circle',
+		FiInfo: 'mdi-information',
+		FiRefreshCw: 'mdi-refresh',
+		FiZap: 'mdi-lightning-bolt',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 export interface FlowCompletionStep {

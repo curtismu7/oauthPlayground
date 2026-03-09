@@ -79,7 +79,7 @@ const PrimaryButton = styled.button<{ disabled?: boolean }>`
 	border: none;
 	border-radius: 0.75rem;
 	padding: 0.85rem 1.35rem;
-	background: ${({ disabled }) => (disabled ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : '#667eea')};
+	background: ${({ disabled }) => (disabled ? '#e5e7eb' : '#667eea')};
 	color: white;
 	font-weight: 600;
 	display: inline-flex;
@@ -236,8 +236,7 @@ const CompactAppPickerDemo: React.FC = () => {
 		<PageContainer>
 			<HeaderCard>
 				<TitleRow>
-					🔑
-					<Title>Compact Application Picker Demo</Title>
+					🔑<Title>Compact Application Picker Demo</Title>
 				</TitleRow>
 				<Subtitle>
 					Test the compact application picker component with real PingOne data. This picker fetches
@@ -258,9 +257,7 @@ const CompactAppPickerDemo: React.FC = () => {
 			</HeaderCard>
 
 			<Card>
-				<SectionTitle>
-					🔑 Authentication
-				</SectionTitle>
+				<SectionTitle>🔑 Authentication</SectionTitle>
 
 				{hasWorkerToken ? (
 					<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="worker_token_expires_at" />
@@ -280,17 +277,9 @@ const CompactAppPickerDemo: React.FC = () => {
 					<PrimaryButton
 						onClick={handleGetWorkerToken}
 						type="button"
-						style={{ background: hasWorkerToken ? 'V9_COLORS.PRIMARY.GREEN' : undefined }}
+						style={{ background: hasWorkerToken ? '#10b981' : undefined }}
 					>
-						{hasWorkerToken ? (
-							<>
-								✅ Worker Token Ready
-							</>
-						) : (
-							<>
-								🔑 Get Worker Token
-							</>
-						)}
+						{hasWorkerToken ? <>✅ Worker Token Ready</> : <>🔑 Get Worker Token</>}
 					</PrimaryButton>
 					{hasWorkerToken && (
 						<DangerButton onClick={handleClearWorkerToken} type="button">
@@ -301,9 +290,7 @@ const CompactAppPickerDemo: React.FC = () => {
 			</Card>
 
 			<Card>
-				<SectionTitle>
-					✅ Application Picker
-				</SectionTitle>
+				<SectionTitle>✅ Application Picker</SectionTitle>
 
 				<CompactApplicationPicker
 					environmentId={environmentId}
@@ -313,7 +300,7 @@ const CompactAppPickerDemo: React.FC = () => {
 				/>
 
 				{!hasWorkerToken && (
-					<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
+					<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
 						Generate a worker token above to enable the application picker.
 					</p>
 				)}
@@ -321,9 +308,7 @@ const CompactAppPickerDemo: React.FC = () => {
 
 			{selectedApp && (
 				<SelectedAppCard>
-					<SelectedAppTitle>
-						✅ Selected Application
-					</SelectedAppTitle>
+					<SelectedAppTitle>✅ Selected Application</SelectedAppTitle>
 					<AppDetails>
 						<DetailLabel>Name</DetailLabel>
 						<DetailValue>{selectedApp.name}</DetailValue>

@@ -5,7 +5,6 @@
  * Provides references to key PingOne documentation for users
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 

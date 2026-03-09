@@ -10,7 +10,7 @@ import React from 'react';
 // Arrow icon replaced with emoji - no more react-icons/fi dependency
 import { type FlowType } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { V9_COLORS, getStepStyles } from '../../services/v9/V9ColorStandards';
+import { getStepStyles, V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 export interface StepperV8UProps {
 	currentStep: number;

@@ -1,11 +1,10 @@
 // src/components/PingOneApplicationConfig.tsx
 
-
+import { FiInfo } from '@icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
-import { FiInfo } from '@icons';
 
 export interface PingOneApplicationState {
 	clientAuthMethod:
@@ -186,7 +185,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 	position: relative;
 	width: 3rem;
 	height: 1.5rem;
-	background-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background-color: ${({ $active }) => ($active ? '#10b981' : '#e5e7eb')};
 	border: none;
 	border-radius: 9999px;
 	cursor: pointer;
@@ -355,9 +354,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 	return (
 		<div>
-			<SectionTitle
-				style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-			>
+			<SectionTitle style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: '#1f2937' }}>
 				<span>⚙️</span> PingOne Advanced Configuration
 			</SectionTitle>
 			{/* Hide PAR for flows that don't use authorization endpoints */}
@@ -390,7 +387,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									style={{
 										marginTop: '1rem',
 										padding: '1rem',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										border: '1px solid #0ea5e9',
 										borderRadius: '6px',
 										fontSize: '0.85rem',
@@ -399,7 +396,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									<h4
 										style={{
 											margin: '0 0 0.5rem 0',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 											fontSize: '0.9rem',
 											fontWeight: '600',
 										}}
@@ -410,7 +407,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										style={{
 											margin: 0,
 											paddingLeft: '1.5rem',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 											lineHeight: '1.5',
 										}}
 									>
@@ -438,7 +435,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										style={{
 											marginTop: '0.5rem',
 											fontSize: '0.8rem',
-											color: 'V9_COLORS.PRIMARY.BLUE',
+											color: '#3b82f6',
 										}}
 									>
 										<strong>Benefits:</strong> Keeps sensitive parameters off the browser URL,
@@ -491,7 +488,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											<strong>Worker App:</strong> Only if configured for user-based grant types ✅
 										</li>
 									</ul>
-									<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+									<div style={{ fontSize: '0.8rem', color: '#059669' }}>
 										<strong>PingOne Limits:</strong> Max 1MB request size, 60-second default
 										lifetime, HTTP POST only, request_uri can only be used once.
 									</div>
@@ -520,7 +517,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											<summary
 												style={{
 													fontSize: '0.8rem',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 													cursor: 'pointer',
 													fontWeight: '600',
 												}}
@@ -531,7 +528,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												style={{
 													marginTop: '0.5rem',
 													padding: '0.75rem',
-													background: 'V9_COLORS.BG.GRAY_LIGHT',
+													background: '#f8fafc',
 													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '4px',
 													fontSize: '0.75rem',
@@ -590,7 +587,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											style={{
 												marginTop: '0.5rem',
 												fontSize: '0.8rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 											}}
 										>
 											<strong>Response from Step 1:</strong>{' '}
@@ -649,7 +646,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											style={{
 												marginTop: '1rem',
 												padding: '1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
@@ -658,7 +655,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												style={{
 													marginBottom: '0.5rem',
 													fontWeight: '600',
-													color: 'V9_COLORS.TEXT.GRAY_DARK',
+													color: '#1f2937',
 												}}
 											>
 												DPoP Status
@@ -673,13 +670,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 													<span style={{ fontWeight: '500' }}>Browser Support:</span>
-													<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Supported</span>
+													<span style={{ color: '#10b981' }}>✓ Supported</span>
 												</div>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 													<span style={{ fontWeight: '500' }}>Algorithm:</span>
-													<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-														{value.dpopAlgorithm}
-													</span>
+													<span style={{ color: '#6b7280' }}>{value.dpopAlgorithm}</span>
 												</div>
 											</div>
 										</div>
@@ -690,7 +685,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												display: 'flex',
 												gap: '0.75rem',
 												padding: '1rem',
-												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												background: '#f8fafc',
 												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '6px',
 											}}
@@ -704,7 +699,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												<div
 													style={{
 														fontWeight: '600',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														marginBottom: '0.25rem',
 													}}
 												>
@@ -712,7 +707,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 												</div>
 												<div
 													style={{
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														fontSize: '0.875rem',
 														lineHeight: '1.4',
 													}}
@@ -764,7 +759,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							disabled
 							style={{
 								backgroundColor: '#f9fafb',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								cursor: 'not-allowed',
 							}}
 						>
@@ -772,7 +767,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<option value="REQUIRED">Required</option>
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
-						<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
 							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
 							to see this feature in the flow
 						</Helper>
@@ -833,7 +828,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						>
 							<span />
 						</Toggle>
-						<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
 							🔧 Enable JWKS to configure JWT signature validation features
 						</Helper>
 					</Field>
@@ -864,7 +859,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										JWKS
 									</RadioLabel>
 								</RadioGroup>
-								<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
+								<Helper style={{ color: '#059669', fontWeight: '500' }}>
 									🔧 Choose how to provide your JSON Web Key Set
 								</Helper>
 							</Field>
@@ -879,7 +874,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										onChange={(e) => onChange({ ...value, jwksUrl: e.target.value })}
 										placeholder="https://example.com/.well-known/jwks.json"
 									/>
-									<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
+									<Helper style={{ color: '#059669', fontWeight: '500' }}>
 										⚙️ Configured in PingOne → Set your JWKS URL in PingOne application settings
 									</Helper>
 								</Field>
@@ -894,7 +889,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										onChange={(e) => onChange({ ...value, jwks: e.target.value })}
 										placeholder='{"keys": [...]}'
 									/>
-									<Helper style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', fontWeight: '500' }}>
+									<Helper style={{ color: '#059669', fontWeight: '500' }}>
 										🔧 Enter your JSON Web Key Set as JSON
 									</Helper>
 								</Field>

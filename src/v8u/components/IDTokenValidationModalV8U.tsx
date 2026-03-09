@@ -11,11 +11,9 @@
  * - Educational feedback on validation results
  */
 
-
 import { useEffect, useState } from 'react';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -363,7 +362,11 @@ const OAuthUtilities: React.FC = () => {
 												handleCopy(JSON.stringify(decodedJwt.header, null, 2), 'header')
 											}
 										>
-											{copiedField === 'header' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+											{copiedField === 'header' ? (
+												<span style={{ fontSize: '12px' }}>✅</span>
+											) : (
+												<span style={{ fontSize: '12px' }}>📋</span>
+											)}
 											{copiedField === 'header' ? 'Copied!' : 'Copy'}
 										</CopyButton>
 									</div>
@@ -372,8 +375,8 @@ const OAuthUtilities: React.FC = () => {
 											margin: 0,
 											fontSize: '0.875rem',
 											lineHeight: '1.4',
-											backgroundColor: 'V9_COLORS.TEXT.BLACK',
-											color: 'V9_COLORS.TEXT.WHITE',
+											backgroundColor: '#000000',
+											color: '#ffffff',
 											padding: '0.75rem',
 											borderRadius: '0.25rem',
 											border: '2px solid V9_COLORS.TEXT.GRAY_DARK',
@@ -401,7 +404,11 @@ const OAuthUtilities: React.FC = () => {
 												handleCopy(JSON.stringify(decodedJwt.payload, null, 2), 'payload')
 											}
 										>
-											{copiedField === 'payload' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+											{copiedField === 'payload' ? (
+												<span style={{ fontSize: '12px' }}>✅</span>
+											) : (
+												<span style={{ fontSize: '12px' }}>📋</span>
+											)}
 											{copiedField === 'payload' ? 'Copied!' : 'Copy'}
 										</CopyButton>
 									</div>
@@ -410,8 +417,8 @@ const OAuthUtilities: React.FC = () => {
 											margin: 0,
 											fontSize: '0.875rem',
 											lineHeight: '1.4',
-											backgroundColor: 'V9_COLORS.TEXT.WHITE',
-											color: 'V9_COLORS.TEXT.BLACK',
+											backgroundColor: '#ffffff',
+											color: '#000000',
 											padding: '0.75rem',
 											borderRadius: '0.25rem',
 											border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
@@ -428,7 +435,11 @@ const OAuthUtilities: React.FC = () => {
 									<CopyButton
 										onClick={() => handleCopy(JSON.stringify(decodedJwt, null, 2), 'full')}
 									>
-										{copiedField === 'full' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+										{copiedField === 'full' ? (
+											<span style={{ fontSize: '12px' }}>✅</span>
+										) : (
+											<span style={{ fontSize: '12px' }}>📋</span>
+										)}
 										{copiedField === 'full' ? 'Copied!' : 'Copy Full Decoded JWT'}
 									</CopyButton>
 								</div>
@@ -478,7 +489,11 @@ const OAuthUtilities: React.FC = () => {
 										>
 											<strong>Code Verifier:</strong>
 											<CopyButton onClick={() => handleCopy(codeVerifier, 'verifier')}>
-												{copiedField === 'verifier' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+												{copiedField === 'verifier' ? (
+													<span style={{ fontSize: '12px' }}>✅</span>
+												) : (
+													<span style={{ fontSize: '12px' }}>📋</span>
+												)}
 												{copiedField === 'verifier' ? 'Copied!' : 'Copy'}
 											</CopyButton>
 										</div>
@@ -494,7 +509,11 @@ const OAuthUtilities: React.FC = () => {
 										>
 											<strong>Code Challenge (S256):</strong>
 											<CopyButton onClick={() => handleCopy(codeChallenge, 'challenge')}>
-												{copiedField === 'challenge' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+												{copiedField === 'challenge' ? (
+													<span style={{ fontSize: '12px' }}>✅</span>
+												) : (
+													<span style={{ fontSize: '12px' }}>📋</span>
+												)}
 												{copiedField === 'challenge' ? 'Copied!' : 'Copy'}
 											</CopyButton>
 										</div>
@@ -548,7 +567,11 @@ const OAuthUtilities: React.FC = () => {
 								>
 									<strong>Generated String ({randomString.length} characters):</strong>
 									<CopyButton onClick={() => handleCopy(randomString, 'random')}>
-										{copiedField === 'random' ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>📋</span>}
+										{copiedField === 'random' ? (
+											<span style={{ fontSize: '12px' }}>✅</span>
+										) : (
+											<span style={{ fontSize: '12px' }}>📋</span>
+										)}
 										{copiedField === 'random' ? 'Copied!' : 'Copy'}
 									</CopyButton>
 								</div>

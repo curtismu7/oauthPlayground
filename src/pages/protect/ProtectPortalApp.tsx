@@ -9,7 +9,6 @@
  * risk-based authentication with custom login, MFA integration, and OIDC token display.
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
@@ -424,12 +423,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		log.error(
-			'ProtectPortalApp',
-			'[🚀 PROTECT-PORTAL] Error occurred:',
-			undefined,
-			error as Error
-		);
+		log.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',
@@ -492,7 +486,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					</ErrorTitle>
 					<ErrorMessage>{error.message}</ErrorMessage>
 					{error.suggestedAction && (
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.875rem', marginBottom: '1rem' }}>
+						<p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
 							{error.suggestedAction}
 						</p>
 					)}

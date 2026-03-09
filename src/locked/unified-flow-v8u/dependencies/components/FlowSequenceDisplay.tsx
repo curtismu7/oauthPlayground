@@ -1,7 +1,6 @@
 // src/components/FlowSequenceDisplay.tsx
 // Reusable component for displaying flow sequences
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { getFlowSequence } from '../services/flowSequenceService';

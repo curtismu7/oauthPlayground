@@ -42,7 +42,11 @@ export class ToastNotificationsV8 {
 	 */
 	static success(message: string, options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
-		modernMessaging.showFooterMessage({ type: 'info', message, duration: options?.duration ?? 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message,
+			duration: options?.duration ?? 3000,
+		});
 	}
 
 	/**
@@ -82,7 +86,12 @@ export class ToastNotificationsV8 {
 	static error(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
 		const shortMessage = ToastNotificationsV8.extractShortSummary(message);
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: shortMessage, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message: shortMessage,
+			dismissible: true,
+		});
 	}
 
 	/**

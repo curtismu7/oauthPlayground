@@ -1,8 +1,7 @@
-
+import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '@icons';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
-import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '@icons';
 
 const SettingsPanel = styled(Card)`
   margin-bottom: 2rem;
@@ -354,7 +353,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 						style={{
 							fontSize: '0.75rem',
 							fontWeight: 'normal',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							marginLeft: '0.5rem',
 						}}
 					>
@@ -374,7 +373,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					style={{
 						marginBottom: '1rem',
 						padding: '1rem',
-						backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+						backgroundColor: '#f8fafc',
 						borderRadius: '0.5rem',
 						border: '1px solid #dbeafe',
 					}}
@@ -382,8 +381,8 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<FiAlertTriangle style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} size={16} />
-						<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>Experiment Mode</strong>
+						<FiAlertTriangle style={{ color: '#3b82f6' }} size={16} />
+						<strong style={{ color: '#2563eb' }}>Experiment Mode</strong>
 					</div>
 					<p style={{ margin: 0, fontSize: '0.875rem', color: '#3730a3' }}>
 						Toggle settings on/off to see how they affect the OAuth flow. Some combinations may
@@ -393,7 +392,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 
 				<SettingGroup>
 					<h4>
-						<FiToggleRight style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
+						<FiToggleRight style={{ color: '#059669' }} />
 						Core OAuth Settings
 					</h4>
 
@@ -406,7 +405,7 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 								<div className="label">
 									{setting.label}
 									{setting.required && (
-										<span style={{ color: 'V9_COLORS.PRIMARY.RED', marginLeft: '0.25rem' }}>*</span>
+										<span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
 									)}
 								</div>
 								<div className="description">{setting.description}</div>
@@ -432,14 +431,14 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 
 				<SettingGroup>
 					<h4>
-						<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
+						<FiCheckCircle style={{ color: '#059669' }} />
 						Current Configuration Summary
 					</h4>
 
 					<div
 						style={{
 							padding: '1rem',
-							backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+							backgroundColor: '#f8fafc',
 							borderRadius: '0.5rem',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							fontFamily: 'monospace',

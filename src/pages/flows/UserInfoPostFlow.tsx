@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
-import { logger } from '../../utils/logger';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

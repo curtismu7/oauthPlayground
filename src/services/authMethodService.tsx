@@ -1,24 +1,19 @@
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiKey': 'mdi-key',
-		'FiLock': 'mdi-lock',
-		'FiShield': 'mdi-shield-check',
-		'FiZap': 'mdi-lightning-bolt',
+		FiKey: 'mdi-key',
+		FiLock: 'mdi-lock',
+		FiShield: 'mdi-shield-check',
+		FiZap: 'mdi-lightning-bolt',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 import React from 'react';

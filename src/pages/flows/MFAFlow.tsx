@@ -6,10 +6,10 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -809,7 +809,7 @@ if (tokenResponse.ok) {
 							/>
 							<MFAOptionLabel htmlFor={option.id}>
 								<div style={{ fontWeight: '500' }}>{option.label}</div>
-								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>{option.description}</div>
+								<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{option.description}</div>
 							</MFAOptionLabel>
 						</MFAOption>
 					))}

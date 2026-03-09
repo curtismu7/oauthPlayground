@@ -9,7 +9,7 @@
  * showing progress and educational content about risk-based authentication.
  */
 
-
+import { FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
@@ -23,7 +23,6 @@ import type {
 	RiskEvaluationResult,
 	UserContext,
 } from '../types/protectPortal.types';
-import { FiShield } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -88,11 +87,11 @@ const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'e
   background: ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'complete':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return 'transparent';
 		}
@@ -100,13 +99,13 @@ const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'e
   border: 1px solid ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'complete':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -123,13 +122,13 @@ const StepIcon = styled.div<{ status: 'pending' | 'active' | 'complete' | 'error
   background: ${(props) => {
 		switch (props.status) {
 			case 'active':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'complete':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHT';
+				return '#9ca3af';
 		}
 	}};
 `;
@@ -167,19 +166,19 @@ const ResultContainer = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 			case 'LOW':
 				return '#f0fdf4';
 			case 'MEDIUM':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'HIGH':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'MEDIUM':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'HIGH':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 		}
 	}};
   border-radius: 1rem;
@@ -196,11 +195,11 @@ const ResultHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'MEDIUM':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'HIGH':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
 `;
@@ -353,11 +352,11 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'MEDIUM':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'HIGH':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 		}
 	}};
   min-width: 60px;
@@ -377,11 +376,11 @@ const RiskScoreFill = styled.div<{ percentage: number; riskLevel: 'LOW' | 'MEDIU
   background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'MEDIUM':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'HIGH':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 		}
 	}};
   transition: width 0.5s ease;
@@ -423,11 +422,11 @@ const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'MEDIUM':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'HIGH':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 		}
 	}};
 `;
@@ -721,7 +720,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						</>
 					) : result ? (
 						<>
-							<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+							<FiCheckCircle style={{ color: '#10b981' }} />
 							<ProgressTitle>✅ Evaluation Complete</ProgressTitle>
 						</>
 					) : (
@@ -783,19 +782,19 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						<RiskFactorsTitle>🔍 Risk Factors Analyzed:</RiskFactorsTitle>
 						<RiskFactorsList>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								<span>Device fingerprint and browser analysis</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								<span>Geolocation and IP address verification</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								<span>Login pattern and behavioral analysis</span>
 							</RiskFactorItem>
 							<RiskFactorItem>
-								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+								<FiCheckCircle style={{ color: '#10b981' }} />
 								<span>Historical authentication data</span>
 							</RiskFactorItem>
 						</RiskFactorsList>
@@ -832,11 +831,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'LOW' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+									<FiCheckCircle style={{ color: '#10b981' }} />
 									<span>Direct access granted - no additional security needed</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
+									<FiCheckCircle style={{ color: '#10b981' }} />
 									<span>You'll be redirected to the success page</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -844,11 +843,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'MEDIUM' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiShield style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }} />
+									<FiShield style={{ color: '#f59e0b' }} />
 									<span>Multi-factor authentication required</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiShield style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }} />
+									<FiShield style={{ color: '#f59e0b' }} />
 									<span>You'll be prompted for additional verification</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -856,11 +855,11 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						{result.result.level === 'HIGH' && (
 							<NextStepsContent>
 								<NextStepItem>
-									<FiXCircle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
+									<FiXCircle style={{ color: '#ef4444' }} />
 									<span>Access blocked due to high-risk indicators</span>
 								</NextStepItem>
 								<NextStepItem>
-									<FiXCircle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
+									<FiXCircle style={{ color: '#ef4444' }} />
 									<span>Please contact your administrator or try again later</span>
 								</NextStepItem>
 							</NextStepsContent>
@@ -872,7 +871,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			{/* Educational Section */}
 			<EducationalSection>
 				<EducationalHeader>
-					<FiInfo style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }} />
+					<FiInfo style={{ color: '#2563eb' }} />
 					<EducationalTitle>{educationalContent.title}</EducationalTitle>
 				</EducationalHeader>
 				<EducationalDescription>{educationalContent.description}</EducationalDescription>

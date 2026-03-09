@@ -1,6 +1,5 @@
 // src/components/DeviceRegistrationModal.tsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -243,7 +242,7 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<span style={{ fontSize: 24, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+						<span style={{ fontSize: 24, color: '#10b981' }}>✅</span>
 						Device Registered Successfully
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
@@ -252,7 +251,7 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 				</ModalHeader>
 
 				<SuccessIcon>
-					<span style={{ fontSize: 32, color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+					<span style={{ fontSize: 32, color: '#10b981' }}>✅</span>
 				</SuccessIcon>
 
 				<DeviceInfo>
@@ -292,7 +291,7 @@ const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
 							style={{
 								fontFamily: 'monospace',
 								fontSize: '0.75rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 							}}
 						>
 							{deviceData.deviceId}

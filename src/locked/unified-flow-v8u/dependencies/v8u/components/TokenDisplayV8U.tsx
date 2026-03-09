@@ -13,7 +13,6 @@
  * - Expiry time formatting
  */
 
-
 import React, { useState } from 'react';
 import { type DecodedJWT, TokenDisplayServiceV8 } from '../../v8/services/tokenDisplayServiceV8.ts';
 
@@ -206,7 +205,11 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 									}
 								}}
 							>
-								{isCopied ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
+								{isCopied ? (
+									<span style={{ fontSize: '14px' }}>✅</span>
+								) : (
+									<span style={{ fontSize: '14px' }}>📋</span>
+								)}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</button>
 						)}

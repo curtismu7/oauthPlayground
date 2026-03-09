@@ -47,9 +47,9 @@ const StepContainer = styled.div`
 const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
   padding: 1rem;
   border: 2px solid ${(props) =>
-		props.$completed ? 'V9_COLORS.PRIMARY.GREEN' : props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		props.$completed ? '#10b981' : props.$active ? '#3b82f6' : '#e5e7eb'};
   border-radius: 0.5rem;
-  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
+  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? '#f8fafc' : '#f9fafb')};
   transition: all 0.2s ease;
 `;
 
@@ -141,13 +141,13 @@ const ActionButton = styled.button<{
       background: ${(props) => {
 				switch (props.$variant) {
 					case 'primary':
-						return 'V9_COLORS.PRIMARY.BLUE';
+						return '#3b82f6';
 					case 'secondary':
-						return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+						return '#6b7280';
 					case 'success':
-						return 'V9_COLORS.PRIMARY.GREEN';
+						return '#10b981';
 					case 'danger':
-						return 'V9_COLORS.PRIMARY.RED';
+						return '#ef4444';
 					case 'outline':
 						return 'white';
 					default:
@@ -572,7 +572,7 @@ const JWTBearerFlow: React.FC = () => {
 				<CardBody>
 					<div
 						style={{
-							background: 'V9_COLORS.BG.WARNING',
+							background: '#fef3c7',
 							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 							borderRadius: '0.5rem',
 							padding: '1rem',
@@ -582,14 +582,12 @@ const JWTBearerFlow: React.FC = () => {
 							gap: '0.75rem',
 						}}
 					>
-						<span
-							style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.25rem', marginTop: '0.125rem' }}
-						>⚠️</span>
+						<span style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }}>⚠️</span>
 						<div>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1rem' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#d97706', fontSize: '1rem' }}>
 								Educational Flow - PingOne Not Supported
 							</h4>
-							<p style={{ margin: 0, color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '0.9rem' }}>
+							<p style={{ margin: 0, color: '#d97706', fontSize: '0.9rem' }}>
 								<strong>Important:</strong> PingOne does not support the JWT Bearer grant type. This
 								flow is for educational purposes only and generates mock tokens to demonstrate how
 								JWT Bearer authentication would work with OAuth 2.0 providers that support it.
@@ -639,17 +637,18 @@ const JWTBearerFlow: React.FC = () => {
 					<CardBody>
 						<div
 							style={{
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '0.5rem',
 								padding: '1rem',
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
 							}}
 						>
-							<span>⚠️</span><strong>Error:</strong> {error}
+							<span>⚠️</span>
+							<strong>Error:</strong> {error}
 						</div>
 					</CardBody>
 				</FlowSection>
@@ -697,14 +696,14 @@ const JWTBearerFlow: React.FC = () => {
 					/>
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK', fontSize: '0.9rem' }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem' }}>
 							Current Configuration:
 						</h4>
 						<div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.875rem' }}>

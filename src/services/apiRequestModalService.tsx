@@ -7,33 +7,28 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheck': 'mdi-check',
-		'FiCode': 'mdi-code-tags',
-		'FiCopy': 'mdi-content-copy',
-		'FiDatabase': 'mdi-database',
-		'FiEye': 'mdi-eye',
-		'FiEyeOff': 'mdi-eye-off',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiSend': 'mdi-send',
-		'FiShield': 'mdi-shield-check',
-		'FiX': 'mdi-close',
+		FiCheck: 'mdi-check',
+		FiCode: 'mdi-code-tags',
+		FiCopy: 'mdi-content-copy',
+		FiDatabase: 'mdi-database',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiSend: 'mdi-send',
+		FiShield: 'mdi-shield-check',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // ============================================================================
@@ -599,7 +594,11 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 														onClick={() => setShowSecrets(!showSecrets)}
 														title={showSecrets ? 'Hide token' : 'Show token'}
 													>
-														{showSecrets ? <MDIIcon icon="FiEyeOff" size={14} /> : <MDIIcon icon="FiEye" size={14} />}
+														{showSecrets ? (
+															<MDIIcon icon="FiEyeOff" size={14} />
+														) : (
+															<MDIIcon icon="FiEye" size={14} />
+														)}
 													</ToggleSecretButton>
 												</>
 											) : (
@@ -647,7 +646,11 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 						</SectionTitle>
 						<CodeBlock>{generateCurlCommand()}</CodeBlock>
 						<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-							{copiedCurl ? <MDIIcon icon="FiCheck" size={12} /> : <MDIIcon icon="FiCopy" size={12} />}
+							{copiedCurl ? (
+								<MDIIcon icon="FiCheck" size={12} />
+							) : (
+								<MDIIcon icon="FiCopy" size={12} />
+							)}
 							{copiedCurl ? 'Copied!' : 'Copy cURL'}
 						</CopyButton>
 					</Section>

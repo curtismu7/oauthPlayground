@@ -1,6 +1,6 @@
 // src/components/CodeExamplesInline.tsx
 
-
+import { FiChevronDown } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -11,7 +11,6 @@ import {
 } from '../services/codeExamplesService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
-import { FiChevronDown } from '@icons';
 
 interface CodeExamplesInlineProps {
 	flowType: string;
@@ -31,7 +30,7 @@ const Container = styled.div`
 const ToggleButton = styled.button<{ $isOpen: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	background: ${({ $isOpen }) => ($isOpen ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.GRAY_LIGHT')};
+	background: ${({ $isOpen }) => ($isOpen ? '#e5e7eb' : '#f8fafc')};
 	border: none;
 	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	display: flex;
@@ -123,9 +122,9 @@ const LanguageTabs = styled.div`
 
 const LanguageTab = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
-	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 6px 6px 0 0;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -136,7 +135,7 @@ const LanguageTab = styled.button<{ $active: boolean }>`
 
 	&:hover {
 		background: ${({ $active, disabled }) =>
-			disabled ? 'V9_COLORS.TEXT.WHITE' : $active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6'};
+			disabled ? '#ffffff' : $active ? '#2563eb' : '#f3f4f6'};
 	}
 `;
 

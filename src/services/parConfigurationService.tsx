@@ -10,24 +10,19 @@ import { logger } from '../utils/logger';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiShield': 'mdi-shield-check',
+		FiCheckCircle: 'mdi-check-circle',
+		FiShield: 'mdi-shield-check',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // PAR Configuration Types

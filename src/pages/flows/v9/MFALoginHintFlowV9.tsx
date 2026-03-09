@@ -348,8 +348,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 			case 0:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🔐 MFA Configuration</h3>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🔐 MFA Configuration</h3>
+						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Configure the MFA login hint parameters for authentication.
 						</p>
 
@@ -366,7 +366,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Environment ID
@@ -396,7 +396,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Client ID
@@ -424,7 +424,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Client Secret
@@ -454,7 +454,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									User ID (Optional)
@@ -482,7 +482,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Email (Optional)
@@ -510,7 +510,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 										display: 'block',
 										fontWeight: 500,
 										marginBottom: '0.5rem',
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 									}}
 								>
 									Phone Number (Optional)
@@ -539,8 +539,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 			case 1:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🎫 Login Hint Token</h3>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🎫 Login Hint Token</h3>
+						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Generate a login hint token to initiate the MFA authentication flow.
 						</p>
 
@@ -551,7 +551,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								type="button"
 								style={{
 									padding: '0.75rem 1.5rem',
-									background: !isLoading && validateCurrentStep() ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHT',
+									background: !isLoading && validateCurrentStep() ? '#10b981' : '#9ca3af',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -566,12 +566,12 @@ const MFALoginHintFlowV9: React.FC = () => {
 
 						{loginHintToken && (
 							<div>
-								<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<h4 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>
 									📋 Login Hint Token Response
 								</h4>
 								<div
 									style={{
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										padding: '1rem',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
@@ -588,7 +588,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 											style={{
 												marginLeft: '0.5rem',
 												padding: '0.25rem 0.5rem',
-												background: 'V9_COLORS.PRIMARY.BLUE',
+												background: '#3b82f6',
 												color: 'white',
 												border: 'none',
 												borderRadius: '0.25rem',
@@ -599,7 +599,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 											Copy
 										</button>
 									</div>
-									<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
 										{loginHintToken.login_hint_token}
 									</div>
 									<div style={{ marginTop: '1rem', fontSize: '0.875rem' }}>
@@ -625,8 +625,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 			case 2:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🔐 MFA Authentication</h3>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🔐 MFA Authentication</h3>
+						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Complete the MFA authentication challenge to verify your identity.
 						</p>
 
@@ -637,7 +637,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								type="button"
 								style={{
 									padding: '0.75rem 1.5rem',
-									background: !isLoading && validateCurrentStep() ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHT',
+									background: !isLoading && validateCurrentStep() ? '#10b981' : '#9ca3af',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -652,12 +652,12 @@ const MFALoginHintFlowV9: React.FC = () => {
 
 						{mfaResponse && (
 							<div>
-								<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<h4 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>
 									📋 MFA Challenge Response
 								</h4>
 								<div
 									style={{
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										padding: '1rem',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
@@ -686,7 +686,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 											<strong>Challenges:</strong>
 											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 												{mfaResponse.challenges.map((challenge, index) => (
-													<li key={index} style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+													<li key={index} style={{ color: '#6b7280' }}>
 														<strong>{challenge.type}:</strong> {challenge.detail}
 													</li>
 												))}
@@ -703,7 +703,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 												style={{
 													marginLeft: '0.5rem',
 													padding: '0.25rem 0.5rem',
-													background: 'V9_COLORS.PRIMARY.BLUE',
+													background: '#3b82f6',
 													color: 'white',
 													border: 'none',
 													borderRadius: '0.25rem',
@@ -717,7 +717,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 												style={{
 													wordBreak: 'break-all',
 													fontSize: '0.875rem',
-													color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+													color: '#6b7280',
 													marginTop: '0.5rem',
 												}}
 											>
@@ -734,8 +734,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 			case 3:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>🎫 Access Token</h3>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>🎫 Access Token</h3>
+						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Receive the final access token after completing MFA authentication.
 						</p>
 
@@ -746,7 +746,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								type="button"
 								style={{
 									padding: '0.75rem 1.5rem',
-									background: !isLoading && validateCurrentStep() ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHT',
+									background: !isLoading && validateCurrentStep() ? '#10b981' : '#9ca3af',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.375rem',
@@ -761,10 +761,10 @@ const MFALoginHintFlowV9: React.FC = () => {
 
 						{completionResponse && (
 							<div>
-								<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>📋 Final Access Token</h4>
+								<h4 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>📋 Final Access Token</h4>
 								<div
 									style={{
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										background: '#f8fafc',
 										padding: '1rem',
 										borderRadius: '0.5rem',
 										marginBottom: '1rem',
@@ -779,7 +779,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 											style={{
 												marginLeft: '0.5rem',
 												padding: '0.25rem 0.5rem',
-												background: 'V9_COLORS.PRIMARY.BLUE',
+												background: '#3b82f6',
 												color: 'white',
 												border: 'none',
 												borderRadius: '0.25rem',
@@ -790,7 +790,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 											Copy
 										</button>
 									</div>
-									<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+									<div style={{ wordBreak: 'break-all', fontSize: '0.875rem', color: '#6b7280' }}>
 										{completionResponse.accessToken}
 									</div>
 									<div style={{ marginTop: '1rem', fontSize: '0.875rem' }}>
@@ -816,8 +816,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 			case 4:
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>✅ Flow Completion</h3>
-						<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#10b981' }}>✅ Flow Completion</h3>
+						<p style={{ color: '#10b981', marginBottom: '1.5rem' }}>
 							MFA login hint flow has been completed successfully!
 						</p>
 
@@ -830,8 +830,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.GREEN' }}>Summary:</h4>
-							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#10b981' }}>Summary:</h4>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#10b981' }}>
 								<li>✅ Configured MFA login hint parameters</li>
 								<li>✅ Generated login hint token for MFA</li>
 								<li>✅ Completed MFA authentication challenge</li>
@@ -840,7 +840,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 							</ul>
 						</div>
 
-						<p style={{ color: 'V9_COLORS.PRIMARY.GREEN', margin: 0 }}>
+						<p style={{ color: '#10b981', margin: 0 }}>
 							<strong>Next Steps:</strong> Use the access token to authenticate with protected
 							resources.
 						</p>
@@ -898,7 +898,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 						position: 'fixed',
 						top: '1rem',
 						right: '1rem',
-						background: 'V9_COLORS.PRIMARY.RED',
+						background: '#ef4444',
 						color: 'white',
 						padding: '1rem',
 						borderRadius: '0.5rem',
@@ -938,8 +938,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 										width: '32px',
 										height: '32px',
 										borderRadius: '50%',
-										background: index <= currentStep ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
-										color: index <= currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										background: index <= currentStep ? '#10b981' : '#e5e7eb',
+										color: index <= currentStep ? 'white' : '#6b7280',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -950,7 +950,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								>
 									{index + 1}
 								</div>
-								<div style={{ fontSize: '0.75rem', textAlign: 'center', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								<div style={{ fontSize: '0.75rem', textAlign: 'center', color: '#6b7280' }}>
 									{step.title.split(' ')[0]}
 								</div>
 							</div>
@@ -958,7 +958,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 					</div>
 					<div
 						style={{
-							background: 'V9_COLORS.TEXT.GRAY_LIGHTER',
+							background: '#e5e7eb',
 							height: '4px',
 							borderRadius: '2px',
 							overflow: 'hidden',
@@ -966,7 +966,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 					>
 						<div
 							style={{
-								background: 'V9_COLORS.PRIMARY.GREEN',
+								background: '#10b981',
 								height: '100%',
 								width: `${((currentStep + 1) / STEP_METADATA.length) * 100}%`,
 								transition: 'width 0.3s ease',
@@ -986,7 +986,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 						type="button"
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: currentStep === 0 ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1006,8 +1006,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 								type="button"
 								style={{
 									padding: '0.5rem 1rem',
-									background: index === currentStep ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
-									color: index === currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									background: index === currentStep ? '#10b981' : '#e5e7eb',
+									color: index === currentStep ? 'white' : '#6b7280',
 									border: 'none',
 									borderRadius: '0.375rem',
 									cursor: 'pointer',
@@ -1028,8 +1028,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 							padding: '0.75rem 1.5rem',
 							background:
 								currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
-									? 'V9_COLORS.TEXT.GRAY_LIGHTER'
-									: 'V9_COLORS.PRIMARY.GREEN',
+									? '#e5e7eb'
+									: '#10b981',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1059,7 +1059,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+								color: '#059669',
 								fontSize: '1.25rem',
 								fontWeight: 600,
 							}}
@@ -1074,7 +1074,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Achievements:</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ Login Hint Token generated</li>
 								<li>✅ MFA Authentication completed</li>
@@ -1090,7 +1090,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 									padding: '1rem',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
 									Authentication Details:
 								</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>

@@ -99,7 +99,7 @@ export const PasskeyManager: React.FC = () => {
 								marginBottom: '0.5rem',
 								fontSize: '0.875rem',
 								fontWeight: '500',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Environment ID *
@@ -127,7 +127,7 @@ export const PasskeyManager: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							User ID *
@@ -151,7 +151,7 @@ export const PasskeyManager: React.FC = () => {
 								marginBottom: '0.5rem',
 								fontSize: '0.875rem',
 								fontWeight: '500',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Worker Token
@@ -169,7 +169,7 @@ export const PasskeyManager: React.FC = () => {
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '6px',
 									fontSize: '0.95rem',
-									background: workerToken ? '#f9fafb' : 'V9_COLORS.TEXT.WHITE',
+									background: workerToken ? '#f9fafb' : '#ffffff',
 								}}
 							/>
 							<button
@@ -178,7 +178,7 @@ export const PasskeyManager: React.FC = () => {
 								disabled={loadingToken || !environmentId}
 								style={{
 									padding: '0.75rem 1.5rem',
-									background: loadingToken || !environmentId ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.BLUE',
+									background: loadingToken || !environmentId ? '#9ca3af' : '#3b82f6',
 									color: 'white',
 									border: 'none',
 									borderRadius: '6px',
@@ -212,11 +212,11 @@ export const PasskeyManager: React.FC = () => {
 						maxWidth: '1200px',
 						margin: '0 auto',
 						padding: '2rem',
-						background: 'V9_COLORS.BG.WARNING',
+						background: '#fef3c7',
 						border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 						borderRadius: '12px',
 						textAlign: 'center',
-						color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+						color: '#d97706',
 					}}
 				>
 					<p style={{ margin: 0, fontSize: '1rem' }}>

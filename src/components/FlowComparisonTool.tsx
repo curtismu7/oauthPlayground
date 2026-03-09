@@ -1,11 +1,20 @@
+import {
+	FiCheckCircle,
+	FiGitBranch,
+	FiInfo,
+	FiShield,
+	FiStar,
+	FiTarget,
+	FiUser,
+	FiXCircle,
+} from '@icons';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager } from '../utils/credentialManager';
 import { Card, CardBody, CardHeader } from './Card';
-import { FiCheckCircle, FiGitBranch, FiInfo, FiShield, FiStar, FiTarget, FiUser, FiXCircle } from '@icons';
 
 interface FlowComparison {
 	id: string;
@@ -44,15 +53,11 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: 2px solid ${({ $selected, $added }) =>
-		$added
-			? 'V9_COLORS.PRIMARY.RED_DARK'
-			: $selected
-				? 'V9_COLORS.PRIMARY.RED_DARK'
-				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		$added ? '#dc2626' : $selected ? '#dc2626' : '#e5e7eb'};
   border-radius: 0.5rem;
   background-color: ${({ $selected, $added }) =>
-		$added ? 'V9_COLORS.BG.ERROR' : $selected ? 'V9_COLORS.BG.ERROR' : 'white'};
-  color: ${({ $selected, $added }) => ($added ? 'V9_COLORS.PRIMARY.RED_DARK' : $selected ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+		$added ? '#fef2f2' : $selected ? '#fef2f2' : 'white'};
+  color: ${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#1f2937')};
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -615,7 +620,7 @@ const FlowComparisonTool: React.FC = () => {
 														gap: '0.25rem',
 														padding: '0.25rem 0.75rem',
 														backgroundColor: '#dbeafe',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 														borderRadius: '1rem',
 														fontSize: '0.75rem',
 														fontWeight: '500',
@@ -658,10 +663,7 @@ const FlowComparisonTool: React.FC = () => {
 									</ComparisonSection>
 
 									<ComparisonSection>
-										<h4>
-											✅
-											Pros
-										</h4>
+										<h4>✅ Pros</h4>
 										<ProsConsList>
 											{flow.pros.map((pro, index) => (
 												<li key={index}>
@@ -673,10 +675,7 @@ const FlowComparisonTool: React.FC = () => {
 									</ComparisonSection>
 
 									<ComparisonSection>
-										<h4>
-											❌
-											Cons
-										</h4>
+										<h4>❌ Cons</h4>
 										<ProsConsList>
 											{flow.cons.map((con, index) => (
 												<li key={index}>
@@ -701,10 +700,7 @@ const FlowComparisonTool: React.FC = () => {
 										</UseCasesList>
 									</ComparisonSection>
 
-									<ActionButton to={generateFlowUrl(flow)}>
-										🔗
-										Try This Flow
-									</ActionButton>
+									<ActionButton to={generateFlowUrl(flow)}>🔗 Try This Flow</ActionButton>
 								</CardBody>
 							</ComparisonCard>
 						))}

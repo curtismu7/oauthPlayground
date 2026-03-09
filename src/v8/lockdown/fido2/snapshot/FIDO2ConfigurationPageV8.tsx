@@ -11,7 +11,7 @@
  * - Configuration before device registration
  */
 
-
+import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -30,7 +30,6 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
-import { FiInfo } from '@icons';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 

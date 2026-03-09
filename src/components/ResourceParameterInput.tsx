@@ -1,7 +1,6 @@
 // src/components/ResourceParameterInput.tsx
 // OAuth/OIDC Resource Parameter Input - RFC 8707 Resource Indicators
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -163,18 +162,18 @@ const ExampleItem = styled.button<{ $isFromDiscovery?: boolean }>`
 	text-align: left;
 	padding: 0.5rem;
 	margin-bottom: 0.25rem;
-	background: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
-	border: 1px solid ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#c4b5fd')};
+	background: ${(props) => (props.$isFromDiscovery ? '#f8fafc' : '#ffffff')};
+	border: 1px solid ${(props) => (props.$isFromDiscovery ? '#60a5fa' : '#c4b5fd')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#7c3aed')};
+	color: ${(props) => (props.$isFromDiscovery ? '#2563eb' : '#7c3aed')};
 	cursor: grab;
 	transition: all 0.2s;
 
 	&:hover {
 		background: ${(props) => (props.$isFromDiscovery ? '#dbeafe' : '#faf5ff')};
-		border-color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE' : '#7c3aed')};
+		border-color: ${(props) => (props.$isFromDiscovery ? '#3b82f6' : '#7c3aed')};
 		transform: translateX(2px);
 	}
 
@@ -224,19 +223,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT')};
-	border: 1px solid ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${(props) => (props.$variant === 'warning' ? '#fef3c7' : '#f8fafc')};
+	border: 1px solid ${(props) => (props.$variant === 'warning' ? '#fbbf24' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : '#2563eb')};
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE')};
+	color: ${(props) => (props.$variant === 'warning' ? '#f59e0b' : '#3b82f6')};
 `;
 
 const _EmptyState = styled.div`
@@ -491,7 +490,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 							marginTop: '1rem',
 							fontSize: '0.875rem',
 							fontStyle: 'italic',
-							color: 'V9_COLORS.PRIMARY.BLUE',
+							color: '#3b82f6',
 						}}
 					>
 						💡 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue
@@ -550,15 +549,15 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						borderRadius: '0.5rem',
 						fontSize: '0.875rem',
 						fontFamily: 'Monaco, Menlo, monospace',
-						backgroundColor: 'V9_COLORS.TEXT.WHITE',
+						backgroundColor: '#ffffff',
 						transition: 'all 0.2s',
 					}}
 					onFocus={(e) => {
-						e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE';
+						e.target.style.borderColor = '#3b82f6';
 						e.target.style.boxShadow = '0 0 0 3px rgba(2, 132, 199, 0.1)';
 					}}
 					onBlur={(e) => {
-						e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
+						e.target.style.borderColor = '#e5e7eb';
 						e.target.style.boxShadow = 'none';
 					}}
 				/>
@@ -578,9 +577,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 				<ExampleTitle>
 					Common Examples (click or drag to add):
 					{(issuer || environmentId) && (
-						<span
-							style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontWeight: 400, marginLeft: '0.5rem' }}
-						>
+						<span style={{ color: '#3b82f6', fontWeight: 400, marginLeft: '0.5rem' }}>
 							✓ OIDC Discovery endpoints available
 						</span>
 					)}

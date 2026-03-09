@@ -1,7 +1,6 @@
 // src/components/FlowConfigurationTable.tsx
 // Comprehensive table showing configuration requirements for all OAuth/OIDC flows
 
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -74,17 +73,9 @@ const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }
 	font-size: 0.75rem;
 	font-weight: 600;
 	background: ${({ $status }) =>
-		$status === 'required'
-			? 'V9_COLORS.BG.WARNING'
-			: $status === 'not-used'
-				? 'V9_COLORS.BG.SUCCESS'
-				: '#f3f4f6'};
+		$status === 'required' ? '#fef3c7' : $status === 'not-used' ? '#ecfdf5' : '#f3f4f6'};
 	color: ${({ $status }) =>
-		$status === 'required'
-			? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-			: $status === 'not-used'
-				? 'V9_COLORS.PRIMARY.GREEN_DARK'
-				: 'V9_COLORS.TEXT.GRAY_DARK'};
+		$status === 'required' ? '#d97706' : $status === 'not-used' ? '#059669' : '#1f2937'};
 `;
 
 const CodeBadge = styled.code`

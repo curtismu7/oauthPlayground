@@ -6,25 +6,23 @@
  * @since 2024-11-16
  */
 
-
+import { FiSearch } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { FiSearch } from '@icons';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {
-	environmentId: string;
+	environmentId?: string;
 	onAppSelected: (app: DiscoveredApp) => void;
 }
 
 export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
-	environmentId,
+	environmentId = '',
 	onAppSelected,
 }) => {
 	// Use unified global worker token hook for token management

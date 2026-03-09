@@ -2,7 +2,6 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/SAMLBearerAssertionFlowV9.tsx
 // OAuth 2.0 SAML Bearer Assertion Flow (RFC 7522) - V9
 
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -37,25 +36,25 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
+				return '#fbbf24';
 			case 'success':
 				return '#93c5fd';
 			case 'error':
 				return '#fca5a5';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -67,11 +66,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#78350f';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;
@@ -583,26 +582,19 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const comprehensiveCredentials = credentialManager.getAllCredentials();
 
 				if (comprehensiveCredentials?.environmentId) {
-					log.info(
-						'SAMLBearerAssertionFlowV9',
-						'Loading credentials from comprehensive system',
-						{ comprehensiveCredentials }
-					);
+					log.info('SAMLBearerAssertionFlowV9', 'Loading credentials from comprehensive system', {
+						comprehensiveCredentials,
+					});
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					log.info(
-						'SAMLBearerAssertionFlowV9',
-						'Comprehensive credentials loaded for mock flow'
-					);
+					log.info('SAMLBearerAssertionFlowV9', 'Comprehensive credentials loaded for mock flow');
 
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
 					setTokenEndpoint(tokenEndpointUrl);
-					log.info(
-						'SAMLBearerAssertionFlowV9',
-						'Token endpoint auto-populated from credentials',
-						{ tokenEndpointUrl }
-					);
+					log.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated from credentials', {
+						tokenEndpointUrl,
+					});
 				}
 
 				// Then load SAML-specific configuration (will override if exists)
@@ -891,7 +883,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<div
 							style={{
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.PRIMARY.YELLOW',
+								color: '#f59e0b',
 								display: 'flex',
 								flexDirection: 'column',
 								gap: '0.5rem',
@@ -927,7 +919,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<ParameterLabel>SAML Assertion (XML)</ParameterLabel>
 							<div
 								style={{
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
@@ -937,7 +929,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							>
 								<pre
 									style={{
-										color: 'V9_COLORS.TEXT.GRAY_DARK',
+										color: '#1f2937',
 										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 										fontSize: '0.875rem',
 										lineHeight: '1.5',
@@ -976,7 +968,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<ParameterLabel>SAML Assertion (Base64 Encoded)</ParameterLabel>
 							<div
 								style={{
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									background: '#f8fafc',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.5rem',
 									padding: '1rem',
@@ -986,7 +978,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							>
 								<pre
 									style={{
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 										fontSize: '0.75rem',
 										lineHeight: '1.4',
@@ -1110,9 +1102,9 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<InfoText
 							style={{
 								marginTop: '0.5rem',
-								color: 'V9_COLORS.PRIMARY.RED_DARK',
+								color: '#dc2626',
 								fontWeight: '600',
-								backgroundColor: 'V9_COLORS.BG.ERROR',
+								backgroundColor: '#fef2f2',
 								padding: '0.75rem',
 								borderRadius: '0.5rem',
 								border: '2px solid V9_COLORS.PRIMARY.RED',
@@ -1158,7 +1150,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						<div
 							style={{
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.PRIMARY.YELLOW',
+								color: '#f59e0b',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.25rem',
@@ -1190,7 +1182,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								The SAML Bearer Assertion flow has completed successfully. You now have an access
 								token that can be used to access protected resources.
 							</InfoText>
-							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#2563eb' }}>
 								<strong>💡 Real-World Behavior:</strong> In production systems, the authorization
 								server extracts user attributes from the SAML assertion (email, name, roles, etc.)
 								and includes them in the access token claims. This allows APIs to identify the user

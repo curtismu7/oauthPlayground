@@ -7,8 +7,8 @@
  */
 // lint-file-disable: token-value-in-jsx
 
-import { logger } from '@/utils/logger';
 import React, { useState } from 'react';
+import { logger } from '@/utils/logger';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 interface WorkerTokenRequestModalV8Props {

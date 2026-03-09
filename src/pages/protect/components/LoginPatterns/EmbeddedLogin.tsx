@@ -8,11 +8,10 @@
  * Authentic embedded login form that matches real Bank of America online banking experience.
  */
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
+import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
 // ============================================================================
 // STYLED COMPONENTS - Real Banking Website Design
@@ -374,7 +373,11 @@ const EmbeddedLogin: React.FC<{
 							onClick={() => setShowPassword(!showPassword)}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showPassword ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</TogglePassword>
 					</InputWrapper>
 				</InputGroup>

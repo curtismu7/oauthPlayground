@@ -36,7 +36,6 @@ export interface ComparisonResult {
 	changed: boolean;
 }
 
-
 /**
  * Compare two user states and return differences
  */

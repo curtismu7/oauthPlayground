@@ -5,7 +5,6 @@
  * @version 9.9.6
  */
 
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
@@ -126,11 +125,19 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	const sourceOptions: SourceOption[] = [
-		{ value: 'localStorage', label: 'localStorage', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
+		{
+			value: 'localStorage',
+			label: 'localStorage',
+			icon: <span style={{ fontSize: '16px' }}>🗄️</span>,
+		},
 		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
 		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
 		{ value: 'file', label: 'File', icon: <span style={{ fontSize: '16px' }}>❓</span> },
-		{ value: 'callback-debug', label: 'Callback Debug', icon: <span style={{ fontSize: '16px' }}>👁️</span> },
+		{
+			value: 'callback-debug',
+			label: 'Callback Debug',
+			icon: <span style={{ fontSize: '16px' }}>👁️</span>,
+		},
 	];
 
 	const normalizeToLogEntries = useCallback(
@@ -1627,7 +1634,11 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 													}}
 													title={isExpanded ? 'Hide details' : 'Show details'}
 												>
-													{isExpanded ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+													{isExpanded ? (
+														<span style={{ fontSize: '14px' }}>🙈</span>
+													) : (
+														<span style={{ fontSize: '14px' }}>👁️</span>
+													)}
 												</button>
 											)}
 										</div>

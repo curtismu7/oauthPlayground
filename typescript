@@ -1,0 +1,592 @@
+Script started on Mon Mar  9 05:57:28 2026
+]633;P;ContinuationPrompt=%_> ]633;P;HasRichCommandDetection=True[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m ]633;B[K[?1h=[?2004h[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;E;;]633;C]633;D]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  wc -l /tmp/fix_colors.sh && echo "ok"[?1l>[?2004l
+]2;wc -l /tmp/fix_colors.sh && echo "ok"]1;wc]633;E; wc -l /tmp/fix_colors.sh && echo "ok";]633;Cwc: /tmp/fix_colors.sh: open: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  ls -la /tmp/fix_colors.sh 2>&1 && echo "exists"[?1l>[?2004l
+]2;ls -G -la /tmp/fix_colors.sh 2>&1 && echo "exists"]1;ls]633;E; ls -la /tmp/fix_colors.sh 2>&1 && echo "exists";]633;Cls: /tmp/fix_colors.sh: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  perl -i -pe 's/V9_COLORS\.PRIMARY\.GREEN_DARK/#059669/g; s/V9_COLORS\.PRIMARY\.GREEN_L [KIIGHT/#34d399/g; s/V9_COLORS\.PRIMARY\.GREEN/#10b981/g; s/V9_COLORS\.PRIMARY\.BLUE_DARK/#2563eb/g; s/V9_COLORS\.PRIMARY\.BLUE_LIGHT/#60a5fa/g; s/V9_COLORS\.PRI [KMMARY\.BLUE/#3b82f6/g; s/V9_COLORS\.PRIMARY\.RED_DARK/#dc2626/g; s/V9_COLORS\.PRIMARY\.RED/#ef4444/g; s/V9_COLORS\.PRIMARY\.YELLOW_DARK/#d97706/g; s/V9_COLORS\ [K..PRIMARY\.YELLOW_LIGHT/#fbbf24/g; s/V9_COLORS\.PRIMARY\.YELLOW/#f59e0b/g; s/V9_COLORS\.TEXT\.WHITE/#ffffff/g; s/V9_COLORS\.TEXT\.GRAY_DARK/#1f2937/g; s/V9_CO[3A[86D>....                                                                                  
+[71P[10C/#3b82f6[5P[26CRED_DARK/#dc2626[P[P[20CMARY\.RED/#ef4444/g; s/V9_COLORS\.PRIMARY\.YELLOW_DARK/#d97706/g; s/V9_COLORS\.P[113P[15CLIGHT/#fbbf24/g; s/V9_COLORS\.PRIMARY\.YELLOW/#f59e0b/g; s/V9_COLORS\.TEXT\.WHITE/#ffffff/g; s/V9_COLORS\.TEXT\.GRAY_DARK/#1f2937/g; s/V9_COL [KOORS\.TEXT\.GRAY_MEDIUM/#6b7280/g; s/V9_COLORS\.TEXT\.GRAY_LIGHT/#9ca3af/g; s/V9_COLORS\.TEXT\.GRAY_LIGHTER/#e5e7eb/g; s/V9_COLORS\.BG\.WHITE/#ffffff/g; s/V9_[A[A[M[1B[157CC [KOOLORS\.BG\.GRAY_LIGHT/#f8fafc/g; s/V9_COLORS\.BG\.GRAY_MEDIUM/#f1f5f9/g; s/V9_COLORS\.BG\.SUCCESS_BORDER/#10b981/g; s/V9_COLORS\.BG\.SUCCESS/#ecfdf5/g; s/V9_[A[A[M[1B[157CC [KOOLORS\.BG\.WARNING_BORDER/#f59e0b/g; s/V9_COLORS\.BG\.WARNING/#fef3c7/g; s/V9_COLORS\.BG\.ERROR_BORDER/#ef4444/g; s/V9_COLORS\.BG\.ERROR/#fef2f2/g;' src/page[A[A[M[1B[157Cs [K//PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialMana[A[A[M[1B[157Cg [Keement.tsx src/pages/OrganizationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx src/pages/AdvancedCo[A[A[M[1B[157Cn [Kffiguration.tsx && echo "Done"[?1l>[?2004l
+]2;perl -i -pe  src/pages/PingOneUserProfile.tsx         && echo "Done"]1;perl]633;E; perl -i -pe 's/V9_COLORS\\.PRIMARY\\.GREEN_DARK/#059669/g\x3b s/V9_COLORS\\.PRIMARY\\.GREEN_LIGHT/#34d399/g\x3b s/V9_COLORS\\.PRIMARY\\.GREEN/#10b981/g\x3b s/V9_COLORS\\.PRIMARY\\.BLUE_DARK/#2563eb/g\x3b s/V9_COLORS\\.PRIMARY\\.BLUE_LIGHT/#60a5fa/g\x3b s/V9_COLORS\\.PRIMARY\\.BLUE/#3b82f6/g\x3b s/V9_COLORS\\.PRIMARY\\.RED_DARK/#dc2626/g\x3b s/V9_COLORS\\.PRIMARY\\.RED/#ef4444/g\x3b s/V9_COLORS\\.PRIMARY\\.YELLOW_DARK/#d97706/g\x3b s/V9_COLORS\\.PRIMARY\\.YELLOW_LIGHT/#fbbf24/g\x3b s/V9_COLORS\\.PRIMARY\\.YELLOW/#f59e0b/g\x3b s/V9_COLORS\\.TEXT\\.WHITE/#ffffff/g\x3b s/V9_COLORS\\.TEXT\\.GRAY_DARK/#1f2937/g\x3b s/V9_COLORS\\.TEXT\\.GRAY_MEDIUM/#6b7280/g\x3b s/V9_COLORS\\.TEXT\\.GRAY_LIGHT/#9ca3af/g\x3b s/V9_COLORS\\.TEXT\\.GRAY_LIGHTER/#e5e7eb/g\x3b s/V9_COLORS\\.BG\\.WHITE/#ffffff/g\x3b s/V9_COLORS\\.BG\\.GRAY_LIGHT/#f8fafc/g\x3b s/V9_COLORS\\.BG\\.GRAY_MEDIUM/#f1f5f9/g\x3b s/V9_COLORS\\.BG\\.SUCCESS_BORDER/#10b981/g\x3b s/V9_COLORS\\.BG\\.SUCCESS/#ecfdf5/g\x3b s/V9_COLORS\\.BG\\.WARNING_BORDER/#f59e0b/g\x3b s/V9_COLORS\\.BG\\.WARNING/#fef3c7/g\x3b s/V9_COLORS\\.BG\\.ERROR_BORDER/#ef4444/g\x3b s/V9_COLORS\\.BG\\.ERROR/#fef2f2/g\x3b' src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx src/pages/AdvancedConfiguration.tsx && echo "Done";]633;CDone
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  echo "=== Remaining V9_COLORS refs ===" && grep -c "V9_COLORS\." src/pages/PingOneUser [KPProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx sr [Kcc/pages/OrganizationLicensing.tsx 2>/dev/null && echo "" && echo "=== Header backgrounds ===" && grep -n "background.*gradient\|background.*#" src/pages/PingO [KnneUserProfile.tsx | head -5 && grep -n "background.*gradient\|background.*#" src/pages/PingOneIdentityMetrics.tsx | head -3 && grep -n "background.*gradient\[3A[86D>....                                                                                  
+c/pages/OrganizationLicensing.tsx 2>/dev/null && echo "" && echo "=== Header backgrounds ===" && grep -n "background.*gradient\|background.*#" src/pages/PingOneUserProfile.tsx | head -5[66P[65CneIdentityMetrics.tsx | head -3 && grep -n "background.*gradient\| [Kbbackground.*#" src/pages/PingOneWebhookViewer.tsx | head -3 && grep -n "background.*gradient\|background.*#" src/pages/CredentialManagement.tsx | head -3[?1l>[?2004l
+]2;echo "=== Remaining V9_COLORS refs ===" && grep --color=auto  -c "V9_COLORS\.]1;echo]633;E; echo "=== Remaining V9_COLORS refs ===" && grep -c "V9_COLORS\\." src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx 2>/dev/null && echo "" && echo "=== Header backgrounds ===" && grep -n "background.*gradient\\|background.*#" src/pages/PingOneUserProfile.tsx | head -5 && grep -n "background.*gradient\\|background.*#" src/pages/PingOneIdentityMetrics.tsx | head -3 && grep -n "background.*gradient\\|background.*#" src/pages/PingOneWebhookViewer.tsx | head -3 && grep -n "background.*gradient\\|background.*#" src/pages/CredentialManagement.tsx | head -3;]633;C=== Remaining V9_COLORS refs ===
+src/pages/PingOneUserProfile.tsx:0
+src/pages/PingOneIdentityMetrics.tsx:0
+src/pages/PingOneAuditActivities.tsx:0
+src/pages/PingOneWebhookViewer.tsx:0
+src/pages/CredentialManagement.tsx:0
+src/pages/OrganizationLicensing.tsx:0
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "background.*gradient" src/pages/PingOneUserProfile.tsx src/pages/PingOneIdent [KiityMetrics.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/PingOneAuditActivities.tsx 2>/dev/null | head -15[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "background.*gradient" src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/PingOneAuditActivities.tsx 2>/dev/null | head -15;]633;Csrc/pages/PingOneUserProfile.tsx:161:		background: 'linear-gradient(135deg, #dc2626 0%, #dc2626 100%)',
+src/pages/PingOneUserProfile.tsx:404:		background: 'linear-gradient(135deg, #f8fafc 0%, #9ca3afER 100%)',
+src/pages/PingOneUserProfile.tsx:476:		background: 'linear-gradient(135deg, #2563eb 0%, #2563eb 100%)',
+src/pages/PingOneIdentityMetrics.tsx:33:		background: 'linear-gradient(135deg, #2563eb 0%, #2563eb 100%)',
+src/pages/PingOneIdentityMetrics.tsx:789:											background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+src/pages/PingOneWebhookViewer.tsx:43:		background: 'linear-gradient(135deg, #2563eb 0%, #2563eb 100%)',
+src/pages/CredentialManagement.tsx:21:		background: 'linear-gradient(135deg, #2563eb 0%, #2563eb 100%)',
+src/pages/PingOneAuditActivities.tsx:35:		background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+src/pages/PingOneAuditActivities.tsx:262:		background: 'linear-gradient(135deg, #f8fafc 0%, #9ca3afER 100%)',
+src/pages/PingOneAuditActivities.tsx:1298:											background: 'linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%)',
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "#9ca3afER\|#ecfdf5ER\|#f8fafc\|#9ca3af " src/pages/PingOneUserProfile.tsx sr [Kcc/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/Organi [KzzationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx 2>/dev/null | grep "ER\|_" | head -20[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "#9ca3afER\\|#ecfdf5ER\\|#f8fafc\\|#9ca3af " src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx 2>/dev/null | grep "ER\\|_" | head -20;]633;Csrc/pages/PingOneUserProfile.tsx:233:		borderBottom: '1px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:242:		borderBottom: '1px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:249:		borderBottom: '1px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:280:		borderBottom: '2px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:334:		borderBottom: '1px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:399:		background: 'linear-gradient(135deg, #f8fafc 0%, #9ca3afER 100%)',
+src/pages/PingOneUserProfile.tsx:401:		border: '1px solid #9ca3afER',
+src/pages/PingOneUserProfile.tsx:557:		border: '1px solid #9ca3afER',
+src/pages/PingOneIdentityMetrics.tsx:63:		border: '1px solid #9ca3afER',
+src/pages/PingOneIdentityMetrics.tsx:97:		border: '1px solid #9ca3afER',
+src/pages/PingOneIdentityMetrics.tsx:105:		border: '1px solid #9ca3afER',
+src/pages/PingOneIdentityMetrics.tsx:145:		border: '1px solid #9ca3afER',
+src/pages/PingOneIdentityMetrics.tsx:175:		border: '1px dashed #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:64:		border: '1px solid #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:98:		border: '1px solid #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:138:		border: '1px solid #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:184:		border: '1px solid #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:257:		borderBottom: '1px solid #9ca3afER',
+src/pages/PingOneAuditActivities.tsx:262:		background: 'linear-gradient(135deg, #f8fafc 0%, #9ca3afER 100%)',
+src/pages/PingOneAuditActivities.tsx:303:		borderBottom: '2px solid #9ca3afER',
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  perl -i -pe 's/#9ca3afER/#e5e7eb/g; s/#ecfdf5ER/#e5e7eb/g;' src/pages/PingOneUserProfi [Klle.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pag [Kees/OrganizationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx src/pages/AdvancedConfiguration.tsx && [K  echo "Artifact fix done"[?1l>[?2004l
+]2;perl -i -pe 's/#9ca3afER/#e5e7eb/g; s/#ecfdf5ER/#e5e7eb/g;'          && echo ]1;perl]633;E; perl -i -pe 's/#9ca3afER/#e5e7eb/g\x3b s/#ecfdf5ER/#e5e7eb/g\x3b' src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx src/pages/AdvancedSecuritySettingsComparison.tsx src/components/SecurityAuditDashboard.tsx src/pages/AdvancedConfiguration.tsx && echo "Artifact fix done";]633;CArtifact fix done
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "ER'\|_[A-Z]'\|COLORS" src/pages/PingOneUserProfile.tsx src/pages/PingOneIden [KttityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx [K  2>/dev/null | grep -v "import\|V9_COLORS\|//\|className\|console\|logger" | head -15[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "ER'\\|_[A-Z]'\\|COLORS" src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx 2>/dev/null | grep -v "import\\|V9_COLORS\\|//\\|className\\|console\\|logger" | head -15;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  perl -i -pe "s/linear-gradient\(135deg, #2563eb 0%, #2563eb 100%\)/linear-gradient(135 [Kddeg, #dc2626 0%, #b91c1c 100%)/g;" src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/PingOn [KeeUserProfile.tsx && echo "Blue-to-red header fix done"[?1l>[?2004l
+]2;perl -i -pe  src/pages/PingOneIdentityMetrics.tsx    && echo ]1;perl]633;E; perl -i -pe "s/linear-gradient\\(135deg, #2563eb 0%, #2563eb 100%\\)/linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)/g\x3b" src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/PingOneUserProfile.tsx && echo "Blue-to-red header fix done";]633;CBlue-to-red header fix done
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "FlowHeader\|Header\|BackButton\|import.*Link\|import.*FlowHeader" src/pages/A [KddvancedSecuritySettingsComparison.tsx | head -15[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "FlowHeader\\|Header\\|BackButton\\|import.*Link\\|import.*FlowHeader" src/pages/AdvancedSecuritySettingsComparison.tsx | head -15;]633;C5:import { Link } from 'react-router-dom';
+16:const Header = styled.div`
+24:const BackButton = styled(Link)`
+76:const VersionHeader = styled.div`
+168:			<Header>
+169:				<BackButton to="/">
+172:				</BackButton>
+177:			</Header>
+194:					<VersionHeader>
+205:					</VersionHeader>
+234:					<VersionHeader>
+245:					</VersionHeader>
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -15 src/pages/AdvancedSecuritySettingsComparison.tsx[?1l>[?2004l
+]2;tail -15 src/pages/AdvancedSecuritySettingsComparison.tsx]1;tail]633;E; tail -15 src/pages/AdvancedSecuritySettingsComparison.tsx;]633;C								padding: '0.5rem',
+								borderRadius: '4px',
+								display: 'block',
+							}}
+						>
+							{`<AdvancedSecuritySettingsMock />`}
+						</code>
+					</div>
+				</div>
+			</div>
+		</PageContainer>
+	);
+};
+
+export default AdvancedSecuritySettingsComparison;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -ln "FlowHeader" src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetric [Kss.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx 2>/dev/nu [Klll[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -ln "FlowHeader" src/pages/PingOneUserProfile.tsx src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/CredentialManagement.tsx src/pages/OrganizationLicensing.tsx 2>/dev/null;]633;Csrc/pages/CredentialManagement.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "✓|✗|error during|Could not resolve|Transform failed|ERRO [KRR" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "✓|✗|error during|Could not resolve|Transform failed|ERROR" | head -10;]633;C✓ 104 modules transformed.
+✗ Build failed in 659ms
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/AdvancedSecuritySettingsComparison.tsx (335:0): There was an error during the build:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/AdvancedSecuritySettingsComparison.tsx:335:0: ERROR: Unexpected "export"
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/AdvancedSecuritySettingsComparison.tsx:335:0: ERROR: Unexpected "export"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '325,340p' src/pages/AdvancedSecuritySettingsComparison.tsx[?1l>[?2004l
+]2;sed -n '325,340p' src/pages/AdvancedSecuritySettingsComparison.tsx]1;sed]633;E; sed -n '325,340p' src/pages/AdvancedSecuritySettingsComparison.tsx;]633;C						>
+							{`<AdvancedSecuritySettingsMock />`}
+						</code>
+					</div>
+				</div>
+			</div>
+			</ContentArea>
+		</PageContainer>
+	);
+
+export default AdvancedSecuritySettingsComparison;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '310,340p' src/pages/AdvancedSecuritySettingsComparison.tsx[?1l>[?2004l
+]2;sed -n '310,340p' src/pages/AdvancedSecuritySettingsComparison.tsx]1;sed]633;E; sed -n '310,340p' src/pages/AdvancedSecuritySettingsComparison.tsx;]633;C						>
+							Standalone Configuration
+						</h3>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0 0 1rem 0' }}>
+							The full version provides comprehensive configuration with educational content and
+							advanced features.
+						</p>
+						<code
+							style={{
+								fontSize: '0.75rem',
+								background: '#f1f5f9',
+								padding: '0.5rem',
+								borderRadius: '4px',
+								display: 'block',
+							}}
+						>
+							{`<AdvancedSecuritySettingsMock />`}
+						</code>
+					</div>
+				</div>
+			</div>
+			</ContentArea>
+		</PageContainer>
+	);
+
+export default AdvancedSecuritySettingsComparison;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "✓|✗|error during|Could not resolve|ERROR" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "✓|✗|error during|Could not resolve|ERROR" | head -10;]633;C✓ 2761 modules transformed.
+✓ built in 17.83s
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "return\|FlowHeader\|import.*Flow\|pageContainer\|PageContainer\|<div" src/pag [Kees/PingOneIdentityMetrics.tsx | head -20 && echo "---" && grep -n "return\|FlowHeader\|import.*Flow\|pageContainer\|PageContainer\|renderSelectorPage\|renderP [KrrofilePage" src/pages/PingOneUserProfile.tsx | head -20[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "return\\|FlowHeader\\|import.*Flow\\|pageContainer\\|PageContainer\\|<div" src/pages/PingOneIdentityMetrics.tsx | head -20 && echo "---" && grep -n "return\\|FlowHeader\\|import.*Flow\\|pageContainer\\|PageContainer\\|renderSelectorPage\\|renderProfilePage" src/pages/PingOneUserProfile.tsx | head -20;]633;C20:	pageContainer: {
+280:	return {
+450:			return;
+463:			return;
+496:				'This endpoint returns time-series identity count data with specified sampling periods',
+513:				'This endpoint returns active identity counts filtered by license',
+524:				'This endpoint returns active identity counts without filters',
+549:		if (!metrics) return null;
+551:		return JSON.parse(JSON.stringify(metrics)) as JSONData;
+556:		if (!activeIdentityCounts || activeIdentityCounts.length === 0) return null;
+561:		if (counts.length === 0) return null;
+570:		return {
+582:	return (
+583:		<div style={styles.pageContainer}>
+584:			<div style={styles.headerCard}>
+585:				<div style={styles.titleRow}>
+594:					<div style={styles.warningBanner}>
+595:						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+597:							<div style={{ flex: 1 }}>
+608:			<div style={styles.layoutGrid}>
+---
+45:	if (!input) return fallback;
+47:		return input.trim();
+53:				return value.trim();
+57:	return fallback;
+61:	if (!population) return 'N/A';
+62:	if (typeof population === 'string') return population;
+63:	if (typeof population === 'number') return String(population);
+74:	if (populationName) return populationName;
+80:			return String(popObj.id);
+84:			return extractPopulation(popObj.population);
+93:	return 'N/A';
+148:	pageContainer: {
+576:const { PageContainer } = PageLayoutService.createPageLayout(pageConfig);
+646:		if (searchParamEnvId) return searchParamEnvId;
+647:		return readBestEnvironmentId();
+716:							return r.ok ? r.json() : { _embedded: { groups: [] } };
+723:							return payload;
+766:									return item.group as PingOneUserGroup;
+769:								return item as PingOneUserGroup;
+771:							return item as PingOneUserGroup;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "return (" src/pages/PingOneIdentityMetrics.tsx | head -5 && grep -n "return ( [K"" src/pages/PingOneUserProfile.tsx | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "return (" src/pages/PingOneIdentityMetrics.tsx | head -5 && grep -n "return (" src/pages/PingOneUserProfile.tsx | head -5;]633;C582:	return (
+1160:		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+1365:		return () => {
+1371:		return (
+1382:		return (
+1410:		return (
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "FlowHeader\|import.*flow" src/pages/PingOneIdentityMetrics.tsx src/pages/Ping [KOOneUserProfile.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/OrganizationLicensing.tsx 2>/dev/null | head -20[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "FlowHeader\\|import.*flow" src/pages/PingOneIdentityMetrics.tsx src/pages/PingOneUserProfile.tsx src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/OrganizationLicensing.tsx 2>/dev/null | head -20;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  head -5 src/pages/PingOneIdentityMetrics.tsx && echo "---" && head -5 src/pages/PingOn [KeeUserProfile.tsx && echo "---" && head -5 src/pages/PingOneAuditActivities.tsx && echo "---" && head -5 src/pages/PingOneWebhookViewer.tsx && echo "---" && he [Kaad -5 src/pages/OrganizationLicensing.tsx[?1l>[?2004l
+]2;head -5 src/pages/PingOneIdentityMetrics.tsx && echo "---" && head -5  && ech]1;head]633;E; head -5 src/pages/PingOneIdentityMetrics.tsx && echo "---" && head -5 src/pages/PingOneUserProfile.tsx && echo "---" && head -5 src/pages/PingOneAuditActivities.tsx && echo "---" && head -5 src/pages/PingOneWebhookViewer.tsx && echo "---" && head -5 src/pages/OrganizationLicensing.tsx;]633;Cimport { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// src/pages/PingOneIdentityMetrics.tsx
+// Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
+// Updated with unified worker token management
+---
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
+// src/pages/PingOneUserProfile.tsx
+// PingOne User Profile viewer with worker token management
+// Cache bust: 2025-02-17-11:32
+// PingOne User Profile Page - Display detailed user information using real PingOne APIs
+---
+// src/pages/PingOneAuditActivities.tsx
+// Visual explorer for PingOne Audit Activities API
+// Cache bust: 2025-02-17-11:32viewer with filtering - matching Identity Metrics page design
+
+import { FiActivity, FiCheck, FiDatabase, FiEye, FiFilter, FiServer } from '@icons';
+---
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// src/pages/PingOneWebhookViewer.tsx
+// PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
+
+---
+// src/pages/OrganizationLicensing.tsx
+// Organization Licensing: Get Worker Token & License Information
+// lint-file-disable: token-value-in-jsx
+
+import { FiRefreshCw } from '@icons';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "return (" src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer [K..tsx src/pages/OrganizationLicensing.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "return (" src/pages/PingOneAuditActivities.tsx src/pages/PingOneWebhookViewer.tsx src/pages/OrganizationLicensing.tsx;]633;Csrc/pages/PingOneAuditActivities.tsx:491:		[01;31m[Kreturn ([m[K) => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+src/pages/PingOneAuditActivities.tsx:898:			[01;31m[Kreturn ([m[K
+src/pages/PingOneAuditActivities.tsx:923:	[01;31m[Kreturn ([m[K
+src/pages/PingOneWebhookViewer.tsx:410:		[01;31m[Kreturn ([m[K) => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+src/pages/PingOneWebhookViewer.tsx:465:		[01;31m[Kreturn ([m[K) => {
+src/pages/PingOneWebhookViewer.tsx:790:		[01;31m[Kreturn ([m[K) => clearInterval(interval);
+src/pages/PingOneWebhookViewer.tsx:1243:	[01;31m[Kreturn ([m[K
+src/pages/OrganizationLicensing.tsx:395:		[01;31m[Kreturn ([m[K) => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+src/pages/OrganizationLicensing.tsx:566:		[01;31m[Kreturn ([m[K
+src/pages/OrganizationLicensing.tsx:802:										[01;31m[Kreturn ([m[K
+src/pages/OrganizationLicensing.tsx:922:	[01;31m[Kreturn ([m[K
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  wc -l src/pages/PingOneUserProfile.tsx && tail -30 src/pages/PingOneUserProfile.tsx[?1l>[?2004l
+]2;wc -l src/pages/PingOneUserProfile.tsx && tail -30 ]1;wc]633;E; wc -l src/pages/PingOneUserProfile.tsx && tail -30 src/pages/PingOneUserProfile.tsx;]633;C    1657 src/pages/PingOneUserProfile.tsx
+						)}
+					</div>
+
+					<div style={{ marginTop: '2rem' }}>
+						<h3>Roles ({userRoles.length})</h3>
+						{userRoles.length > 0 ? (
+							<ul>
+								{userRoles.map((role, index) => (
+									<li key={role.id || index}>{role.name || 'Unnamed Role'}</li>
+								))}
+							</ul>
+						) : (
+							<p>No roles found</p>
+						)}
+					</div>
+				</Container>
+			) : (
+				<Container>
+					<Title>PingOne User Profile</Title>
+					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+					<ErrorMessage>
+						No user profile loaded. Please ensure you have a valid worker token.
+					</ErrorMessage>
+				</Container>
+			)}
+		</PageContainer>
+	);
+};
+
+export default PingOneUserProfile;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  awk '/^    return \(/{found=NR} END{print found}' src/pages/PingOneUserProfile.tsx[?1l>[?2004l
+]2;awk '/^    return \(/{found=NR} END{print found}' ]1;awk]633;E; awk '/^    return \\(/{found=NR} END{print found}' src/pages/PingOneUserProfile.tsx;]633;C
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "return ($" src/pages/PingOneUserProfile.tsx | tail -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "return ($" src/pages/PingOneUserProfile.tsx | tail -10;]633;C1371:		return (
+1382:		return (
+1410:		return (
+1553:		return (
+1585:	return (
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "FlowHeader\|headerCard\|return (" src/pages/AutoDiscover.tsx | head -20[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "FlowHeader\\|headerCard\\|return (" src/pages/AutoDiscover.tsx | head -20;]633;C7:import { FlowHeader } from '../services/flowHeaderService';
+147:	return (
+149:			<FlowHeader flowType="auto-discover" />
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "flowType\|rendersHeader\|FlowHeader\|export" src/services/flowHeaderService.t [Kssx | head -30[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "flowType\\|rendersHeader\\|FlowHeader\\|export" src/services/flowHeaderService.tsx | head -30;]633;C9:export interface FlowHeaderConfig {
+10:	flowType: 'oauth' | 'oidc' | 'pingone' | 'documentation';
+28:	$flowType: FlowHeaderConfig['flowType'];
+29:	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
+31:	background: ${({ $flowType, $securityFeatures }) => {
+73:			return highSecurityColors[$flowType] || highSecurityColors.default;
+75:			return securityColors[$flowType] || securityColors.default;
+77:			return baseColors[$flowType] || baseColors.default;
+110:	$flowType: FlowHeaderConfig['flowType'];
+111:	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
+204:export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
+207:		flowType: 'oauth',
+215:		flowType: 'oauth',
+223:		flowType: 'oauth',
+231:		flowType: 'oauth',
+239:		flowType: 'oidc',
+248:		flowType: 'oauth',
+256:		flowType: 'oauth',
+264:		flowType: 'oauth',
+272:		flowType: 'oidc',
+280:		flowType: 'oauth',
+288:		flowType: 'oauth',
+297:		flowType: 'oauth',
+308:		flowType: 'oidc',
+316:		flowType: 'oidc',
+326:		flowType: 'oauth',
+335:		flowType: 'oidc',
+343:		flowType: 'oidc',
+353:		flowType: 'pingone',
+361:		flowType: 'pingone',
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "export const FlowHeader\|export function FlowHeader\|const FlowHeader\|functi [Koon FlowHeader" src/services/flowHeaderService.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "export const FlowHeader\\|export function FlowHeader\\|const FlowHeader\\|function FlowHeader" src/services/flowHeaderService.tsx;]633;C771:[01;31m[Kexport const FlowHeader[m[K: React.FC<FlowHeaderProps> = ({ flowId, flowType, customConfig }) => {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -10 src/pages/PingOneIdentityMetrics.tsx && echo "---" && sed -n '921,928p' src/p [Kaages/PingOneAuditActivities.tsx && echo "---" && sed -n '1241,1248p' src/pages/PingOneWebhookViewer.tsx[?1l>[?2004l
+]2;tail -10 src/pages/PingOneIdentityMetrics.tsx && echo "---" && sed -n   &&   ]1;tail]633;E; tail -10 src/pages/PingOneIdentityMetrics.tsx && echo "---" && sed -n '921,928p' src/pages/PingOneAuditActivities.tsx && echo "---" && sed -n '1241,1248p' src/pages/PingOneWebhookViewer.tsx;]633;C							</button>
+						</div>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default PingOneIdentityMetrics;
+---
+		return <div style={styles.detailValue}>{String(value)}</div>;
+	};
+
+	return (
+		<div style={styles.pageContainer}>
+			<div style={styles.headerCard}>
+				<div style={styles.titleRow}>
+					<span>[FiActivity]</span>
+---
+	const currentToken = getAnyWorkerToken() || workerToken || '';
+	const hasWorkerToken = !!currentToken;
+
+	return (
+		<div style={styles.container}>
+			<div style={styles.pageContainer}>
+				<div style={styles.headerCard}>
+					<div style={styles.titleRow}>
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^        );" src/pages/PingOneIdentityMetrics.tsx | tail -3[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^        )\x3b" src/pages/PingOneIdentityMetrics.tsx | tail -3;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^);" src/pages/PingOneIdentityMetrics.tsx | tail -3 && grep -n "^export defau [Kllt" src/pages/PingOneIdentityMetrics.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^)\x3b" src/pages/PingOneIdentityMetrics.tsx | tail -3 && grep -n "^export default" src/pages/PingOneIdentityMetrics.tsx;]633;C1115:[01;31m[Kexport default[m[K PingOneIdentityMetrics;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  wc -l src/pages/PingOneIdentityMetrics.tsx && sed -n '1108,1116p' src/pages/PingOneIde [KnntityMetrics.tsx[?1l>[?2004l
+]2;wc -l src/pages/PingOneIdentityMetrics.tsx && sed -n '1108,1116p' ]1;wc]633;E; wc -l src/pages/PingOneIdentityMetrics.tsx && sed -n '1108,1116p' src/pages/PingOneIdentityMetrics.tsx;]633;C    1115 src/pages/PingOneIdentityMetrics.tsx
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default PingOneIdentityMetrics;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -10 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -10 src/pages/Ping [KOOneWebhookViewer.tsx[?1l>[?2004l
+]2;tail -10 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -10 ]1;tail]633;E; tail -10 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -10 src/pages/PingOneWebhookViewer.tsx;]633;C				</div>
+			</div>
+
+			{/* API Call Display at the bottom */}
+			<ApiCallList title="API Calls to PingOne" showLegend={true} />
+		</div>
+	);
+};
+
+export default PingOneAuditActivities;
+---
+				)}
+
+				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+				<ApiCallList title="API Calls to PingOne" showLegend={true} />
+			</div>
+		</div>
+	);
+};
+
+export default PingOneWebhookViewer;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '582,592p' src/pages/PingOneIdentityMetrics.tsx[?1l>[?2004l
+]2;sed -n '582,592p' src/pages/PingOneIdentityMetrics.tsx]1;sed]633;E; sed -n '582,592p' src/pages/PingOneIdentityMetrics.tsx;]633;C
+	return (
+		<>
+			<FlowHeader flowId="pingone-identity-metrics" />
+			<div style={styles.pageContainer}>
+				<div style={styles.headerCard}>
+				<div style={styles.titleRow}>
+					<span>[FiBarChart2]</span>
+					<h1 style={styles.title}>PingOne Identity Counts</h1>
+				</div>
+				<p style={styles.subtitle}>
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "Retry\|showUserSelector\|hasValidWorker" src/pages/PingOneUserProfile.tsx | h [Keead -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "Retry\\|showUserSelector\\|hasValidWorker" src/pages/PingOneUserProfile.tsx | head -10;]633;C651:	const [showUserSelector, setShowUserSelector] = useState(true);
+1351:		if (showUserSelector) {
+1355:	}, [showUserSelector]);
+1406:						Retry
+1413:	const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
+1415:	if (!userProfile && showUserSelector) {
+1428:					{hasValidWorkerToken ? (
+1558:	if (!userProfile && !showUserSelector) {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -10 src/pages/PingOneUserProfile.tsx[?1l>[?2004l
+]2;tail -10 src/pages/PingOneUserProfile.tsx]1;tail]633;E; tail -10 src/pages/PingOneUserProfile.tsx;]633;C					<ErrorMessage>
+						No user profile loaded. Please ensure you have a valid worker token.
+					</ErrorMessage>
+				</Container>
+			)}
+		</PageContainer>
+	);
+};
+
+export default PingOneUserProfile;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -10 src/pages/OrganizationLicensing.tsx[?1l>[?2004l
+]2;tail -10 src/pages/OrganizationLicensing.tsx]1;tail]633;E; tail -10 src/pages/OrganizationLicensing.tsx;]633;C					onReset={handleReset}
+					canNavigateNext={canGoNext()}
+					isFirstStep
+				/>
+			</ContentWrapper>
+		</PageContainer>
+	);
+};
+
+export default OrganizationLicensingV2;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -40[?1l>[?2004l
+]2;npm run build 2>&1 | tail -40]1;npm]633;E; npm run build 2>&1 | tail -40;]633;C
+> masterflow-api@9.13.4 build
+> vite build
+
+NODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+vite v6.4.1 building for production...
+transforming...
+✓ 99 modules transformed.
+✗ Build failed in 605ms
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/PingOneAuditActivities.tsx (1932:0): There was an error during the build:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneAuditActivities.tsx:1932:0: ERROR: Expected ")" but found "export"
+Additionally, handling the error in the 'buildEnd' hook caused the following error:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneAuditActivities.tsx:1932:0: ERROR: Expected ")" but found "export"
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneAuditActivities.tsx:1932:0
+
+Expected ")" but found "export"
+1930|  		</>
+1931|  
+1932|  export default PingOneAuditActivities;
+   |  ^
+1933|  
+
+    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '1924,1933p' src/pages/PingOneAuditActivities.tsx[?1l>[?2004l
+]2;sed -n '1924,1933p' src/pages/PingOneAuditActivities.tsx]1;sed]633;E; sed -n '1924,1933p' src/pages/PingOneAuditActivities.tsx;]633;C				</div>
+			</div>
+
+			{/* API Call Display at the bottom */}
+			<ApiCallList title="API Calls to PingOne" showLegend={true} />
+		</div>
+		</>
+
+export default PingOneAuditActivities;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | cat -A | head -20[?1l>[?2004l
+]2;sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | cat -A | head -20]1;sed]633;E; sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | cat -A | head -20;]633;Ccat: illegal option -- A
+usage: cat [-belnstuv] [file ...]
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | python3 -c "import sys; pri [Knnt(repr(sys.stdin.read()))"[?1l>[?2004l
+]2;sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | python3 -c ]1;sed]633;E; sed -n '1920,1933p' src/pages/PingOneAuditActivities.tsx | python3 -c "import sys\x3b print(repr(sys.stdin.read()))";]633;C'\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</>\n\t\t\t\t\t)}\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t{/* API Call Display at the bottom */}\n\t\t\t<ApiCallList title="API Calls to PingOne" showLegend={true} />\n\t\t</div>\n\t\t</>\n\nexport default PingOneAuditActivities;\n'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -8 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -8 src/pages/PingOn [KeeWebhookViewer.tsx[?1l>[?2004l
+]2;tail -8 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -8 ]1;tail]633;E; tail -8 src/pages/PingOneAuditActivities.tsx && echo "---" && tail -8 src/pages/PingOneWebhookViewer.tsx;]633;C			{/* API Call Display at the bottom */}
+			<ApiCallList title="API Calls to PingOne" showLegend={true} />
+		</div>
+		</>
+	);
+};
+
+export default PingOneAuditActivities;
+---
+
+				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+				<ApiCallList title="API Calls to PingOne" showLegend={true} />
+			</div>
+		</div>
+		</>
+
+export default PingOneWebhookViewer;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -30[?1l>[?2004l
+]2;npm run build 2>&1 | tail -30]1;npm]633;E; npm run build 2>&1 | tail -30;]633;CNODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+vite v6.4.1 building for production...
+transforming...
+✓ 96 modules transformed.
+✗ Build failed in 655ms
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/PingOneIdentityMetrics.tsx (1113:0): There was an error during the build:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx:1113:0: ERROR: Expected ")" but found "}"
+Additionally, handling the error in the 'buildEnd' hook caused the following error:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx:1113:0: ERROR: Expected ")" but found "}"
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx:1113:0
+
+Expected ")" but found "}"
+1111|  		</div>
+1112|  		</>
+1113|  };
+   |  ^
+1114|  
+1115|  export default PingOneIdentityMetrics;
+
+    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -8 src/pages/PingOneIdentityMetrics.tsx && echo "---" && tail -8 src/pages/PingOn [KeeUserProfile.tsx && echo "---" && tail -8 src/pages/OrganizationLicensing.tsx[?1l>[?2004l
+]2;tail -8 src/pages/PingOneIdentityMetrics.tsx && echo "---" && tail -8  && ech]1;tail]633;E; tail -8 src/pages/PingOneIdentityMetrics.tsx && echo "---" && tail -8 src/pages/PingOneUserProfile.tsx && echo "---" && tail -8 src/pages/OrganizationLicensing.tsx;]633;C					</div>
+				</div>
+			)}
+		</div>
+		</>
+};
+
+export default PingOneIdentityMetrics;
+---
+				</Container>
+			)}
+		</PageContainer>
+		</>
+	);
+};
+
+export default PingOneUserProfile;
+---
+				/>
+			</ContentWrapper>
+			</PageContainer>
+		</>
+	);
+};
+
+export default OrganizationLicensingV2;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -20[?1l>[?2004l
+]2;npm run build 2>&1 | tail -20]1;npm]633;E; npm run build 2>&1 | tail -20;]633;CAdditionally, handling the error in the 'buildEnd' hook caused the following error:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx:1114:0: ERROR: Unexpected "export"
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx:1114:0
+
+Unexpected "export"
+1112|  		</>
+1113|  	);
+1114|  export default PingOneIdentityMetrics;
+   |  ^
+1115|  
+
+    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -8 src/pages/PingOneIdentityMetrics.tsx[?1l>[?2004l
+]2;tail -8 src/pages/PingOneIdentityMetrics.tsx]1;tail]633;E; tail -8 src/pages/PingOneIdentityMetrics.tsx;]633;C						</div>
+					</div>
+				</div>
+			)}
+		</div>
+		</>
+	);
+export default PingOneIdentityMetrics;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -15[?1l>[?2004l
+]2;npm run build 2>&1 | tail -15]1;npm]633;E; npm run build 2>&1 | tail -15;]633;C
+200: import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
+201: import PingOneUserProfile from './pages/PingOneUserProfile';
+202: import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
+            ^
+203: import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+204: import SDKSampleApp from './pages/SDKSampleApp';
+
+    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep "error\|ERROR\|failed\|Failed" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  "error\|ERROR\|failed\|Failed" | head]1;npm]633;E; npm run build 2>&1 | grep "error\\|ERROR\\|failed\\|Failed" | head -10;]633;C✗ Build failed in 4.49s
+error during build:
+[vite-plugin-pwa:build] There was an error during the build:
+Additionally, handling the error in the 'buildEnd' hook caused the following error:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -A5 "Transform failed"[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -A5 "Transform failed"]1;npm]633;E; npm run build 2>&1 | grep -A5 "Transform failed";]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep "\.tsx:"[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  "\.tsx:"]1;npm]633;E; npm run build 2>&1 | grep "\\.tsx:";]633;C

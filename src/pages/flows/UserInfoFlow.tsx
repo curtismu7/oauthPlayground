@@ -1,3 +1,4 @@
+import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -12,11 +13,10 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
 
 /**
  * Utility function to mask tokens for security
@@ -229,7 +229,7 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	const [revealed, setRevealed] = React.useState(false);
 	const masked = `${tokenValue.substring(0, 12)}••••••••••••${tokenValue.substring(tokenValue.length - 8)}`;
 	const codeStyle: React.CSSProperties = {
-		background: revealed ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.WARNING',
+		background: revealed ? '#e5e7eb' : '#fef3c7',
 		padding: '0.15rem 0.4rem',
 		borderRadius: '4px',
 		fontSize: '0.8rem',
@@ -243,17 +243,23 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 		cursor: 'pointer',
 		padding: '0.1rem 0.4rem',
 		fontSize: '0.75rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		display: 'inline-flex',
 		alignItems: 'center',
 		gap: '0.2rem',
 	};
 	return (
-		<div style={{ marginLeft: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+		<div
+			style={{
+				marginLeft: '1rem',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '0.5rem',
+				flexWrap: 'wrap',
+			}}
+		>
 			<span>Authorization: Bearer</span>
-			<code style={codeStyle}>
-				{revealed ? tokenValue : masked}
-			</code>
+			<code style={codeStyle}>{revealed ? tokenValue : masked}</code>
 			<button
 				type="button"
 				onClick={() => setRevealed((r) => !r)}
@@ -865,7 +871,7 @@ console.log('Welcome, ' + user.name + '!');`,
 					marginBottom: '1rem',
 				}}
 			>
-				<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginRight: 'auto' }}>Config</span>
+				<span style={{ fontSize: '0.8rem', color: '#6b7280', marginRight: 'auto' }}>Config</span>
 				<button
 					type="button"
 					onClick={handleExportConfig}
@@ -874,7 +880,7 @@ console.log('Welcome, ' + user.name + '!');`,
 						alignItems: 'center',
 						gap: '0.4rem',
 						padding: '0.4rem 0.9rem',
-						background: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						background: '#2563eb',
 						color: 'white',
 						border: 'none',
 						borderRadius: '0.375rem',
@@ -895,7 +901,7 @@ console.log('Welcome, ' + user.name + '!');`,
 						gap: '0.4rem',
 						padding: '0.4rem 0.9rem',
 						background: 'white',
-						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						color: '#2563eb',
 						border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 						borderRadius: '0.375rem',
 						fontSize: '0.8rem',
@@ -1058,16 +1064,16 @@ console.log('Welcome, ' + user.name + '!');`,
 									style={{
 										marginBottom: '1rem',
 										padding: '1rem',
-										backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+										backgroundColor: '#f8fafc',
 										border: '2px solid #0ea5e9',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
 								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
 										Enhanced Token Detection System
 									</h4>
-									<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
+									<div style={{ color: '#1f2937', lineHeight: '1.6' }}>
 										<strong> Auth Context Tokens:</strong>{' '}
 										{tokens ? ' Available' : ' Not available'}
 										<br />
@@ -1246,9 +1252,7 @@ console.log('Welcome, ' + user.name + '!');`,
 										<br />
 										{Object.entries(requestDetails.headers).map(([key, value]) => {
 											if (key === 'Authorization' && accessToken) {
-												return (
-													<AuthHeaderReveal key={key} tokenValue={accessToken} />
-												);
+												return <AuthHeaderReveal key={key} tokenValue={accessToken} />;
 											}
 											return (
 												<div key={key} style={{ marginLeft: '1rem' }}>
@@ -1272,7 +1276,7 @@ console.log('Welcome, ' + user.name + '!');`,
 										style={{
 											marginTop: '1rem',
 											fontSize: '0.9rem',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 										}}
 									>
 										<strong>Standard Claims:</strong>

@@ -18,7 +18,7 @@
  * - Dashboard features (device list, policy summary)
  */
 
-
+import { FiAlertCircle, FiCheck, FiKey, FiLoader, FiMail, FiPhone, FiShield } from '@icons';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
@@ -74,7 +74,6 @@ import {
 	MFAPolicyInfoModal,
 	MFAPushConfirmationModal,
 } from './components/modals';
-import { FiAlertCircle, FiCheck, FiKey, FiLoader, FiMail, FiPhone, FiShield } from '@icons';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -165,10 +164,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const devicesSpinner = useProductionSpinner('mfa-devices'); // Load devices
 
 	// Action button hooks for consistent button state management
-const startMFAAction = useActionButton();
-const registerDeviceAction = useActionButton();
-const usernamelessFIDO2Action = useActionButton();
-const clearTokensAction = useActionButton();
+	const startMFAAction = useActionButton();
+	const _registerDeviceAction = useActionButton();
+	const _usernamelessFIDO2Action = useActionButton();
+	const _clearTokensAction = useActionButton();
 
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
@@ -1385,306 +1384,309 @@ const clearTokensAction = useActionButton();
 				policyId: credentials.deviceAuthenticationPolicyId,
 			});
 
-		if (!tokenStatus.isValid) {
-			console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please configure worker token first',
-				dismissible: true,
-			});
-			return;
-		}
-
-		if (!credentials.environmentId) {
-			console.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please configure environment ID first',
-				dismissible: true,
-			});
-			return;
-		}
-
-		if (!credentials.deviceAuthenticationPolicyId) {
-			console.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please select an MFA Policy first',
-				dismissible: true,
-			});
-			return;
-		}
-
-		// FOOLPROOF: Auto-proceed with username if empty, don't get stuck in modal
-		if (!usernameInput.trim()) {
-			console.log(`${MODULE_TAG} 🔄 No username provided, showing decision modal`);
-			setShowUsernameDecisionModal(true);
-			return;
-		}
-
-		console.log(
-			`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`
-		);
-
-		// Reset auth state to clear any previous authentication session
-		// This ensures we start fresh when restarting the flow
-		setAuthState({
-			isLoading: true,
-			authenticationId: null,
-			status: null,
-			nextStep: null,
-			devices: [],
-			showDeviceSelection: false,
-			selectedDeviceId: '',
-			userId: null,
-			challengeId: null,
-			publicKeyCredentialRequestOptions: undefined,
-			_links: null,
-			completionResult: null,
-		});
-		setLoadingMessage('🔐 Starting MFA Authentication...');
-
-		try {
-			// 1. Lookup user
-			const user = await MFAServiceV8.lookupUserByUsername(
-				credentials.environmentId,
-				usernameInput.trim()
-			);
-
-			// 2. Initialize MFA Authentication (this returns the devices available for this auth session)
-			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
-				environmentId: credentials.environmentId,
-				username: usernameInput.trim(),
-				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-				region: credentials.region,
-				customDomain: credentials.customDomain,
-			});
-
-			// Extract _links for flow coordination
-			const links = (response._links as Record<string, { href: string }>) || {};
-
-			// Parse response
-			const status = response.status || '';
-			const nextStep = response.nextStep || '';
-
-			// Extract devices from both response.devices and response._embedded.devices
-			const rawDevices = [
-				...(response.devices || []),
-				...((response._embedded as { devices?: Device[] })?.devices || []),
-			];
-
-			// Filter devices to ensure they belong to the correct user
-			// PingOne should already filter by user, but we'll double-check
-			const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
-				const deviceUserId = d.user?.id || d.userId;
-				const matches = !deviceUserId || deviceUserId === user.id;
-				if (!matches) {
-					console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
-						deviceId: d.id,
-						deviceType: d.type,
-						deviceUserId,
-						expectedUserId: user.id,
-						expectedUsername: usernameInput.trim(),
-					});
-				}
-				return matches;
-			});
-
-			let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
-				const device: Device = {
-					id: (d.id as string) || '',
-					type: (d.type as string) || '',
-					nickname: (d.nickname as string) || (d.name as string) || '',
-					status: (d.status as string) || '',
-					userId: (d.user?.id as string) || '',
-					userUsername: (d.user?.username as string) || '',
-					userName: (d.user?.name as string) || '',
-				};
-				return device;
-			});
-
-			// Check for session cookies - if present, prefer FIDO2 platform devices even if not default
-			// Per PingOne MFA API: "If the user is paired with a FIDO2 platform device and a session
-			// token cookie exists on the browser, the FIDO2 platform device is used for authentication
-			// even if it is not the default device."
-			const { shouldPreferFIDO2PlatformDevice } = await import(
-				'@/v8/services/fido2SessionCookieServiceV8'
-			);
-			const platformPreference = shouldPreferFIDO2PlatformDevice();
-
-			if (platformPreference.prefer && authDevices.length > 0) {
-				// Reorder devices to prioritize FIDO2 devices when session cookie exists
-				const fido2Devices = authDevices.filter((d) => d.type === 'FIDO2');
-				const otherDevices = authDevices.filter((d) => d.type !== 'FIDO2');
-
-				if (fido2Devices.length > 0) {
-					authDevices = [...fido2Devices, ...otherDevices];
-				}
-			}
-
-			// Get the selected policy to check device selection behavior
-			const selectedPolicy = deviceAuthPolicies.find(
-				(p) => p.id === credentials.deviceAuthenticationPolicyId
-			);
-			const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
-				| string
-				| undefined;
-
-			// Determine next action based on status/nextStep
-			const needsDeviceSelection =
-				status === 'DEVICE_SELECTION_REQUIRED' ||
-				nextStep === 'DEVICE_SELECTION_REQUIRED' ||
-				nextStep === 'SELECTION_REQUIRED' ||
-				// For ALWAYS_DISPLAY_DEVICES policy, always show device selection if devices are available
-				(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
-
-			const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
-			const needsAssertion = status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
-			const needsPush =
-				status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
-
-			// Validate that we got an authenticationId from the response
-			if (!response.id) {
-				console.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
+			if (!tokenStatus.isValid) {
+				console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
-					message:
-						'Failed to initialize authentication: No authentication ID received from PingOne',
+					message: 'Please configure worker token first',
+					dismissible: true,
+				});
+				return;
+			}
+
+			if (!credentials.environmentId) {
+				console.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Please configure environment ID first',
+					dismissible: true,
+				});
+				return;
+			}
+
+			if (!credentials.deviceAuthenticationPolicyId) {
+				console.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Please select an MFA Policy first',
+					dismissible: true,
+				});
+				return;
+			}
+
+			// FOOLPROOF: Auto-proceed with username if empty, don't get stuck in modal
+			if (!usernameInput.trim()) {
+				console.log(`${MODULE_TAG} 🔄 No username provided, showing decision modal`);
+				setShowUsernameDecisionModal(true);
+				return;
+			}
+
+			console.log(
+				`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`
+			);
+
+			// Reset auth state to clear any previous authentication session
+			// This ensures we start fresh when restarting the flow
+			setAuthState({
+				isLoading: true,
+				authenticationId: null,
+				status: null,
+				nextStep: null,
+				devices: [],
+				showDeviceSelection: false,
+				selectedDeviceId: '',
+				userId: null,
+				challengeId: null,
+				publicKeyCredentialRequestOptions: undefined,
+				_links: null,
+				completionResult: null,
+			});
+			setLoadingMessage('🔐 Starting MFA Authentication...');
+
+			try {
+				// 1. Lookup user
+				const user = await MFAServiceV8.lookupUserByUsername(
+					credentials.environmentId,
+					usernameInput.trim()
+				);
+
+				// 2. Initialize MFA Authentication (this returns the devices available for this auth session)
+				const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+					environmentId: credentials.environmentId,
+					username: usernameInput.trim(),
+					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+					region: credentials.region,
+					customDomain: credentials.customDomain,
+				});
+
+				// Extract _links for flow coordination
+				const links = (response._links as Record<string, { href: string }>) || {};
+
+				// Parse response
+				const status = response.status || '';
+				const nextStep = response.nextStep || '';
+
+				// Extract devices from both response.devices and response._embedded.devices
+				const rawDevices = [
+					...(response.devices || []),
+					...((response._embedded as { devices?: Device[] })?.devices || []),
+				];
+
+				// Filter devices to ensure they belong to the correct user
+				// PingOne should already filter by user, but we'll double-check
+				const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
+					const deviceUserId = d.user?.id || d.userId;
+					const matches = !deviceUserId || deviceUserId === user.id;
+					if (!matches) {
+						console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+							deviceId: d.id,
+							deviceType: d.type,
+							deviceUserId,
+							expectedUserId: user.id,
+							expectedUsername: usernameInput.trim(),
+						});
+					}
+					return matches;
+				});
+
+				let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
+					const device: Device = {
+						id: (d.id as string) || '',
+						type: (d.type as string) || '',
+						nickname: (d.nickname as string) || (d.name as string) || '',
+						status: (d.status as string) || '',
+						userId: (d.user?.id as string) || '',
+						userUsername: (d.user?.username as string) || '',
+						userName: (d.user?.name as string) || '',
+					};
+					return device;
+				});
+
+				// Check for session cookies - if present, prefer FIDO2 platform devices even if not default
+				// Per PingOne MFA API: "If the user is paired with a FIDO2 platform device and a session
+				// token cookie exists on the browser, the FIDO2 platform device is used for authentication
+				// even if it is not the default device."
+				const { shouldPreferFIDO2PlatformDevice } = await import(
+					'@/v8/services/fido2SessionCookieServiceV8'
+				);
+				const platformPreference = shouldPreferFIDO2PlatformDevice();
+
+				if (platformPreference.prefer && authDevices.length > 0) {
+					// Reorder devices to prioritize FIDO2 devices when session cookie exists
+					const fido2Devices = authDevices.filter((d) => d.type === 'FIDO2');
+					const otherDevices = authDevices.filter((d) => d.type !== 'FIDO2');
+
+					if (fido2Devices.length > 0) {
+						authDevices = [...fido2Devices, ...otherDevices];
+					}
+				}
+
+				// Get the selected policy to check device selection behavior
+				const selectedPolicy = deviceAuthPolicies.find(
+					(p) => p.id === credentials.deviceAuthenticationPolicyId
+				);
+				const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+					| string
+					| undefined;
+
+				// Determine next action based on status/nextStep
+				const needsDeviceSelection =
+					status === 'DEVICE_SELECTION_REQUIRED' ||
+					nextStep === 'DEVICE_SELECTION_REQUIRED' ||
+					nextStep === 'SELECTION_REQUIRED' ||
+					// For ALWAYS_DISPLAY_DEVICES policy, always show device selection if devices are available
+					(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
+
+				const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
+				const needsAssertion = status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
+				const needsPush =
+					status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
+
+				// Validate that we got an authenticationId from the response
+				if (!response.id) {
+					console.error(
+						`${MODULE_TAG} Authentication initialized but no ID in response:`,
+						response
+					);
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Failed to initialize authentication: No authentication ID received from PingOne',
+						dismissible: true,
+					});
+					setAuthState((prev) => ({ ...prev, isLoading: false }));
+					return;
+				}
+
+				console.log(`${MODULE_TAG} Device authentication initialized`, {
+					authenticationId: response.id,
+					status: response.status,
+					nextStep: response.nextStep,
+					hasLinks: !!response._links,
+					devices: response.devices,
+					deviceCount: response.devices?.length || 0,
+					_embedded: response._embedded,
+					embeddedDevices: response._embedded?.devices,
+					embeddedDeviceCount: response._embedded?.devices?.length || 0,
+					allKeys: Object.keys(response),
+					authDevices: authDevices,
+					authDeviceCount: authDevices.length,
+					needsDeviceSelection,
+					deviceSelectionBehavior,
+					username: usernameInput.trim(),
+					userId: user.id,
+				});
+
+				setAuthState({
+					isLoading: false,
+					authenticationId: response.id,
+					status,
+					nextStep,
+					devices: authDevices,
+					showDeviceSelection: needsDeviceSelection,
+					selectedDeviceId: '',
+					userId: String(user.id || ''),
+					challengeId: (response.challengeId as string) || null,
+					publicKeyCredentialRequestOptions: (
+						response as { publicKeyCredentialRequestOptions?: unknown }
+					).publicKeyCredentialRequestOptions,
+					_links: links,
+					completionResult: null,
+				});
+				setLoadingMessage('');
+
+				// Show appropriate modal with foolproof advancement
+				if (needsDeviceSelection) {
+					// Device selection is needed - the UI will show the device list automatically
+					// based on authState.showDeviceSelection being true
+					console.log(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Please select a device to continue',
+						duration: 3000,
+					});
+				} else if (needsOTP) {
+					console.log(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
+					setShowOTPModal(true);
+				} else if (needsPush) {
+					console.log(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
+					setShowPushModal(true);
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Please approve the sign-in on your phone.',
+						duration: 3000,
+					});
+				} else if (needsAssertion) {
+					console.log(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
+					setShowFIDO2Modal(true);
+				} else if (status === 'COMPLETED') {
+					console.log(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authentication completed successfully!',
+						duration: 3000,
+					});
+					// FOOLPROOF: Auto-advance to success page if authentication is already completed
+					setTimeout(() => {
+						window.location.href = '/v8/mfa/authentication/success';
+					}, 1000);
+				} else {
+					// FOOLPROOF: Handle unknown status with fallback advancement
+					console.log(`${MODULE_TAG} 🤔 Unknown authentication status, using fallback`, {
+						status,
+						nextStep,
+						deviceCount: authDevices.length,
+					});
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authentication started successfully',
+						duration: 3000,
+					});
+
+					// Fallback: If we have devices, show device selection. Otherwise, show success.
+					setTimeout(() => {
+						if (authDevices.length > 0) {
+							console.log(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
+							setAuthState((prev) => ({ ...prev, showDeviceSelection: true }));
+						} else {
+							console.log(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
+							window.location.href = '/v8/mfa/authentication/success';
+						}
+					}, 1000);
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to start authentication:`, error);
+
+				// Check for NO_USABLE_DEVICES error
+				if (handleDeviceFailureError(error)) {
+					// Error was handled by modal, just update loading state
+					setAuthState((prev) => ({ ...prev, isLoading: false }));
+					setLoadingMessage('');
+					return;
+				}
+
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: error instanceof Error ? error.message : 'Failed to start authentication',
 					dismissible: true,
 				});
 				setAuthState((prev) => ({ ...prev, isLoading: false }));
-				return;
-			}
-
-			console.log(`${MODULE_TAG} Device authentication initialized`, {
-				authenticationId: response.id,
-				status: response.status,
-				nextStep: response.nextStep,
-				hasLinks: !!response._links,
-				devices: response.devices,
-				deviceCount: response.devices?.length || 0,
-				_embedded: response._embedded,
-				embeddedDevices: response._embedded?.devices,
-				embeddedDeviceCount: response._embedded?.devices?.length || 0,
-				allKeys: Object.keys(response),
-				authDevices: authDevices,
-				authDeviceCount: authDevices.length,
-				needsDeviceSelection,
-				deviceSelectionBehavior,
-				username: usernameInput.trim(),
-				userId: user.id,
-			});
-
-			setAuthState({
-				isLoading: false,
-				authenticationId: response.id,
-				status,
-				nextStep,
-				devices: authDevices,
-				showDeviceSelection: needsDeviceSelection,
-				selectedDeviceId: '',
-				userId: String(user.id || ''),
-				challengeId: (response.challengeId as string) || null,
-				publicKeyCredentialRequestOptions: (
-					response as { publicKeyCredentialRequestOptions?: unknown }
-				).publicKeyCredentialRequestOptions,
-				_links: links,
-				completionResult: null,
-			});
-			setLoadingMessage('');
-
-			// Show appropriate modal with foolproof advancement
-			if (needsDeviceSelection) {
-				// Device selection is needed - the UI will show the device list automatically
-				// based on authState.showDeviceSelection being true
-				console.log(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
-				modernMessaging.showFooterMessage({
-					type: 'info',
-					message: 'Please select a device to continue',
-					duration: 3000,
-				});
-			} else if (needsOTP) {
-				console.log(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
-				setShowOTPModal(true);
-			} else if (needsPush) {
-				console.log(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
-				setShowPushModal(true);
-				modernMessaging.showFooterMessage({
-					type: 'info',
-					message: 'Please approve the sign-in on your phone.',
-					duration: 3000,
-				});
-			} else if (needsAssertion) {
-				console.log(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
-				setShowFIDO2Modal(true);
-			} else if (status === 'COMPLETED') {
-				console.log(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
-				modernMessaging.showFooterMessage({
-					type: 'info',
-					message: 'Authentication completed successfully!',
-					duration: 3000,
-				});
-				// FOOLPROOF: Auto-advance to success page if authentication is already completed
-				setTimeout(() => {
-					window.location.href = '/v8/mfa/authentication/success';
-				}, 1000);
-			} else {
-				// FOOLPROOF: Handle unknown status with fallback advancement
-				console.log(`${MODULE_TAG} 🤔 Unknown authentication status, using fallback`, {
-					status,
-					nextStep,
-					deviceCount: authDevices.length,
-				});
-				modernMessaging.showFooterMessage({
-					type: 'info',
-					message: 'Authentication started successfully',
-					duration: 3000,
-				});
-
-				// Fallback: If we have devices, show device selection. Otherwise, show success.
-				setTimeout(() => {
-					if (authDevices.length > 0) {
-						console.log(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
-						setAuthState((prev) => ({ ...prev, showDeviceSelection: true }));
-					} else {
-						console.log(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
-						window.location.href = '/v8/mfa/authentication/success';
-					}
-				}, 1000);
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to start authentication:`, error);
-
-			// Check for NO_USABLE_DEVICES error
-			if (handleDeviceFailureError(error)) {
-				// Error was handled by modal, just update loading state
-				setAuthState((prev) => ({ ...prev, isLoading: false }));
 				setLoadingMessage('');
-				return;
 			}
-
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to start authentication',
-				dismissible: true,
-			});
-			setAuthState((prev) => ({ ...prev, isLoading: false }));
-			setLoadingMessage('');
-		}
-	}, [
-		tokenStatus.isValid,
-		credentials.environmentId,
-		credentials.deviceAuthenticationPolicyId,
-		usernameInput,
-		handleDeviceFailureError,
-		credentials.customDomain,
-		credentials.region,
-		deviceAuthPolicies.find,
+		}, [
+			tokenStatus.isValid,
+			credentials.environmentId,
+			credentials.deviceAuthenticationPolicyId,
+			usernameInput,
+			handleDeviceFailureError,
+			credentials.customDomain,
+			credentials.region,
+			deviceAuthPolicies.find,
 		]);
 	}, 'start-mfa-authentication');
 

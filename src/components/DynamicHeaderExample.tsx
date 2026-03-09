@@ -1,7 +1,6 @@
 // src/components/DynamicHeaderExample.tsx
 // Example component demonstrating dynamic header colors based on security features
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createSecurityFeaturesConfig, FlowHeader } from '../services/flowHeaderService';
@@ -88,8 +87,8 @@ const StatusIndicator = styled.div<{ $enabled: boolean }>`
 	border-radius: 6px;
 	font-size: 0.75rem;
 	font-weight: 600;
-	background: ${(props) => (props.$enabled ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR')};
-	color: ${(props) => (props.$enabled ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
+	background: ${(props) => (props.$enabled ? '#ecfdf5' : '#fef2f2')};
+	color: ${(props) => (props.$enabled ? '#10b981' : '#dc2626')};
 `;
 
 const DynamicHeaderExample: React.FC = () => {
@@ -121,14 +120,12 @@ const DynamicHeaderExample: React.FC = () => {
 	return (
 		<ExampleContainer>
 			<h1>Dynamic Header Colors Demo</h1>
-			<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '2rem' }}>
+			<p style={{ color: '#6b7280', marginBottom: '2rem' }}>
 				Toggle security features below to see how the header colors change dynamically.
 			</p>
 
 			<SecurityControls>
-				<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					Security Features
-				</h3>
+				<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Security Features</h3>
 
 				<ControlGroup>
 					<ToggleSwitch>
@@ -215,9 +212,7 @@ const DynamicHeaderExample: React.FC = () => {
 
 			{/* Dynamic Header Examples */}
 			<div style={{ marginBottom: '2rem' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					OAuth 2.0 Flow Header
-				</h3>
+				<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>OAuth 2.0 Flow Header</h3>
 				<FlowHeader
 					flowType="oauth"
 					customConfig={{
@@ -230,9 +225,7 @@ const DynamicHeaderExample: React.FC = () => {
 			</div>
 
 			<div style={{ marginBottom: '2rem' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					OpenID Connect Flow Header
-				</h3>
+				<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>OpenID Connect Flow Header</h3>
 				<FlowHeader
 					flowType="oidc"
 					customConfig={{
@@ -245,9 +238,7 @@ const DynamicHeaderExample: React.FC = () => {
 			</div>
 
 			<div style={{ marginBottom: '2rem' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					PingOne Flow Header
-				</h3>
+				<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>PingOne Flow Header</h3>
 				<FlowHeader
 					flowType="pingone"
 					customConfig={{
@@ -262,17 +253,15 @@ const DynamicHeaderExample: React.FC = () => {
 			{/* Security Status Summary */}
 			<div
 				style={{
-					background: 'V9_COLORS.BG.GRAY_LIGHT',
+					background: '#f8fafc',
 					border: '1px solid #0ea5e9',
 					borderRadius: '8px',
 					padding: '1rem',
 					marginTop: '2rem',
 				}}
 			>
-				<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					Security Status
-				</h4>
-				<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+				<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Security Status</h4>
+				<div style={{ fontSize: '0.875rem', color: '#1f2937' }}>
 					<strong>Current Security Level:</strong>{' '}
 					{securityFeatures?.highSecurityMode
 						? '🔒 High Security (Gold)'
@@ -283,7 +272,7 @@ const DynamicHeaderExample: React.FC = () => {
 							? '🛡️ Enhanced Security (Green)'
 							: '🔓 Standard Security (Default)'}
 				</div>
-				<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.BLUE', marginTop: '0.5rem' }}>
+				<div style={{ fontSize: '0.8rem', color: '#3b82f6', marginTop: '0.5rem' }}>
 					<strong>Active Features:</strong>{' '}
 					{Object.entries(securityFeatures || {})
 						.filter(([key, value]) => key !== 'highSecurityMode' && value)

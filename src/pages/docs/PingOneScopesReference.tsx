@@ -1,6 +1,7 @@
 // src/pages/docs/PingOneScopesReference.tsx
 // Educational reference for PingOne OAuth and OIDC scopes, including catalog, usage tips, and best practices
 
+import { FiBook, FiCheckCircle, FiInfo, FiShield, FiTarget } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -13,7 +14,6 @@ import {
 } from '../../services/commonImportsService';
 import PageLayoutService from '../../services/pageLayoutService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-import { FiBook, FiCheckCircle, FiInfo, FiShield, FiTarget } from '@icons';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 
@@ -63,7 +63,7 @@ const Pill = styled.span<{ $variant?: 'default' | 'critical' }>`
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-	color: ${({ $variant }) => ($variant === 'critical' ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+	color: ${({ $variant }) => ($variant === 'critical' ? '#dc2626' : '#2563eb')};
 	background: ${({ $variant }) =>
 		$variant === 'critical' ? 'rgba(248, 113, 113, 0.18)' : 'rgba(59, 130, 246, 0.15)'};
 `;
@@ -116,7 +116,7 @@ const Callout = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 				return 'linear-gradient(135deg, #e0e7ff 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
 		}
 	}};
-	border-left: 4px solid ${({ $variant }) => ($variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+	border-left: 4px solid ${({ $variant }) => ($variant === 'warning' ? '#f59e0b' : '#2563eb')};
 	color: #1e293b;
 	display: flex;
 	gap: 0.75rem;
@@ -313,7 +313,7 @@ const PingOneScopesReference: React.FC = () => {
 									<td>Phone number and verification flag.</td>
 									<td>Pair with MFA enrollment experiences or SMS-based alerts.</td>
 								</tr>
-								<tr style={{ background: 'V9_COLORS.BG.WARNING' }}>
+								<tr style={{ background: '#fef3c7' }}>
 									<td>
 										<code>offline_access</code>
 										<br />
@@ -623,7 +623,7 @@ const PingOneScopesReference: React.FC = () => {
 										href={documentationUrl}
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										PingOne Authorization Scopes
 									</a>{' '}
@@ -634,7 +634,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/bundle/pingone/page/kqb1664025065516.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										PingOne Access Management – Scopes Overview
 									</a>{' '}
@@ -645,7 +645,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/pingfederate/12.2/developers_reference_guide/pf_dev_ref.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										PingFederate Developer’s Reference Guide
 									</a>{' '}
@@ -657,7 +657,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://www.pingidentity.com/content/dam/developer/downloads/Resources/OAuth2%20Developers%20Guide%20(1).pdf"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										Ping Identity OAuth 2.0 Developer’s Guide (PDF)
 									</a>{' '}
@@ -668,7 +668,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/index.html"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										Ping Identity OpenID Connect Developer Guide
 									</a>{' '}
@@ -679,7 +679,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://datatracker.ietf.org/doc/html/rfc6749#section-3.3"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										RFC 6749 Section 3.3
 									</a>{' '}
@@ -690,7 +690,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://tools.ietf.org/html/rfc6749"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										RFC 6749 (Full Specification)
 									</a>{' '}
@@ -702,7 +702,7 @@ const PingOneScopesReference: React.FC = () => {
 										href="https://openid.net/developers/how-connect-works/"
 										target="_blank"
 										rel="noopener noreferrer"
-										style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+										style={{ color: '#2563eb', fontWeight: 600 }}
 									>
 										OpenID Connect – How Connect Works
 									</a>{' '}
@@ -718,7 +718,7 @@ const PingOneScopesReference: React.FC = () => {
 								Need deeper access modeling? Pair this guide with the{' '}
 								<a
 									href="/docs/oauth2-security-best-practices"
-									style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', fontWeight: 600 }}
+									style={{ color: '#2563eb', fontWeight: 600 }}
 								>
 									OAuth 2.0 Security Best Practices
 								</a>{' '}

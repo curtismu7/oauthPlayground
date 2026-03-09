@@ -1,6 +1,5 @@
 // src/components/CredentialsInput.tsx
 
-
 import { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
@@ -715,7 +714,11 @@ export const CredentialsInput = ({
 											onClick={() => setShowClientSecretValue(!showClientSecretValue)}
 											title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showClientSecretValue ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+											{showClientSecretValue ? (
+												<span style={{ fontSize: '16px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16px' }}>👁️</span>
+											)}
 										</SecretToggleButton>
 									</SecretInputWrapper>
 								</FormField>

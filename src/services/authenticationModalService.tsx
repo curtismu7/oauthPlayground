@@ -1,5 +1,6 @@
 // src/services/authenticationModalService.tsx
 
+import { FiExternalLink, FiInfo } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -7,31 +8,25 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
 import { logger } from '../utils/logger';
-import { FiExternalLink, FiInfo } from '@icons';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiClock': 'mdi-clock',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiInfo': 'mdi-information',
-		'FiShield': 'mdi-shield-check',
-		'FiX': 'mdi-close',
+		FiCheckCircle: 'mdi-check-circle',
+		FiClock: 'mdi-clock',
+		FiExternalLink: 'mdi-open-in-new',
+		FiInfo: 'mdi-information',
+		FiShield: 'mdi-shield-check',
+		FiX: 'mdi-close',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 // Modern styled components with professional design

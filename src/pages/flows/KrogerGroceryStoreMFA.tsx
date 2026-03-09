@@ -29,7 +29,6 @@ const KROGER_DARK = '#0B2142';
 const KROGER_LIGHT = '#F5F7FA';
 const KROGER_GREEN = '#00A651'; // For success states
 
-
 // Styled Components
 const PageContainer = styled.div`
 	min-height: 100vh;
@@ -37,18 +36,11 @@ const PageContainer = styled.div`
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 `;
 
-
-
-
-
-
-
 const MainContent = styled.main`
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 2rem;
 `;
-
 
 const ProductsGrid = styled.div`
 	display: grid;
@@ -136,8 +128,6 @@ const LoginModal = styled.div`
 	box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 `;
 
-
-
 const ModalHeader = styled.div`
 	display: flex;
 	justify-content: space-between;
@@ -162,7 +152,6 @@ const ModalHeader = styled.div`
 		}
 	}
 `;
-
 
 const LoginButton = styled.button`
 	width: 100%;
@@ -978,7 +967,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Username
@@ -1006,7 +995,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								display: 'block',
 								marginBottom: '0.5rem',
 								fontWeight: '600',
-								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								color: '#1f2937',
 							}}
 						>
 							Password
@@ -1129,12 +1118,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							configured. Please configure your PingOne authorization code client credentials to
 							continue.
 						</p>
-						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
+						<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 							You'll need:
 						</p>
 						<ul
 							style={{
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								fontSize: '0.875rem',
 								lineHeight: '1.8',
 								marginLeft: '1.5rem',

@@ -128,9 +128,9 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 
   ${({ $variant = 'primary' }) => {
 		const colors = {
-			primary: { bg: 'V9_COLORS.PRIMARY.BLUE', hover: 'V9_COLORS.PRIMARY.BLUE_DARK' },
-			secondary: { bg: 'V9_COLORS.TEXT.GRAY_MEDIUM', hover: '#4b5563' },
-			danger: { bg: 'V9_COLORS.PRIMARY.RED', hover: 'V9_COLORS.PRIMARY.RED_DARK' },
+			primary: { bg: '#3b82f6', hover: '#2563eb' },
+			secondary: { bg: '#6b7280', hover: '#4b5563' },
+			danger: { bg: '#ef4444', hover: '#dc2626' },
 		};
 
 		return `
@@ -156,9 +156,9 @@ const StepIndicator = styled.div<{ $active?: boolean; $completed?: boolean }>`
   border-radius: 8px;
   margin-bottom: 1rem;
   background: ${({ $active, $completed }) =>
-		$active ? '#dbeafe' : $completed ? 'V9_COLORS.BG.SUCCESS' : '#f3f4f6'};
+		$active ? '#dbeafe' : $completed ? '#ecfdf5' : '#f3f4f6'};
   border: 1px solid ${({ $active, $completed }) =>
-		$active ? 'V9_COLORS.PRIMARY.GREEN' : $completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		$active ? '#10b981' : $completed ? '#059669' : '#e5e7eb'};
 `;
 
 const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
@@ -170,9 +170,9 @@ const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : '#6b7280')};
   background: ${({ $active, $completed }) =>
-		$active ? 'V9_COLORS.PRIMARY.GREEN' : $completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		$active ? '#10b981' : $completed ? '#059669' : '#e5e7eb'};
 `;
 
 const StepContent = styled.div`
@@ -672,7 +672,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 					<strong>Status: </strong>
 					<span
 						style={{
-							color: mockServer.getState().isRunning ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK',
+							color: mockServer.getState().isRunning ? '#059669' : '#dc2626',
 							marginLeft: '0.5rem',
 						}}
 					>
@@ -932,7 +932,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 				</SectionTitle>
 				<div
 					style={{
-						background: 'V9_COLORS.TEXT.GRAY_DARK',
+						background: '#1f2937',
 						color: '#f3f4f6',
 						borderRadius: '8px',
 						padding: '1rem',

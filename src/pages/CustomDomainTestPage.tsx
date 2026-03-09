@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatus } from '../components/ServerStatusProvider';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { useNotifications } from '../contexts/NotificationSystem';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -14,7 +15,6 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
-import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,
@@ -243,7 +243,7 @@ export default function CustomDomainTestPage() {
 					<div className="card-body py-3">
 						<p
 							className="fw-600 mb-2 text-small"
-							style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+							style={{ color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.05em' }}
 						>
 							Backend &amp; Worker Token Status
 						</p>
@@ -253,7 +253,7 @@ export default function CustomDomainTestPage() {
 								<span className="text-small fw-600 text-muted">Backend</span>
 								<div className="d-flex align-items-center gap-2">
 									{serverStatus.isChecking ? (
-										<span className="badge" style={{ backgroundColor: 'V9_COLORS.PRIMARY.YELLOW' }}>
+										<span className="badge" style={{ backgroundColor: '#f59e0b' }}>
 											Checking…
 										</span>
 									) : serverStatus.isOnline ? (
@@ -291,10 +291,10 @@ export default function CustomDomainTestPage() {
 										style={{
 											backgroundColor:
 												tokenStatus.status === 'valid'
-													? 'V9_COLORS.PRIMARY.GREEN_DARK'
+													? '#059669'
 													: tokenStatus.status === 'expiring-soon'
-														? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-														: 'V9_COLORS.PRIMARY.RED_DARK',
+														? '#d97706'
+														: '#dc2626',
 										}}
 									>
 										{tokenStatus.status === 'valid'
@@ -356,7 +356,7 @@ export default function CustomDomainTestPage() {
 						</div>
 
 						{!serverStatus.isOnline && !serverStatus.isChecking && serverStatus.error && (
-							<div className="mt-2 text-small" style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+							<div className="mt-2 text-small" style={{ color: '#dc2626' }}>
 								<strong>Error:</strong> {serverStatus.error}
 							</div>
 						)}
@@ -366,12 +366,15 @@ export default function CustomDomainTestPage() {
 			<div className="section-wrap mb-3">
 				<div
 					className="card"
-					style={{ borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE_DARK', backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT' }}
+					style={{
+						borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE_DARK',
+						backgroundColor: '#f8fafc',
+					}}
 				>
 					<div className="card-body">
 						<div className="d-flex align-items-center gap-2 flex-wrap">
 							<Icon name="link" size="sm" />
-							<span className="fw-600" style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+							<span className="fw-600" style={{ color: '#2563eb' }}>
 								Current Page URL:
 							</span>
 							<code
@@ -406,7 +409,7 @@ export default function CustomDomainTestPage() {
 						<div className="d-flex flex-column gap-2 mb-3">
 							<div className="d-flex align-items-center gap-2 flex-wrap">
 								<span className="fw-600 text-muted">App URL (HTTPS):</span>
-								<code className="text-small fw-600" style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<code className="text-small fw-600" style={{ color: '#1f2937' }}>
 									{appDisplayUrl}
 								</code>
 							</div>
@@ -430,7 +433,7 @@ export default function CustomDomainTestPage() {
 									<p
 										id="custom-domain-error"
 										className="text-small mb-0"
-										style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}
+										style={{ color: '#dc2626' }}
 									>
 										{domainError}
 									</p>
@@ -486,7 +489,7 @@ export default function CustomDomainTestPage() {
 										key={key}
 										className="card"
 										style={{
-											borderLeft: `4px solid ${spec.bodyParams ? '#7c3aed' : spec.requiresParams ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
+											borderLeft: `4px solid ${spec.bodyParams ? '#7c3aed' : spec.requiresParams ? '#2563eb' : '#e5e7eb'}`,
 										}}
 									>
 										<div className="card-body d-flex flex-wrap align-items-center gap-2 justify-content-between">
@@ -495,7 +498,7 @@ export default function CustomDomainTestPage() {
 													<span className="badge bg-secondary" style={{ width: 'fit-content' }}>
 														{spec.method}
 													</span>
-													<code className="text-small" style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+													<code className="text-small" style={{ color: '#1f2937' }}>
 														{spec.path}
 													</code>
 												</div>
@@ -587,13 +590,13 @@ export default function CustomDomainTestPage() {
 										{result && (result.bodyPreview || result.error) && (
 											<div
 												className="card-body pt-0 border-top"
-												style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', fontSize: '0.8rem' }}
+												style={{ backgroundColor: '#f8fafc', fontSize: '0.8rem' }}
 											>
 												<pre
 													className="mb-0 text-start overflow-auto"
 													style={{
 														maxHeight: '120px',
-														color: 'V9_COLORS.TEXT.GRAY_DARK',
+														color: '#1f2937',
 														whiteSpace: 'pre-wrap',
 														wordBreak: 'break-all',
 													}}

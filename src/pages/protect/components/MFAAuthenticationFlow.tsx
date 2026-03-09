@@ -9,9 +9,10 @@
  * including device selection and authentication methods.
  */
 
-
+import { FiAlertTriangle, FiCheckCircle, FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { logger } from '../../../utils/logger';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
@@ -23,8 +24,6 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { FiAlertTriangle, FiCheckCircle, FiLoader } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS

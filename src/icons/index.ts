@@ -25,6 +25,7 @@ export {
 	FiArrowDown,
 	FiArrowLeft,
 	FiArrowRight,
+	FiArrowUp,
 	FiAward,
 	FiBarChart,
 	FiBarChart2,

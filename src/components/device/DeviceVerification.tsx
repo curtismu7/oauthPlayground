@@ -1,17 +1,16 @@
 // Device verification component for OIDC Device Code flow
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { formatUserCode } from '../../utils/deviceCode';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
+import { formatUserCode } from '../../utils/deviceCode';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 import {
-formatUrlForQRCode,
+	formatUrlForQRCode,
 	generateQRCode,
 	getQRCodeAltText,
 	validateQRCodeUrl,
-} from '../../utils/qrCode'
+} from '../../utils/qrCode';
 
 interface DeviceVerificationProps {
 	userCode: string;
@@ -210,9 +209,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6')};
-  color: ${(props) => (props.variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
-  border: 1px solid ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
+  color: ${(props) => (props.variant === 'primary' ? 'white' : '#1f2937')};
+  border: 1px solid ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -220,8 +219,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-    border-color: ${(props) => (props.variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+    background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#e5e7eb')};
+    border-color: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#9ca3af')};
   }
 
   &:active {
@@ -401,9 +400,7 @@ const DeviceVerification: React.FC<DeviceVerificationProps> = ({
 					</UserCodeDisplay>
 
 					<VerificationUrlSection>
-						<div
-							style={{ fontSize: '0.875rem', fontWeight: '500', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-						>
+						<div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1f2937' }}>
 							Verification URL:
 						</div>
 						<VerificationUrl>{formatUrlForQRCode(verificationUri)}</VerificationUrl>

@@ -102,16 +102,16 @@ const StepHeader = styled.div<{ $active: boolean; $completed: boolean }>`
   gap: 1rem;
   padding: 1.5rem;
   border: 2px solid ${(props) =>
-		props.$completed ? 'V9_COLORS.PRIMARY.GREEN' : props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		props.$completed ? '#10b981' : props.$active ? '#3b82f6' : '#e5e7eb'};
   border-radius: 0.75rem;
-  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.BG.GRAY_LIGHT')};
+  background: ${(props) => (props.$completed ? '#f0fdf4' : props.$active ? '#f8fafc' : '#f8fafc')};
   margin-bottom: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     border-color: ${(props) =>
-			props.$completed ? 'V9_COLORS.PRIMARY.GREEN_DARK' : props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#94a3b8'};
+			props.$completed ? '#059669' : props.$active ? '#2563eb' : '#94a3b8'};
   }
 `;
 
@@ -124,7 +124,7 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
   justify-content: center;
   font-weight: 700;
   font-size: 1.25rem;
-  background: ${(props) => (props.$completed ? 'V9_COLORS.PRIMARY.GREEN' : props.$active ? 'V9_COLORS.PRIMARY.BLUE' : '#94a3b8')};
+  background: ${(props) => (props.$completed ? '#10b981' : props.$active ? '#3b82f6' : '#94a3b8')};
   color: white;
 `;
 
@@ -464,7 +464,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 										$active={flowState.currentStep === step.number}
 										$completed={flowState.currentStep > step.number}
 									>
-										{flowState.currentStep > step.number ? <span>✅</span>: step.number}
+										{flowState.currentStep > step.number ? <span>✅</span> : step.number}
 									</StepNumber>
 									<StepInfo>
 										<StepTitle>{step.title}</StepTitle>
@@ -588,7 +588,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<span>➡️</span></Button>
+													<span>➡️</span>
+												</Button>
 											)}
 										</div>
 									)}
@@ -626,7 +627,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 											)}
 
 											<Button $variant="primary" onClick={flowActions.generatePKCECodes}>
-												<span>🔄</span>{flowState.pkceCodes ? 'Regenerate' : 'Generate'} PKCE Codes
+												<span>🔄</span>
+												{flowState.pkceCodes ? 'Regenerate' : 'Generate'} PKCE Codes
 											</Button>
 
 											{flowState.isPkceGenerated && (
@@ -636,7 +638,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<span>➡️</span></Button>
+													<span>➡️</span>
+												</Button>
 											)}
 										</div>
 									)}
@@ -695,7 +698,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<span>➡️</span></Button>
+													<span>➡️</span>
+												</Button>
 											)}
 										</div>
 									)}
@@ -746,7 +750,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													style={{ marginLeft: '1rem' }}
 												>
 													Next Step
-													<span>➡️</span></Button>
+													<span>➡️</span>
+												</Button>
 											)}
 										</div>
 									)}
@@ -774,7 +779,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 														}}
 													>
 														<Button onClick={() => setShowTokens(!showTokens)}>
-															{showTokens ? <span>[FiEyeOff]</span>: <span>[FiEye]</span>}
+															{showTokens ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
 															{showTokens ? 'Hide' : 'Show'} Tokens
 														</Button>
 													</div>
@@ -789,7 +794,9 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 															{flowState.tokens.refresh_token && (
 																<TokenDisplay>
 																	<TokenLabel>Refresh Token</TokenLabel>
-																	<TokenValue>{maskToken(flowState.tokens.refresh_token)}</TokenValue>
+																	<TokenValue>
+																		{maskToken(flowState.tokens.refresh_token)}
+																	</TokenValue>
 																</TokenDisplay>
 															)}
 
@@ -844,7 +851,8 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 												onClick={flowActions.exchangeTokens}
 												disabled={!flowState.authorizationCode || flowState.isExchangingTokens}
 											>
-												<span>🔑</span>{flowState.isExchangingTokens ? 'Exchanging...' : 'Exchange Tokens'}
+												<span>🔑</span>
+												{flowState.isExchangingTokens ? 'Exchanging...' : 'Exchange Tokens'}
 											</Button>
 
 											<Button

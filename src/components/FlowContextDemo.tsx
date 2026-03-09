@@ -1,7 +1,6 @@
 // src/components/FlowContextDemo.tsx
 // Demo component showcasing FlowContextService functionality
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService, { type FlowContext } from '../services/flowContextService';
@@ -429,9 +428,7 @@ export const FlowContextDemo: React.FC = () => {
 						{activeContext ? (
 							<CodeBlock>{JSON.stringify(activeContext, null, 2)}</CodeBlock>
 						) : (
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>
-								No active flow context
-							</p>
+							<p style={{ color: '#6b7280', fontStyle: 'italic' }}>No active flow context</p>
 						)}
 					</Section>
 
@@ -440,7 +437,11 @@ export const FlowContextDemo: React.FC = () => {
 						{flowIntegrity ? (
 							<div>
 								<StatusDisplay status={flowIntegrity.valid ? 'success' : 'error'}>
-									{flowIntegrity.valid ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>⚠️</span>}
+									{flowIntegrity.valid ? (
+										<span style={{ fontSize: '16px' }}>✅</span>
+									) : (
+										<span style={{ fontSize: '16px' }}>⚠️</span>
+									)}
 									{flowIntegrity.valid
 										? 'Flow integrity is valid'
 										: 'Flow integrity issues detected'}
@@ -448,15 +449,10 @@ export const FlowContextDemo: React.FC = () => {
 
 								{flowIntegrity.issues.length > 0 && (
 									<div>
-										<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.RED' }}>
-											Issues:
-										</h4>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: '#ef4444' }}>Issues:</h4>
 										<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 											{flowIntegrity.issues.map((issue: string, index: number) => (
-												<li
-													key={index}
-													style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.RED' }}
-												>
+												<li key={index} style={{ fontSize: '0.875rem', color: '#ef4444' }}>
 													{issue}
 												</li>
 											))}
@@ -466,15 +462,10 @@ export const FlowContextDemo: React.FC = () => {
 
 								{flowIntegrity.recommendations.length > 0 && (
 									<div style={{ marginTop: '1rem' }}>
-										<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW' }}>
-											Recommendations:
-										</h4>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: '#f59e0b' }}>Recommendations:</h4>
 										<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 											{flowIntegrity.recommendations.map((rec: string, index: number) => (
-												<li
-													key={index}
-													style={{ fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.YELLOW' }}
-												>
+												<li key={index} style={{ fontSize: '0.875rem', color: '#f59e0b' }}>
 													{rec}
 												</li>
 											))}
@@ -483,9 +474,7 @@ export const FlowContextDemo: React.FC = () => {
 								)}
 							</div>
 						) : (
-							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>
-								Checking flow integrity...
-							</p>
+							<p style={{ color: '#6b7280', fontStyle: 'italic' }}>Checking flow integrity...</p>
 						)}
 					</Section>
 				</div>

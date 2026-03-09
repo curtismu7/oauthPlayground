@@ -1,5 +1,6 @@
 // src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - Enhanced with Real Services
 
+import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
 import React, { useCallback, useMemo } from 'react';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
@@ -10,10 +11,9 @@ import InlineDocumentation, { QuickReference } from '../../components/InlineDocu
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { useV7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import CompactAppPickerV8U from '../../v8u/components/CompactAppPickerV8U';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
 
 const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	const controller = useV7RMOIDCResourceOwnerPasswordController({
@@ -101,7 +101,7 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 				</InlineDocumentation>
 
 				<CollapsibleSection title="Why This Flow is Deprecated" defaultOpen>
-					<ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.6, color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+					<ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.6, color: '#dc2626' }}>
 						<li>Applications must handle user passwords directly (security risk)</li>
 						<li>No delegation of authentication to the authorization server</li>
 						<li>Phishing attacks become easier to execute</li>

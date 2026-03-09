@@ -1,12 +1,11 @@
 // src/services/unifiedTokenDisplayService.tsx
 
-
+import { FiInfo } from '@icons';
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService from './tokenDisplayService';
-import { FiInfo } from '@icons';
 
 // Styled components for unified token display
 const TokenContainer = styled.div`
@@ -275,7 +274,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					<TokenActions>
 						{showDecodeButtons && (
 							<ActionButton $variant="secondary" onClick={() => handleDecodeClick(token, label)}>
-								{isDecoded ? <span style={{ fontSize: '14px' }}>🙈</span> : <span style={{ fontSize: '14px' }}>🔑</span>}
+								{isDecoded ? (
+									<span style={{ fontSize: '14px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '14px' }}>🔑</span>
+								)}
 								{isDecoded ? 'Encode' : 'Decode'}
 							</ActionButton>
 						)}

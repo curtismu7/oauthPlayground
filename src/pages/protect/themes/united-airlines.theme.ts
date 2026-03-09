@@ -8,9 +8,9 @@
  * United Airlines brand theme with blue and white colors, global aviation styling.
  */
 
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const unitedAirlinesConfig: CorporatePortalConfig = {
 	company: {
@@ -75,12 +75,12 @@ export const unitedAirlinesConfig: CorporatePortalConfig = {
 			accent: '#FF6600', // United Orange (official accent color)
 			background: '#FFFFFF', // Changed to solid white for Protect app
 			surface: '#FFFFFF',
-			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Muted gray
-			border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Border gray
+			muted: '#6b7280', // Muted gray
+			border: '#e5e7eb', // Border gray
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#DC2626',
-			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+			success: '#059669',
 			warning: '#FF6600', // Use United Orange for warnings
 			info: '#0033A0', // Use United Blue for info
 			// Additional theme colors with official United Airlines palette
@@ -127,12 +127,12 @@ export const unitedAirlinesTheme: BrandTheme = {
 		accent: '#FF6600', // United Orange (official accent color)
 		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
-		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Muted gray
-		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Border gray
+		muted: '#6b7280', // Muted gray
+		border: '#e5e7eb', // Border gray
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
-		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
+		success: '#059669',
 		warning: '#FF6600', // Use United Orange for warnings
 		info: '#0033A0', // Use United Blue for info
 		// Additional theme colors with official United Airlines palette

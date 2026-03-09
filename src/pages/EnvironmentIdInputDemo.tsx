@@ -178,10 +178,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<FlowHeader flowId="environment-id-demo" />
 
 			<Header>
-				<h1>
-					🌐
-					Environment ID Input Component Demo
-				</h1>
+				<h1>🌐 Environment ID Input Component Demo</h1>
 				<p>
 					A simplified approach to PingOne configuration. Just enter your environment ID, select
 					your region, and we'll handle the rest!
@@ -190,10 +187,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 			<DemoSection>
 				<SectionHeader>
-					<h2>
-						⚙️
-						Live Demo
-					</h2>
+					<h2>⚙️ Live Demo</h2>
 					<p>
 						Try entering your PingOne environment ID below. The component will construct the issuer
 						URL and discover all available OIDC endpoints.
@@ -245,7 +239,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<ComparisonGrid>
 				<ComparisonCard>
 					<ComparisonTitle>
-						<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>❌</span>
+						<span style={{ color: '#ef4444' }}>❌</span>
 						Old Approach
 					</ComparisonTitle>
 					<ConItem>Users need to enter full issuer URL</ConItem>
@@ -258,7 +252,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 				<ComparisonCard>
 					<ComparisonTitle>
-						<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✅</span>
+						<span style={{ color: '#10b981' }}>✅</span>
 						New Approach
 					</ComparisonTitle>
 					<ProItem>Just enter environment ID</ProItem>
@@ -272,10 +266,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 			<DemoSection>
 				<SectionHeader>
-					<h2>
-						🌐
-						Usage Examples
-					</h2>
+					<h2>🌐 Usage Examples</h2>
 					<p>Here are some example environment IDs you can try (these are examples only):</p>
 				</SectionHeader>
 
@@ -289,39 +280,39 @@ const EnvironmentIdInputDemo: React.FC = () => {
 					<div
 						style={{
 							padding: '1rem',
-							background: 'V9_COLORS.BG.GRAY_MEDIUM',
+							background: '#f1f5f9',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example US:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#6b7280' }}>
 							12345678-1234-1234-1234-123456789012
 						</div>
 					</div>
 					<div
 						style={{
 							padding: '1rem',
-							background: 'V9_COLORS.BG.GRAY_MEDIUM',
+							background: '#f1f5f9',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example EU:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#6b7280' }}>
 							abcdef12-3456-7890-abcd-ef1234567890
 						</div>
 					</div>
 					<div
 						style={{
 							padding: '1rem',
-							background: 'V9_COLORS.BG.GRAY_MEDIUM',
+							background: '#f1f5f9',
 							borderRadius: '0.5rem',
 							border: '1px solid #cbd5e1',
 						}}
 					>
 						<strong>Example AP:</strong>
-						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#6b7280' }}>
 							98765432-1098-7654-3210-987654321098
 						</div>
 					</div>

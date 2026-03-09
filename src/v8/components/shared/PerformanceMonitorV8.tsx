@@ -218,10 +218,10 @@ export const PerformanceMonitorV8: React.FC<PerformanceMonitorV8Props> = ({
 			)}
 
 			<div className="monitor-actions">
-				<button onClick={collectMetrics} className="action-btn">
+				<button type="button" onClick={collectMetrics} className="action-btn">
 					🔄 Refresh
 				</button>
-				<button onClick={() => setMetrics([])} className="action-btn">
+				<button type="button" onClick={() => setMetrics([])} className="action-btn">
 					🗑️ Clear History
 				</button>
 				<button

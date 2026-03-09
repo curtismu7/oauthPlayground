@@ -8,15 +8,15 @@ import { useLocation } from 'react-router-dom';
 // Import components
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../../components/education/MasterEducationSection';
-import type { StepCredentials } from '../../../components/steps/CommonSteps';
-import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
 import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
+import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import {
 	loadInitialCredentials,
 	useImplicitFlowController,
 } from '../../../hooks/useImplicitFlowController';
 import { usePageScroll } from '../../../hooks/usePageScroll';
+import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 // Import UI components from services
@@ -27,10 +27,7 @@ import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 
 // Get UI components
-const {
-	Container,
-	ContentWrapper,
-} = FlowUIService.getFlowUIComponents();
+const { Container, ContentWrapper } = FlowUIService.getFlowUIComponents();
 
 const log = createModuleLogger('src/pages/flows/v9/ImplicitFlowV9.tsx');
 
@@ -86,7 +83,6 @@ const ImplicitFlowV9: React.FC = () => {
 		log.info('ImplicitFlowV9', 'Initial credentials from controller', { initialCreds });
 		return initialCreds;
 	});
-
 
 	const [currentStep, setCurrentStep] = useState(0);
 
@@ -171,9 +167,11 @@ const ImplicitFlowV9: React.FC = () => {
 						clientId: flowData.flowCredentials.clientId,
 						clientSecret: flowData.flowCredentials.clientSecret,
 						redirectUri: flowData.flowCredentials.redirectUri,
-						scopes: Array.isArray(flowData.flowCredentials.scopes) 
-							? flowData.flowCredentials.scopes 
-							: (flowData.flowCredentials.scopes ? flowData.flowCredentials.scopes.split(' ') : []),
+						scopes: Array.isArray(flowData.flowCredentials.scopes)
+							? flowData.flowCredentials.scopes
+							: flowData.flowCredentials.scopes
+								? flowData.flowCredentials.scopes.split(' ')
+								: [],
 					};
 
 					setCredentials(updatedCredentials);
@@ -252,15 +250,16 @@ const ImplicitFlowV9: React.FC = () => {
 				flowCredentials: {
 					clientId: controller.credentials.clientId,
 					redirectUri: controller.credentials.redirectUri,
-					scopes: Array.isArray(controller.credentials.scopes) 
-						? controller.credentials.scopes 
-						: (controller.credentials.scopes ? controller.credentials.scopes.split(' ') : []),
+					scopes: Array.isArray(controller.credentials.scopes)
+						? controller.credentials.scopes
+						: controller.credentials.scopes
+							? controller.credentials.scopes.split(' ')
+							: [],
 					lastUpdated: Date.now(),
 				},
 			});
 		}
 	}, [controller.credentials]);
-
 
 	usePageScroll({ pageName: 'Implicit Flow V9', force: true });
 
@@ -273,104 +272,95 @@ const ImplicitFlowV9: React.FC = () => {
 		});
 	}, [credentials, selectedVariant]);
 
-
-
-
-
-
-
 	return (
 		<>
 			<Container>
-			<ContentWrapper>
-				<FlowHeader flowId="implicit-v9" />
-				
-				{/* Educational URI Guide Button */}
-				<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-					<RedirectUriEducationButton 
-						flowKey="ImplicitFlowV9"
-						variant="outline"
-						size="sm"
-					>
-						📚 URI Guide
-					</RedirectUriEducationButton>
-				</div>
+				<ContentWrapper>
+					<FlowHeader flowId="implicit-v9" />
 
-				{/* Education Mode Toggle */}
-				<EducationModeToggle variant="buttons" />
+					{/* Educational URI Guide Button */}
+					<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+						<RedirectUriEducationButton flowKey="ImplicitFlowV9" variant="outline" size="sm">
+							📚 URI Guide
+						</RedirectUriEducationButton>
+					</div>
 
-				{/* Master Education Section */}
-				<MasterEducationSection
-					flowType="implicit"
-					title="📚 Implicit Flow Education"
-					sections={[
-						{
-							id: 'implicit-overview',
-							title: 'Implicit Flow Overview',
-							icon: <span>ℹ️</span>,
-							summary:
-								'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
-							content: (
-								<div>
-									<p>
-										<strong>The Implicit Flow</strong> is a legacy OAuth 2.0 flow where tokens are
-										returned directly in the URL fragment:
-									</p>
-									<ul>
-										<li>
-											<strong>No Backend Required</strong> - Designed for browser-only applications
-										</li>
-										<li>
-											<strong>Tokens in URL</strong> - Access tokens returned in URL fragment (#)
-										</li>
-										<li>
-											<strong>No Refresh Tokens</strong> - Cannot securely store refresh tokens
-										</li>
-										<li>
-											<strong>Security Concerns</strong> - Tokens exposed in browser history and
-											logs
-										</li>
-									</ul>
-									<p>
-										<strong>⚠️ Not Recommended:</strong> OAuth 2.1 deprecates this flow. Use
-										Authorization Code with PKCE instead.
-									</p>
-								</div>
-							),
-						},
-						{
-							id: 'oauth-vs-oidc',
-							title: 'OAuth vs OIDC Variants',
-							icon: <span>🛡️</span>,
-							summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
-							content: (
-								<div>
-									<p>
-										<strong>Two Variants Available:</strong>
-									</p>
-									<ul>
-										<li>
-											<strong>OAuth Implicit</strong> - Returns access_token for API authorization
-										</li>
-										<li>
-											<strong>OIDC Implicit</strong> - Returns id_token for user authentication
-										</li>
-									</ul>
-									<p>Use the variant selector to switch between OAuth and OIDC modes.</p>
-								</div>
-							),
-						},
-					]}
-				/>
-			</ContentWrapper>
-		</Container>
-		{/* Redirect URI Educational Modal */}
-		<RedirectUriEducationalModal
-			flowKey="ImplicitFlowV9"
-			isOpen={redirectUriEducation.showEducationalModal}
-			onClose={redirectUriEducation.closeEducationalModal}
-		/>
-	</>
+					{/* Education Mode Toggle */}
+					<EducationModeToggle variant="buttons" />
+
+					{/* Master Education Section */}
+					<MasterEducationSection
+						flowType="implicit"
+						title="📚 Implicit Flow Education"
+						sections={[
+							{
+								id: 'implicit-overview',
+								title: 'Implicit Flow Overview',
+								icon: <span>ℹ️</span>,
+								summary:
+									'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
+								content: (
+									<div>
+										<p>
+											<strong>The Implicit Flow</strong> is a legacy OAuth 2.0 flow where tokens are
+											returned directly in the URL fragment:
+										</p>
+										<ul>
+											<li>
+												<strong>No Backend Required</strong> - Designed for browser-only
+												applications
+											</li>
+											<li>
+												<strong>Tokens in URL</strong> - Access tokens returned in URL fragment (#)
+											</li>
+											<li>
+												<strong>No Refresh Tokens</strong> - Cannot securely store refresh tokens
+											</li>
+											<li>
+												<strong>Security Concerns</strong> - Tokens exposed in browser history and
+												logs
+											</li>
+										</ul>
+										<p>
+											<strong>⚠️ Not Recommended:</strong> OAuth 2.1 deprecates this flow. Use
+											Authorization Code with PKCE instead.
+										</p>
+									</div>
+								),
+							},
+							{
+								id: 'oauth-vs-oidc',
+								title: 'OAuth vs OIDC Variants',
+								icon: <span>🛡️</span>,
+								summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
+								content: (
+									<div>
+										<p>
+											<strong>Two Variants Available:</strong>
+										</p>
+										<ul>
+											<li>
+												<strong>OAuth Implicit</strong> - Returns access_token for API authorization
+											</li>
+											<li>
+												<strong>OIDC Implicit</strong> - Returns id_token for user authentication
+											</li>
+										</ul>
+										<p>Use the variant selector to switch between OAuth and OIDC modes.</p>
+									</div>
+								),
+							},
+						]}
+					/>
+				</ContentWrapper>
+			</Container>
+			{/* Redirect URI Educational Modal */}
+			<RedirectUriEducationalModal
+				flowKey="ImplicitFlowV9"
+				isOpen={redirectUriEducation.showEducationalModal}
+				onClose={redirectUriEducation.closeEducationalModal}
+			/>
+		</>
 	);
 };
 

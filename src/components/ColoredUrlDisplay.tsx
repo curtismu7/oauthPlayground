@@ -1,6 +1,5 @@
 // src/components/ColoredUrlDisplay.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -84,7 +83,7 @@ const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
 
 const ColoredUrlText = styled.span<{ $color: string }>`
 	color: ${({ $color }) => $color};
-	font-weight: ${({ $color }) => ($color === 'V9_COLORS.TEXT.GRAY_DARK' ? '600' : '400')};
+	font-weight: ${({ $color }) => ($color === '#1f2937' ? '600' : '400')};
 `;
 
 const ActionButtons = styled.div`
@@ -101,17 +100,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#1f2937')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+		background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#f9fafb')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#9ca3af')};
 	}
 
 	&:active {
@@ -206,23 +205,23 @@ const ParameterValue = styled.div`
 
 // Color scheme for URL parts
 const URL_COLORS = [
-	'V9_COLORS.TEXT.GRAY_DARK', // Base URL - dark gray
-	'V9_COLORS.PRIMARY.RED_DARK', // ? - red
-	'V9_COLORS.PRIMARY.GREEN_DARK', // response_type - green
+	'#1f2937', // Base URL - dark gray
+	'#dc2626', // ? - red
+	'#059669', // response_type - green
 	'#7c3aed', // client_id - purple
 	'#ea580c', // redirect_uri - orange
-	'V9_COLORS.PRIMARY.BLUE', // scope - cyan
+	'#3b82f6', // scope - cyan
 	'#be123c', // state - pink
 	'#ca8a04', // code_challenge - yellow
 	'#7c2d12', // code_challenge_method - brown
-	'V9_COLORS.PRIMARY.BLUE_DARK', // response_mode - blue
+	'#2563eb', // response_mode - blue
 	'#be185d', // nonce - magenta
 	'#0f766e', // prompt - teal
-	'V9_COLORS.PRIMARY.YELLOW_DARK', // max_age - amber
+	'#d97706', // max_age - amber
 	'#7c2d12', // acr_values - brown
 	'#1e3a8a', // claims - indigo
-	'V9_COLORS.PRIMARY.RED_DARK', // ui_locales - red
-	'V9_COLORS.TEXT.GRAY_DARK', // id_token_hint - sky
+	'#dc2626', // ui_locales - red
+	'#1f2937', // id_token_hint - sky
 	'#581c87', // login_hint - violet
 	'#7c2d12', // hd - brown
 	'#0f766e', // include_granted_scopes - teal
@@ -388,7 +387,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					<span
 						style={{
 							background: '#dbeafe',
-							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							color: '#2563eb',
 							padding: '0.25rem 0.5rem',
 							borderRadius: '0.375rem',
 							fontSize: '0.75rem',
@@ -402,8 +401,8 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 				{isEditing && (
 					<span
 						style={{
-							background: 'V9_COLORS.BG.WARNING',
-							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+							background: '#fef3c7',
+							color: '#d97706',
 							padding: '0.25rem 0.5rem',
 							borderRadius: '0.375rem',
 							fontSize: '0.75rem',
@@ -466,7 +465,11 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 							/>
 						)}
 						<ActionButton onClick={toggleEncoding} $variant="secondary">
-							{isDecoded ? <span style={{ fontSize: '14px' }}>❓</span> : <span style={{ fontSize: '14px' }}>👁️</span>}
+							{isDecoded ? (
+								<span style={{ fontSize: '14px' }}>❓</span>
+							) : (
+								<span style={{ fontSize: '14px' }}>👁️</span>
+							)}
 							{isDecoded ? 'Encode' : 'Decode'}
 						</ActionButton>
 						{showOpenButton && (

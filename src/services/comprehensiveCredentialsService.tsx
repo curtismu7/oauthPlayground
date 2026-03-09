@@ -19,26 +19,22 @@ import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInp
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiKey': 'mdi-key',
-		'FiSettings': 'mdi-cog',
+		FiCheckCircle: 'mdi-check-circle',
+		FiKey: 'mdi-key',
+		FiSettings: 'mdi-cog',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
+
 import { CredentialsInput } from '../components/CredentialsInput';
 import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
@@ -1562,7 +1558,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									gap: '0.75rem',
 								}}
 							>
-								<MDIIcon icon="FiCheckCircle" style={{ color: '#28a745', fontSize: '1.25rem', flexShrink: 0 }} />
+								<MDIIcon
+									icon="FiCheckCircle"
+									style={{ color: '#28a745', fontSize: '1.25rem', flexShrink: 0 }}
+								/>
 								<p style={{ margin: '0', fontSize: '0.9rem', color: '#155724', fontWeight: '500' }}>
 									Worker token obtained! Select an application below to auto-fill credentials.
 								</p>
