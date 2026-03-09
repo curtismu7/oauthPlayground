@@ -232,7 +232,9 @@ export const usePreloadFlows = (flowTypes: string[]) => {
 
 // Hook for lazy loading with Suspense
 export const useLazyComponent = (flowType: string) => {
-	const [component, setComponent] = useState<React.ComponentType<Record<string, unknown>> | null>(null);
+	const [component, setComponent] = useState<React.ComponentType<Record<string, unknown>> | null>(
+		null
+	);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
 

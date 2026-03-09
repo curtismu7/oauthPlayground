@@ -1,9 +1,8 @@
-
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
 
 interface TokenDisplayProps {
 	tokens: {
@@ -52,11 +51,11 @@ const TokenHeaderMain = styled.div`
 `;
 
 const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default', string> = {
-	access: 'V9_COLORS.BG.GRAY_MEDIUM',
+	access: '#f1f5f9',
 	id: '#fefce8',
-	refresh: 'V9_COLORS.BG.SUCCESS',
-	info: 'V9_COLORS.BG.GRAY_LIGHT',
-	default: 'V9_COLORS.TEXT.WHITE',
+	refresh: '#ecfdf5',
+	info: '#f8fafc',
+	default: '#ffffff',
 };
 
 const TokenSection = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
@@ -94,15 +93,15 @@ const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info'
   background: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   color: white;
@@ -123,15 +122,15 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   color: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'id':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'refresh':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   text-transform: uppercase;
@@ -148,15 +147,15 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
     background: ${({ $type }) => {
 			switch ($type) {
 				case 'access':
-					return 'V9_COLORS.PRIMARY.BLUE';
+					return '#3b82f6';
 				case 'id':
-					return 'V9_COLORS.PRIMARY.YELLOW';
+					return '#f59e0b';
 				case 'refresh':
-					return 'V9_COLORS.PRIMARY.GREEN';
+					return '#10b981';
 				case 'info':
-					return 'V9_COLORS.PRIMARY.GREEN';
+					return '#10b981';
 				default:
-					return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+					return '#6b7280';
 			}
 		}};
     display: inline-block;
@@ -169,7 +168,7 @@ const TokenActions = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -184,7 +183,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#4b5563')};
+    background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#4b5563')};
     transform: translateY(-1px);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
   }
@@ -219,7 +218,7 @@ const TokenValue = styled.pre<{
 			case 'refresh':
 				return '#6ee7b7';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 1rem;

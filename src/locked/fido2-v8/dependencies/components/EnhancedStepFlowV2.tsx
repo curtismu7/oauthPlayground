@@ -1,9 +1,7 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import '../styles/enhanced-flow.css';
 
 // Enhanced step interface with more options
@@ -832,10 +830,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
 				onStepError?.(step.id, errorMessage);
 
-				log.error(
-					`Step failed: ${step.title}`,
-					`error: ${errorMessage}, duration: ${duration}ms`
-				);
+				log.error(`Step failed: ${step.title}`, `error: ${errorMessage}, duration: ${duration}ms`);
 			} finally {
 				setIsExecuting(false);
 			}

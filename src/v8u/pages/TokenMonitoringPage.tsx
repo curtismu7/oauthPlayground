@@ -1,7 +1,5 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
@@ -444,9 +442,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					featureCount,
 					lastApiCall: Date.now(),
 				});
-				log.debug(
-					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
-				);
+				log.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
 			} catch (enhancedErr) {
 				log.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
 					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),

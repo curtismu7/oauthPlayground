@@ -239,7 +239,10 @@ class CredentialsImportExportService {
 	/**
 	 * Create export handler function for React components
 	 */
-	createExportHandler(credentials: Record<string, unknown>, options: ImportExportOptions): () => void {
+	createExportHandler(
+		credentials: Record<string, unknown>,
+		options: ImportExportOptions
+	): () => void {
 		return () => {
 			this.exportCredentials(credentials, options);
 		};
@@ -342,7 +345,10 @@ class CredentialsImportExportService {
 		}
 
 		// Validate environmentId format if present
-		if (credentials.environmentId && !this.isValidEnvironmentId(credentials.environmentId as string)) {
+		if (
+			credentials.environmentId &&
+			!this.isValidEnvironmentId(credentials.environmentId as string)
+		) {
 			errors.push('Invalid environmentId format');
 		}
 

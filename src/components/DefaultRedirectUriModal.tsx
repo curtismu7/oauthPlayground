@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
@@ -122,7 +121,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+  background: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
   color: white;
   border: none;
   border-radius: 6px;
@@ -134,7 +133,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
   min-width: 100px;
 
   &:hover {
-    background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+    background: ${(props) => (props.copied ? '#059669' : '#2563eb')};
   }
 `;
 
@@ -300,7 +299,11 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
 						<UriDisplay>
 							{defaultRedirectUri}
 							<CopyButton copied={copied} onClick={handleCopyUri}>
-								{copied ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>📋</span>}
+								{copied ? (
+									<span style={{ fontSize: '16px' }}>✅</span>
+								) : (
+									<span style={{ fontSize: '16px' }}>📋</span>
+								)}
 								{copied ? 'Copied!' : 'Copy'}
 							</CopyButton>
 						</UriDisplay>

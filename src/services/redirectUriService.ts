@@ -83,7 +83,7 @@ class RedirectUriService {
 				'The authorization code flow is recommended for web applications with server-side backend',
 				'PKCE (Proof Key for Code Exchange) adds additional security against code interception',
 				'State parameter prevents CSRF attacks during the authorization process',
-				'The callback URL must exactly match what\'s registered in PingOne',
+				"The callback URL must exactly match what's registered in PingOne",
 			],
 		});
 
@@ -120,7 +120,7 @@ class RedirectUriService {
 					securityConsiderations: [
 						'Tokens stored in browser memory',
 						'Complete client-side token cleanup required',
-						'URL fragment doesn\'t support logout tokens',
+						"URL fragment doesn't support logout tokens",
 					],
 					bestPractices: [
 						'Clear all browser storage',
@@ -170,7 +170,7 @@ class RedirectUriService {
 					securityConsiderations: [
 						'Tokens stored in browser memory',
 						'Complete client-side token cleanup required',
-						'URL fragment doesn\'t support logout tokens',
+						"URL fragment doesn't support logout tokens",
 					],
 					bestPractices: [
 						'Clear all browser storage',
@@ -195,7 +195,8 @@ class RedirectUriService {
 				{
 					uri: 'https://localhost:3000/device-callback',
 					purpose: 'Device code polling callback',
-					description: 'Not a traditional redirect - used for completion notification and token polling',
+					description:
+						'Not a traditional redirect - used for completion notification and token polling',
 					flowType: 'Device Code Authorization',
 					securityConsiderations: [
 						'No direct redirect from PingOne authorization server',
@@ -298,7 +299,8 @@ class RedirectUriService {
 				{
 					uri: 'N/A - No redirect URI required',
 					purpose: 'Direct token exchange',
-					description: 'Client credentials flow doesn\'t use redirects - tokens obtained directly from token endpoint',
+					description:
+						"Client credentials flow doesn't use redirects - tokens obtained directly from token endpoint",
 					flowType: 'Client Credentials Token Exchange',
 					securityConsiderations: [
 						'No user interaction involved in the flow',
@@ -319,10 +321,11 @@ class RedirectUriService {
 				{
 					uri: 'N/A - No logout URI required',
 					purpose: 'Token revocation only',
-					description: 'Client credentials flow doesn\'t have user sessions to logout - focus on token management',
+					description:
+						"Client credentials flow doesn't have user sessions to logout - focus on token management",
 					flowType: 'Application Token Management',
 					securityConsiderations: [
-						'Tokens don\'t represent user sessions, so traditional logout doesn\'t apply',
+						"Tokens don't represent user sessions, so traditional logout doesn't apply",
 						'Token revocation must be handled via token endpoint or introspection',
 						'No browser session or cookies to clear',
 						'Multiple application instances may have active tokens',
@@ -412,18 +415,17 @@ class RedirectUriService {
 
 	// Get flows by type
 	public getFlowsByType(flowType: FlowUriInfo['flowType']): FlowUriInfo[] {
-		return Array.from(this.flowUriDatabase.values()).filter(
-			flow => flow.flowType === flowType
-		);
+		return Array.from(this.flowUriDatabase.values()).filter((flow) => flow.flowType === flowType);
 	}
 
 	// Search flows by name or URI
 	public searchFlows(query: string): FlowUriInfo[] {
 		const lowercaseQuery = query.toLowerCase();
-		return Array.from(this.flowUriDatabase.values()).filter(flow => 
-			flow.flowName.toLowerCase().includes(lowercaseQuery) ||
-			flow.redirectUris.some(uri => uri.uri.toLowerCase().includes(lowercaseQuery)) ||
-			flow.logoutUris.some(uri => uri.uri.toLowerCase().includes(lowercaseQuery))
+		return Array.from(this.flowUriDatabase.values()).filter(
+			(flow) =>
+				flow.flowName.toLowerCase().includes(lowercaseQuery) ||
+				flow.redirectUris.some((uri) => uri.uri.toLowerCase().includes(lowercaseQuery)) ||
+				flow.logoutUris.some((uri) => uri.uri.toLowerCase().includes(lowercaseQuery))
 		);
 	}
 
@@ -456,33 +458,41 @@ class RedirectUriService {
 ## Flow Type: ${flowInfo.flowType}
 
 ### Redirect URIs
-${flowInfo.redirectUris.map((uri, index) => `
+${flowInfo.redirectUris
+	.map(
+		(uri, index) => `
 #### ${index + 1}. ${uri.uri}
 **Purpose:** ${uri.purpose}
 **Description:** ${uri.description}
 
 **Security Considerations:**
-${uri.securityConsiderations.map(sc => `- ${sc}`).join('\n')}
+${uri.securityConsiderations.map((sc) => `- ${sc}`).join('\n')}
 
 **Best Practices:**
-${uri.bestPractices.map(bp => `- ${bp}`).join('\n')}
-`).join('\n')}
+${uri.bestPractices.map((bp) => `- ${bp}`).join('\n')}
+`
+	)
+	.join('\n')}
 
 ### Logout URIs
-${flowInfo.logoutUris.map((uri, index) => `
+${flowInfo.logoutUris
+	.map(
+		(uri, index) => `
 #### ${index + 1}. ${uri.uri}
 **Purpose:** ${uri.purpose}
 **Description:** ${uri.description}
 
 **Security Considerations:**
-${uri.securityConsiderations.map(sc => `- ${sc}`).join('\n')}
+${uri.securityConsiderations.map((sc) => `- ${sc}`).join('\n')}
 
 **Best Practices:**
-${uri.bestPractices.map(bp => `- ${bp}`).join('\n')}
-`).join('\n')}
+${uri.bestPractices.map((bp) => `- ${bp}`).join('\n')}
+`
+	)
+	.join('\n')}
 
 ### Educational Notes
-${flowInfo.educationalNotes.map(note => `- ${note}`).join('\n')}
+${flowInfo.educationalNotes.map((note) => `- ${note}`).join('\n')}
 		`.trim();
 
 		return summary;

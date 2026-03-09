@@ -1,10 +1,9 @@
 // src/components/FlowConfigurationRequirements.tsx
 // Displays PingOne application configuration requirements for each OAuth/OIDC flow
 
-
+import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiChevronDown } from '@icons';
 
 interface FlowConfigRequirement {
 	clientSecret: 'required' | 'optional' | 'not-used';
@@ -218,11 +217,7 @@ const RequirementCard = styled.div<{ $status: 'required' | 'optional' | 'not-use
 	background: white;
 	border: 1px solid
 		${({ $status }) =>
-			$status === 'required'
-				? 'V9_COLORS.PRIMARY.YELLOW'
-				: $status === 'not-used'
-					? 'V9_COLORS.PRIMARY.GREEN'
-					: 'V9_COLORS.TEXT.GRAY_MEDIUM'};
+			$status === 'required' ? '#f59e0b' : $status === 'not-used' ? '#10b981' : '#6b7280'};
 	border-radius: 0.5rem;
 	padding: 1rem;
 `;
@@ -251,17 +246,9 @@ const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }
 	text-transform: uppercase;
 	letter-spacing: 0.025em;
 	background: ${({ $status }) =>
-		$status === 'required'
-			? 'V9_COLORS.BG.WARNING'
-			: $status === 'not-used'
-				? 'V9_COLORS.BG.SUCCESS'
-				: '#f3f4f6'};
+		$status === 'required' ? '#fef3c7' : $status === 'not-used' ? '#ecfdf5' : '#f3f4f6'};
 	color: ${({ $status }) =>
-		$status === 'required'
-			? 'V9_COLORS.PRIMARY.YELLOW_DARK'
-			: $status === 'not-used'
-				? 'V9_COLORS.PRIMARY.GREEN_DARK'
-				: 'V9_COLORS.TEXT.GRAY_DARK'};
+		$status === 'required' ? '#d97706' : $status === 'not-used' ? '#059669' : '#1f2937'};
 `;
 
 const RequirementValue = styled.div`
@@ -321,9 +308,7 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 					<Title>
 						PingOne Application Configuration Requirements
 						{variant === 'oidc' && (
-							<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
-								(OIDC)
-							</span>
+							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>(OIDC)</span>
 						)}
 					</Title>
 				</HeaderLeft>

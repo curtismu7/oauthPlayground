@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
@@ -26,11 +25,11 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   background: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'online':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'offline':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
 				return '#f3f4f6';
 		}
@@ -38,13 +37,13 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'online':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'offline':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border-radius: 0.75rem;
@@ -64,13 +63,13 @@ const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'online':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'offline':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   font-size: 1.25rem;
@@ -323,7 +322,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 					<HealthMessage
 						style={{
 							fontSize: '0.75rem',
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							marginTop: '0.25rem',
 						}}
 					>

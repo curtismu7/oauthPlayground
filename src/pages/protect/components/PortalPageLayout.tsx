@@ -11,8 +11,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
+import CompanyLogoHeader from './CompanyLogoHeader';
 
 // ============================================================================
 // STYLED COMPONENTS

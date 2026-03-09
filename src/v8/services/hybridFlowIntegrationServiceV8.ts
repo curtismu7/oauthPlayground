@@ -532,7 +532,8 @@ export class HybridFlowIntegrationServiceV8 {
 			const revealableBody: Record<string, string> = {};
 			if (bodyParams.code) revealableBody['code'] = bodyParams.code;
 			if (bodyParams.code_verifier) revealableBody['code_verifier'] = bodyParams.code_verifier;
-			if (bodyParams.client_assertion) revealableBody['client_assertion'] = bodyParams.client_assertion;
+			if (bodyParams.client_assertion)
+				revealableBody['client_assertion'] = bodyParams.client_assertion;
 
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',

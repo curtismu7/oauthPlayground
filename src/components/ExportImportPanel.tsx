@@ -1,7 +1,6 @@
 // src/components/ExportImportPanel.tsx
 // Export/Import UI components for the Application Generator
 
-
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -11,8 +10,8 @@ import {
 	type ImportValidationResult,
 } from '../services/exportImportService';
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
-import { FileDropHandler, validateFile } from '../utils/fileHandling';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { FileDropHandler, validateFile } from '../utils/fileHandling';
 
 const Container = styled.div`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
@@ -147,23 +146,19 @@ const DropZone = styled.div.withConfig({
 	shouldForwardProp: (prop) => !['isDragOver', 'hasError'].includes(prop),
 })<{ isDragOver: boolean; hasError: boolean }>`
   border: 2px dashed ${({ isDragOver, hasError }) =>
-		hasError
-			? 'V9_COLORS.PRIMARY.RED'
-			: isDragOver
-				? 'V9_COLORS.PRIMARY.BLUE'
-				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#e5e7eb'};
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
   background: ${({ isDragOver, hasError }) =>
-		hasError ? 'V9_COLORS.BG.ERROR' : isDragOver ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb'};
+		hasError ? '#fef2f2' : isDragOver ? '#f8fafc' : '#f9fafb'};
   transition: all 0.2s;
   cursor: pointer;
   margin-bottom: 1rem;
 
   &:hover {
-    border-color: ${({ hasError }) => (hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
-    background: ${({ hasError }) => (hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    border-color: ${({ hasError }) => (hasError ? '#ef4444' : '#3b82f6')};
+    background: ${({ hasError }) => (hasError ? '#fef2f2' : '#f8fafc')};
   }
 
   &.drag-over {
@@ -177,7 +172,7 @@ const DropZoneIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'hasError',
 })<{ hasError: boolean }>`
   font-size: 2rem;
-  color: ${({ hasError }) => (hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${({ hasError }) => (hasError ? '#ef4444' : '#6b7280')};
   margin-bottom: 1rem;
 `;
 
@@ -443,7 +438,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 							style={{
 								marginTop: '0.75rem',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 							}}
 						>
 							{!appType && 'Select an application type to enable export'}
@@ -473,7 +468,13 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 						onClick={handleDropZoneClick}
 					>
 						<DropZoneIcon hasError={!!dropError}>
-							{isProcessing ? <div className="spinner" /> : dropError ? <span>❌</span> : <span>📤</span>}
+							{isProcessing ? (
+								<div className="spinner" />
+							) : dropError ? (
+								<span>❌</span>
+							) : (
+								<span>📤</span>
+							)}
 						</DropZoneIcon>
 
 						<DropZoneText>

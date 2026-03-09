@@ -1,9 +1,8 @@
-
+import { FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
-import { FiSettings } from '@icons';
 
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
@@ -204,10 +203,15 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 				</div>
 
 				<div className="modal-footer">
-					<button onClick={onClose} className="btn btn-secondary" disabled={isSaving}>
+					<button type="button" onClick={onClose} className="btn btn-secondary" disabled={isSaving}>
 						Close
 					</button>
-					<button onClick={handleSave} className="btn btn-primary" disabled={isSaving || isLoading}>
+					<button
+						type="button"
+						onClick={handleSave}
+						className="btn btn-primary"
+						disabled={isSaving || isLoading}
+					>
 						{isSaving ? 'Saving...' : 'Save Changes'}
 					</button>
 				</div>

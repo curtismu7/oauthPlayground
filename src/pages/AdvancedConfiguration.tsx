@@ -1,4 +1,4 @@
-
+import { FiEdit } from '@icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,7 +9,6 @@ import { logger } from '../services/loggingService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { FiEdit } from '@icons';
 
 const _Container = styled.div`
   max-width: 1200px;
@@ -53,7 +52,7 @@ const Card = styled.div`
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid #e5e7eb;
   margin-bottom: 2rem;
 `;
 
@@ -63,7 +62,7 @@ const CardHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: #1f2937;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -71,7 +70,7 @@ const CardHeader = styled.div`
   }
 
   p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
+    color: #6b7280;
     line-height: 1.6;
   }
 `;
@@ -98,13 +97,13 @@ const ScopeItem = styled.div.withConfig({
   justify-content: space-between;
   padding: 0.75rem;
   background-color: ${({ active }) => (active ? '#dbeafe' : '#f9fafb')};
-  border: 1px solid ${({ active }) => (active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${({ active }) => (active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: ${({ active }) => (active ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : '#f3f4f6')};
+    background-color: ${({ active }) => (active ? '#e5e7eb' : '#f3f4f6')};
   }
 `;
 
@@ -114,7 +113,7 @@ const ClaimItem = styled.div`
   gap: 0.75rem;
   padding: 0.75rem;
   background-color: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
 `;
@@ -122,14 +121,14 @@ const ClaimItem = styled.div`
 const ClaimInput = styled.input`
   flex: 1;
   padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid #e5e7eb;
   border-radius: 0.25rem;
   font-family: monospace;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
+    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -139,7 +138,7 @@ const AddButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: V9_COLORS.PRIMARY.BLUE;
+  background-color: #3b82f6;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -149,13 +148,13 @@ const AddButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+    background-color: #2563eb;
   }
 `;
 
 const RemoveButton = styled.button`
   padding: 0.25rem;
-  background-color: V9_COLORS.PRIMARY.RED;
+  background-color: #ef4444;
   color: white;
   border: none;
   border-radius: 0.25rem;
@@ -163,7 +162,7 @@ const RemoveButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: V9_COLORS.PRIMARY.RED_DARK;
+    background-color: #dc2626;
   }
 `;
 
@@ -172,7 +171,7 @@ const SaveButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+  background-color: #059669;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -188,11 +187,11 @@ const SaveButton = styled.button`
 
 const PreviewSection = styled(Card)`
   margin-top: 2rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
 `;
 
 const CodeBlock = styled.pre`
-  background-color: V9_COLORS.TEXT.GRAY_DARK;
+  background-color: #1f2937;
   color: #f9fafb;
   border-radius: 0.5rem;
   padding: 1.5rem;
@@ -201,7 +200,7 @@ const CodeBlock = styled.pre`
   line-height: 1.6;
   overflow-x: auto;
   margin: 1rem 0;
-  border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+  border: 1px solid #1f2937;
   position: relative;
 `;
 
@@ -232,7 +231,7 @@ const BackButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  background-color: #6b7280;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -264,21 +263,21 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
 		switch ($type) {
 			case 'warning':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          border-left-color: V9_COLORS.PRIMARY.YELLOW;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: #fef3c7;
+          border-left-color: #f59e0b;
+          color: #d97706;
         `;
 			case 'success':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          border-left-color: V9_COLORS.PRIMARY.GREEN;
-          color: V9_COLORS.PRIMARY.GREEN_DARK;
+          background-color: #ecfdf5;
+          border-left-color: #10b981;
+          color: #059669;
         `;
 			default:
 				return `
           background-color: #dbeafe;
-          border-left-color: V9_COLORS.PRIMARY.BLUE;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          border-left-color: #3b82f6;
+          color: #2563eb;
         `;
 		}
 	}}
@@ -294,21 +293,21 @@ const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missin
 		switch ($status) {
 			case 'complete':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          border-left-color: V9_COLORS.PRIMARY.GREEN;
-          color: V9_COLORS.PRIMARY.GREEN_DARK;
+          background-color: #ecfdf5;
+          border-left-color: #10b981;
+          color: #059669;
         `;
 			case 'partial':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          border-left-color: V9_COLORS.PRIMARY.YELLOW;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: #fef3c7;
+          border-left-color: #f59e0b;
+          color: #d97706;
         `;
 			case 'missing':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          border-left-color: V9_COLORS.PRIMARY.RED;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: #fef2f2;
+          border-left-color: #ef4444;
+          color: #dc2626;
         `;
 		}
 	}}
@@ -422,15 +421,15 @@ const AdvancedConfiguration = () => {
 
 	// Define scope colors for the JSON editor
 	const scopeColors = {
-		openid: 'V9_COLORS.PRIMARY.BLUE',
-		profile: 'V9_COLORS.PRIMARY.GREEN',
-		email: 'V9_COLORS.PRIMARY.YELLOW',
-		address: 'V9_COLORS.PRIMARY.RED',
-		phone: 'V9_COLORS.PRIMARY.BLUE_DARK',
+		openid: '#3b82f6',
+		profile: '#10b981',
+		email: '#f59e0b',
+		address: '#ef4444',
+		phone: '#2563eb',
 		offline_access: '#06b6d4',
 		read: '#84cc16',
 		write: '#f97316',
-		admin: 'V9_COLORS.PRIMARY.RED_DARK',
+		admin: '#dc2626',
 	};
 
 	const copyToClipboard = async (text: string, label: string) => {
@@ -625,7 +624,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									display: 'block',
 									fontWeight: '600',
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Environment ID
@@ -639,13 +638,13 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid #e5e7eb',
 									borderRadius: '6px',
 									fontSize: '0.95rem',
 									fontFamily: 'monospace',
 								}}
 							/>
-							<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.5rem' }}>
+							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
 								Your PingOne Environment ID (GUID format)
 							</p>
 						</div>
@@ -658,7 +657,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									display: 'block',
 									fontWeight: '600',
 									marginBottom: '0.5rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Default Redirect URI
@@ -672,13 +671,13 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+									border: '1px solid #e5e7eb',
 									borderRadius: '6px',
 									fontSize: '0.95rem',
 									fontFamily: 'monospace',
 								}}
 							/>
-							<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.5rem' }}>
+							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
 								Default callback URL for OAuth flows
 							</p>
 						</div>
@@ -703,7 +702,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								}}
 								style={{
 									padding: '0.75rem 1.5rem',
-									backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
+									backgroundColor: '#3b82f6',
 									color: 'white',
 									border: 'none',
 									borderRadius: '6px',
@@ -715,8 +714,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									gap: '0.5rem',
 									transition: 'background-color 0.2s',
 								}}
-								onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE_DARK')}
-								onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.BLUE')}
+								onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+								onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
 							>
 								<span>💾</span>
 								Save Defaults
@@ -726,8 +725,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								<div
 									style={{
 										padding: '0.75rem 1rem',
-										backgroundColor: 'V9_COLORS.BG.SUCCESS',
-										color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+										backgroundColor: '#ecfdf5',
+										color: '#059669',
 										borderRadius: '6px',
 										display: 'flex',
 										alignItems: 'center',
@@ -776,7 +775,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 													<div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
 														{scope.label}
 													</div>
-													<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+													<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 														{scope.description}
 													</div>
 												</div>
@@ -785,8 +784,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 														width: '20px',
 														height: '20px',
 														borderRadius: '50%',
-														border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-														backgroundColor: selectedScopes.has(scope.id) ? 'V9_COLORS.PRIMARY.BLUE' : 'white',
+														border: '2px solid #e5e7eb',
+														backgroundColor: selectedScopes.has(scope.id) ? '#3b82f6' : 'white',
 														display: 'flex',
 														alignItems: 'center',
 														justifyContent: 'center',
@@ -861,12 +860,12 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 													style={{
 														padding: '0.5rem',
 														backgroundColor: '#dbeafe',
-														border: '1px solid V9_COLORS.PRIMARY.BLUE',
+														border: '1px solid #3b82f6',
 														borderRadius: '0.25rem',
 														fontSize: '0.75rem',
 														fontFamily: 'monospace',
 														textAlign: 'center',
-														color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+														color: '#2563eb',
 													}}
 												>
 													{claim}
@@ -892,7 +891,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										</div>
 										{customClaims.map((claim, index) => (
 											<ClaimItem key={index}>
-												<FiEdit size={16} style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }} />
+												<FiEdit size={16} style={{ color: '#6b7280' }} />
 												<ClaimInput
 													placeholder="Enter custom claim (e.g., department)"
 													value={claim}
@@ -935,7 +934,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										style={{
 											fontFamily: 'monospace',
 											fontSize: '0.875rem',
-											color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+											color: '#059669',
 											backgroundColor: '#f0fdf4',
 											padding: '0.5rem',
 											borderRadius: '0.25rem',
@@ -949,7 +948,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
 										Live Configuration JSON
 									</h3>
-									<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
 										This JSON updates automatically as you modify scopes and claims. Each scope is
 										color-coded for easy identification.
 									</p>
@@ -966,7 +965,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										<span>❓</span>
 										Generated Configuration Code
 									</h3>
-									<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
 										Copy this code snippet to integrate your custom configuration into your
 										application.
 									</p>
@@ -992,7 +991,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.75rem 1.5rem',
-											backgroundColor: 'V9_COLORS.PRIMARY.RED',
+											backgroundColor: '#ef4444',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.5rem',
@@ -1001,8 +1000,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 											fontWeight: '500',
 											transition: 'background-color 0.2s',
 										}}
-										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.RED_DARK')}
-										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'V9_COLORS.PRIMARY.RED')}
+										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
+										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
 									>
 										<span>❓</span>
 										Reset to Defaults

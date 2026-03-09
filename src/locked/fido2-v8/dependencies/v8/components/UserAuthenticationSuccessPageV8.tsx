@@ -7,7 +7,6 @@
  * Shows user information and session details after OAuth login
  */
 
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';

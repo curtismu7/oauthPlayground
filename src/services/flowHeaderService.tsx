@@ -554,11 +554,67 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 	},
 	'auto-discover': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'Auto Discover',
 		subtitle:
 			'Automatically discover OpenID Connect configuration from your PingOne environment. Fetches authorization, token, userinfo, and JWKS endpoints from the .well-known/openid-configuration endpoint.',
 		icon: '🔍',
+	},
+	'advanced-security-settings': {
+		flowType: 'pingone',
+		title: 'Advanced Security Settings',
+		subtitle:
+			'Configure and manage advanced security settings for your OAuth/OIDC applications. Assess security posture, apply best-practice controls, and get actionable recommendations.',
+		icon: '🔒',
+	},
+	'advanced-security-settings-comparison': {
+		flowType: 'pingone',
+		title: 'Security Settings Comparison',
+		subtitle:
+			'Side-by-side comparison of Compact and Full Advanced Security Settings configurations. Review and contrast available security controls for your PingOne applications.',
+		icon: '🔒',
+	},
+	'credential-management': {
+		flowType: 'pingone',
+		title: 'Credential Management',
+		subtitle:
+			'Manage OAuth credentials, client IDs, secrets, and environment configurations for your PingOne playground. Store and organize credentials for multiple environments.',
+		icon: '🗝️',
+	},
+	'pingone-user-profile': {
+		flowType: 'pingone',
+		title: 'PingOne User Profile',
+		subtitle:
+			'View and manage PingOne user profile data including attributes, MFA devices, roles, groups, and identity information retrieved via the PingOne Management API.',
+		icon: '👤',
+	},
+	'pingone-identity-metrics': {
+		flowType: 'pingone',
+		title: 'PingOne Identity Metrics',
+		subtitle:
+			'Monitor identity and authentication metrics across your PingOne environment. Track user populations, MFA adoption, authentication activity, and security health indicators.',
+		icon: '📊',
+	},
+	'pingone-audit-activities': {
+		flowType: 'pingone',
+		title: 'Audit Activities',
+		subtitle:
+			'Browse and search PingOne audit log activities. Filter events by type, user, and date range to investigate authentication flows and administrative changes.',
+		icon: '📋',
+	},
+	'pingone-webhook-viewer': {
+		flowType: 'pingone',
+		title: 'PingOne Webhook Viewer',
+		subtitle:
+			'Live webhook event viewer for PingOne. Receive, inspect, and analyze webhook payloads from your PingOne environment in real time.',
+		icon: '🔔',
+	},
+	'organization-licensing': {
+		flowType: 'pingone',
+		title: 'Organization Licensing',
+		subtitle:
+			'View PingOne organization licensing details, feature entitlements, and subscription information for your environment.',
+		icon: '📄',
 	},
 	'jwks-troubleshooting': {
 		flowType: 'pingone',

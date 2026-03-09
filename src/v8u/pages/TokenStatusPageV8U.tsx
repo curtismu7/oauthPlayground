@@ -14,7 +14,6 @@
  * - Token refresh and validation
  */
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -22,7 +21,6 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
@@ -30,8 +28,8 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
 // Token monitoring interfaces
 

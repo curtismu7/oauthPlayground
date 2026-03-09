@@ -1,7 +1,6 @@
 // src/components/response-modes/ResponseModeSelector.tsx
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
@@ -196,15 +195,15 @@ const CheckboxItem = styled.label<{ $selected: boolean }>`
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white')};
+  background: ${(props) => (props.$selected ? '#f8fafc' : 'white')};
   
   &:hover {
     border-color: V9_COLORS.PRIMARY.BLUE;
-    background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : '#f9fafb')};
+    background: ${(props) => (props.$selected ? '#f8fafc' : '#f9fafb')};
   }
 `;
 
@@ -548,7 +547,11 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 					{warning && (
 						<WarningChip $level={warning.level}>
-							{warning.level === 'error' ? <span style={{ fontSize: '12px' }}>⚠️</span> : <span style={{ fontSize: '12px' }}>ℹ️</span>}
+							{warning.level === 'error' ? (
+								<span style={{ fontSize: '12px' }}>⚠️</span>
+							) : (
+								<span style={{ fontSize: '12px' }}>ℹ️</span>
+							)}
 							{warning.reason}
 						</WarningChip>
 					)}

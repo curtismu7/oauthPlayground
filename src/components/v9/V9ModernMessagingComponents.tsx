@@ -36,6 +36,7 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo, FiLoader, FiPhone } from '@icons';
 import {
 	type BannerConfig,
 	type CriticalErrorConfig,
@@ -43,29 +44,28 @@ import {
 	useModernMessaging,
 	type WaitScreenConfig,
 } from '../../services/v9/V9ModernMessagingService';
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo, FiLoader, FiPhone } from '@icons';
 
 // V9 Color Standards
 const V9_COLORS = {
-	PRIMARY_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
-	DARK_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
-	RED: 'V9_COLORS.PRIMARY.RED_DARK',
-	LIGHT_RED_BG: 'V9_COLORS.BG.ERROR',
-	LIGHT_RED_BORDER: 'V9_COLORS.BG.ERROR_BORDER',
-	ORANGE: 'V9_COLORS.PRIMARY.YELLOW',
-	LIGHT_ORANGE_BG: 'V9_COLORS.BG.WARNING',
+	PRIMARY_BLUE: '#2563eb',
+	DARK_BLUE: '#2563eb',
+	RED: '#dc2626',
+	LIGHT_RED_BG: '#fef2f2',
+	LIGHT_RED_BORDER: '#ef4444',
+	ORANGE: '#f59e0b',
+	LIGHT_ORANGE_BG: '#fef3c7',
 	LIGHT_ORANGE_BORDER: '#fed7aa',
-	GREEN: 'V9_COLORS.PRIMARY.GREEN',
+	GREEN: '#10b981',
 	LIGHT_GREEN_BG: '#f0fdf4',
-	LIGHT_GREEN_BORDER: 'V9_COLORS.BG.SUCCESS_BORDER',
-	BLUE: 'V9_COLORS.PRIMARY.BLUE',
-	LIGHT_BLUE_BG: 'V9_COLORS.BG.GRAY_LIGHT',
-	LIGHT_BLUE_BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
-	GRAY: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+	LIGHT_GREEN_BORDER: '#10b981',
+	BLUE: '#3b82f6',
+	LIGHT_BLUE_BG: '#f8fafc',
+	LIGHT_BLUE_BORDER: '#e5e7eb',
+	GRAY: '#6b7280',
 	LIGHT_GRAY_BG: '#f9fafb',
-	LIGHT_GRAY_BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
-	BLACK: 'V9_COLORS.TEXT.BLACK',
-	WHITE: 'V9_COLORS.TEXT.WHITE',
+	LIGHT_GRAY_BORDER: '#e5e7eb',
+	BLACK: '#000000',
+	WHITE: '#ffffff',
 };
 
 // Wait Screen Component

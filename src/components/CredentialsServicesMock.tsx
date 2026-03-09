@@ -7,12 +7,10 @@ import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import {
-type DiscoveryData
-,
-type DiscoveryResult
-,
+	type DiscoveryData,
+	type DiscoveryResult,
 	oidcDiscoveryService,
-} from '../services/oidcDiscoveryService'
+} from '../services/oidcDiscoveryService';
 
 const Container = styled.div`
   padding: 2rem;
@@ -50,17 +48,9 @@ const StateGrid = styled.div`
 const StateCard = styled.div<{ color: string }>`
   padding: 1rem;
   background: ${(props) =>
-		props.color === 'yellow'
-			? 'V9_COLORS.BG.WARNING'
-			: props.color === 'blue'
-				? '#dbeafe'
-				: 'V9_COLORS.BG.SUCCESS'};
+		props.color === 'yellow' ? '#fef3c7' : props.color === 'blue' ? '#dbeafe' : '#ecfdf5'};
   border: 1px solid ${(props) =>
-		props.color === 'yellow'
-			? 'V9_COLORS.PRIMARY.YELLOW'
-			: props.color === 'blue'
-				? 'V9_COLORS.PRIMARY.BLUE'
-				: 'V9_COLORS.PRIMARY.GREEN'};
+		props.color === 'yellow' ? '#f59e0b' : props.color === 'blue' ? '#3b82f6' : '#10b981'};
   border-radius: 8px;
 `;
 

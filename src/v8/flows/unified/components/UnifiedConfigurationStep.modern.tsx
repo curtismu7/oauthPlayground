@@ -12,7 +12,7 @@
  * - Simplified configuration flow
  */
 
-
+import { FiAlertCircle, FiCheck } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -25,7 +25,6 @@ import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { useFormValidation } from '@/v8/hooks/useFormValidation';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { FiAlertCircle, FiCheck } from '@icons';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIG-MODERN]';
 

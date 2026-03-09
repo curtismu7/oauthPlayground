@@ -1,7 +1,6 @@
 // src/components/RARExampleSelector.tsx
 // RAR Example Selector with pre-built templates including customer_information
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
@@ -99,14 +98,14 @@ const ViewButton = styled.button<{ active: boolean }>`
   gap: 0.5rem;
   padding: 0.5rem;
   border: none;
-  background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-  color: ${(props) => (props.active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${(props) => (props.active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.active ? 'white' : '#6b7280')};
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+    background: ${(props) => (props.active ? '#2563eb' : '#f9fafb')};
   }
 `;
 
@@ -396,7 +395,11 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 			<CollapsibleSection>
 				<CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
 					<span>More Examples</span>
-					{isExpanded ? <span style={{ fontSize: '16px' }}>⬆️</span> : <span style={{ fontSize: '16px' }}>⬇️</span>}
+					{isExpanded ? (
+						<span style={{ fontSize: '16px' }}>⬆️</span>
+					) : (
+						<span style={{ fontSize: '16px' }}>⬇️</span>
+					)}
 				</CollapsibleHeader>
 				<CollapsibleContent isOpen={isExpanded}>
 					<ExampleGrid>{exampleConfigs.slice(2).map(renderExample)}</ExampleGrid>

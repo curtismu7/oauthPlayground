@@ -1,7 +1,7 @@
 // src/v7/pages/V7MROPCV9.tsx
 /* eslint-disable no-alert */
 
-
+import { FiAlertTriangle } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
@@ -19,7 +19,6 @@ import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { FiAlertTriangle } from '@icons';
 
 type Props = {
 	oidc?: boolean;
@@ -355,7 +354,11 @@ export const V7MROPCV9: React.FC<Props> = ({
 								}}
 								type="button"
 							>
-								{showPassword ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+								{showPassword ? (
+									<span style={{ fontSize: '18px' }}>🙈</span>
+								) : (
+									<span style={{ fontSize: '18px' }}>👁️</span>
+								)}
 							</button>
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -472,7 +475,11 @@ export const V7MROPCV9: React.FC<Props> = ({
 											transition: 'all 0.2s',
 										}}
 									>
-										{copiedRequestUrl ? <span style={{ fontSize: '14px' }}>✅</span> : <span style={{ fontSize: '14px' }}>📋</span>}
+										{copiedRequestUrl ? (
+											<span style={{ fontSize: '14px' }}>✅</span>
+										) : (
+											<span style={{ fontSize: '14px' }}>📋</span>
+										)}
 										{copiedRequestUrl ? 'Copied!' : 'Copy'}
 									</button>
 								</div>
@@ -515,7 +522,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 						</div>
 					)}
 
-					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -534,14 +541,14 @@ export const V7MROPCV9: React.FC<Props> = ({
 										Inspect Access Token
 									</button>
 									{idToken && (
-										<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+										<button type="button" type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 											Inspect ID Token
 										</button>
 									)}
-									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 										<V7MInfoIcon
 											label=""

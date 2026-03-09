@@ -1,7 +1,6 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 // lint-file-disable: token-value-in-jsx
 
-
 import styled from 'styled-components';
 // import type { OAuthTokenResponse } from '../../types/storage'; // Unused
 // import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication'; // Unused
@@ -297,7 +296,7 @@ export const createCredentialsStep = (
 								background: 'none',
 								border: 'none',
 								cursor: 'pointer',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								padding: '0.25rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -305,7 +304,11 @@ export const createCredentialsStep = (
 							}}
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</button>
 					)}
 				</div>
@@ -352,7 +355,7 @@ export const createCredentialsStep = (
 				<div
 					style={{
 						fontSize: '0.75rem',
-						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						color: '#6b7280',
 						marginTop: '0.25rem',
 					}}
 				>
@@ -379,7 +382,7 @@ export const createCredentialsStep = (
 								alignItems: 'center',
 								gap: '0.5rem',
 								fontSize: '0.875rem',
-								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								color: '#6b7280',
 								cursor: 'pointer',
 							}}
 						>
@@ -416,17 +419,17 @@ export const createCredentialsStep = (
 								event.currentTarget.style.backgroundColor = '#4b5563';
 							}}
 							onBlur={(event) => {
-								event.currentTarget.style.backgroundColor = 'V9_COLORS.TEXT.GRAY_MEDIUM';
+								event.currentTarget.style.backgroundColor = '#6b7280';
 							}}
 							onMouseOver={(event) => {
 								event.currentTarget.style.backgroundColor = '#4b5563';
 							}}
 							onMouseOut={(event) => {
-								event.currentTarget.style.backgroundColor = 'V9_COLORS.TEXT.GRAY_MEDIUM';
+								event.currentTarget.style.backgroundColor = '#6b7280';
 							}}
 							style={{
 								padding: '0.5rem 1rem',
-								backgroundColor: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+								backgroundColor: '#6b7280',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -486,7 +489,7 @@ export const createPKCEStep = (
 					<h4
 						style={{
 							margin: '0 0 1rem 0',
-							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+							color: '#2563eb',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '0.5rem',
@@ -535,7 +538,7 @@ export const createPKCEStep = (
 					<div
 						style={{
 							padding: '1rem',
-							backgroundColor: 'V9_COLORS.BG.WARNING',
+							backgroundColor: '#fef3c7',
 							borderRadius: '0.5rem',
 							border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 						}}
@@ -639,7 +642,7 @@ export const createAuthUrlStep = (
 						<h4
 							style={{
 								margin: '0 0 1rem 0',
-								color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+								color: '#2563eb',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
@@ -700,7 +703,7 @@ export const createAuthUrlStep = (
 						<div
 							style={{
 								padding: '1rem',
-								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
+								backgroundColor: '#f8fafc',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.PRIMARY.BLUE',
 							}}
@@ -753,7 +756,7 @@ export const createAuthUrlStep = (
 							<CopyButton
 								onClick={() => setShowExplainer?.(true)}
 								style={{
-									background: 'V9_COLORS.PRIMARY.BLUE',
+									background: '#3b82f6',
 									marginLeft: '0.5rem',
 								}}
 							>
@@ -871,14 +874,14 @@ export const createTokenExchangeStep = (
 							<div>
 								{' '}
 								Access Token:{' '}
-								<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+								<strong style={{ color: '#2563eb' }}>
 									{tokens.access_token ? 'Received' : 'Missing'}
 								</strong>
 							</div>
 							<div>
 								{' '}
 								Refresh Token:{' '}
-								<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+								<strong style={{ color: '#2563eb' }}>
 									{tokens.refresh_token ? 'Received' : 'Missing'}
 								</strong>
 							</div>
@@ -886,7 +889,7 @@ export const createTokenExchangeStep = (
 								<div>
 									{' '}
 									ID Token:{' '}
-									<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+									<strong style={{ color: '#2563eb' }}>
 										{tokens.id_token ? 'Received' : 'Missing'}
 									</strong>
 								</div>
@@ -894,23 +897,19 @@ export const createTokenExchangeStep = (
 							<div>
 								{' '}
 								Expires In:{' '}
-								<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+								<strong style={{ color: '#2563eb' }}>
 									{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}
 								</strong>
 							</div>
 							<div>
 								{' '}
 								Token Type:{' '}
-								<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
-									{tokens.token_type || 'Bearer'}
-								</strong>
+								<strong style={{ color: '#2563eb' }}>{tokens.token_type || 'Bearer'}</strong>
 							</div>
 							<div>
 								{' '}
 								Scope:{' '}
-								<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
-									{tokens.scope || 'Not specified'}
-								</strong>
+								<strong style={{ color: '#2563eb' }}>{tokens.scope || 'Not specified'}</strong>
 							</div>
 						</div>
 						{flowVariant === 'oauth' && (
@@ -1171,7 +1170,7 @@ export const createUserAuthorizationStep = (
 							marginBottom: '1rem',
 							fontSize: '1.1rem',
 							fontWeight: '600',
-							color: 'V9_COLORS.TEXT.GRAY_DARK',
+							color: '#1f2937',
 						}}
 					>
 						Authorization Methods:
@@ -1190,7 +1189,7 @@ export const createUserAuthorizationStep = (
 								onClick={onPopupAuth}
 								disabled={!authUrl || isAuthorizing || Boolean(authCode)}
 								style={{
-									backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
+									backgroundColor: '#3b82f6',
 									opacity: !authUrl || isAuthorizing || Boolean(authCode) ? 0.5 : 1,
 									padding: '0.75rem 1.5rem',
 									borderRadius: '8px',
@@ -1206,7 +1205,7 @@ export const createUserAuthorizationStep = (
 								onClick={onRedirectAuth}
 								disabled={!authUrl || isAuthorizing || Boolean(authCode)}
 								style={{
-									backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+									backgroundColor: '#10b981',
 									opacity: !authUrl || isAuthorizing || Boolean(authCode) ? 0.5 : 1,
 									padding: '0.75rem 1.5rem',
 									borderRadius: '8px',
@@ -1227,7 +1226,7 @@ export const createUserAuthorizationStep = (
 									window.dispatchEvent(event);
 								}}
 								style={{
-									backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+									backgroundColor: '#10b981',
 									padding: '0.75rem 1.5rem',
 									borderRadius: '8px',
 									fontSize: '0.95rem',
@@ -1239,9 +1238,7 @@ export const createUserAuthorizationStep = (
 						)}
 					</div>
 
-					<div
-						style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
-					>
+					<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 						<div style={{ marginBottom: '0.5rem' }}>
 							<strong>Popup:</strong> Opens in new window, returns to this page automatically.
 						</div>
@@ -1327,7 +1324,7 @@ export const createCallbackHandlingStep = (
 
 			{onReset && (
 				<div style={{ marginTop: '1rem' }}>
-					<ActionButton onClick={onReset} style={{ backgroundColor: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+					<ActionButton onClick={onReset} style={{ backgroundColor: '#6b7280' }}>
 						<span>❓</span> Reset Flow
 					</ActionButton>
 				</div>
@@ -1492,7 +1489,7 @@ export const createTokenValidationStep = (
 						onClick={onValidateTokens}
 						disabled={isValidating}
 						style={{
-							backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+							backgroundColor: '#10b981',
 							opacity: isValidating ? 0.5 : 1,
 						}}
 					>
@@ -1565,7 +1562,7 @@ export const createRefreshTokenStep = (
 			{refreshToken && (
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid #4caf50',
 						borderRadius: '8px',
 						padding: '1rem',
@@ -1690,7 +1687,7 @@ export const createRefreshTokenStep = (
 								<div>
 									{' '}
 									New Access Token:{' '}
-									<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+									<strong style={{ color: '#2563eb' }}>
 										{newTokens.access_token ? 'Received' : 'Missing'}
 									</strong>
 								</div>
@@ -1698,7 +1695,7 @@ export const createRefreshTokenStep = (
 									<div>
 										{' '}
 										New ID Token:{' '}
-										<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+										<strong style={{ color: '#2563eb' }}>
 											{newTokens.id_token ? 'Received' : 'Missing'}
 										</strong>
 									</div>
@@ -1706,23 +1703,19 @@ export const createRefreshTokenStep = (
 								<div>
 									{' '}
 									Expires In:{' '}
-									<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+									<strong style={{ color: '#2563eb' }}>
 										{newTokens.expires_in ? `${newTokens.expires_in} seconds` : 'Unknown'}
 									</strong>
 								</div>
 								<div>
 									{' '}
 									Token Type:{' '}
-									<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
-										{newTokens.token_type || 'Bearer'}
-									</strong>
+									<strong style={{ color: '#2563eb' }}>{newTokens.token_type || 'Bearer'}</strong>
 								</div>
 								<div>
 									{' '}
 									Scope:{' '}
-									<strong style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
-										{newTokens.scope || 'Not specified'}
-									</strong>
+									<strong style={{ color: '#2563eb' }}>{newTokens.scope || 'Not specified'}</strong>
 								</div>
 							</div>
 						</div>
@@ -1731,7 +1724,7 @@ export const createRefreshTokenStep = (
 					{/* Display the new access token */}
 					<div
 						style={{
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							border: '1px solid #2196f3',
 							borderRadius: '8px',
 							padding: '1rem',
@@ -1795,7 +1788,7 @@ export const createRefreshTokenStep = (
 						style={{
 							marginTop: '1rem',
 							padding: '0.75rem',
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							borderRadius: '4px',
 							fontSize: '0.875rem',
 						}}
@@ -1810,7 +1803,7 @@ export const createRefreshTokenStep = (
 			{navigateToTokenManagement && tokens && (
 				<div
 					style={{
-						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						background: '#f8fafc',
 						border: '1px solid #9c27b0',
 						borderRadius: '8px',
 						padding: '1rem',
@@ -1842,7 +1835,7 @@ export const createRefreshTokenStep = (
 									window.dispatchEvent(event);
 								}}
 								style={{
-									backgroundColor: 'V9_COLORS.PRIMARY.GREEN',
+									backgroundColor: '#10b981',
 									padding: '0.75rem 1.5rem',
 									borderRadius: '8px',
 									fontSize: '0.95rem',
@@ -1854,9 +1847,7 @@ export const createRefreshTokenStep = (
 						)}
 					</div>
 
-					<div
-						style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}
-					>
+					<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
 						<div style={{ marginBottom: '0.5rem' }}>
 							<strong>Popup:</strong> Opens in new window, returns to this page automatically.
 						</div>

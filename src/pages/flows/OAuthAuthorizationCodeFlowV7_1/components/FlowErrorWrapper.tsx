@@ -2,9 +2,9 @@
 // V7.1 Flow Error Wrapper - Wrapper component for error boundary integration
 
 import React from 'react';
+import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
-import { logger } from '../../../../utils/logger';
 
 interface FlowErrorWrapperProps {
 	children: React.ReactNode;

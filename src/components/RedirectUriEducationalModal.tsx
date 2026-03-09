@@ -77,17 +77,17 @@ const FlowTypeBadge = styled.span<{ type: string }>`
 	background: ${(props) => {
 		switch (props.type) {
 			case 'OAuth':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'OIDC':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			case 'Hybrid':
 				return '#8b5cf6';
 			case 'Device Code':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'Client Credentials':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 	color: white;

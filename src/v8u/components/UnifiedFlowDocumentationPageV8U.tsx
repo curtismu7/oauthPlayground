@@ -7,7 +7,6 @@
  * Displays API calls, JSON bodies, and allows download as PDF/MD
  */
 
-
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -917,7 +916,11 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-											{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
+											{isExpanded ? (
+												<span style={{ fontSize: '20px' }}>⬆️</span>
+											) : (
+												<span style={{ fontSize: '20px' }}>⬇️</span>
+											)}
 										</div>
 									</button>
 
@@ -1045,7 +1048,11 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-											{isExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
+											{isExpanded ? (
+												<span style={{ fontSize: '20px' }}>⬆️</span>
+											) : (
+												<span style={{ fontSize: '20px' }}>⬇️</span>
+											)}
 										</div>
 									</button>
 

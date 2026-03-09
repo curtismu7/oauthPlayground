@@ -166,7 +166,7 @@ export const LazyLoadWrapperV8: React.FC<LazyLoadWrapperV8Props> = ({
 		<div className="lazy-load-error">
 			<div className="error-icon">⚠</div>
 			<div className="error-message">Failed to load component</div>
-			<button className="retry-button" onClick={loadComponent}>
+			<button type="button" className="retry-button" onClick={loadComponent}>
 				Retry
 			</button>
 			<style>{`

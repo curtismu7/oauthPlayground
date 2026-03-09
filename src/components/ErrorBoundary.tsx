@@ -1,4 +1,3 @@
-
 import { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import {
@@ -201,7 +200,7 @@ class ErrorBoundary extends Component<Props, State> {
 					.catch((recoveryError) => {
 						log.error('[ErrorBoundary] Recovery action failed:', {
 							action: option.action,
-							recoveryError: recoveryError as Error
+							recoveryError: recoveryError as Error,
 						});
 						// Could show additional error message here
 					});
@@ -212,7 +211,7 @@ class ErrorBoundary extends Component<Props, State> {
 		} catch (error) {
 			log.error('[ErrorBoundary] Recovery action threw error:', {
 				action: option.action,
-				error: error as Error
+				error: error as Error,
 			});
 			// Could show additional error message here
 		}
@@ -265,9 +264,7 @@ class ErrorBoundary extends Component<Props, State> {
 										key={option.id}
 										onClick={() => this.handleRecovery(option)}
 										style={{
-											background: option.primary
-												? 'V9_COLORS.PRIMARY.RED_DARK'
-												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											background: option.primary ? '#dc2626' : '#6b7280',
 											marginRight: '0.5rem',
 											marginBottom: '0.5rem',
 										}}

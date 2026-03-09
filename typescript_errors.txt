@@ -1,0 +1,13 @@
+src/pages/TokenInspector.tsx(324,58): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/WorkerTokenTester.tsx(689,13): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/WorkerTokenTester.tsx(693,12): error TS17015: Expected corresponding closing tag for JSX fragment.
+src/pages/WorkerTokenTester.tsx(693,15): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/WorkerTokenTester.tsx(694,11): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/pages/WorkerTokenTester.tsx(697,6): error TS1128: Declaration or statement expected.
+src/pages/WorkerTokenTester.tsx(700,5): error TS1128: Declaration or statement expected.
+src/pages/WorkerTokenTester.tsx(700,7): error TS1109: Expression expected.
+src/pages/WorkerTokenTester.tsx(701,4): error TS1109: Expression expected.
+src/pages/WorkerTokenTester.tsx(701,5): error TS1128: Declaration or statement expected.
+src/pages/WorkerTokenTester.tsx(709,3): error TS1128: Declaration or statement expected.
+src/pages/WorkerTokenTester.tsx(710,2): error TS1109: Expression expected.
+src/pages/WorkerTokenTester.tsx(711,1): error TS1128: Declaration or statement expected.

@@ -1,8 +1,7 @@
-
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { credentialManager } from '../utils/credentialManager';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { credentialManager } from '../utils/credentialManager';
 
 // Flow configuration mapping based on OAuth/OIDC standards
 const FLOW_FIELD_CONFIG: Record<
@@ -318,7 +317,7 @@ const StatusMessage = styled.div<{ $success?: boolean }>`
   top: 1rem;
   right: 1rem;
   padding: 0.75rem 1rem;
-  background: ${({ $success }) => ($success ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  background: ${({ $success }) => ($success ? '#10b981' : '#6b7280')};
   color: white;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -485,12 +484,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					additionalScopes: parsed.additionalScopes || '',
 				};
 			} catch (error) {
-				log.error(
-					'FlowCredentials',
-					'Failed to parse global config:',
-					undefined,
-					error as Error
-				);
+				log.error('FlowCredentials', 'Failed to parse global config:', undefined, error as Error);
 			}
 		}
 
@@ -726,7 +720,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										aria-label="Copy Client ID"
 										title="Copy Client ID"
 									>
-										{copiedField === 'Client ID' ? <span style={{ fontSize: '16px' }}>✅</span> : <span style={{ fontSize: '16px' }}>📋</span>}
+										{copiedField === 'Client ID' ? (
+											<span style={{ fontSize: '16px' }}>✅</span>
+										) : (
+											<span style={{ fontSize: '16px' }}>📋</span>
+										)}
 									</Button>
 								</div>
 							</InputContainer>
@@ -744,7 +742,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										style={{
 											backgroundColor: '#f0fdf4',
 											border: '1px solid #86efac',
-											color: 'V9_COLORS.PRIMARY.GREEN',
+											color: '#10b981',
 											fontWeight: '600',
 											cursor: 'not-allowed',
 										}}
@@ -757,7 +755,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											title="Public clients must use 'none' authentication"
 											style={{
 												backgroundColor: '#86efac',
-												color: 'V9_COLORS.PRIMARY.GREEN',
+												color: '#10b981',
 												cursor: 'not-allowed',
 											}}
 										>
@@ -768,7 +766,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.PRIMARY.GREEN',
+										color: '#10b981',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -802,7 +800,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 											title={showSecret ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+											{showSecret ? (
+												<span style={{ fontSize: '16px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16px' }}>👁️</span>
+											)}
 										</Button>
 										<Button
 											type="button"
@@ -915,7 +917,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									style={{
 										marginTop: '0.5rem',
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
 									💡 Must match your PingOne application's Token Endpoint Authentication Method
@@ -943,9 +945,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.75rem 2rem',
-								backgroundColor: hasConfigChanges
-									? 'V9_COLORS.PRIMARY.BLUE'
-									: 'V9_COLORS.TEXT.GRAY_LIGHT',
+								backgroundColor: hasConfigChanges ? '#3b82f6' : '#9ca3af',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -970,7 +970,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									gap: '0.5rem',
 									padding: '0.75rem 1.5rem',
 									backgroundColor: 'transparent',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',

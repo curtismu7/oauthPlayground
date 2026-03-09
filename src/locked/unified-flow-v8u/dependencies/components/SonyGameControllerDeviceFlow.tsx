@@ -2,12 +2,10 @@
 // Sony DualSense Game Controller Style Device Authorization Flow Interface
 // Designed to look like actual Sony PlayStation DualSense controller
 
-
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sony DualSense Controller Physical Housing - Authentic White Design

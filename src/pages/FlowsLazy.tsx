@@ -170,7 +170,14 @@ const FlowsLazy: React.FC = () => {
 	const currentFlowType = getCurrentFlowType();
 
 	// Lazy load current flow if needed
-	const { isLoading, error, progress, component: _component, loadTime, retry } = useLazyLoading({
+	const {
+		isLoading,
+		error,
+		progress,
+		component: _component,
+		loadTime,
+		retry,
+	} = useLazyLoading({
 		flowType: currentFlowType || 'authorization-code',
 		preload: false,
 		retryOnError: true,
@@ -292,21 +299,21 @@ const FlowsLazy: React.FC = () => {
 			{error && (
 				<div
 					style={{
-						background: 'V9_COLORS.BG.ERROR',
+						background: '#fef2f2',
 						border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 						borderRadius: '8px',
 						padding: '1rem',
 						marginTop: '1rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Failed to Load Flow</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>Failed to Load Flow</h4>
 					<p style={{ margin: '0 0 1rem 0', color: '#7f1d1d' }}>{error.message}</p>
 					<button
 						type="button"
 						onClick={retry}
 						style={{
 							padding: '0.5rem 1rem',
-							background: 'V9_COLORS.PRIMARY.RED_DARK',
+							background: '#dc2626',
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',

@@ -9,6 +9,7 @@ import { ThemeProvider } from 'styled-components';
 import App from './App';
 import { initDomainCache } from './services/customDomainService';
 import { EducationPreferenceService } from './services/educationPreferenceService';
+import { initRegionCache } from './services/regionService';
 import { GlobalStyle, theme } from './styles/global';
 
 // Make React available globally for vendor bundles and any scripts that might need it
@@ -68,14 +69,12 @@ console.warn = (...args) => {
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
 
-// Warm the domain cache from IndexedDB/SQLite before first render so that
-// synchronous callers like getBaseUrl() / getRedirectUriForFlow() already have
-// the correct stored domain available.
+// Warm the domain and region caches from IndexedDB/SQLite before first render.
 initDomainCache()
-	.catch(() => {
-		// Non-fatal: app still renders with the VITE_APP_DOMAIN / window.location fallback
-	})
+	.catch(() => {})
 	.finally(() => {
+		// Warm region cache in background — non-fatal if unavailable
+		void initRegionCache().catch(() => {});
 		ReactDOM.createRoot(root).render(
 			<BrowserRouter
 				future={{

@@ -1,6 +1,7 @@
 // src/components/password-reset/shared/CodeGenerator.tsx
 // Shared code generator component for password reset tabs
 
+import { FiChevronDown, FiChevronUp, FiCode, FiCopy } from '@icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
@@ -16,7 +17,6 @@ import {
 	styled,
 } from '../../../services/commonImportsService';
 import { logger } from '../../../utils/logger';
-import { FiChevronDown, FiChevronUp, FiCode, FiCopy } from '@icons';
 
 const CodeGeneratorSection = styled.div`
 	background: #F9FAFB;

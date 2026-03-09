@@ -17,22 +17,22 @@ import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
-	PRIMARY_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
-	DARK_BLUE: 'V9_COLORS.PRIMARY.BLUE_DARK',
+	PRIMARY_BLUE: '#2563eb',
+	DARK_BLUE: '#2563eb',
 	DARKEST_BLUE: '#1e3a8a',
-	LIGHT_BLUE_BG: 'V9_COLORS.BG.GRAY_LIGHT',
+	LIGHT_BLUE_BG: '#f8fafc',
 	LIGHTER_BLUE_BG: '#dbeafe',
-	RED: 'V9_COLORS.PRIMARY.RED_DARK',
-	BLACK: 'V9_COLORS.TEXT.BLACK',
-	WHITE: 'V9_COLORS.TEXT.WHITE',
-	BORDER: 'V9_COLORS.TEXT.GRAY_LIGHTER',
-	TEXT_PRIMARY: 'V9_COLORS.TEXT.GRAY_DARK',
-	TEXT_SECONDARY: 'V9_COLORS.TEXT.GRAY_MEDIUM',
-	SUCCESS: 'V9_COLORS.PRIMARY.GREEN',
-	WARNING: 'V9_COLORS.PRIMARY.YELLOW',
-	SUCCESS_BG: 'V9_COLORS.BG.SUCCESS',
-	WARNING_BG: 'V9_COLORS.BG.WARNING',
-	INFO_BG: 'V9_COLORS.BG.GRAY_LIGHT',
+	RED: '#dc2626',
+	BLACK: '#000000',
+	WHITE: '#ffffff',
+	BORDER: '#e5e7eb',
+	TEXT_PRIMARY: '#1f2937',
+	TEXT_SECONDARY: '#6b7280',
+	SUCCESS: '#10b981',
+	WARNING: '#f59e0b',
+	SUCCESS_BG: '#ecfdf5',
+	WARNING_BG: '#fef3c7',
+	INFO_BG: '#f8fafc',
 };
 
 // Styled Components with V9 Colors
@@ -456,7 +456,9 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 							transform: expandedSections.configuration ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					>🔽</span>
+					>
+						🔽
+					</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.configuration}>
 					<CompactAppPickerV8U
@@ -524,15 +526,15 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					$expanded={true}
 					onClick={() => toggleSection('execution')}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						🎯 Execution
-					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>🎯 Execution</div>
 					<span
 						style={{
 							transform: expandedSections.execution ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					>🔽</span>
+					>
+						🔽
+					</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.execution}>
 					<StepIndicator>
@@ -582,7 +584,9 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 							transform: expandedSections.results ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s',
 						}}
-					>🔽</span>
+					>
+						🔽
+					</span>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.results}>
 					{hasTokens ? (
@@ -629,7 +633,9 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 							transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
 							transition: 'transform 0.2s',
 						}}
-					>🔽</span>
+					>
+						🔽
+					</span>
 				</SectionHeader>
 				<SectionContent $show={!isWorkerTokenStatusCollapsed}>
 					<WorkerTokenStatusDisplayV8

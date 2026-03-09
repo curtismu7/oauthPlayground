@@ -1,6 +1,5 @@
 // src/components/EnhancedFlowInfoCard.tsx - Enhanced flow information card with comprehensive details
 
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
@@ -82,15 +81,15 @@ const Badge = styled.span<{ $category: string }>`
 	background: ${({ $category }) => {
 		switch ($category) {
 			case 'Standard':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'Experimental':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'Deprecated':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'PingOne':
 				return '#8b5cf6';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -465,15 +464,13 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 										<div
 											style={{
 												fontWeight: '600',
-												color: 'V9_COLORS.PRIMARY.RED',
+												color: '#ef4444',
 												marginBottom: '0.25rem',
 											}}
 										>
 											Issue: {issue.issue}
 										</div>
-										<div style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
-											Solution: {issue.solution}
-										</div>
+										<div style={{ color: '#10b981' }}>Solution: {issue.solution}</div>
 									</div>
 								))}
 							</SectionContent>

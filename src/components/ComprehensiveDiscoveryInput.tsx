@@ -11,7 +11,7 @@
  * - Generic OIDC provider URLs
  */
 
-
+import { FiSearch } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -20,10 +20,9 @@ import {
 } from '../services/comprehensiveDiscoveryService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import {
-discoveryPersistenceService,
+	discoveryPersistenceService,
 	PersistedDiscoveryData,
-} from '../services/discoveryPersistenceService'
-import { FiSearch } from '@icons';
+} from '../services/discoveryPersistenceService';
 
 interface ComprehensiveDiscoveryInputProps {
 	onDiscoveryComplete: (result: DiscoveryResult) => void;
@@ -400,7 +399,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [showResults, setShowResults] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const [patienceMessage, setPatienceMessage] = useState('');
-	const [patienceColor, setPatienceColor] = useState('V9_COLORS.TEXT.GRAY_MEDIUM');
+	const [patienceColor, setPatienceColor] = useState('#6b7280');
 	const [lastEnvironmentId, setLastEnvironmentId] = useState<string | null>(null);
 
 	// Patience messages with different colors
@@ -408,12 +407,12 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 		() => [
 			{
 				text: 'Please be patient, discovering OIDC configuration...',
-				color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+				color: '#6b7280',
 			},
-			{ text: 'Still working, fetching endpoints from server...', color: 'V9_COLORS.PRIMARY.BLUE' },
-			{ text: 'Almost there, validating configuration...', color: 'V9_COLORS.PRIMARY.GREEN' },
+			{ text: 'Still working, fetching endpoints from server...', color: '#3b82f6' },
+			{ text: 'Almost there, validating configuration...', color: '#10b981' },
 			{ text: 'Finalizing discovery configuration...', color: '#8b5cf6' },
-			{ text: 'Processing OIDC metadata...', color: 'V9_COLORS.PRIMARY.RED' },
+			{ text: 'Processing OIDC metadata...', color: '#ef4444' },
 			{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
 			{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
 			{ text: 'Loading token configuration...', color: '#84cc16' },
@@ -605,7 +604,13 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 			{status && (
 				<StatusMessage $type={status.type}>
-					{status.type === 'success' ? <span>✅</span> : status.type === 'error' ? <span>❌</span> : <span>ℹ️</span>}
+					{status.type === 'success' ? (
+						<span>✅</span>
+					) : status.type === 'error' ? (
+						<span>❌</span>
+					) : (
+						<span>ℹ️</span>
+					)}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -660,10 +665,14 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			{discoveryResult?.success && discoveryResult.document && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
-						{showResults ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+						{showResults ? (
+							<span style={{ fontSize: '16px' }}>🙈</span>
+						) : (
+							<span style={{ fontSize: '16px' }}>👁️</span>
+						)}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>
-					<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+					<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 						Click to {showResults ? 'hide' : 'show'} discovered endpoints
 					</span>
 				</ResultsToggleContainer>
