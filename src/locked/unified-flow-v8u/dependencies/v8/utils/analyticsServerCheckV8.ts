@@ -10,6 +10,7 @@
 const CHECK_TIMEOUT = 100; // 100ms timeout for availability check
 const CACHE_DURATION = 300000; // Cache result for 5 minutes (reduce check frequency)
 const FAILED_CACHE_DURATION = 600000; // Cache failure for 10 minutes (once it fails, don't check often)
+const ANALYTICS_SERVER_URL = 'http://localhost:4000/analytics';
 
 let serverAvailable: boolean | null = null;
 let lastCheckTime: number = 0;
@@ -80,17 +81,14 @@ export async function safeAnalyticsFetch(_data: Record<string, unknown>): Promis
 	}
 
 	try {
+		await fetch(ANALYTICS_SERVER_URL, {
 			method: 'POST',
-			headers: 'Content-Type': 'application/json' ,
-			body: JSON.stringify(data),
-		}
-	).catch(() => )
-}
-catch
-{
-	// Silently ignore all errors
-}
-}
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(_data),
+		});
+	} catch {
+		// Silently ignore all errors
+	}
 
 /**
  * Reset cache (useful for testing or manual refresh)
