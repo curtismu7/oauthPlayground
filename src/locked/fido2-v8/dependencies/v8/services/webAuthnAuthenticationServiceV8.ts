@@ -10,7 +10,7 @@
  */
 
 import { FIDO2Service } from '@/services/fido2Service';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[🔐 WEBAUTHN-AUTHN-SERVICE-V8]';

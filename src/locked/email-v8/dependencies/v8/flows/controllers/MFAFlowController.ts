@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { logger } from '../../../../../utils/logger';
+import { logger } from '../../../../../../utils/logger';
 import type { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
 import { MfaAuthenticationServiceV8 } from '../../services/mfaAuthenticationServiceV8.ts';
 import { MFAServiceV8, type RegisterDeviceParams } from '../../services/mfaServiceV8.ts';

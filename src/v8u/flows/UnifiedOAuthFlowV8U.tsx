@@ -11,7 +11,7 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
@@ -59,7 +59,8 @@ import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '../components/SecurityScorecard';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
-import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
+// Lazy load the heavy UnifiedFlowSteps component
+const UnifiedFlowSteps = lazy(() => import('../components/UnifiedFlowSteps'));
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
@@ -2859,51 +2860,50 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			{/* Unified Flow Steps - Blocked if compliance errors exist */}
 			{complianceErrors.length === 0 && (
-				<UnifiedFlowSteps
-					specVersion={specVersion}
-					flowType={effectiveFlowType}
-					credentials={credentials}
-					onCredentialsChange={handleCredentialsChange}
-					appConfig={appConfig ?? undefined}
-					onFlowReset={() => {
-						// Flow reset - preserve credentials, spec version, and flow type
-						logger.debug(
-							`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
-							{
+				<Suspense fallback={<div>Loading flow steps...</div>}>
+					<UnifiedFlowSteps
+						specVersion={specVersion}
+						flowType={effectiveFlowType}
+						credentials={credentials}
+						onCredentialsChange={handleCredentialsChange}
+						appConfig={appConfig ?? undefined}
+						onFlowReset={() => {
+							// Flow reset - preserve credentials, spec version, and flow type
+							logger.debug(
+								`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
+								{
+									specVersion,
+									flowType: effectiveFlowType,
+								},
+							);
+
+							// Reload credentials from storage to ensure fresh state
+							reloadCredentials(flowKey)
+								.then((reloaded) => {
+									logger.debug(`✅ Credentials reloaded after flow reset`, {
+										flowKey,
+										hasClientId: !!reloaded.clientId,
+										hasEnvironmentId: !!reloaded.environmentId,
+									});
+									setCredentials(reloaded);
+								})
+								.catch((error) => {
+									logger.error(`❌ Error reloading credentials after reset`, {
+										flowKey,
+										error,
+									});
+									// Fall back to current credentials if reload fails
+								});
+
+							// Spec version and flow type are already preserved in React state
+							// No need to do anything - they will remain as-is
+							logger.debug(`✅ Flow reset complete - spec version and flow type preserved`, {
 								specVersion,
 								flowType: effectiveFlowType,
-								flowKey,
-							}
-						);
-
-						// Use standardized credential reload service (now async)
-						reloadCredentialsAfterReset(flowKey)
-							.then((reloaded) => {
-								logger.debug(`✅ Credentials reloaded after reset`, {
-									flowKey,
-									hasRedirectUri: !!reloaded.redirectUri,
-									redirectUri: reloaded.redirectUri,
-									hasClientAuthMethod: !!reloaded.clientAuthMethod,
-									clientAuthMethod: reloaded.clientAuthMethod,
-								});
-								setCredentials(reloaded);
-							})
-							.catch((error) => {
-								logger.error(`❌ Error reloading credentials after reset`, {
-									flowKey,
-									error,
-								});
-								// Fall back to current credentials if reload fails
 							});
-
-						// Spec version and flow type are already preserved in React state
-						// No need to do anything - they will remain as-is
-						logger.debug(`✅ Flow reset complete - spec version and flow type preserved`, {
-							specVersion,
-							flowType: effectiveFlowType,
-						});
-					}}
-				/>
+						}}
+					/>
+				</Suspense>
 			)}
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}

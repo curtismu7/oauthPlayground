@@ -153,8 +153,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 							<div className="form-section">
 								<h4>Pairing</h4>
 								<div className="form-group">
-									<label>Max Allowed Devices</label>
+									<label htmlFor="max-allowed-devices">Max Allowed Devices</label>
 									<input
+										id="max-allowed-devices"
 										type="number"
 										value={settings.pairing?.maxAllowedDevices ?? ''}
 										onChange={(e) =>
@@ -169,8 +170,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 									/>
 								</div>
 								<div className="form-group">
-									<label>Pairing Key Format</label>
+									<label htmlFor="pairing-key-format">Pairing Key Format</label>
 									<select
+										id="pairing-key-format"
 										value={settings.pairing?.pairingKeyFormat || 'NUMERIC'}
 										onChange={(e) =>
 											setSettings({
@@ -192,8 +194,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 							<div className="form-section">
 								<h4>Lockout</h4>
 								<div className="form-group">
-									<label>Failure Count</label>
+									<label htmlFor="failure-count">Failure Count</label>
 									<input
+										id="failure-count"
 										type="number"
 										value={settings.lockout?.failureCount ?? ''}
 										onChange={(e) =>
@@ -208,8 +211,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 									/>
 								</div>
 								<div className="form-group">
-									<label>Duration (Seconds)</label>
+									<label htmlFor="duration-seconds">Duration (Seconds)</label>
 									<input
+										id="duration-seconds"
 										type="number"
 										value={settings.lockout?.durationSeconds ?? ''}
 										onChange={(e) =>

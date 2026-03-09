@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { callbackUriService } from '../services/callbackUriService';
 
 interface LogoutUriInfoPanelProps {

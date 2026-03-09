@@ -12,7 +12,7 @@
  * - Complete isolation by default
  */
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 export interface FlowCredentialConfig {

@@ -13,7 +13,7 @@ import {
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
 export type NotificationActionVariant = 'primary' | 'secondary';
 

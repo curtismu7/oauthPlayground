@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,

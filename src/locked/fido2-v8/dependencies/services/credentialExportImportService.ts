@@ -1,5 +1,5 @@
 // src/services/credentialExportImportService.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // Service for exporting and importing credentials
 
 export interface AuthzCredentials {

@@ -1,5 +1,5 @@
 // Enhanced logging utility for OAuth Playground
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 // Define specific data types for different logging contexts
 type LogData =

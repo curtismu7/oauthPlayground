@@ -6,7 +6,7 @@ src_root = "/Users/cmuir/P1Import-apps/oauth-playground/src"
 
 fixed = 0
 for dirpath, dirs, filenames in os.walk(src_root):
-    dirs[:] = [d for d in dirs if d not in ('locked', 'lockdown', 'node_modules')]
+    dirs[:] = [d for d in dirs if d not in ('node_modules')]
 
     for fname in filenames:
         if not (fname.endswith('.ts') or fname.endswith('.tsx')):

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { APP_VERSION } from '../version';
 
 // Define the schema for environment variables

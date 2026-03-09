@@ -43,7 +43,7 @@ import {
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
@@ -1685,20 +1685,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Get API documentation URL for the current flow type
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
-		// #region agent log
-		import('@/v8/utils/analyticsV8')
-			.then(({ analytics }) => {
-				analytics.log({
-					location: 'UnifiedOAuthFlowV8U.tsx:1103',
-					message: 'Generating PingOne API documentation URL',
-					data: { flowType: flow, baseUrl },
-					sessionId: 'debug-session',
-					runId: 'run2',
-					hypothesisId: 'A',
-				});
-			})
-			.catch(() => {});
-		// #endregion
 
 		let url: string;
 		switch (flow) {
@@ -1721,20 +1707,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				url = baseUrl;
 		}
 
-		// #region agent log
-		import('@/v8/utils/analyticsV8')
-			.then(({ analytics }) => {
-				analytics.log({
-					location: 'UnifiedOAuthFlowV8U.tsx:1125',
-					message: 'Generated PingOne API documentation URL',
-					data: { flowType: flow, url, hasAnchor: url.includes('#') },
-					sessionId: 'debug-session',
-					runId: 'run2',
-					hypothesisId: 'A',
-				});
-			})
-			.catch(() => {});
-		// #endregion
 
 		return url;
 	};
@@ -2001,31 +1973,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{/* OAuth/OIDC Specification Links */}
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
-						// #region agent log
-						import('@/v8/utils/analyticsV8')
-							.then(({ analytics }) => {
-								analytics.log({
-									location: 'UnifiedOAuthFlowV8U.tsx:1369',
-									message: 'Generating specification URLs',
-									data: {
-										specVersion,
-										flowType: effectiveFlowType,
-										primaryUrl: specUrls.primary,
-										primaryLabel: specUrls.primaryLabel,
-										allSpecsCount: specUrls.allSpecs.length,
-										allSpecs: specUrls.allSpecs.map((s) => ({
-											label: s.label,
-											url: s.url,
-											isPrimary: s.isPrimary,
-										})),
-									},
-									sessionId: 'debug-session',
-									runId: 'run2',
-									hypothesisId: 'B',
-								});
-							})
-							.catch(() => {});
-						// #endregion
 						return (
 							<div
 								style={{

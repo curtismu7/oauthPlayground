@@ -1,5 +1,5 @@
 // src/services/oidcDiscoveryService.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * OIDC Discovery Service
  *

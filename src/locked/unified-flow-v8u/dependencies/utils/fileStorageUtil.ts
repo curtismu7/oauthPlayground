@@ -54,7 +54,7 @@ export class FileStorageUtil {
 			/*
 			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
 			
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 			try {
 				const response = await fetch(`${backendUrl}/api/credentials/save`, {
 					method: 'POST',

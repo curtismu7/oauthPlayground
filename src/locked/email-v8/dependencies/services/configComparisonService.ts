@@ -1,7 +1,7 @@
 // src/services/configComparisonService.ts
 // PingOne Configuration Comparison Service for diffing form data against live applications
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { createPingOneClient } from '../utils/apiClient';
 export interface ConfigDiffResult {
 	hasDiffs: boolean;

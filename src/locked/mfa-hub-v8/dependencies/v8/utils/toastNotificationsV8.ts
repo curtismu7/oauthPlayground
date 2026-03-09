@@ -26,7 +26,7 @@
 
 import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 /**
  * V8 Toast Notification Service
  * Wrapper around v4ToastManager for consistent V8 messaging

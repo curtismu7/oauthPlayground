@@ -12,7 +12,7 @@ import {
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 const MODULE_TAG = '[🔄 FLOW-TYPE-SELECTOR-V8U]';
 

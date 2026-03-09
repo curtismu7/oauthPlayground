@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { UnifiedDocumentationModalV8U } from '../../dependencies/v8u/components/UnifiedDocumentationModalV8U';
 import { PKCEStorageServiceV8U } from '../../dependencies/v8u/services/pkceStorageServiceV8U';
 

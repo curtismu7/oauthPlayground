@@ -11,7 +11,7 @@ import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 interface FIDODeviceExistsModalV8Props {
 	isOpen: boolean;

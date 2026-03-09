@@ -16112,7 +16112,8 @@ app.post('/api/pingone/email-mfa-signon/create-email-mfa-action', async (req, re
 )
 
 // Step 7: Assign Sign-On Policy to Application
-app.post('/api/pingone/email-mfa-signon/assign-signon-policy', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/assign-signon-policy', async (req, res) =>
+{
 	try {
 		const { environmentId, applicationId, signOnPolicyId, workerToken } = req.body;
 
@@ -16150,10 +16151,12 @@ app.post('/api/pingone/email-mfa-signon/assign-signon-policy', async (req, res) 
 		logger.error('[📧 EMAIL-MFA-SIGNON] Error assigning sign-on policy:', error);
 		res.status(500).json({ error: 'Failed to assign sign-on policy', message: error.message });
 	}
-});
+}
+)
 
 // Step 8: Create Population
-app.post('/api/pingone/email-mfa-signon/create-population', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-population', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, name, description } = req.body;
 
@@ -16192,10 +16195,12 @@ app.post('/api/pingone/email-mfa-signon/create-population', async (req, res) => 
 		logger.error('[📧 EMAIL-MFA-SIGNON] Error creating population:', error);
 		res.status(500).json({ error: 'Failed to create population', message: error.message });
 	}
-});
+}
+)
 
 // Step 9: Create User
-app.post('/api/pingone/email-mfa-signon/create-user', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-user', async (req, res) =>
+{
 	try {
 		const { environmentId, populationId, workerToken, username, email, givenName, familyName } =
 			req.body;
@@ -16237,10 +16242,12 @@ app.post('/api/pingone/email-mfa-signon/create-user', async (req, res) => {
 		logger.error('[📧 EMAIL-MFA-SIGNON] Error creating user:', error);
 		res.status(500).json({ error: 'Failed to create user', message: error.message });
 	}
-});
+}
+)
 
 // Step 10: Set User Password
-app.post('/api/pingone/email-mfa-signon/set-user-password', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/set-user-password', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken, password, forceChange } = req.body;
 
@@ -16279,7 +16286,8 @@ app.post('/api/pingone/email-mfa-signon/set-user-password', async (req, res) => 
 		logger.error('[📧 EMAIL-MFA-SIGNON] Error setting user password:', error);
 		res.status(500).json({ error: 'Failed to set user password', message: error.message });
 	}
-});
+}
+)
 
 // Step 11: Enable MFA for User
 app.post('/api/pingone/email-mfa-signon/enable-mfa', async (req, res) => {

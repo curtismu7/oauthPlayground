@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file mfaFlowCleanupV8.ts
  * @module v8/utils
  * @description Cleanup utilities for MFA flows when navigating away

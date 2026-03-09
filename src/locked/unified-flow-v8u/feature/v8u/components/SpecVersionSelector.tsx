@@ -10,7 +10,7 @@ import { FiHelpCircle } from '@icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
 

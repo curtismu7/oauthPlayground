@@ -20,7 +20,7 @@ import { FiArrowRight } from '@icons';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay.tsx';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector.tsx';
 import DynamicDeviceFlow from '../../components/DynamicDeviceFlow.tsx';

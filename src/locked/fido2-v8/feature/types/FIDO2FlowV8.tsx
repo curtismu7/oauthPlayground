@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { FIDODeviceExistsModalV8 } from '../../dependencies/v8/components/FIDODeviceExistsModalV8.tsx';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';

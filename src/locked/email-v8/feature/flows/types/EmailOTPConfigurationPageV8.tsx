@@ -13,7 +13,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { MFANavigationV8 } from '../../../dependencies/v8/components/MFANavigationV8.tsx';
 import { SuperSimpleApiDisplayV8 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';

@@ -9,7 +9,7 @@
  * This controller reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import { logger } from '../../../../../utils/logger';
+import { logger } from '../../../../../../utils/logger';
 import type { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
 import type { RegisterDeviceParams } from '../../services/mfaServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServiceV8.ts';

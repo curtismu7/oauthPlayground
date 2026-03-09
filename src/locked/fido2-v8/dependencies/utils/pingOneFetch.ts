@@ -7,7 +7,7 @@
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
@@ -200,33 +200,6 @@ export async function pingOneFetch(
 	while (attempt < maxAttempts) {
 		attempt += 1;
 
-		// #region agent log - Debug instrumentation before fetch
-		try {
-				method: 'POST',
-				headers: 'Content-Type': 'application/json' ,
-				body: JSON.stringify(
-					location: 'pingOneFetch.ts:198-BEFORE-FETCH',
-					message: 'About to call fetch in pingOneFetch',
-					data: 
-						attempt,
-						maxAttempts,
-						url:
-							typeof input === 'string'
-								? input
-								: input instanceof URL
-									? input.toString()
-									: 'Request object',
-						method: init.method || 'GET',
-						timestamp: Date.now(),,
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'request-hang',
-					hypothesisId: 'BEFORE-FETCH',),
-			}
-		).catch(() => )
-	}
-	catch (_e)
-	// #endregion
 
 	try {
 		const _response = await fetch(input, {
@@ -234,27 +207,6 @@ export async function pingOneFetch(
 			headers,
 		});
 
-		// #region agent log - Debug instrumentation after fetch
-		try {
-					method: 'POST',
-					headers: 'Content-Type': 'application/json' ,
-					body: JSON.stringify(
-						location: 'pingOneFetch.ts:198-AFTER-FETCH',
-						message: 'Fetch completed in pingOneFetch',
-						data: 
-							attempt,
-							status: response.status,
-							statusText: response.statusText,
-							ok: response.ok,
-							timestamp: Date.now(),,
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'AFTER-FETCH',),
-				}
-		).catch(() => )
-	} catch (_e) {}
-	// #endregion
 
 	if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
 		await logBackendPingOneCalls(response);

@@ -1,6 +1,6 @@
 // src/services/FlowInfoService.ts - Comprehensive flow information service for V5 flows
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { FlowInfo } from '../components/FlowInfoCard';
 export interface DetailedFlowInfo extends FlowInfo {
 	// Enhanced flow information with additional details

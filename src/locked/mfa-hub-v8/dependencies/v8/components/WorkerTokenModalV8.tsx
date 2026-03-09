@@ -17,7 +17,7 @@ import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayServic
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { MFAConfigurationServiceV8 } from '../services/mfaConfigurationServiceV8.ts';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';

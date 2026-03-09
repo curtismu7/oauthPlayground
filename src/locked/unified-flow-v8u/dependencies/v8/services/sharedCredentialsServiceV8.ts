@@ -17,7 +17,7 @@
  * Uses dual storage: browser storage first, then disk fallback.
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { DualStorageServiceV8 } from './dualStorageServiceV8';
 
 const MODULE_TAG = '[🔗 SHARED-CREDENTIALS-V8]';

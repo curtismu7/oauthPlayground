@@ -11,7 +11,7 @@
 import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import {
 	type DocumentationApiCall,
 	downloadAsMarkdown,

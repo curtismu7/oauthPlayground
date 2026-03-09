@@ -1,5 +1,5 @@
 // src/services/tokenDisplayService.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 /**
  * Token Display Service

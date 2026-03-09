@@ -9,7 +9,7 @@
  * for V8U flows. All API calls use real PingOne endpoints.
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { ResponseMode } from '../../services/responseModeService.ts';
 import {
 	type ClientCredentialsCredentials,

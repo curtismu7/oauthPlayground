@@ -21,6 +21,18 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 	onClose,
 	onGetToken,
 }) => {
+	// Handle ESC key
+	React.useEffect(() => {
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && isOpen) {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	if (!isOpen) return null;
 
 	const handleGetToken = () => {
@@ -31,18 +43,6 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 	const handleCancel = () => {
 		onClose();
 	};
-
-	// Handle ESC key
-	React.useEffect(() => {
-		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && isOpen) {
-				handleCancel();
-			}
-		};
-
-		window.addEventListener('keydown', handleEscape);
-		return () => window.removeEventListener('keydown', handleEscape);
-	}, [isOpen, handleCancel]);
 
 	return (
 		<>

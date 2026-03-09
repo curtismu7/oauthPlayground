@@ -11,7 +11,7 @@
  * - Dependency injection support
  */
 
-import { logger } from '../../../../../utils/logger';
+import { logger } from '../../../../../../utils/logger';
 import { EmailFlowController } from '../controllers/EmailFlowController';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import type { FlowControllerCallbacks } from '../controllers/MFAFlowController';

@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { CopyButtonService } from '../../services/copyButtonService';
 
 // Types

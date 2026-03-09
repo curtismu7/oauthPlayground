@@ -14,7 +14,7 @@
 import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { MFANavigationV8 } from '../../dependencies/v8/components/MFANavigationV8.tsx';

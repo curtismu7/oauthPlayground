@@ -31,9 +31,8 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
-import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -667,44 +666,10 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'mfaServiceV8.ts:626',
-				message: 'registerDevice entry',
-				data: {
-					tokenType: (params as { tokenType?: string }).tokenType,
-					hasUserToken: !!(params as { userToken?: string }).userToken,
-					username: params.username,
-					deviceType: params.type,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'pre-fix',
-				hypothesisId: 'A',
-			});
-			// #endregion
-
 			// CRITICAL FIX: Device registration should ALWAYS use worker tokens, regardless of flow type
 			// The user login (OAuth flow) is only for authentication - the API calls must use worker tokens
 			// This ensures device registration works correctly for both admin and user flows
 			const accessToken = await MFAServiceV8.getWorkerToken();
-
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'mfaServiceV8.ts:632',
-				message: 'registerDevice using worker token',
-				data: {
-					hasAccessToken: !!accessToken,
-					accessTokenLength: accessToken?.length,
-					username: params.username,
-					deviceType: params.type,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'pre-fix',
-				hypothesisId: 'A',
-			});
-			// #endregion
 
 			// NOTE: User token scope validation removed - device registration always uses worker tokens
 			// The user login (OAuth flow) is only for authentication purposes

@@ -3,7 +3,7 @@
 import { FiInfo, FiSave } from '@icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 export interface PingOneApplicationState {

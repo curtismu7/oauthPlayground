@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { AppDiscoveryServiceV8 } from '../services/appDiscoveryServiceV8.ts';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8.ts';

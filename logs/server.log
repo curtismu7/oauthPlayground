@@ -66,3 +66,53 @@ Node.js v22.16.0
 [2026-03-09T12:44:53.302Z] [03/09/2026, 07:44:53] [ℹ️ LOG] [2026-03-09T12:44:53.302Z] INFO  [💾 USER-DB] Tables created successfully
 [2026-03-09T12:44:53.302Z] [03/09/2026, 07:44:53] [ℹ️ LOG] [2026-03-09T12:44:53.302Z] INFO  [💾 USER-DB] Indexes created successfully
 [2026-03-09T12:44:53.302Z] [03/09/2026, 07:44:53] [ℹ️ LOG] [2026-03-09T12:44:53.302Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T12:45:00.836Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T12:45:00.850Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T12:45:00.850Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T12:45:00.850Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T12:45:00.850Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T12:45:00.850Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T12:45:00.857Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T12:45:00.884Z] [03/09/2026, 07:45:00] [ℹ️ LOG] [2026-03-09T12:45:00.884Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T12:45:00.896Z] [03/09/2026, 07:45:00] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T12:45:01.319Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T12:45:01.320Z] [03/09/2026, 07:45:01] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T12:45:01.322Z] [03/09/2026, 07:45:01] [ℹ️ LOG] [2026-03-09T12:45:01.322Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-09T12:45:01.322Z] [03/09/2026, 07:45:01] [ℹ️ LOG] [2026-03-09T12:45:01.322Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T12:45:01.323Z] [03/09/2026, 07:45:01] [ℹ️ LOG] [2026-03-09T12:45:01.323Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-09T12:45:01.323Z] [03/09/2026, 07:45:01] [ℹ️ LOG] [2026-03-09T12:45:01.323Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-09T12:45:01.323Z] [03/09/2026, 07:45:01] [ℹ️ LOG] [2026-03-09T12:45:01.323Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T12:45:18.814Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-09T12:45:18.829Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-09T12:45:18.829Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-09T12:45:18.829Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-09T12:45:18.829Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-09T12:45:18.830Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-09T12:45:18.831Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-09T12:45:18.833Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.832Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-09T12:45:18.836Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-09T12:45:18.861Z] [03/09/2026, 07:45:18] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2026-03-09T12:45:18.860Z] [03/09/2026, 07:45:18] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-09T12:45:18.863Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.863Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-09T12:45:18.863Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.863Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-09T12:45:18.864Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.864Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-09T12:45:18.864Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.864Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-09T12:45:18.864Z] [03/09/2026, 07:45:18] [ℹ️ LOG] [2026-03-09T12:45:18.864Z] INFO  [💾 USER-DB] Indexes created successfully

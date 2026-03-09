@@ -16,7 +16,7 @@
  * // Returns: ['code', 'code id_token']
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
 const MODULE_TAG = '[📋 RESPONSE-TYPE-V8]';

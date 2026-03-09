@@ -4,7 +4,7 @@
 import { FiCheckCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 
 interface WorkerTokenDetectedBannerProps {

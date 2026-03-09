@@ -1,5 +1,5 @@
 // src/services/pingOneLogoutService.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // Reusable helper to initiate PingOne logout flows across the application
 
 import SessionTerminationService, {

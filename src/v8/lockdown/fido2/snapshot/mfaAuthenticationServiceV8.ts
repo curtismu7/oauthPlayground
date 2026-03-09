@@ -23,7 +23,7 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';

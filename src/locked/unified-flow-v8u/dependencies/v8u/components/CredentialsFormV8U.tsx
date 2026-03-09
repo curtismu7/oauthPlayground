@@ -25,7 +25,7 @@
 
 import { FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { DraggableModal } from '../../components/DraggableModal.tsx';
 import { JWTConfigV8 } from '../../components/JWTConfigV8.tsx';
 import type { ResponseMode } from '../../services/responseModeService.ts';

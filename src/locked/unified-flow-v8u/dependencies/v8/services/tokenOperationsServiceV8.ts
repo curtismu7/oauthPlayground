@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file tokenOperationsServiceV8.ts
  * @module v8/services
  * @description Service to determine which token operations are allowed for each flow

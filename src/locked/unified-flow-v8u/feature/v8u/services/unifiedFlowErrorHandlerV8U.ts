@@ -20,7 +20,7 @@ const toastV8 = {
 	error: (message: string) => logger.info(`[UnifiedFlowErrorHandlerV8U] ERROR: ${message}`),
 };
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';

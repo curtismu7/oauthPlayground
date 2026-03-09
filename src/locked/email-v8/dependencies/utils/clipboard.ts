@@ -1,5 +1,5 @@
 // src/utils/clipboard.ts - Clipboard utilities
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 /**
  * Show visual copy success feedback
