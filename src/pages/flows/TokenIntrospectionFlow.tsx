@@ -13,7 +13,6 @@ import { V9ModernMessagingService } from '../../services/v9/V9ModernMessagingSer
 import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
 
-import { logger } from '../utils/logger';
 const messagingService = V9ModernMessagingService.getInstance();
 
 const FlowContainer = styled.div`

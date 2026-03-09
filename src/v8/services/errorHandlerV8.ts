@@ -25,7 +25,8 @@
 import { ERROR_MESSAGES, MODULE_TAGS } from '@/v8/config/constants';
 import type { IErrorHandlerService } from '@/v8/types/services';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = MODULE_TAGS.ERROR_HANDLER;
 
 /**

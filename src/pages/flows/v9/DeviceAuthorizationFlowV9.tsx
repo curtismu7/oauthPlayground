@@ -61,7 +61,7 @@ import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters

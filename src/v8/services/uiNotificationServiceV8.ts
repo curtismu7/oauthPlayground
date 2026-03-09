@@ -24,7 +24,8 @@
 
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 
 export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info';

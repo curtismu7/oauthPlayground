@@ -30,7 +30,8 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Types for PingOne Protect
 interface ProtectCredentials {
 	environmentId: string;

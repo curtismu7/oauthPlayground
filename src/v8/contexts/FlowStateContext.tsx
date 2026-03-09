@@ -7,7 +7,7 @@
 
 import React, { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface FlowStateContextType {
 	isActionInProgress: boolean;
 	currentAction: string | null;

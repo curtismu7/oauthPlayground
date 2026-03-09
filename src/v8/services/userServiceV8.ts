@@ -6,9 +6,9 @@
  */
 
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { logger } from '../../utils/logger';
 import { backendConnectivityService } from './backendConnectivityServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[UserServiceV8]';
 
 export interface User {

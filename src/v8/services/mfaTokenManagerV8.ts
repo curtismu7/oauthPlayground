@@ -28,10 +28,9 @@
  * unsubscribe();
  */
 
+import { logger } from '../../utils/logger';
 import { tokenGatewayV8 } from './auth/tokenGatewayV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
-
-import { logger } from '../utils/logger';
 export type TokenUpdateCallback = (state: TokenStatusInfo) => void;
 
 export interface MFATokenManagerConfig {

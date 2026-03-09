@@ -10,6 +10,8 @@
 
 // Note: SignJWT and importPKCS8 are imported dynamically in methods to match createClientAssertion pattern
 
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 JAR-REQUEST-OBJECT-V8]';
 
 /**
@@ -300,7 +302,6 @@ export class JARRequestObjectServiceV8 {
 			// Import private key from PKCS#8 format
 			const key = await importPKCS8(privateKey, 'RS256');
 
-import { logger } from '../utils/logger';
 			// Convert payload to plain object (remove type assertion to avoid issues)
 			const payloadObj: Record<string, unknown> = { ...payload };
 

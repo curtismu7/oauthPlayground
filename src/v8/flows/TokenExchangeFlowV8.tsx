@@ -15,7 +15,8 @@ import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 type TokenExchangeScenario =
 	| 'delegation'
 	| 'impersonation'

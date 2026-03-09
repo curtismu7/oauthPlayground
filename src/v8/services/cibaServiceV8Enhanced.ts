@@ -27,7 +27,8 @@
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 CIBA-SERVICE-V8-ENHANCED]';
 
 // ============================================================================

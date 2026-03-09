@@ -26,10 +26,10 @@ import {
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import type { DeviceType } from '../flows/shared/MFATypes';
 import { showGlobalInfo } from '../../contexts/NotificationSystem';
+import type { DeviceType } from '../flows/shared/MFATypes';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface UnifiedMFASuccessPageData {
 	// Flow type
 	flowType: 'registration' | 'authentication';

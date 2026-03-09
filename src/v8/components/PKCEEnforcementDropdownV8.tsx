@@ -15,7 +15,8 @@
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 PKCE-ENFORCEMENT-V8]';
 
 export type PKCEEnforcement = 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';

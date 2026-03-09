@@ -26,7 +26,8 @@ import { useCibaFlowV8 } from '@/v8/hooks/useCibaFlowV8';
 import { type CibaCredentials, CibaServiceV8 } from '@/v8/services/cibaServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 const FLOW_KEY = 'ciba-v8';
 

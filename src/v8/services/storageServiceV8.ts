@@ -29,7 +29,7 @@ import { StorageServiceV8Migration } from '../../services/storageServiceV8Migrat
 import type { Migration, StorageData } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STORAGE KEYS (Preserved for compatibility)
 // ============================================================================

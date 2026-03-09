@@ -11,10 +11,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../utils/logger';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🎯 APP-PICKER-V8]';
 
 export interface DiscoveredApp {

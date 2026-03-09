@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { useBrandTheme } from '../themes/theme-provider';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

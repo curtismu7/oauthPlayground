@@ -27,7 +27,8 @@ import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { useCredentialManager } from '@/v8/contexts/MFACredentialContext';
 import { MFAFlowControllerFactory } from '@/v8/flows/controllers/MFAFlowControllerFactory';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🪝 USE-UNIFIED-MFA-STATE]';
 
 /**

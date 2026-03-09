@@ -14,7 +14,8 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 interface DeviceAuthenticationRecord {
 	success?: boolean;
 	environmentId?: string;

@@ -27,7 +27,8 @@ import type { DeviceConfigKey, DeviceFlowConfig } from '@/v8/config/deviceFlowCo
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFACredentials, MFAState } from '@/v8/flows/shared/MFATypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🎨 DEVICE-COMPONENT-REGISTRY]';
 
 // ============================================================================
