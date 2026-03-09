@@ -18,7 +18,7 @@ const TableContainer = styled.div`
 const TableHeader = styled.div`
 	background: #f9fafb;
 	padding: 1rem 1.5rem;
-	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 2px solid #e5e7eb;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -27,13 +27,13 @@ const TableHeader = styled.div`
 		margin: 0;
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: #1f2937;
 	}
 `;
 
 const ClearButton = styled.button`
 	padding: 0.5rem 1rem;
-	background: V9_COLORS.PRIMARY.RED;
+	background: #ef4444;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -43,7 +43,7 @@ const ClearButton = styled.button`
 	transition: background 0.2s;
 	
 	&:hover {
-		background: V9_COLORS.PRIMARY.RED_DARK;
+		background: #dc2626;
 	}
 `;
 
@@ -61,33 +61,41 @@ const TableHead = styled.thead`
 		text-align: left;
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
-		border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: #1f2937;
+		border-bottom: 2px solid #e5e7eb;
 	}
 `;
 
 const TableBody = styled.tbody``;
 
-const TableRow = styled.tr<{ $isExpanded?: boolean }>`
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+const TableRow = styled.tr<{ $isExpanded?: boolean; $status?: number }>`
+	border-bottom: 1px solid #e5e7eb;
 	cursor: pointer;
 	transition: background 0.2s;
 	
-	&:hover {
-		background: #f9fafb;
-	}
+	${(props) => {
+		if (props.$status !== undefined) {
+			if (props.$status >= 200 && props.$status < 300) {
+				return 'background: #f0fdf4;';
+			} else if (props.$status >= 400) {
+				return 'background: #fef2f2;';
+			} else if (props.$status >= 300) {
+				return 'background: #fefce8;';
+			}
+		}
+		if (props.$isExpanded) return 'background: #f9fafb;';
+		return '';
+	}}
 	
-	${(props) =>
-		props.$isExpanded &&
-		`
-		background: #f9fafb;
-	`}
+	&:hover {
+		filter: brightness(0.97);
+	}
 `;
 
 const TableCell = styled.td`
 	padding: 0.75rem 1rem;
 	font-size: 0.875rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 `;
 
 const MethodBadge = styled.span<{ $method: string }>`
@@ -101,33 +109,40 @@ const MethodBadge = styled.span<{ $method: string }>`
 	${(props) => {
 		switch (props.$method) {
 			case 'GET':
-				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
+				return 'background: #dbeafe; color: #2563eb;';
 			case 'POST':
-				return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
+				return 'background: #ecfdf5; color: #059669;';
 			case 'PUT':
-				return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
+				return 'background: #fef3c7; color: #d97706;';
 			case 'DELETE':
-				return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
+				return 'background: #fef2f2; color: #dc2626;';
+			case 'PATCH':
+				return 'background: #f5f3ff; color: #7c3aed;';
 			default:
-				return 'background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK;';
+				return 'background: #f3f4f6; color: #1f2937;';
 		}
 	}}
 `;
 
 const StatusBadge = styled.span<{ $status: number }>`
 	display: inline-block;
-	padding: 0.25rem 0.5rem;
+	padding: 0.25rem 0.625rem;
 	border-radius: 4px;
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: 0.8125rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
 	
 	${(props) => {
 		if (props.$status >= 200 && props.$status < 300) {
-			return 'background: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN;';
+			return 'background: #dcfce7; color: #15803d; border: 1px solid #86efac;';
+		} else if (props.$status >= 500) {
+			return 'background: #fce7f3; color: #9d174d; border: 1px solid #f9a8d4;';
 		} else if (props.$status >= 400) {
-			return 'background: V9_COLORS.BG.ERROR; color: V9_COLORS.PRIMARY.RED_DARK;';
+			return 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;';
+		} else if (props.$status >= 300) {
+			return 'background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;';
 		} else {
-			return 'background: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK;';
+			return 'background: #f3f4f6; color: #374151; border: 1px solid #d1d5db;';
 		}
 	}}
 `;
@@ -136,7 +151,7 @@ const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
 	display: ${(props) => (props.$isExpanded ? 'block' : 'none')};
 	padding: 1rem 1.5rem;
 	background: white;
-	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 1px solid #e5e7eb;
 `;
 
 const Section = styled.div`
@@ -151,7 +166,7 @@ const SectionTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -159,7 +174,7 @@ const SectionTitle = styled.h4`
 
 const CodeBlock = styled.pre`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e5e7eb;
 	border-radius: 4px;
 	padding: 1rem;
 	overflow-x: auto;
@@ -173,7 +188,7 @@ const KeyValueList = styled.dl`
 	
 	dt {
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: #1f2937;
 		margin-top: 0.5rem;
 		
 		&:first-child {
@@ -183,7 +198,7 @@ const KeyValueList = styled.dl`
 	
 	dd {
 		margin: 0.25rem 0 0 1rem;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: #6b7280;
 		font-family: 'Monaco', 'Menlo', monospace;
 		font-size: 0.8125rem;
 		word-break: break-all;
@@ -193,7 +208,7 @@ const KeyValueList = styled.dl`
 const EmptyState = styled.div`
 	padding: 3rem;
 	text-align: center;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #6b7280;
 	
 	p {
 		margin: 0;
@@ -261,7 +276,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 							const isExpanded = expandedRows.has(call.id);
 							return (
 								<React.Fragment key={call.id}>
-									<TableRow $isExpanded={isExpanded} onClick={() => toggleRow(call.id)}>
+								<TableRow $isExpanded={isExpanded} $status={call.response?.status} onClick={() => toggleRow(call.id)}>
 										<TableCell>{isExpanded ? <span>⬇️</span> : <span>➡️</span>}</TableCell>
 										<TableCell>
 											<MethodBadge $method={call.method}>{call.method}</MethodBadge>
