@@ -507,7 +507,7 @@ const getComplianceReport = (): {
 	score: number;
 	recommendations: string[];
 } => {
-	const wcagLevel: 'AA' = 'AA';
+	const wcagLevel = 'AA' as const;
 	const issues: string[] = [];
 
 	if (!state.config.enableKeyboardNavigation) {

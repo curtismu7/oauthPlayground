@@ -456,6 +456,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	 */
 	const handleRestartFlow = useCallback(async () => {
 		const confirmed = await new Promise<boolean>((resolve) => {
+			// eslint-disable-next-line no-alert
 			const result = window.confirm(
 				'Are you sure you want to restart the flow? All progress will be lost.'
 			);

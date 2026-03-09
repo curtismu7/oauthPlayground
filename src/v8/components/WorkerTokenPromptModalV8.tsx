@@ -48,6 +48,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 		<>
 			{/* Overlay */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -61,6 +62,11 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					zIndex: 10000,
 				}}
 				onClick={handleCancel}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						handleCancel();
+					}
+				}}
 			>
 				{/* Modal */}
 				<div
@@ -68,6 +74,11 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					aria-modal="true"
 					aria-labelledby="worker-token-prompt-title"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							handleCancel();
+						}
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '8px',

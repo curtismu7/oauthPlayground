@@ -3157,4 +3157,662 @@ usage: cat [-belnstuv] [file ...]
   0 errors and 50 warnings potentially fixable with the `--fix` option.
 
 [1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep " error " | head -30[?1l>[?2004l
-]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto   | head]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep " error " | head -30;]633;C
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto   | head]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep " error " | head -30;]633;C  4:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  4:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  200:3   error    Unexpected alert                          no-alert
+  33:4  error  Unexpected alert  no-alert
+  58:5  error  Unexpected alert  no-alert
+  55:8  error  Unexpected confirm  no-alert
+  33:5  error  Unexpected confirm  no-alert
+  55:8  error  Unexpected confirm  no-alert
+  510:19  error  Expected a `const` assertion instead of a literal type annotation  @typescript-eslint/prefer-as-const
+  221:4   error    Unexpected alert                                                                                                                                                                          no-alert
+  226:5   error    Unexpected confirm                                                                                                                                                                        no-alert
+  249:5  error  Unexpected alert  no-alert
+  103:4  error  Unexpected alert  no-alert
+  117:4  error  Unexpected alert  no-alert
+  459:19  error  Unexpected confirm  no-alert
+   86:7  error  Unexpected confirm  no-alert
+   93:7  error  Unexpected confirm  no-alert
+  100:7  error  Unexpected confirm  no-alert
+  46:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  47:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  48:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -B1 " error " | grep "\.tsx\?$ [K"" | sort -u[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto  -B1  | ]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -B1 " error " | grep "\\.tsx\\?$" | sort -u;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/input.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/textarea.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/sms/SMSSampleApp.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "alert\|confirm\|prompt" /Users/cmuir/P1Import-apps/oauth-playground/src/pages [K//PasskeyManager.tsx | head -5 && echo "---" && grep -n "^interface\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/input.tsx [K  | head -5 && echo "---" && grep -n "^interface\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/textarea.tsx | head -5 && ec [Khho "---" && sed -n '58,65p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "alert\\|confirm\\|prompt" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx | head -5 && echo "---" && grep -n "^interface\\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/input.tsx | head -5 && echo "---" && grep -n "^interface\\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/textarea.tsx | head -5 && echo "---" && sed -n '58,65p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx;]633;C33:			alert('Please enter an Environment ID');
+58:				alert('Please get a worker token first');
+---
+4:export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+---
+4:export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+---
+			await sdk.deleteDevice(userId, deviceId);
+			await handleLoadDevices();
+		} catch (error) {
+			logger.error('FIDO2SampleApp', 'Failed to delete device:', undefined, error);
+		}
+	};
+
+	return (
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa [K//fido2/FIDO2SampleApp.tsx | head -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx | head -10;]633;C55:		if (!confirm('Are you sure you want to delete this device?')) return;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hggrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/ [Ksshared/ResetDevicesHelper.tsx | head -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E;grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx | head -10;]633;C33:			!confirm(
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hggrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/ [Kssms/SMSSampleApp.tsx | head -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E;grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/sms/SMSSampleApp.tsx | head -10;]633;C55:		if (!confirm('Are you sure you want to delete this device?')) return;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hggrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/ [KMMFADocumentationModalV8.tsx | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E;grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx | head -5;]633;C103:			alert('Please select at least one use case to download.');
+117:			alert('Failed to download documentation. Please try again.');
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hggrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/share [Kdd/MFAFlowBaseV8.tsx | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E;grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx | head -5;]633;C458:		const confirmed = await new Promise<boolean>((resolve) => {
+459:			const result = window.confirm(
+465:		if (confirmed) {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hggrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFe [KaatureFlagsAdminV8.tsx | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E;grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx | head -5;]633;C86:		if (confirm(`Enable all devices at ${percentage}% rollout?`)) {
+93:		if (confirm('Disable all devices (emergency rollback)?')) {
+100:		if (confirm('Reset all feature flags to defaults? This will disable all unified flows.')) {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "\balert(\|\bconfirm(" /Users/cmuir/P1Import-apps/oauth-playground/src/samples [K//p1mfa/fido2/FIDO2SampleApp.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx /Users/cmuir/P1Import-apps/oauth-p [Kllayground/src/samples/p1mfa/sms/SMSSampleApp.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx /Users/cmuir/P1Impo [Krrt-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx /Users/cmu[3A[86D>....                                                                                  
+[66P[29Cms/SMSSampleApp[9P[39Clayground/src/v8/components/MFADocumentationModalV8.tsx /Users/cmuir/P1Impor[68P[31Cflows/shared/MFAFlowBase[8P[26Crt-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx /Users/cmui [Krr/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "\\balert(\\|\\bconfirm(" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/sms/SMSSampleApp.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx:55:		if (![01;31m[Kconfirm([m[K'Are you sure you want to delete this device?')) return;
+/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx:33:			![01;31m[Kconfirm([m[K
+/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/sms/SMSSampleApp.tsx:55:		if (![01;31m[Kconfirm([m[K'Are you sure you want to delete this device?')) return;
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx:103:			[01;31m[Kalert([m[K'Please select at least one use case to download.');
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx:117:			[01;31m[Kalert([m[K'Failed to download documentation. Please try again.');
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx:459:			const result = window.[01;31m[Kconfirm([m[K
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx:86:		if ([01;31m[Kconfirm([m[K`Enable all devices at ${percentage}% rollout?`)) {
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx:93:		if ([01;31m[Kconfirm([m[K'Disable all devices (emergency rollback)?')) {
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx:100:		if ([01;31m[Kconfirm([m[K'Reset all feature flags to defaults? This will disable all unified flows.')) {
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx:33:			[01;31m[Kalert([m[K'Please enter an Environment ID');
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx:58:				[01;31m[Kalert([m[K'Please get a worker token first');
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts:249:				[01;31m[Kalert([m[K'Error details copied to clipboard. Please contact support.');
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '1,6p' /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/input.tsx  [K&&& echo "---" && sed -n '1,6p' /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/textarea.tsx && echo "---" && sed -n '43,55p' /Users/cmuir/P1Impo [Krrt-apps/oauth-playground/src/services/accessibilityService.ts && echo "---" && sed -n '507,514p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/c [KrredentialsServiceV8.ts[?1l>[?2004l
+]2;sed -n '1,6p'  && echo "---" && sed -n '1,6p'  && echo "---" && sed -n   &&  ]1;sed]633;E; sed -n '1,6p' /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/input.tsx && echo "---" && sed -n '1,6p' /Users/cmuir/P1Import-apps/oauth-playground/src/components/ui/textarea.tsx && echo "---" && sed -n '43,55p' /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts && echo "---" && sed -n '507,514p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts;]633;Cimport * as React from 'react';
+import { cn } from '../../lib/utils';
+
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+---
+import * as React from 'react';
+import { cn } from '../../lib/utils';
+
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+---
+	enableScreenReader: true,
+	enableKeyboardNavigation: true,
+	enableHighContrast: false,
+	enableReducedMotion: false,
+	fontSize: 'medium',
+	colorScheme: 'auto',
+	announceChanges: true,
+	focusManagement: true,
+};
+
+const defaultBreakpoints: ResponsiveBreakpoints = {
+	mobile: 768,
+	tablet: 1024,
+---
+		}
+	}
+
+	/**
+	 * Get storage key for a flow
+	 * @param flowKey - Unique key for the flow
+	 * @returns Full storage key
+	 */
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^interface\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/sr [Kcc/services/accessibilityService.ts | head -10 && echo "---" && sed -n '508,513p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServic [KeeV8.ts[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^interface\\|^export interface" /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts | head -10 && echo "---" && sed -n '508,513p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts;]633;C6:export interface AccessibilityConfig {
+17:export interface ResponsiveBreakpoints {
+24:export interface AccessibilityFeatures {
+32:export interface DeviceCapabilities {
+---
+	}
+
+	/**
+	 * Get storage key for a flow
+	 * @param flowKey - Unique key for the flow
+	 * @returns Full storage key
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "no-empty-object-type\|interface.*{}" /Users/cmuir/P1Import-apps/oauth-playgro [Kuund/src/services/accessibilityService.ts | head -10[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "no-empty-object-type\\|interface.*{}" /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts | head -10;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '44,52p' /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibility [KSService.ts[?1l>[?2004l
+]2;sed -n '44,52p' ]1;sed]633;E; sed -n '44,52p' /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts;]633;C	enableKeyboardNavigation: true,
+	enableHighContrast: false,
+	enableReducedMotion: false,
+	fontSize: 'medium',
+	colorScheme: 'auto',
+	announceChanges: true,
+	focusManagement: true,
+};
+
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src/services/accessibilityService.ts src/v8/services/credenti [KaalsServiceV8.ts 2>&1 | grep -E "error|warning"[?1l>[?2004l
+]2;node_modules/.bin/eslint src/services/accessibilityService.ts  2>&1 | grep   ]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src/services/accessibilityService.ts src/v8/services/credentialsServiceV8.ts 2>&1 | grep -E "error|warning";]633;C  510:19  [01;31m[Kerror[m[K  Expected a `const` assertion instead of a literal type annotation  @typescript-eslint/prefer-as-const
+  46:18  [01;31m[Kerror[m[K    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  47:18  [01;31m[Kerror[m[K    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  48:18  [01;31m[Kerror[m[K    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  66:3   [01;31m[Kwarning[m[K  Possible race condition: `migrationCompleted` might be reassigned based on an outdated value of `migrationCompleted`  require-atomic-updates
+✖ 5 problems (4 [01;31m[Kerror[m[Ks, 1 [01;31m[Kwarning[m[K)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '43,52p' /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibility [KSService.ts && echo "===" && sed -n '506,515p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts[?1l>[?2004l
+]2;sed -n '43,52p'  && echo "===" && sed -n '506,515p' ]1;sed]633;E; sed -n '43,52p' /Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts && echo "===" && sed -n '506,515p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts;]633;C	enableScreenReader: true,
+	enableKeyboardNavigation: true,
+	enableHighContrast: false,
+	enableReducedMotion: false,
+	fontSize: 'medium',
+	colorScheme: 'auto',
+	announceChanges: true,
+	focusManagement: true,
+};
+
+===
+			);
+		}
+	}
+
+	/**
+	 * Get storage key for a flow
+	 * @param flowKey - Unique key for the flow
+	 * @returns Full storage key
+	 */
+	static getStorageKey(flowKey: string): string {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hpprint('Lines 44-52:')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[43:52], 44): print(f'  {i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004h"" && echo "===" && python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hpprint('Lines 508-514:')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[507:514], 508): print(f'  {i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;python3 -c  && echo "===" && python3 -c ]1;python3]633;E; python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts').readlines()\x0aprint('Lines 44-52:')\x0afor i, l in enumerate(lines[43:52], 44): print(f'  {i}: {repr(l.rstrip())}')\x0a" && echo "===" && python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts').readlines()\x0aprint('Lines 508-514:')\x0afor i, l in enumerate(lines[507:514], 508): print(f'  {i}: {repr(l.rstrip())}')\x0a";]633;CLines 44-52:
+  44: '\tenableKeyboardNavigation: true,'
+  45: '\tenableHighContrast: false,'
+  46: '\tenableReducedMotion: false,'
+  47: "\tfontSize: 'medium',"
+  48: "\tcolorScheme: 'auto',"
+  49: '\tannounceChanges: true,'
+  50: '\tfocusManagement: true,'
+  51: '};'
+  52: ''
+===
+Lines 508-514:
+  508: '\t}'
+  509: ''
+  510: '\t/**'
+  511: '\t * Get storage key for a flow'
+  512: '\t * @param flowKey - Unique key for the flow'
+  513: '\t * @returns Full storage key'
+  514: '\t */'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -A20 "accessibilityService\|cr [KeedentialsServiceV8" | head -40[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto  -A20  |]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -A20 "accessibilityService\\|credentialsServiceV8" | head -40;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts
+  510:19  error  Expected a `const` assertion instead of a literal type annotation  @typescript-eslint/prefer-as-const
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/services/authConfigurationService.ts
+  303:3  warning  Possible race condition: `isLoadingConfiguration` might be reassigned based on an outdated value of `isLoadingConfiguration`  require-atomic-updates
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/services/authenticationModalService.tsx
+  456:8  warning  The 'calculateLineCount' function makes the dependencies of useMemo Hook (at line 467) change on every render. Move it inside the useMemo callback. Alternatively, wrap the definition of 'calculateLineCount' in its own useCallback() Hook  react-hooks/exhaustive-deps
+  471:8  warning  The 'isValidUrl' function makes the dependencies of useCallback Hook (at line 646) change on every render. To fix this, wrap the definition of 'isValidUrl' in its own useCallback() Hook                                                     react-hooks/exhaustive-deps
+  471:8  warning  The 'isValidUrl' function makes the dependencies of useEffect Hook (at line 704) change on every render. To fix this, wrap the definition of 'isValidUrl' in its own useCallback() Hook                                                       react-hooks/exhaustive-deps
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/services/authorizationUrlValidationService.ts
+  576:2  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/services/codeGeneration/templates/backend/nodeTemplates.ts
+    7:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  106:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  157:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  208:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  256:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  306:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+--
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts
+  46:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  47:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  48:18  error    An interface declaring no members is equivalent to its supertype                                                      @typescript-eslint/no-empty-object-type
+  66:3   warning  Possible race condition: `migrationCompleted` might be reassigned based on an outdated value of `migrationCompleted`  require-atomic-updates
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/errorHandlerV8.ts
+  46:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaAuthenticationServiceV8.ts
+  738:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaFeatureFlagsV8.ts
+  225:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaReportingServiceV8.ts
+  1270:80  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1321:88  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hpprint(f'Total: {len(lines)} lines')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hpprint('Lines 507-514:')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[506:514], 507): print(f'  {i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004h"" && echo "===" && python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hpprint(f'Total: {len(lines)} lines')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hpprint('Lines 43-52:')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[42:52], 43): print(f'  {i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;python3 -c  && echo "===" && python3 -c ]1;python3]633;E; python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/services/accessibilityService.ts').readlines()\x0aprint(f'Total: {len(lines)} lines')\x0aprint('Lines 507-514:')\x0afor i, l in enumerate(lines[506:514], 507): print(f'  {i}: {repr(l.rstrip())}')\x0a" && echo "===" && python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/credentialsServiceV8.ts').readlines()\x0aprint(f'Total: {len(lines)} lines')\x0aprint('Lines 43-52:')\x0afor i, l in enumerate(lines[42:52], 43): print(f'  {i}: {repr(l.rstrip())}')\x0a";]633;CTotal: 551 lines
+Lines 507-514:
+  507: '\tscore: number;'
+  508: '\trecommendations: string[];'
+  509: '} => {'
+  510: "\tconst wcagLevel: 'AA' = 'AA';"
+  511: '\tconst issues: string[] = [];'
+  512: ''
+  513: '\tif (!state.config.enableKeyboardNavigation) {'
+  514: "\t\tissues.push('Keyboard navigation is disabled');"
+===
+Total: 685 lines
+Lines 43-52:
+  43: '};'
+  44: ''
+  45: '// Re-export types for backward compatibility'
+  46: 'export interface Credentials extends V8Credentials {}'
+  47: 'export interface CredentialsConfig extends V8CredentialsConfig {}'
+  48: 'export interface AppConfig extends V8AppConfig {}'
+  49: ''
+  50: '// ============================================================================'
+  51: '// MIGRATION STATE'
+  52: '// ============================================================================'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '98,105p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocu [KmmentationModalV8.tsx && echo "---" && sed -n '113,120p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx && echo "--- [K"" && sed -n '195,205p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts && echo "---" && sed -n '53,60p' /Users/cmuir/P1Import-apps/oaut [Khh-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx && echo "---" && sed -n '30,40p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared[3A[86D>....                                                                                  
+[33P[14C95,205[51Cutils/errorRecovery.ts[19P[13C" && sed -n '53,60p' /Users/cmuir/P1Import-apps/oauth[54P[16Csamples/p1mfa/fido2/FIDO2SampleApp.tsx && echo "---" && sed -n '30,40p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ [KRResetDevicesHelper.tsx && echo "---" && sed -n '82,108p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx[?1l>[?2004l
+]2;sed -n '98,105p'  && echo "---" && sed -n '113,120p'  && echo "---" && sed -n]1;sed]633;E; sed -n '98,105p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx && echo "---" && sed -n '113,120p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx && echo "---" && sed -n '195,205p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts && echo "---" && sed -n '53,60p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/fido2/FIDO2SampleApp.tsx && echo "---" && sed -n '30,40p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx && echo "---" && sed -n '82,108p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx;]633;C		setSelectedCategory('specific');
+	};
+
+	const handleDownload = async () => {
+		if (selectedUseCases.size === 0) {
+			alert('Please select at least one use case to download.');
+			return;
+		}
+---
+				await downloadPDF(selectedCases);
+			}
+		} catch (error) {
+			console.error('Failed to download documentation:', error);
+			alert('Failed to download documentation. Please try again.');
+		}
+	};
+
+---
+					description: 'Attempt to refresh expired tokens',
+					icon: '',
+					action: async () => {
+						// Implement token refresh logic
+						console.log(' Attempting token refresh...');
+					},
+					priority: 'high',
+				});
+				break;
+
+			case 'configuration':
+---
+		if (!sdk || !userId) return;
+
+		if (!confirm('Are you sure you want to delete this device?')) return;
+
+		try {
+			await sdk.deleteDevice(userId, deviceId);
+			await handleLoadDevices();
+		} catch (error) {
+---
+		if (!sdk || !userId) return;
+
+		if (
+			!confirm(
+				`Are you sure you want to delete ALL MFA devices for user ${userId}? This action cannot be undone.`
+			)
+		) {
+			return;
+		}
+
+		setLoading(true);
+---
+	};
+
+	// Bulk operations using Phase 8 helpers
+	const handleEnableAll = (percentage: RolloutPercentage) => {
+		if (confirm(`Enable all devices at ${percentage}% rollout?`)) {
+			enableUnifiedFlowForAll(percentage);
+			refreshFlags();
+		}
+	};
+
+	const handleDisableAll = () => {
+		if (confirm('Disable all devices (emergency rollback)?')) {
+			disableUnifiedFlowForAll();
+			refreshFlags();
+		}
+	};
+
+	const resetAll = () => {
+		if (confirm('Reset all feature flags to defaults? This will disable all unified flows.')) {
+			MFAFeatureFlagsV8.resetAllFlags();
+			refreshFlags();
+		}
+	};
+
+	return (
+		<div style={{ minHeight: '100vh', background: '#f9fafb', padding: '32px 20px' }}>
+			{/* Header */}
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADoc [KuumentationModalV8.tsx | head -15 && echo "---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts | head -10 && echo  [K""---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx | head -10 && echo "---" && sed -n '455,465p' /Users/cmuir [K//P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx && echo "---" && sed -n '53,58p' /Users/cmuir/P1Import-apps/oauth-playground/src/sample[3A[86D>....                                                                                  
+[41P[75Cpage[2CPasskeyManager.tsx | head -10 && echo "---" && sed -n '455,465p' /Users/cmuir/[39P[35Cv8/flows/shared/MFAFlowBaseV8.tsx[P[P[26C53,58[P[P[15C/P1Import-apps/oauth-playground/src/samples [K//p1mfa/sms/SMSSampleApp.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx | head -15 && echo "---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/errorRecovery.ts | head -10 && echo "---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx | head -10 && echo "---" && sed -n '455,465p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx && echo "---" && sed -n '53,58p' /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/sms/SMSSampleApp.tsx;]633;C11:import { FiDownload, FiFileText } from '@icons';
+12:import React, { useState } from 'react';
+13:import type { DeviceType } from '../flows/shared/MFATypes';
+14:import {
+---
+1:import { logger } from './logger';
+---
+8:import React, { useState } from 'react';
+9:import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+10:import { usePageScroll } from '@/hooks/usePageScroll';
+11:import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
+12:import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
+13:import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+14:import { showGlobalError } from '../contexts/NotificationSystem';
+15:import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
+16:import { logger } from '../utils/logger';
+---
+	 * Clears all state and resets the flow to the beginning
+	 */
+	const handleRestartFlow = useCallback(async () => {
+		const confirmed = await new Promise<boolean>((resolve) => {
+			const result = window.confirm(
+				'Are you sure you want to restart the flow? All progress will be lost.'
+			);
+			resolve(result);
+		});
+
+		if (confirmed) {
+---
+		if (!sdk || !userId) return;
+
+		if (!confirm('Are you sure you want to delete this device?')) return;
+
+		try {
+			await sdk.deleteDevice(userId, deviceId);
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "confirm\|alert" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa [K//shared/ResetDevicesHelper.tsx | head -5 && echo "---" && grep -n "window.confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBase [KVV8.tsx | head -3 && echo "---" && grep -n "confirm(" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "confirm\\|alert" /Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx | head -5 && echo "---" && grep -n "window.confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx | head -3 && echo "---" && grep -n "confirm(" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx | head -5;]633;C33:			!confirm(
+---
+459:			const result = window.confirm(
+---
+86:		if (confirm(`Enable all devices at ${percentage}% rollout?`)) {
+93:		if (confirm('Disable all devices (emergency rollback)?')) {
+100:		if (confirm('Reset all feature flags to defaults? This will disable all unified flows.')) {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[30:38], 31): print(f'{i}: {repr(l)}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004h"" && echo "---" && python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[456:465], 457): print(f'{i}: {repr(l)}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand dquote> ]633;G[K[?1h=[?2004h"" && echo "---" && python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand cmdand cmdand dquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand cmdand cmdand dquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[83:103], 84): print(f'{i}: {repr(l)}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand cmdand cmdand cmdand dquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;python3 -c  && echo "---" && python3 -c  && echo "---" && python3 -c ]1;python3]633;E; python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/samples/p1mfa/shared/ResetDevicesHelper.tsx').readlines()\x0afor i, l in enumerate(lines[30:38], 31): print(f'{i}: {repr(l)}')\x0a" && echo "---" && python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/shared/MFAFlowBaseV8.tsx').readlines()\x0afor i, l in enumerate(lines[456:465], 457): print(f'{i}: {repr(l)}')\x0a" && echo "---" && python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/v8/pages/MFAFeatureFlagsAdminV8.tsx').readlines()\x0afor i, l in enumerate(lines[83:103], 84): print(f'{i}: {repr(l)}')\x0a";]633;C31: '\n'
+32: '\t\tif (\n'
+33: '\t\t\t!confirm(\n'
+34: '\t\t\t\t`Are you sure you want to delete ALL MFA devices for user ${userId}? This action cannot be undone.`\n'
+35: '\t\t\t)\n'
+36: '\t\t) {\n'
+37: '\t\t\treturn;\n'
+38: '\t\t}\n'
+---
+457: '\tconst handleRestartFlow = useCallback(async () => {\n'
+458: '\t\tconst confirmed = await new Promise<boolean>((resolve) => {\n'
+459: '\t\t\tconst result = window.confirm(\n'
+460: "\t\t\t\t'Are you sure you want to restart the flow? All progress will be lost.'\n"
+461: '\t\t\t);\n'
+462: '\t\t\tresolve(result);\n'
+463: '\t\t});\n'
+464: '\n'
+465: '\t\tif (confirmed) {\n'
+---
+84: '\t// Bulk operations using Phase 8 helpers\n'
+85: '\tconst handleEnableAll = (percentage: RolloutPercentage) => {\n'
+86: '\t\tif (confirm(`Enable all devices at ${percentage}% rollout?`)) {\n'
+87: '\t\t\tenableUnifiedFlowForAll(percentage);\n'
+88: '\t\t\trefreshFlags();\n'
+89: '\t\t}\n'
+90: '\t};\n'
+91: '\n'
+92: '\tconst handleDisableAll = () => {\n'
+93: "\t\tif (confirm('Disable all devices (emergency rollback)?')) {\n"
+94: '\t\t\tdisableUnifiedFlowForAll();\n'
+95: '\t\t\trefreshFlags();\n'
+96: '\t\t}\n'
+97: '\t};\n'
+98: '\n'
+99: '\tconst resetAll = () => {\n'
+100: "\t\tif (confirm('Reset all feature flags to defaults? This will disable all unified flows.')) {\n"
+101: '\t\t\tMFAFeatureFlagsV8.resetAllFlags();\n'
+102: '\t\t\trefreshFlags();\n'
+103: '\t\t}\n'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3;]633;C✖ 824 problems (8 errors, 816 warnings)
+  0 errors and 50 warnings potentially fixable with the `--fix` option.
+
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep " error " | head -15[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto   | head]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep " error " | head -15;]633;C  200:3   error    Unexpected alert                          no-alert
+  33:4   error    Unexpected alert                                                                     no-alert
+  58:5   error    Unexpected alert                                                                     no-alert
+  221:4   error    Unexpected alert                                                                                                                                                                          no-alert
+  226:5   error    Unexpected confirm                                                                                                                                                                        no-alert
+  250:5   error    Unexpected alert                                                                  no-alert
+  104:4   error    Unexpected alert                                                                     no-alert
+  118:4   error    Unexpected alert                                                                     no-alert
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -B1 " error " | grep "\.tsx\?$ [K"" | sort -u[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto  -B1  | ]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep -B1 " error " | grep "\\.tsx\\?$" | sort -u;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep "error\|/src/" | grep -v "warn [Kiing\|problems\|fixable\|✖" | head -30[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep --color=auto   | grep]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | grep "error\\|/src/" | grep -v "warning\\|problems\\|fixable\\|✖" | head -30;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/components/CompleteMFAFlowV7.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/ConfigCheckerButtons.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/ConfigurationSummaryCard.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/CredentialSetupModal.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/DragDropSidebar.V2.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/DragDropSidebar.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/ExportImportPanel.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/FIDO2RegistrationModal.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/FitnessTrackerDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/FlowConfiguration.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/FlowErrorDisplay.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/FlowTrackingDisplay.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/GamingConsoleDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/GasPumpDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/GeneratedParametersDisplay.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/IndustrialIoTControllerDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/InlineDocumentation.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/InlineTokenDisplay.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/InteractiveCodeEditor.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/JWTTokenDisplay.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/JsonEditor.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/LoadingSpinner.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/LogViewer.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/MCPServerDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/MfaFlowCodeGenerator.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/OIDCDiscoveryInput.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/PARConfigurationExample.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/POSTerminalDeviceFlow.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/PasswordChangeModal.tsx
+/Users/cmuir/P1Import-apps/oauth-playground/src/components/PingOneApplicationPickerModal.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  cd /Users/cmuir/P1Import-apps/oauth-playground && node_modules/.bin/eslint src --ext . [Ktts,.tsx 2>&1 | python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004hiimport sys[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004hccurrent_file = None[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004heerrors = [][?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004hffor line in sys.stdin:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h     line = line.rstrip()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h     if '/src/' in line and not line.startswith(' ') and 'error' not in line and 'warning' not in line:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h         current_file = line[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h     elif ' error ' in line and current_file:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h         errors.append(f'{current_file}: {line.strip()}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004hffor e in errors:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h     print(e)[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand pipe dquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;cd /Users/cmuir/P1Import-apps/oauth-playground && node_modules/.bin/eslint sr]1;cd]633;E; cd /Users/cmuir/P1Import-apps/oauth-playground && node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | python3 -c "\x0aimport sys\x0acurrent_file = None\x0aerrors = []\x0afor line in sys.stdin:\x0a    line = line.rstrip()\x0a    if '/src/' in line and not line.startswith(' ') and 'error' not in line and 'warning' not in line:\x0a        current_file = line\x0a    elif ' error ' in line and current_file:\x0a        errors.append(f'{current_file}: {line.strip()}')\x0afor e in errors:\x0a    print(e)\x0a";]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/examples/OAuthFlowWithRedirectStateManager.tsx: 200:3   error    Unexpected alert                          no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx: 33:4   error    Unexpected alert                                                                     no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx: 58:5   error    Unexpected alert                                                                     no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx: 221:4   error    Unexpected alert                                                                                                                                                                          no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx: 226:5   error    Unexpected confirm                                                                                                                                                                        no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts: 250:5   error    Unexpected alert                                                                  no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx: 104:4   error    Unexpected alert                                                                     no-alert
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx: 118:4   error    Unexpected alert                                                                     no-alert
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "alert\|confirm\|showGlobal" /Users/cmuir/P1Import-apps/oauth-playground/src/p [Kaages/PasskeyManager.tsx | head -5 && echo "---" && sed -n '100,122p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx [K  && echo "---" && grep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx | head -5 && echo "---" && sed - [Knn '247,255p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts && echo "---" && sed -n '197,204p' /Users/cmuir/P1Import-apps/oauth-playgrou[3A[86D>....                                                                                  
+[33P[18Cgrep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility[4C | head -5 && echo "---" && sed -n '247,255p'[30P[55CdeviceCode.ts[25P[23Cn '197,204p' /Users/cmuir/P1Import-apps/oauth-playgroun [Kdd/src/examples/OAuthFlowWithRedirectStateManager.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "alert\\|confirm\\|showGlobal" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx | head -5 && echo "---" && sed -n '100,122p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/MFADocumentationModalV8.tsx && echo "---" && grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx | head -5 && echo "---" && sed -n '247,255p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts && echo "---" && sed -n '197,204p' /Users/cmuir/P1Import-apps/oauth-playground/src/examples/OAuthFlowWithRedirectStateManager.tsx;]633;C14:import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
+33:			alert('Please enter an Environment ID');
+58:				alert('Please get a worker token first');
+68:				showGlobalError(
+---
+	};
+
+	const handleDownload = async () => {
+		if (selectedUseCases.size === 0) {
+			alert('Please select at least one use case to download.');
+			return;
+		}
+
+		const selectedCases = USE_CASES.filter((uc) => selectedUseCases.has(uc.id));
+
+		try {
+			if (downloadFormat === 'md') {
+				await downloadMarkdown(selectedCases);
+			} else {
+				await downloadPDF(selectedCases);
+			}
+		} catch (error) {
+			console.error('Failed to download documentation:', error);
+			alert('Failed to download documentation. Please try again.');
+		}
+	};
+
+	const downloadMarkdown = async (useCases: UseCase[]) => {
+---
+221:			alert('Device not found');
+226:			!confirm(
+---
+}
+
+/**
+ * Get the next polling interval based on error response
+ */
+export function getNextPollingInterval(error: DeviceTokenError, currentInterval: number): number {
+	if (error.error === 'slow_down') {
+		// Increase interval by 5 seconds as per spec
+		return Math.min(currentInterval + 5000, 30000); // Cap at 30 seconds
+---
+		RedirectStateManager.clearFlowState(flowId);
+		FlowContextService.clearFlowContext(flowId);
+
+		alert('OAuth flow completed successfully! Flow state has been cleaned up.');
+	}, [flowId]);
+
+	return (
+		<Container>
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[30:62], 31): print(f'{i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;python3 -c ]1;python3]633;E; python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/pages/PasskeyManager.tsx').readlines()\x0afor i, l in enumerate(lines[30:62], 31): print(f'{i}: {repr(l.rstrip())}')\x0a";]633;C31: '\tconst handleLoadWorkerToken = async () => {'
+32: '\t\tif (!environmentId) {'
+33: "\t\t\talert('Please enter an Environment ID');"
+34: '\t\t\treturn;'
+35: '\t\t}'
+36: ''
+37: '\t\tsetLoadingToken(true);'
+38: '\t\ttry {'
+39: "\t\t\tconst flowKey = 'worker-token-v8';"
+40: '\t\t\tconst config = CredentialsServiceV8.getFlowConfig(flowKey) || {'
+41: '\t\t\t\tflowKey,'
+42: "\t\t\t\tflowType: 'client-credentials' as const,"
+43: '\t\t\t\tincludeClientSecret: true,'
+44: '\t\t\t\tincludeScopes: true,'
+45: '\t\t\t\tincludeRedirectUri: false,'
+46: '\t\t\t\tincludeLogoutUri: false,'
+47: '\t\t\t};'
+48: ''
+49: '\t\t\tconst credentials = CredentialsServiceV8.loadCredentials(flowKey, config);'
+50: '\t\t\tif (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {'
+51: '\t\t\t\tthrow new Error('
+52: "\t\t\t\t\t'Missing worker credentials. Please configure worker token credentials first.'"
+53: '\t\t\t\t);'
+54: '\t\t\t}'
+55: ''
+56: '\t\t\t// Worker token is now managed by unified service'
+57: '\t\t\tif (!hasWorkerToken) {'
+58: "\t\t\t\talert('Please get a worker token first');"
+59: '\t\t\t\treturn;'
+60: '\t\t\t}'
+61: ''
+62: '\t\t\tsetLoadingToken(true);'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/examples/OAuthFlowWi [KtthRedirectStateManager.tsx | head -5 && echo "---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx | h [Keead -5 && echo "---" && sed -n '218,230p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx && echo "---" && sed -n '243,255p [K'' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/examples/OAuthFlowWithRedirectStateManager.tsx | head -5 && echo "---" && grep -n "^import" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx | head -5 && echo "---" && sed -n '218,230p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/PasskeyManagementUtility.tsx && echo "---" && sed -n '243,255p' /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts;]633;C4:import React, { useCallback, useEffect, useState } from 'react';
+5:import styled from 'styled-components';
+6:import FlowContextService from '../services/flowContextService';
+7:import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
+---
+8:import { FiCheckCircle } from '@icons';
+9:import React, { useEffect, useState } from 'react';
+10:import { showGlobalError } from '../contexts/NotificationSystem';
+---
+		// Find the device to get credentialId and rpId
+		const device = devices.find((d) => d.id === deviceId);
+		if (!device) {
+				showGlobalWarning('Device not found');
+			return;
+		}
+
+		if (
+			!confirm(
+				'Are you sure you want to delete this passkey device? This will also remove it from Chrome. This action cannot be undone.'
+			)
+		) {
+			return;
+---
+		error.error === 'expired_token' ||
+		error.error === 'access_denied' ||
+		error.error === 'invalid_grant'
+	);
+}
+
+/**
+ * Get the next polling interval based on error response
+ */
+export function getNextPollingInterval(error: DeviceTokenError, currentInterval: number): number {
+	if (error.error === 'slow_down') {
+		// Increase interval by 5 seconds as per spec
+		return Math.min(currentInterval + 5000, 30000); // Cap at 30 seconds
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 -c "[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hllines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts').readlines()[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hpprint(f'Total: {len(lines)} lines')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004hffor i, l in enumerate(lines[245:258], 246): print(f'{i}: {repr(l.rstrip())}')[?1l>[?2004l
+[0m[27m[24m[J]633;Fdquote> ]633;G[K[?1h=[?2004h"[?1l>[?2004l
+]2;python3 -c ]1;python3]633;E; python3 -c "\x0alines = open('/Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts').readlines()\x0aprint(f'Total: {len(lines)} lines')\x0afor i, l in enumerate(lines[245:258], 246): print(f'{i}: {repr(l.rstrip())}')\x0a";]633;CTotal: 260 lines
+246: '\t);'
+247: '}'
+248: ''
+249: '/**'
+250: ' * Get the next polling interval based on error response'
+251: ' */'
+252: 'export function getNextPollingInterval(error: DeviceTokenError, currentInterval: number): number {'
+253: "\tif (error.error === 'slow_down') {"
+254: '\t\t// Increase interval by 5 seconds as per spec'
+255: '\t\treturn Math.min(currentInterval + 5000, 30000); // Cap at 30 seconds'
+256: '\t}'
+257: ''
+258: '\t// Use suggested interval from server or current interval'
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "alert\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceC [Koode.ts[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "alert\\|confirm" /Users/cmuir/P1Import-apps/oauth-playground/src/utils/deviceCode.ts;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h

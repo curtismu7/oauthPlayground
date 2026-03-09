@@ -83,6 +83,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 
 	// Bulk operations using Phase 8 helpers
 	const handleEnableAll = (percentage: RolloutPercentage) => {
+		// eslint-disable-next-line no-alert
 		if (confirm(`Enable all devices at ${percentage}% rollout?`)) {
 			enableUnifiedFlowForAll(percentage);
 			refreshFlags();
@@ -90,6 +91,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 	};
 
 	const handleDisableAll = () => {
+		// eslint-disable-next-line no-alert
 		if (confirm('Disable all devices (emergency rollback)?')) {
 			disableUnifiedFlowForAll();
 			refreshFlags();
@@ -97,6 +99,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 	};
 
 	const resetAll = () => {
+		// eslint-disable-next-line no-alert
 		if (confirm('Reset all feature flags to defaults? This will disable all unified flows.')) {
 			MFAFeatureFlagsV8.resetAllFlags();
 			refreshFlags();

@@ -218,7 +218,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 		// Find the device to get credentialId and rpId
 		const device = devices.find((d) => d.id === deviceId);
 		if (!device) {
-			alert('Device not found');
+				showGlobalWarning('Device not found');
 			return;
 		}
 

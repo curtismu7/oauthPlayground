@@ -531,7 +531,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 								padding: '0.75rem 1.5rem',
 							}}
 						>
-							<FiX size={14} style={{ marginRight: '0.5rem' }} />
+							<i className="bi bi-x-lg" style={{ marginRight: '0.5rem', fontSize: '14px' }}></i>
 							Close
 						</ActionButton>
 					</div>

@@ -1,3 +1,4 @@
+import { showGlobalInfo } from '../contexts/NotificationSystem';
 import { logger } from './logger';
 // src/utils/errorRecovery.ts - Enhanced Error Handling and Recovery System
 
