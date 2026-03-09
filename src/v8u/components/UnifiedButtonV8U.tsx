@@ -170,7 +170,7 @@ export const UnifiedButtonV8U: React.FC<UnifiedButtonV8UProps> = ({
 	}
 
 	return (
-		<button {...commonProps} type={type} disabled={disabled}>
+		<button type="button" {...commonProps} type={type} disabled={disabled}>
 			{children}
 		</button>
 	);

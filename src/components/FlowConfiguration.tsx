@@ -1,4 +1,4 @@
-
+import { FiChevronDown } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -7,7 +7,6 @@ import { themeService } from '../services/themeService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
-import { FiChevronDown } from '@icons';
 
 const SAVE_FEEDBACK_TIMEOUT_MS = 3200;
 
@@ -885,7 +884,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										<div
 											style={{
 												fontSize: '0.75rem',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 												marginTop: '0.25rem',
 											}}
 										>
@@ -903,7 +902,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							<p
 								style={{
 									fontSize: '0.875rem',
-									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									color: '#6b7280',
 									margin: '0.5rem 0 1rem 0',
 								}}
 							>
@@ -940,7 +939,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								<div
 									style={{
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.5rem',
 									}}
 								>
@@ -1034,7 +1033,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									id="credentials-modal-help"
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -1063,7 +1062,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									id="success-modal-help"
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -1092,7 +1091,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									id="error-recovery-help"
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -1122,7 +1121,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									id="auth-code-display-help"
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -1152,7 +1151,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									id="auth-request-modal-help"
 									style={{
 										fontSize: '0.875rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										marginTop: '0.25rem',
 									}}
 								>
@@ -1265,10 +1264,10 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										paddingTop: '1rem',
 										borderTop: '1px solid #cbd5e1',
 										fontSize: '0.85rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
-									<strong style={{ color: 'V9_COLORS.TEXT.GRAY_DARK' }}>UI Settings:</strong>
+									<strong style={{ color: '#1f2937' }}>UI Settings:</strong>
 									{normalizedConfig.showSuccessModal && ' Success Modal'}
 									{normalizedConfig.showAuthCodeInModal && '  Auth Code in Modal'}
 									{normalizedConfig.showCredentialsModal && '  Credentials Modal'}

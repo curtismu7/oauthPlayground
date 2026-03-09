@@ -14,10 +14,9 @@
  * />
  */
 
-
+import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 import type { ResponseMode } from '@/services/responseModeService';
-import { FiChevronDown } from '@icons';
 
 const MODULE_TAG = '[🔗 RESPONSE-MODE-V8]';
 

@@ -1,14 +1,13 @@
 // src/components/SmartVehicleDeviceFlow.tsx
 // Smart Vehicle Style Device Authorization Flow Interface
 
-
+import { FiNavigation, FiTruck } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiNavigation, FiTruck } from '@icons';
 
 // Tesla Screen Main Container - Automotive Display
 const SmartVehicleContainer = styled.div`
@@ -100,7 +99,7 @@ const DashboardIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
+  background: ${(props) => (props.$active ? props.$color : '#1f2937')};
   box-shadow: ${(props) => (props.$active ? `0 0 20px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'dashboardPulse 2s infinite' : 'none')};
   position: relative;
@@ -114,7 +113,7 @@ const DashboardIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
+    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerPulse 1.5s infinite' : 'none')};
   }
   
@@ -214,28 +213,28 @@ const VehicleControlButton = styled.button<{
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.RED_LIGHT';
+				return '#f87171';
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   color: white;
   border: 2px solid ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.RED';
+				return '#ef4444';
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
 				return '#4b5563';
 		}
@@ -283,11 +282,11 @@ const StatusDisplay = styled.div<{ $status: string }>`
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'authorized':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'denied':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -517,7 +516,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							</div>
 							<div
 								style={{
-									background: 'V9_COLORS.PRIMARY.GREEN',
+									background: '#10b981',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -553,7 +552,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									style={{
 										fontSize: '1.5rem',
 										fontWeight: '700',
-										color: 'V9_COLORS.PRIMARY.GREEN',
+										color: '#10b981',
 									}}
 								>
 									85%
@@ -593,7 +592,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 										style={{
 											width: '80px',
 											height: '80px',
-											background: 'V9_COLORS.TEXT.GRAY_DARK',
+											background: '#1f2937',
 											borderRadius: '50%',
 											display: 'flex',
 											alignItems: 'center',
@@ -620,11 +619,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								}}
 							>
 								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌡️</div>
-								<div
-									style={{ fontSize: '1.5rem', fontWeight: '700', color: 'V9_COLORS.PRIMARY.BLUE' }}
-								>
-									72°F
-								</div>
+								<div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>72°F</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Outside</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
 									AC: Auto
@@ -663,7 +658,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
 									Destination: Downtown Office
 								</div>
-								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>
 									ETA: 12 minutes • 3.2 miles
 								</div>
 							</div>
@@ -690,7 +685,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
 									Now Playing: Spotify
 								</div>
-								<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.PRIMARY.GREEN' }}>
+								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>
 									"Electric Dreams" - Synthwave Mix
 								</div>
 							</div>

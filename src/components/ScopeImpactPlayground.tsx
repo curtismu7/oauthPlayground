@@ -4,7 +4,6 @@
  * Interactive explorer showing how OAuth/OIDC scopes translate to real permissions and APIs
  */
 
-
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -387,12 +386,12 @@ const ProviderSwitch = styled.div`
 const ProviderButton = styled.button<{ $selected: boolean }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 999px;
-	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#c7d2fe')};
+	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#c7d2fe')};
 	background: ${({ $selected }) =>
 		$selected
 			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK)'
-			: 'V9_COLORS.TEXT.WHITE'};
-	color: ${({ $selected }) => ($selected ? 'V9_COLORS.TEXT.WHITE' : '#1e3a8a')};
+			: '#ffffff'};
+	color: ${({ $selected }) => ($selected ? '#ffffff' : '#1e3a8a')};
 	font-weight: 600;
 	cursor: pointer;
 	display: flex;
@@ -447,18 +446,18 @@ const ScopeChip = styled.button<{ $selected: boolean; $risk: ScopeDefinition['ri
 	border-radius: 999px;
 	border: 2px solid
 		${({ $selected, $risk }) => {
-			if (!$selected) return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+			if (!$selected) return '#e5e7eb';
 			switch ($risk) {
 				case 'high':
-					return 'V9_COLORS.PRIMARY.RED';
+					return '#ef4444';
 				case 'medium':
-					return 'V9_COLORS.PRIMARY.YELLOW';
+					return '#f59e0b';
 				default:
-					return 'V9_COLORS.PRIMARY.GREEN';
+					return '#10b981';
 			}
 		}};
 	background: ${({ $selected, $risk }) => {
-		if (!$selected) return 'V9_COLORS.TEXT.WHITE';
+		if (!$selected) return '#ffffff';
 		switch ($risk) {
 			case 'high':
 				return 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.25))';
@@ -468,7 +467,7 @@ const ScopeChip = styled.button<{ $selected: boolean; $risk: ScopeDefinition['ri
 				return 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.25))';
 		}
 	}};
-	color: ${({ $selected }) => ($selected ? 'V9_COLORS.TEXT.GRAY_DARK' : '#1e293b')};
+	color: ${({ $selected }) => ($selected ? '#1f2937' : '#1e293b')};
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s;

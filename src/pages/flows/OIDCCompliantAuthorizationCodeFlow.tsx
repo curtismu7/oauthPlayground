@@ -78,17 +78,11 @@ export default function OIDCCompliantAuthorizationCodeFlow() {
 		<Container>
 			<ContentWrapper>
 				<Header>
-					<HeaderTitle>
-						🛡️
-						OpenID Connect Authorization Code Flow
-					</HeaderTitle>
+					<HeaderTitle>🛡️ OpenID Connect Authorization Code Flow</HeaderTitle>
 					<HeaderSubtitle>
 						OIDC Core 1.0 compliant implementation with ID token validation and UserInfo integration
 					</HeaderSubtitle>
-					<ComplianceBadge>
-						✅
-						OIDC Core 1.0 Compliant
-					</ComplianceBadge>
+					<ComplianceBadge>✅ OIDC Core 1.0 Compliant</ComplianceBadge>
 				</Header>
 				{/* Component content will be added in next part */}
 			</ContentWrapper>

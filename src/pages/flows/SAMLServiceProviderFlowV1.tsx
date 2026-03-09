@@ -42,25 +42,25 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			default:
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
+				return '#fbbf24';
 			case 'success':
-				return 'V9_COLORS.BG.SUCCESS_BORDER';
+				return '#10b981';
 			case 'error':
 				return '#fca5a5';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -72,11 +72,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#78350f';
 			case 'success':
-				return 'V9_COLORS.PRIMARY.GREEN_DARK';
+				return '#059669';
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	}};
 `;
@@ -692,7 +692,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<span>ℹ️</span><div>
+					<span>ℹ️</span>
+					<div>
 						<InfoTitle>SAML 2.0 Service Provider Configuration</InfoTitle>
 						<InfoText>
 							Configure your SAML SP application settings. The new PingOne feature allows accepting
@@ -767,7 +768,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						<CheckboxLabel htmlFor="enableDynamicAcs">
 							<strong>Always accept ACS URL in signed SAML 2.0 AuthnRequest</strong>
 							<TooltipIcon title="PingOne only honors the embedded ACS URL when this toggle is on and the AuthnRequest signature matches the configured IdP certificate.">
-								<span>ℹ️</span></TooltipIcon>
+								<span>ℹ️</span>
+							</TooltipIcon>
 						</CheckboxLabel>
 						<Helper style={{ marginTop: '0.25rem' }}>
 							When enabled, the SP will accept ACS URLs specified in signed AuthnRequests, even if
@@ -777,12 +779,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				</CheckboxGroup>
 
 				<InfoBox $variant="warning" style={{ marginTop: '1.5rem' }}>
-					<span>⚠️</span><div>
+					<span>⚠️</span>
+					<div>
 						<InfoTitle>PingOne configuration checklist</InfoTitle>
 						<InfoText>
 							Make sure these settings are in place before testing dynamic ACS URLs:
 						</InfoText>
-						<ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+						<ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', color: '#1f2937' }}>
 							<li>
 								Enable <strong>Always accept ACS URL in signed AuthnRequest</strong> in the PingOne
 								app.
@@ -805,7 +808,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					}}
 				>
 					<Button onClick={handleSaveConfiguration} $variant="primary" disabled={isSaving}>
-						{isSaving ? <span>🔄</span>: <span>[FiSave]</span>}
+						{isSaving ? <span>🔄</span> : <span>[FiSave]</span>}
 						{isSaving ? 'Saving...' : 'Save Configuration'}
 					</Button>
 					{hasSavedConfig && lastSavedAt && (
@@ -826,7 +829,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			showArrow={true}
 		>
 			<InfoBox $variant="info">
-				<span>ℹ️</span><div>
+				<span>ℹ️</span>
+				<div>
 					<InfoTitle>Sync with PingOne SAML Application</InfoTitle>
 					<InfoText>
 						Use your PingOne admin credentials to load or update the SAML application that should
@@ -905,7 +909,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			<SectionDivider />
 
 			<InfoBox $variant="warning">
-				<span>⚠️</span><div>
+				<span>⚠️</span>
+				<div>
 					<InfoTitle>PingOne Application</InfoTitle>
 					<InfoText>
 						Enter the SAML application ID you want to manage. Once loaded you can verify or toggle
@@ -962,7 +967,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			</div>
 
 			{!isAdminConfigured && (
-				<Helper style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '0.75rem' }}>
+				<Helper style={{ color: '#dc2626', marginTop: '0.75rem' }}>
 					Provide all PingOne admin credentials above before attempting to load or sync the
 					application.
 				</Helper>
@@ -996,7 +1001,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<span>🌐</span><div>
+					<span>🌐</span>
+					<div>
 						<InfoTitle>SAML AuthnRequest with Dynamic ACS URL</InfoTitle>
 						<InfoText>
 							The AuthnRequest contains an embedded ACS URL. With the new PingOne feature enabled,
@@ -1024,7 +1030,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						$variant="primary"
 						disabled={!authnRequestXml.trim() || isProcessing}
 					>
-						{isProcessing ? <span>🔄</span>: <span>➡️</span>}
+						{isProcessing ? <span>🔄</span> : <span>➡️</span>}
 						{isProcessing ? 'Processing...' : 'Process AuthnRequest'}
 					</Button>
 				</div>
@@ -1076,7 +1082,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					showArrow={true}
 				>
 					<InfoBox $variant={validationResult.isValid ? 'success' : 'warning'}>
-						{validationResult.isValid ? <span>✅</span>: <span>⚠️</span>}
+						{validationResult.isValid ? <span>✅</span> : <span>⚠️</span>}
 						<div>
 							<InfoTitle>
 								{validationResult.isValid ? 'ACS URL Accepted' : 'ACS URL Validation Issues'}
@@ -1129,7 +1135,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 								}}
 							>
 								<strong>Explanation:</strong>
-								<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+								<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#1f2937' }}>
 									{validationResult.explanation}
 								</div>
 							</div>
@@ -1140,13 +1146,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 								style={{
 									marginTop: '1rem',
 									padding: '1rem',
-									background: 'V9_COLORS.BG.ERROR',
+									background: '#fef2f2',
 									border: '1px solid #fca5a5',
 									borderRadius: '0.25rem',
 								}}
 							>
 								<strong>Errors:</strong>
-								<ul style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+								<ul style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#dc2626' }}>
 									{validationResult.errors.map((error: string, index: number) => (
 										<li key={index}>{error}</li>
 									))}
@@ -1169,7 +1175,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					showArrow={true}
 				>
 					<InfoBox $variant="info">
-						<span>📦</span><div>
+						<span>📦</span>
+						<div>
 							<InfoTitle>SAML Response Generation</InfoTitle>
 							<InfoText>
 								Generate a SAML Response to complete the authentication flow. The response will be
@@ -1191,7 +1198,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							</div>
 							<pre
 								style={{
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 									fontSize: '0.875rem',
 									lineHeight: '1.5',

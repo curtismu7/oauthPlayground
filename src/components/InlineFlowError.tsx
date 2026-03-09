@@ -1,6 +1,5 @@
 // src/components/InlineFlowError.tsx
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { ERROR_MESSAGES, ErrorCategory } from '../constants/errorMessages';
@@ -151,37 +150,37 @@ const ErrorContainer = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
   background-color: ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'info':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			default:
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'warning':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 		}
 	}};
   border-left: 4px solid ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			default:
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
   border-radius: 0.5rem;
@@ -200,13 +199,13 @@ const ErrorIcon = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
   color: ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'warning':
-				return 'V9_COLORS.PRIMARY.YELLOW';
+				return '#f59e0b';
 			case 'info':
-				return 'V9_COLORS.PRIMARY.BLUE';
+				return '#3b82f6';
 			default:
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
   flex-shrink: 0;

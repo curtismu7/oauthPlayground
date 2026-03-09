@@ -910,7 +910,12 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 					{policiesError && (
 						<div className="error-message" role="alert">
 							{policiesError}
-							<button type="button" onClick={refreshDeviceAuthPolicies} className="button-link">
+							<button
+								type="button"
+								type="button"
+								onClick={refreshDeviceAuthPolicies}
+								className="button-link"
+							>
 								Retry
 							</button>
 						</div>

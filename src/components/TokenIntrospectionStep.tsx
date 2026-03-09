@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -201,14 +200,14 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' | 'o
 			case 'secondary':
 				return theme.colors.secondary;
 			case 'danger':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'outline':
 				return 'transparent';
 			default:
 				return theme.colors.primary;
 		}
 	}};
-	color: ${({ $variant }) => ($variant === 'outline' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'white')};
+	color: ${({ $variant }) => ($variant === 'outline' ? '#1f2937' : 'white')};
 	border: ${({ $variant }) => ($variant === 'outline' ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	border-radius: 0.375rem;
 	font-weight: 500;
@@ -394,7 +393,8 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 											borderColor: primaryColor,
 										}}
 									>
-										<span>👁️</span> {isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
+										<span>👁️</span>{' '}
+										{isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
 									</HighlightedActionButton>
 								</ActionRow>
 
@@ -408,9 +408,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 												<ParameterLabel>Token Status</ParameterLabel>
 												<ParameterValue
 													style={{
-														color: introspectionResults.active
-															? 'V9_COLORS.PRIMARY.GREEN_DARK'
-															: 'V9_COLORS.PRIMARY.RED_DARK',
+														color: introspectionResults.active ? '#059669' : '#dc2626',
 														fontWeight: 'bold',
 													}}
 												>

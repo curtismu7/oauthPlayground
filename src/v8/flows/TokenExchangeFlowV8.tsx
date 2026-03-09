@@ -2,7 +2,7 @@
 // V8 OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 // Phase 1: Same environment only, admin enablement required
 
-
+import { FiAlertCircle, FiCheckCircle, FiLock, FiShield, FiUsers } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -14,7 +14,6 @@ import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigSer
 import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
-import { FiAlertCircle, FiCheckCircle, FiLock, FiShield, FiUsers } from '@icons';
 
 type TokenExchangeScenario =
 	| 'delegation'

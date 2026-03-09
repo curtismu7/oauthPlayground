@@ -16,7 +16,7 @@
  * - FIDO policy information (if applicable)
  */
 
-
+import { FiCheck } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -27,7 +27,6 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
-import { FiCheck } from '@icons';
 
 export interface UnifiedMFASuccessPageData {
 	// Flow type
@@ -1373,7 +1372,11 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						>
 							📄 Response Data (JSON)
 						</h4>
-						{jsonExpanded ? <span style={{ fontSize: '20px' }}>⬆️</span> : <span style={{ fontSize: '20px' }}>⬇️</span>}
+						{jsonExpanded ? (
+							<span style={{ fontSize: '20px' }}>⬆️</span>
+						) : (
+							<span style={{ fontSize: '20px' }}>⬇️</span>
+						)}
 					</button>
 					{jsonExpanded && (
 						<div

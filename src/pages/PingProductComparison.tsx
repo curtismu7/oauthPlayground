@@ -63,9 +63,9 @@ const FilterBar = styled.div`
 
 const FilterButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-	background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
-	color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#1f2937')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -74,7 +74,7 @@ const FilterButton = styled.button<{ $active: boolean }>`
 
 	&:hover {
 		border-color: V9_COLORS.PRIMARY.BLUE;
-		background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.BG.GRAY_LIGHT')};
+		background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
 	}
 `;
 
@@ -141,11 +141,11 @@ const FeatureRow = styled.div<{ $unverified?: boolean }>`
 	padding: 1rem 1.5rem;
 	border-bottom: 1px solid #f3f4f6;
 	transition: background 0.2s;
-	background: ${(props) => (props.$unverified ? 'V9_COLORS.BG.WARNING' : 'transparent')};
+	background: ${(props) => (props.$unverified ? '#fef3c7' : 'transparent')};
 	border-left: ${(props) => (props.$unverified ? '4px solid V9_COLORS.PRIMARY.YELLOW' : '4px solid transparent')};
 
 	&:hover {
-		background: ${(props) => (props.$unverified ? 'V9_COLORS.BG.WARNING_BORDER' : '#f9fafb')};
+		background: ${(props) => (props.$unverified ? '#f59e0b' : '#f9fafb')};
 	}
 
 	&:last-child {
@@ -169,9 +169,9 @@ const VerificationBadge = styled.div<{ $verified: boolean }>`
 	border-radius: 9999px;
 	font-size: 0.65rem;
 	font-weight: 600;
-	background: ${(props) => (props.$verified ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING')};
-	color: ${(props) => (props.$verified ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
-	border: 1px solid ${(props) => (props.$verified ? '#86efac' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT')};
+	background: ${(props) => (props.$verified ? '#ecfdf5' : '#fef3c7')};
+	color: ${(props) => (props.$verified ? '#10b981' : '#d97706')};
+	border: 1px solid ${(props) => (props.$verified ? '#86efac' : '#fbbf24')};
 	width: fit-content;
 `;
 
@@ -206,25 +206,25 @@ const SupportBadge = styled.div<{ $type: 'full' | 'partial' | 'none' | 'plugin' 
 	background: ${(props) => {
 		switch (props.$type) {
 			case 'full':
-				return 'V9_COLORS.BG.SUCCESS';
+				return '#ecfdf5';
 			case 'partial':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'plugin':
 				return '#dbeafe';
 			case 'none':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 		}
 	}};
 	color: ${(props) => {
 		switch (props.$type) {
 			case 'full':
-				return 'V9_COLORS.PRIMARY.GREEN';
+				return '#10b981';
 			case 'partial':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'plugin':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'none':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 		}
 	}};
 `;
@@ -996,10 +996,10 @@ const PingProductComparison: React.FC = () => {
 			<div
 				style={{
 					padding: '1.5rem',
-					background: verificationPercentage === 100 ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.WARNING',
+					background: verificationPercentage === 100 ? '#ecfdf5' : '#fef3c7',
 					borderRadius: '0.75rem',
 					marginBottom: '1.5rem',
-					border: `2px solid ${verificationPercentage === 100 ? '#86efac' : 'V9_COLORS.PRIMARY.YELLOW_LIGHT'}`,
+					border: `2px solid ${verificationPercentage === 100 ? '#86efac' : '#fbbf24'}`,
 				}}
 			>
 				<div
@@ -1015,7 +1015,7 @@ const PingProductComparison: React.FC = () => {
 						<div
 							style={{
 								fontSize: '2.5rem',
-								color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
+								color: verificationPercentage === 100 ? '#10b981' : '#d97706',
 							}}
 						>
 							{verificationPercentage === 100 ? '✓' : '⚠️'}
@@ -1024,7 +1024,7 @@ const PingProductComparison: React.FC = () => {
 							<h3
 								style={{
 									margin: '0 0 0.25rem 0',
-									color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: verificationPercentage === 100 ? '#10b981' : '#d97706',
 									fontSize: '1.125rem',
 									fontWeight: 700,
 								}}
@@ -1034,7 +1034,7 @@ const PingProductComparison: React.FC = () => {
 							<p
 								style={{
 									margin: 0,
-									color: verificationPercentage === 100 ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.YELLOW_DARK',
+									color: verificationPercentage === 100 ? '#10b981' : '#d97706',
 									fontSize: '0.875rem',
 								}}
 							>
@@ -1054,10 +1054,10 @@ const PingProductComparison: React.FC = () => {
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
 								{verifiedFeatures}
 							</div>
-							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>Verified</div>
+							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Verified</div>
 						</div>
 						<div
 							style={{
@@ -1068,10 +1068,10 @@ const PingProductComparison: React.FC = () => {
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706' }}>
 								{unverifiedFeatures}
 							</div>
-							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontWeight: 600 }}>
+							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>
 								Unverified
 							</div>
 						</div>
@@ -1085,7 +1085,7 @@ const PingProductComparison: React.FC = () => {
 							background: 'white',
 							borderRadius: '0.5rem',
 							fontSize: '0.875rem',
-							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+							color: '#d97706',
 							border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 						}}
 					>
@@ -1098,21 +1098,25 @@ const PingProductComparison: React.FC = () => {
 
 			<Legend>
 				<LegendItem>
-					<span>✅</span><strong>Full Support</strong> - Feature fully supported out of the box
+					<span>✅</span>
+					<strong>Full Support</strong> - Feature fully supported out of the box
 				</LegendItem>
 				<LegendItem>
-					<span>⚠️</span><strong>Partial Support</strong> - Limited or requires configuration
+					<span>⚠️</span>
+					<strong>Partial Support</strong> - Limited or requires configuration
 				</LegendItem>
 				<LegendItem>
-					<span>ℹ️</span><strong>Plugin/Integration</strong> - Requires additional plugin or integration
+					<span>ℹ️</span>
+					<strong>Plugin/Integration</strong> - Requires additional plugin or integration
 				</LegendItem>
 				<LegendItem>
-					<span>❌</span><strong>Not Supported</strong> - Feature not available
+					<span>❌</span>
+					<strong>Not Supported</strong> - Feature not available
 				</LegendItem>
 			</Legend>
 
 			<FilterBar>
-				<span style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Filter by category:</span>
+				<span style={{ fontWeight: 600, color: '#1f2937' }}>Filter by category:</span>
 				{categories.map((category) => (
 					<FilterButton
 						key={category}
@@ -1130,12 +1134,12 @@ const PingProductComparison: React.FC = () => {
 							gap: '0.5rem',
 							cursor: 'pointer',
 							padding: '0.5rem 1rem',
-							background: showOnlyUnverified ? 'V9_COLORS.BG.WARNING' : 'white',
-							border: `2px solid ${showOnlyUnverified ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
+							background: showOnlyUnverified ? '#fef3c7' : 'white',
+							border: `2px solid ${showOnlyUnverified ? '#f59e0b' : '#e5e7eb'}`,
 							borderRadius: '0.5rem',
 							fontSize: '0.875rem',
 							fontWeight: 600,
-							color: showOnlyUnverified ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : 'V9_COLORS.TEXT.GRAY_DARK',
+							color: showOnlyUnverified ? '#d97706' : '#1f2937',
 							transition: 'all 0.2s',
 						}}
 					>
@@ -1234,7 +1238,7 @@ const PingProductComparison: React.FC = () => {
 				style={{
 					marginTop: '3rem',
 					padding: '1.5rem',
-					background: 'V9_COLORS.BG.WARNING',
+					background: '#fef3c7',
 					borderRadius: '0.75rem',
 					border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 				}}
@@ -1242,7 +1246,7 @@ const PingProductComparison: React.FC = () => {
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
+						color: '#d97706',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1250,7 +1254,7 @@ const PingProductComparison: React.FC = () => {
 				>
 					⚠️ Important Disclaimer
 				</h3>
-				<div style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', lineHeight: 1.8, fontSize: '0.95rem' }}>
+				<div style={{ color: '#d97706', lineHeight: 1.8, fontSize: '0.95rem' }}>
 					<p style={{ margin: '0 0 1rem 0', fontWeight: 600 }}>
 						This comparison is based on general knowledge and publicly available information.
 						Feature support may vary based on:
@@ -1276,7 +1280,7 @@ const PingProductComparison: React.FC = () => {
 				style={{
 					marginTop: '1.5rem',
 					padding: '1.5rem',
-					background: 'V9_COLORS.BG.GRAY_LIGHT',
+					background: '#f8fafc',
 					borderRadius: '0.75rem',
 					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 				}}
@@ -1284,7 +1288,7 @@ const PingProductComparison: React.FC = () => {
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						color: '#2563eb',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1292,7 +1296,7 @@ const PingProductComparison: React.FC = () => {
 				>
 					<span>ℹ️</span>Key Takeaways
 				</h3>
-				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: 'V9_COLORS.PRIMARY.BLUE_DARK', lineHeight: 1.8 }}>
+				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#2563eb', lineHeight: 1.8 }}>
 					<li>
 						<strong>PingOne</strong> - Modern cloud-native platform with excellent OAuth/OIDC
 						support, best for new deployments
@@ -1325,7 +1329,7 @@ const PingProductComparison: React.FC = () => {
 				<h3
 					style={{
 						margin: '0 0 1rem 0',
-						color: 'V9_COLORS.TEXT.GRAY_DARK',
+						color: '#1f2937',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '0.5rem',
@@ -1333,7 +1337,7 @@ const PingProductComparison: React.FC = () => {
 				>
 					<span>ℹ️</span>Sources & Verification
 				</h3>
-				<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', lineHeight: 1.8, fontSize: '0.875rem' }}>
+				<div style={{ color: '#6b7280', lineHeight: 1.8, fontSize: '0.875rem' }}>
 					<p style={{ margin: '0 0 0.75rem 0' }}>This comparison is compiled from:</p>
 					<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem' }}>
 						<li>Ping Identity official documentation</li>
@@ -1350,7 +1354,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://docs.pingidentity.com"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
+								style={{ color: '#2563eb' }}
 							>
 								Ping Identity Documentation
 							</a>
@@ -1360,7 +1364,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://www.pingidentity.com/en/resources/product-comparison.html"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
+								style={{ color: '#2563eb' }}
 							>
 								Official Product Comparison
 							</a>
@@ -1370,7 +1374,7 @@ const PingProductComparison: React.FC = () => {
 								href="https://support.pingidentity.com"
 								target="_blank"
 								rel="noopener noreferrer"
-								style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
+								style={{ color: '#2563eb' }}
 							>
 								Ping Identity Support Portal
 							</a>

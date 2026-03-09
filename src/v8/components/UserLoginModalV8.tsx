@@ -9,7 +9,6 @@
  * to obtain an access token that can be used as a "User Token" in MFA flows.
  */
 
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -2133,7 +2132,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}}
 									aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
 								>
-									{showClientSecret ? <span style={{ fontSize: '18px' }}>🙈</span> : <span style={{ fontSize: '18px' }}>👁️</span>}
+									{showClientSecret ? (
+										<span style={{ fontSize: '18px' }}>🙈</span>
+									) : (
+										<span style={{ fontSize: '18px' }}>👁️</span>
+									)}
 								</button>
 							</div>
 							<small

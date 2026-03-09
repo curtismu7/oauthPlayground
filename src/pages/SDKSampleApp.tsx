@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -460,7 +459,8 @@ app.get('/callback', async (req, res) => {
 								<div
 									style={{
 										padding: '1.5rem',
-										background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
+										background:
+											'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 										border: '2px solid #0ea5e9',
 										borderRadius: '0.75rem',
 									}}
@@ -468,7 +468,7 @@ app.get('/callback', async (req, res) => {
 									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
 										OAuth Playground (This Application)
 									</h3>
-									<p style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '1rem' }}>
+									<p style={{ color: '#3b82f6', marginBottom: '1rem' }}>
 										Interactive web application for learning and testing OAuth 2.0 and OpenID
 										Connect flows.
 									</p>

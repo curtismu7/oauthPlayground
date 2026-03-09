@@ -1,14 +1,12 @@
 // src/components/CompactAdvancedSecuritySettings.tsx
 // Compact version of Advanced Security Settings for use inside flows
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-type AdvancedSecuritySettings
-,
+	type AdvancedSecuritySettings,
 	advancedSecuritySettingsService,
-} from '../services/advancedSecuritySettingsService'
+} from '../services/advancedSecuritySettingsService';
 
 type SecurityAssessment = ReturnType<
 	typeof advancedSecuritySettingsService.getSecurityLevelAssessment
@@ -52,9 +50,9 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -66,29 +64,29 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   color: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'high':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'medium':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'medium':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -207,9 +205,9 @@ const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'criti
   background: ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'medium':
 				return '#dbeafe';
 			case 'low':
@@ -221,15 +219,15 @@ const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'criti
   border: 1px solid ${(props) => {
 		switch (props.level) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'high':
-				return 'V9_COLORS.BG.WARNING_BORDER';
+				return '#f59e0b';
 			case 'medium':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			case 'low':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   margin-bottom: 1rem;
@@ -296,7 +294,7 @@ const CompactAdvancedSecuritySettings: React.FC = () => {
 						<span style={{ fontSize: '14px' }}>🛡️</span>
 						Security Level: {assessment.overall.toUpperCase()} ({assessment.score}%)
 						{assessment.recommendations.length > 0 && (
-							<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.75rem' }}>
+							<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 								• {assessment.recommendations.length} recommendations
 							</span>
 						)}

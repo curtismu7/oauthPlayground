@@ -1,6 +1,5 @@
 // src/components/ConfigurationSummaryCard.tsx
 
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
@@ -30,7 +29,7 @@ const SectionHeader = styled.button.withConfig({
 })<{ $isExpanded: boolean; $primaryColor: string }>`
 	width: 100%;
 	background: ${(props) => (props.$isExpanded ? props.$primaryColor : '#f0fdf4')};
-	color: ${(props) => (props.$isExpanded ? 'white' : 'V9_COLORS.PRIMARY.GREEN')};
+	color: ${(props) => (props.$isExpanded ? 'white' : '#10b981')};
 	padding: 0.5rem 1rem;
 	border: none;
 	cursor: pointer;
@@ -41,7 +40,7 @@ const SectionHeader = styled.button.withConfig({
 	transition: all 0.2s ease;
 	
 	&:hover {
-		background: ${(props) => (props.$isExpanded ? props.$primaryColor : 'V9_COLORS.BG.SUCCESS')};
+		background: ${(props) => (props.$isExpanded ? props.$primaryColor : '#ecfdf5')};
 	}
 `;
 
@@ -144,13 +143,13 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 		(settings.colorScheme === 'blue'
 			? '#0070cc'
 			: settings.colorScheme === 'green'
-				? 'V9_COLORS.PRIMARY.GREEN'
+				? '#10b981'
 				: settings.colorScheme === 'purple'
 					? '#8b5cf6'
 					: settings.colorScheme === 'orange'
 						? '#f97316'
 						: settings.colorScheme === 'red'
-							? 'V9_COLORS.PRIMARY.RED'
+							? '#ef4444'
 							: '#0070cc');
 	const [isSummaryExpanded, setIsSummaryExpanded] = useState(true); // Start expanded
 
@@ -355,13 +354,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									fontSize: '0.8rem',
 								}}
 							>
-								<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-									Environment ID:
-								</div>
+								<div style={{ fontWeight: '600', color: '#1f2937' }}>Environment ID:</div>
 								<div
 									style={{
 										fontFamily: 'monospace',
-										background: 'V9_COLORS.BG.GRAY_MEDIUM',
+										background: '#f1f5f9',
 										padding: '0.2rem 0.4rem',
 										borderRadius: '3px',
 										fontSize: '0.75rem',
@@ -370,13 +367,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									{configuration?.environmentId || configurationDetails?.environmentId || 'Not set'}
 								</div>
 
-								<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-									Client ID:
-								</div>
+								<div style={{ fontWeight: '600', color: '#1f2937' }}>Client ID:</div>
 								<div
 									style={{
 										fontFamily: 'monospace',
-										background: 'V9_COLORS.BG.GRAY_MEDIUM',
+										background: '#f1f5f9',
 										padding: '0.2rem 0.4rem',
 										borderRadius: '3px',
 										fontSize: '0.75rem',
@@ -387,13 +382,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 								{(configuration?.redirectUri || configurationDetails?.redirectUri) && (
 									<>
-										<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-											Redirect URI:
-										</div>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>Redirect URI:</div>
 										<div
 											style={{
 												fontFamily: 'monospace',
-												background: 'V9_COLORS.BG.GRAY_MEDIUM',
+												background: '#f1f5f9',
 												padding: '0.2rem 0.4rem',
 												borderRadius: '3px',
 												wordBreak: 'break-all',
@@ -410,13 +403,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 										Array.isArray(configurationDetails.scopes) &&
 										configurationDetails.scopes.length > 0)) && (
 									<>
-										<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-											Scopes:
-										</div>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>Scopes:</div>
 										<div
 											style={{
 												fontFamily: 'monospace',
-												background: 'V9_COLORS.BG.GRAY_MEDIUM',
+												background: '#f1f5f9',
 												padding: '0.2rem 0.4rem',
 												borderRadius: '3px',
 												fontSize: '0.75rem',
@@ -430,13 +421,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 								{(configuration?.loginHint || configurationDetails?.loginHint) && (
 									<>
-										<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-											Login Hint:
-										</div>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>Login Hint:</div>
 										<div
 											style={{
 												fontFamily: 'monospace',
-												background: 'V9_COLORS.BG.GRAY_MEDIUM',
+												background: '#f1f5f9',
 												padding: '0.2rem 0.4rem',
 												borderRadius: '3px',
 												fontSize: '0.75rem',
@@ -449,13 +438,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 								{(configuration?.responseType || configurationDetails?.responseType) && (
 									<>
-										<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-											Response Type:
-										</div>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>Response Type:</div>
 										<div
 											style={{
 												fontFamily: 'monospace',
-												background: 'V9_COLORS.BG.GRAY_MEDIUM',
+												background: '#f1f5f9',
 												padding: '0.2rem 0.4rem',
 												borderRadius: '3px',
 												fontSize: '0.75rem',
@@ -468,13 +455,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 								{(configuration?.grantType || configurationDetails?.grantType) && (
 									<>
-										<div style={{ fontWeight: '600', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-											Grant Type:
-										</div>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>Grant Type:</div>
 										<div
 											style={{
 												fontFamily: 'monospace',
-												background: 'V9_COLORS.BG.GRAY_MEDIUM',
+												background: '#f1f5f9',
 												padding: '0.2rem 0.4rem',
 												borderRadius: '3px',
 												fontSize: '0.75rem',
@@ -493,7 +478,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									type="button"
 									onClick={handleSaveConfiguration}
 									style={{
-										background: 'V9_COLORS.PRIMARY.GREEN',
+										background: '#10b981',
 										color: 'white',
 										border: 'none',
 										padding: '0.35rem 0.75rem',
@@ -509,7 +494,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									type="button"
 									onClick={handleExportConfiguration}
 									style={{
-										background: 'V9_COLORS.PRIMARY.BLUE',
+										background: '#3b82f6',
 										color: 'white',
 										border: 'none',
 										padding: '0.35rem 0.75rem',

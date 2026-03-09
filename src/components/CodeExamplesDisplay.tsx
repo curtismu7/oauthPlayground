@@ -1,6 +1,5 @@
 // src/components/CodeExamplesDisplay.tsx
 
-
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -53,10 +52,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	border: 1px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 6px;
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -64,8 +63,8 @@ const LanguageButton = styled.button<{ $active: boolean }>`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
-		border-color: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		border-color: ${({ $active }) => ($active ? '#2563eb' : '#9ca3af')};
 	}
 `;
 

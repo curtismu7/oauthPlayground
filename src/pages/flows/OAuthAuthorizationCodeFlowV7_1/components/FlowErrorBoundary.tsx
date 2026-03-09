@@ -1,11 +1,10 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowErrorBoundary.tsx
 // V7.1 Flow Error Boundary - Graceful error handling for OAuth Authorization Code Flow
 
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
-import { UI_CONSTANTS } from '../constants/uiConstants';
 import { logger } from '../../../../utils/logger';
+import { UI_CONSTANTS } from '../constants/uiConstants';
 
 interface Props {
 	children: ReactNode;

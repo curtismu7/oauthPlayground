@@ -1,9 +1,9 @@
 // src/components/AuthorizationCodeModal.tsx
 
+import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
-import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -179,7 +179,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	position: absolute;
 	top: 0.5rem;
 	right: 0.5rem;
-	background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+	background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
 	color: white;
 	border: none;
 	padding: 0.5rem;
@@ -194,7 +194,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
 	&:hover {
-		background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+		background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}

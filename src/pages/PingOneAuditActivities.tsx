@@ -2,6 +2,8 @@
 // Visual explorer for PingOne Audit Activities API
 // Cache bust: 2025-02-17-11:32viewer with filtering - matching Identity Metrics page design
 
+import { FiActivity, FiCheck, FiDatabase, FiEye, FiFilter, FiServer } from '@icons';
+import { FlowHeader } from '../services/flowHeaderService';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
@@ -14,7 +16,6 @@ import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { FiActivity, FiCheck, FiDatabase, FiEye, FiFilter, FiServer } from '@icons';
 
 const styles = {
 	pageContainer: {
@@ -32,20 +33,20 @@ const styles = {
 		gap: '1rem',
 		padding: '1.75rem',
 		borderRadius: '1rem',
-		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
+		background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 		border: '1px solid rgba(220, 38, 38, 0.4)',
 	},
 	titleRow: {
 		display: 'flex' as const,
 		alignItems: 'center' as const,
 		gap: '0.75rem',
-		color: 'V9_COLORS.TEXT.WHITE',
+		color: '#ffffff',
 	},
 	title: {
 		margin: 0,
 		fontSize: '1.75rem',
 		fontWeight: 700,
-		color: 'V9_COLORS.TEXT.WHITE',
+		color: '#ffffff',
 	} as React.CSSProperties,
 	subtitle: {
 		margin: 0,
@@ -59,9 +60,9 @@ const styles = {
 		gap: '2rem',
 	},
 	card: {
-		background: 'V9_COLORS.TEXT.WHITE',
+		background: '#ffffff',
 		borderRadius: '1rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.18)',
 		overflow: 'hidden' as const,
 		padding: '1.5rem',
@@ -76,7 +77,7 @@ const styles = {
 		gap: '0.5rem',
 		fontSize: '1.1rem',
 		fontWeight: 600,
-		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		color: '#1f2937',
 	} as React.CSSProperties,
 	fieldGroup: {
 		display: 'flex' as const,
@@ -95,15 +96,15 @@ const styles = {
 		width: '100%',
 		padding: '0.75rem 0.85rem',
 		borderRadius: '0.75rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		border: '1px solid #e5e7eb',
+		background: '#f8fafc',
 		fontSize: '0.92rem',
 		cursor: 'pointer' as const,
 	},
 	hint: {
 		margin: 0,
 		fontSize: '0.8rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	} as React.CSSProperties,
 	buttonRow: {
 		display: 'flex' as const,
@@ -114,7 +115,7 @@ const styles = {
 		border: 'none',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
-		background: disabled ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK',
+		background: disabled ? '#e5e7eb' : '#2563eb',
 		color: 'white',
 		fontWeight: 600,
 		display: 'inline-flex',
@@ -126,7 +127,7 @@ const styles = {
 		border: 'none',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
-		background: 'V9_COLORS.PRIMARY.RED',
+		background: '#ef4444',
 		color: 'white',
 		fontWeight: 600,
 		display: 'inline-flex' as const,
@@ -135,7 +136,7 @@ const styles = {
 		cursor: 'pointer' as const,
 	},
 	secondaryButton: {
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
 		background: 'white',
@@ -148,21 +149,21 @@ const styles = {
 	},
 	warningBanner: {
 		padding: '1rem',
-		background: 'V9_COLORS.BG.WARNING',
-		border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
+		background: '#fef3c7',
+		border: '1px solid #fbbf24',
 		borderRadius: '0.75rem',
 		marginBottom: '1rem',
 	},
 	errorBanner: {
 		padding: '1rem',
-		background: 'V9_COLORS.BG.ERROR',
-		border: '1px solid V9_COLORS.PRIMARY.RED_LIGHT',
+		background: '#fef2f2',
+		border: '1px solid #ef4444_LIGHT',
 		borderRadius: '0.75rem',
 		marginBottom: '1rem',
 		display: 'flex' as const,
 		alignItems: 'flex-start' as const,
 		gap: '0.75rem',
-		color: 'V9_COLORS.PRIMARY.RED_DARK',
+		color: '#dc2626',
 		fontSize: '0.875rem',
 	},
 	resultContainer: {
@@ -173,7 +174,7 @@ const styles = {
 	emptyState: {
 		textAlign: 'center' as const,
 		padding: '3rem 2rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		display: 'flex' as const,
 		flexDirection: 'column' as const,
 		alignItems: 'center' as const,
@@ -181,7 +182,7 @@ const styles = {
 	},
 	activityCard: (clickable?: boolean): React.CSSProperties => ({
 		padding: '0.75rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 		borderRadius: '0.5rem',
 		background: '#f9fafb',
 		cursor: clickable ? 'pointer' : 'default',
@@ -202,7 +203,7 @@ const styles = {
 		alignItems: 'flex-end' as const,
 		gap: '0.25rem',
 		fontSize: '0.75rem',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 	},
 	activityDetails: {
 		display: 'flex' as const,
@@ -214,17 +215,17 @@ const styles = {
 	detailBadge: (color?: string): React.CSSProperties => ({
 		padding: '0.25rem 0.5rem',
 		borderRadius: '0.375rem',
-		background: color || 'V9_COLORS.TEXT.GRAY_LIGHTER',
+		background: color || '#e5e7eb',
 		color:
-			color === 'V9_COLORS.BG.SUCCESS'
-				? 'V9_COLORS.PRIMARY.GREEN_DARK'
-				: color === 'V9_COLORS.BG.ERROR'
-					? 'V9_COLORS.PRIMARY.RED_DARK'
+			color === '#ecfdf5'
+				? '#059669'
+				: color === '#fef2f2'
+					? '#dc2626'
 					: color === '#dbeafe'
-						? 'V9_COLORS.PRIMARY.BLUE_DARK'
-						: color === 'V9_COLORS.BG.GRAY_LIGHT'
-							? 'V9_COLORS.PRIMARY.BLUE'
-							: 'V9_COLORS.TEXT.GRAY_DARK',
+						? '#2563eb'
+						: color === '#f8fafc'
+							? '#3b82f6'
+							: '#1f2937',
 		fontWeight: 500,
 		display: 'inline-flex' as const,
 		alignItems: 'center' as const,
@@ -254,12 +255,12 @@ const styles = {
 	},
 	detailModalHeader: {
 		padding: '1.5rem',
-		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '1px solid #e5e7eb',
 		display: 'flex' as const,
 		justifyContent: 'space-between' as const,
 		alignItems: 'flex-start' as const,
 		gap: '1rem',
-		background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+		background: 'linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%)',
 	},
 	detailModalTitle: {
 		margin: 0,
@@ -273,7 +274,7 @@ const styles = {
 	closeButton: {
 		background: 'none',
 		border: 'none',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		cursor: 'pointer' as const,
 		padding: '0.5rem',
 		display: 'flex' as const,
@@ -300,7 +301,7 @@ const styles = {
 		alignItems: 'center' as const,
 		gap: '0.5rem',
 		paddingBottom: '0.5rem',
-		borderBottom: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		borderBottom: '2px solid #e5e7eb',
 	} as React.CSSProperties,
 	detailGrid: {
 		display: 'grid' as const,
@@ -310,9 +311,9 @@ const styles = {
 	},
 	detailLabel: {
 		fontWeight: 600,
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		padding: '0.5rem',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		background: '#f8fafc',
 		borderRadius: '0.375rem',
 	},
 	detailValue: {
@@ -326,14 +327,14 @@ const styles = {
 		wordBreak: 'break-word' as const,
 		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 		fontSize: '0.8rem',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		background: '#f8fafc',
 		borderRadius: '0.375rem',
-		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		border: '1px solid #e5e7eb',
 	},
 	detailModalFooter: {
 		padding: '1rem 1.5rem',
-		borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-		background: 'V9_COLORS.BG.GRAY_LIGHT',
+		borderTop: '1px solid #e5e7eb',
+		background: '#f8fafc',
 		display: 'flex' as const,
 		justifyContent: 'flex-end' as const,
 		gap: '0.75rem',
@@ -343,7 +344,7 @@ const styles = {
 		borderRadius: '0.5rem',
 		padding: '0.5rem 1rem',
 		background: 'white',
-		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+		color: '#6b7280',
 		fontWeight: 600,
 		fontSize: '0.875rem',
 		display: 'inline-flex' as const,
@@ -902,9 +903,9 @@ const PingOneAuditActivities: React.FC = () => {
 							key={idx}
 							style={{
 								padding: '0.5rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.375rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid #e5e7eb',
 							}}
 						>
 							{typeof item === 'object' ? (
@@ -921,10 +922,13 @@ const PingOneAuditActivities: React.FC = () => {
 	};
 
 	return (
-		<div style={styles.pageContainer}>
-			<div style={styles.headerCard}>
-				<div style={styles.titleRow}>
-					<span>[FiActivity]</span><h1 style={styles.title}>PingOne Audit Activities</h1>
+		<>
+			<FlowHeader flowId="pingone-audit-activities" />
+			<div style={styles.pageContainer}>
+				<div style={styles.headerCard}>
+					<div style={styles.titleRow}>
+						<span>[FiActivity]</span>
+					<h1 style={styles.title}>PingOne Audit Activities</h1>
 				</div>
 				<p style={styles.subtitle}>
 					Query and analyze audit events from your PingOne environment. Retrieve activities by ID,
@@ -934,7 +938,8 @@ const PingOneAuditActivities: React.FC = () => {
 				{!hasWorkerToken && (
 					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-							<span>⚠️</span><div style={{ flex: 1 }}>
+							<span>⚠️</span>
+							<div style={{ flex: 1 }}>
 								<strong>Worker Token Required</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
 									Use the Worker Token section below to generate a token with your PingOne
@@ -966,14 +971,14 @@ const PingOneAuditActivities: React.FC = () => {
 								width: '100%',
 								padding: '0.75rem 0.85rem',
 								borderRadius: '0.75rem',
-								border: `1px solid ${!environmentId.trim() ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
-								background: !environmentId.trim() ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT',
+								border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#e5e7eb'}`,
+								background: !environmentId.trim() ? '#fef3c7' : '#f8fafc',
 								fontSize: '0.92rem',
 								fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 							}}
 						/>
 						{!environmentId.trim() ? (
-							<p style={{ ...styles.hint, color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontWeight: 600 }}>
+							<p style={{ ...styles.hint, color: '#d97706', fontWeight: 600 }}>
 								⚠️ Environment ID is required. Enter it manually or use the Worker Token section
 								below to auto-fill.
 							</p>
@@ -1057,8 +1062,8 @@ const PingOneAuditActivities: React.FC = () => {
 									width: '100%',
 									padding: '0.75rem 0.85rem',
 									borderRadius: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									background: 'V9_COLORS.BG.GRAY_LIGHT',
+									border: '1px solid #e5e7eb',
+									background: '#f8fafc',
 									fontSize: '0.92rem',
 									fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 								}}
@@ -1146,8 +1151,8 @@ const PingOneAuditActivities: React.FC = () => {
 										width: '100%',
 										padding: '0.75rem 0.85rem',
 										borderRadius: '0.75rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										border: '1px solid #e5e7eb',
+										background: '#f8fafc',
 										fontSize: '0.92rem',
 										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 									}}
@@ -1173,8 +1178,8 @@ const PingOneAuditActivities: React.FC = () => {
 										width: '100%',
 										padding: '0.75rem 0.85rem',
 										borderRadius: '0.75rem',
-										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										border: '1px solid #e5e7eb',
+										background: '#f8fafc',
 										fontSize: '0.92rem',
 										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 									}}
@@ -1209,7 +1214,7 @@ const PingOneAuditActivities: React.FC = () => {
 								<p
 									style={{
 										...styles.label,
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 										fontSize: '0.75rem',
 										fontWeight: 'normal',
 									}}
@@ -1277,13 +1282,15 @@ const PingOneAuditActivities: React.FC = () => {
 								}
 							}}
 						>
-							<span>❌</span>{viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
+							<span>❌</span>
+							{viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
 						</button>
 					</div>
 
 					{error && (
 						<div style={styles.errorBanner}>
-							<span>ℹ️</span><span>{error}</span>
+							<span>ℹ️</span>
+							<span>{error}</span>
 						</div>
 					)}
 
@@ -1295,7 +1302,7 @@ const PingOneAuditActivities: React.FC = () => {
 										style={{
 											...styles.card,
 											border: '1px solid #93c5fd',
-											background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%)',
+											background: 'linear-gradient(135deg, #f8fafc 0%, #dbeafe 100%)',
 										}}
 									>
 										<h2 style={styles.sectionTitle}>
@@ -1314,15 +1321,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Total Activities
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>
 													{summary.total}
 												</div>
 											</div>
@@ -1331,15 +1338,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Successful
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.GREEN' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
 													{summary.success}
 												</div>
 											</div>
@@ -1348,15 +1355,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Failed
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.RED' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ef4444' }}>
 													{summary.failure}
 												</div>
 											</div>
@@ -1365,15 +1372,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Action Types
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>
 													{summary.uniqueActionTypes}
 												</div>
 											</div>
@@ -1382,15 +1389,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Unique Users
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#2563eb' }}>
 													{summary.uniqueUsers}
 												</div>
 											</div>
@@ -1399,15 +1406,15 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													border: '1px solid #e5e7eb',
 												}}
 											>
 												<div
-													style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '0.25rem' }}
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
 												>
 													Total Count
 												</div>
-												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2563eb' }}>
 													{totalCount.toLocaleString()}
 												</div>
 											</div>
@@ -1418,7 +1425,7 @@ const PingOneAuditActivities: React.FC = () => {
 													...styles.hint,
 													marginTop: '1rem',
 													paddingTop: '1rem',
-													borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+													borderTop: '1px solid #e5e7eb',
 												}}
 											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
@@ -1429,7 +1436,7 @@ const PingOneAuditActivities: React.FC = () => {
 
 								{activities.length > 0 && (
 									<div
-										style={{ ...styles.card, border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER', background: 'V9_COLORS.TEXT.WHITE' }}
+										style={{ ...styles.card, border: '1px solid #e5e7eb', background: '#ffffff' }}
 									>
 										<h2 style={styles.sectionTitle}>
 											<span>[FiActivity]</span>Activity Details{' '}
@@ -1488,35 +1495,41 @@ const PingOneAuditActivities: React.FC = () => {
 																	<span
 																		style={styles.detailBadge(
 																			activity.result.status?.toLowerCase() === 'success'
-																				? 'V9_COLORS.BG.SUCCESS'
-																				: 'V9_COLORS.BG.ERROR'
+																				? '#ecfdf5'
+																				: '#fef2f2'
 																		)}
 																	>
 																		{activity.result.status === 'success' ? (
-																			<span>✅</span>) : (
-																			<span>⚠️</span>)}
+																			<span>✅</span>
+																		) : (
+																			<span>⚠️</span>
+																		)}
 																		{activity.result.status.toUpperCase()}
 																	</span>
 																)}
 																{activity.actors?.user?.name && (
 																	<span style={styles.detailBadge('#dbeafe')}>
-																		<span>👤</span>{activity.actors.user.name}
+																		<span>👤</span>
+																		{activity.actors.user.name}
 																	</span>
 																)}
 																{activity.actors?.client?.name && (
-																	<span style={styles.detailBadge('V9_COLORS.BG.GRAY_LIGHT')}>
-																		<span>[FiServer]</span>{activity.actors.client.name}
+																	<span style={styles.detailBadge('#f8fafc')}>
+																		<span>[FiServer]</span>
+																		{activity.actors.client.name}
 																	</span>
 																)}
 																{activity.resources && activity.resources.length > 0 && (
-																	<span style={styles.detailBadge('V9_COLORS.BG.WARNING')}>
-																		<span>[FiDatabase]</span>{activity.resources.length} resource
+																	<span style={styles.detailBadge('#fef3c7')}>
+																		<span>[FiDatabase]</span>
+																		{activity.resources.length} resource
 																		{activity.resources.length !== 1 ? 's' : ''}
 																	</span>
 																)}
 																{activity.ipAddress && (
 																	<span style={styles.detailBadge()}>
-																		<span>🌐</span>{activity.ipAddress}
+																		<span>🌐</span>
+																		{activity.ipAddress}
 																	</span>
 																)}
 															</div>
@@ -1525,7 +1538,8 @@ const PingOneAuditActivities: React.FC = () => {
 															<div
 																style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
 															>
-																<span>⏰</span>{formatTimestamp(activity.createdAt)}
+																<span>⏰</span>
+																{formatTimestamp(activity.createdAt)}
 															</div>
 															<div
 																style={{
@@ -1533,10 +1547,11 @@ const PingOneAuditActivities: React.FC = () => {
 																	alignItems: 'center',
 																	gap: '0.25rem',
 																	marginTop: '0.25rem',
-																	color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+																	color: '#2563eb',
 																}}
 															>
-																<span>[FiEye]</span><span style={{ fontSize: '0.7rem' }}>View Details</span>
+																<span>[FiEye]</span>
+																<span style={{ fontSize: '0.7rem' }}>View Details</span>
 															</div>
 														</div>
 													</div>
@@ -1546,7 +1561,7 @@ const PingOneAuditActivities: React.FC = () => {
 									</div>
 								)}
 
-								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: 'V9_COLORS.TEXT.WHITE' }}>
+								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}>
 									<h2 style={styles.sectionTitle}>
 										<span>[FiDatabase]</span>Full API Response
 									</h2>
@@ -1559,7 +1574,8 @@ const PingOneAuditActivities: React.FC = () => {
 							</>
 						) : (
 							<div style={styles.emptyState}>
-								<span>[FiActivity]</span><span>Run the request to see audit activities returned by PingOne.</span>
+								<span>[FiActivity]</span>
+								<span>Run the request to see audit activities returned by PingOne.</span>
 							</div>
 						)}
 					</div>
@@ -1581,7 +1597,8 @@ const PingOneAuditActivities: React.FC = () => {
 									<span>[FiActivity]</span>Activity Details
 								</h2>
 								<button type="button" style={styles.closeButton} onClick={handleCloseDetailModal}>
-									<span>❌</span></button>
+									<span>❌</span>
+								</button>
 							</div>
 							<div style={styles.detailModalBody}>
 								{/* Basic Information */}
@@ -1620,8 +1637,8 @@ const PingOneAuditActivities: React.FC = () => {
 													...styles.detailValue,
 													color:
 														selectedActivity.result.status?.toLowerCase() === 'success'
-															? 'V9_COLORS.PRIMARY.GREEN'
-															: 'V9_COLORS.PRIMARY.RED',
+															? '#10b981'
+															: '#ef4444',
 													fontWeight: 600,
 												}}
 											>
@@ -1734,9 +1751,9 @@ const PingOneAuditActivities: React.FC = () => {
 													key={idx}
 													style={{
 														padding: '0.75rem',
-														background: 'V9_COLORS.BG.GRAY_LIGHT',
+														background: '#f8fafc',
 														borderRadius: '0.5rem',
-														border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+														border: '1px solid #e5e7eb',
 													}}
 												>
 													<div style={styles.detailGrid}>
@@ -1880,9 +1897,9 @@ const PingOneAuditActivities: React.FC = () => {
 											maxHeight: '400px',
 											overflow: 'auto',
 											padding: '1rem',
-											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											background: '#f8fafc',
 											borderRadius: '0.5rem',
-											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											border: '1px solid #e5e7eb',
 										}}
 									>
 										<JSONHighlighter data={selectedActivity as JSONData} />
@@ -1891,7 +1908,7 @@ const PingOneAuditActivities: React.FC = () => {
 							</div>
 							<div style={styles.detailModalFooter}>
 								<button type="button" style={styles.copyButton} onClick={handleCopyJson}>
-									{copiedJson ? <span>[FiCheck]</span>: <span>📋</span>}
+									{copiedJson ? <span>[FiCheck]</span> : <span>📋</span>}
 									{copiedJson ? 'Copied!' : 'Copy JSON'}
 								</button>
 								<button
@@ -1910,6 +1927,7 @@ const PingOneAuditActivities: React.FC = () => {
 			{/* API Call Display at the bottom */}
 			<ApiCallList title="API Calls to PingOne" showLegend={true} />
 		</div>
+		</>
 	);
 };
 

@@ -9,7 +9,7 @@
  * - Ask for User token (access token from Authorization Code Flow) OR Worker token (active or "ACTIVATION_REQUIRED")
  */
 
-
+import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -21,7 +21,6 @@ import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServ
 import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
-import { FiLoader } from '@icons';
 
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;

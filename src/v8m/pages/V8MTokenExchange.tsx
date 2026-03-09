@@ -1,7 +1,6 @@
 // src/v8m/pages/V8MTokenExchange.tsx
 // V8M OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -3249,7 +3248,8 @@ function TokenExchangeComponent() {
 							<CollapsibleSection>
 								<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchangeStep4')}>
 									<CollapsibleTitle>
-										<span>⚡</span> Step 4: Token Exchange (RFC 8693) - API A Exchanges App X's Token
+										<span>⚡</span> Step 4: Token Exchange (RFC 8693) - API A Exchanges App X's
+										Token
 									</CollapsibleTitle>
 									<span>⬇️</span>
 								</CollapsibleHeaderButton>

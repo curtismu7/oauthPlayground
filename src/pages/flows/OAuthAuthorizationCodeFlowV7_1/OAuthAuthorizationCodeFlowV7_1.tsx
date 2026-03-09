@@ -1,14 +1,15 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/OAuthAuthorizationCodeFlowV7_1.tsx
 // V7.1 Main Container - Orchestrates all refactored components
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
 import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
+import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
+import { logger } from '../../../utils/logger';
 import { FlowConfiguration } from './components/FlowConfiguration';
 import { FlowErrorWrapper } from './components/FlowErrorWrapper';
 import { FlowResults } from './components/FlowResults';
@@ -20,9 +21,7 @@ import { useCredentialPersistence } from './hooks/useCredentialPersistence';
 import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
-import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
-import { logger } from '../../../utils/logger';
 
 const _FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
@@ -108,7 +107,7 @@ const VersionBadge = styled.span<{ $variant: FlowVariant }>`
   align-self: flex-start;
   background: ${(props) =>
 		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'};
-  border: 1px solid ${(props) => (props.$variant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#fb923c')};
+  border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#fb923c')};
   color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fed7aa')};
   font-size: 0.75rem;
   font-weight: 600;
@@ -480,7 +479,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 										OpenID Connect
 									</VariantButton>
 								</VariantSelector>
-								<RedirectUriEducationButton 
+								<RedirectUriEducationButton
 									flowKey={FLOW_CONSTANTS.FLOW_KEY}
 									variant="outline"
 									size="sm"
@@ -627,7 +626,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					)}
 				</ContentWrapper>
 			</Container>
-			
+
 			{/* Redirect URI Educational Modal */}
 			<RedirectUriEducationalModal
 				flowKey={FLOW_CONSTANTS.FLOW_KEY}

@@ -14,7 +14,7 @@
  * - Improved accessibility and user experience
  */
 
-
+import { FiSearch } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
@@ -25,7 +25,6 @@ import {
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiSearch } from '@icons';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
 
@@ -235,13 +234,13 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 	const getV9Color = (variant: 'primary' | 'secondary' | 'disabled') => {
 		switch (variant) {
 			case 'primary':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK'; // V9 primary blue
+				return '#2563eb'; // V9 primary blue
 			case 'secondary':
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM'; // V9 secondary gray
+				return '#6b7280'; // V9 secondary gray
 			case 'disabled':
-				return 'V9_COLORS.TEXT.GRAY_LIGHT'; // V9 disabled gray
+				return '#9ca3af'; // V9 disabled gray
 			default:
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 		}
 	};
 
@@ -349,7 +348,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 							transform: 'translateX(-50%)',
 							marginBottom: getV9Spacing('xs'),
 							padding: `${getV9Spacing('xs')} ${getV9Spacing('sm')}`,
-							background: 'V9_COLORS.TEXT.GRAY_DARK', // V9 dark background
+							background: '#1f2937', // V9 dark background
 							color: 'white',
 							fontSize: '12px',
 							borderRadius: '4px',
@@ -368,7 +367,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 								left: '50%',
 								transform: 'translateX(-50%)',
 								border: '4px solid transparent',
-								borderTopColor: 'V9_COLORS.TEXT.GRAY_DARK',
+								borderTopColor: '#1f2937',
 							}}
 						/>
 					</div>
@@ -464,7 +463,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 										style={{
 											fontWeight: '600',
 											fontSize: '13px',
-											color: 'V9_COLORS.TEXT.GRAY_DARK',
+											color: '#1f2937',
 											marginBottom: '2px',
 										}}
 									>
@@ -476,7 +475,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 									<div
 										style={{
 											fontSize: '11px',
-											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											color: '#6b7280',
 											marginBottom: '2px',
 										}}
 									>
@@ -486,7 +485,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 										<div
 											style={{
 												fontSize: '11px',
-												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												color: '#6b7280',
 												marginTop: '2px',
 												overflow: 'hidden',
 												textOverflow: 'ellipsis',

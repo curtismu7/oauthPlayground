@@ -50,7 +50,7 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 				margin: '1rem 0',
 			}}
 		>
-			<h3 style={{ marginBottom: '1rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{title}</h3>
+			<h3 style={{ marginBottom: '1rem', color: '#1f2937' }}>{title}</h3>
 
 			{/* PAR Configuration Service */}
 			<PARConfigurationService
@@ -70,10 +70,8 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 					borderRadius: '0.375rem',
 				}}
 			>
-				<h4 style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					Current Configuration:
-				</h4>
-				<pre style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
+				<h4 style={{ marginBottom: '0.5rem', color: '#1f2937' }}>Current Configuration:</h4>
+				<pre style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
 					{JSON.stringify(parConfig, null, 2)}
 				</pre>
 			</div>
@@ -83,14 +81,14 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 				style={{
 					marginTop: '1rem',
 					padding: '1rem',
-					background: 'V9_COLORS.BG.GRAY_LIGHT',
+					background: '#f8fafc',
 					borderRadius: '0.375rem',
 				}}
 			>
-				<h4 style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+				<h4 style={{ marginBottom: '0.5rem', color: '#1f2937' }}>
 					URL Parameters for PAR Request:
 				</h4>
-				<pre style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
+				<pre style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
 					{JSON.stringify(getUrlParams(), null, 2)}
 				</pre>
 			</div>
@@ -104,10 +102,8 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 					borderRadius: '0.375rem',
 				}}
 			>
-				<h4 style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
-					Flow-Specific Defaults:
-				</h4>
-				<p style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: 0 }}>
+				<h4 style={{ marginBottom: '0.5rem', color: '#1f2937' }}>Flow-Specific Defaults:</h4>
+				<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
 					This example uses <strong>{flowType}</strong> flow defaults. Different flow types have
 					different default PAR configurations.
 				</p>

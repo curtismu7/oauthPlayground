@@ -4,13 +4,12 @@
  * Provides UI for configuring and managing DPoP (Demonstration of Proof of Possession)
  */
 
-
+import { FiAlertCircle, FiInfo, FiRefreshCw, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiAlertCircle, FiInfo, FiRefreshCw, FiShield } from '@icons';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;
@@ -307,9 +306,9 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 							<StatusLabel>Browser Support:</StatusLabel>
 							<StatusValue>
 								{status.supported ? (
-									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Supported</span>
+									<span style={{ color: '#10b981' }}>✓ Supported</span>
 								) : (
-									<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>✗ Not Supported</span>
+									<span style={{ color: '#ef4444' }}>✗ Not Supported</span>
 								)}
 							</StatusValue>
 						</StatusItem>
@@ -318,9 +317,9 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 							<StatusLabel>Key Pair:</StatusLabel>
 							<StatusValue>
 								{status.hasKeyPair ? (
-									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Generated</span>
+									<span style={{ color: '#10b981' }}>✓ Generated</span>
 								) : (
-									<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠ Not Generated</span>
+									<span style={{ color: '#f59e0b' }}>⚠ Not Generated</span>
 								)}
 							</StatusValue>
 						</StatusItem>

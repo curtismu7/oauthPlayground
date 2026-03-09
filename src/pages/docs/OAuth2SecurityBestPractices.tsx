@@ -1,4 +1,3 @@
-
 import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -134,11 +133,11 @@ const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recomme
   background: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR';
+				return '#fef2f2';
 			case 'important':
-				return 'V9_COLORS.BG.WARNING';
+				return '#fef3c7';
 			case 'recommended':
-				return 'V9_COLORS.BG.GRAY_LIGHT';
+				return '#f8fafc';
 			default:
 				return '#f9fafb';
 		}
@@ -146,13 +145,13 @@ const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recomme
   border: 2px solid ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return 'V9_COLORS.BG.ERROR_BORDER';
+				return '#ef4444';
 			case 'important':
 				return '#fed7aa';
 			case 'recommended':
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
+				return '#e5e7eb';
 		}
 	}};
   border-radius: 0.75rem;
@@ -167,13 +166,13 @@ const PracticeIcon = styled.div<{ $type: 'critical' | 'important' | 'recommended
   color: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
-				return 'V9_COLORS.PRIMARY.RED_DARK';
+				return '#dc2626';
 			case 'important':
-				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				return '#d97706';
 			case 'recommended':
-				return 'V9_COLORS.PRIMARY.BLUE_DARK';
+				return '#2563eb';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+				return '#6b7280';
 		}
 	}};
   font-size: 1.25rem;

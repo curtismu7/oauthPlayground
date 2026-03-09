@@ -58,6 +58,7 @@ const ERROR_RATE_LIMIT_MS = 3000; // Don't show same error within 3 seconds
  * Centralized error handling service for Unified Flow with PingOne-specific
  * error parsing and user-friendly error messages.
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Legacy service class, will be refactored in future iteration
 export class UnifiedFlowErrorHandler {
 	/**
 	 * Categorize error based on error code/message

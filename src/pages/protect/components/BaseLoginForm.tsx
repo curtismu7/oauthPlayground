@@ -13,15 +13,14 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-
+import { FiLockIcon } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { logger } from '../../../utils/logger';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { FiLockIcon } from '@icons';
 
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
@@ -471,7 +470,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 						maxWidth: '100%',
 						alignSelf: 'center',
 						padding: '0.875rem 1.5rem',
-						background: isLoading ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'var(--brand-primary)',
+						background: isLoading ? '#9ca3af' : 'var(--brand-primary)',
 						color: 'white',
 						border: 'none',
 						borderRadius: 'var(--brand-radius-sm)',

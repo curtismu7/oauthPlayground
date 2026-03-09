@@ -9,15 +9,13 @@
  * full, compact, and hidden education modes.
  */
 
-
+import { FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-type EducationMode
-,
+	type EducationMode,
 	EducationPreferenceService,
-} from '../../services/educationPreferenceService'
-import { FiChevronDown } from '@icons';
+} from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`
 	position: sticky;
@@ -59,8 +57,8 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	padding: 8px 12px;
 	border: none;
 	border-radius: 4px;
-	background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
-	color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+	background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+	color: ${(props) => (props.$active ? '#1f2937' : '#6b7280')};
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
@@ -71,7 +69,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	box-shadow: ${(props) => (props.$active ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none')};
 
 	&:hover {
-		background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+		background: ${(props) => (props.$active ? '#ffffff' : '#e5e7eb')};
 	}
 
 	&:focus {

@@ -1,6 +1,7 @@
 // src/components/password-reset/tabs/ForceResetTab.tsx
 // Force Password Reset Tab Component
 
+import { FiAlertCircle, FiBook, FiExternalLink, FiLock } from '@icons';
 import React from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
@@ -27,7 +28,6 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
-import { FiAlertCircle, FiBook, FiExternalLink, FiLock } from '@icons';
 
 interface ForceResetTabProps {
 	environmentId: string;

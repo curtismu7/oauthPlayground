@@ -14,29 +14,24 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 // MDI Icon Component for React Icons migration
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
-	icon, 
-	size = 16, 
-	className = '' 
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+	icon,
+	size = 16,
+	className = '',
 }) => {
 	const iconMap: Record<string, string> = {
-		'FiArrowLeft': 'mdi-arrow-left',
-		'FiArrowRight': 'mdi-arrow-right',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiMaximize2': 'mdi-arrow-expand',
-		'FiMinimize2': 'mdi-arrow-collapse',
-		'FiMove': 'mdi-drag',
-		'FiTrash2': 'mdi-delete',
+		FiArrowLeft: 'mdi-arrow-left',
+		FiArrowRight: 'mdi-arrow-right',
+		FiCheckCircle: 'mdi-check-circle',
+		FiMaximize2: 'mdi-arrow-expand',
+		FiMinimize2: 'mdi-arrow-collapse',
+		FiMove: 'mdi-drag',
+		FiTrash2: 'mdi-delete',
 	};
-	
+
 	const mdiIcon = iconMap[icon] || 'mdi-help';
-	
-	return (
-		<i 
-			className={`mdi ${mdiIcon} ${className}`}
-			style={{ fontSize: `${size}px` }}
-		></i>
-	);
+
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
 export interface FloatingStepperStep {
@@ -437,7 +432,11 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 					$disabled={!canNavigateNext && !isLastStep}
 					title={isLastStep ? 'Complete flow' : 'Next step'}
 				>
-					{isLastStep ? <MDIIcon icon="FiCheckCircle" size={16} /> : <MDIIcon icon="FiArrowRight" size={16} />}
+					{isLastStep ? (
+						<MDIIcon icon="FiCheckCircle" size={16} />
+					) : (
+						<MDIIcon icon="FiArrowRight" size={16} />
+					)}
 					{isLastStep ? 'Complete' : 'Next'}
 				</NavButton>
 
@@ -446,7 +445,11 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 						onClick={toggleCompact}
 						title={isCompact ? 'Expand stepper' : 'Compact stepper'}
 					>
-						{isCompact ? <MDIIcon icon="FiMaximize2" size={16} /> : <MDIIcon icon="FiMinimize2" size={16} />}
+						{isCompact ? (
+							<MDIIcon icon="FiMaximize2" size={16} />
+						) : (
+							<MDIIcon icon="FiMinimize2" size={16} />
+						)}
 					</CompactToggle>
 				)}
 			</NavigationButtons>

@@ -1,6 +1,5 @@
 // Worker Credentials component for secure credential input
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
@@ -49,15 +48,15 @@ const Label = styled.label`
 
 const Input = styled.input<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#e5e7eb')};
   border-radius: 8px;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
-    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#f8fafc')};
   }
   
   &:disabled {
@@ -92,7 +91,7 @@ const ToggleButton = styled.button`
 
 const _Textarea = styled.textarea<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#e5e7eb')};
   border-radius: 8px;
   font-size: 0.875rem;
   min-height: 80px;
@@ -102,8 +101,8 @@ const _Textarea = styled.textarea<{ hasError?: boolean }>`
   
   &:focus {
     outline: none;
-    border-color: ${(props) => (props.hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.BLUE')};
-    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.GRAY_LIGHT')};
+    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#f8fafc')};
   }
 `;
 
@@ -340,7 +339,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 	return (
 		<Container>
 			<Header>
-				<span style={{ fontSize: 20, color: 'V9_COLORS.PRIMARY.BLUE' }}>⚙️</span>
+				<span style={{ fontSize: 20, color: '#3b82f6' }}>⚙️</span>
 				<h3>Worker Application Credentials</h3>
 			</Header>
 
@@ -381,7 +380,11 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 							onClick={() => setShowSecret(!showSecret)}
 							title={showSecret ? 'Hide secret' : 'Show secret'}
 						>
-							{showSecret ? <span style={{ fontSize: '16px' }}>🙈</span> : <span style={{ fontSize: '16px' }}>👁️</span>}
+							{showSecret ? (
+								<span style={{ fontSize: '16px' }}>🙈</span>
+							) : (
+								<span style={{ fontSize: '16px' }}>👁️</span>
+							)}
 						</ToggleButton>
 					</SecureInputContainer>
 					{validationErrors.some((error) => error.includes('Client Secret')) && (

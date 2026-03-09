@@ -10,7 +10,6 @@
  * - Configuration before device registration
  */
 
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -18,7 +17,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { comprehensiveTokenUIService, type TokenStatus } from '@/v8/services/comprehensiveTokenUIService';
+import {
+	comprehensiveTokenUIService,
+	type TokenStatus,
+} from '@/v8/services/comprehensiveTokenUIService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';

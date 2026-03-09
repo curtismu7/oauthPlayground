@@ -1,7 +1,6 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowNavigation.tsx
 // V7.1 Flow Navigation - Step navigation and flow control
 
-
 import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
@@ -59,14 +58,14 @@ const StepButton = styled.button<{ $active: boolean; $completed: boolean }>`
   height: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_SIZE};
   border-radius: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_BORDER_RADIUS};
   border: 2px solid ${(props) =>
-		props.$active ? 'V9_COLORS.PRIMARY.BLUE' : props.$completed ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+		props.$active ? '#3b82f6' : props.$completed ? '#10b981' : '#e5e7eb'};
   background: ${(props) =>
 		props.$active
 			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
 			: props.$completed
 				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'
 				: 'transparent'};
-  color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : props.$completed ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: ${(props) => (props.$active ? '#ffffff' : props.$completed ? '#ffffff' : '#6b7280')};
   font-size: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_FONT_SIZE};
   font-weight: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_FONT_WEIGHT};
   cursor: pointer;
@@ -78,7 +77,7 @@ const StepButton = styled.button<{ $active: boolean; $completed: boolean }>`
 				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
 				: props.$completed
 					? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #047857 100%)'
-					: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
+					: '#e5e7eb'};
     transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
   }
   

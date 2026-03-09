@@ -1,14 +1,12 @@
 // src/components/POSTerminalDeviceFlow.tsx
 // POS Terminal Style Device Authorization Flow Interface
 
-
+import { FiCreditCard, FiDollarSign } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
-import { FiCreditCard, FiDollarSign } from '@icons';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const POSTerminalContainer = styled.div`

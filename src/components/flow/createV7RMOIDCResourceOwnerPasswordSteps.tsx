@@ -1,9 +1,9 @@
 // src/components/flow/createV7RMOIDCResourceOwnerPasswordSteps.tsx - V7RM (Mock because PingOne doesn't support this flow)
 
+import { FiLock, FiUser } from '@icons';
 import type { V7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { InfoBox } from '../steps/CommonSteps';
-import { FiLock, FiUser } from '@icons';
 
 /**
  * Utility function to mask tokens for security
@@ -502,17 +502,15 @@ grant_type=refresh_token
 						<div
 							style={{
 								padding: '1rem',
-								background: 'V9_COLORS.BG.ERROR',
+								background: '#fef2f2',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>
 								Security Risks Demonstrated
 							</h4>
-							<ul
-								style={{ margin: 0, paddingLeft: '1.25rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}
-							>
+							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#dc2626' }}>
 								<li>Application handles user passwords directly</li>
 								<li>Credentials transmitted over network</li>
 								<li>No delegation to authorization server</li>
@@ -529,9 +527,7 @@ grant_type=refresh_token
 								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
-								OIDC Extensions Shown
-							</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>OIDC Extensions Shown</h4>
 							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#047857' }}>
 								<li>ID tokens with user identity claims</li>
 								<li>UserInfo endpoint for additional profile data</li>
@@ -543,17 +539,13 @@ grant_type=refresh_token
 						<div
 							style={{
 								padding: '1rem',
-								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								background: '#f8fafc',
 								borderRadius: '0.5rem',
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
-								Recommended Alternatives
-							</h4>
-							<ul
-								style={{ margin: 0, paddingLeft: '1.25rem', color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}
-							>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#2563eb' }}>Recommended Alternatives</h4>
+							<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#2563eb' }}>
 								<li>OIDC Authorization Code Flow with PKCE</li>
 								<li>OIDC Device Code Flow for limited input devices</li>
 								<li>OIDC Client Credentials for server-to-server</li>
@@ -566,7 +558,7 @@ grant_type=refresh_token
 						onClick={resetFlow}
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							background: '#6b7280',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.5rem',

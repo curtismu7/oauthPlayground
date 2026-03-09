@@ -1,13 +1,12 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-
+import { FiAlertCircle, FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
-import { FiAlertCircle, FiSettings } from '@icons';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 
@@ -190,10 +189,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 		try {
 			if (newEnabled) {
 				// Enable Token Exchange
-				await TokenExchangeConfigServiceV8.enableTokenExchange(
-					currentEnvironmentId,
-					'admin-user' // TODO: Get actual admin user ID
-				);
+				await TokenExchangeConfigServiceV8.enableTokenExchange(currentEnvironmentId, 'demo-admin');
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message: 'Token Exchange enabled successfully',
@@ -201,10 +197,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 				});
 			} else {
 				// Disable Token Exchange
-				await TokenExchangeConfigServiceV8.disableTokenExchange(
-					currentEnvironmentId,
-					'admin-user' // TODO: Get actual admin user ID
-				);
+				await TokenExchangeConfigServiceV8.disableTokenExchange(currentEnvironmentId, 'demo-admin');
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message: 'Token Exchange disabled successfully',
@@ -245,7 +238,11 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 						disabled={isLoading}
 					>
 						<StatusIcon $enabled={isEnabled}>
-							{isEnabled ? <span style={{ fontSize: '12px' }}>✅</span> : <span style={{ fontSize: '12px' }}>⚠️</span>}
+							{isEnabled ? (
+								<span style={{ fontSize: '12px' }}>✅</span>
+							) : (
+								<span style={{ fontSize: '12px' }}>⚠️</span>
+							)}
 						</StatusIcon>
 						{isLoading ? <LoadingSpinner /> : isEnabled ? <span>❓</span> : <span>❓</span>}
 						{isLoading ? 'Updating...' : isEnabled ? 'Enabled' : 'Disabled'}

@@ -1,11 +1,10 @@
-
+import { FiRefreshCw, FiShield, FiTrendingUp } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
-import { FiRefreshCw, FiShield, FiTrendingUp } from '@icons';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -83,7 +82,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 			case 'danger':
 				return 'white';
 			default:
-				return 'V9_COLORS.TEXT.GRAY_DARK';
+				return '#1f2937';
 		}
 	}};
   font-weight: 600;
@@ -652,11 +651,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 							: '100'}
 					</MetricValue>
 					<MetricChange $positive={complianceReports.every((r) => r.score >= 95)}>
-						{complianceReports.every((r) => r.score >= 95) ? (
-							<span>✅</span>
-						) : (
-							<span>⚠️</span>
-						)}
+						{complianceReports.every((r) => r.score >= 95) ? <span>✅</span> : <span>⚠️</span>}
 						{complianceReports.every((r) => r.score >= 95)
 							? 'Fully Compliant'
 							: 'Compliance Issues'}
@@ -717,7 +712,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiTrendingUp style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Security events trend chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -732,7 +727,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'center' }}>
 							<FiShield style={{ fontSize: '3rem', marginBottom: '1rem' }} />
 							<p>Threat intelligence chart would be displayed here</p>
-							<p style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Integration with charting library required
 							</p>
 						</div>
@@ -787,10 +782,7 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 						<div style={{ textAlign: 'left', width: '100%' }}>
 							<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 								{recommendations.map((recommendation, index) => (
-									<li
-										key={index}
-										style={{ marginBottom: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
-									>
+									<li key={index} style={{ marginBottom: '0.5rem', color: '#1f2937' }}>
 										{recommendation}
 									</li>
 								))}

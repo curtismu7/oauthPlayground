@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -241,7 +240,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 				width: size,
 				height: size,
 				borderRadius: 8,
-				background: 'V9_COLORS.TEXT.WHITE',
+				background: '#ffffff',
 				boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
 				marginRight: 10,
 			}}
@@ -255,7 +254,10 @@ const PingOneAuthenticationResult: React.FC = () => {
 				aria-hidden="true"
 			>
 				<path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill="#E31837" />
-				<path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="V9_COLORS.TEXT.WHITE" />
+				<path
+					d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
+					fill="V9_COLORS.TEXT.WHITE"
+				/>
 			</svg>
 		</span>
 	);
@@ -533,53 +535,53 @@ const PingOneAuthenticationResult: React.FC = () => {
 										Step {item.step ?? idx + 1}: {item.title || item.url}
 									</FlowLabel>
 									{item.method && (
-										<div style={{ marginBottom: '0.25rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										<div style={{ marginBottom: '0.25rem', color: '#6b7280' }}>
 											Method: {item.method}
 										</div>
 									)}
 									{item.url && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>URL:</div>
+											<div style={{ color: '#6b7280' }}>URL:</div>
 											<FlowMono>{item.url}</FlowMono>
 										</>
 									)}
 									{item.params && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Params:</div>
+											<div style={{ color: '#6b7280' }}>Params:</div>
 											<FlowMono>{JSON.stringify(item.params, null, 2)}</FlowMono>
 										</>
 									)}
 									{item.requestBody && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Request Body:</div>
+											<div style={{ color: '#6b7280' }}>Request Body:</div>
 											<FlowMono>{JSON.stringify(item.requestBody, null, 2)}</FlowMono>
 										</>
 									)}
 									{item.response && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Response:</div>
+											<div style={{ color: '#6b7280' }}>Response:</div>
 											<FlowMono>{JSON.stringify(item.response, null, 2)}</FlowMono>
 										</>
 									)}
 									{item.fullResponse && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Full Response:</div>
+											<div style={{ color: '#6b7280' }}>Full Response:</div>
 											<FlowMono>{JSON.stringify(item.fullResponse, null, 2)}</FlowMono>
 										</>
 									)}
 									{typeof item.status !== 'undefined' && (
-										<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>HTTP Status: {item.status}</div>
+										<div style={{ color: '#6b7280' }}>HTTP Status: {item.status}</div>
 									)}
 									{item.note && (
 										<>
-											<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginTop: '0.25rem' }}>Note:</div>
+											<div style={{ color: '#6b7280', marginTop: '0.25rem' }}>Note:</div>
 											<FlowMono>{item.note}</FlowMono>
 										</>
 									)}
 								</FlowItem>
 							))
 						) : (
-							<div style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+							<div style={{ color: '#6b7280' }}>
 								No flow requests were recorded for this session.
 							</div>
 						)}

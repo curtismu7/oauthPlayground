@@ -2,13 +2,12 @@
 // lint-file-disable: token-value-in-jsx
 // Educational modal showing worker token API request details
 
-
+import { FiRefreshCw } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Temporarily commented - not used
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
-import { FiRefreshCw } from '@icons';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
@@ -306,7 +305,7 @@ const CodeBlock = styled.pre`
 
 const CopyButton = styled.button<{ $copied: boolean }>`
 	padding: 0.4rem 0.75rem;
-	background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
+	background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
 	color: white;
 	border: none;
 	border-radius: 0.375rem;
@@ -320,7 +319,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	margin-top: 0.5rem;
 
 	&:hover {
-		background: ${({ $copied }) => ($copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+		background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
 	}
 `;
 
@@ -561,7 +560,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										onClick={() => setShowToken(!showToken)}
 										title={showToken ? 'Hide token' : 'Show token'}
 									>
-										{showToken ? <span style={{ fontSize: '16' }}>🙈</span> : <span style={{ fontSize: '16' }}>👁️</span>}
+										{showToken ? (
+											<span style={{ fontSize: '16' }}>🙈</span>
+										) : (
+											<span style={{ fontSize: '16' }}>👁️</span>
+										)}
 									</PasswordToggle>
 								</div>
 							</FormField>
@@ -610,7 +613,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 									style={{
 										marginTop: '0.5rem',
 										fontSize: '0.75rem',
-										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+										color: '#6b7280',
 									}}
 								>
 									<strong>Region:</strong> {getRegionDisplayName(region)}
@@ -640,7 +643,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 											onClick={() => setShowSecret(!showSecret)}
 											title={showSecret ? 'Hide secret' : 'Show secret'}
 										>
-											{showSecret ? <span style={{ fontSize: '16' }}>🙈</span> : <span style={{ fontSize: '16' }}>👁️</span>}
+											{showSecret ? (
+												<span style={{ fontSize: '16' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '16' }}>👁️</span>
+											)}
 										</ToggleSecretButton>
 									</ParameterValue>
 
@@ -667,7 +674,11 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								</SectionTitle>
 								<CodeBlock>{generateCurlCommand()}</CodeBlock>
 								<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-									{copiedCurl ? <span style={{ fontSize: '12' }}>✅</span> : <span style={{ fontSize: '12' }}>📋</span>}
+									{copiedCurl ? (
+										<span style={{ fontSize: '12' }}>✅</span>
+									) : (
+										<span style={{ fontSize: '12' }}>📋</span>
+									)}
 									{copiedCurl ? 'Copied!' : 'Copy cURL'}
 								</CopyButton>
 							</Section>
@@ -680,10 +691,10 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 									marginBottom: 0,
 								}}
 							>
-								<InfoIcon style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+								<InfoIcon style={{ color: '#d97706' }}>
 									<span style={{ fontSize: '14' }}>ℹ️</span>
 								</InfoIcon>
-								<InfoText style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+								<InfoText style={{ color: '#d97706' }}>
 									<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
 								</InfoText>
 							</InfoBox>

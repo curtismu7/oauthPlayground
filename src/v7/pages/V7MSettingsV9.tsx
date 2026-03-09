@@ -1,6 +1,5 @@
 // src/v7/pages/V7MSettingsV9.tsx
 
-
 import React, { useEffect, useState } from 'react';
 import { isV7MEnabled, setV7MMode } from '../mode';
 
@@ -36,7 +35,7 @@ const V7MSettingsV9: React.FC = () => {
 				<span style={{ color: enabled ? '#16a34a' : '#ef4444' }}>
 					{enabled ? 'Enabled' : 'Disabled'}
 				</span>
-				<button type="button" onClick={handleToggle} style={btnStyle}>
+				<button type="button" type="button" onClick={handleToggle} style={btnStyle}>
 					{enabled ? 'Disable' : 'Enable'} V7M
 				</button>
 			</div>

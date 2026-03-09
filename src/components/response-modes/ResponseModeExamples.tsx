@@ -1,7 +1,6 @@
 // src/components/response-modes/ResponseModeExamples.tsx
 // Example presets for the Response Modes learn page
 
-
 import React from 'react';
 import styled from 'styled-components';
 

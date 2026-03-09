@@ -1,12 +1,12 @@
 // src/components/UnifiedAuthorizationCodeFlowV7.tsx
 
+import { FiCheck, FiExternalLink, FiInfo, FiKey, FiSettings, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { logger } from '../utils/logger';
-import { FiCheck, FiExternalLink, FiInfo, FiKey, FiSettings, FiShield } from '@icons';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -76,16 +76,16 @@ const ModeSelector = styled.div`
 const ModeButton = styled.button<{ $active: boolean }>`
 	flex: 1;
 	padding: 1rem;
-	border: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
-	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
-	color: ${({ $active }) => ($active ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
+	border: 2px solid ${({ $active }) => ($active ? '#3b82f6' : '#e5e7eb')};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
 	border-radius: 8px;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f3f4f6')};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -366,7 +366,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 					<div
 						style={{
 							padding: '1rem',
-							background: 'V9_COLORS.BG.GRAY_LIGHT',
+							background: '#f8fafc',
 							borderRadius: '6px',
 							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							wordBreak: 'break-all',
@@ -384,10 +384,10 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 					<div
 						style={{
 							padding: '1rem',
-							background: 'V9_COLORS.BG.ERROR',
+							background: '#fef2f2',
 							borderRadius: '6px',
 							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
-							color: 'V9_COLORS.PRIMARY.RED_DARK',
+							color: '#dc2626',
 						}}
 					>
 						<strong>Error:</strong> {error}
@@ -407,7 +407,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						padding: '12px 24px',
 						border: 'none',
 						borderRadius: '8px',
-						background: 'V9_COLORS.PRIMARY.BLUE',
+						background: '#3b82f6',
 						color: 'white',
 						fontWeight: '600',
 						cursor: 'pointer',
@@ -427,7 +427,7 @@ export const UnifiedAuthorizationCodeFlowV7: React.FC<UnifiedAuthCodeFlowV7Props
 						padding: '12px 24px',
 						border: 'none',
 						borderRadius: '8px',
-						background: 'V9_COLORS.PRIMARY.GREEN',
+						background: '#10b981',
 						color: 'white',
 						fontWeight: '600',
 						cursor: 'pointer',

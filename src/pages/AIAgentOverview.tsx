@@ -1,10 +1,9 @@
-
+import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '@icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
-import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '@icons';
 
 const _Container = styled.div`
   max-width: 1400px;
@@ -811,7 +810,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Critical Security Considerations for AI Agents:
@@ -918,7 +917,8 @@ const AIAgentOverview = () => {
 									onClick={() => toggleSection('comparisonTable')}
 									style={{
 										padding: '1rem',
-										background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+										background:
+											'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 										borderRadius: '0.5rem',
 										border: '1px solid #cbd5e1',
 										marginBottom: expandedSections.comparisonTable ? '1rem' : '0',
@@ -941,7 +941,7 @@ const AIAgentOverview = () => {
 								</CollapsibleHeader>
 
 								{/* Description - always visible */}
-								<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
+								<p style={{ color: '#6b7280', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
 									Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity
 									products, Okta, and Microsoft for AI agent authentication and authorization.
 								</p>
@@ -968,7 +968,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>PAR</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Pushed Authorization Requests</small>
+												<small style={{ color: '#6b7280' }}>Pushed Authorization Requests</small>
 											</td>
 											<td>RFC 9126</td>
 											<td>
@@ -1013,7 +1013,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>RAR</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Rich Authorization Requests</small>
+												<small style={{ color: '#6b7280' }}>Rich Authorization Requests</small>
 											</td>
 											<td>RFC 9396</td>
 											<td>
@@ -1067,7 +1067,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>DPoP</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<small style={{ color: '#6b7280' }}>
 													Demonstrating Proof of Possession
 												</small>
 											</td>
@@ -1123,7 +1123,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>mTLS</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Mutual TLS Authentication</small>
+												<small style={{ color: '#6b7280' }}>Mutual TLS Authentication</small>
 											</td>
 											<td>RFC 8705</td>
 											<td>
@@ -1171,7 +1171,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>JAR</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												<small style={{ color: '#6b7280' }}>
 													JWT-Secured Authorization Request
 												</small>
 											</td>
@@ -1218,7 +1218,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Client Credentials</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Machine-to-Machine Grant</small>
+												<small style={{ color: '#6b7280' }}>Machine-to-Machine Grant</small>
 											</td>
 											<td>RFC 6749</td>
 											<td>
@@ -1263,7 +1263,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Token Exchange</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>RFC 8693 Token Exchange</small>
+												<small style={{ color: '#6b7280' }}>RFC 8693 Token Exchange</small>
 											</td>
 											<td>RFC 8693</td>
 											<td>
@@ -1317,7 +1317,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Device Code</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Device Authorization Grant</small>
+												<small style={{ color: '#6b7280' }}>Device Authorization Grant</small>
 											</td>
 											<td>RFC 8628</td>
 											<td>
@@ -1362,7 +1362,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>OpenID Connect</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Full OIDC Support</small>
+												<small style={{ color: '#6b7280' }}>Full OIDC Support</small>
 											</td>
 											<td>OpenID Core</td>
 											<td>
@@ -1407,7 +1407,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>FAPI Compliance</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Financial-grade API</small>
+												<small style={{ color: '#6b7280' }}>Financial-grade API</small>
 											</td>
 											<td>FAPI 1.0/2.0</td>
 											<td>
@@ -1455,7 +1455,7 @@ const AIAgentOverview = () => {
 											<td>
 												<strong>Custom Token Types</strong>
 												<br />
-												<small style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Extensible Token Support</small>
+												<small style={{ color: '#6b7280' }}>Extensible Token Support</small>
 											</td>
 											<td>Various</td>
 											<td>
@@ -1580,7 +1580,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								MCP Server Architecture:
@@ -1612,7 +1612,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								OAuth/OIDC Integration with MCP Servers:
@@ -1645,7 +1645,7 @@ const AIAgentOverview = () => {
 									fontSize: '1.1rem',
 									fontWeight: '600',
 									marginBottom: '0.75rem',
-									color: 'V9_COLORS.TEXT.GRAY_DARK',
+									color: '#1f2937',
 								}}
 							>
 								Security Benefits for AI Agents:

@@ -7,7 +7,6 @@
  * Displays API calls, JSON bodies, rules, and allows download as PDF/MD
  */
 
-
 import React, { useMemo, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {

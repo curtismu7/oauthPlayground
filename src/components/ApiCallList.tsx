@@ -154,7 +154,7 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 						style={{
 							fontSize: '16px',
 							fontWeight: 600,
-							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							color: '#6b7280',
 							marginBottom: '8px',
 						}}
 					>
