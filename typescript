@@ -619,4 +619,124 @@ Additionally, handling the error in the 'buildEnd' hook caused the following err
 [plugin vite:esbuild] src/v7/components/V7MHelpModal[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
 [plugin vite:esbuild] src/v8/flows/unified/components/UnifiedSuccessStep[01;31m[K.tsx:[m[K Duplicate "type" attribute in JSX element
 file: /Users/cmuir/P1Import-apps/oauth-playground/src/App[01;31m[K.tsx:[m[K202:7
-[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | head -50[?1l>[?2004l
+]2;npm run build 2>&1 | head -50]1;npm]633;E; npm run build 2>&1 | head -50;]633;C
+> masterflow-api@9.13.4 build
+> vite build
+
+NODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+vite v6.4.1 building for production...
+transforming...
+[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8.tsx: Duplicate "type" attribute in JSX element
+418|  				{/* Action Buttons */}
+419|  				<div className="form-actions">
+420|  					<button type="button" type="button" className="btn btn-primary">
+   |                             ^
+421|  						💾 Save Configuration
+422|  					</button>
+
+[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8.tsx: Duplicate "type" attribute in JSX element
+421|  						💾 Save Configuration
+422|  					</button>
+423|  					<button type="button" type="button" className="btn btn-secondary">
+   |                             ^
+424|  						Reset
+425|  					</button>
+
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+185|  						</label>
+186|  					</div>
+187|  					<button type="button" type="button" onClick={handleRequestToken} style={primaryBtn}>
+   |                             ^
+188|  						Request Access Token
+189|  					</button>
+
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+203|  										Inspect Access Token
+204|  									</button>
+205|  									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
+   |                                 ^
+206|  										Introspect Token
+207|  									</button>
+
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+206|  										Introspect Token
+207|  									</button>
+208|  									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
+   |                                 ^
+209|  										Call UserInfo (Note: May not work for client_credentials tokens)
+210|  									</button>
+
+[plugin vite:esbuild] src/v7/pages/V7MOAuthAuthCodeV9.tsx: Duplicate "type" attribute in JSX element
+347|  					</div>
+348|  					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Build failed|error during|ERROR:|Unexpected|Expected" |  [Khhead -20[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -20]1;npm]633;E; npm run build 2>&1 | grep -E "Build failed|error during|ERROR:|Unexpected|Expected" | head -20;]633;C✗ Build failed in 4.68s
+error during build:
+[vite-plugin-pwa:build] There was an error during the build:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "pwa:build\]" | head -5[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E "pwa:build\]" | head -5]1;npm]633;E; npm run build 2>&1 | grep -E "pwa:build\\]" | head -5;]633;C[vite-plugin-pwa:build] There was an error during the build:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -B2 -A10 "App.tsx:202"[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -B2 -A10 "App.tsx:202"]1;npm]633;E; npm run build 2>&1 | grep -B2 -A10 "App.tsx:202";]633;CAdditionally, handling the error in the 'buildEnd' hook caused the following error:
+  src/App.tsx (202:7): "default" is not exported by "src/pages/PingOneWebhookViewer.tsx", imported by "src/App.tsx".
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/[01;31m[KApp.tsx:202[m[K:7
+
+200: import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
+201: import PingOneUserProfile from './pages/PingOneUserProfile';
+202: import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
+            ^
+203: import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+204: import SDKSampleApp from './pages/SDKSampleApp';
+
+    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -12 src/pages/PingOneWebhookViewer.tsx[?1l>[?2004l
+]2;tail -12 src/pages/PingOneWebhookViewer.tsx]1;tail]633;E; tail -12 src/pages/PingOneWebhookViewer.tsx;]633;C							)}
+						</div>
+					</>
+				)}
+
+				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+				<ApiCallList title="API Calls to PingOne" showLegend={true} />
+			</div>
+		</div>
+		</>
+	);
+};
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  echo -e "\nexport default PingOneWebhookViewer;" >> /Users/cmuir/P1Import-apps/oauth-p [Kllayground/src/pages/PingOneWebhookViewer.tsx[?1l>[?2004l
+]2;echo -e "\nexport default PingOneWebhookViewer;" >> ]1;echo]633;E; echo -e "\\nexport default PingOneWebhookViewer\x3b" >> /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneWebhookViewer.tsx;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "App.tsx:|pwa:build|Build failed|✓" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "App.tsx:|pwa:build|Build failed|✓" | head -10;]633;C✓ 2761 modules transformed.
+✗ Build failed in 4.56s
+[vite-plugin-pwa:build] There was an error during the build:
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/App.tsx:197:7
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -B1 -A8 "App.tsx:197"[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -B1 -A8 "App.tsx:197"]1;npm]633;E; npm run build 2>&1 | grep -B1 -A8 "App.tsx:197";]633;C  src/App.tsx (197:7): "default" is not exported by "src/pages/PingOneIdentityMetrics.tsx", imported by "src/App.tsx".
+file: /Users/cmuir/P1Import-apps/oauth-playground/src/[01;31m[KApp.tsx:197[m[K:7
+
+195: import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
+196: import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
+197: import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
+            ^
+198: import PingOneMockFeatures from './pages/PingOneMockFeatures';
+199: import PingOneScopesReference from './pages/PingOneScopesReference';
+
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  tail -8 src/pages/PingOneIdentityMetrics.tsx[?1l>[?2004l
+]2;tail -8 src/pages/PingOneIdentityMetrics.tsx]1;tail]633;E; tail -8 src/pages/PingOneIdentityMetrics.tsx;]633;C					</div>
+				</div>
+			)}
+		</div>
+		</>
+	);
+};
+
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  echo "export default PingOneIdentityMetrics;" >> /Users/cmuir/P1Import-apps/oauth-play [Kgground/src/pages/PingOneIdentityMetrics.tsx[?1l>[?2004l
+]2;echo "export default PingOneIdentityMetrics;" >> ]1;echo]633;E; echo "export default PingOneIdentityMetrics\x3b" >> /Users/cmuir/P1Import-apps/oauth-playground/src/pages/PingOneIdentityMetrics.tsx;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "App.tsx:|Build failed|✓ [0-9]+" | head -5[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -5]1;npm]633;E; npm run build 2>&1 | grep -E "App.tsx:|Build failed|✓ [0-9]+" | head -5;]633;C✓ 2761 modules transformed.
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Build failed|Build complete|✓ built|dist/" | head -5[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -5]1;npm]633;E; npm run build 2>&1 | grep -E "Build failed|Build complete|✓ built|dist/" | head -5;]633;Cdist/registerSW.js                                             0.13 kB
+dist/manifest.webmanifest                                      0.32 kB
+dist/index.html                                               10.67 kB │ gzip:   3.33 kB
+dist/assets/vendor-54DrP_uy.css                                1.78 kB │ gzip:   0.66 kB
+dist/assets/components-oauth-d-NJVnfK.css                      5.47 kB │ gzip:   1.32 kB
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep "built in\|Build failed"[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  "built in\|Build failed"]1;npm]633;E; npm run build 2>&1 | grep "built in\\|Build failed";]633;C
