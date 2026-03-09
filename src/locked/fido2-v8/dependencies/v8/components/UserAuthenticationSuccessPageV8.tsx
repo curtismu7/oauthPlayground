@@ -13,6 +13,7 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 import { logger } from '../../../../../utils/logger';
+import { showGlobalInfo } from '../../../../../contexts/NotificationSystem';
 export interface UserInfo {
 	sub?: string;
 	username?: string;
@@ -396,7 +397,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.accessToken);
 										if (decoded) {
 											const payload = JSON.stringify(decoded.payload, null, 2);
-											alert(`Token Payload:\n\n${payload}`);
+											showGlobalInfo(`Token Payload:\n\n${payload}`);
 										} else {
 											toastV8.error('Failed to decode token');
 										}
@@ -625,7 +626,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.idToken!);
 										if (decoded) {
 											const payload = JSON.stringify(decoded.payload, null, 2);
-											alert(`ID Token Payload:\n\n${payload}`);
+											showGlobalInfo(`ID Token Payload:\n\n${payload}`);
 										} else {
 											toastV8.error('Failed to decode ID token');
 										}

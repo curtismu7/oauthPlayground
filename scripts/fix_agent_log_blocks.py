@@ -39,7 +39,7 @@ for locked_subdir in LOCKED_DIRS:
     for dirpath, dirs, filenames in os.walk(locked_path):
         dirs[:] = [d for d in dirs if d != 'node_modules']
         for fname in filenames:
-            if not (fname.endswith('.ts') or fname.endswith('.tsx')):
+            if not (fname.endswith('.ts') or fname.endswith('.tsx') or fname.endswith('.js')):
                 continue
             fpath = os.path.join(dirpath, fname)
             with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:
