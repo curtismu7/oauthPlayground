@@ -1,7 +1,7 @@
 // src/services/pingOneAppCreationService.ts
 
 import { createPingOneClient, makeApiRequest, PingOneClient } from '../utils/apiClient';
-import { logger } from '../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 export type AppType = 'WEB_APP' | 'NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
 

@@ -10,7 +10,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
-import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;

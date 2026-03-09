@@ -12,7 +12,7 @@ import { FiHelpCircle } from '@icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;
 	onChange: (specVersion: SpecVersion) => void;

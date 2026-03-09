@@ -6,7 +6,6 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;

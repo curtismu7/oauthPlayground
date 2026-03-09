@@ -1,5 +1,5 @@
 // src/v8/services/tokenExchangeConfigServiceV8.ts
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Token Exchange Phase 1 - Admin Configuration Service
 
 import {
@@ -82,10 +82,7 @@ export class TokenExchangeConfigServiceV8 {
 			);
 			return defaultConfig;
 		} catch (error) {
-			logger.error(
-				`${TokenExchangeConfigServiceV8.MODULE_TAG} Error getting admin config:`,
-				error
-			);
+			logger.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error getting admin config:`, error);
 			throw new TokenExchangeError(
 				TokenExchangeErrorType.SERVER_ERROR,
 				`Failed to retrieve admin configuration: ${error instanceof Error ? error.message : 'Unknown error'}`

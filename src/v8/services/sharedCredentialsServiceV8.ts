@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file sharedCredentialsServiceV8.ts
  * @module v8/services
  * @description Service for managing shared credentials across all V8U flow types

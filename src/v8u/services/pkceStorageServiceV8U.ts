@@ -16,7 +16,6 @@ import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 // Re-export type for backward compatibility
 export type PKCECodes = V8UPKCECodes;
 

@@ -12,9 +12,9 @@
  */
 
 import React, { ComponentType, lazy } from 'react';
+import { logger } from '../../../utils/logger';
 import type { DeviceType } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🏭 MFA-COMPONENT-FACTORY]';
 
 // Lazy load flow components for code splitting

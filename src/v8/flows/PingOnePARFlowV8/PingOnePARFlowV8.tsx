@@ -41,11 +41,11 @@ import { LearningTooltip } from '../../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../../hooks/useProductionSpinner';
+import { logger } from '../../../utils/logger';
 import { PAR_FLOW_CONSTANTS, STEP_METADATA } from './constants/parFlowConstants';
 import { usePARFlowState } from './hooks/usePARFlowState';
 import { usePAROperations } from './hooks/usePAROperations';
 
-import { logger } from '../../utils/logger';
 // Styled Components
 const Container = styled.div`
 	max-width: 1200px;

@@ -17,7 +17,8 @@
 import React, { useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📡 SIMPLE-API-DISPLAY-V8]';
 
 interface ApiCall {

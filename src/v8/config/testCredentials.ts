@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file testCredentials.ts
  * @module v8/config
  * @description Test credentials for PingOne API testing

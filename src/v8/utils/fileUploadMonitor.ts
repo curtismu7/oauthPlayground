@@ -1,5 +1,5 @@
 // File: src/v8/utils/fileUploadMonitor.ts
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Purpose: Runtime monitoring for file upload issues
 
 export interface FileInfo {

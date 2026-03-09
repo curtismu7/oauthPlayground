@@ -12,7 +12,6 @@ import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;

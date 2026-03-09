@@ -26,10 +26,9 @@
  */
 
 import type { MFACredentials } from '../flows/shared/MFATypes';
+import { logger } from '../../utils/logger';
 import { CredentialsServiceV8 } from './credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from './environmentIdServiceV8';
-
-import { logger } from '../utils/logger';
 export type CredentialUpdateCallback = (credentials: MFACredentials | null) => void;
 
 export interface ValidationResult {

@@ -31,9 +31,9 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { logger } from '../../../../utils/logger';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-MODERN]';
 
 // ============================================================================

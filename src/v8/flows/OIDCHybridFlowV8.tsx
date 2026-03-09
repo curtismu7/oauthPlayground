@@ -25,7 +25,8 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
 	max-width: 1200px;

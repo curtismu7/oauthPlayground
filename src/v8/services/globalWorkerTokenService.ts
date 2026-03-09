@@ -5,10 +5,10 @@
  * @version 9.2.0
  */
 
+import { logger } from '../../utils/logger';
 import type { WorkerTokenCredentials, WorkerTokenStatus } from './workerTokenServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-import { logger } from '../utils/logger';
 type WorkerTokenStatusListener = (status: WorkerTokenStatus) => void;
 
 /**

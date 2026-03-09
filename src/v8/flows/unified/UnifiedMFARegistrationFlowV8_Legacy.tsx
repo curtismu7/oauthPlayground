@@ -50,6 +50,7 @@ import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
+import { logger } from '../../../utils/logger';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -59,7 +60,6 @@ import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelection
 import { UnifiedRegistrationStepModern } from './components/UnifiedRegistrationStep.modern';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import { UnifiedSuccessStepModern } from './components/UnifiedSuccessStep.modern';
-import { logger } from '../../utils/logger';
 import './UnifiedMFAFlow.css';
 
 const FLOW_KEY = 'mfa-flow-v8';
@@ -2010,7 +2010,11 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					...mappedFields,
 				};
 
-				logger.debug('UnifiedMFARegistrationFlowV8', 'Registering device with params:', deviceParams);
+				logger.debug(
+					'UnifiedMFARegistrationFlowV8',
+					'Registering device with params:',
+					deviceParams
+				);
 
 				const result = await MFAServiceV8.registerDevice(deviceParams);
 				logger.debug('UnifiedMFARegistrationFlowV8', 'Device registered:', result);
@@ -2297,7 +2301,10 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 			// Continue with registration
 			setTimeout(() => {
-				logger.debug('UnifiedMFARegistrationFlowV8', 'Now executing performRegistrationWithToken...');
+				logger.debug(
+					'UnifiedMFARegistrationFlowV8',
+					'Now executing performRegistrationWithToken...'
+				);
 				performRegistrationWithToken(props, pendingDeviceType, fields, flowType, userToken);
 			}, 100);
 		}

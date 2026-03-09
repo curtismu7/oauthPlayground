@@ -9,7 +9,8 @@
 import { FiAlertTriangle } from '@icons';
 import React from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 
 export interface DeviceLimitErrorModalV8Props {

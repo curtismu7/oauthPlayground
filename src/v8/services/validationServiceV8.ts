@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file validationServiceV8.ts
  * @module v8/services
  * @description Centralized validation service for all V8 flows

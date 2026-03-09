@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file ApiDisplayService.ts
  * @module protect-app/services
  * @description API call tracking service for Protect Portal

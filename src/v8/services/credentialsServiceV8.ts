@@ -37,7 +37,8 @@ import type {
 } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
 	logger.info(...args);
