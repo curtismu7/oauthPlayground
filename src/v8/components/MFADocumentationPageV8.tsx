@@ -13,9 +13,8 @@ import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import type { DeviceType } from '../flows/shared/MFATypes';
-
 import { logger } from '../../utils/logger';
+import type { DeviceType } from '../flows/shared/MFATypes';
 
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;

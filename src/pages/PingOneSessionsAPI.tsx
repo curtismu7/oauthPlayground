@@ -8,9 +8,9 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { logger } from '../utils/logger';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 
-import { logger } from '../utils/logger';
 const WhiteContainer = styled.div`
 	background-color: white;
 	min-height: 100vh;

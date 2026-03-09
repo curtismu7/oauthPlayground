@@ -11,6 +11,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { logger } from '../../../../utils/logger';
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U.tsx';
 import { AppDiscoveryServiceV8 } from '../services/appDiscoveryServiceV8.ts';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '../services/authMethodServiceV8.ts';
@@ -22,7 +23,6 @@ import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
 import { sendAnalyticsLog } from '../utils/analyticsLoggerV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import type { DiscoveredApp } from './AppPickerV8.tsx';
-import { logger } from '../../../../utils/logger';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,

@@ -4,10 +4,10 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { themeService } from '../services/themeService';
+import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
 
-import { logger } from '../utils/logger';
 const SAVE_FEEDBACK_TIMEOUT_MS = 3200;
 
 const ConfigContainer = styled.div`

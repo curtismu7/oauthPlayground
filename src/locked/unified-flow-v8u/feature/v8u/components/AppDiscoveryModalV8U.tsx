@@ -17,6 +17,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {

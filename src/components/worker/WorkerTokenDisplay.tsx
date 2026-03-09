@@ -4,7 +4,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../../utils/logger';
 import {
 	formatScopes,
 	JWTPayload,
@@ -12,6 +11,7 @@ import {
 	TokenIntrospectionResponse,
 	WorkerTokenResponse,
 } from '../../types/workerToken';
+import { logger } from '../../utils/logger';
 
 /**
  * Utility function to mask tokens for security

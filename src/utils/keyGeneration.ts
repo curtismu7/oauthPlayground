@@ -11,9 +11,9 @@
  * - Cryptographically secure random strings
  */
 
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 KEY-GENERATION]';
 
 export interface GeneratedKeyPair {

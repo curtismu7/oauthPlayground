@@ -1,9 +1,8 @@
 // src/utils/flowCredentialLoader.ts
 // Flow-specific credential loading utility to prevent credential conflicts
 
-import { getAppOrigin } from './flowRedirectUriMapping';
-
 import { logger } from '../utils/logger';
+import { getAppOrigin } from './flowRedirectUriMapping';
 export interface FlowCredentials {
 	environmentId: string;
 	clientId: string;

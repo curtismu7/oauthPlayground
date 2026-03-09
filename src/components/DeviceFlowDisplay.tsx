@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
 
-import { logger } from '../utils/logger';
 const DeviceFlowContainer = styled.div`
   background: white;
   border-radius: 0.5rem;

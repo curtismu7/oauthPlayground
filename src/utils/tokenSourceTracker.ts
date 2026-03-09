@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 // Token source tracking utility
 export interface TokenSource {
 	source:

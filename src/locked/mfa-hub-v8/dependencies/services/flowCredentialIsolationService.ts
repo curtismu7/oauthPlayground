@@ -12,10 +12,9 @@
  * - Complete isolation by default
  */
 
+import { logger } from '../../../utils/logger';
 import { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
-
-import { logger } from '../../../utils/logger';
 export interface FlowCredentialConfig {
 	flowKey: string;
 	defaultCredentials?: Partial<StepCredentials>;

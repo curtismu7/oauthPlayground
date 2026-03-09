@@ -1,14 +1,13 @@
 // src/services/flowRedirectUriService.ts
 // Service for managing flow-specific redirect URIs using centralized mapping
 
+import { logger } from '../../../utils/logger';
 import {
 	type FlowRedirectUriConfig,
 	flowRequiresRedirectUri,
 	getFlowRedirectUriConfig,
 } from '../utils/flowRedirectUriMapping';
 import { callbackUriService } from './callbackUriService';
-
-import { logger } from '../../../utils/logger';
 /**
  * Service for managing OAuth/OIDC flow redirect URIs
  */

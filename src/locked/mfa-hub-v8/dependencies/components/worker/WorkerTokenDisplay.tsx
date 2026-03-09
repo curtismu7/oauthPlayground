@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
+import { logger } from '../../../../utils/logger';
 import {
 	JWTPayload,
 	TokenIntrospectionResponse,
@@ -10,7 +11,6 @@ import {
 } from '../../types/workerToken';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
-import { logger } from '../../../../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;

@@ -4,12 +4,12 @@
 import { FiCheckCircle, FiCopy, FiKey, FiLoader, FiMonitor } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
 
-import { logger } from '../../../utils/logger';
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
 	<svg

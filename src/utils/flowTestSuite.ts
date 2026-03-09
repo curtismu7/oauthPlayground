@@ -2,9 +2,8 @@
 // Comprehensive test suite for all OAuth/OIDC flows
 
 import { StepCredentials } from '../types/flowTypes';
-import { FlowTestResult, RegressionTestSuite, regressionSafeguards } from './regressionSafeguards';
-
 import { logger } from '../utils/logger';
+import { FlowTestResult, RegressionTestSuite, regressionSafeguards } from './regressionSafeguards';
 export interface FlowTestConfig {
 	flowName: string;
 	credentials: StepCredentials;

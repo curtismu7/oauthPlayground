@@ -5,12 +5,12 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`

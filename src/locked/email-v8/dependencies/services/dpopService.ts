@@ -8,9 +8,8 @@
  * token replay attacks and provide proof of possession.
  */
 
-import { v4ToastManager } from '../utils/v4ToastMessages';
-
 import { logger } from '../../../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 export interface DPoPKeyPair {
 	publicKey: CryptoKey;
 	privateKey: CryptoKey;

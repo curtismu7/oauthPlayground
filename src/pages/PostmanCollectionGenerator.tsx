@@ -28,12 +28,12 @@ import {
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { logger } from '../utils/logger';
 import {
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+import { logger } from '../utils/logger';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 

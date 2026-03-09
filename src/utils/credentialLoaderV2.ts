@@ -3,9 +3,8 @@
 
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialStorageManager } from '../services/credentialStorageManager';
-import { logger } from './logger';
-
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 /**
  * Load credentials for a specific flow using the new isolated storage system
  *

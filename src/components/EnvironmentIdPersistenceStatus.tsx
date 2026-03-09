@@ -5,6 +5,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 
 import { logger } from '../utils/logger';
+
 const StatusContent = styled.div`
   color: #075985;
   line-height: 1.4;

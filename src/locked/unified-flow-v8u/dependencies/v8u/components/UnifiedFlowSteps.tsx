@@ -20,6 +20,7 @@ import { FiArrowRight } from '@icons';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay.tsx';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector.tsx';
 import DynamicDeviceFlow from '../../components/DynamicDeviceFlow.tsx';
@@ -48,7 +49,6 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
-import { logger } from '../../../../utils/logger';
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
 const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';
@@ -8051,9 +8051,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// CRITICAL: If PKCE is required, we MUST have a code verifier
 			// The service layer will reject the request if PKCE is required but no verifier is provided
 			if (isPKCERequired && !effectiveCodeVerifier) {
-				logger.error(
-					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`
-				);
+				logger.error(`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`);
 				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);

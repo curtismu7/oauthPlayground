@@ -12,6 +12,7 @@ import {
 import { forcePasswordChange, readPasswordState } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
+import { logger } from '../../../utils/logger';
 import { CodeGenerator } from '../shared/CodeGenerator';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
@@ -28,7 +29,6 @@ import {
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
 
-import { logger } from '../../../utils/logger';
 interface ForceResetTabProps {
 	environmentId: string;
 	workerToken: string;

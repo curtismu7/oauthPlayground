@@ -5,12 +5,12 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`

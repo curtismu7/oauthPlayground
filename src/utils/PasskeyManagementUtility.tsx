@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
 
 import { logger } from '../utils/logger';
+
 interface PasskeyDevice {
 	id: string;
 	name?: string;
@@ -219,7 +220,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 		// Find the device to get credentialId and rpId
 		const device = devices.find((d) => d.id === deviceId);
 		if (!device) {
-				showGlobalWarning('Device not found');
+			showGlobalWarning('Device not found');
 			return;
 		}
 

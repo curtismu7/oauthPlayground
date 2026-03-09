@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 
 import { logger } from '../../utils/logger';
+
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -231,11 +232,15 @@ const ImplicitCallback: React.FC = () => {
 
 						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
 
-						logger.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
-							hasAccessToken: !!accessToken,
-							hasIdToken: !!idToken,
-							variant: isOIDCFlow ? 'oidc' : 'oauth',
-						});
+						logger.auth(
+							'ImplicitCallback',
+							'V7 implicit grant received, returning to unified flow',
+							{
+								hasAccessToken: !!accessToken,
+								hasIdToken: !!idToken,
+								variant: isOIDCFlow ? 'oidc' : 'oauth',
+							}
+						);
 
 						setTimeout(() => {
 							// Redirect to the unified V7 flow with fragment

@@ -50,9 +50,9 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
+import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { logger } from '../../../utils/logger';
 import {
 	DEFAULT_APP_CONFIG,
 	type IntroSectionKey,
@@ -643,7 +643,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						{ backupToEnv: true }
 					);
 					setLastSyncedCredentials(credentialsHash);
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Credentials synced to comprehensive service');
+					logger.info(
+						'OAuthAuthorizationCodeFlowV9',
+						'Credentials synced to comprehensive service'
+					);
 				} catch (error) {
 					logger.error('OAuthAuthorizationCodeFlowV9', 'Failed to sync credentials', error);
 				}
@@ -1539,7 +1542,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				if (!resumeUrl) throw new Error('Missing resumeUrl');
 
 				// Step 3: resume to obtain authorization code
-				logger.info('OAuthAuthorizationCodeFlowV9', 'Step 3: Resuming flow to get authorization code');
+				logger.info(
+					'OAuthAuthorizationCodeFlowV9',
+					'Step 3: Resuming flow to get authorization code'
+				);
 				const resumeBody: Record<string, unknown> = {
 					resumeUrl,
 					clientId,

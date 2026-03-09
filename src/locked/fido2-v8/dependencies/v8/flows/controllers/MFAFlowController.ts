@@ -10,9 +10,9 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { logger } from '../../../../../utils/logger';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
-import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
 
 export interface OTPState {

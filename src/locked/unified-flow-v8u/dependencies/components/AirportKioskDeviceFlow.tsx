@@ -5,6 +5,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	DeviceFlowState,
 	type DeviceTokenResponse,
@@ -12,7 +13,6 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel
 const KioskContainer = styled.div`
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);

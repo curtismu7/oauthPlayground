@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import sqlite3 from 'sqlite3';
 
 import { logger } from '../utils/logger';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
