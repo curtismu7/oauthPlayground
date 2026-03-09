@@ -8,7 +8,6 @@ import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { type PARAuthMethod, type PARResponse } from '../../services/parService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';

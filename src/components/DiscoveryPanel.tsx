@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
 import CopyIcon from './CopyIcon';
 

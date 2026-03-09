@@ -97,6 +97,7 @@ export const ConfirmationModalV8: React.FC = () => {
 		<>
 			{/* Overlay */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -118,6 +119,11 @@ export const ConfirmationModalV8: React.FC = () => {
 					aria-labelledby="confirm-title"
 					aria-describedby="confirm-message"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							handleCancel();
+						}
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '8px',

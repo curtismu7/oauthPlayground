@@ -9,7 +9,6 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 interface CodeExamplesInlineProps {

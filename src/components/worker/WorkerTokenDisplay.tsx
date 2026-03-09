@@ -11,7 +11,6 @@ import {
 	TokenIntrospectionResponse,
 	WorkerTokenResponse,
 } from '../../types/workerToken';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
 /**
  * Utility function to mask tokens for security

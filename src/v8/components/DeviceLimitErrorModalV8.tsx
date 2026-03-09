@@ -47,9 +47,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 
 	return (
 		<div
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="modal-title"
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -70,7 +68,9 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 			}}
 		>
 			<div
-				role="document"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="modal-title"
 				style={{
 					backgroundColor: 'white',
 					borderRadius: '8px',

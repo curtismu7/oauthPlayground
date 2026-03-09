@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
 
 // Flow configuration mapping based on OAuth/OIDC standards

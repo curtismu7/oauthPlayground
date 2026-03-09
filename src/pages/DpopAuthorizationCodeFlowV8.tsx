@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 /**
  * @file DpopAuthorizationCodeFlowV8.tsx
  * @module pages
@@ -643,7 +642,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>[FiActivity]</span>Flow Progress
+					<i className="bi bi-activity" />Flow Progress
 				</SectionTitle>
 
 				{steps.map((step, index) => (
@@ -665,7 +664,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>[FiCpu]</span>Mock DPoP Server Status
+					<i className="bi bi-cpu" />Mock DPoP Server Status
 				</SectionTitle>
 
 				<div style={{ marginBottom: '1rem' }}>
@@ -953,7 +952,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>[FiCode]</span>Learn More About DPoP
+					<i className="bi bi-code-slash" />Learn More About DPoP
 				</SectionTitle>
 				<InfoBox>
 					<strong>Official Resources:</strong>

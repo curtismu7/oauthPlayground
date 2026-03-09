@@ -1,12 +1,9 @@
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-
 // src/pages/flows/DeviceAuthorizationFlowV9_New.tsx
 // lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
 import { FiInfo, FiMonitor } from '@icons';
 import { BarChart3, Play } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -773,15 +770,15 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		() => deviceTypeService.getDeviceType(selectedDevice),
 		[selectedDevice]
 	);
-	const waitingMessage = useMemo(
+	const _waitingMessage = useMemo(
 		() => deviceTypeService.getWaitingMessage(selectedDevice),
 		[selectedDevice]
 	);
-	const welcomeMessage = useMemo(
+	const _welcomeMessage = useMemo(
 		() => deviceTypeService.getWelcomeMessage(selectedDevice),
 		[selectedDevice]
 	);
-	const deviceApps = useMemo(
+	const _deviceApps = useMemo(
 		() => deviceTypeService.getDeviceApps(selectedDevice),
 		[selectedDevice]
 	);
@@ -845,7 +842,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	React.useEffect(() => {
 		localStorage.setItem('device_flow_selected_device', selectedDevice);
 	}, [selectedDevice]);
-	const brandGradient = useMemo(
+	const _brandGradient = useMemo(
 		() => `linear-gradient(135deg, ${deviceConfig.color} 0%, ${deviceConfig.secondaryColor} 100%)`,
 		[deviceConfig.color, deviceConfig.secondaryColor]
 	);

@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const ComparisonContainer = styled.div`

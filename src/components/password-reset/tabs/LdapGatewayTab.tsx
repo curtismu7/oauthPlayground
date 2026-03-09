@@ -1,7 +1,6 @@
 // src/components/password-reset/tabs/LdapGatewayTab.tsx
 // LDAP Gateway Password Set Tab Component
 
-import { FiAlertCircle, FiBook, FiExternalLink, FiKey } from '@icons';
 import React from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {

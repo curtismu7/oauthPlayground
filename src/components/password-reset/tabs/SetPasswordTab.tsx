@@ -1,7 +1,6 @@
 // src/components/password-reset/tabs/SetPasswordTab.tsx
 // Set Password Tab Component
 
-import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiKey } from '@icons';
 import React from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {

@@ -1,6 +1,5 @@
 // src/components/WorkerTokenEducationalPanel.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiKey, FiShield, FiXCircle } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import {

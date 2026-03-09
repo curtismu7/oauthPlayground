@@ -541,11 +541,21 @@ export const V7MROPCV9: React.FC<Props> = ({
 										Inspect Access Token
 									</button>
 									{idToken && (
-										<button type="button" type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+										<button
+											type="button"
+											type="button"
+											onClick={() => setShowIdModal(true)}
+											style={secondaryBtn}
+										>
 											Inspect ID Token
 										</button>
 									)}
-									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={handleIntrospect}
+										style={secondaryBtn}
+									>
 										Introspect Token
 									</button>
 									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>

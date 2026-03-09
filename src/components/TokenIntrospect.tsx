@@ -4,7 +4,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
 

@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { FlowHeader } from '../services/flowHeaderService';
 
 // src/pages/PingOneWebhookViewer.tsx
@@ -11,7 +10,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
@@ -1247,716 +1245,728 @@ const PingOneWebhookViewer: React.FC = () => {
 			<div style={styles.container}>
 				<div style={styles.pageContainer}>
 					<div style={styles.headerCard}>
-					<div style={styles.titleRow}>
-						<div style={styles.titleLeft}>
-							<span style={{ fontSize: '28px' }}>🖥️</span>
-							<h1 style={styles.title}>PingOne Webhook Management</h1>
-						</div>
-						{!isPopoutWindow() && (
-							<button
-								type="button"
-								onClick={openWebhookViewerPopout}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.4rem',
-									paddingInline: '0.85rem',
-									paddingBlock: '0.45rem',
-									borderRadius: '0.5rem',
-									border: '1px solid rgba(255,255,255,0.4)',
-									background: 'rgba(255,255,255,0.15)',
-									color: 'white',
-									fontSize: '0.8rem',
-									fontWeight: 600,
-									cursor: 'pointer',
-									whiteSpace: 'nowrap',
-									transition: 'background 0.15s',
-								}}
-								onMouseEnter={(e) => {
-									(e.currentTarget as HTMLButtonElement).style.background =
-										'rgba(255,255,255,0.25)';
-								}}
-								onMouseLeave={(e) => {
-									(e.currentTarget as HTMLButtonElement).style.background =
-										'rgba(255,255,255,0.15)';
-								}}
-								title="Open in popout window to monitor while using the app"
-							>
-								<span style={{ fontSize: '14px' }}>🔗</span>
-								Popout
-							</button>
-						)}
-					</div>
-					<p style={styles.subtitle}>
-						Manage webhook subscriptions and monitor webhook events in real-time. Create, update,
-						and delete webhook subscriptions using the PingOne Management API. Requires
-						p1:read:subscriptions and p1:write:subscriptions scopes.
-					</p>
-				</div>
-
-				<WorkerTokenSectionV8
-					environmentId={environmentId}
-					onTokenUpdated={(token) => {
-						setWorkerToken(token);
-						try {
-							const stored = localStorage.getItem('unified_worker_token');
-							if (stored) {
-								const data = JSON.parse(stored);
-								if (data.credentials?.environmentId) {
-									setEnvironmentId(data.credentials.environmentId);
-									localStorage.setItem('environmentId', data.credentials.environmentId);
-								}
-								if (data.credentials?.region) {
-									setSelectedRegion(
-										data.credentials.region === 'eu'
-											? 'eu'
-											: data.credentials.region === 'ap'
-												? 'ap'
-												: data.credentials.region === 'ca'
-													? 'ca'
-													: 'na'
-									);
-								}
-							}
-						} catch {}
-					}}
-					compact={false}
-					showSettings={false}
-				/>
-
-				<div style={{ ...styles.sectionCard, marginBottom: '1rem' }}>
-					<label
-						htmlFor="webhook-env-id"
-						style={{
-							fontWeight: 600,
-							fontSize: '0.875rem',
-							color: '#334155',
-							display: 'block',
-							marginBottom: '0.5rem',
-						}}
-					>
-						Environment ID
-					</label>
-					<input
-						id="webhook-env-id"
-						type="text"
-						value={environmentId}
-						onChange={(e) => {
-							setEnvironmentId(e.target.value);
-							localStorage.setItem('environmentId', e.target.value);
-						}}
-						placeholder="12345678-1234-1234-1234-123456789abc"
-						style={{
-							width: '100%',
-							padding: '0.6rem 0.85rem',
-							borderRadius: '0.5rem',
-							border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
-							background: !environmentId.trim() ? '#fef3c7' : '#f8fafc',
-							fontSize: '0.875rem',
-							fontFamily: "'Monaco', 'Menlo', monospace",
-						}}
-					/>
-					{!environmentId.trim() && (
-						<p
-							style={{
-								margin: '0.4rem 0 0',
-								fontSize: '0.78rem',
-								color: '#d97706',
-								fontWeight: 600,
-							}}
-						>
-							⚠️ Environment ID required to manage subscriptions.
-						</p>
-					)}
-				</div>
-
-				<div style={styles.header}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-						<span style={{ fontSize: '24px' }}>🖥️</span>
-						<h1 style={{ ...styles.title, fontSize: '1.5rem', margin: 0 }}>Webhook Management</h1>
-					</div>
-					<div style={styles.actionButtons}>
-						{activeTab === 'subscriptions' && (
-							<>
+						<div style={styles.titleRow}>
+							<div style={styles.titleLeft}>
+								<span style={{ fontSize: '28px' }}>🖥️</span>
+								<h1 style={styles.title}>PingOne Webhook Management</h1>
+							</div>
+							{!isPopoutWindow() && (
 								<button
 									type="button"
-									style={styles.button('primary')}
-									onClick={() => {
-										setEditingSubscription(null);
-										setFormData({
-											name: '',
-											enabled: true,
-											httpEndpointUrl: `${window.location.origin}/api/webhooks/pingone`,
-											format: 'ACTIVITY',
-											includedActionTypes: 'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED',
-											verifyTlsCertificates: false,
-										});
-										setShowCreateModal(true);
+									onClick={openWebhookViewerPopout}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.4rem',
+										paddingInline: '0.85rem',
+										paddingBlock: '0.45rem',
+										borderRadius: '0.5rem',
+										border: '1px solid rgba(255,255,255,0.4)',
+										background: 'rgba(255,255,255,0.15)',
+										color: 'white',
+										fontSize: '0.8rem',
+										fontWeight: 600,
+										cursor: 'pointer',
+										whiteSpace: 'nowrap',
+										transition: 'background 0.15s',
 									}}
-									disabled={!hasWorkerToken || !environmentId}
+									onMouseEnter={(e) => {
+										(e.currentTarget as HTMLButtonElement).style.background =
+											'rgba(255,255,255,0.25)';
+									}}
+									onMouseLeave={(e) => {
+										(e.currentTarget as HTMLButtonElement).style.background =
+											'rgba(255,255,255,0.15)';
+									}}
+									title="Open in popout window to monitor while using the app"
 								>
-									<span>➕</span>
-									Create Subscription
+									<span style={{ fontSize: '14px' }}>🔗</span>
+									Popout
 								</button>
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={fetchSubscriptions}
-									disabled={!hasWorkerToken || !environmentId || isLoadingSubscriptions}
-								>
-									<span>🔄</span>
-									Refresh
-								</button>
-							</>
-						)}
-						{activeTab === 'events' && (
-							<>
-								{!isActive ? (
-									<button
-										type="button"
-										style={styles.button('primary')}
-										onClick={handleStartMonitoring}
-									>
-										<span>🔄</span>
-										Start Monitoring
-									</button>
-								) : (
-									<button
-										type="button"
-										style={styles.button('danger')}
-										onClick={handleStopMonitoring}
-									>
-										<span>🔄</span>
-										Stop Monitoring
-									</button>
-								)}
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={handleClearWebhooks}
-									disabled={webhooks.length === 0}
-								>
-									<span>🗑️</span>
-									Clear History
-								</button>
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={handleExportWebhooks}
-									disabled={webhooks.length === 0}
-								>
-									<span>📥</span>
-									Export
-								</button>
-							</>
+							)}
+						</div>
+						<p style={styles.subtitle}>
+							Manage webhook subscriptions and monitor webhook events in real-time. Create, update,
+							and delete webhook subscriptions using the PingOne Management API. Requires
+							p1:read:subscriptions and p1:write:subscriptions scopes.
+						</p>
+					</div>
+
+					<WorkerTokenSectionV8
+						environmentId={environmentId}
+						onTokenUpdated={(token) => {
+							setWorkerToken(token);
+							try {
+								const stored = localStorage.getItem('unified_worker_token');
+								if (stored) {
+									const data = JSON.parse(stored);
+									if (data.credentials?.environmentId) {
+										setEnvironmentId(data.credentials.environmentId);
+										localStorage.setItem('environmentId', data.credentials.environmentId);
+									}
+									if (data.credentials?.region) {
+										setSelectedRegion(
+											data.credentials.region === 'eu'
+												? 'eu'
+												: data.credentials.region === 'ap'
+													? 'ap'
+													: data.credentials.region === 'ca'
+														? 'ca'
+														: 'na'
+										);
+									}
+								}
+							} catch {}
+						}}
+						compact={false}
+						showSettings={false}
+					/>
+
+					<div style={{ ...styles.sectionCard, marginBottom: '1rem' }}>
+						<label
+							htmlFor="webhook-env-id"
+							style={{
+								fontWeight: 600,
+								fontSize: '0.875rem',
+								color: '#334155',
+								display: 'block',
+								marginBottom: '0.5rem',
+							}}
+						>
+							Environment ID
+						</label>
+						<input
+							id="webhook-env-id"
+							type="text"
+							value={environmentId}
+							onChange={(e) => {
+								setEnvironmentId(e.target.value);
+								localStorage.setItem('environmentId', e.target.value);
+							}}
+							placeholder="12345678-1234-1234-1234-123456789abc"
+							style={{
+								width: '100%',
+								padding: '0.6rem 0.85rem',
+								borderRadius: '0.5rem',
+								border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
+								background: !environmentId.trim() ? '#fef3c7' : '#f8fafc',
+								fontSize: '0.875rem',
+								fontFamily: "'Monaco', 'Menlo', monospace",
+							}}
+						/>
+						{!environmentId.trim() && (
+							<p
+								style={{
+									margin: '0.4rem 0 0',
+									fontSize: '0.78rem',
+									color: '#d97706',
+									fontWeight: 600,
+								}}
+							>
+								⚠️ Environment ID required to manage subscriptions.
+							</p>
 						)}
 					</div>
-				</div>
 
-				<div style={styles.tabsContainer}>
-					<button
-						type="button"
-						style={styles.tab(activeTab === 'subscriptions')}
-						onClick={() => setActiveTab('subscriptions')}
-					>
-						Subscriptions ({subscriptions.length})
-					</button>
-					<button
-						type="button"
-						style={styles.tab(activeTab === 'events')}
-						onClick={() => setActiveTab('events')}
-					>
-						Events ({webhooks.length})
-					</button>
-				</div>
-
-				{activeTab === 'subscriptions' && (
-					<>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.75rem',
-								marginBottom: '1rem',
-								padding: '0.75rem 1rem',
-								background: '#f8fafc',
-								borderRadius: '0.5rem',
-								border: '1px solid #e5e7eb',
-							}}
-						>
-							<FiGlobe size={16} style={{ color: '#6b7280' }} />
-							<span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>
-								PingOne Region:
-							</span>
-							<select
-								style={{
-									...styles.filterSelect,
-									fontSize: '0.875rem',
-									padding: '0.25rem 0.5rem',
-									minWidth: 220,
-								}}
-								value={selectedRegion}
-								onChange={(e) => setSelectedRegion(e.target.value)}
-							>
-								<option value="na">North America (.us)</option>
-								<option value="eu">Europe (.eu)</option>
-								<option value="ap">Asia Pacific (.asia)</option>
-								<option value="ca">Canada (.ca)</option>
-							</select>
-							<span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-								API: api.pingone.
-								{selectedRegion === 'na' ? 'us' : selectedRegion === 'ap' ? 'asia' : selectedRegion}
-							</span>
+					<div style={styles.header}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+							<span style={{ fontSize: '24px' }}>🖥️</span>
+							<h1 style={{ ...styles.title, fontSize: '1.5rem', margin: 0 }}>Webhook Management</h1>
 						</div>
-
-						{showCreateModal && (
-							<div style={styles.sectionCard}>
-								<div style={styles.sectionHeader}>
-									<h2 style={styles.sectionTitle}>
-										{editingSubscription ? 'Edit Subscription' : 'Create Subscription'}
-									</h2>
-									<button
-										type="button"
-										style={styles.button('secondary')}
-										onClick={handleCancelEdit}
-									>
-										<span>❌</span>
-										Cancel
-									</button>
-								</div>
-								<div style={styles.inputGroup}>
-									<label htmlFor="webhook-name" style={styles.labelText}>
-										Name *
-									</label>
-									<input
-										id="webhook-name"
-										style={styles.input}
-										type="text"
-										value={formData.name}
-										onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-										placeholder="My Webhook Subscription"
-									/>
-								</div>
-								<div style={styles.inputGroup}>
-									<label htmlFor="webhook-region" style={styles.labelText}>
-										PingOne Region
-									</label>
-									<select
-										id="webhook-region"
-										style={styles.filterSelect}
-										value={selectedRegion}
-										onChange={(e) => setSelectedRegion(e.target.value)}
-									>
-										<option value="na">North America (api.pingone.com / .us)</option>
-										<option value="eu">Europe (api.pingone.eu)</option>
-										<option value="ap">Asia Pacific (api.pingone.asia)</option>
-										<option value="ca">Canada (api.pingone.ca)</option>
-									</select>
-								</div>
-								<div style={styles.inputGroup}>
-									<label htmlFor="webhook-url" style={styles.labelText}>
-										Webhook Endpoint URL (httpEndpoint.url) *
-									</label>
-									<input
-										id="webhook-url"
-										style={styles.input}
-										type="url"
-										value={formData.httpEndpointUrl}
-										onChange={(e) => setFormData({ ...formData, httpEndpointUrl: e.target.value })}
-										placeholder={`${window.location.origin}/api/webhooks/pingone`}
-									/>
-									<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
-										PingOne will POST events to this HTTPS URL.
-									</small>
-								</div>
-								<div style={styles.inputGroup}>
-									<label htmlFor="webhook-format" style={styles.labelText}>
-										Format
-									</label>
-									<select
-										id="webhook-format"
-										style={styles.filterSelect}
-										value={formData.format}
-										onChange={(e) => setFormData({ ...formData, format: e.target.value })}
-									>
-										<option value="ACTIVITY">ACTIVITY — Generic Ping JSON</option>
-										<option value="SPLUNK">SPLUNK — Splunk-friendly</option>
-										<option value="NEWRELIC">NEWRELIC — New Relic-friendly</option>
-									</select>
-								</div>
-								<div style={styles.inputGroup}>
-									<label htmlFor="webhook-action-types" style={styles.labelText}>
-										Event Types — filterOptions.includedActionTypes (comma-separated)
-									</label>
-									<input
-										id="webhook-action-types"
-										style={styles.input}
-										type="text"
-										value={formData.includedActionTypes}
-										onChange={(e) =>
-											setFormData({ ...formData, includedActionTypes: e.target.value })
-										}
-										placeholder="AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED"
-									/>
-									<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
-										See Audit Reporting Events docs for valid values.
-									</small>
-								</div>
-								<div style={styles.inputGroup}>
-									<label
-										style={{
-											...styles.labelText,
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.5rem',
-										}}
-									>
-										<input
-											style={styles.checkbox}
-											type="checkbox"
-											checked={formData.verifyTlsCertificates}
-											onChange={(e) =>
-												setFormData({ ...formData, verifyTlsCertificates: e.target.checked })
-											}
-										/>
-										Verify TLS Certificates
-									</label>
-									<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
-										Set false for self-signed certs / local dev.
-									</small>
-								</div>
-								<div style={styles.inputGroup}>
-									<label
-										style={{
-											...styles.labelText,
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.5rem',
-										}}
-									>
-										<input
-											style={styles.checkbox}
-											type="checkbox"
-											checked={formData.enabled}
-											onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-										/>
-										Enabled
-									</label>
-								</div>
-								<div style={styles.actionButtons}>
+						<div style={styles.actionButtons}>
+							{activeTab === 'subscriptions' && (
+								<>
 									<button
 										type="button"
 										style={styles.button('primary')}
-										onClick={
-											editingSubscription
-												? () => handleUpdateSubscription(editingSubscription)
-												: handleCreateSubscription
-										}
-										disabled={!formData.name || !formData.httpEndpointUrl || isLoadingSubscriptions}
+										onClick={() => {
+											setEditingSubscription(null);
+											setFormData({
+												name: '',
+												enabled: true,
+												httpEndpointUrl: `${window.location.origin}/api/webhooks/pingone`,
+												format: 'ACTIVITY',
+												includedActionTypes:
+													'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED',
+												verifyTlsCertificates: false,
+											});
+											setShowCreateModal(true);
+										}}
+										disabled={!hasWorkerToken || !environmentId}
 									>
-										{editingSubscription ? 'Update' : 'Create'} Subscription
+										<span>➕</span>
+										Create Subscription
 									</button>
 									<button
 										type="button"
 										style={styles.button('secondary')}
-										onClick={handleCancelEdit}
+										onClick={fetchSubscriptions}
+										disabled={!hasWorkerToken || !environmentId || isLoadingSubscriptions}
 									>
-										Cancel
+										<span>🔄</span>
+										Refresh
 									</button>
-								</div>
-							</div>
-						)}
+								</>
+							)}
+							{activeTab === 'events' && (
+								<>
+									{!isActive ? (
+										<button
+											type="button"
+											style={styles.button('primary')}
+											onClick={handleStartMonitoring}
+										>
+											<span>🔄</span>
+											Start Monitoring
+										</button>
+									) : (
+										<button
+											type="button"
+											style={styles.button('danger')}
+											onClick={handleStopMonitoring}
+										>
+											<span>🔄</span>
+											Stop Monitoring
+										</button>
+									)}
+									<button
+										type="button"
+										style={styles.button('secondary')}
+										onClick={handleClearWebhooks}
+										disabled={webhooks.length === 0}
+									>
+										<span>🗑️</span>
+										Clear History
+									</button>
+									<button
+										type="button"
+										style={styles.button('secondary')}
+										onClick={handleExportWebhooks}
+										disabled={webhooks.length === 0}
+									>
+										<span>📥</span>
+										Export
+									</button>
+								</>
+							)}
+						</div>
+					</div>
 
-						{hasWorkerToken && environmentId && (
-							<div style={styles.sectionCard}>
-								<div style={styles.sectionHeader}>
-									<h2 style={styles.sectionTitle}>Webhook Subscriptions</h2>
-								</div>
-								{isLoadingSubscriptions ? (
-									<p style={{ color: '#6b7280' }}>Loading subscriptions...</p>
-								) : subscriptions.length === 0 ? (
-									<div style={styles.emptyState}>
-										<span style={{ fontSize: '48px' }}>🖥️</span>
-										<h3>No webhook subscriptions</h3>
-										<p>Create your first webhook subscription to start receiving events.</p>
-									</div>
-								) : (
-									<div style={styles.subscriptionList}>
-										{subscriptions.map((subscription) => (
-											<div style={styles.subscriptionCard} key={subscription.id}>
-												<div style={styles.subscriptionInfo}>
-													<div style={styles.subscriptionName}>{subscription.name}</div>
-													<div style={styles.subscriptionMeta}>
-														<span style={styles.statusBadge(subscription.enabled)}>
-															{subscription.enabled ? <span>✅</span> : <span>❌</span>}
-															{subscription.enabled ? 'Enabled' : 'Disabled'}
-														</span>
-														<span>
-															URL:{' '}
-															{subscription.httpEndpoint?.url ||
-																subscription.destination?.url ||
-																'N/A'}
-														</span>
-														{subscription.format && <span>Format: {subscription.format}</span>}
-														{((subscription.filterOptions?.includedActionTypes?.length ?? 0) > 0 ||
-															(subscription.topics?.length ?? 0) > 0) && (
-															<span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-																Events:{' '}
-																{(
-																	subscription.filterOptions?.includedActionTypes ||
-																	subscription.topics ||
-																	[]
-																).join(', ')}
-															</span>
-														)}
-													</div>
-												</div>
-												<div style={styles.subscriptionActions}>
-													<button
-														type="button"
-														style={styles.button('secondary')}
-														onClick={() => handleEditSubscription(subscription)}
-													>
-														<span>✏️</span>
-													</button>
-													<button
-														type="button"
-														style={styles.button('danger')}
-														onClick={() => handleDeleteSubscription(subscription.id)}
-													>
-														<span>🗑️</span>
-													</button>
-												</div>
-											</div>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-					</>
-				)}
-
-				{activeTab === 'events' && (
-					<>
-						<div
-							style={{
-								background: '#fef3c7',
-								border: '2px solid #f59e0b',
-								borderRadius: '0.5rem',
-								padding: '1.5rem',
-								marginBottom: '2rem',
-							}}
+					<div style={styles.tabsContainer}>
+						<button
+							type="button"
+							style={styles.tab(activeTab === 'subscriptions')}
+							onClick={() => setActiveTab('subscriptions')}
 						>
+							Subscriptions ({subscriptions.length})
+						</button>
+						<button
+							type="button"
+							style={styles.tab(activeTab === 'events')}
+							onClick={() => setActiveTab('events')}
+						>
+							Events ({webhooks.length})
+						</button>
+					</div>
+
+					{activeTab === 'subscriptions' && (
+						<>
 							<div
 								style={{
 									display: 'flex',
 									alignItems: 'center',
-									gap: '0.5rem',
+									gap: '0.75rem',
 									marginBottom: '1rem',
+									padding: '0.75rem 1rem',
+									background: '#f8fafc',
+									borderRadius: '0.5rem',
+									border: '1px solid #e5e7eb',
 								}}
 							>
-								<FiAlertCircle color="#f59e0b" size={20} />
-								<strong style={{ color: '#d97706', fontSize: '1rem' }}>
-									Webhook Configuration URL
-								</strong>
-							</div>
-							<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-								<div
+								<FiGlobe size={16} style={{ color: '#6b7280' }} />
+								<span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>
+									PingOne Region:
+								</span>
+								<select
 									style={{
-										background: 'white',
-										border: '1px solid #f59e0b',
-										borderRadius: '0.375rem',
-										padding: '0.75rem 1rem',
-										flex: 1,
-										fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
+										...styles.filterSelect,
 										fontSize: '0.875rem',
-										wordBreak: 'break-all',
+										padding: '0.25rem 0.5rem',
+										minWidth: 220,
 									}}
+									value={selectedRegion}
+									onChange={(e) => setSelectedRegion(e.target.value)}
 								>
-									{window.location.origin}/api/webhooks/pingone
+									<option value="na">North America (.us)</option>
+									<option value="eu">Europe (.eu)</option>
+									<option value="ap">Asia Pacific (.asia)</option>
+									<option value="ca">Canada (.ca)</option>
+								</select>
+								<span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+									API: api.pingone.
+									{selectedRegion === 'na'
+										? 'us'
+										: selectedRegion === 'ap'
+											? 'asia'
+											: selectedRegion}
+								</span>
+							</div>
+
+							{showCreateModal && (
+								<div style={styles.sectionCard}>
+									<div style={styles.sectionHeader}>
+										<h2 style={styles.sectionTitle}>
+											{editingSubscription ? 'Edit Subscription' : 'Create Subscription'}
+										</h2>
+										<button
+											type="button"
+											style={styles.button('secondary')}
+											onClick={handleCancelEdit}
+										>
+											<span>❌</span>
+											Cancel
+										</button>
+									</div>
+									<div style={styles.inputGroup}>
+										<label htmlFor="webhook-name" style={styles.labelText}>
+											Name *
+										</label>
+										<input
+											id="webhook-name"
+											style={styles.input}
+											type="text"
+											value={formData.name}
+											onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+											placeholder="My Webhook Subscription"
+										/>
+									</div>
+									<div style={styles.inputGroup}>
+										<label htmlFor="webhook-region" style={styles.labelText}>
+											PingOne Region
+										</label>
+										<select
+											id="webhook-region"
+											style={styles.filterSelect}
+											value={selectedRegion}
+											onChange={(e) => setSelectedRegion(e.target.value)}
+										>
+											<option value="na">North America (api.pingone.com / .us)</option>
+											<option value="eu">Europe (api.pingone.eu)</option>
+											<option value="ap">Asia Pacific (api.pingone.asia)</option>
+											<option value="ca">Canada (api.pingone.ca)</option>
+										</select>
+									</div>
+									<div style={styles.inputGroup}>
+										<label htmlFor="webhook-url" style={styles.labelText}>
+											Webhook Endpoint URL (httpEndpoint.url) *
+										</label>
+										<input
+											id="webhook-url"
+											style={styles.input}
+											type="url"
+											value={formData.httpEndpointUrl}
+											onChange={(e) =>
+												setFormData({ ...formData, httpEndpointUrl: e.target.value })
+											}
+											placeholder={`${window.location.origin}/api/webhooks/pingone`}
+										/>
+										<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
+											PingOne will POST events to this HTTPS URL.
+										</small>
+									</div>
+									<div style={styles.inputGroup}>
+										<label htmlFor="webhook-format" style={styles.labelText}>
+											Format
+										</label>
+										<select
+											id="webhook-format"
+											style={styles.filterSelect}
+											value={formData.format}
+											onChange={(e) => setFormData({ ...formData, format: e.target.value })}
+										>
+											<option value="ACTIVITY">ACTIVITY — Generic Ping JSON</option>
+											<option value="SPLUNK">SPLUNK — Splunk-friendly</option>
+											<option value="NEWRELIC">NEWRELIC — New Relic-friendly</option>
+										</select>
+									</div>
+									<div style={styles.inputGroup}>
+										<label htmlFor="webhook-action-types" style={styles.labelText}>
+											Event Types — filterOptions.includedActionTypes (comma-separated)
+										</label>
+										<input
+											id="webhook-action-types"
+											style={styles.input}
+											type="text"
+											value={formData.includedActionTypes}
+											onChange={(e) =>
+												setFormData({ ...formData, includedActionTypes: e.target.value })
+											}
+											placeholder="AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED"
+										/>
+										<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
+											See Audit Reporting Events docs for valid values.
+										</small>
+									</div>
+									<div style={styles.inputGroup}>
+										<label
+											style={{
+												...styles.labelText,
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+											}}
+										>
+											<input
+												style={styles.checkbox}
+												type="checkbox"
+												checked={formData.verifyTlsCertificates}
+												onChange={(e) =>
+													setFormData({ ...formData, verifyTlsCertificates: e.target.checked })
+												}
+											/>
+											Verify TLS Certificates
+										</label>
+										<small style={{ color: '#6b7280', fontSize: '0.78rem' }}>
+											Set false for self-signed certs / local dev.
+										</small>
+									</div>
+									<div style={styles.inputGroup}>
+										<label
+											style={{
+												...styles.labelText,
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+											}}
+										>
+											<input
+												style={styles.checkbox}
+												type="checkbox"
+												checked={formData.enabled}
+												onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
+											/>
+											Enabled
+										</label>
+									</div>
+									<div style={styles.actionButtons}>
+										<button
+											type="button"
+											style={styles.button('primary')}
+											onClick={
+												editingSubscription
+													? () => handleUpdateSubscription(editingSubscription)
+													: handleCreateSubscription
+											}
+											disabled={
+												!formData.name || !formData.httpEndpointUrl || isLoadingSubscriptions
+											}
+										>
+											{editingSubscription ? 'Update' : 'Create'} Subscription
+										</button>
+										<button
+											type="button"
+											style={styles.button('secondary')}
+											onClick={handleCancelEdit}
+										>
+											Cancel
+										</button>
+									</div>
 								</div>
-								<button
-									type="button"
-									onClick={() => {
-										navigator.clipboard.writeText(`${window.location.origin}/api/webhooks/pingone`);
-										modernMessaging.showFooterMessage({
-											type: 'status',
-											message: 'Webhook URL copied to clipboard',
-											duration: 4000,
-										});
-									}}
+							)}
+
+							{hasWorkerToken && environmentId && (
+								<div style={styles.sectionCard}>
+									<div style={styles.sectionHeader}>
+										<h2 style={styles.sectionTitle}>Webhook Subscriptions</h2>
+									</div>
+									{isLoadingSubscriptions ? (
+										<p style={{ color: '#6b7280' }}>Loading subscriptions...</p>
+									) : subscriptions.length === 0 ? (
+										<div style={styles.emptyState}>
+											<span style={{ fontSize: '48px' }}>🖥️</span>
+											<h3>No webhook subscriptions</h3>
+											<p>Create your first webhook subscription to start receiving events.</p>
+										</div>
+									) : (
+										<div style={styles.subscriptionList}>
+											{subscriptions.map((subscription) => (
+												<div style={styles.subscriptionCard} key={subscription.id}>
+													<div style={styles.subscriptionInfo}>
+														<div style={styles.subscriptionName}>{subscription.name}</div>
+														<div style={styles.subscriptionMeta}>
+															<span style={styles.statusBadge(subscription.enabled)}>
+																{subscription.enabled ? <span>✅</span> : <span>❌</span>}
+																{subscription.enabled ? 'Enabled' : 'Disabled'}
+															</span>
+															<span>
+																URL:{' '}
+																{subscription.httpEndpoint?.url ||
+																	subscription.destination?.url ||
+																	'N/A'}
+															</span>
+															{subscription.format && <span>Format: {subscription.format}</span>}
+															{((subscription.filterOptions?.includedActionTypes?.length ?? 0) >
+																0 ||
+																(subscription.topics?.length ?? 0) > 0) && (
+																<span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
+																	Events:{' '}
+																	{(
+																		subscription.filterOptions?.includedActionTypes ||
+																		subscription.topics ||
+																		[]
+																	).join(', ')}
+																</span>
+															)}
+														</div>
+													</div>
+													<div style={styles.subscriptionActions}>
+														<button
+															type="button"
+															style={styles.button('secondary')}
+															onClick={() => handleEditSubscription(subscription)}
+														>
+															<span>✏️</span>
+														</button>
+														<button
+															type="button"
+															style={styles.button('danger')}
+															onClick={() => handleDeleteSubscription(subscription.id)}
+														>
+															<span>🗑️</span>
+														</button>
+													</div>
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+						</>
+					)}
+
+					{activeTab === 'events' && (
+						<>
+							<div
+								style={{
+									background: '#fef3c7',
+									border: '2px solid #f59e0b',
+									borderRadius: '0.5rem',
+									padding: '1.5rem',
+									marginBottom: '2rem',
+								}}
+							>
+								<div
 									style={{
 										display: 'flex',
 										alignItems: 'center',
 										gap: '0.5rem',
-										padding: '0.75rem 1.5rem',
-										background: '#f59e0b',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.375rem',
-										fontSize: '0.875rem',
-										fontWeight: 600,
-										cursor: 'pointer',
+										marginBottom: '1rem',
 									}}
 								>
-									<span>📋</span>
-									Copy URL
-								</button>
-							</div>
-							<p style={{ color: '#d97706', fontSize: '0.875rem', margin: '1rem 0 0 0' }}>
-								Copy this URL and paste it into the "Destination URL" field in your PingOne webhook
-								configuration.
-							</p>
-						</div>
-
-						<div style={{ marginBottom: '1rem' }}>
-							<p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-								Monitor PingOne webhook events in real-time. Configure the webhook URL above in
-								PingOne, then start monitoring to see events as they arrive.
-							</p>
-							{isActive && (
-								<p
-									style={{
-										color: '#10b981',
-										fontSize: '0.875rem',
-										marginTop: '0.5rem',
-										fontWeight: 500,
-									}}
-								>
-									✓ Monitoring active - Polling for new events every 3 seconds
-								</p>
-							)}
-						</div>
-
-						{webhooks.length > 0 && (
-							<div style={styles.filterBar}>
-								<span style={{ fontSize: 20, color: '#6b7280' }}>🔽</span>
-								<label style={styles.filterLabel}>
-									Status:
-									<select
-										style={styles.filterSelect}
-										value={filter}
-										onChange={(e) => setFilter(e.target.value)}
+									<FiAlertCircle color="#f59e0b" size={20} />
+									<strong style={{ color: '#d97706', fontSize: '1rem' }}>
+										Webhook Configuration URL
+									</strong>
+								</div>
+								<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+									<div
+										style={{
+											background: 'white',
+											border: '1px solid #f59e0b',
+											borderRadius: '0.375rem',
+											padding: '0.75rem 1rem',
+											flex: 1,
+											fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
+											fontSize: '0.875rem',
+											wordBreak: 'break-all',
+										}}
 									>
-										<option value="all">All ({webhooks.length})</option>
-										<option value="success">
-											Success ({webhooks.filter((w) => w.status === 'success').length})
-										</option>
-										<option value="error">
-											Errors ({webhooks.filter((w) => w.status === 'error').length})
-										</option>
-										<option value="pending">
-											Pending ({webhooks.filter((w) => w.status === 'pending').length})
-										</option>
-									</select>
-								</label>
-								<label style={styles.filterLabel}>
-									<span>📅</span>
-									Time:
-									<select
-										style={styles.filterSelect}
-										value={timeFilter}
-										onChange={(e) => setTimeFilter(e.target.value)}
-									>
-										<option value="all">All Time</option>
-										<option value="1h">Last Hour</option>
-										<option value="24h">Last 24 Hours</option>
-										<option value="7d">Last 7 Days</option>
-										<option value="30d">Last 30 Days</option>
-									</select>
-								</label>
-								<label style={styles.filterLabel}>
-									<span>❓</span>
-									Type:
-									<select
-										style={styles.filterSelect}
-										value={typeFilter}
-										onChange={(e) => setTypeFilter(e.target.value)}
-									>
-										<option value="all">All Types ({eventTypes.length})</option>
-										{eventTypes.map((type) => (
-											<option key={type} value={type}>
-												{type} ({webhooks.filter((w) => w.type === type).length})
-											</option>
-										))}
-									</select>
-								</label>
-								<label style={styles.filterLabel}>
-									<span>❓</span>
-									Display Format:
-									<select
-										style={styles.filterSelect}
-										value={displayFormat}
-										onChange={(e) =>
-											setDisplayFormat(e.target.value as 'json' | 'splunk' | 'new_relic')
-										}
-									>
-										<option value="json">Raw JSON</option>
-										<option value="splunk">Splunk Format</option>
-										<option value="ping-activity">Ping Activity JSON</option>
-										<option value="new-relic">New Relic Format</option>
-									</select>
-								</label>
-								{(filter !== 'all' || typeFilter !== 'all' || timeFilter !== 'all') && (
+										{window.location.origin}/api/webhooks/pingone
+									</div>
 									<button
 										type="button"
-										style={styles.clearFiltersButton}
-										onClick={handleClearFilters}
+										onClick={() => {
+											navigator.clipboard.writeText(
+												`${window.location.origin}/api/webhooks/pingone`
+											);
+											modernMessaging.showFooterMessage({
+												type: 'status',
+												message: 'Webhook URL copied to clipboard',
+												duration: 4000,
+											});
+										}}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											padding: '0.75rem 1.5rem',
+											background: '#f59e0b',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											fontWeight: 600,
+											cursor: 'pointer',
+										}}
 									>
-										<span>❌</span>
-										Clear Filters
+										<span>📋</span>
+										Copy URL
 									</button>
+								</div>
+								<p style={{ color: '#d97706', fontSize: '0.875rem', margin: '1rem 0 0 0' }}>
+									Copy this URL and paste it into the "Destination URL" field in your PingOne
+									webhook configuration.
+								</p>
+							</div>
+
+							<div style={{ marginBottom: '1rem' }}>
+								<p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+									Monitor PingOne webhook events in real-time. Configure the webhook URL above in
+									PingOne, then start monitoring to see events as they arrive.
+								</p>
+								{isActive && (
+									<p
+										style={{
+											color: '#10b981',
+											fontSize: '0.875rem',
+											marginTop: '0.5rem',
+											fontWeight: 500,
+										}}
+									>
+										✓ Monitoring active - Polling for new events every 3 seconds
+									</p>
 								)}
 							</div>
-						)}
 
-						<div style={styles.webhookContainer}>
-							{filteredWebhooks.length === 0 ? (
-								<div style={styles.emptyState}>
-									<span style={{ fontSize: '48px' }}>🖥️</span>
-									<h3>
-										{webhooks.length === 0 ? 'No webhooks yet' : 'No webhooks match your filters'}
-									</h3>
-									<p>
-										{webhooks.length === 0
-											? isActive
-												? 'Waiting for webhook events...'
-												: 'Click "Start Monitoring" to begin receiving webhook events.'
-											: 'Try adjusting your filters to see more results.'}
-									</p>
+							{webhooks.length > 0 && (
+								<div style={styles.filterBar}>
+									<span style={{ fontSize: 20, color: '#6b7280' }}>🔽</span>
+									<label style={styles.filterLabel}>
+										Status:
+										<select
+											style={styles.filterSelect}
+											value={filter}
+											onChange={(e) => setFilter(e.target.value)}
+										>
+											<option value="all">All ({webhooks.length})</option>
+											<option value="success">
+												Success ({webhooks.filter((w) => w.status === 'success').length})
+											</option>
+											<option value="error">
+												Errors ({webhooks.filter((w) => w.status === 'error').length})
+											</option>
+											<option value="pending">
+												Pending ({webhooks.filter((w) => w.status === 'pending').length})
+											</option>
+										</select>
+									</label>
+									<label style={styles.filterLabel}>
+										<span>📅</span>
+										Time:
+										<select
+											style={styles.filterSelect}
+											value={timeFilter}
+											onChange={(e) => setTimeFilter(e.target.value)}
+										>
+											<option value="all">All Time</option>
+											<option value="1h">Last Hour</option>
+											<option value="24h">Last 24 Hours</option>
+											<option value="7d">Last 7 Days</option>
+											<option value="30d">Last 30 Days</option>
+										</select>
+									</label>
+									<label style={styles.filterLabel}>
+										<span>❓</span>
+										Type:
+										<select
+											style={styles.filterSelect}
+											value={typeFilter}
+											onChange={(e) => setTypeFilter(e.target.value)}
+										>
+											<option value="all">All Types ({eventTypes.length})</option>
+											{eventTypes.map((type) => (
+												<option key={type} value={type}>
+													{type} ({webhooks.filter((w) => w.type === type).length})
+												</option>
+											))}
+										</select>
+									</label>
+									<label style={styles.filterLabel}>
+										<span>❓</span>
+										Display Format:
+										<select
+											style={styles.filterSelect}
+											value={displayFormat}
+											onChange={(e) =>
+												setDisplayFormat(e.target.value as 'json' | 'splunk' | 'new_relic')
+											}
+										>
+											<option value="json">Raw JSON</option>
+											<option value="splunk">Splunk Format</option>
+											<option value="ping-activity">Ping Activity JSON</option>
+											<option value="new-relic">New Relic Format</option>
+										</select>
+									</label>
+									{(filter !== 'all' || typeFilter !== 'all' || timeFilter !== 'all') && (
+										<button
+											type="button"
+											style={styles.clearFiltersButton}
+											onClick={handleClearFilters}
+										>
+											<span>❌</span>
+											Clear Filters
+										</button>
+									)}
 								</div>
-							) : (
-								filteredWebhooks.map((webhook) => (
-									<div key={webhook.id} style={styles.webhookCard}>
-										<div style={styles.webhookHeader}>
-											<div style={styles.webhookTitle}>
-												<span style={styles.eventStatusBadge(webhook.status)}>
-													{webhook.status === 'success' ? <span>✅</span> : <span>⚠️</span>}
-													{webhook.status}
-												</span>
-												<span>{webhook.type}</span>
-											</div>
-											<div style={styles.webhookMeta}>
-												<span style={{ fontSize: '16px' }}>🕐</span>
-												{formatTimestamp(webhook.timestamp)}
-												<span style={{ fontSize: '16px' }}>❓</span>
-												{webhook.source}
-											</div>
-										</div>
-										<div style={styles.webhookBody}>
-											<pre>{formatData(webhook.data, webhook)}</pre>
-										</div>
-									</div>
-								))
 							)}
-						</div>
-					</>
-				)}
 
-				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
-				<ApiCallList title="API Calls to PingOne" showLegend={true} />
+							<div style={styles.webhookContainer}>
+								{filteredWebhooks.length === 0 ? (
+									<div style={styles.emptyState}>
+										<span style={{ fontSize: '48px' }}>🖥️</span>
+										<h3>
+											{webhooks.length === 0 ? 'No webhooks yet' : 'No webhooks match your filters'}
+										</h3>
+										<p>
+											{webhooks.length === 0
+												? isActive
+													? 'Waiting for webhook events...'
+													: 'Click "Start Monitoring" to begin receiving webhook events.'
+												: 'Try adjusting your filters to see more results.'}
+										</p>
+									</div>
+								) : (
+									filteredWebhooks.map((webhook) => (
+										<div key={webhook.id} style={styles.webhookCard}>
+											<div style={styles.webhookHeader}>
+												<div style={styles.webhookTitle}>
+													<span style={styles.eventStatusBadge(webhook.status)}>
+														{webhook.status === 'success' ? <span>✅</span> : <span>⚠️</span>}
+														{webhook.status}
+													</span>
+													<span>{webhook.type}</span>
+												</div>
+												<div style={styles.webhookMeta}>
+													<span style={{ fontSize: '16px' }}>🕐</span>
+													{formatTimestamp(webhook.timestamp)}
+													<span style={{ fontSize: '16px' }}>❓</span>
+													{webhook.source}
+												</div>
+											</div>
+											<div style={styles.webhookBody}>
+												<pre>{formatData(webhook.data, webhook)}</pre>
+											</div>
+										</div>
+									))
+								)}
+							</div>
+						</>
+					)}
+
+					<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+					<ApiCallList title="API Calls to PingOne" showLegend={true} />
+				</div>
 			</div>
-		</div>
 		</>
 	);
 };

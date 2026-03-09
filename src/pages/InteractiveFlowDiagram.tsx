@@ -6,7 +6,6 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import InteractiveFlowDiagramService from '../services/interactiveFlowDiagramService';
 import PageLayoutService from '../services/pageLayoutService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const pageConfig = {
 	flowType: 'documentation' as const,

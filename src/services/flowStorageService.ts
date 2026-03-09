@@ -381,7 +381,12 @@ export class DeviceCodeStorage {
 		try {
 			return JSON.parse(stored) as DeviceCodeData;
 		} catch (e) {
-			logger.error('FlowStorageService', `[FlowStorage] Failed to parse device code for ${flowId}`, undefined, e as Error);
+			logger.error(
+				'FlowStorageService',
+				`[FlowStorage] Failed to parse device code for ${flowId}`,
+				undefined,
+				e as Error
+			);
 			return null;
 		}
 	}
@@ -446,7 +451,12 @@ export class StateStorage {
 			const data: StateData = JSON.parse(stored);
 			return data.state;
 		} catch (e) {
-			logger.error('FlowStorageService', `[FlowStorage] Failed to parse state for ${flowId}`, undefined, e as Error);
+			logger.error(
+				'FlowStorageService',
+				`[FlowStorage] Failed to parse state for ${flowId}`,
+				undefined,
+				e as Error
+			);
 			return null;
 		}
 	}
@@ -621,9 +631,9 @@ export class CredentialsStorage {
 
 			if (credentials) {
 				logger.info(
-				'FlowStorageService',
-				`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
-			);
+					'FlowStorageService',
+					`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
+				);
 				return credentials as CredentialsData;
 			}
 		} catch (error) {

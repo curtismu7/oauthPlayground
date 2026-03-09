@@ -6,7 +6,6 @@ import { FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;

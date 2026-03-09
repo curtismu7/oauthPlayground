@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { FlowHeader } from '../services/flowHeaderService';
 // src/pages/PingOneUserProfile.tsx
 // PingOne User Profile viewer with worker token management
@@ -143,7 +142,6 @@ type PingOneMfaStatus = PingOneMfaDetails | null;
 
 import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 import type { CSSProperties } from 'react';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
@@ -1374,10 +1372,10 @@ const PingOneUserProfile: React.FC = () => {
 				<FlowHeader flowId="pingone-user-profile" />
 				<div style={styles.pageContainer}>
 					<div style={styles.loadingState}>
-					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
-					<p>Loading user profile...</p>
+						<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
+						<p>Loading user profile...</p>
+					</div>
 				</div>
-			</div>
 			</>
 		);
 	}
@@ -1388,25 +1386,25 @@ const PingOneUserProfile: React.FC = () => {
 				<FlowHeader flowId="pingone-user-profile" />
 				<div style={styles.pageContainer}>
 					<div style={styles.errorState}>
-					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
-					<p>{error}</p>
-					<button
-						type="button"
-						onClick={() => fetchUserProfile()}
-						style={{
-							marginTop: '1rem',
-							padding: '0.5rem 1rem',
-							background: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '0.375rem',
-							cursor: 'pointer',
-						}}
-					>
-						Retry
-					</button>
+						<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
+						<p>{error}</p>
+						<button
+							type="button"
+							onClick={() => fetchUserProfile()}
+							style={{
+								marginTop: '1rem',
+								padding: '0.5rem 1rem',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								cursor: 'pointer',
+							}}
+						>
+							Retry
+						</button>
+					</div>
 				</div>
-			</div>
 			</>
 		);
 	}
@@ -1419,142 +1417,142 @@ const PingOneUserProfile: React.FC = () => {
 				<FlowHeader flowId="pingone-user-profile" />
 				<div style={styles.pageContainer}>
 					<div style={styles.selectorPageHeader}>
-					<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
-					<div>
-						<h1 style={styles.selectorPageHeaderH1}>Select User to View Profile</h1>
-						<p style={styles.selectorPageHeaderP}>
-							Look up a PingOne user by ID, username, or email address
-						</p>
-					</div>
-				</div>
-				<div style={styles.userSelectorCard}>
-					{hasValidWorkerToken ? (
-						<div
-							style={{
-								...styles.alertBanner,
-								background: '#ecfdf5',
-								border: '1px solid #34d399',
-								color: '#047857',
-							}}
-						>
-							<span>✅</span>
-							<span>Worker token detected. Token is active.</span>
+						<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
+						<div>
+							<h1 style={styles.selectorPageHeaderH1}>Select User to View Profile</h1>
+							<p style={styles.selectorPageHeaderP}>
+								Look up a PingOne user by ID, username, or email address
+							</p>
 						</div>
-					) : (
-						<div style={styles.alertBanner}>
-							<span>⚠️</span>
-							<span>
-								No worker token found or token expired. Generate one to load a user profile.
-							</span>
-						</div>
-					)}
-					<div style={styles.inputField}>
-						<label htmlFor="environmentId" style={styles.inputLabel}>
-							Environment ID *
-						</label>
-						<input
-							id="environmentId"
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="Enter PingOne Environment ID"
-							style={styles.inputEl}
-						/>
 					</div>
-
-					{/* Worker Token Section */}
-					<WorkerTokenSectionV8 compact environmentId={environmentId} />
-
-					{/* Configuration Checkboxes */}
-					<div
-						style={{
-							marginBottom: '1rem',
-							display: 'flex',
-							flexDirection: 'row',
-							flexWrap: 'wrap',
-							gap: '1.5rem',
-						}}
-					>
-						<SilentApiConfigCheckboxV8 />
-						<ShowTokenConfigCheckboxV8 />
-					</div>
-
-					<div style={styles.inputField}>
-						<label htmlFor="userIdentifier" style={styles.inputLabel}>
-							User Identifier *
-						</label>
-						<UserSearchDropdownV8
-							environmentId={environmentId}
-							value={userIdentifier}
-							onChange={(value) => {
-								setUserIdentifier(value);
-								setIdentifierError(null);
-								// Persist to localStorage as user types
-								try {
-									if (value.trim()) {
-										localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, value);
-									} else {
-										localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
-									}
-								} catch (storageError) {
-									log.warn(
-										'PingOneUserProfile',
-										'Unable to persist user identifier to localStorage:',
-										{ error: storageError }
-									);
-								}
-							}}
-							placeholder="Search for a user by ID, username, or email..."
-							disabled={!environmentId.trim() || !accessToken.trim()}
-							id="userIdentifier"
-							autoLoad={true}
-						/>
-						<div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-							Search and select a user from the dropdown list in the selected environment.
-						</div>
-						{identifierError && (
-							<div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '0.5rem' }}>
-								{identifierError}
+					<div style={styles.userSelectorCard}>
+						{hasValidWorkerToken ? (
+							<div
+								style={{
+									...styles.alertBanner,
+									background: '#ecfdf5',
+									border: '1px solid #34d399',
+									color: '#047857',
+								}}
+							>
+								<span>✅</span>
+								<span>Worker token detected. Token is active.</span>
+							</div>
+						) : (
+							<div style={styles.alertBanner}>
+								<span>⚠️</span>
+								<span>
+									No worker token found or token expired. Generate one to load a user profile.
+								</span>
 							</div>
 						)}
+						<div style={styles.inputField}>
+							<label htmlFor="environmentId" style={styles.inputLabel}>
+								Environment ID *
+							</label>
+							<input
+								id="environmentId"
+								type="text"
+								value={environmentId}
+								onChange={(e) => setEnvironmentId(e.target.value)}
+								placeholder="Enter PingOne Environment ID"
+								style={styles.inputEl}
+							/>
+						</div>
+
+						{/* Worker Token Section */}
+						<WorkerTokenSectionV8 compact environmentId={environmentId} />
+
+						{/* Configuration Checkboxes */}
+						<div
+							style={{
+								marginBottom: '1rem',
+								display: 'flex',
+								flexDirection: 'row',
+								flexWrap: 'wrap',
+								gap: '1.5rem',
+							}}
+						>
+							<SilentApiConfigCheckboxV8 />
+							<ShowTokenConfigCheckboxV8 />
+						</div>
+
+						<div style={styles.inputField}>
+							<label htmlFor="userIdentifier" style={styles.inputLabel}>
+								User Identifier *
+							</label>
+							<UserSearchDropdownV8
+								environmentId={environmentId}
+								value={userIdentifier}
+								onChange={(value) => {
+									setUserIdentifier(value);
+									setIdentifierError(null);
+									// Persist to localStorage as user types
+									try {
+										if (value.trim()) {
+											localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, value);
+										} else {
+											localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
+										}
+									} catch (storageError) {
+										log.warn(
+											'PingOneUserProfile',
+											'Unable to persist user identifier to localStorage:',
+											{ error: storageError }
+										);
+									}
+								}}
+								placeholder="Search for a user by ID, username, or email..."
+								disabled={!environmentId.trim() || !accessToken.trim()}
+								id="userIdentifier"
+								autoLoad={true}
+							/>
+							<div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+								Search and select a user from the dropdown list in the selected environment.
+							</div>
+							{identifierError && (
+								<div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+									{identifierError}
+								</div>
+							)}
+						</div>
+						<button
+							type="button"
+							onClick={() => handleLoadUserProfile()}
+							disabled={
+								isResolvingUser ||
+								!userIdentifier.trim() ||
+								!environmentId.trim() ||
+								!accessToken.trim()
+							}
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								background:
+									isResolvingUser ||
+									!userIdentifier.trim() ||
+									!environmentId.trim() ||
+									!accessToken.trim()
+										? '#9ca3af'
+										: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '600',
+								cursor:
+									isResolvingUser ||
+									!userIdentifier.trim() ||
+									!environmentId.trim() ||
+									!accessToken.trim()
+										? 'not-allowed'
+										: 'pointer',
+							}}
+						>
+							{isResolvingUser ? 'Resolving user…' : 'Load User Profile'}
+						</button>
 					</div>
-					<button
-						type="button"
-						onClick={() => handleLoadUserProfile()}
-						disabled={
-							isResolvingUser ||
-							!userIdentifier.trim() ||
-							!environmentId.trim() ||
-							!accessToken.trim()
-						}
-						style={{
-							width: '100%',
-							padding: '0.75rem',
-							background:
-								isResolvingUser ||
-								!userIdentifier.trim() ||
-								!environmentId.trim() ||
-								!accessToken.trim()
-									? '#9ca3af'
-									: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '0.375rem',
-							fontSize: '0.875rem',
-							fontWeight: '600',
-							cursor:
-								isResolvingUser ||
-								!userIdentifier.trim() ||
-								!environmentId.trim() ||
-								!accessToken.trim()
-									? 'not-allowed'
-									: 'pointer',
-						}}
-					>
-						{isResolvingUser ? 'Resolving user…' : 'Load User Profile'}
-					</button>
 				</div>
-			</div>
 			</>
 		);
 	}
@@ -1564,29 +1562,29 @@ const PingOneUserProfile: React.FC = () => {
 			<>
 				<FlowHeader flowId="pingone-user-profile" />
 				<PageContainer>
-				<ErrorState>
-					<p>
-						No user data available. Provide a User ID, Environment ID, and Worker Token using the
-						selector above. Worker tokens cannot determine the user automatically, so enter the user
-						ID manually when prompted.
-					</p>
-					<button
-						type="button"
-						onClick={() => setShowUserSelector(true)}
-						style={{
-							marginTop: '1rem',
-							padding: '0.5rem 1rem',
-							background: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '0.375rem',
-							cursor: 'pointer',
-						}}
-					>
-						Select User
-					</button>
-				</ErrorState>
-			</PageContainer>
+					<ErrorState>
+						<p>
+							No user data available. Provide a User ID, Environment ID, and Worker Token using the
+							selector above. Worker tokens cannot determine the user automatically, so enter the
+							user ID manually when prompted.
+						</p>
+						<button
+							type="button"
+							onClick={() => setShowUserSelector(true)}
+							style={{
+								marginTop: '1rem',
+								padding: '0.5rem 1rem',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								cursor: 'pointer',
+							}}
+						>
+							Select User
+						</button>
+					</ErrorState>
+				</PageContainer>
 			</>
 		);
 	}
@@ -1599,73 +1597,73 @@ const PingOneUserProfile: React.FC = () => {
 		<>
 			<FlowHeader flowId="pingone-user-profile" />
 			<PageContainer>
-			{loading ? (
-				<LoadingMessage>
-					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
-					Loading user profile...
-				</LoadingMessage>
-			) : error ? (
-				<ErrorMessage>
-					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
-					{error}
-				</ErrorMessage>
-			) : userProfile ? (
-				<Container>
-					<Title>PingOne User Profile</Title>
-					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
-
-					<div>
-						<h3>User Information</h3>
-						<p>
-							<strong>Name:</strong> {userProfile.name || 'N/A'}
-						</p>
-						<p>
-							<strong>Email:</strong> {userProfile.email || 'N/A'}
-						</p>
-						<p>
-							<strong>Username:</strong> {userProfile.username || 'N/A'}
-						</p>
-						<p>
-							<strong>ID:</strong> {userProfile.id || 'N/A'}
-						</p>
-					</div>
-
-					<div style={{ marginTop: '2rem' }}>
-						<h3>Groups ({userGroups.length})</h3>
-						{userGroups.length > 0 ? (
-							<ul>
-								{userGroups.map((group, index) => (
-									<li key={group.id || index}>{group.name || 'Unnamed Group'}</li>
-								))}
-							</ul>
-						) : (
-							<p>No groups found</p>
-						)}
-					</div>
-
-					<div style={{ marginTop: '2rem' }}>
-						<h3>Roles ({userRoles.length})</h3>
-						{userRoles.length > 0 ? (
-							<ul>
-								{userRoles.map((role, index) => (
-									<li key={role.id || index}>{role.name || 'Unnamed Role'}</li>
-								))}
-							</ul>
-						) : (
-							<p>No roles found</p>
-						)}
-					</div>
-				</Container>
-			) : (
-				<Container>
-					<Title>PingOne User Profile</Title>
-					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+				{loading ? (
+					<LoadingMessage>
+						<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
+						Loading user profile...
+					</LoadingMessage>
+				) : error ? (
 					<ErrorMessage>
-						No user profile loaded. Please ensure you have a valid worker token.
+						<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
+						{error}
 					</ErrorMessage>
-				</Container>
-			)}
-		</PageContainer>
+				) : userProfile ? (
+					<Container>
+						<Title>PingOne User Profile</Title>
+						<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+
+						<div>
+							<h3>User Information</h3>
+							<p>
+								<strong>Name:</strong> {userProfile.name || 'N/A'}
+							</p>
+							<p>
+								<strong>Email:</strong> {userProfile.email || 'N/A'}
+							</p>
+							<p>
+								<strong>Username:</strong> {userProfile.username || 'N/A'}
+							</p>
+							<p>
+								<strong>ID:</strong> {userProfile.id || 'N/A'}
+							</p>
+						</div>
+
+						<div style={{ marginTop: '2rem' }}>
+							<h3>Groups ({userGroups.length})</h3>
+							{userGroups.length > 0 ? (
+								<ul>
+									{userGroups.map((group, index) => (
+										<li key={group.id || index}>{group.name || 'Unnamed Group'}</li>
+									))}
+								</ul>
+							) : (
+								<p>No groups found</p>
+							)}
+						</div>
+
+						<div style={{ marginTop: '2rem' }}>
+							<h3>Roles ({userRoles.length})</h3>
+							{userRoles.length > 0 ? (
+								<ul>
+									{userRoles.map((role, index) => (
+										<li key={role.id || index}>{role.name || 'Unnamed Role'}</li>
+									))}
+								</ul>
+							) : (
+								<p>No roles found</p>
+							)}
+						</div>
+					</Container>
+				) : (
+					<Container>
+						<Title>PingOne User Profile</Title>
+						<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+						<ErrorMessage>
+							No user profile loaded. Please ensure you have a valid worker token.
+						</ErrorMessage>
+					</Container>
+				)}
+			</PageContainer>
 		</>
 	);
 };

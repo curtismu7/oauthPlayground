@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import ConfirmationModal from './ConfirmationModal';
 
 const Container = styled.div`

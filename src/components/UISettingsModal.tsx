@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const ModalOverlay = styled.div`
   position: fixed;

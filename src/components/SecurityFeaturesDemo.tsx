@@ -11,7 +11,6 @@ import {
 	buildLogoutUrl,
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { isJWT } from '../utils/jwtDecoder';
 import ConfirmationModal from './ConfirmationModal';
 

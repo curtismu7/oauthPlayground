@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 

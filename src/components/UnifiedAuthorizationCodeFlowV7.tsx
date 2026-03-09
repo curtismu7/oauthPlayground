@@ -1,6 +1,5 @@
 // src/components/UnifiedAuthorizationCodeFlowV7.tsx
 
-import { FiCheck, FiExternalLink, FiInfo, FiKey, FiSettings, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';

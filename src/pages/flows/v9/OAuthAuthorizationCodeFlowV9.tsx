@@ -1,10 +1,7 @@
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-
 // src/pages/flows/OAuthAuthorizationCodeFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
 
-import { FiCode } from '@icons';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -3251,7 +3248,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												aria-expanded={!collapsedSections.apiCallExamples}
 											>
 												<CollapsibleTitle>
-													<span>[FiCode]</span>Code Examples
+													<i className="bi bi-code-slash" />Code Examples
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
 													<span>🔽</span>
@@ -3261,7 +3258,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												<CollapsibleContent>
 													<ResultsSection>
 														<ResultsHeading>
-															<span>[FiCode]</span>Test Your Access Token
+															<i className="bi bi-code-slash" />Test Your Access Token
 														</ResultsHeading>
 														<HelperText>
 															Use the access token to make authenticated API calls. Use the code
@@ -3367,7 +3364,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									aria-expanded={!collapsedSections.apiCallExamples}
 								>
 									<CollapsibleTitle>
-										<span>[FiCode]</span>Code Examples
+										<i className="bi bi-code-slash" />Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
 										<span>🔽</span>
@@ -3377,7 +3374,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<CollapsibleContent>
 										<ResultsSection>
 											<ResultsHeading>
-												<span>[FiCode]</span>Test Your Access Token
+												<i className="bi bi-code-slash" />Test Your Access Token
 											</ResultsHeading>
 											<HelperText>
 												Use the access token to make authenticated API calls. Use the code examples

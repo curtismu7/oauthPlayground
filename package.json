@@ -133,6 +133,7 @@
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/prismjs": "^1.26.5",
 		"@types/react-toastify": "^4.0.2",
+		"bootstrap-icons": "^1.13.1",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cors": "^2.8.5",
