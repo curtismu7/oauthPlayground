@@ -1,10 +1,10 @@
 import { FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { useDraggableModal } from '../hooks/useDraggableModal.ts';
 import { MFAServiceV8, type MFASettings } from '../services/mfaServiceV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 
-import { logger } from '../../../../utils/logger';
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;

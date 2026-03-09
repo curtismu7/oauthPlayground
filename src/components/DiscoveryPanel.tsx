@@ -6,9 +6,9 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import CopyIcon from './CopyIcon';
 
-import { logger } from '../utils/logger';
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;
 	onClose: () => void;
@@ -477,7 +477,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				});
 			}
 		} catch (error) {
-			logger.error('DiscoveryPanel', ' [DiscoveryPanel] Discovery failed:', undefined, error as Error);
+			logger.error(
+				'DiscoveryPanel',
+				' [DiscoveryPanel] Discovery failed:',
+				undefined,
+				error as Error
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

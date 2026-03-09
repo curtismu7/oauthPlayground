@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 import { logger } from '../utils/logger';
+
 interface TokenDisplayProps {
 	tokens: {
 		access_token?: string;

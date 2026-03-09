@@ -5,6 +5,7 @@
 import { FiCode } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	type ClientSecretJWTConfig,
 	type JWTGenerationResult,
@@ -20,7 +21,6 @@ import {
 } from '../utils/keyGeneration';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
 interface JWTConfigV8Props {

@@ -7,12 +7,12 @@
  */
 
 import React, { useState } from 'react';
-import { logger } from '../utils/logger';
 import {
 	FloatingStepper,
 	FloatingStepperService,
 	type FloatingStepperStep,
 } from '../services/FloatingStepperService';
+import { logger } from '../utils/logger';
 
 const FloatingStepperExample: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);

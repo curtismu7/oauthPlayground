@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 
 import { logger } from '../utils/logger';
+
 // Flow configuration mapping based on OAuth/OIDC standards
 const FLOW_FIELD_CONFIG: Record<
 	string,
@@ -484,7 +485,12 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					additionalScopes: parsed.additionalScopes || '',
 				};
 			} catch (error) {
-				logger.error('FlowCredentials', 'Failed to parse global config:', undefined, error as Error);
+				logger.error(
+					'FlowCredentials',
+					'Failed to parse global config:',
+					undefined,
+					error as Error
+				);
 			}
 		}
 

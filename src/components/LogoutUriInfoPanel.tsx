@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 
 import { logger } from '../utils/logger';
+
 interface LogoutUriInfoPanelProps {
 	flowKey?:
 		| 'authorization_code'

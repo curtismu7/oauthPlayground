@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsInput } from '../components/CredentialsInput';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
-import { logger } from '../utils/logger';
 import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
@@ -12,6 +11,7 @@ import {
 	type DiscoveryResult,
 	oidcDiscoveryService,
 } from '../services/oidcDiscoveryService';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   padding: 2rem;

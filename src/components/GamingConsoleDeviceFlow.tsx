@@ -6,9 +6,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // Sony PlayStation 5 Console Main Container - Authentic PS5 Design
 const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>

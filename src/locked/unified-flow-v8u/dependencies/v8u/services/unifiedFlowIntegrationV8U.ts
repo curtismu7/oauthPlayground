@@ -9,6 +9,7 @@
  * for V8U flows. All API calls use real PingOne endpoints.
  */
 
+import { logger } from '../../../../utils/logger';
 import type { ResponseMode } from '../../services/responseModeService.ts';
 import {
 	type ClientCredentialsCredentials,
@@ -36,7 +37,6 @@ import {
 } from '../../v8/services/specVersionServiceV8.ts';
 import { UnifiedFlowOptionsServiceV8 } from '../../v8/services/unifiedFlowOptionsServiceV8.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {

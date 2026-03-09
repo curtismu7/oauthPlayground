@@ -9,12 +9,12 @@
  * using actual credentials.
  */
 
+import { logger } from '../../../utils/logger';
 import {
 	getTestCredentials,
 	logCredentialsStatus,
 	validateTestCredentials,
 } from '../../config/testCredentials';
-import { logger } from '../../../utils/logger';
 import { ImplicitFlowIntegrationServiceV8 } from '../implicitFlowIntegrationServiceV8';
 import { OAuthIntegrationServiceV8 } from '../oauthIntegrationServiceV8';
 

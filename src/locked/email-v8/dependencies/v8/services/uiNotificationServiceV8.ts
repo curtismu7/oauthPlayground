@@ -22,9 +22,9 @@
  * const value = await uiNotificationServiceV8.prompt('Enter name:');
  */
 
+import { logger } from '../../../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 
 export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info';

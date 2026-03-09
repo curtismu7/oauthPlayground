@@ -16,9 +16,9 @@
  * const authUrl = service.generateAuthorizationUrl(credentials);
  */
 
+import { logger } from '../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
 export interface OAuthCredentials {

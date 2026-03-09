@@ -24,9 +24,9 @@ import {
 	type SerializableMenuGroup,
 	V9CredentialStorageService,
 } from '../services/v9/V9CredentialStorageService';
+import { logger } from '../utils/logger';
 import MenuVersionBadge from './MenuVersionBadge';
 
-import { logger } from '../utils/logger';
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
 	display: flex;

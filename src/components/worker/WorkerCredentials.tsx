@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
 import { validateCredentialFormat } from '../../utils/clientCredentials';
+import { logger } from '../../utils/logger';
 import { validateEnvironmentId } from '../../utils/workerToken';
 
-import { logger } from '../../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;

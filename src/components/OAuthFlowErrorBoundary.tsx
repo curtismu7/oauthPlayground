@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { logger } from '../utils/logger';
+
 // Error boundary state interface
 interface ErrorBoundaryState {
 	hasError: boolean;

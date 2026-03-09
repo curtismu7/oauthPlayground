@@ -2,10 +2,9 @@
 // Migration utilities for configuration presets
 
 import type { ConfigurationPreset } from '../services/presetManagerService';
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 import { migratePreset, sanitizePreset, validatePreset } from './presetValidation';
-
-import { logger } from '../utils/logger';
 export interface MigrationResult {
 	success: boolean;
 	migratedCount: number;

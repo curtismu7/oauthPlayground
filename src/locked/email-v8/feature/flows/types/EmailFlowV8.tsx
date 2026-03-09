@@ -8,6 +8,7 @@
 import { FiMail } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { logger } from '../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { SuperSimpleApiDisplayV8 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
 import { useDraggableModal } from '../../../dependencies/v8/hooks/useDraggableModal.ts';
@@ -27,7 +28,6 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
 type DeviceSelectionState = {

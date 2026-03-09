@@ -833,7 +833,10 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
 				onStepError?.(step.id, errorMessage);
 
-				logger.error(`Step failed: ${step.title}`, `error: ${errorMessage}, duration: ${duration}ms`);
+				logger.error(
+					`Step failed: ${step.title}`,
+					`error: ${errorMessage}, duration: ${duration}ms`
+				);
 			} finally {
 				setIsExecuting(false);
 			}

@@ -7,6 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import {
 	exportWorkerTokenCredentials,
@@ -24,7 +25,6 @@ import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusService
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
 interface WorkerTokenModalV8Props {

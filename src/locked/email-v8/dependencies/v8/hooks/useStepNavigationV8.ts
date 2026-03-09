@@ -28,6 +28,7 @@
 import { useCallback, useState } from 'react';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🪝 STEP-HOOK-V8]';
 
 export interface UseStepNavigationV8Options {

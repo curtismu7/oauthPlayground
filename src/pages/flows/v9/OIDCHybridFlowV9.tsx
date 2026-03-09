@@ -29,12 +29,11 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
+import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-
 import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
 
-import { logger } from '../../../utils/logger';
 const {
 	Container,
 	ContentWrapper,

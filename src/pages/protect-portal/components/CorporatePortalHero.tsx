@@ -12,6 +12,7 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import type { BrandTheme } from '../themes/brand-theme.interface';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
@@ -27,7 +28,6 @@ import CorporateNavigation from './Shared/CorporateNavigation';
 import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
 
-import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

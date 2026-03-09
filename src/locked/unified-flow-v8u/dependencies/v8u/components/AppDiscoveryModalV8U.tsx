@@ -7,6 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8.tsx';
 import {
 	AppDiscoveryServiceV8,
@@ -16,7 +17,6 @@ import { workerTokenServiceV8 } from '../../v8/services/workerTokenServiceV8.ts'
 import { WorkerTokenStatusServiceV8 } from '../../v8/services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from '../../v8/utils/toastNotificationsV8.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {

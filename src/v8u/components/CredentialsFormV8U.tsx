@@ -73,9 +73,9 @@ import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsSer
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
-import { logger } from '../../utils/logger';
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 

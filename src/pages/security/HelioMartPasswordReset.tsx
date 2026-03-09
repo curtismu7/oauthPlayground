@@ -48,9 +48,9 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { logger } from '../../utils/logger';
 import { trackedFetch } from '../../utils/trackedFetch';
 
-import { logger } from '../../utils/logger';
 // Type for PingOne user objects
 interface PingOneUserName {
 	given?: string;
@@ -1024,12 +1024,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1196,12 +1200,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1391,12 +1399,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1528,12 +1540,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1650,12 +1666,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1772,12 +1792,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1909,12 +1933,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2046,12 +2074,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

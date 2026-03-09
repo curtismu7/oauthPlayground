@@ -3,9 +3,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import { CopyButtonService } from '../../services/copyButtonService';
 
-import { logger } from '../../../../utils/logger';
 // Types
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
 type FlowKey = 'authorization_code' | 'implicit' | 'hybrid' | 'device' | 'client_credentials';

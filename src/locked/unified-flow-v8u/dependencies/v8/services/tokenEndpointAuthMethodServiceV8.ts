@@ -17,9 +17,9 @@
  * // Returns: ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt']
  */
 
+import { logger } from '../../../../utils/logger';
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 TOKEN-ENDPOINT-AUTH-METHOD-V8]';
 
 export type TokenEndpointAuthMethod =

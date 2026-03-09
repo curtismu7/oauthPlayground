@@ -17,9 +17,8 @@
  * - Bulletproof discovery with retries and fallbacks
  */
 
-import { bulletproofDiscovery } from './bulletproofDiscoveryService';
-
 import { logger } from '../../../utils/logger';
+import { bulletproofDiscovery } from './bulletproofDiscoveryService';
 export interface OIDCDiscoveryDocument {
 	issuer: string;
 	authorization_endpoint: string;

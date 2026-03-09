@@ -36,10 +36,9 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 import { CredentialGuardService } from '../credentialGuardService';
 import ModalPresentationService from '../modalPresentationService';
-
-import { logger } from '../../utils/logger';
 // Flow-specific credential requirements
 export type V9CredentialValues = Record<string, unknown>;
 export type V9CredentialInput = V9CredentialValues | null | undefined;

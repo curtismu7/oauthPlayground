@@ -9,13 +9,13 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '../../../../utils/logger';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,
 } from '../../services/postmanCollectionGeneratorV8.ts';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
-import { logger } from '../../../../utils/logger';
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
 	flowType: 'registration' | 'authentication';

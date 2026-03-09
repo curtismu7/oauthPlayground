@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 
 import { logger } from '../utils/logger';
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;

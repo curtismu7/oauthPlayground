@@ -20,11 +20,11 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
+import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
 
-import { logger } from '../../../utils/logger';
 // Step metadata for V9
 const STEP_METADATA = [
 	{

@@ -8,9 +8,9 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
+import { logger } from '../utils/logger';
 import { DraggableModal } from './DraggableModal';
 
-import { logger } from '../utils/logger';
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
 	<svg

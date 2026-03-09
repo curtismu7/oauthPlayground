@@ -12,9 +12,9 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { logger } from '../../../../utils/logger';
 import { sendAnalyticsLog } from '../../../dependencies/v8/utils/analyticsLoggerV8.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 
 export const CallbackHandlerV8U: React.FC = () => {

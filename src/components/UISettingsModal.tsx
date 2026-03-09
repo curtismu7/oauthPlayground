@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 
 import { logger } from '../utils/logger';
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;

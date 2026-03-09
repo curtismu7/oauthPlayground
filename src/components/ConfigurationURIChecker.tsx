@@ -7,10 +7,9 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
+import { logger } from '../utils/logger';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
-
-import { logger } from '../utils/logger';
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
 	environmentId?: string;

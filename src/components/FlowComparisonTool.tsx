@@ -14,9 +14,9 @@ import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';
 
-import { logger } from '../utils/logger';
 interface FlowComparison {
 	id: string;
 	title: string;

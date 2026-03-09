@@ -10,6 +10,7 @@ import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 import { logger } from '../utils/logger';
+
 interface TokenPayload {
 	client_id?: string;
 	iss?: string;

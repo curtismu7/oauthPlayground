@@ -14,8 +14,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';
-import RiskEvaluationService from '../services/riskEvaluationService';
 import { logger } from '../../../utils/logger';
+import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
 	EducationalContent,
 	LoginContext,

@@ -1,4 +1,5 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+
 import { logger } from '../utils/logger';
 
 export async function clientLog(

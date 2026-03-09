@@ -5,6 +5,7 @@ import { FiActivity, FiCpu } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	DeviceFlowState,
 	type DeviceTokenResponse,
@@ -12,7 +13,6 @@ import {
 } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);

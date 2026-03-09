@@ -5,10 +5,10 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
 const MobilePhoneContainer = styled.div`
   background: linear-gradient(135deg, #5a5a5c 0%, #8e8e93 10%, #5a5a5c 100%);

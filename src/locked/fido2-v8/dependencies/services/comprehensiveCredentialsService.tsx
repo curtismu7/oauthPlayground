@@ -13,6 +13,7 @@ const SERVICE_VERSION = '2.0.0';
 import { FiCheckCircle } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
@@ -36,7 +37,6 @@ import { FlowRedirectUriService } from './flowRedirectUriService';
 import { getDefaultScopesForFlow } from './flowScopeMappingService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
 
-import { logger } from '../../../utils/logger';
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
 	display: flex;

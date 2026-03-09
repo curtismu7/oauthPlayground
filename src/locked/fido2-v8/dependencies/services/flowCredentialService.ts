@@ -2,14 +2,13 @@
 // Unified Credential Service for OAuth/OIDC Flows
 // Provides consistent credential loading, saving, and synchronization across all flows
 
+import { logger } from '../../../utils/logger';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import type { AllCredentials } from '../utils/credentialManager';
 import { credentialManager } from '../utils/credentialManager';
 import { safeJsonParse } from '../utils/secureJson';
 import { flowCredentialIsolationService } from './flowCredentialIsolationService';
-
-import { logger } from '../../../utils/logger';
 export interface FlowCredentialConfig {
 	flowKey: string; // Unique key for this flow (e.g., 'client-credentials-v6', 'oidc-hybrid-v6')
 	flowType?: string; // Flow type for logging/tracking

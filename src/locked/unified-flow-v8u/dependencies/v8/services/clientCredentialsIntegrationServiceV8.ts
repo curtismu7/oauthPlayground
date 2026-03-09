@@ -14,9 +14,9 @@
  * const tokens = await ClientCredentialsIntegrationServiceV8.requestToken(credentials);
  */
 
+import { logger } from '../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔑 CLIENT-CREDENTIALS-V8]';
 
 export type ClientAuthMethod =

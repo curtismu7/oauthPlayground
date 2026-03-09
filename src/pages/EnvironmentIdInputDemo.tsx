@@ -6,6 +6,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 
 import { logger } from '../utils/logger';
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;

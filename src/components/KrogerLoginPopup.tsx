@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components';
 
 import { logger } from '../utils/logger';
+
 // Kroger Brand Colors
 const KROGER_COLORS = {
 	red: '#E31837',

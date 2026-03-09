@@ -7,11 +7,11 @@
  */
 
 import React, { useRef } from 'react';
-import { logger } from '../utils/logger';
 import {
 	credentialsImportExportService,
 	type ImportExportOptions,
 } from '@/services/credentialsImportExportService';
+import { logger } from '../utils/logger';
 
 export interface CredentialsImportExportProps {
 	credentials: Record<string, unknown>;

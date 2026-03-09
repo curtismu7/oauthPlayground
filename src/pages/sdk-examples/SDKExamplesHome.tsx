@@ -15,6 +15,7 @@ import {
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
 import { logger } from '../../utils/logger';
+
 const Container = styled.div`
   padding: 2rem;
   max-width: 1200px;

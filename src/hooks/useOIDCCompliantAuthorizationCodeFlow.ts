@@ -17,7 +17,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { oauth2ComplianceService } from '../services/oauth2ComplianceService';
-import { logger } from '../utils/logger';
 import {
 	type ClaimsRequest,
 	type IDTokenValidationResult,
@@ -26,6 +25,7 @@ import {
 	oidcComplianceService,
 	type UserInfoResponse,
 } from '../services/oidcComplianceService';
+import { logger } from '../utils/logger';
 
 export interface OIDCCredentials {
 	environmentId: string;

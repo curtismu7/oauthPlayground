@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { logger } from '../../../../utils/logger';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -48,7 +49,6 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { logger } from '../../../../utils/logger';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,

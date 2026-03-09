@@ -4,6 +4,7 @@ import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 
 import { logger } from '../utils/logger';
+
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;

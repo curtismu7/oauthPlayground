@@ -19,6 +19,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { logger } from '../../utils/logger';
 import { pingOneLogoutService } from '../dependencies/services/pingOneLogoutService.ts';
 import {
 	downloadPostmanCollectionWithEnvironment,
@@ -35,7 +36,6 @@ import WorkerTokenStatusServiceV8 from '../dependencies/v8/services/workerTokenS
 import { toastV8 } from '../dependencies/v8/utils/toastNotificationsV8.ts';
 import { handleShowWorkerTokenModal } from '../dependencies/v8/utils/workerTokenModalHelperV8.ts';
 
-import { logger } from '../../utils/logger';
 interface FeatureCard {
 	title: string;
 	description: string;

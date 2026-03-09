@@ -5,6 +5,7 @@
  * @version 8.2.0
  */
 
+import { logger } from '../../../../../utils/logger';
 import type { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
 import type { RegisterDeviceParams } from '../../services/mfaServiceV8.ts';
 import { MFAServiceV8 } from '../../services/mfaServiceV8.ts';
@@ -14,7 +15,6 @@ import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
-import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-CONTROLLER]';
 
 /**

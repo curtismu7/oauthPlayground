@@ -1,8 +1,7 @@
 import { z } from 'zod';
-
+import { logger } from '../../../utils/logger';
 import { APP_VERSION } from '../version';
 
-import { logger } from '../../../utils/logger';
 // Define the schema for environment variables
 const envSchema = z.object({
 	// Required environment variables

@@ -26,8 +26,8 @@ import {
 } from '../services/presetManagerService';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
-import { clearAllTokens } from '../utils/tokenCleaner';
 import { logger } from '../utils/logger';
+import { clearAllTokens } from '../utils/tokenCleaner';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development

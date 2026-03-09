@@ -6,9 +6,8 @@
  * @since 2025-01-20
  */
 
-import { unifiedLoggerV8 } from './unifiedLoggerV8';
-
 import { logger } from '../../../../utils/logger';
+import { unifiedLoggerV8 } from './unifiedLoggerV8';
 // Canonical states from spec
 export type UnifiedMFAState =
 	| 'INIT'

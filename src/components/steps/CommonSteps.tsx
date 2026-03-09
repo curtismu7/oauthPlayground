@@ -5,10 +5,10 @@ import styled from 'styled-components';
 // import type { OAuthTokenResponse } from '../../types/storage'; // Unused
 // import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication'; // Unused
 import { copyToClipboard } from '../../utils/clipboard';
+import { logger } from '../../utils/logger';
 import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 
-import { logger } from '../../utils/logger';
 // import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay'; // Unused
 
 /**

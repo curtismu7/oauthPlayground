@@ -1,10 +1,9 @@
 // src/utils/credentialManager.ts
 
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { logger } from '../utils/logger';
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
-
-import { logger } from '../utils/logger';
 export interface PermanentCredentials {
 	environmentId: string;
 	clientId: string;

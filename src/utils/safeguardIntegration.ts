@@ -1,12 +1,11 @@
 // src/utils/safeguardIntegration.ts
 // Comprehensive safeguard integration system
 
+import { logger } from '../utils/logger';
 import { errorMonitoring } from './errorMonitoring';
 import { flowTestSuite } from './flowTestSuite';
 import { preCommitSafeguards } from './preCommitSafeguards';
 import { regressionSafeguards } from './regressionSafeguards';
-
-import { logger } from '../utils/logger';
 export interface SafeguardIntegrationConfig {
 	enableRegressionTesting: boolean;
 	enablePreCommitChecks: boolean;

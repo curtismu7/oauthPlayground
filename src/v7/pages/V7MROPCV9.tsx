@@ -5,6 +5,7 @@ import { FiAlertTriangle } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
+import { showGlobalError } from '../../contexts/NotificationSystem';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -19,7 +20,6 @@ import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { showGlobalError } from '../../contexts/NotificationSystem';
 
 type Props = {
 	oidc?: boolean;

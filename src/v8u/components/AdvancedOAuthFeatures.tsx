@@ -2,10 +2,10 @@ import { FiCheck, FiInfo, FiShield, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
 import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
 
-import { logger } from '../../utils/logger';
 // Collapsible components
 const CollapsibleSection = styled.div`
 	margin-bottom: 1.5rem;

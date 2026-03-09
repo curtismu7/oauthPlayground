@@ -7,6 +7,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 
 import { logger } from '../utils/logger';
+
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;
 	onClose: () => void;

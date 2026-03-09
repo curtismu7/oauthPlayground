@@ -1,10 +1,9 @@
 // Worker Token flow utilities for PingOne Worker Token implementation
 
+import { logger } from '../../../utils/logger';
 import { unifiedLoggerV8 } from '../v8/services/unifiedLoggerV8';
 import { unifiedStateServiceV8 } from '../v8/services/unifiedStateServiceV8';
 import { logger } from './logger';
-
-import { logger } from '../../../utils/logger';
 export interface WorkerTokenResponse {
 	access_token: string;
 	token_type: string;

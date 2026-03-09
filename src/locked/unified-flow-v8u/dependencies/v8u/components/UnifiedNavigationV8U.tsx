@@ -15,11 +15,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '../../../../utils/logger';
 import { ApiDisplayCheckbox } from '../../v8/components/SuperSimpleApiDisplayV8.tsx';
 import type { FlowType } from '../../v8/services/specVersionServiceV8.ts';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
-import { logger } from '../../../../utils/logger';
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
 	currentFlowType?: FlowType;

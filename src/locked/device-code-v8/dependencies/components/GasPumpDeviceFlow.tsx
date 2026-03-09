@@ -5,10 +5,10 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
   background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #dc2626 100%);

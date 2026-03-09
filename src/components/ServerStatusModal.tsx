@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { logger } from '../utils/logger';
+
 interface ServerStatusModalProps {
 	isOpen: boolean;
 	onClose: () => void;

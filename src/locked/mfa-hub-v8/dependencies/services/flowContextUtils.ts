@@ -1,10 +1,9 @@
 // src/services/flowContextUtils.ts
 // Utility functions for common flow context operations
 
+import { logger } from '../../../utils/logger';
 import FlowContextService from './flowContextService';
 import RedirectStateManager, { type FlowState } from './redirectStateManager';
-
-import { logger } from '../../../utils/logger';
 /**
  * FlowContextUtils - High-level utility functions for flow context management
  *

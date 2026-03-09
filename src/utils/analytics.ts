@@ -1,6 +1,5 @@
-import { logger } from './logger';
-
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 // Analytics event types
 export type AnalyticsEventType =
 	| 'page_view'

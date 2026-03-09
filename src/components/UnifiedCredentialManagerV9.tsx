@@ -18,11 +18,11 @@ import {
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
-import { logger } from '../utils/logger';
 import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
+import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[🔧 UNIFIED-CREDENTIAL-MANAGER-V9]';
 

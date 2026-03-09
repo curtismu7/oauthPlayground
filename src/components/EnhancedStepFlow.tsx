@@ -539,7 +539,11 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 				(allowStepJumping || Math.abs(index - currentStepIndex) <= 1)
 			) {
 				setCurrentStepIndex(index);
-				logger.debug('EnhancedStepFlow', `Navigated to step ${index}`, `stepId: ${steps[index]?.id}`);
+				logger.debug(
+					'EnhancedStepFlow',
+					`Navigated to step ${index}`,
+					`stepId: ${steps[index]?.id}`
+				);
 			}
 		},
 		[steps, currentStepIndex, allowStepJumping]
@@ -624,7 +628,11 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 	useEffect(() => {
 		if (isFlowComplete) {
 			onFlowComplete?.(stepResults);
-			logger.success('EnhancedStepFlow', 'Flow completed', `results: ${JSON.stringify(stepResults)}`);
+			logger.success(
+				'EnhancedStepFlow',
+				'Flow completed',
+				`results: ${JSON.stringify(stepResults)}`
+			);
 		}
 	}, [isFlowComplete, stepResults, onFlowComplete]);
 

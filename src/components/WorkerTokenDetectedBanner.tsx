@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 
 import { logger } from '../utils/logger';
+
 interface WorkerTokenDetectedBannerProps {
 	token: string;
 	message?: string;

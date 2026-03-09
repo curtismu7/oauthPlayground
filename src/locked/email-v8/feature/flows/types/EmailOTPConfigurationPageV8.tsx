@@ -13,6 +13,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { logger } from '../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { MFANavigationV8 } from '../../../dependencies/v8/components/MFANavigationV8.tsx';
 import { SuperSimpleApiDisplayV8 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
@@ -28,7 +29,6 @@ import { toastV8 } from '../../../dependencies/v8/utils/toastNotificationsV8.ts'
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📧 EMAIL-OTP-CONFIG-V8]';
 
 export const EmailOTPConfigurationPageV8: React.FC = () => {

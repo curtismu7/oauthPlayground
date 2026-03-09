@@ -14,9 +14,9 @@
  */
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { logger } from '../../../../utils/logger';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';

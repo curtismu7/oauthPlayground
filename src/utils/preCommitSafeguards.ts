@@ -1,9 +1,8 @@
 // src/utils/preCommitSafeguards.ts
 // Pre-commit safeguards to prevent regressions
 
-import { flowTestSuite } from './flowTestSuite';
-
 import { logger } from '../utils/logger';
+import { flowTestSuite } from './flowTestSuite';
 export interface PreCommitConfig {
 	enableAutomatedTesting: boolean;
 	enableLinting: boolean;

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 
 import { logger } from '../utils/logger';
+
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;

@@ -5,10 +5,10 @@ import { FiMic, FiVolume2 } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);

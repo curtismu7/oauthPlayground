@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { logger } from '../utils/logger';
+
 interface AudienceParameterInputProps {
 	value: string;
 	onChange: (value: string) => void;

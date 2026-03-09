@@ -9,13 +9,12 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { logger } from '../../utils/logger';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
-
-import { logger } from '../../utils/logger';
 
 type TokenExchangeScenario =
 	| 'delegation'

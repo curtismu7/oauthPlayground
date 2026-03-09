@@ -13,7 +13,6 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { logger } from '../utils/logger';
 import {
 	comprehensiveDiscoveryService,
 	DiscoveryResult,
@@ -22,6 +21,7 @@ import {
 	discoveryPersistenceService,
 	PersistedDiscoveryData,
 } from '../services/discoveryPersistenceService';
+import { logger } from '../utils/logger';
 
 export interface UsePersistedDiscoveryOptions {
 	/**

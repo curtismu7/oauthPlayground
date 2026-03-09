@@ -4,6 +4,7 @@ import {
 	FlowStep,
 	LanguageOption,
 } from '../../components/InteractiveCodeEditor';
+import { logger } from '../../utils/logger';
 import { NodeJsTemplates, PythonTemplates } from './templates/backend/nodeTemplates';
 import { AngularTemplates } from './templates/frontend/angularTemplates';
 import { NextJsTemplates } from './templates/frontend/nextjsTemplates';
@@ -15,8 +16,6 @@ import {
 } from './templates/frontend/restApiTemplates';
 import { VueTemplates } from './templates/frontend/vueTemplates';
 import { FlutterTemplates, ReactNativeTemplates } from './templates/mobile/mobileTemplates';
-
-import { logger } from '../../utils/logger';
 export interface CodeGenerationConfig {
 	category: CodeCategory;
 	codeType: CodeType;

@@ -1,12 +1,11 @@
 // src/utils/runSafeguards.ts
 // Script to run comprehensive safeguard checks
 
+import { logger } from '../utils/logger';
 import { errorMonitoring } from './errorMonitoring';
 import { flowTestSuite } from './flowTestSuite';
 import { regressionSafeguards } from './regressionSafeguards';
 import { safeguardIntegration } from './safeguardIntegration';
-
-import { logger } from '../utils/logger';
 /**
  * Run comprehensive safeguard checks
  */

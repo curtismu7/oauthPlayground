@@ -24,9 +24,9 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { logger } from '../../../../../utils/logger';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
-import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 

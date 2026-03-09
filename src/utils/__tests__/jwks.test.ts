@@ -1,10 +1,8 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
+
+import { jwtVerify, jwtVerify, jwtVerify, jwtVerify } from 'jose';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { jwtVerify } from 'jose';
-import { jwtVerify } from 'jose';
-import { jwtVerify } from 'jose';
-import { jwtVerify } from 'jose';
 vi.mock('jose');
 
 import type { JWKS, JWKSConfig, TokenValidationOptions } from '../jwks';

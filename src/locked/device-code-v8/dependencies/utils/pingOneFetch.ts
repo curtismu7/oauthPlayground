@@ -5,9 +5,9 @@
  *              (Accept headers, transient retry handling, forward-compatible fallbacks).
  */
 
+import { logger } from '../../../utils/logger';
 import { apiCallTrackerService } from '../services/apiCallTrackerService.ts';
 
-import { logger } from '../../../utils/logger';
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
 export interface PingOneFetchRetryOptions {

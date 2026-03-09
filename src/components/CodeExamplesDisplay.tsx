@@ -2,13 +2,13 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import {
 	CodeExample,
 	CodeExamplesConfig,
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
+import { logger } from '../utils/logger';
 
 interface CodeExamplesDisplayProps {
 	flowType: string;

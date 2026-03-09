@@ -25,8 +25,8 @@
  * manager.saveCredentials('mfa-flow-v8', credentials);
  */
 
-import type { MFACredentials } from '../flows/shared/MFATypes';
 import { logger } from '../../utils/logger';
+import type { MFACredentials } from '../flows/shared/MFATypes';
 import { CredentialsServiceV8 } from './credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from './environmentIdServiceV8';
 export type CredentialUpdateCallback = (credentials: MFACredentials | null) => void;

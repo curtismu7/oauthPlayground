@@ -16,6 +16,7 @@ import { FiUser } from '@icons';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
 
 export interface LoginHintInputV8Props {

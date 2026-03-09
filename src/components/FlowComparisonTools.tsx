@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 import { logger } from '../utils/logger';
+
 // Styled components
 const ComparisonContainer = styled.div`
   display: flex;

@@ -3,12 +3,12 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 
-import { logger } from '../../../../utils/logger';
 interface FlowConfigurationProps {
 	credentials: FlowCredentials;
 	onCredentialsChange: (credentials: FlowCredentials) => void;

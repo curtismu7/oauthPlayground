@@ -12,9 +12,8 @@
  * - Backend health check
  */
 
-import type { DiscoveryResult, OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
-
 import { logger } from '../../../utils/logger';
+import type { DiscoveryResult, OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 export class BulletproofDiscoveryService {
 	private readonly MAX_RETRIES = 3;
 	private readonly RETRY_DELAY = 1000; // ms

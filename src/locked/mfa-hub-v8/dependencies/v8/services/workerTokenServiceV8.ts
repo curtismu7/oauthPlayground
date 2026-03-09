@@ -145,7 +145,7 @@ class WorkerTokenServiceV8 {
 		// Import analytics utility once for this function
 		const { safeAnalyticsFetch } = await import('../../../../../v8/utils/analyticsServerCheckV8');
 
-import { logger } from '../../../../utils/logger';
+		import { logger } from '../../../../utils/logger';
 		// #region agent log (only if analytics server is available)
 		safeAnalyticsFetch({
 			location: 'workerTokenServiceV8.ts:144',

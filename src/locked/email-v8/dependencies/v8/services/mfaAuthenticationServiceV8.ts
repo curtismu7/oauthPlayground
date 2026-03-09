@@ -21,10 +21,10 @@
  * });
  */
 
+import { logger } from '../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
 
 export interface AuthenticationCredentials {

@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';
 
-import { logger } from '../../../utils/logger';
 const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {
 		switch ($colorScheme) {

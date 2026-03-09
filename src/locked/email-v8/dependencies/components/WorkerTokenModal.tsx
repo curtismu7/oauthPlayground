@@ -5,6 +5,7 @@ import { FiAlertTriangle, FiInfo } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { trackedFetch } from '../utils/trackedFetch';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -12,7 +13,6 @@ import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 
-import { logger } from '../../../utils/logger';
 type RequestDetails = {
 	tokenEndpoint: string;
 	requestParams: {

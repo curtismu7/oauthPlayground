@@ -7,9 +7,9 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
+import { logger } from '../utils/logger';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
-import { logger } from '../utils/logger';
 const PageContainer = styled.div`
 	max-width: 90rem;
 	margin: 0 auto;
