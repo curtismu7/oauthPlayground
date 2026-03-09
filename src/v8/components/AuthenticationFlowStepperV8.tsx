@@ -43,7 +43,7 @@ const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
 
 export interface AuthenticationFlowStepperV8Props {
-	deviceType: DeviceType;
+	deviceType?: DeviceType;
 	renderStep0: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
 	renderStep1: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
 	renderStep2: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
@@ -87,7 +87,6 @@ export interface AuthenticationFlowStepperRenderProps {
 }
 
 export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Props> = ({
-	deviceType,
 	renderStep0,
 	renderStep1,
 	renderStep2,
@@ -98,14 +97,13 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	validateStep0,
 	stepLabels = [
 		'Configure',
-		'User Login',
-		'Device Selection',
-		'QR Code',
-		'Device Actions',
+		'Device Authentication',
+		'User Authentication',
+		'MFA Selection',
+		'MFA Verification',
 		'API Documentation',
 		'Success',
 	],
-	shouldHideNextButton,
 }) => {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();

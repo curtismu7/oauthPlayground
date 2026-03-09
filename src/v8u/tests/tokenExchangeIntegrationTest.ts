@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file tokenExchangeIntegrationTest.ts
  * @module v8u/tests
  * @description Integration test for token exchange flow with real DOM manipulation
@@ -7,6 +6,7 @@ import { logger } from '../../utils/logger';
  * @since 2024-11-18
  */
 
+import { logger } from '../../utils/logger';
 interface IntegrationTestResult {
 	testName: string;
 	passed: boolean;

@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file specVersionServiceV8.ts
  * @module v8/services
  * @description Spec version management service for OAuth 2.0 Authorization Framework (RFC 6749), OAuth 2.1 Authorization Framework (draft), and OpenID Connect Core 1.0
@@ -17,6 +16,7 @@ import { logger } from '../../../../../utils/logger';
  * const isValid = SpecVersionServiceV8.isFlowAvailable('oauth2.1', 'implicit');
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[📋 SPEC-VERSION-V8]';
 
 export type SpecVersion = 'oauth2.0' | 'oauth2.1' | 'oidc';
