@@ -428,11 +428,21 @@ class OTPDeliveryTrackingService {
 		}
 	}
 
+	private static cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
+
 	/**
 	 * Start automatic cleanup of expired statuses
 	 */
 	static startCleanupScheduler(intervalMinutes: number = 30): void {
-		setInterval(
+		// Prevent duplicate intervals
+		if (OTPDeliveryTrackingService.cleanupIntervalId !== null) {
+			logger.warn('OTPDeliveryTrackingService', 'Cleanup scheduler already running', {
+				intervalMinutes,
+			});
+			return;
+		}
+
+		OTPDeliveryTrackingService.cleanupIntervalId = setInterval(
 			() => {
 				OTPDeliveryTrackingService.cleanupExpiredStatuses();
 			},
@@ -442,6 +452,17 @@ class OTPDeliveryTrackingService {
 		logger.info('OTPDeliveryTrackingService', 'Started cleanup scheduler', {
 			intervalMinutes,
 		});
+	}
+
+	/**
+	 * Stop automatic cleanup of expired statuses
+	 */
+	static stopCleanupScheduler(): void {
+		if (OTPDeliveryTrackingService.cleanupIntervalId !== null) {
+			clearInterval(OTPDeliveryTrackingService.cleanupIntervalId);
+			OTPDeliveryTrackingService.cleanupIntervalId = null;
+			logger.info('OTPDeliveryTrackingService', 'Stopped cleanup scheduler');
+		}
 	}
 
 	/**
