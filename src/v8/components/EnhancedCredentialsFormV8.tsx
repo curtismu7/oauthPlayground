@@ -310,7 +310,7 @@ interface EnhancedCredentialsFormV8Props {
 	environmentId: string;
 	appName?: string;
 	flowType?: string;
-	onCredentialsChange?: (credentials: Record<string, any>) => void;
+	onCredentialsChange?: (credentials: Record<string, unknown>) => void;
 }
 
 export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props> = ({
@@ -385,43 +385,6 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 		loadCredentials();
 	}, [tracking]);
 
-	// Field change handler with tracking
-	const handleFieldChange = useCallback(
-		(fieldName: string, value: string, validate = false) => {
-			setCredentials((prev) => ({ ...prev, [fieldName]: value }));
-
-			// Track field interaction
-			tracking.trackFieldInteraction(fieldName, 'change', value);
-
-			// Validate field if requested
-			if (validate) {
-				validateField(fieldName, value);
-			}
-
-			// Notify parent
-			if (onCredentialsChange) {
-				onCredentialsChange({ ...credentials, [fieldName]: value });
-			}
-		},
-		[tracking, credentials, onCredentialsChange, validateField]
-	);
-
-	// Field focus/blur handlers
-	const handleFieldFocus = useCallback(
-		(fieldName: string) => {
-			tracking.trackFieldInteraction(fieldName, 'focus');
-		},
-		[tracking]
-	);
-
-	const handleFieldBlur = useCallback(
-		(fieldName: string, value: string) => {
-			tracking.trackFieldInteraction(fieldName, 'blur', value);
-			validateField(fieldName, value);
-		},
-		[tracking, validateField]
-	);
-
 	// Validation
 	const validateField = useCallback(
 		(fieldName: string, value: string) => {
@@ -461,6 +424,43 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			});
 		},
 		[tracking]
+	);
+
+	// Field change handler with tracking
+	const handleFieldChange = useCallback(
+		(fieldName: string, value: string, validate = false) => {
+			setCredentials((prev) => ({ ...prev, [fieldName]: value }));
+
+			// Track field interaction
+			tracking.trackFieldInteraction(fieldName, 'change', value);
+
+			// Validate field if requested
+			if (validate) {
+				validateField(fieldName, value);
+			}
+
+			// Notify parent
+			if (onCredentialsChange) {
+				onCredentialsChange({ ...credentials, [fieldName]: value });
+			}
+		},
+		[tracking, credentials, onCredentialsChange, validateField]
+	);
+
+	// Field focus/blur handlers
+	const handleFieldFocus = useCallback(
+		(fieldName: string) => {
+			tracking.trackFieldInteraction(fieldName, 'focus');
+		},
+		[tracking]
+	);
+
+	const handleFieldBlur = useCallback(
+		(fieldName: string, value: string) => {
+			tracking.trackFieldInteraction(fieldName, 'blur', value);
+			validateField(fieldName, value);
+		},
+		[tracking, validateField]
 	);
 
 	// Dropdown selection tracking

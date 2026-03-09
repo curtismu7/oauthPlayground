@@ -106,7 +106,9 @@ export class GlobalEnvironmentService {
 	 */
 	private notifyListeners(): void {
 		logger.info('[GlobalEnvironmentService] Notifying listeners:', this.listeners.size);
-		this.listeners.forEach((listener) => listener(this.environmentId));
+		this.listeners.forEach((listener) => {
+			listener(this.environmentId);
+		});
 	}
 
 	/**

@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file mfaEducationServiceV8.ts
  * @module v8/services
  * @description Educational content service for PingOne MFA Flow
@@ -10,6 +9,7 @@ import { logger } from '../../../../../utils/logger';
  * for all MFA-related concepts, fields, and steps.
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[📚 MFA-EDUCATION-V8]';
 
 export interface MFAEducationContent {

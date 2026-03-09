@@ -1,11 +1,11 @@
 /**
-import { logger } from '../utils/logger';
  * @file testJWTGeneration.ts
  * @description Test JWT generation functionality
  * @version 8.0.0
  * @since 2024-11-25
  */
 
+import { logger } from '../utils/logger';
 // Import the key generation utilities
 import {
 	assessSecurityStrength,

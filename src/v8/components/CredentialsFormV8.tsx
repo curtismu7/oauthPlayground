@@ -278,7 +278,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	return (
 		<div className="credentials-form-v8">
-			<div
+			<button
 				className="collapsible-header"
 				onClick={() => setIsExpanded(!isExpanded)}
 				onKeyDown={(e) => {
@@ -287,17 +287,16 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 						setIsExpanded(!isExpanded);
 					}
 				}}
-				role="button"
-				tabIndex={0}
 				aria-expanded={isExpanded}
 				aria-controls="form-sections"
+				type="button"
 			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
 				</div>
 				{defaultSubtitle && <p>{defaultSubtitle}</p>}
-			</div>
+			</button>
 
 			{isExpanded && (
 				<div id="form-sections" className="form-sections">
@@ -323,11 +322,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							{/* Client Type */}
 							<div className="form-group">
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-									<label
-										style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
-									>
-										Client Type
-									</label>
+									<div
+									style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
+								>
+									Client Type
+								</div>
 									<TooltipV8
 										title={TooltipContentServiceV8.CLIENT_TYPE.title}
 										content={TooltipContentServiceV8.CLIENT_TYPE.content}

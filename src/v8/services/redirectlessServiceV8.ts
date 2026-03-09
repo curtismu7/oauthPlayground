@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file redirectlessServiceV8.ts
  * @module v8/services
  * @description Redirectless authentication service for V8 flows using PingOne pi.flow
@@ -21,6 +20,7 @@ import { logger } from '../../utils/logger';
  * });
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔄 REDIRECTLESS-V8]';
 
 export interface RedirectlessCredentials {

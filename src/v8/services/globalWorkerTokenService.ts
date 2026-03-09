@@ -144,7 +144,9 @@ export class GlobalWorkerTokenService {
 	 */
 	private notifyListeners(status: WorkerTokenStatus): void {
 		logger.info('[GlobalWorkerTokenService] Notifying listeners:', this.listeners.size);
-		this.listeners.forEach((listener) => listener(status));
+		this.listeners.forEach((listener) => {
+			listener(status);
+		});
 	}
 
 	/**
