@@ -10,6 +10,7 @@ interface LookupPingOneUserParams {
 	environmentId: string;
 	accessToken: string;
 	identifier: string;
+	region?: string;
 }
 
 interface LookupPingOneUserResult {
@@ -29,6 +30,7 @@ export const lookupPingOneUser = async ({
 	environmentId,
 	accessToken,
 	identifier,
+	region,
 }: LookupPingOneUserParams): Promise<LookupPingOneUserResult> => {
 	// Validate inputs before making the request
 	if (!environmentId || environmentId.trim() === '') {
@@ -78,7 +80,7 @@ export const lookupPingOneUser = async ({
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ environmentId, accessToken, identifier }),
+		body: JSON.stringify({ environmentId, accessToken, identifier, ...(region ? { region } : {}) }),
 		actualPingOneUrl, // Show the actual PingOne API endpoint
 	});
 
@@ -102,9 +104,13 @@ export const lookupPingOneUser = async ({
 		}
 
 		if (response.status === 400) {
-			throw new Error(
-				'PingOne rejected the lookup request. Verify the user identifier format and try again.'
-			);
+			const errorBody = await parseErrorResponse(response);
+			const detail =
+				errorBody?.error_description ||
+				errorBody?.message ||
+				errorBody?.error ||
+				'PingOne rejected the lookup request. Verify the user identifier format and try again.';
+			throw new Error(detail);
 		}
 
 		const errorBody = await parseErrorResponse(response);
