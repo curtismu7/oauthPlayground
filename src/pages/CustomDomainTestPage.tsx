@@ -15,11 +15,7 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
-import {
-	saveRegion,
-	type PingOneRegion,
-	getCurrentRegion,
-} from '../services/regionService';
+import { getCurrentRegion, type PingOneRegion, saveRegion } from '../services/regionService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,

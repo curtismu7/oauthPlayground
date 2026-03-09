@@ -315,7 +315,17 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
 
 	return (
-		<ModalOverlay role="presentation" onClick={onClose} $hasPosition={hasPosition}>
+		<ModalOverlay
+			aria-hidden="true"
+			role="presentation"
+			onClick={onClose}
+			$hasPosition={hasPosition}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
+		>
 			<ModalContent
 				ref={modalRef}
 				role="dialog"

@@ -282,7 +282,11 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										type="button"
 										onClick={() => setShowClientSecret(!showClientSecret)}
 									>
-										{showClientSecret ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
+										{showClientSecret ? (
+											<i className="bi bi-eye-slash" />
+										) : (
+											<i className="bi bi-eye" />
+										)}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>

@@ -371,7 +371,8 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<i className="bi bi-database" />Common PingOne Management API Scopes
+							<i className="bi bi-database" />
+							Common PingOne Management API Scopes
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>

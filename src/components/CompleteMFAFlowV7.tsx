@@ -1629,46 +1629,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							message: '✅ Redirectless authentication completed! Proceeding to device pairing.',
 							duration: 4000,
 						});
-					} else if (responseData.id && responseData.resumeUrl) {
-						// Handle PingOne flow response format with id and resumeUrl
-						console.log(`🔐 [MFA Flow V7] Received PingOne flow response:`, {
-							flowId: responseData.id,
-							resumeUrl: responseData.resumeUrl,
-							environment: responseData.environment,
-							hasLinks: !!responseData._links,
-							hasEmbedded: !!responseData._embedded,
-						});
-
-						modernMessaging.showFooterMessage({
-							type: 'status',
-							message: 'Redirectless authentication initiated successfully',
-							duration: 4000,
-						});
-
-						// Store the flow information in flow context
-						setFlowContext((prev) => ({
-							...prev,
-							flowId: responseData.id,
-							resumeUrl: responseData.resumeUrl,
-							flowEnvironment: responseData.environment,
-							flowLinks: responseData._links,
-							flowEmbedded: responseData._embedded,
-						}));
-
-						// For redirectless flow, we don't need to call resumeUrl
-						// The flow is already established and we can proceed directly to device pairing
-						console.log(
-							`🔐 [MFA Flow V7] Redirectless flow established - proceeding directly to device pairing`
-						);
-
-						// Advance directly to device pairing step for redirectless authentication
-						setCurrentStep('device_pairing');
-						onStepChange?.('device_pairing');
-						modernMessaging.showFooterMessage({
-							type: 'status',
-							message: '✅ Redirectless authentication successful! Ready for device registration.',
-							duration: 4000,
-						});
 					} else {
 						log.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
 						modernMessaging.showBanner({
