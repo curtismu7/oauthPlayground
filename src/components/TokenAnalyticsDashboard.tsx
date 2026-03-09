@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { showGlobalInfo } from '../contexts/NotificationSystem';
 import { TokenUsageAnalytics, tokenLifecycleManager } from '../utils/tokenLifecycle';
 
 const DashboardContainer = styled.div`
@@ -211,7 +212,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 
 	const handleCleanup = () => {
 		const cleanedCount = tokenLifecycleManager.cleanupExpiredTokens();
-		alert(`Cleaned up ${cleanedCount} expired tokens`);
+		showGlobalInfo(`Cleaned up ${cleanedCount} expired tokens`);
 		loadAnalytics();
 	};
 

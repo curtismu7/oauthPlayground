@@ -2864,6 +2864,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								: undefined
 						}
 						onClick={() => toggleMenuGroup(group.id)}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								toggleMenuGroup(group.id);
+							}
+						}}
+						role="button"
+						tabIndex={0}
+						aria-expanded={group.isOpen}
+						aria-controls={`group-content-${group.id}`}
+						aria-label={`${group.label} ${group.isOpen ? 'expanded' : 'collapsed'}`}
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -2917,6 +2928,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							{group.label}
 						</span>
 						<button
+							type="button"
 							onClick={(e) => {
 								e.stopPropagation();
 								// No need to call toggleMenuGroup here since the parent div handles it
@@ -2953,6 +2965,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{/* Items Container */}
 					{group.isOpen && (
 						<div
+							id={`group-content-${group.id}`}
 							style={{
 								paddingLeft: '1rem',
 								backgroundColor: '#f8fafc',
@@ -2962,6 +2975,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							}}
 							onDragOver={dragMode ? handleDragOver : undefined}
 							onDrop={dragMode ? (e) => handleDropOnGroup(e, group.id) : undefined}
+							role="region"
+							aria-label={`${group.label} content`}
 						>
 							{/* Render subGroups if they exist - show them first */}
 							{group.subGroups &&
@@ -2969,8 +2984,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								group.subGroups.map((subGroup) => (
 									<div key={subGroup.id} style={{ marginBottom: '0.75rem' }}>
 										{/* SubGroup Header */}
-										<div
+										<button
+											type="button"
 											onClick={() => toggleMenuGroup(subGroup.id)}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													toggleMenuGroup(subGroup.id);
+												}
+											}}
+											aria-expanded={subGroup.isOpen}
+											aria-label={`Toggle ${subGroup.label}`}
 											style={{
 												display: 'flex',
 												alignItems: 'center',
@@ -2984,6 +3008,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												border: '1px solid rgba(255,255,255,0.2)',
 												boxShadow: '0 1px 3px rgba(59, 130, 246, 0.2)',
 												transition: 'all 0.2s ease',
+												color: 'white',
+												fontWeight: '600',
+												width: '100%',
+												textAlign: 'left',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background =
@@ -3010,7 +3038,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 													color: 'white',
 												}}
 											/>
-										</div>
+										</button>
 										{/* SubGroup Items */}
 										{subGroup.isOpen && (
 											<div
