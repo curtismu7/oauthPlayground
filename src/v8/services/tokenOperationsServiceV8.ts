@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file tokenOperationsServiceV8.ts
  * @module v8/services
  * @description Service to determine which token operations are allowed for each flow
@@ -15,6 +14,7 @@ import { logger } from '../../utils/logger';
  * // Returns: { canIntrospectAccessToken: true, canCallUserInfo: true, ... }
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔍 TOKEN-OPERATIONS-V8]';
 
 export interface TokenOperationRules {

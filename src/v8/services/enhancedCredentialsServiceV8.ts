@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file enhancedCredentialsServiceV8.ts
  * @module v8/services
  * @description Enhanced multi-storage credentials service with IndexedDB, SQLite, and localStorage support
@@ -16,6 +15,7 @@ import { logger } from '../../utils/logger';
  * - Offline support with localStorage fallback
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 ENHANCED-CREDENTIALS-V8]';
 
 // ============================================================================

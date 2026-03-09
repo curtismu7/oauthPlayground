@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file pkceStorageServiceV8U.ts
  * @module v8u/services
  * @description Bulletproof PKCE code storage with multiple redundancy layers
@@ -7,6 +6,7 @@ import { logger } from '../../../../../utils/logger';
  * @since 2024-11-18
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U]';
 
 export interface PKCECodes {

@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file ApiDisplayService.ts
  * @module protect-app/services
  * @description API call tracking service for Protect Portal
@@ -13,6 +12,7 @@ import { logger } from '../../utils/logger';
  * - Support toggle functionality
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔍 PROTECT-API-DISPLAY]';
 
 export interface ProtectApiCall {

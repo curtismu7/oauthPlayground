@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file mfaFlowCleanupV8.ts
  * @module v8/utils
  * @description Cleanup utilities for MFA flows when navigating away
@@ -9,6 +8,7 @@ import { logger } from '../../../../../utils/logger';
  * Preserves credentials and tokens as requested.
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🧹 MFA-FLOW-CLEANUP-V8]';
 
 /**

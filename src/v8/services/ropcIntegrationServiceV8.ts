@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file ropcIntegrationServiceV8.ts
  * @module v8/services
  * @description Real OAuth Resource Owner Password Credentials Flow integration with PingOne APIs
@@ -17,6 +16,7 @@ import { logger } from '../../utils/logger';
  * const tokens = await ROPCIntegrationServiceV8.requestToken(credentials, username, password);
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 ROPC-V8]';
 
 export interface ROPCCredentials {

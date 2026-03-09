@@ -15,7 +15,8 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 	if (!show) return null;
 
 	return (
-		<div
+		<button
+			type="button"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -27,8 +28,16 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 				alignItems: 'center',
 				justifyContent: 'center',
 				zIndex: 1000,
+				border: 'none',
+				cursor: 'pointer',
 			}}
 			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					onClose();
+				}
+			}}
+			aria-label="Close modal"
 		>
 			<div
 				style={{
@@ -41,6 +50,10 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 					overflow: 'hidden',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="push-modal-title"
 			>
 				{/* Header with Logo */}
 				<div
@@ -78,6 +91,7 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
+						id="push-modal-title"
 						style={{
 							margin: '0',
 							fontSize: '22px',
@@ -164,6 +178,6 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 					</ButtonSpinner>
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 };

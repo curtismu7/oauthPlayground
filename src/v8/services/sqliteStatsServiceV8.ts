@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file sqliteStatsServiceV8.ts
  * @module v8/services
  * @description SQLite database statistics service
@@ -19,6 +18,7 @@ import { logger } from '../../utils/logger';
  * - Circuit breaker pattern for reliability
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📊 SQLITE-STATS-V8]';
 
 // Connection monitoring and rate limiting

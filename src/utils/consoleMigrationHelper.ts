@@ -81,8 +81,6 @@ export function generateReplacements(moduleName: string) {
 		// Info patterns
 		'logger.info(': `logger.info('${moduleName}', `,
 		'logger.info(`': `logger.info('${moduleName}', `,
-		'logger.info(': `logger.info('${moduleName}', `,
-		'logger.info(`': `logger.info('${moduleName}', `,
 
 		// Debug patterns
 		'logger.debug(': `logger.debug('${moduleName}', `,

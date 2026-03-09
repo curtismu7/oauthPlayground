@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file workerTokenServiceV8.ts
  * @module v8/services
  * @description Centralized Worker Token Service with IndexedDB backup storage
@@ -15,6 +14,7 @@ import { logger } from '../../../../../utils/logger';
  * - Memory: In-memory cache for performance
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8:worker_token';

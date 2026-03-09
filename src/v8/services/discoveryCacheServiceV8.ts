@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file discoveryCacheServiceV8.ts
  * @module v8/services
  * @description Caching service for OIDC discovery documents
@@ -10,6 +9,7 @@ import { logger } from '../../utils/logger';
  * and reduce API calls. Discovery documents are cached for 24 hours.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[💾 DISCOVERY-CACHE-V8]';
 
 export interface CachedDiscoveryDocument {

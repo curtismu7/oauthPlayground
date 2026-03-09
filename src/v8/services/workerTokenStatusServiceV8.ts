@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file workerTokenStatusServiceV8.ts
  * @module v8/services
  * @description Worker token status checking and formatting for V8
@@ -7,6 +6,7 @@ import { logger } from '../../utils/logger';
  * @since 2024-11-16
  */
 
+import { logger } from '../../utils/logger';
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
 export interface TokenStatusInfo {

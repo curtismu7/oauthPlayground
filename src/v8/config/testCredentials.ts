@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file testCredentials.ts
  * @module v8/config
  * @description Test credentials for PingOne API testing
@@ -11,6 +10,7 @@ import { logger } from '../../utils/logger';
  * Use environment variables in production.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔑 TEST-CREDENTIALS-V8]';
 
 export const TEST_CREDENTIALS = {

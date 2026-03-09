@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file environmentIdServiceV8.ts
  * @module v8/services
  * @description Global environment ID storage and retrieval service
@@ -10,6 +9,7 @@ import { logger } from '../../utils/logger';
  * Once saved, it's automatically used across all flows.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🌍 ENVIRONMENT-ID-SERVICE-V8]';
 const STORAGE_KEY = 'v8:global_environment_id';
 

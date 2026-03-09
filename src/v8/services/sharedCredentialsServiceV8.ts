@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file sharedCredentialsServiceV8.ts
  * @module v8/services
  * @description Service for managing shared credentials across all V8U flow types
@@ -18,6 +17,7 @@ import { logger } from '../../utils/logger';
  * Uses dual storage: browser storage first, then disk fallback.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔗 SHARED-CREDENTIALS-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8_shared_credentials';

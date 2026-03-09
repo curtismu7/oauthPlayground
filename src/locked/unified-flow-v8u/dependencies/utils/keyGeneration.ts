@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../utils/logger';
  * @file keyGeneration.ts
  * @description Key and secret generation utilities for OAuth client authentication
  * @version 8.0.0
@@ -12,6 +11,7 @@ import { logger } from '../../../../utils/logger';
  * - Cryptographically secure random strings
  */
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔐 KEY-GENERATION]';
 
 export interface GeneratedKeyPair {

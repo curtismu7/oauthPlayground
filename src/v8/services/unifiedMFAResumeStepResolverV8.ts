@@ -89,7 +89,9 @@ export class UnifiedMFAResumeStepResolverV8 {
 			const urlObj = new URL(url);
 			// Remove sensitive parameters
 			const sensitiveParams = ['code', 'state', 'token', 'session', 'auth'];
-			sensitiveParams.forEach((param) => urlObj.searchParams.delete(param));
+			sensitiveParams.forEach((param) => {
+				urlObj.searchParams.delete(param);
+			});
 			return urlObj.toString();
 		} catch {
 			return '[INVALID_URL]';
