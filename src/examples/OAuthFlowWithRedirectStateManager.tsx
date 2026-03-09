@@ -197,7 +197,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 		RedirectStateManager.clearFlowState(flowId);
 		FlowContextService.clearFlowContext(flowId);
 
-		alert('OAuth flow completed successfully! Flow state has been cleaned up.');
+			showGlobalInfo('OAuth flow completed successfully! Flow state has been cleaned up.');
 	}, [flowId]);
 
 	return (

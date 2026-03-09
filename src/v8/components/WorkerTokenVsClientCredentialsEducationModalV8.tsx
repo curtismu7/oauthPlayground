@@ -225,15 +225,21 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 	return (
 		<>
 			<Backdrop
+				aria-hidden="true"
 				onClick={onClose}
 				onKeyDown={handleKeyDown}
 				role="button"
 				tabIndex={0}
 				aria-label="Close modal"
 			/>
-			<ModalContainer onKeyDown={handleKeyDown}>
+			<ModalContainer 
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="education-modal-title"
+				onKeyDown={handleKeyDown}
+			>
 				<ModalHeader>
-					<ModalTitle>
+					<ModalTitle id="education-modal-title">
 						<span style={{ fontSize: '28px' }}>🛡️</span>
 						Worker Tokens vs Client Credentials
 					</ModalTitle>

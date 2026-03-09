@@ -11,7 +11,7 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { showGlobalError } from '../contexts/NotificationSystem';
+import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { logger } from '../utils/logger';
 
@@ -30,7 +30,7 @@ export const PasskeyManager: React.FC = () => {
 
 	const handleLoadWorkerToken = async () => {
 		if (!environmentId) {
-			alert('Please enter an Environment ID');
+			showGlobalWarning('Please enter an Environment ID');
 			return;
 		}
 
@@ -55,7 +55,7 @@ export const PasskeyManager: React.FC = () => {
 
 			// Worker token is now managed by unified service
 			if (!hasWorkerToken) {
-				alert('Please get a worker token first');
+				showGlobalWarning('Please get a worker token first');
 				return;
 			}
 
