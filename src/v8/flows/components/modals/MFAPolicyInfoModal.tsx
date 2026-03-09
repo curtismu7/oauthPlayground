@@ -76,7 +76,7 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 						marginBottom: '24px',
 					}}
 				>
-					<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
+					<h2 id="policy-modal-title" style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 						What is a Device Authentication Policy?
 					</h2>
 					<ButtonSpinner
@@ -212,6 +212,6 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 					</ButtonSpinner>
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 };
