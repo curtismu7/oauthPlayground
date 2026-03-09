@@ -1,4 +1,4 @@
-import { FiCheck, FiInfo, FiShield } from '@icons';
+import { FiCheck, FiInfo, FiShield, FiX } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';

@@ -43,6 +43,7 @@ export const BackendDownModalV8: React.FC = () => {
 
 	return (
 		<div
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -55,8 +56,23 @@ export const BackendDownModalV8: React.FC = () => {
 				justifyContent: 'center',
 				zIndex: 10000,
 			}}
+			onClick={handleDismiss}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					handleDismiss();
+				}
+			}}
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="backend-down-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						handleDismiss();
+					}
+				}}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -79,6 +95,7 @@ export const BackendDownModalV8: React.FC = () => {
 
 				{/* Title */}
 				<h2
+					id="backend-down-title"
 					style={{
 						margin: '0 0 16px 0',
 						fontSize: '24px',

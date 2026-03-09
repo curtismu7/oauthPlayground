@@ -263,7 +263,12 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{userCode}
 									</code>
-									<button type="button" type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={() => copyToClipboard(userCode)}
+										style={copyBtn}
+									>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -272,7 +277,12 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{deviceCode}
 									</code>
-									<button type="button" type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={() => copyToClipboard(deviceCode)}
+										style={copyBtn}
+									>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -381,10 +391,20 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										>
 											Inspect Access Token
 										</button>
-										<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
+										<button
+											type="button"
+											type="button"
+											onClick={handleUserInfo}
+											style={secondaryBtn}
+										>
 											Call UserInfo
 										</button>
-										<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
+										<button
+											type="button"
+											type="button"
+											onClick={handleIntrospect}
+											style={secondaryBtn}
+										>
 											Introspect Token
 										</button>
 									</div>

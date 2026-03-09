@@ -3,7 +3,6 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { Card, CardBody, CardHeader } from './Card';
 import FlowCredentials from './FlowCredentials';
 import PageTitle from './PageTitle';

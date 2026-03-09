@@ -13,7 +13,6 @@ import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	min-height: 100vh;

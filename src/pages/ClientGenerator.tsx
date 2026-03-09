@@ -42,7 +42,6 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 const Container = styled.div`
@@ -240,92 +239,95 @@ const ClientGenerator: React.FC = () => {
 	// Use unified global worker token hook for token management
 
 	// Silently get worker token
-	const getWorkerTokenSilently = useCallback(async (credentials: typeof workerCredentials) => {
-		try {
-			setIsGettingToken(true);
-			setTokenError(null);
+	const getWorkerTokenSilently = useCallback(
+		async (credentials: typeof workerCredentials) => {
+			try {
+				setIsGettingToken(true);
+				setTokenError(null);
 
-			// Validate environment ID format (should be UUID format, not a long client ID)
-			const envId = credentials.environmentId?.trim();
-			if (!envId) {
-				throw new Error('Environment ID is required');
-			}
+				// Validate environment ID format (should be UUID format, not a long client ID)
+				const envId = credentials.environmentId?.trim();
+				if (!envId) {
+					throw new Error('Environment ID is required');
+				}
 
-			// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
-			// Client IDs are much longer base64-like strings
-			if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
-				log.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
-					envId,
+				// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
+				// Client IDs are much longer base64-like strings
+				if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
+					log.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
+						envId,
+					});
+					throw new Error('Invalid Environment ID format. Please check your credentials.');
+				}
+
+				const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
+				console.log('[App Generator] Requesting token from:', tokenEndpoint);
+				console.log('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
+
+				// Prepare headers and body based on auth method
+				const headers: Record<string, string> = {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				};
+
+				const bodyParams: Record<string, string> = {
+					grant_type: 'client_credentials',
+					scope: credentials.scopes,
+				};
+
+				if (credentials.tokenEndpointAuthMethod === 'client_secret_basic') {
+					// Client Secret Basic: credentials in Authorization header
+					const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+					headers['Authorization'] = `Basic ${basicAuth}`;
+				} else {
+					// Client Secret Post: credentials in request body
+					bodyParams.client_id = credentials.clientId;
+					bodyParams.client_secret = credentials.clientSecret;
+				}
+
+				// Capture request details for display
+				setWorkerTokenRequest({
+					url: tokenEndpoint,
+					method: 'POST',
+					headers,
+					body: new URLSearchParams(bodyParams).toString(),
+					authMethod: credentials.tokenEndpointAuthMethod,
 				});
-				throw new Error('Invalid Environment ID format. Please check your credentials.');
-			}
 
-			const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
-			console.log('[App Generator] Requesting token from:', tokenEndpoint);
-			console.log('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
-
-			// Prepare headers and body based on auth method
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			};
-
-			const bodyParams: Record<string, string> = {
-				grant_type: 'client_credentials',
-				scope: credentials.scopes,
-			};
-
-			if (credentials.tokenEndpointAuthMethod === 'client_secret_basic') {
-				// Client Secret Basic: credentials in Authorization header
-				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-				headers['Authorization'] = `Basic ${basicAuth}`;
-			} else {
-				// Client Secret Post: credentials in request body
-				bodyParams.client_id = credentials.clientId;
-				bodyParams.client_secret = credentials.clientSecret;
-			}
-
-			// Capture request details for display
-			setWorkerTokenRequest({
-				url: tokenEndpoint,
-				method: 'POST',
-				headers,
-				body: new URLSearchParams(bodyParams).toString(),
-				authMethod: credentials.tokenEndpointAuthMethod,
-			});
-
-			const response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers,
-				body: new URLSearchParams(bodyParams),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				log.error('ClientGenerator', '[App Generator] Token request failed:', {
-					status: response.status,
-					errorText,
+				const response = await fetch(tokenEndpoint, {
+					method: 'POST',
+					headers,
+					body: new URLSearchParams(bodyParams),
 				});
-				throw new Error(
-					`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					log.error('ClientGenerator', '[App Generator] Token request failed:', {
+						status: response.status,
+						errorText,
+					});
+					throw new Error(
+						`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`
+					);
+				}
+
+				// Token is now managed by unified service
+				console.log('[App Generator] Worker token managed by unified service');
+				return workerToken;
+			} catch (error) {
+				log.error(
+					'ClientGenerator',
+					'[App Generator] Failed to get worker token:',
+					undefined,
+					error as Error
 				);
+				setTokenError(error instanceof Error ? error.message : 'Failed to get token');
+			} finally {
+				setIsGettingToken(false);
 			}
-
-			// Token is now managed by unified service
-			console.log('[App Generator] Worker token managed by unified service');
-			return workerToken;
-		} catch (error) {
-			log.error(
-				'ClientGenerator',
-				'[App Generator] Failed to get worker token:',
-				undefined,
-				error as Error
-			);
-			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
-		} finally {
-			setIsGettingToken(false);
-		}
-		return;
-	}, []);
+			return;
+		},
+		[workerToken]
+	);
 
 	// Load saved worker credentials and silently get token on mount
 	useEffect(() => {

@@ -16,8 +16,8 @@
 import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { type UnifiedToken, unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { unifiedTokenStorage, type UnifiedToken } from '@/services/unifiedTokenStorageService';
 import { logger } from '@/utils/logger';
 
 // Flow types for dropdowns
@@ -358,22 +358,25 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const [selectedTokenType, setSelectedTokenType] = useState('access_token');
 
 	// JWT payload interface
-interface JWTPayload {
-	exp?: number;
-	iat?: number;
-	scope?: string;
-	iss?: string;
-	aud?: string | string[];
-	sub?: string;
-}
+	interface JWTPayload {
+		exp?: number;
+		iat?: number;
+		scope?: string;
+		iss?: string;
+		aud?: string | string[];
+		sub?: string;
+	}
 
-const parseJWT = useCallback((token: string): JWTPayload => {
+	const parseJWT = useCallback((token: string): JWTPayload => {
 		try {
 			const base64Url = token.split('.')[1];
 			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
 			return JSON.parse(window.atob(base64)) as JWTPayload;
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error instanceof Error ? error.message : String(error));
+			logger.error(
+				'[UserTokenStatusDisplayV8U] Error parsing JWT:',
+				error instanceof Error ? error.message : String(error)
+			);
 			return {};
 		}
 	}, []);
@@ -388,7 +391,7 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
 				// Get the most recent access token
 				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
-				if (latestToken && latestToken.value) {
+				if (latestToken?.value) {
 					// Parse JWT to get expiration and metadata
 					const payload = parseJWT(latestToken.value);
 					const now = Date.now();
@@ -454,7 +457,10 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error checking access token:', error instanceof Error ? error.message : String(error));
+			logger.error(
+				'[UserTokenStatusDisplayV8U] Error checking access token:',
+				error instanceof Error ? error.message : String(error)
+			);
 			return null;
 		}
 	}, [parseJWT]);
@@ -469,7 +475,7 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
 				// Get the most recent ID token
 				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
-				if (latestToken && latestToken.value) {
+				if (latestToken?.value) {
 					// Parse JWT to get expiration and metadata
 					const payload = parseJWT(latestToken.value);
 					const now = Date.now();
@@ -550,7 +556,7 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 			if (unifiedResult.success && unifiedResult.data && unifiedResult.data.length > 0) {
 				// Get the most recent refresh token
 				const latestToken = unifiedResult.data[0] as unknown as UnifiedToken;
-				if (latestToken && latestToken.value) {
+				if (latestToken?.value) {
 					// Refresh tokens may not be JWT, so handle accordingly
 					const now = Date.now();
 					const expiresAt = latestToken.expiresAt;
@@ -564,9 +570,9 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 						expiresAt,
 						issuedAt: latestToken.issuedAt,
 						scope: latestToken.scope?.join(' ') || undefined,
-						issuer: latestToken.metadata?.issuer as string || undefined,
-						audience: latestToken.metadata?.audience as string || undefined,
-						subject: latestToken.metadata?.subject as string || undefined,
+						issuer: (latestToken.metadata?.issuer as string) || undefined,
+						audience: (latestToken.metadata?.audience as string) || undefined,
+						subject: (latestToken.metadata?.subject as string) || undefined,
 						isValid,
 						status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 					};
@@ -622,7 +628,10 @@ const parseJWT = useCallback((token: string): JWTPayload => {
 			const resolvedTokens = await Promise.all(tokenPromises);
 			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error instanceof Error ? error.message : String(error));
+			logger.error(
+				'[UserTokenStatusDisplayV8U] Failed to update token status:',
+				error instanceof Error ? error.message : String(error)
+			);
 		}
 	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
 

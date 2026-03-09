@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
 // Test Configuration for MFA flows

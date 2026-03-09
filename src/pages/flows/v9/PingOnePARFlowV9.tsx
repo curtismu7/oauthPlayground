@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/v9/PingOnePARFlowV9.tsx
 // V9.0.0 PingOne PAR (Pushed Authorization Request) Flow - Modern V9 Architecture
 

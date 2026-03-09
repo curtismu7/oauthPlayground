@@ -242,7 +242,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	const authCodeManagement = useAuthCodeManagement();
 
 	// Credential persistence for NewAuthContext integration
-	const credentialPersistence = useCredentialPersistence({
+	const _credentialPersistence = useCredentialPersistence({
 		credentials: flowState.credentials,
 		onCredentialsChange: flowState.updateCredentials,
 	});

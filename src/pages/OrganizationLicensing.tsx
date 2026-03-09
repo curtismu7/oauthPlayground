@@ -3,7 +3,6 @@
 // lint-file-disable: token-value-in-jsx
 
 import { FiRefreshCw } from '@icons';
-import { FlowHeader } from '../services/flowHeaderService';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
@@ -12,6 +11,7 @@ import { usePageStepper } from '../contexts/FloatingStepperContext';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import {
 	getAllLicenses,
 	getOrganizationLicensingInfo,
@@ -21,8 +21,6 @@ import {
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import V7StepperService from '../services/v7StepperService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
@@ -924,72 +922,72 @@ const OrganizationLicensingV2: React.FC = () => {
 		<>
 			<FlowHeader flowId="organization-licensing" />
 			<PageContainer>
-			<ContentWrapper>
-				<div
-					style={{
-						background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-						color: 'white',
-						padding: '1rem 1.5rem',
-						borderRadius: '12px',
-						marginBottom: '1.5rem',
-						boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-					}}
-				>
-					<div>
-						<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-							📊 Organization Licensing
-						</h2>
-						<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
-							View your PingOne organization licensing information, usage statistics, and available
-							features
-						</p>
-					</div>
+				<ContentWrapper>
 					<div
 						style={{
-							background: 'rgba(255, 255, 255, 0.2)',
-							padding: '0.5rem 1rem',
-							borderRadius: '8px',
-							fontSize: '0.875rem',
-							fontWeight: 600,
+							background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+							color: 'white',
+							padding: '1rem 1.5rem',
+							borderRadius: '12px',
+							marginBottom: '1.5rem',
+							boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
 						}}
 					>
-						Step 1 of 1
+						<div>
+							<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+								📊 Organization Licensing
+							</h2>
+							<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
+								View your PingOne organization licensing information, usage statistics, and
+								available features
+							</p>
+						</div>
+						<div
+							style={{
+								background: 'rgba(255, 255, 255, 0.2)',
+								padding: '0.5rem 1rem',
+								borderRadius: '8px',
+								fontSize: '0.875rem',
+								fontWeight: 600,
+							}}
+						>
+							Step 1 of 1
+						</div>
 					</div>
-				</div>
-				<StepperHeader>
-					<StepperHeaderLeft>
-						<StepperTitle>{currentStepData.title}</StepperTitle>
-						<StepperSubtitle>{currentStepData.subtitle}</StepperSubtitle>
-					</StepperHeaderLeft>
-					<StepperHeaderRight>
-						<StepperNumber>{currentStep + 1}</StepperNumber>
-						<StepperTotal>of {STEP_METADATA.length}</StepperTotal>
-					</StepperHeaderRight>
-				</StepperHeader>
-				{renderStep()}
-				{showWorkerTokenModal && (
-					<WorkerTokenModal
-						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
-						onContinue={() => {
-							setShowWorkerTokenModal(false);
-							window.dispatchEvent(new Event('workerTokenUpdated'));
-						}}
+					<StepperHeader>
+						<StepperHeaderLeft>
+							<StepperTitle>{currentStepData.title}</StepperTitle>
+							<StepperSubtitle>{currentStepData.subtitle}</StepperSubtitle>
+						</StepperHeaderLeft>
+						<StepperHeaderRight>
+							<StepperNumber>{currentStep + 1}</StepperNumber>
+							<StepperTotal>of {STEP_METADATA.length}</StepperTotal>
+						</StepperHeaderRight>
+					</StepperHeader>
+					{renderStep()}
+					{showWorkerTokenModal && (
+						<WorkerTokenModal
+							isOpen={showWorkerTokenModal}
+							onClose={() => setShowWorkerTokenModal(false)}
+							onContinue={() => {
+								setShowWorkerTokenModal(false);
+								window.dispatchEvent(new Event('workerTokenUpdated'));
+							}}
+						/>
+					)}
+					<StepNavigationButtons
+						currentStep={currentStep}
+						totalSteps={STEP_METADATA.length}
+						onNext={handleNext}
+						onPrevious={handlePrevious}
+						onReset={handleReset}
+						canNavigateNext={canGoNext()}
+						isFirstStep
 					/>
-				)}
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onNext={handleNext}
-					onPrevious={handlePrevious}
-					onReset={handleReset}
-					canNavigateNext={canGoNext()}
-					isFirstStep
-				/>
-			</ContentWrapper>
+				</ContentWrapper>
 			</PageContainer>
 		</>
 	);

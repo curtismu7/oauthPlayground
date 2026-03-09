@@ -1,6 +1,5 @@
 // src/pages/flows/config/OIDCImplicitFlow.config.ts
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // Flow configuration
 export const FLOW_TYPE = 'implicit';

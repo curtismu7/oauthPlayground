@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import PageLayoutService from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const CardGrid = styled.div`
   display: grid;
