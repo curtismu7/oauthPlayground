@@ -85,7 +85,7 @@ export async function getOrganizationLicensingInfo(
 
 		const orgInfo: OrganizationInfo = await response.json();
 
-		logger.success('ORG-LICENSE', 'Organization info retrieved', {
+		logger.info('ORG-LICENSE', 'Organization info retrieved', {
 			orgId: orgInfo.id,
 			orgName: orgInfo.name,
 			licenseStatus: orgInfo.license.status,
@@ -183,7 +183,7 @@ export async function getAllLicenses(
 
 		const licenses: OrganizationLicense[] = await response.json();
 
-		logger.success('ORG-LICENSE', `Retrieved ${licenses.length} licenses`);
+		logger.info('ORG-LICENSE', `Retrieved ${licenses.length} licenses`);
 
 		return licenses;
 	} catch (error) {

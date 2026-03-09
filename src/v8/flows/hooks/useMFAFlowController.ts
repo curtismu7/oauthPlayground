@@ -130,7 +130,7 @@ export const useMFAFlowController = (
 	// Send OTP
 	const sendOTP = async () => {
 		if (!mfaState.deviceId) {
-			logger.error('[useMFAFlowController] No device ID available', "Logger error");
+			logger.error('[useMFAFlowController] No device ID available', 'Logger error');
 			return;
 		}
 		await controller.sendOTP(
@@ -146,7 +146,7 @@ export const useMFAFlowController = (
 	// Validate OTP
 	const validateOTP = async (): Promise<boolean> => {
 		if (!mfaState.deviceId || !mfaState.otpCode) {
-			logger.error('[useMFAFlowController] Missing device ID or OTP code', "Logger error");
+			logger.error('[useMFAFlowController] Missing device ID or OTP code', 'Logger error');
 			return false;
 		}
 		return await controller.validateOTP(

@@ -102,7 +102,10 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 	const refreshTokenStatus = useCallback(async () => {
 		// Show immediate loading state for better UX
 		setIsRefreshing(true);
-		logger.info(`${MODULE_TAG} Manual token refresh triggered - showing loading state`, "Logger info");
+		logger.info(
+			`${MODULE_TAG} Manual token refresh triggered - showing loading state`,
+			'Logger info'
+		);
 
 		try {
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -113,7 +116,10 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		} finally {
 			// Hide loading state after refresh completes
 			setIsRefreshing(false);
-			logger.info(`${MODULE_TAG} Manual token refresh completed - hiding loading state`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Manual token refresh completed - hiding loading state`,
+				'Logger info'
+			);
 		}
 	}, []);
 
@@ -122,7 +128,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 		const handleTokenUpdate = async () => {
 			// Show immediate loading state for better UX
 			setIsRefreshing(true);
-			logger.info(`${MODULE_TAG} Token update triggered - showing loading state`, "Logger info");
+			logger.info(`${MODULE_TAG} Token update triggered - showing loading state`, 'Logger info');
 
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -133,7 +139,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 			} finally {
 				// Hide loading state after update completes
 				setIsRefreshing(false);
-				logger.info(`${MODULE_TAG} Token update completed - hiding loading state`, "Logger info");
+				logger.info(`${MODULE_TAG} Token update completed - hiding loading state`, 'Logger info');
 			}
 		};
 
@@ -204,7 +210,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					const success = result.success;
 
 					if (success) {
-						logger.info(`${MODULE_TAG} Auto-refresh successful`, "Logger info");
+						logger.info(`${MODULE_TAG} Auto-refresh successful`, 'Logger info');
 					} else {
 						logger.warn(`${MODULE_TAG} Auto-refresh failed, user interaction may be required`);
 					}
@@ -230,7 +236,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 					const success = result.success;
 
 					if (success) {
-						logger.info(`${MODULE_TAG} Expired token refresh successful`, "Logger info");
+						logger.info(`${MODULE_TAG} Expired token refresh successful`, 'Logger info');
 					} else {
 						logger.warn(`${MODULE_TAG} Expired token refresh failed, user interaction required`);
 					}
@@ -256,7 +262,7 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				const success = result.success;
 
 				if (success) {
-					logger.info(`${MODULE_TAG} Invalid token refresh successful`, "Logger info");
+					logger.info(`${MODULE_TAG} Invalid token refresh successful`, 'Logger info');
 				} else {
 					logger.warn(`${MODULE_TAG} Invalid token refresh failed, user interaction required`);
 				}

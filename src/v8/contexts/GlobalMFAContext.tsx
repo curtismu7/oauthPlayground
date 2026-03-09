@@ -52,33 +52,53 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 			globalEnvironmentService.initialize();
 			const envId = globalEnvironmentService.getEnvironmentId();
 			setEnvironmentIdState(envId);
-			logger.info('[GlobalMFAContext] Environment ID loaded:', envId || 'null', 'Environment loaded');
+			logger.info(
+				'[GlobalMFAContext] Environment ID loaded:',
+				envId || 'null',
+				'Environment loaded'
+			);
 
 			// Subscribe to environment ID changes
 			const unsubEnv = globalEnvironmentService.subscribe((id) => {
-				logger.info('[GlobalMFAContext] Environment ID changed:', id || 'null', 'Environment changed');
+				logger.info(
+					'[GlobalMFAContext] Environment ID changed:',
+					id || 'null',
+					'Environment changed'
+				);
 				setEnvironmentIdState(id);
 			});
 
 			// Subscribe to worker token status changes
 			const unsubToken = globalWorkerTokenService.subscribe((status) => {
-				logger.info('[GlobalMFAContext] Worker Token status changed:', JSON.stringify(status), 'Worker token status changed');
+				logger.info(
+					'[GlobalMFAContext] Worker Token status changed:',
+					JSON.stringify(status),
+					'Worker token status changed'
+				);
 				setWorkerTokenStatus(status);
 			});
 
 			// Load initial worker token status
 			try {
 				const status = await globalWorkerTokenService.getStatus();
-				logger.info('[GlobalMFAContext] Worker Token status loaded:', JSON.stringify({
-					hasCredentials: status.hasCredentials,
-					hasToken: status.hasToken,
-					tokenValid: status.tokenValid,
-					tokenExpiresIn: status.tokenExpiresIn,
-				}), 'Worker token status loaded');
+				logger.info(
+					'[GlobalMFAContext] Worker Token status loaded:',
+					JSON.stringify({
+						hasCredentials: status.hasCredentials,
+						hasToken: status.hasToken,
+						tokenValid: status.tokenValid,
+						tokenExpiresIn: status.tokenExpiresIn,
+					}),
+					'Worker token status loaded'
+				);
 				setWorkerTokenStatus(status);
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				logger.error('[GlobalMFAContext] Failed to load worker token status:', errorMessage, 'Worker token load error');
+				logger.error(
+					'[GlobalMFAContext] Failed to load worker token status:',
+					errorMessage,
+					'Worker token load error'
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -107,7 +127,11 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 			await globalWorkerTokenService.forceRefresh();
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error('[GlobalMFAContext] Failed to refresh worker token:', errorMessage, 'Worker token refresh error');
+			logger.error(
+				'[GlobalMFAContext] Failed to refresh worker token:',
+				errorMessage,
+				'Worker token refresh error'
+			);
 			throw error;
 		}
 	};

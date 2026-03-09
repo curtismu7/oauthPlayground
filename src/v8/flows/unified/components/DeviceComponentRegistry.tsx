@@ -197,7 +197,7 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			navigator.clipboard
 				.writeText(mfaState.totpSecret)
 				.then(() => {
-					logger.info(`${MODULE_TAG} Secret copied to clipboard`, "Logger info");
+					logger.info(`${MODULE_TAG} Secret copied to clipboard`, 'Logger info');
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
 				})
@@ -351,7 +351,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 	 * 2. Send attestation back to PingOne to activate device
 	 */
 	const handleWebAuthnRegistration = useCallback(async () => {
-		logger.info(`${MODULE_TAG} Starting WebAuthn registration`, "Logger info");
+		logger.info(`${MODULE_TAG} Starting WebAuthn registration`, 'Logger info');
 		setIsRegistering(true);
 
 		try {
@@ -542,7 +542,7 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			navigator.clipboard
 				.writeText(mfaState.pairingKey)
 				.then(() => {
-					logger.info(`${MODULE_TAG} Pairing key copied to clipboard`, "Logger info");
+					logger.info(`${MODULE_TAG} Pairing key copied to clipboard`, 'Logger info');
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
 				})

@@ -24,7 +24,7 @@ const MODULE_TAG = '[📲 MOBILE-CONTROLLER]';
 export class MobileFlowController extends MFAFlowController {
 	constructor(callbacks: FlowControllerCallbacks = {}) {
 		super('MOBILE', callbacks);
-		logger.info(`${MODULE_TAG} Mobile Flow Controller initialized`, "Logger info");
+		logger.info(`${MODULE_TAG} Mobile Flow Controller initialized`, 'Logger info');
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class MobileFlowController extends MFAFlowController {
 		status: string;
 		[key: string]: any;
 	} {
-		logger.info(`${MODULE_TAG} Processing Mobile device registration result`, "Logger info");
+		logger.info(`${MODULE_TAG} Processing Mobile device registration result`, 'Logger info');
 
 		// Call parent to get base fields
 		const baseResult = super.processRegistrationResult(result);

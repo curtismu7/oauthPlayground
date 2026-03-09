@@ -1,13 +1,8 @@
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
-
-const _log = createModuleLogger('pages/flows/v9/WorkerTokenFlowV9.tsx');
-
 // src/pages/flows/v9/WorkerTokenFlowV9.tsx
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import FlowSequenceDisplay from '../../../components/FlowSequenceDisplay';
@@ -76,7 +71,6 @@ const StyledSectionDivider = styled.div`
 
 const WorkerTokenFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'WorkerTokenFlowV9', force: true });
-	const _navigate = useNavigate();
 
 	const controller = useWorkerTokenFlowController({
 		flowKey: 'worker-token-v9',
@@ -102,7 +96,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 		});
 	}, []);
 
-	const [currentStep, _setCurrentStep] = useState(0);
+	const [currentStep] = useState(0);
 	const [workerToken, setWorkerToken] = useState(() => getAnyWorkerToken() ?? '');
 
 	// Keep workerToken display in sync with storage

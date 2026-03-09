@@ -276,7 +276,7 @@ interface ModalData {
 export const ResourcesAPIFlowV8: React.FC = () => {
 	const [activeModal, setActiveModal] = useState<string | null>(null);
 
-	logger.info(`${MODULE_TAG} Initializing Resources API educational flow`, "Logger info");
+	logger.info(`${MODULE_TAG} Initializing Resources API educational flow`, 'Logger info');
 
 	const modals: Record<string, ModalData> = {
 		overview: {
