@@ -192,7 +192,11 @@ export const FlowContextDemo: React.FC = () => {
 		message: string;
 	} | null>(null);
 	const [activeContext, setActiveContext] = useState<FlowContext | null>(null);
-	const [flowIntegrity, setFlowIntegrity] = useState<any>(null);
+	const [flowIntegrity, setFlowIntegrity] = useState<{
+		valid: boolean;
+		issues: string[];
+		recommendations: string[];
+	} | null>(null);
 
 	// Update return path when flow type changes
 	useEffect(() => {

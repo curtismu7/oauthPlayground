@@ -276,8 +276,8 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	return (
 		<div className="credentials-form-v8">
-			<div 
-				className="collapsible-header" 
+			<div
+				className="collapsible-header"
 				onClick={() => setIsExpanded(!isExpanded)}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' || e.key === ' ') {

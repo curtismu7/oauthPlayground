@@ -2283,4 +2283,190 @@ files generated
   dist/sw.js
   dist/workbox-a731d4d8.js.map
   dist/workbox-a731d4d8.js
-[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "error|warn" | grep -v "chunk" | head -30[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E "error|warn" | grep --color=auto  ]1;npm]633;E; npm run build 2>&1 | grep -E "error|warn" | grep -v "chunk" | head -30;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit 2>&1 | head -50[?1l>[?2004l
+]2;npx tsc --noEmit 2>&1 | head -50]1;npx]633;E; npx tsc --noEmit 2>&1 | head -50;]633;C^C
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;130 npx tsc --noEmit 2>&1 | grep "^src" | sed 's/:.*//' | sort -u | wc -l && npx tsc --noEmit 2>&1 | grep "error TS" | wc -l
+]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit 2>&1 | grep "^src" | sed 's/:.*//' | sort -u | wc -l && npx tsc --noE [Kmmit 2>&1 | grep "error TS" | wc -l[?1l>[?2004l
+]2;npx tsc --noEmit 2>&1 | grep --color=auto  "^src" | sed 's/:.*//' | sort -u |]1;npx]633;E; npx tsc --noEmit 2>&1 | grep "^src" | sed 's/:.*//' | sort -u | wc -l && npx tsc --noEmit 2>&1 | grep "error TS" | wc -l;]633;C^C
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;130]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "\[Fi[A-Z]" src/ --include="*.tsx" | grep -oE "src/[^:]*" | sort -u[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "\\[Fi[A-Z]" src/ --include="*.tsx" | grep -oE "src/[^:]*" | sort -u;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "\[Fi[A-Z]" src/pages/ --include="*.tsx" | grep -oE "src/[^:]*\.tsx" | sort - [Ku[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "\\[Fi[A-Z]" src/pages/ --include="*.tsx" | grep -oE "src/[^:]*\\.tsx" | sort -u;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -c "\[Fi" src/pages/PingOneScopesReference.tsx && grep -c "\[Fi" src/pages/DpopAu [KtthorizationCodeFlowV8.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -c "\\[Fi" src/pages/PingOneScopesReference.tsx && grep -c "\\[Fi" src/pages/DpopAuthorizationCodeFlowV8.tsx;]633;C0
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit 2>&1 | grep "error TS" | head -40[?1l>[?2004l
+]2;npx tsc --noEmit 2>&1 | grep --color=auto  "error TS" | head -40]1;npx]633;E; npx tsc --noEmit 2>&1 | grep "error TS" | head -40;]633;Csrc/utils/tokenDebug.ts(108,1): error TS1128: Declaration or statement expected.
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx eslint src --ext .ts,.tsx --max-warnings 0 2>&1 | tail -5[?1l>[?2004l
+]2;npx eslint src --ext .ts,.tsx --max-warnings 0 2>&1 | tail -5]1;npx]633;E; npx eslint src --ext .ts,.tsx --max-warnings 0 2>&1 | tail -5;]633;C  11309:8   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+✖ 1552 problems (998 errors, 554 warnings)
+  0 errors and 67 warnings potentially fixable with the `--fix` option.
+
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '100,115p' src/utils/tokenDebug.ts[?1l>[?2004l
+]2;sed -n '100,115p' src/utils/tokenDebug.ts]1;sed]633;E; sed -n '100,115p' src/utils/tokenDebug.ts;]633;C			reasons.push(`Token too long (${token.length} chars, maximum 1000)`);
+		}
+
+		return {
+			isValid: reasons.length === 0,
+			reasons,
+		};
+	}
+
+// Make it available globally for debugging
+if (typeof window !== 'undefined') {
+	(window as Record<string, unknown>).TokenDebugger = {
+		checkTokenState,
+		clearAllTokens,
+		validateRefreshToken,
+	};
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  wc -l src/utils/tokenDebug.ts && tail -5 src/utils/tokenDebug.ts[?1l>[?2004l
+]2;wc -l src/utils/tokenDebug.ts && tail -5 src/utils/tokenDebug.ts]1;wc]633;E; wc -l src/utils/tokenDebug.ts && tail -5 src/utils/tokenDebug.ts;]633;C     116 src/utils/tokenDebug.ts
+		checkTokenState,
+		clearAllTokens,
+		validateRefreshToken,
+	};
+}
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx eslint src --ext .ts,.tsx 2>&1 | grep "^src" | sed 's/:.*//' | sort -u | wc -l[?1l>[?2004l
+]2;npx eslint src --ext .ts,.tsx 2>&1 | grep --color=auto  "^src" | sed 's/:.*//]1;npx]633;E; npx eslint src --ext .ts,.tsx 2>&1 | grep "^src" | sed 's/:.*//' | sort -u | wc -l;]633;C       0
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx eslint src --ext .ts,.tsx 2>&1 | grep -E "^\s+[0-9]+:[0-9]+" | awk '{print $NF}' | [K  sort | uniq -c | sort -rn | head -20[?1l>[?2004l
+]2;npx eslint src --ext .ts,.tsx 2>&1 | grep --color=auto  -E "^\s+[0-9]+:[0-9]+]1;npx]633;E; npx eslint src --ext .ts,.tsx 2>&1 | grep -E "^\\s+[0-9]+:[0-9]+" | awk '{print $NF}' | sort | uniq -c | sort -rn | head -20;]633;C 848 @typescript-eslint/no-explicit-any
+ 303 @typescript-eslint/no-unused-vars
+ 177 react-hooks/exhaustive-deps
+  56 '@typescript-eslint/no-unused-vars')
+  52 require-atomic-updates
+  42 no-alert
+  39 @typescript-eslint/no-require-imports
+   9 expected
+   8 'react-hooks/exhaustive-deps')
+   7 no-unused-vars
+   5 @typescript-eslint/no-empty-object-type
+   2 reported)
+   1 @typescript-eslint/prefer-as-const
+   1 :
+   1 '@typescript-eslint/no-explicit-any')
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  cat src/router/AppRouter.tsx 2>/dev/null | grep -c "Route\|path" || find src -name "*r [Koouter*" -o -name "*Router*" -o -name "*routes*" | head -5[?1l>[?2004l
+]2;cat src/router/AppRouter.tsx 2> /dev/null | grep --color=auto  -c  || find sr]1;cat]633;E; cat src/router/AppRouter.tsx 2>/dev/null | grep -c "Route\\|path" || find src -name "*router*" -o -name "*Router*" -o -name "*routes*" | head -5;]633;C0
+src/server/routes
+src/v7m/routes.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  find src -name "*.tsx" | xargs grep -l "TODO\|FIXME\|HACK\|BROKEN\|XXX" 2>/dev/null |  [Khhead -15[?1l>[?2004l
+]2;find src -name "*.tsx" | xargs grep -l "TODO\|FIXME\|HACK\|BROKEN\|XXX" 2>  |]1;find]633;E; find src -name "*.tsx" | xargs grep -l "TODO\\|FIXME\\|HACK\\|BROKEN\\|XXX" 2>/dev/null | head -15;]633;Csrc/v8/components/RegistrationFlowStepperV8.tsx
+src/v8/flows/NewMFAFlowV8.tsx
+src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx
+src/sdk-examples/davinci-todo-app/contexts/DavinciTodoContextV8.tsx
+src/sdk-examples/davinci-todo-app/contexts/DavinciTodoContext.tsx
+src/locked/fido2-v8/dependencies/components/JwksKeySourceSelector.tsx
+src/locked/fido2-v8/dependencies/services/comprehensiveCredentialsService.tsx
+src/locked/email-v8/dependencies/components/JwksKeySourceSelector.tsx
+src/locked/email-v8/dependencies/services/comprehensiveCredentialsService.tsx
+src/components/OAuthFlowErrorBoundary.tsx
+src/components/JwksKeySourceSelector.tsx
+src/components/ActivityModal.tsx
+src/components/PresetSelector.tsx
+src/components/CentralizedSuccessMessage.tsx
+src/v8u/pages/UserManagementPage.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  find src -name "App.tsx" | head -3[?1l>[?2004l
+]2;find src -name "App.tsx" | head -3]1;find]633;E; find src -name "App.tsx" | head -3;]633;Csrc/App.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -E "import.*from|lazy\(" src/App.tsx | head -50[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -E "import.*from|lazy\\(" src/App.tsx | head -50;]633;Cimport React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
+import { AuthProvider } from './contexts/NewAuthContext';
+import { PageStyleProvider } from './contexts/PageStyleContext';
+import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
+import { theme as baseTheme, GlobalStyle } from './styles/global';
+import { FlowStateProvider } from './v8/contexts/FlowStateContext';
+import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
+import { lazy, Suspense } from 'react';
+import CodeExamplesDemo from './components/CodeExamplesDemo';
+import CredentialSetupModal from './components/CredentialSetupModal';
+import { FloatingLogToggle } from './components/FloatingLogToggle';
+import { FloatingLogViewer } from './components/FloatingLogViewer';
+import LoadingFallback from './components/LoadingFallback';
+import { WorkerTokenModal } from './components/WorkerTokenModal';
+import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
+import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
+import { PromptModalV8 } from './v8/components/PromptModalV8';
+const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
+const AIAgentOverview = lazy(() => import('./pages/AIAgentOverview'));
+const AIGlossary = lazy(() => import('./pages/AIGlossary'));
+const ComprehensiveOAuthEducation = lazy(() => import('./pages/ComprehensiveOAuthEducation'));
+const CompetitiveAnalysis = lazy(() => import('./pages/CompetitiveAnalysis'));
+const AdvancedSecuritySettingsComparison = lazy(
+const AdvancedSecuritySettingsDemo = lazy(() => import('./pages/AdvancedSecuritySettingsDemo'));
+const MFAFlow = lazy(() => import('./pages/flows/MFAFlow'));
+const CIBAFlowV9 = lazy(() => import('./pages/flows/CIBAFlowV9'));
+const DPoPFlow = lazy(() => import('./pages/flows/DPoPFlow'));
+const IDTokensFlow = lazy(() => import('./pages/flows/IDTokensFlow'));
+const JWTBearerFlow = lazy(() => import('./pages/flows/JWTBearerFlow'));
+const KrogerGroceryStoreMFA = lazy(() => import('./pages/flows/KrogerGroceryStoreMFA'));
+const OIDCCompliantAuthorizationCodeFlow = lazy(
+const PARFlow = lazy(() => import('./pages/flows/PARFlow'));
+const PingOneLogoutFlow = lazy(() => import('./pages/flows/PingOneLogoutFlow'));
+const ApplicationGenerator = lazy(() => import('./pages/ApplicationGenerator'));
+const ClientGenerator = lazy(() => import('./pages/ClientGenerator'));
+const FlowComparisonTool = lazy(() => import('./components/FlowComparisonTool'));
+const InteractiveFlowDiagram = lazy(() => import('./components/InteractiveFlowDiagram'));
+const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
+const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitectures'));
+const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
+const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
+import DeviceMockFlow from './components/DeviceMockFlow';
+import FlowHeaderDemo from './components/FlowHeaderDemo';
+import Navbar from './components/Navbar';
+import { RouteRestorer } from './components/RouteRestorer';
+import Sidebar from './components/Sidebar';
+import { useAuth } from './contexts/NewAuthContext';
+import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit 2>&1 | grep -v "dynamic import\|TS151001\|node_modules" | head -20[?1l>[?2004l
+]2;npx tsc --noEmit 2>&1 | grep --color=auto  -v  | head -20]1;npx]633;E; npx tsc --noEmit 2>&1 | grep -v "dynamic import\\|TS151001\\|node_modules" | head -20;]633;C[1]    12603 terminated  npx tsc --noEmit 2>&1 | 
+       12604 exit 1      grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv | 
+       12605 done        head -20
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit --skipLibCheck 2>&1 | grep "error TS" | head -20[?1l>[?2004l
+]2;npx tsc --noEmit --skipLibCheck 2>&1 | grep --color=auto  "error TS" | head ]1;npx]633;E; npx tsc --noEmit --skipLibCheck 2>&1 | grep "error TS" | head -20;]633;C^C
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;130]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npx tsc --noEmit --skipLibCheck 2>&1 | grep "error TS" | wc -l[?1l>[?2004l
+]2;npx tsc --noEmit --skipLibCheck 2>&1 | grep --color=auto  "error TS" | wc -l]1;npx]633;E; npx tsc --noEmit --skipLibCheck 2>&1 | grep "error TS" | wc -l;]633;C^C
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;130]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  git status --short | head -20 && git log --oneline -3[?1l>[?2004l
+]2;git status --short | head -20 && git log --oneline -3]1;git]633;E; git status --short | head -20 && git log --oneline -3;]633;C M logs/server.log
+ M src/components/CompleteMFAFlowV7.tsx
+ M src/components/FlowCategories.tsx
+ M src/components/FlowContextDemo.tsx
+ M src/pages/AIIdentityArchitectures.tsx
+ M src/pages/Configuration.tsx
+ M src/pages/CustomDomainTestPage.tsx
+ M src/pages/Dashboard.tsx
+ M src/pages/DpopAuthorizationCodeFlowV8.tsx
+ M src/pages/EnvironmentManagementPageV8.tsx
+ M src/pages/PingAIResources.tsx
+ M src/pages/PingOneAuditActivities.tsx
+ M src/pages/PingOneIdentityMetrics.tsx
+ M src/pages/PingOneScopesReference.tsx
+ M src/pages/flows/OAuth2CompliantAuthorizationCodeFlow.tsx
+ M src/pages/flows/OAuth2ResourceOwnerPasswordFlow.tsx
+ M src/pages/flows/RedirectlessFlowV9_Real.tsx
+ M src/pages/flows/SAMLServiceProviderFlowV1.tsx
+ M src/pages/flows/v9/ClientCredentialsFlowV9.tsx
+ M src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx
+[33m60b79f880[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mcleanup/linter-elimination-20260308-193757[m[33m)[m fix: Add missing V9_COLORS import to ApiStatusPage
+[33m0e309997f[m feat: Add PingOne region selection to custom domain configuration
+[33m663a5d580[m[33m ([m[1;31morigin/cleanup/linter-elimination-20260308-193757[m[33m)[m flows: Complete comprehensive flows audit and documentation
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  git -C /Users/cmuir/P1Import-apps/oauth-playground status --short | head -20[?1l>[?2004l
+]2;git -C /Users/cmuir/P1Import-apps/oauth-playground status --short | head -20]1;git]633;E; git -C /Users/cmuir/P1Import-apps/oauth-playground status --short | head -20;]633;C M logs/server.log
+ M src/components/CompleteMFAFlowV7.tsx
+ M src/components/FlowCategories.tsx
+ M src/components/FlowContextDemo.tsx
+ M src/pages/AIIdentityArchitectures.tsx
+ M src/pages/Configuration.tsx
+ M src/pages/CustomDomainTestPage.tsx
+ M src/pages/Dashboard.tsx
+ M src/pages/DpopAuthorizationCodeFlowV8.tsx
+ M src/pages/EnvironmentManagementPageV8.tsx
+ M src/pages/PingAIResources.tsx
+ M src/pages/PingOneAuditActivities.tsx
+ M src/pages/PingOneIdentityMetrics.tsx
+ M src/pages/PingOneScopesReference.tsx
+ M src/pages/flows/OAuth2CompliantAuthorizationCodeFlow.tsx
+ M src/pages/flows/OAuth2ResourceOwnerPasswordFlow.tsx
+ M src/pages/flows/RedirectlessFlowV9_Real.tsx
+ M src/pages/flows/SAMLServiceProviderFlowV1.tsx
+ M src/pages/flows/v9/ClientCredentialsFlowV9.tsx
+ M src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file
