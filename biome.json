@@ -11,6 +11,8 @@
 			"docs/**/*",
 			"memory.md",
 			"COMMAND_EXECUTION_FIX.md",
+			"server.js",
+			"server-*.js",
 			"!src/styles/icons.css",
 			"!AI Ping",
 			"!pingone-mcp-server",
@@ -67,5 +69,19 @@
 			"indentStyle": "tab",
 			"indentWidth": 2
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["server.js", "server-*.js", "*.cjs"],
+			"formatter": {
+				"enabled": false
+			},
+			"linter": {
+				"enabled": false
+			},
+			"assist": {
+				"enabled": false
+			}
+		}
+	]
 }
