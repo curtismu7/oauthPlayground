@@ -3248,7 +3248,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												aria-expanded={!collapsedSections.apiCallExamples}
 											>
 												<CollapsibleTitle>
-													<i className="bi bi-code-slash" />Code Examples
+													<i className="bi bi-code-slash" />
+													Code Examples
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
 													<span>🔽</span>
@@ -3258,7 +3259,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												<CollapsibleContent>
 													<ResultsSection>
 														<ResultsHeading>
-															<i className="bi bi-code-slash" />Test Your Access Token
+															<i className="bi bi-code-slash" />
+															Test Your Access Token
 														</ResultsHeading>
 														<HelperText>
 															Use the access token to make authenticated API calls. Use the code
@@ -3364,7 +3366,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									aria-expanded={!collapsedSections.apiCallExamples}
 								>
 									<CollapsibleTitle>
-										<i className="bi bi-code-slash" />Code Examples
+										<i className="bi bi-code-slash" />
+										Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
 										<span>🔽</span>
@@ -3374,7 +3377,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<CollapsibleContent>
 										<ResultsSection>
 											<ResultsHeading>
-												<i className="bi bi-code-slash" />Test Your Access Token
+												<i className="bi bi-code-slash" />
+												Test Your Access Token
 											</ResultsHeading>
 											<HelperText>
 												Use the access token to make authenticated API calls. Use the code examples
