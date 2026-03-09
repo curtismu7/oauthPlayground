@@ -8,7 +8,7 @@
 
 import { backupDatabaseService } from '../services/backupDatabaseService.js';
 
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 const MODULE_TAG = '[🔄 BACKUP-API]';
 

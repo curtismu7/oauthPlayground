@@ -13,7 +13,7 @@ import path from 'node:path';
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 const MODULE_TAG = '[🔐 CREDENTIALS-SQLITE-API]';
 
