@@ -94,7 +94,7 @@ const LoginSubtitle = styled.p`
 `;
 
 const SuccessMessage = styled.div`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 	color: white;
 	padding: 2rem;
 	border-radius: 1rem;
@@ -116,7 +116,7 @@ const SuccessText = styled.p`
 `;
 
 const Card = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border: 1px solid #E5E7EB;
 	border-radius: 1rem;
 	padding: 2rem;
@@ -156,14 +156,14 @@ const Label = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
 	color: #1F2937;
@@ -197,7 +197,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'secondary') {
 			return `
 				background: #F3F4F6;
-				color: V9_COLORS.TEXT.GRAY_DARK;
+				color: #1f2937;
 				border: 1px solid #D1D5DB;
 				&:hover {
 					background: #E5E7EB;
@@ -207,7 +207,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'danger') {
 			return `
 				background: #DC2626;
-				color: V9_COLORS.TEXT.WHITE;
+				color: #ffffff;
 				&:hover {
 					background: #B91C1C;
 				}
@@ -216,7 +216,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'success') {
 			return `
 				background: #22C55E;
-				color: V9_COLORS.TEXT.WHITE;
+				color: #ffffff;
 				&:hover {
 					background: #16A34A;
 				}
@@ -224,7 +224,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		}
 		return `
 			background: linear-gradient(135deg, ${HELIOMART_ACCENT_START} 0%, ${HELIOMART_ACCENT_END} 100%);
-			color: V9_COLORS.TEXT.WHITE;
+			color: #ffffff;
 			&:hover {
 				opacity: 0.9;
 				transform: translateY(-1px);
@@ -280,7 +280,7 @@ const StatusItem = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 `;
 
 const UserCard = styled.div`
@@ -310,7 +310,7 @@ const UserAvatar = styled.div`
 	justify-content: center;
 	font-weight: 600;
 	font-size: 1.25rem;
-	color: V9_COLORS.TEXT.WHITE;
+	color: #ffffff;
 `;
 
 const ApiCallTableContainer = styled.div`
@@ -368,7 +368,7 @@ const CodeGeneratorSection = styled.div`
 `;
 
 const CodeContainer = styled.div<{ $isExpanded: boolean }>`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border: 1px solid #E5E7EB;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
@@ -379,7 +379,7 @@ const CodeContainer = styled.div<{ $isExpanded: boolean }>`
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	padding: 1rem;
 	color: #1F2937;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -404,7 +404,7 @@ const CodeCollapseButton = styled.button`
 	border: 1px solid #D1D5DB;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	cursor: pointer;
 	font-size: 0.875rem;
 	width: 100%;
@@ -432,7 +432,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border-radius: 1rem;
 	padding: 2rem;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -471,7 +471,7 @@ const CodeButton = styled.button`
 	background: #F3F4F6;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	cursor: pointer;
 	font-size: 0.875rem;
 	transition: all 0.2s;
@@ -479,7 +479,7 @@ const CodeButton = styled.button`
 	&:hover {
 		background: ${HELIOMART_ACCENT_START};
 		border-color: ${HELIOMART_ACCENT_START};
-		color: V9_COLORS.TEXT.WHITE;
+		color: #ffffff;
 	}
 
 	&:active {
