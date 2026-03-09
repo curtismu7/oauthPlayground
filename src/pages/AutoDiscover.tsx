@@ -20,21 +20,21 @@ const InfoSection = styled.div`
 
 const InfoContent = styled.div`
   background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1.5rem;
   
   ul {
     margin: 0;
     padding-left: 1.5rem;
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: #1f2937;
     line-height: 1.8;
     
     li {
       margin-bottom: 0.75rem;
       
       strong {
-        color: V9_COLORS.TEXT.GRAY_DARK;
+        color: #1f2937;
       }
     }
   }
@@ -45,7 +45,7 @@ const ActionButton = styled.button`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.75rem;
-  background: V9_COLORS.PRIMARY.RED_DARK;
+  background: #dc2626;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -56,7 +56,7 @@ const ActionButton = styled.button`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   
   &:hover {
-    background: V9_COLORS.PRIMARY.RED_DARK;
+    background: #b91c1c;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
@@ -74,7 +74,7 @@ const ActionButton = styled.button`
 const SuccessMessage = styled.div`
   background: #f0fdf4;
   border: 1px solid #86efac;
-  color: V9_COLORS.PRIMARY.GREEN;
+  color: #10b981;
   padding: 1.25rem 1.5rem;
   border-radius: 0.75rem;
   margin-top: 1.5rem;
@@ -86,11 +86,11 @@ const SuccessMessage = styled.div`
   
   i {
     font-size: 1.5rem;
-    color: V9_COLORS.PRIMARY.GREEN_DARK;
+    color: #059669;
   }
   
   span {
-    color: V9_COLORS.TEXT.GRAY_DARK;
+    color: #1f2937;
   }
 `;
 
