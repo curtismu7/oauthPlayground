@@ -261,7 +261,8 @@ const AIIdentityArchitectures: React.FC = () => {
 
 			<Header>
 				<h1>
-					<i className="bi bi-cpu" />Identity for AI Architectures
+					<i className="bi bi-cpu" />
+					Identity for AI Architectures
 				</h1>
 				<p>
 					Exploring the future of identity management in an AI-driven world. Understanding how to
@@ -396,7 +397,8 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<i className="bi bi-cpu" />Digital Workers
+							<i className="bi bi-cpu" />
+							Digital Workers
 						</h3>
 						<p style={{ color: '#d97706', marginBottom: '1rem' }}>
 							<strong>Semi-Supervised Agent LCM</strong>
@@ -495,7 +497,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-cloud" />Multi-Platform, Multi-Domain
+								<i className="bi bi-cloud" />
+								Multi-Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
 								Distributed identity management across multiple platforms and domains
@@ -724,7 +727,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-eye" />Agent Discovery
+								<i className="bi bi-eye" />
+								Agent Discovery
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Agent Platform Integrations</li>
@@ -802,7 +806,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-activity" />Operations & Monitoring
+								<i className="bi bi-activity" />
+								Operations & Monitoring
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Governance & Certification</li>
