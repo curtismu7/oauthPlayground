@@ -372,7 +372,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	const savePreference = useCallback(
 		(mode: ResponseMode) => {
 			localStorage.setItem(`response_mode:${flowKey}`, mode);
-			logger.info(`[🪪 RESPONSE-MODE] changed to ${mode} for ${flowKey}`);
+			logger.info(`[🪪 RESPONSE-MODE] changed to ${mode} for ${flowKey}`, "Logger info");
 		},
 		[flowKey]
 	);
@@ -380,7 +380,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Handle mode selection
 	const handleModeChange = useCallback(
 		(mode: ResponseMode) => {
-			logger.info(`[🪪 RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`);
+			logger.info(`[🪪 RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`, "Logger info");
 			setSelectedMode(mode);
 			savePreference(mode);
 			onModeChange?.(mode);
@@ -391,7 +391,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Build authorization URL
 	const buildAuthUrl = useCallback(
 		(mode: ResponseMode) => {
-			logger.info(`[🪪 RESPONSE-MODE] Building URL for mode: ${mode}`);
+			logger.info(`[🪪 RESPONSE-MODE] Building URL for mode: ${mode}`, "Logger info");
 			const params = new URLSearchParams({
 				client_id: clientId,
 				redirect_uri: redirectUri,
@@ -403,7 +403,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 			// Always add response_mode parameter for clarity
 			params.set('response_mode', mode);
-			logger.info(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`);
+			logger.info(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`, "Logger info");
 
 			// Add nonce for OIDC flows with id_token
 			if (responseType.includes('id_token') && nonce) {

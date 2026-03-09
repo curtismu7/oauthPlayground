@@ -40,7 +40,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	const [validationResult, setValidationResult] = useState<IDTokenValidationResult | null>(null);
 
 	const handleValidate = async () => {
-		logger.info(`${MODULE_TAG} Starting ID token validation`);
+		logger.info(`${MODULE_TAG} Starting ID token validation`, "Logger info");
 		setIsValidating(true);
 		setValidationResult(null);
 

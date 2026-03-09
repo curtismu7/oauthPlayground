@@ -265,7 +265,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 
 	useEffect(() => {
 		if (!flowType) {
-			logger.warn('EnhancedFlowInfoCard: flowType is undefined or empty');
+			logger.warn('EnhancedFlowInfoCard: flowType is undefined or empty', "Logger warning");
 			setFlowInfoCard(null);
 			return;
 		}

@@ -84,7 +84,7 @@ export const ErrorBoundaryTest: React.FC = () => {
 	};
 
 	const handleRetry = () => {
-		logger.info('Error boundary retry triggered');
+		logger.info('Error boundary retry triggered', "Logger info");
 		setShouldThrow(false);
 	};
 

@@ -38,7 +38,7 @@ export function validateRequiredFields(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string> } {
-	logger.info(`${MODULE_TAG} Validating required fields for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating required fields for ${config.deviceType}`, "Logger info");
 
 	const errors: Record<string, string> = {};
 
@@ -76,7 +76,7 @@ export function runValidationRules(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): Record<string, ValidationResult> {
-	logger.info(`${MODULE_TAG} Running validation rules for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Running validation rules for ${config.deviceType}`, "Logger info");
 
 	const results: Record<string, ValidationResult> = {};
 
@@ -100,7 +100,7 @@ export function validateAllFields(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string>; warnings: Record<string, string> } {
-	logger.info(`${MODULE_TAG} Validating all fields for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating all fields for ${config.deviceType}`, "Logger info");
 
 	const errors: Record<string, string> = {};
 	const warnings: Record<string, string> = {};
@@ -144,7 +144,7 @@ export function validateConfigurationStep(
 	credentials: MFACredentials,
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): { valid: boolean; errors: string[] } {
-	logger.info(`${MODULE_TAG} Validating configuration step`);
+	logger.info(`${MODULE_TAG} Validating configuration step`, "Logger info");
 
 	const errors: string[] = [];
 
@@ -190,7 +190,7 @@ export function validateRegistrationStep(
 	config: DeviceFlowConfig,
 	values: Record<string, string>
 ): { valid: boolean; errors: Record<string, string> } {
-	logger.info(`${MODULE_TAG} Validating registration step for ${config.deviceType}`);
+	logger.info(`${MODULE_TAG} Validating registration step for ${config.deviceType}`, "Logger info");
 
 	// Validate using config-driven rules
 	const { valid, errors } = validateAllFields(config, values);
@@ -205,7 +205,7 @@ export function validateRegistrationStep(
  * @returns Validation result
  */
 export function validateActivationOTP(otp: string): { valid: boolean; error?: string } {
-	logger.info(`${MODULE_TAG} Validating OTP code`);
+	logger.info(`${MODULE_TAG} Validating OTP code`, "Logger info");
 
 	// OTP must be exactly 6 digits
 	if (!otp || otp.length !== 6) {
@@ -268,7 +268,7 @@ export function canProceedToNextStep(
 	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
-	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
+	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`, "Logger info");
 
 	switch (currentStep) {
 		case 0: {
@@ -298,7 +298,7 @@ export function canProceedToNextStep(
 		}
 
 		default: {
-			logger.warn(`${MODULE_TAG} Unknown step: ${currentStep}`);
+			logger.warn(`${MODULE_TAG} Unknown step: ${currentStep}`, "Logger warning");
 			return false;
 		}
 	}

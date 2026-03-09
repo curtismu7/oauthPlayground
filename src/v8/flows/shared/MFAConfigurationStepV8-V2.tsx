@@ -71,7 +71,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 	useEffect(() => {
 		if (deviceAuthPolicies.length > 0 && !credentials.deviceAuthenticationPolicyId) {
 			const firstPolicy = deviceAuthPolicies[0];
-			logger.info(`[MFA-CONFIG-V2] Auto-selecting policy: ${firstPolicy.name}`);
+			logger.info(`[MFA-CONFIG-V2] Auto-selecting policy: ${firstPolicy.name}`, "Logger info");
 			setCredentials((prev) => ({
 				...prev,
 				deviceAuthenticationPolicyId: firstPolicy.id,

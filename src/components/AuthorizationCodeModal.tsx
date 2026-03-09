@@ -276,7 +276,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 
 	// Debug modal state changes
 	useEffect(() => {
-		logger.info('🔍 [AuthCodeModal] ===== MODAL STATE CHANGED =====');
+		logger.info('🔍 [AuthCodeModal] ===== MODAL STATE CHANGED =====', "Logger info");
 		logger.info('🔍 [AuthCodeModal] Modal props:', {
 			isOpen,
 			authorizationCode: authorizationCode ? `${authorizationCode.substring(0, 10)}...` : 'none',
@@ -287,12 +287,12 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 	}, [isOpen, authorizationCode, onClose, onContinue]);
 
 	const handleCopy = async () => {
-		logger.info('🔍 [AuthCodeModal] Copy button clicked');
+		logger.info('🔍 [AuthCodeModal] Copy button clicked', "Logger info");
 		try {
 			await navigator.clipboard.writeText(authorizationCode);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-			logger.info('🔍 [AuthCodeModal] Authorization code copied to clipboard');
+			logger.info('🔍 [AuthCodeModal] Authorization code copied to clipboard', "Logger info");
 		} catch (err) {
 			logger.error(
 				'AuthorizationCodeModal',
@@ -304,7 +304,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 	};
 
 	const handleContinue = () => {
-		logger.info('🔍 [AuthCodeModal] Continue button clicked');
+		logger.info('🔍 [AuthCodeModal] Continue button clicked', "Logger info");
 		onContinue();
 		onClose();
 	};

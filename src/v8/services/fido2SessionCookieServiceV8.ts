@@ -44,7 +44,7 @@ export function hasPingOneSessionCookie(): boolean {
 				name.toLowerCase().includes(pingOneName.toLowerCase())
 			)
 		) {
-			logger.info(`${MODULE_TAG} ✅ Found PingOne session cookie: ${name}`);
+			logger.info(`${MODULE_TAG} ✅ Found PingOne session cookie: ${name}`, "Logger info");
 			return true;
 		}
 	}
@@ -62,7 +62,7 @@ export function hasPingOneSessionCookie(): boolean {
 
 		for (const indicator of sessionIndicators) {
 			if (localStorage.getItem(indicator) || sessionStorage.getItem(indicator)) {
-				logger.info(`${MODULE_TAG} ✅ Found PingOne session indicator in storage: ${indicator}`);
+				logger.info(`${MODULE_TAG} ✅ Found PingOne session indicator in storage: ${indicator}`, "Logger info");
 				return true;
 			}
 		}
@@ -99,7 +99,7 @@ export function isNativeAppContext(): boolean {
 		(window as unknown as { __NATIVE_APP__?: boolean }).__NATIVE_APP__ === true;
 
 	if (isNativeApp) {
-		logger.info(`${MODULE_TAG} ✅ Detected native app context`);
+		logger.info(`${MODULE_TAG} ✅ Detected native app context`, "Logger info");
 	}
 
 	return isNativeApp;
@@ -129,7 +129,7 @@ export function isDeviceAuthorizationEnabled(): boolean {
 
 		for (const indicator of deviceAuthIndicators) {
 			if (sessionStorage.getItem(indicator) || localStorage.getItem(indicator)) {
-				logger.info(`${MODULE_TAG} ✅ Found device authorization indicator: ${indicator}`);
+				logger.info(`${MODULE_TAG} ✅ Found device authorization indicator: ${indicator}`, "Logger info");
 				return true;
 			}
 		}
@@ -138,7 +138,7 @@ export function isDeviceAuthorizationEnabled(): boolean {
 	}
 
 	if (hasDeviceCode || hasDeviceAuth) {
-		logger.info(`${MODULE_TAG} ✅ Device authorization detected from URL parameters`);
+		logger.info(`${MODULE_TAG} ✅ Device authorization detected from URL parameters`, "Logger info");
 		return true;
 	}
 
@@ -208,7 +208,7 @@ export function getAuthenticatorSelectionPreferences(): {
 	const { prefer, reason } = shouldPreferFIDO2PlatformDevice();
 
 	if (prefer) {
-		logger.info(`${MODULE_TAG} Using platform authenticator preference: ${reason}`);
+		logger.info(`${MODULE_TAG} Using platform authenticator preference: ${reason}`, "Logger info");
 		return {
 			authenticatorAttachment: 'platform',
 			userVerification: 'preferred',

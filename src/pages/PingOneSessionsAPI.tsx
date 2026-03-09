@@ -1134,13 +1134,13 @@ grant_type=client_credentials
 
 // Usage
 const sessions = await getUserSessions('env-123', 'user-456', 'access-token');
-logger.info(\`User has \${sessions.length} active sessions\`);
+logger.info(\`User has \${sessions.length} active sessions\`, "Logger info");
 
 sessions.forEach(session => {
-  logger.info(\`Session ID: \${session.id}\`);
-  logger.info(\`Application: \${session.application.name}\`);
-  logger.info(\`Created: \${session.createdAt}\`);
-  logger.info(\`Last Accessed: \${session.lastAccessedAt}\`);
+  logger.info(\`Session ID: \${session.id}\`, "Logger info");
+  logger.info(\`Application: \${session.application.name}\`, "Logger info");
+  logger.info(\`Created: \${session.createdAt}\`, "Logger info");
+  logger.info(\`Last Accessed: \${session.lastAccessedAt}\`, "Logger info");
 });`,
 										'example-list-sessions-js'
 									)}
@@ -1199,14 +1199,14 @@ for session in sessions:
     throw new Error(\`Failed to revoke session: \${response.statusText}\`);
   }
 
-  logger.info('Session successfully revoked');
+  logger.info('Session successfully revoked', "Logger info");
   return true;
 }
 
 // Usage - Revoke a suspicious session
 try {
   await revokeSession('env-123', 'user-456', 'session-789', 'access-token');
-  logger.info('User has been logged out of that session');
+  logger.info('User has been logged out of that session', "Logger info");
 } catch (error) {
   logger.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
 }`,
@@ -1243,7 +1243,7 @@ try {
     throw new Error(\`Failed to delete sessions: \${response.statusText}\`);
   }
 
-  logger.info('All user sessions successfully deleted');
+  logger.info('All user sessions successfully deleted', "Logger info");
   return true;
 }
 

@@ -1120,7 +1120,7 @@ export const downloadAsPDF = (content: string, title: string): void => {
 	// Create a new window with the content
 	const printWindow = window.open('', '_blank');
 	if (!printWindow) {
-		logger.error('Failed to open print window');
+		logger.error('Failed to open print window', "Logger error");
 		return;
 	}
 

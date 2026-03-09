@@ -275,7 +275,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 			}
 
 			try {
-				logger.info('[🔐 BASE-LOGIN] Starting PingOne authentication');
+				logger.info('[🔐 BASE-LOGIN] Starting PingOne authentication', "Logger info");
 
 				// Step 1: Initialize embedded login flow
 				const flowResponse = await PingOneLoginService.initializeEmbeddedLogin(
@@ -321,7 +321,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				}
 
 				// Step 3: Prepare user and login context from successful authentication
-				logger.info('[🔐 BASE-LOGIN] Authentication successful');
+				logger.info('[🔐 BASE-LOGIN] Authentication successful', "Logger info");
 
 				// Prepare user context using actual UserContext type
 				const userContext: UserContext = {

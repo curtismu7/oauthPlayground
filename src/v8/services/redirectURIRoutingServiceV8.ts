@@ -155,7 +155,7 @@ export const useRedirectURIRouting = () => {
 
 		logger.info(
 			`[RedirectURIRouting] Validation for ${uriPath}: ${isValid ? '✅ VALID' : '❌ INVALID'}`
-		);
+		, "Logger info");
 		return isValid;
 	}, []);
 

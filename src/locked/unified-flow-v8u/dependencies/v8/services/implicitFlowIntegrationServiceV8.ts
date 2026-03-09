@@ -126,7 +126,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 	 * @returns Parsed tokens
 	 */
 	static parseCallbackFragment(callbackUrl: string, expectedState: string): ImplicitTokenResponse {
-		logger.info(`${MODULE_TAG} Parsing callback fragment`);
+		logger.info(`${MODULE_TAG} Parsing callback fragment`, "Logger info");
 
 		try {
 			const url = new URL(callbackUrl);
@@ -163,7 +163,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			logger.info(`${MODULE_TAG} Callback fragment parsed successfully`);
+			logger.info(`${MODULE_TAG} Callback fragment parsed successfully`, "Logger info");
 
 			return {
 				access_token: accessToken,
@@ -185,7 +185,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
 
 		try {
 			const parts = token.split('.');
@@ -198,7 +198,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 			const payload = JSON.parse(ImplicitFlowIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
 
 			return { header, payload, signature };
 		} catch (error) {
@@ -265,14 +265,14 @@ export class ImplicitFlowIntegrationServiceV8 {
 			const payload = decoded.payload as { nonce?: string };
 
 			if (!payload.nonce) {
-				logger.warn(`${MODULE_TAG} No nonce in ID token`);
+				logger.warn(`${MODULE_TAG} No nonce in ID token`, "Logger warning");
 				return false;
 			}
 
 			const nonceMatches = payload.nonce === expectedNonce;
 
 			if (!nonceMatches) {
-				logger.error(`${MODULE_TAG} Nonce mismatch`);
+				logger.error(`${MODULE_TAG} Nonce mismatch`, "Logger error");
 			}
 
 			return nonceMatches;

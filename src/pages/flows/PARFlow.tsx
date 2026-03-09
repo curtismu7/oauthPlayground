@@ -549,7 +549,7 @@ logger.info('🔗 Redirecting user to:', authorizationUrl);
 // 🔹 Step 5: Authorization response
 // After approval, the IdP redirects back with an auth code:
 const callbackUrl = '${formData.redirectUri}?code=SplxlOBeZQQYbYS6WxSbIA&state=${formData.state}';
-logger.info('✅ User redirected back with auth code');`,
+logger.info('✅ User redirected back with auth code', "Logger info");`,
 			execute: async () => {
 				logger.info('PARFlow', 'Simulating user redirect');
 

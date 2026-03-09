@@ -85,7 +85,7 @@ const UserManagementPage: React.FC = () => {
 	// Event handlers
 	const handleCreateUser = () => {
 		// TODO: Implement create user modal
-		logger.info('Create user clicked');
+		logger.info('Create user clicked', "Logger info");
 	};
 
 	const handleEditUser = (user: User) => {
@@ -197,7 +197,7 @@ const UserManagementPage: React.FC = () => {
 						onChange={setSearchTerm}
 						placeholder="Search by username or email..."
 						onGetToken={() => {
-							logger.info('Worker token required for user search in UserManagementPage');
+							logger.info('Worker token required for user search in UserManagementPage', "Logger info");
 						}}
 					/>
 				</div>

@@ -157,7 +157,7 @@ export class UserBehaviorTracker {
 			this.setupEngagementTracking();
 
 			this.isTracking = true;
-			logger.info('[UserBehaviorTracker] User behavior tracking initialized');
+			logger.info('[UserBehaviorTracker] User behavior tracking initialized', "Logger info");
 		} catch (error) {
 			logger.error('[UserBehaviorTracker] Failed to initialize user behavior tracking:', error);
 		}
@@ -768,7 +768,7 @@ export class UserBehaviorTracker {
 	// Update tracking configuration
 	public updateConfig(newConfig: Partial<UserBehaviorTracker['trackingConfig']>): void {
 		this.trackingConfig = { ...this.trackingConfig, ...newConfig };
-		logger.info('[UserBehaviorTracker] Configuration updated');
+		logger.info('[UserBehaviorTracker] Configuration updated', "Logger info");
 	}
 
 	// Enable/disable tracking
@@ -785,7 +785,7 @@ export class UserBehaviorTracker {
 	public destroy(): void {
 		this.endCurrentSession();
 		this.isTracking = false;
-		logger.info('[UserBehaviorTracker] User behavior tracker destroyed');
+		logger.info('[UserBehaviorTracker] User behavior tracker destroyed', "Logger info");
 	}
 }
 

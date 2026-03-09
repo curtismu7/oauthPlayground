@@ -261,7 +261,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`User wants to change spec version`);
+							logger.debug(`User wants to change spec version`, "Logger debug");
 							onChangeSpec();
 							onClose();
 						}}
@@ -290,7 +290,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`User cancelled`);
+							logger.debug(`User cancelled`, "Logger debug");
 							onClose();
 						}}
 						style={{

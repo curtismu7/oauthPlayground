@@ -109,7 +109,7 @@ export class SQLiteStatsServiceV8 {
 		circuitBreakerOpen = false;
 		connectionErrors = 0;
 		lastCircuitBreakerTime = 0;
-		logger.info(`${MODULE_TAG} Circuit breaker reset`);
+		logger.info(`${MODULE_TAG} Circuit breaker reset`, "Logger info");
 	}
 
 	/**
@@ -118,7 +118,7 @@ export class SQLiteStatsServiceV8 {
 	private static openCircuitBreaker(): void {
 		circuitBreakerOpen = true;
 		lastCircuitBreakerTime = Date.now();
-		logger.warn(`${MODULE_TAG} Circuit breaker opened due to ${connectionErrors} failures`);
+		logger.warn(`${MODULE_TAG} Circuit breaker opened due to ${connectionErrors} failures`, "Logger warning");
 	}
 
 	/**
@@ -170,7 +170,7 @@ export class SQLiteStatsServiceV8 {
 					// If we have retries left, wait with exponential backoff
 					if (attempt < MAX_RETRIES) {
 						const delay = RETRY_DELAY * 2 ** (attempt - 1);
-						logger.info(`${MODULE_TAG} Retrying ${operation} in ${delay}ms...`);
+						logger.info(`${MODULE_TAG} Retrying ${operation} in ${delay}ms...`, "Logger info");
 						await new Promise((resolve) => setTimeout(resolve, delay));
 					} else {
 						throw error;
@@ -308,7 +308,7 @@ export class SQLiteStatsServiceV8 {
 	 */
 	static clearCache(): void {
 		SQLiteStatsServiceV8.userCountCache.clear();
-		logger.info(`${MODULE_TAG} Cache cleared`);
+		logger.info(`${MODULE_TAG} Cache cleared`, "Logger info");
 	}
 
 	/**
@@ -316,7 +316,7 @@ export class SQLiteStatsServiceV8 {
 	 */
 	static clearCacheForEnvironment(environmentId: string): void {
 		SQLiteStatsServiceV8.userCountCache.delete(environmentId);
-		logger.info(`${MODULE_TAG} Cache cleared for ${environmentId}`);
+		logger.info(`${MODULE_TAG} Cache cleared for ${environmentId}`, "Logger info");
 	}
 }
 

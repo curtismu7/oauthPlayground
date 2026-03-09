@@ -593,7 +593,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
 							logger.info(
 								`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`
-							);
+							, "Logger info");
 						} else if (storedPKCE.codeChallengeMethod !== 'S256') {
 							warnings.push(
 								`⚠️ PKCE Method: Your stored PKCE codes use method '${storedPKCE.codeChallengeMethod}'. Only 'S256' is recommended for security.`

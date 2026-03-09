@@ -903,9 +903,9 @@ function validateSessionState(sessionState, clientId, origin, opSessionState) {
 
 // Usage
 if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
-  logger.info('Session state is valid');
+  logger.info('Session state is valid', "Logger info");
 } else {
-  logger.info('Session state mismatch - user may have logged out');
+  logger.info('Session state mismatch - user may have logged out', "Logger info");
   redirectToLogin();
 }`,
 													'session-state-validation'
@@ -1564,7 +1564,7 @@ async function sendBackchannelLogout(rpEndpoint, logoutToken) {
     });
     
     if (response.ok) {
-      logger.info('Back-channel logout successful');
+      logger.info('Back-channel logout successful', "Logger info");
     } else {
       logger.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
     }
@@ -1741,10 +1741,10 @@ function validateSessionState(receivedState, clientId, origin, opSessionState, s
   const expectedState = calculateSessionState(clientId, origin, opSessionState, salt);
   
   if (receivedState === expectedState) {
-    logger.info('Session state is valid');
+    logger.info('Session state is valid', "Logger info");
     return true;
   } else {
-    logger.info('Session state mismatch - user may have logged out');
+    logger.info('Session state mismatch - user may have logged out', "Logger info");
     return false;
   }
 }
@@ -2484,7 +2484,7 @@ if (returnedState === storedState) {
   sessionStorage.removeItem('logout_state');
   
   // Show confirmation message
-  logger.info('User logged out successfully');
+  logger.info('User logged out successfully', "Logger info");
 } else {
   logger.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
 }`,
@@ -2856,7 +2856,7 @@ async function terminateSessionBySid(sessionId) {
   // - Invalidating the session in your session store
   // - Clearing any cached user data
   // - Logging the logout event
-  logger.info(\`Terminating session: \${sessionId}\`);
+  logger.info(\`Terminating session: \${sessionId}\`, "Logger info");
 }`,
 											'back-channel-logout-implementation'
 										)}
@@ -3000,7 +3000,7 @@ window.addEventListener('message', (event) => {
   
   // Handle session state change
   if (event.data.type === 'session_state_changed') {
-    logger.info('Session state changed - user logged out at PingOne');
+    logger.info('Session state changed - user logged out at PingOne', "Logger info");
     handleSessionExpired();
   }
 });
@@ -3022,7 +3022,7 @@ function checkSessionState() {
   const storedSessionState = localStorage.getItem('session_state');
   
   if (currentSessionState !== storedSessionState) {
-    logger.info('Session state mismatch - user may have logged out');
+    logger.info('Session state mismatch - user may have logged out', "Logger info");
     handleSessionExpired();
   }
 }

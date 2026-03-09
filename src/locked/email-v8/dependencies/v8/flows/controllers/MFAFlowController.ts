@@ -67,7 +67,7 @@ export abstract class MFAFlowController {
 		}
 
 		try {
-			logger.info(`${MODULE_TAG} Loading existing ${this.deviceType} devices`);
+			logger.info(`${MODULE_TAG} Loading existing ${this.deviceType} devices`, "Logger info");
 			const devices = await MFAServiceV8.getAllDevices({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
@@ -79,7 +79,7 @@ export abstract class MFAFlowController {
 			});
 
 			const filteredDevices = this.filterDevicesByType(devices);
-			logger.info(`${MODULE_TAG} Loaded ${filteredDevices.length} ${this.deviceType} devices`);
+			logger.info(`${MODULE_TAG} Loaded ${filteredDevices.length} ${this.deviceType} devices`, "Logger info");
 			return filteredDevices;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to load devices`, error);
@@ -155,7 +155,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<void> {
-		logger.info(`${MODULE_TAG} Sending OTP to ${this.deviceType} device`);
+		logger.info(`${MODULE_TAG} Sending OTP to ${this.deviceType} device`, "Logger info");
 		setIsLoading(true);
 		setState({ sendError: null });
 
@@ -228,7 +228,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
-		logger.info(`${MODULE_TAG} Validating OTP`);
+		logger.info(`${MODULE_TAG} Validating OTP`, "Logger info");
 		setIsLoading(true);
 		setValidationState({ lastValidationError: null });
 
@@ -417,7 +417,7 @@ export abstract class MFAFlowController {
 		if (result.status === 'DEVICE_SELECTION_REQUIRED' && deviceId && result.id) {
 			logger.warn(
 				`${MODULE_TAG} initializeDeviceAuthentication returned DEVICE_SELECTION_REQUIRED even though a deviceId was provided. Returning initial response; backend should already be triggering authentication.`
-			);
+			, "Logger warning");
 		}
 
 		// DeviceId was passed, authentication should be triggered directly
@@ -461,7 +461,7 @@ export abstract class MFAFlowController {
 		authenticationId: string,
 		deviceId: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
-		logger.info(`${MODULE_TAG} Selecting device for authentication`);
+		logger.info(`${MODULE_TAG} Selecting device for authentication`, "Logger info");
 		const result = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
 			environmentId: credentials.environmentId,
 			username: credentials.username,
@@ -494,7 +494,7 @@ export abstract class MFAFlowController {
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
-		logger.info(`${MODULE_TAG} Validating OTP for device authentication`);
+		logger.info(`${MODULE_TAG} Validating OTP for device authentication`, "Logger info");
 		setIsLoading(true);
 		setValidationState({ lastValidationError: null });
 

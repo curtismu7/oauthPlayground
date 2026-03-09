@@ -290,7 +290,7 @@ const decodedPayload = JSON.parse(atob(payload));`,
 				<InteractiveTutorial
 					tutorial={selectedTutorialData}
 					onTutorialComplete={() => {
-						logger.info('Tutorial completed!');
+						logger.info('Tutorial completed!', "Logger info");
 						// Could track completion, show achievement, etc.
 					}}
 					onStepComplete={(stepId) => {

@@ -385,7 +385,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Scroll to top when component mounts
 	useEffect(() => {
-		logger.info('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top');
+		logger.info('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top', "Logger info");
 		logger.info('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -423,7 +423,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
-		logger.info('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
+		logger.info('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked', "Logger info");
 		const results =
 			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
 		setSignatureResults(results);
@@ -435,7 +435,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	}, []);
 
 	const validateSignature = useCallback(() => {
-		logger.info('🔔 [SecurityFeaturesDemo] validateSignature clicked');
+		logger.info('🔔 [SecurityFeaturesDemo] validateSignature clicked', "Logger info");
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);

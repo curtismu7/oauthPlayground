@@ -400,7 +400,7 @@ class WorkerTokenServiceV8 {
 			logger.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
 		}
 
-		logger.info(`${MODULE_TAG} Cleared all credentials`);
+		logger.info(`${MODULE_TAG} Cleared all credentials`, "Logger info");
 	}
 
 	/**

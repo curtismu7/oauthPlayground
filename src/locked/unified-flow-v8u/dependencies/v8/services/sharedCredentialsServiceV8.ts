@@ -45,7 +45,7 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		logger.info(`${MODULE_TAG} Loading shared credentials from dual storage`);
+		logger.info(`${MODULE_TAG} Loading shared credentials from dual storage`, "Logger info");
 
 		const result = await DualStorageServiceV8.load<SharedCredentials>({
 			directory: DISK_DIRECTORY,
@@ -61,7 +61,7 @@ export class SharedCredentialsServiceV8 {
 			return result.data;
 		}
 
-		logger.info(`${MODULE_TAG} No shared credentials found`);
+		logger.info(`${MODULE_TAG} No shared credentials found`, "Logger info");
 		return {};
 	}
 
@@ -152,7 +152,7 @@ export class SharedCredentialsServiceV8 {
 			};
 
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			logger.info(`${MODULE_TAG} Shared credentials saved to browser storage`);
+			logger.info(`${MODULE_TAG} Shared credentials saved to browser storage`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error saving shared credentials to browser`, { error });
 		}
@@ -240,14 +240,14 @@ export class SharedCredentialsServiceV8 {
 	 * Clear shared credentials from storage (both browser and disk)
 	 */
 	static async clearSharedCredentials(): Promise<void> {
-		logger.info(`${MODULE_TAG} Clearing shared credentials from dual storage`);
+		logger.info(`${MODULE_TAG} Clearing shared credentials from dual storage`, "Logger info");
 		try {
 			await DualStorageServiceV8.delete({
 				directory: DISK_DIRECTORY,
 				filename: DISK_FILENAME,
 				browserStorageKey: BROWSER_STORAGE_KEY,
 			});
-			logger.info(`${MODULE_TAG} Shared credentials cleared successfully`);
+			logger.info(`${MODULE_TAG} Shared credentials cleared successfully`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error clearing shared credentials`, { error });
 		}

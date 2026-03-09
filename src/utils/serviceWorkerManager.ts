@@ -14,14 +14,14 @@ export class ServiceWorkerManager {
 	// Initialize service worker
 	private async initialize(): Promise<void> {
 		if (!this.isSupported) {
-			logger.warn('[ServiceWorkerManager] Service workers not supported');
+			logger.warn('[ServiceWorkerManager] Service workers not supported', "Logger warning");
 			return;
 		}
 
 		try {
 			await this.register();
 			this.setupEventListeners();
-			logger.info('[ServiceWorkerManager] Service worker initialized');
+			logger.info('[ServiceWorkerManager] Service worker initialized', "Logger info");
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to initialize service worker:', error);
 		}
@@ -39,7 +39,7 @@ export class ServiceWorkerManager {
 			});
 
 			this.isRegistered = true;
-			logger.info('[ServiceWorkerManager] Service worker registered successfully');
+			logger.info('[ServiceWorkerManager] Service worker registered successfully', "Logger info");
 
 			return this.registration;
 		} catch (error) {
@@ -59,7 +59,7 @@ export class ServiceWorkerManager {
 			this.isRegistered = false;
 			this.registration = null;
 
-			logger.info('[ServiceWorkerManager] Service worker unregistered');
+			logger.info('[ServiceWorkerManager] Service worker unregistered', "Logger info");
 			return result;
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to unregister service worker:', error);
@@ -77,7 +77,7 @@ export class ServiceWorkerManager {
 			if (newWorker) {
 				newWorker.addEventListener('statechange', () => {
 					if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-						logger.info('[ServiceWorkerManager] New service worker available');
+						logger.info('[ServiceWorkerManager] New service worker available', "Logger info");
 						this.handleUpdateAvailable();
 					}
 				});
@@ -86,7 +86,7 @@ export class ServiceWorkerManager {
 
 		// Handle service worker controller change
 		navigator.serviceWorker.addEventListener('controllerchange', () => {
-			logger.info('[ServiceWorkerManager] Service worker controller changed');
+			logger.info('[ServiceWorkerManager] Service worker controller changed', "Logger info");
 			window.location.reload();
 		});
 	}
@@ -105,7 +105,7 @@ export class ServiceWorkerManager {
 
 		try {
 			await this.registration.update();
-			logger.info('[ServiceWorkerManager] Service worker update triggered');
+			logger.info('[ServiceWorkerManager] Service worker update triggered', "Logger info");
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to update service worker:', error);
 			throw error;
@@ -120,7 +120,7 @@ export class ServiceWorkerManager {
 
 		try {
 			this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-			logger.info('[ServiceWorkerManager] Skip waiting message sent');
+			logger.info('[ServiceWorkerManager] Skip waiting message sent', "Logger info");
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to skip waiting:', error);
 			throw error;
@@ -163,7 +163,7 @@ export class ServiceWorkerManager {
 			const cacheNames = await caches.keys();
 			await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
 
-			logger.info('[ServiceWorkerManager] All caches cleared');
+			logger.info('[ServiceWorkerManager] All caches cleared', "Logger info");
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to clear caches:', error);
 			throw error;
@@ -178,7 +178,7 @@ export class ServiceWorkerManager {
 
 		try {
 			const result = await caches.delete(cacheName);
-			logger.info(`[ServiceWorkerManager] Cache cleared: ${cacheName}`);
+			logger.info(`[ServiceWorkerManager] Cache cleared: ${cacheName}`, "Logger info");
 			return result;
 		} catch (error) {
 			logger.error(`[ServiceWorkerManager] Failed to clear cache ${cacheName}:`, error);
@@ -239,7 +239,7 @@ export class ServiceWorkerManager {
 						const response = await fetch(url);
 						if (response.ok) {
 							await cache.put(url, response);
-							logger.info(`[ServiceWorkerManager] Preloaded resource: ${url}`);
+							logger.info(`[ServiceWorkerManager] Preloaded resource: ${url}`, "Logger info");
 						}
 					} catch (error) {
 						logger.warn(`[ServiceWorkerManager] Failed to preload ${url}:`, error);
@@ -247,7 +247,7 @@ export class ServiceWorkerManager {
 				})
 			);
 
-			logger.info(`[ServiceWorkerManager] Preloaded ${urls.length} resources`);
+			logger.info(`[ServiceWorkerManager] Preloaded ${urls.length} resources`, "Logger info");
 		} catch (error) {
 			logger.error('[ServiceWorkerManager] Failed to preload resources:', error);
 			throw error;

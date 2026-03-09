@@ -223,7 +223,7 @@ export const useHybridFlowController = (
 		);
 		if (pkce) {
 			setPkceCodes(pkce);
-			logger.info('Loaded PKCE codes from session storage');
+			logger.info('Loaded PKCE codes from session storage', "Logger info");
 		}
 	}, [persistKey]);
 
@@ -231,7 +231,7 @@ export const useHybridFlowController = (
 	useEffect(() => {
 		if (pkceCodes) {
 			sessionStorage.setItem(`${persistKey}-pkce`, JSON.stringify(pkceCodes));
-			logger.info('PKCE codes persisted to session storage');
+			logger.info('PKCE codes persisted to session storage', "Logger info");
 		}
 	}, [pkceCodes, persistKey]);
 
@@ -240,7 +240,7 @@ export const useHybridFlowController = (
 		const tokens = safeSessionStorageParse<HybridTokens | null>(`${persistKey}-tokens`, null);
 		if (tokens) {
 			setTokensState(tokens);
-			logger.info('Loaded tokens from session storage');
+			logger.info('Loaded tokens from session storage', "Logger info");
 		}
 	}, [persistKey]);
 
@@ -248,7 +248,7 @@ export const useHybridFlowController = (
 	useEffect(() => {
 		if (tokens) {
 			sessionStorage.setItem(`${persistKey}-tokens`, JSON.stringify(tokens));
-			logger.info('Tokens persisted to session storage');
+			logger.info('Tokens persisted to session storage', "Logger info");
 		}
 	}, [tokens, persistKey]);
 
@@ -365,7 +365,7 @@ export const useHybridFlowController = (
 	const clearPKCE = useCallback(() => {
 		setPkceCodes(null);
 		sessionStorage.removeItem(`${persistKey}-pkce`);
-		logger.info('PKCE codes cleared');
+		logger.info('PKCE codes cleared', "Logger info");
 	}, [persistKey]);
 
 	// Generate state parameter
@@ -373,7 +373,7 @@ export const useHybridFlowController = (
 		const newState = generateRandomString(32);
 		setState(newState);
 		sessionStorage.setItem(`${persistKey}-state`, newState);
-		logger.info('State parameter generated');
+		logger.info('State parameter generated', "Logger info");
 	}, [persistKey]);
 
 	// Generate nonce parameter
@@ -381,13 +381,13 @@ export const useHybridFlowController = (
 		const newNonce = generateRandomString(32);
 		setNonce(newNonce);
 		sessionStorage.setItem(`${persistKey}-nonce`, newNonce);
-		logger.info('Nonce parameter generated');
+		logger.info('Nonce parameter generated', "Logger info");
 	}, [persistKey]);
 
 	// Generate authorization URL
 	const generateAuthUrl = useCallback((): string | null => {
 		if (!credentials || !flowConfig) {
-			logger.warn('Cannot generate authorization URL: missing credentials or flow config');
+			logger.warn('Cannot generate authorization URL: missing credentials or flow config', "Logger warning");
 			return null;
 		}
 
@@ -572,7 +572,7 @@ export const useHybridFlowController = (
 
 	// Reset flow
 	const reset = useCallback(() => {
-		logger.info('Resetting hybrid flow');
+		logger.info('Resetting hybrid flow', "Logger info");
 
 		setCredentialsState(null);
 		setHasValidCredentials(false);

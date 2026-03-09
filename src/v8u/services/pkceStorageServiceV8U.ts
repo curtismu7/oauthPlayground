@@ -38,7 +38,7 @@ const ensureMigration = async (): Promise<void> => {
 		migrationPromise = (async () => {
 			try {
 				if (PKCEStorageServiceV8UMigration.needsMigration()) {
-					logger.info(`${MODULE_TAG} Starting automatic PKCE migration...`);
+					logger.info(`${MODULE_TAG} Starting automatic PKCE migration...`, "Logger info");
 					const result = await PKCEStorageServiceV8UMigration.migrateAll();
 					logger.info(`${MODULE_TAG} PKCE migration completed`, result);
 				}

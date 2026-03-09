@@ -75,7 +75,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 		});
 
 		if (debug) {
-			logger.info('[useUserBehaviorTracking] Configuration updated');
+			logger.info('[useUserBehaviorTracking] Configuration updated', "Logger info");
 		}
 	}, [trackPageViews, trackUserActions, trackFlows, trackEngagement, debug, config]);
 
@@ -95,7 +95,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 			}));
 
 			if (debug) {
-				logger.info('[useUserBehaviorTracking] User behavior tracking initialized');
+				logger.info('[useUserBehaviorTracking] User behavior tracking initialized', "Logger info");
 			}
 		} else if (!enabled) {
 			userBehaviorTracker.setTrackingEnabled(false);
@@ -386,7 +386,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 				}));
 
 				if (debug) {
-					logger.info('[useUserBehaviorTracking] New session started');
+					logger.info('[useUserBehaviorTracking] New session started', "Logger info");
 				}
 			}
 		},
@@ -403,7 +403,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 			}));
 
 			if (debug) {
-				logger.info('[useUserBehaviorTracking] Session ended');
+				logger.info('[useUserBehaviorTracking] Session ended', "Logger info");
 			}
 		}
 	}, [enabled, debug]);
@@ -439,7 +439,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 			});
 
 			if (debug) {
-				logger.info('[useUserBehaviorTracking] Configuration updated');
+				logger.info('[useUserBehaviorTracking] Configuration updated', "Logger info");
 			}
 		},
 		[trackUserActions, trackEngagement, trackFlows, trackPageViews, debug]

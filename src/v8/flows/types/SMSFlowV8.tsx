@@ -376,7 +376,7 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
 			// User Flow selected - ensure User Token is used
-			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, "Logger info");
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -391,12 +391,12 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
 				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 
 			// Close UserLoginModal if it's open (Admin Flow uses worker token, not user token)
 			if (props.showUserLoginModal) {
-				logger.info(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`);
+				logger.info(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`, "Logger info");
 				props.setShowUserLoginModal(false);
 			}
 
@@ -430,21 +430,21 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 			// User Flow must use User Token, so we should switch to Admin Flow
 			logger.info(
 				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
-			);
+			, "Logger info");
 			setRegistrationFlowType('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
 			logger.info(
 				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
-			);
+			, "Logger info");
 			setRegistrationFlowType('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
 				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType?.('admin');
 			// Reset flag after state update
