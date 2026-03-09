@@ -1162,7 +1162,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-eye" />Mock Custom Login UI (What Your Users Would See) - V9
+								<i className="bi bi-eye" />
+								Mock Custom Login UI (What Your Users Would See) - V9
 							</h3>
 							<p style={{ margin: '0 0 1.5rem 0', color: '#6b7280' }}>
 								This is what your custom authentication UI might look like. Instead of redirecting
@@ -1664,7 +1665,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<i className="bi bi-eye" />Token Management
+							<i className="bi bi-eye" />
+							Token Management
 							<HighlightBadge>1</HighlightBadge>
 						</button>
 
@@ -1730,7 +1732,8 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				{apiCalls.length > 0 && (
 					<StepSection>
 						<ExplanationHeading>
-							<i className="bi bi-code-slash" />API Calls & Responses (V9)
+							<i className="bi bi-code-slash" />
+							API Calls & Responses (V9)
 						</ExplanationHeading>
 						<ExplanationSection>
 							<HelperText>

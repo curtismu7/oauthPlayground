@@ -642,7 +642,8 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<i className="bi bi-activity" />Flow Progress
+					<i className="bi bi-activity" />
+					Flow Progress
 				</SectionTitle>
 
 				{steps.map((step, index) => (
@@ -664,7 +665,8 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<i className="bi bi-cpu" />Mock DPoP Server Status
+					<i className="bi bi-cpu" />
+					Mock DPoP Server Status
 				</SectionTitle>
 
 				<div style={{ marginBottom: '1rem' }}>
@@ -952,7 +954,8 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<i className="bi bi-code-slash" />Learn More About DPoP
+					<i className="bi bi-code-slash" />
+					Learn More About DPoP
 				</SectionTitle>
 				<InfoBox>
 					<strong>Official Resources:</strong>

@@ -98,8 +98,8 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
 
 	return (
-		<div 
-			className="modal-overlay" 
+		<div
+			className="modal-overlay"
 			aria-hidden="true"
 			style={hasPosition ? { display: 'block' } : {}}
 			onClick={onClose}
@@ -109,9 +109,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 				}
 			}}
 		>
-			<div 
-				className="modal-content" 
-				ref={modalRef} 
+			<div
+				className="modal-content"
+				ref={modalRef}
 				style={modalStyle}
 				role="dialog"
 				aria-modal="true"

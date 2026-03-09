@@ -123,7 +123,8 @@ const PingAIResources: React.FC = () => {
 
 				<Header>
 					<h1>
-						<i className="bi bi-cpu" />Ping Identity AI Resources
+						<i className="bi bi-cpu" />
+						Ping Identity AI Resources
 					</h1>
 					<p>
 						Comprehensive collection of Ping Identity's AI-related documentation, guides, and
