@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { logger } from '../../utils/logger';
+
 const StatusContainer = styled.div`
   display: flex;
   flex-direction: column;

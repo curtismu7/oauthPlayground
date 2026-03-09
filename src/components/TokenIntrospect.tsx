@@ -4,10 +4,10 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
 
-import { logger } from '../utils/logger';
 // Styled components (reused from AuthorizationCodeFlowV5)
 const CollapsibleSection = styled.section`
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;

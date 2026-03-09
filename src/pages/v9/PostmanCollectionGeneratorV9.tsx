@@ -16,7 +16,6 @@ import { BootstrapIcon } from '../../components/v9/BootstrapIcon';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
-import { logger } from '../../utils/logger';
 import {
 	COLLECTION_VERSION,
 	downloadPostmanCollection,
@@ -35,6 +34,7 @@ import {
 	type V9SpecVersion,
 	V9SpecVersionService,
 } from '../../services/v9/V9SpecVersionService';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 

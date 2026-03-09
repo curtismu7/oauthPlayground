@@ -5,10 +5,9 @@ import { FiAlertCircle, FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
-
-import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 

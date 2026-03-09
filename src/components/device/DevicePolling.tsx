@@ -5,9 +5,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
+import { logger } from '../../utils/logger';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 
-import { logger } from '../../utils/logger';
 interface DevicePollingProps {
 	deviceCode: string;
 	clientId: string;

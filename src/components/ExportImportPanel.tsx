@@ -13,6 +13,7 @@ import type { BuilderAppType, FormDataState } from '../services/presetManagerSer
 import { FileDropHandler, validateFile } from '../utils/fileHandling';
 
 import { logger } from '../utils/logger';
+
 const Container = styled.div`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
   border-radius: 1.25rem;

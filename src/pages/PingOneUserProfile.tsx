@@ -144,6 +144,7 @@ import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
 import type { CSSProperties } from 'react';
 
 import { logger } from '../utils/logger';
+
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
 		maxWidth: '1200px',
@@ -1058,7 +1059,12 @@ const PingOneUserProfile: React.FC = () => {
 				setMfaStatus(bundle.mfa);
 				setUserConsents(bundle.consents);
 			} catch (err: unknown) {
-				logger.error('PingOneUserProfile', 'Failed to fetch user profile:', undefined, err as Error);
+				logger.error(
+					'PingOneUserProfile',
+					'Failed to fetch user profile:',
+					undefined,
+					err as Error
+				);
 				const status = (err as { status?: number })?.status;
 				const message = err instanceof Error ? err.message : 'Failed to load user profile';
 				if (status === 401 || message === 'Worker token unauthorized') {

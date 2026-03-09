@@ -8,9 +8,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
+import { logger } from '../utils/logger';
 import { useServerStatusOptional } from './ServerStatusProvider';
 
-import { logger } from '../utils/logger';
 const BACKEND_DOWN_MESSAGE =
 	'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.';
 

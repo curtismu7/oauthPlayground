@@ -5,6 +5,7 @@
 import { FiBook } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
+import { showGlobalError } from '../../contexts/NotificationSystem';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
@@ -23,7 +24,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { showGlobalError } from '../../contexts/NotificationSystem';
 
 export const V7MDeviceAuthorizationV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-device-client');

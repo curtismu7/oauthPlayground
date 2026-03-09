@@ -31,12 +31,12 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { logger } from '../../utils/logger';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
 
-import { logger } from '../../utils/logger';
 // Define type for password change error
 interface PasswordChangeError extends Error {
 	code: string;

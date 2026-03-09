@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
+import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
-import { logger } from '../../utils/logger';
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -293,7 +293,10 @@ const AuthzCallback: React.FC = () => {
 						}, 1000);
 						return;
 					} else {
-						logger.error('AuthzCallback', ' [AuthzCallback] Missing code or state in popup callback');
+						logger.error(
+							'AuthzCallback',
+							' [AuthzCallback] Missing code or state in popup callback'
+						);
 						setStatus('error');
 						setMessage('Authorization failed: Missing authorization code');
 

@@ -14,13 +14,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { logger } from '../../../../../utils/logger';
 import { apiDisplayServiceV8 } from '../../services/apiDisplayServiceV8.ts';
 import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import type { MFACredentials } from './MFATypes';
-
-import { logger } from '../../../../../utils/logger';
 export type UnifiedOTPDeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP';
 
 export type DeviceSelectionState = {

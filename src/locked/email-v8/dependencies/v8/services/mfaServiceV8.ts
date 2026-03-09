@@ -28,6 +28,7 @@
  * });
  */
 
+import { logger } from '../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 import type { DeviceAuthenticationPolicy } from '../flows/shared/MFATypes.ts';
@@ -35,7 +36,6 @@ import { sendAnalyticsLog } from '../utils/analyticsLoggerV8.ts';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 
 export interface MFACredentials {
@@ -4231,15 +4231,12 @@ export class MFAServiceV8 {
 					otpCheckUrl = authData._links['otp.check'].href;
 					logger.info(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
 				} else {
-					logger.warn(
-						`${MODULE_TAG} Status is OTP_REQUIRED but no otp.check URL found in _links`,
-						{
-							status: authData.status,
-							nextStep: authData.nextStep,
-							hasLinks: !!authData._links,
-							linksKeys: authData._links ? Object.keys(authData._links) : [],
-						}
-					);
+					logger.warn(`${MODULE_TAG} Status is OTP_REQUIRED but no otp.check URL found in _links`, {
+						status: authData.status,
+						nextStep: authData.nextStep,
+						hasLinks: !!authData._links,
+						linksKeys: authData._links ? Object.keys(authData._links) : [],
+					});
 				}
 			}
 

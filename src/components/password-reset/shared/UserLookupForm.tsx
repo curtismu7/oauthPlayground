@@ -2,6 +2,7 @@
 // Shared user lookup form component used across password reset tabs
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../../utils/logger';
 import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import {
 	Button,
@@ -13,7 +14,6 @@ import {
 } from './PasswordResetSharedComponents';
 import { type PingOneUser, useUserLookup } from './useUserLookup';
 
-import { logger } from '../../../utils/logger';
 interface UserLookupFormProps {
 	environmentId: string;
 	workerToken: string;

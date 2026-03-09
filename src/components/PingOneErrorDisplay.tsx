@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
-import { logger } from '../utils/logger';
 const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {
 		switch ($severity) {

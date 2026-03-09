@@ -1,6 +1,7 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
 import styled from 'styled-components';
+import { logger } from '../../../../utils/logger';
 import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { copyToClipboard } from '../../utils/clipboard';
@@ -8,7 +9,6 @@ import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
 
-import { logger } from '../../../../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters

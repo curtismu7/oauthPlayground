@@ -1,9 +1,8 @@
 // src/utils/implicitFlowSecurity.ts - Security utilities for Implicit Flow V3
 import { createRemoteJWKSet, JWTPayload, jwtVerify } from 'jose';
 import { discoveryService } from '../services/discoveryService';
-import { logger } from './logger';
-
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 export interface ImplicitFlowSecurityOptions {
 	environmentId: string;
 	clientId: string;

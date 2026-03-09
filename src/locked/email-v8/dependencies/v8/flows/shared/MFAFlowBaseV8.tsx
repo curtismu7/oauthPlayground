@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { logger } from '../../../../../utils/logger';
 import { MFADeviceLimitModalV8 } from '../../components/MFADeviceLimitModalV8.tsx';
 import { MFANavigationV8 } from '../../components/MFANavigationV8.tsx';
 import { MFASettingsModalV8 } from '../../components/MFASettingsModalV8.tsx';
@@ -26,7 +27,6 @@ import { sendAnalyticsLog } from '../../utils/analyticsLoggerV8.ts';
 import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
-import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 

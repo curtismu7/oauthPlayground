@@ -14,10 +14,10 @@ import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { credentialManager } from '../../../utils/credentialManager';
+import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-import { logger } from '../../../utils/logger';
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();
@@ -581,19 +581,30 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const comprehensiveCredentials = credentialManager.getAllCredentials();
 
 				if (comprehensiveCredentials?.environmentId) {
-					logger.info('SAMLBearerAssertionFlowV9', 'Loading credentials from comprehensive system', {
-						comprehensiveCredentials,
-					});
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Loading credentials from comprehensive system',
+						{
+							comprehensiveCredentials,
+						}
+					);
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					logger.info('SAMLBearerAssertionFlowV9', 'Comprehensive credentials loaded for mock flow');
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Comprehensive credentials loaded for mock flow'
+					);
 
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
 					setTokenEndpoint(tokenEndpointUrl);
-					logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated from credentials', {
-						tokenEndpointUrl,
-					});
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Token endpoint auto-populated from credentials',
+						{
+							tokenEndpointUrl,
+						}
+					);
 				}
 
 				// Then load SAML-specific configuration (will override if exists)

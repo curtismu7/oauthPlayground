@@ -11,6 +11,7 @@ import {
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 import { logger } from '../utils/logger';
+
 // Styled components
 const ButtonContainer = styled.div`
 	display: flex;

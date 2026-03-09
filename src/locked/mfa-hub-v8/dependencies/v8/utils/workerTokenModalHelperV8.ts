@@ -6,12 +6,12 @@
  * @since 2025-01-XX
  */
 
+import { logger } from '../../../../utils/logger';
 import { MFAConfigurationServiceV8 } from '../services/mfaConfigurationServiceV8.ts';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8.ts';
 import { toastV8 } from './toastNotificationsV8.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
 
 /**

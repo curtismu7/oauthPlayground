@@ -9,9 +9,8 @@
  * for all Protect Portal operations.
  */
 
-import type { PortalError } from '../types/protectPortal.types';
-
 import { logger } from '../../../utils/logger';
+import type { PortalError } from '../types/protectPortal.types';
 // ============================================================================
 // INTERFACES
 // ============================================================================

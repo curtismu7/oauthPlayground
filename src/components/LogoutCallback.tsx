@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 import { logger } from '../utils/logger';
+
 const CallbackContainer = styled.div`
 	display: flex;
 	flex-direction: column;
