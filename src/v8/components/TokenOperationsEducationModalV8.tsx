@@ -62,6 +62,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 		<>
 			{/* Backdrop */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -73,13 +74,24 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					backdropFilter: 'blur(4px)',
 				}}
 				onClick={onClose}
-				role="button"
-				tabIndex={0}
-				aria-label="Close modal"
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			/>
 
 			{/* Modal */}
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="token-education-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					position: 'fixed',
 					top: '50%',
@@ -110,7 +122,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 						<span style={{ color: '#ffffff', fontSize: '24px' }}>ℹ️</span>
-						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
+						<h2 id="token-education-title" style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
 							Token Operations Guide
 						</h2>
 					</div>

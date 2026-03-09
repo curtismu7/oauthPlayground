@@ -262,14 +262,33 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 	}, [isOpen, onClose]);
 
 	return (
-		<Overlay $isOpen={isOpen} onClick={onClose}>
-			<ModalContainer onClick={(e) => e.stopPropagation()}>
+		<Overlay 
+			$isOpen={isOpen} 
+			onClick={onClose}
+			aria-hidden="true"
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
+		>
+			<ModalContainer 
+				onClick={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="token-auth-title"
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
+			>
 				<ModalHeader>
-					<ModalTitle>
+					<ModalTitle id="token-auth-title">
 						<span style={{ fontSize: '24px' }}>🔑</span>
 						Token Endpoint Authentication Methods
 					</ModalTitle>
-					<CloseButton onClick={onClose}>
+					<CloseButton type="button" onClick={onClose}>
 						<span style={{ fontSize: '24px' }}>❌</span>
 					</CloseButton>
 				</ModalHeader>
