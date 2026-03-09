@@ -145,7 +145,10 @@ export class UserServiceV8 {
 		);
 
 		while (page < maxPages) {
-			logger.info(`${MODULE_TAG} searchAllUsers: fetching page ${page + 1} at offset ${offset}`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} searchAllUsers: fetching page ${page + 1} at offset ${offset}`,
+				'Logger info'
+			);
 
 			const result = await UserServiceV8.listUsers(environmentId, {
 				search,
@@ -248,8 +251,9 @@ export class UserServiceV8 {
 					fetchedPages++;
 
 					logger.info(
-						`${MODULE_TAG} Fetched page ${fetchedPages} at offset ${offset} - got ${fetchedCount} users. Total: ${allUsers.length}`
-					, "Logger info");
+						`${MODULE_TAG} Fetched page ${fetchedPages} at offset ${offset} - got ${fetchedCount} users. Total: ${allUsers.length}`,
+						'Logger info'
+					);
 
 					// Call progress callback
 					onProgress?.(allUsers.length, fetchedPages, result.users);
@@ -269,8 +273,9 @@ export class UserServiceV8 {
 			}
 
 			logger.info(
-				`${MODULE_TAG} Finished fetching users. Total: ${allUsers.length} across ${fetchedPages} pages`
-			, "Logger info");
+				`${MODULE_TAG} Finished fetching users. Total: ${allUsers.length} across ${fetchedPages} pages`,
+				'Logger info'
+			);
 
 			return allUsers;
 		} catch (error) {

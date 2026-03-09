@@ -151,7 +151,10 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 			try {
 				if (!searchQuery || !searchQuery.trim()) {
 					// No search - get recent users from server
-					logger.info(`${MODULE_TAG} No search query - loading recent users from server`, "Logger info");
+					logger.info(
+						`${MODULE_TAG} No search query - loading recent users from server`,
+						'Logger info'
+					);
 					const response = await fetch(`/api/users/recent/${environmentId}?limit=100`);
 					if (response.ok) {
 						const data = await response.json();
@@ -161,15 +164,15 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 							: Array.isArray(data)
 								? data
 								: [];
-						logger.info(`${MODULE_TAG} Loaded ${usersArray.length} recent users`, "Logger info");
+						logger.info(`${MODULE_TAG} Loaded ${usersArray.length} recent users`, 'Logger info');
 						setUsers(usersArray);
 					} else {
-						logger.warn(`${MODULE_TAG} Failed to fetch recent users from server`, "Logger warning");
+						logger.warn(`${MODULE_TAG} Failed to fetch recent users from server`, 'Logger warning');
 						setUsers([]);
 					}
 				} else {
 					// Search via server API
-					logger.info(`${MODULE_TAG} Searching server for: "${searchQuery}"`, "Logger info");
+					logger.info(`${MODULE_TAG} Searching server for: "${searchQuery}"`, 'Logger info');
 					const response = await fetch(
 						`/api/users/search?environmentId=${environmentId}&q=${encodeURIComponent(searchQuery)}&limit=100`
 					);
@@ -181,10 +184,10 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 							: Array.isArray(data)
 								? data
 								: [];
-						logger.info(`${MODULE_TAG} Found ${usersArray.length} matching users`, "Logger info");
+						logger.info(`${MODULE_TAG} Found ${usersArray.length} matching users`, 'Logger info');
 						setUsers(usersArray);
 					} else {
-						logger.warn(`${MODULE_TAG} Search failed on server`, "Logger warning");
+						logger.warn(`${MODULE_TAG} Search failed on server`, 'Logger warning');
 						setUsers([]);
 					}
 				}

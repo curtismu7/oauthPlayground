@@ -71,7 +71,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
-			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, "Logger info");
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, 'Logger info');
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -81,7 +81,10 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 				isSyncingRef.current = false;
 			}, 0);
 		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
-			logger.info(`${MODULE_TAG} Admin Flow selected - ensuring Worker Token is used`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Admin Flow selected - ensuring Worker Token is used`,
+				'Logger info'
+			);
 			isSyncingRef.current = true;
 			if (props.showUserLoginModal) {
 				props.setShowUserLoginModal(false);
@@ -109,14 +112,16 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 
 		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
 			logger.info(
-				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
-			, "Logger info");
+				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`,
+				'Logger info'
+			);
 			setRegistrationFlowType?.('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			logger.info(
-				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
-			, "Logger info");
+				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`,
+				'Logger info'
+			);
 			setRegistrationFlowType?.('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
@@ -669,7 +674,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const handleActivateDevice = useCallback(async () => {
 		const props = activationPropsRef.current;
 		if (!props) {
-			logger.error(`${MODULE_TAG} Activation props not available`, "Logger error");
+			logger.error(`${MODULE_TAG} Activation props not available`, 'Logger error');
 			return;
 		}
 
@@ -1408,7 +1413,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								},
 								registrationCredentials.nickname
 							);
-							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`, "Logger info");
+							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`, 'Logger info');
 						} catch (nicknameError) {
 							logger.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
 							// Don't fail the registration if nickname update fails

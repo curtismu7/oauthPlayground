@@ -52,7 +52,8 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			const data = await MFAServiceV8.getMFASettings(environmentId);
 			setSettings(data);
 		} catch (error) {
-			logger.error('Failed to fetch MFA settings', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error('Failed to fetch MFA settings', errorMessage, { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -81,7 +82,8 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			});
 			onClose();
 		} catch (error) {
-			logger.error('Failed to update MFA settings', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error('Failed to update MFA settings', errorMessage, { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

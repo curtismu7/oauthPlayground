@@ -41,7 +41,7 @@ export const PromptModalV8: React.FC = () => {
 	}, [resolver, value]);
 
 	const handleCancel = useCallback(() => {
-		logger.info(`${MODULE_TAG} User cancelled`, "Logger info");
+		logger.info(`${MODULE_TAG} User cancelled`, 'Logger info');
 		if (resolver) {
 			resolver(null);
 		}

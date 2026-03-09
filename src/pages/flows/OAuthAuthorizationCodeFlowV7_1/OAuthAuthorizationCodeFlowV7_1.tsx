@@ -36,16 +36,17 @@ const _FlowCredentialService = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(credentials));
 		} catch (error) {
-			logger.warn('Failed to save credentials:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.warn('Failed to save credentials:', errorMessage, 'Credentials save failed');
 		}
 	},
 };
 
 const Container = styled.div`
-  max-width: ${UI_CONSTANTS.LAYOUT.CONTAINER_MAX_WIDTH};
+  max-width: ${UI_CONSTANTS.LAYOUT.CONTENT_MAX_WIDTH};
   margin: 0 auto;
   padding: ${UI_CONSTANTS.LAYOUT.CONTAINER_PADDING};
-  background: ${UI_CONSTANTS.LAYOUT.MAIN_BACKGROUND};
+  background: ${UI_CONSTANTS.LAYOUT.CONTAINER_BACKGROUND};
   min-height: 100vh;
 `;
 
@@ -255,12 +256,31 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	// Local state
 	const [isLoading, setIsLoading] = useState(true);
 	const [appConfig, setAppConfig] = useState<PingOneApplicationState>({
-		grantTypes: ['authorization_code'],
-		tokenAuthMethod: 'client_secret_basic',
-		scopes: ['openid', 'profile'],
-		redirectUris: [FLOW_CONSTANTS.DEFAULT_REDIRECT_URI],
-		pkceEnforcement: 'REQUIRED',
-		parStatus: 'REQUIRED',
+		grantTypeAuthorizationCode: true,
+		clientAuthMethod: 'client_secret_basic' as const,
+		allowRedirectUriPatterns: true,
+		pkceEnforcement: 'REQUIRED' as const,
+		responseTypeCode: true,
+		responseTypeToken: false,
+		responseTypeIdToken: true,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT' as const,
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL' as const,
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		pushedAuthorizationRequestTimeout: 300,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256' as const,
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: true,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsAllowAnyOrigin: false,
 	});
 
 	// Flow variant switching
@@ -302,7 +322,8 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					duration: 4000,
 				});
 			} catch (error) {
-				logger.error('Failed to initialize flow:', error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.error('Failed to initialize flow:', errorMessage, 'Flow initialization failed');
 				onFlowError?.(error as Error);
 				setIsLoading(false);
 			}

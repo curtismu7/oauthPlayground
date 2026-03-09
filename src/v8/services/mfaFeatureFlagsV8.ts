@@ -154,7 +154,10 @@ export class MFAFeatureFlagsV8 {
 	 */
 	static resetAllFlags(): void {
 		localStorage.removeItem(MFAFeatureFlagsV8.STORAGE_KEY);
-		logger.info('[MFA-FLAGS] All flags reset to defaults (all disabled)', 'MFA Feature Flags Reset');
+		logger.info(
+			'[MFA-FLAGS] All flags reset to defaults (all disabled)',
+			'MFA Feature Flags Reset'
+		);
 	}
 
 	/**
