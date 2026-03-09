@@ -54,7 +54,7 @@ class FlowCredentialIsolationService {
 		} = { showToast: true, useSharedFallback: false }
 	): boolean {
 		try {
-			console.group(`🔒 [CREDENTIAL ISOLATION] Saving credentials for flow: ${flowKey}`);
+			logger.info('FlowCredentialIsolationService', `[CREDENTIAL ISOLATION] Saving credentials for flow: ${flowKey}`);
 			logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
 			logger.info(`📋 Credentials:`, credentials);
 			logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, "Logger info");
@@ -88,7 +88,6 @@ class FlowCredentialIsolationService {
 				showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
 			}
 
-			console.groupEnd();
 			return true;
 		} catch (error) {
 			logger.error(
@@ -203,21 +202,17 @@ class FlowCredentialIsolationService {
 	 */
 	migrateSharedToFlowSpecific(flowKey: string): boolean {
 		try {
-			console.group(
-				`🔄 [CREDENTIAL MIGRATION] Migrating shared credentials to flow-specific for: ${flowKey}`
-			);
+			logger.info('FlowCredentialIsolationService', `[CREDENTIAL MIGRATION] Migrating shared credentials to flow-specific for: ${flowKey}`);
 
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 			if (!sharedData) {
 				logger.info(`📋 No shared credentials to migrate`, "Logger info");
-				console.groupEnd();
 				return false;
 			}
 
 			const parsed = JSON.parse(sharedData);
 			if (!parsed.environmentId && !parsed.clientId) {
 				logger.info(`📋 Shared credentials are empty, nothing to migrate`);
-				console.groupEnd();
 				return false;
 			}
 
@@ -227,7 +222,6 @@ class FlowCredentialIsolationService {
 
 			if (existingFlowData) {
 				logger.info(`📋 Flow-specific credentials already exist, skipping migration`);
-				console.groupEnd();
 				return false;
 			}
 
@@ -243,7 +237,6 @@ class FlowCredentialIsolationService {
 
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
 			logger.info(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`, "Logger info");
-			console.groupEnd();
 
 			return true;
 		} catch (error) {
@@ -273,7 +266,7 @@ class FlowCredentialIsolationService {
 			'pingone-par-flow-v7',
 		];
 
-		console.group(`🔍 [CREDENTIAL ISOLATION AUDIT] Auditing all V7 flows`);
+		logger.info('FlowCredentialIsolationService', '[CREDENTIAL ISOLATION AUDIT] Auditing all V7 flows');
 
 		const results: Record<string, FlowCredentialResult> = {};
 
@@ -294,8 +287,6 @@ class FlowCredentialIsolationService {
 		} else {
 			logger.info(`✅ All flows are properly isolated!`, "Logger info");
 		}
-
-		console.groupEnd();
 
 		return results;
 	}
