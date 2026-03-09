@@ -24,10 +24,23 @@ export function openWebhookViewerPopout(): void {
 	);
 
 	if (!popup) {
-		// Popup blocked — notify user
-		// biome-ignore lint/suspicious/noAlert: user notification when popup is blocked
-		// eslint-disable-next-line no-alert
-		alert('Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.');
+		// Popup blocked — notify user with console message
+		console.warn('Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.');
+		// Also show a modern notification if possible
+		if (typeof window !== 'undefined' && 'Notification' in window) {
+			// Try to show a browser notification (will be blocked if not permitted)
+			Notification.requestPermission().then(permission => {
+				if (permission === 'granted') {
+					new Notification('Popup Blocked', {
+						body: 'Please allow popups for this site to use the Webhook Viewer popout.',
+						icon: '/favicon.ico'
+					});
+				}
+			}).catch(() => {
+				// Fallback to console if notification fails
+				console.warn('Please allow popups for this site to use the Webhook Viewer popout.');
+			});
+		}
 		return;
 	}
 
