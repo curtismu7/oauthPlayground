@@ -1,691 +1,447 @@
-# Developer Guide
+# MasterFlow API Developer Guide
 
-## 🎯 Overview
-
-Welcome to the OAuth Playground Developer Guide! This comprehensive guide will help you understand, contribute to, and extend the OAuth Playground application.
-
-## 🏗️ Architecture Overview
-
-### Technology Stack
-
-- **Frontend**: React 18 with TypeScript
-- **Styling**: Styled Components with CSS-in-JS
-- **State Management**: React Context + Custom Hooks
-- **Build Tool**: Vite with advanced optimizations
-- **Testing**: Vitest + Jest for unit tests
-- **Code Quality**: ESLint, Biome, and TypeScript strict mode
-
-### Project Structure
-
-```
-oauth-playground/
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── flow/           # Flow-specific components
-│   │   ├── token/          # Token display components
-│   │   ├── mfa/            # MFA-related components
-│   │   └── ui/             # Base UI components
-│   ├── pages/              # Page components
-│   │   ├── flows/          # OAuth flow implementations
-│   │   ├── docs/           # Documentation pages
-│   │   └── test/           # Testing utilities
-│   ├── v8/                 # V8 architecture components
-│   │   ├── components/     # V8-specific components
-│   │   ├── services/       # V8 business logic
-│   │   ├── flows/          # V8 flow implementations
-│   │   └── utils/          # V8 utilities
-│   ├── v8u/                # V8U (unified) components
-│   ├── services/           # Shared services
-│   ├── contexts/           # React contexts
-│   ├── hooks/              # Custom hooks
-│   ├── utils/              # Utility functions
-│   └── types/              # TypeScript type definitions
-├── docs/                   # Documentation
-├── tests/                  # Test files
-└── public/                 # Static assets
-```
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18.x or higher
 - npm or yarn
+- PingOne developer account
 - Git
 
-### Development Setup
+### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/curtismu7/oauthPlayground.git
-cd oauthPlayground
+git clone https://github.com/your-org/masterflow-api.git
+cd masterflow-api
 
 # Install dependencies
 npm install
 
+# Copy environment file
+cp .env.example .env
+
 # Start development server
 npm start
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
 ```
 
 ### Environment Configuration
 
-The project includes a pre-configured `.env.example` file:
+Create a `.env` file with the following variables:
 
-```bash
-# Copy environment template
-cp .env.example .env
+```env
+# PingOne Configuration
+PINGONE_CLIENT_ID=your_client_id
+PINGONE_CLIENT_SECRET=your_client_secret
+PINGONE_ENVIRONMENT_ID=your_environment_id
+PINGONE_DOMAIN=your_domain
 
-# Edit with your PingOne credentials
-PINGONE_ENVIRONMENT_ID=your-environment-id
-PINGONE_CLIENT_ID=your-client-id
-PINGONE_CLIENT_SECRET=your-client-secret
-PINGONE_REDIRECT_URI=https://localhost:3000/callback
+# Application Configuration
+VITE_APP_VERSION=9.13.4
+VITE_API_BASE_URL=https://api.pingone.com
 ```
 
-## 🧠 Core Concepts
+## Architecture
 
-### V8 Architecture
+### Directory Structure
 
-The V8 architecture represents the latest evolution of the OAuth Playground:
-
-```typescript
-// V8 Service Example
-export class ValidationServiceV8 {
-  static validateCredentials(
-    credentials: OAuthCredentials,
-    flowType: 'oauth' | 'oidc' | 'client_credentials'
-  ): ValidationResult {
-    // Comprehensive validation logic
-  }
-}
+```
+src/
+├── components/          # Reusable UI components
+├── pages/              # Page components
+├── services/           # Business logic and API calls
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions
+├── types/              # TypeScript type definitions
+├── v8/                 # V8 legacy components
+├── v8u/                # V8 unified components
+└── styles/             # CSS and styled-components
 ```
 
-### Flow State Management
+### Component Architecture
 
-```typescript
-// Flow state context
-interface FlowState {
-  currentStep: number;
-  completedSteps: Set<number>;
-  validationResults: Record<string, ValidationResult>;
-  tokens: TokenResponse | null;
-}
+Components follow these principles:
 
-// Usage in components
-const { flowState, updateFlowState } = useFlowState();
-```
+1. **Single Responsibility**: Each component has one clear purpose
+2. **Composition**: Build complex UIs from simple components
+3. **Props Interface**: All components have TypeScript prop interfaces
+4. **Accessibility**: Components follow WCAG guidelines
 
-### Token Management
+### Service Architecture
 
-```typescript
-// Unified token storage
-export interface UnifiedToken {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  refresh_token?: string;
-  id_token?: string;
-}
+Services handle:
 
-// Token service
-export class TokenServiceV8 {
-  static async exchangeToken(request: TokenExchangeRequest): Promise<TokenResponse> {
-    // Token exchange implementation
-  }
-}
-```
+1. **API Communication**: HTTP requests to PingOne APIs
+2. **Data Transformation**: Format and validate data
+3. **Error Handling**: Consistent error management
+4. **Caching**: Local storage and session management
 
-## 🔧 Development Workflow
+## Development Workflow
 
 ### 1. Feature Development
 
-When adding a new OAuth flow:
+```bash
+# Create feature branch
+git checkout -b feature/new-feature
+
+# Make changes
+# ... develop feature ...
+
+# Run tests
+npm test
+
+# Run linting
+npm run lint
+
+# Build project
+npm run build
+
+# Commit changes
+git add .
+git commit -m "feat: add new feature"
+
+# Push branch
+git push origin feature/new-feature
+```
+
+### 2. Code Quality
+
+Run these commands before committing:
+
+```bash
+# Format code
+npm run format
+
+# Run linting
+npm run lint
+
+# Run type checking
+npm run type-check
+
+# Run tests
+npm test
+
+# Check build
+npm run build
+```
+
+### 3. Testing
+
+#### Unit Tests
 
 ```typescript
-// 1. Create flow component
-export const NewFlowV9: React.FC = () => {
-  const { credentials } = useAuth();
-  const [flowState, setFlowState] = useState<FlowState>();
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import MyComponent from '@/components/MyComponent'
+
+describe('MyComponent', () => {
+  it('renders correctly', () => {
+    render(<MyComponent />)
+    expect(screen.getByText('Hello World')).toBeInTheDocument()
+  })
+})
+```
+
+#### Integration Tests
+
+```typescript
+import { describe, it, expect } from 'vitest'
+import { myService } from '@/services/myService'
+
+describe('myService', () => {
+  it('makes API calls correctly', async () => {
+    const result = await myService.getData()
+    expect(result).toBeDefined()
+  })
+})
+```
+
+#### E2E Tests
+
+```typescript
+import { test, expect } from '@playwright/test'
+
+test('user can login', async ({ page }) => {
+  await page.goto('/login')
+  await page.fill('[data-testid="username"]', 'testuser')
+  await page.fill('[data-testid="password"]', 'password')
+  await page.click('[data-testid="login-button"]')
   
-  return (
-    <FlowContainer>
-      <FlowHeader title="New OAuth Flow" />
-      <FlowSteps currentStep={flowState?.currentStep} />
-      {/* Flow implementation */}
-    </FlowContainer>
-  );
-};
-
-// 2. Add route configuration
-<Route path="/flows/new-flow-v9" element={<NewFlowV9 />} />
-
-// 3. Add tests
-describe('NewFlowV9', () => {
-  it('should handle new flow correctly', () => {
-    // Test implementation
-  });
-});
+  await expect(page).toHaveURL('/dashboard')
+})
 ```
 
-### 2. Service Development
+## OAuth Flow Implementation
 
-When creating a new service:
+### Authorization Code Flow
 
 ```typescript
-// 1. Define service interface
-export interface INewService {
-  processData(data: unknown): Promise<ProcessedData>;
-  validateInput(input: unknown): ValidationResult;
-}
+import { useOAuthFlow } from '@/hooks/useOAuthFlow'
 
-// 2. Implement service
-export class NewServiceV8 implements INewService {
-  static async processData(data: unknown): Promise<ProcessedData> {
-    // Implementation
+const AuthorizationCodeFlow = () => {
+  const { authorize, exchangeCode, isLoading, error } = useOAuthFlow({
+    clientId: 'your_client_id',
+    redirectUri: 'http://localhost:3000/callback',
+    scope: 'openid profile email'
+  })
+
+  const handleAuthorize = () => {
+    authorize()
   }
-  
-  static validateInput(input: unknown): ValidationResult {
-    // Validation logic
-  }
-}
 
-// 3. Add tests
-describe('NewServiceV8', () => {
-  it('should process data correctly', async () => {
-    const result = await NewServiceV8.processData(testData);
-    expect(result).toBeDefined();
-  });
-});
-```
-
-### 3. Component Development
-
-When creating reusable components:
-
-```typescript
-// 1. Define component interface
-interface NewComponentProps {
-  title: string;
-  data: unknown;
-  onAction?: (action: string) => void;
-}
-
-// 2. Implement component with proper typing
-export const NewComponent: React.FC<NewComponentProps> = ({
-  title,
-  data,
-  onAction
-}) => {
   return (
-    <ComponentContainer>
-      <h2>{title}</h2>
-      {/* Component implementation */}
-    </ComponentContainer>
-  );
-};
-
-// 3. Add storybook documentation (if applicable)
-export default {
-  title: 'Components/NewComponent',
-  component: NewComponent,
-};
+    <div>
+      <button onClick={handleAuthorize} disabled={isLoading}>
+        Authorize
+      </button>
+      {error && <div>Error: {error.message}</div>}
+    </div>
+  )
+}
 ```
 
-## 🧪 Testing Strategy
-
-### Unit Testing
+### MFA Integration
 
 ```typescript
-// Service testing example
-describe('ValidationServiceV8', () => {
-  describe('validateCredentials', () => {
-    it('should validate complete credentials', () => {
-      const credentials = {
-        environmentId: '123e4567-e89b-12d3-a456-426614174000',
-        clientId: 'test-client',
-        redirectUri: 'https://localhost:3000/callback',
-        scopes: 'openid profile email'
-      };
-      
-      const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
-      
-      expect(result.valid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-    });
-  });
-});
+import { useMFAFlow } from '@/hooks/useMFAFlow'
+
+const MFAFlow = () => {
+  const { initiateMFA, verifyCode, isLoading, error } = useMFAFlow()
+
+  const handleMFAInitiate = async () => {
+    await initiateMFA({
+      userId: 'user123',
+      deviceType: 'MOBILE'
+    })
+  }
+
+  const handleVerifyCode = async (code: string) => {
+    await verifyCode(code)
+  }
+
+  return (
+    <div>
+      <button onClick={handleMFAInitiate}>Start MFA</button>
+      {/* MFA verification UI */}
+    </div>
+  )
+}
 ```
 
-### Integration Testing
-
-```typescript
-// Flow integration testing
-describe('TokenExchangeFlow Integration', () => {
-  it('should complete token exchange flow', async () => {
-    render(<TokenExchangeFlowV8 />);
-    
-    // Fill form
-    fireEvent.change(screen.getByLabelText('Subject Token'), {
-      target: { value: 'test-token' }
-    });
-    
-    // Submit form
-    fireEvent.click(screen.getByText('Exchange Token'));
-    
-    // Wait for completion
-    await waitFor(() => {
-      expect(screen.getByText('🎉 Token Exchange Flow Complete')).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Performance Testing
-
-```typescript
-// Performance testing example
-describe('Performance Tests', () => {
-  it('should load components within acceptable time', async () => {
-    const startTime = performance.now();
-    
-    const { container } = render(<HeavyComponent />);
-    
-    const loadTime = performance.now() - startTime;
-    expect(loadTime).toBeLessThan(1000); // 1 second threshold
-  });
-});
-```
-
-## 🎨 Styling Guidelines
+## Styling Guidelines
 
 ### Styled Components
 
 ```typescript
-// Use styled-components with proper typing
-const Container = styled.div<{ $variant?: 'primary' | 'secondary' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: ${({ theme, $variant }) => 
-    $variant === 'primary' ? theme.colors.primary : theme.colors.secondary
-  };
-`;
+import styled from 'styled-components'
 
-// Component usage
-const MyComponent: React.FC = () => {
-  return (
-    <Container $variant="primary">
-      Content
-    </Container>
-  );
-};
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  
+  ${({ variant = 'primary', theme }) => {
+    switch (variant) {
+      case 'primary':
+        return css`
+          background: ${theme.colors.primary};
+          color: white;
+        `
+      case 'secondary':
+        return css`
+          background: ${theme.colors.secondary};
+          color: white;
+        `
+    }
+  }}
+`
 ```
 
 ### Theme Usage
 
 ```typescript
-// Access theme properties
-const StyledComponent = styled.div`
-  color: ${({ theme }) => theme.colors.text};
-  background-color: ${({ theme }) => theme.colors.background};
-  font-size: ${({ theme }) => theme.fontSizes.md};
-`;
-```
+import { useTheme } from 'styled-components'
 
-### Responsive Design
-
-```typescript
-// Responsive breakpoints
-const ResponsiveContainer = styled.div`
-  width: 100%;
+const ThemedComponent = () => {
+  const theme = useTheme()
   
-  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}) {
-    max-width: 768px;
-  }
-  
-  @media (min-width: ${({ theme }) => theme.breakpoints.desktop}) {
-    max-width: 1024px;
-  }
-`;
-```
-
-## 🔒 Security Best Practices
-
-### Token Security
-
-```typescript
-// Secure token handling
-export class SecureTokenService {
-  static storeToken(token: string): void {
-    // Use secure storage
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('access_token', token);
-    }
-  }
-  
-  static getToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('access_token');
-    }
-    return null;
-  }
-  
-  static clearToken(): void {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('access_token');
-    }
-  }
-}
-```
-
-### Input Validation
-
-```typescript
-// Comprehensive input validation
-export const validateInput = (input: unknown, type: string): ValidationResult => {
-  if (!input || typeof input !== 'string') {
-    return {
-      valid: false,
-      errors: [{ field: type, message: 'Invalid input type' }],
-      warnings: [],
-      canProceed: false
-    };
-  }
-  
-  // Additional validation logic
-  return { valid: true, errors: [], warnings: [], canProceed: true };
-};
-```
-
-### CSRF Protection
-
-```typescript
-// CSRF protection implementation
-export class CSRFProtection {
-  static generateState(): string {
-    return Math.random().toString(36).substring(2, 15);
-  }
-  
-  static validateState(receivedState: string, storedState: string): boolean {
-    return receivedState === storedState;
-  }
-}
-```
-
-## ⚡ Performance Optimization
-
-### Lazy Loading
-
-```typescript
-// Lazy loading implementation
-const HeavyComponent = lazy(() => import('./HeavyComponent'));
-
-// Usage with Suspense
-const App: React.FC = () => {
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <HeavyComponent />
-    </Suspense>
-  );
-};
+    <div style={{ color: theme.colors.primary }}>
+      Themed content
+    </div>
+  )
+}
+```
+
+## Error Handling
+
+### Service Errors
+
+```typescript
+import { logger } from '@/utils/logger'
+
+export class APIError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public code?: string
+  ) {
+    super(message)
+    this.name = 'APIError'
+  }
+}
+
+export const handleAPIError = (error: unknown) => {
+  if (error instanceof APIError) {
+    logger.error('API Error:', error)
+    return error.message
+  }
+  
+  logger.error('Unexpected error:', error)
+  return 'An unexpected error occurred'
+}
+```
+
+### Component Error Boundaries
+
+```typescript
+import { Component, ErrorBoundary, ReactNode } from 'react'
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    logger.error('Error caught by boundary:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Something went wrong.</div>
+    }
+
+    return this.props.children
+  }
+}
+```
+
+## Performance Optimization
+
+### Code Splitting
+
+```typescript
+import { lazy, Suspense } from 'react'
+
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+const App = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <HeavyComponent />
+  </Suspense>
+)
 ```
 
 ### Memoization
 
 ```typescript
-// Component memoization
-export const OptimizedComponent = React.memo(({ data }: Props) => {
+import { memo, useMemo, useCallback } from 'react'
+
+const ExpensiveComponent = memo(({ data, onUpdate }) => {
   const processedData = useMemo(() => {
-    return expensiveDataProcessing(data);
-  }, [data]);
-  
-  return <div>{processedData}</div>;
-});
+    return data.map(item => expensiveTransform(item))
+  }, [data])
 
-// Hook memoization
-export const useOptimizedHook = (dependency: unknown) => {
-  return useMemo(() => {
-    return expensiveCalculation(dependency);
-  }, [dependency]);
-};
-```
+  const handleClick = useCallback((id: string) => {
+    onUpdate(id)
+  }, [onUpdate])
 
-### Bundle Optimization
-
-```typescript
-// Dynamic imports for code splitting
-const loadModule = async (moduleName: string) => {
-  const module = await import(`./modules/${moduleName}`);
-  return module.default;
-};
-
-// Route-based code splitting
-const routes = [
-  {
-    path: '/flows/auth-code',
-    component: lazy(() => import('./pages/flows/AuthCodeFlow'))
-  },
-  {
-    path: '/flows/implicit',
-    component: lazy(() => import('./pages/flows/ImplicitFlow'))
-  }
-];
-```
-
-## 🐛 Debugging
-
-### Development Tools
-
-```typescript
-// Debug logging
-export const debugLog = (message: string, data?: unknown) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[OAuth Playground] ${message}`, data);
-  }
-};
-
-// Error boundaries
-export class ErrorBoundary extends React.Component<Props, State> {
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-    // Send to error tracking service
-  }
-}
-```
-
-### Performance Monitoring
-
-```typescript
-// Performance monitoring
-export const performanceMonitor = {
-  startTime: (label: string) => {
-    if (typeof performance !== 'undefined') {
-      performance.mark(`${label}-start`);
-    }
-  },
-  
-  endTime: (label: string) => {
-    if (typeof performance !== 'undefined') {
-      performance.mark(`${label}-end`);
-      performance.measure(label, `${label}-start`, `${label}-end`);
-    }
-  }
-};
-```
-
-## 📚 Code Standards
-
-### TypeScript Guidelines
-
-1. **Strict Typing**: Always use proper TypeScript types
-2. **No `any` Types**: Use `unknown` or specific types instead
-3. **Interface First**: Define interfaces before implementation
-4. **Generic Usage**: Use generics for reusable components
-
-```typescript
-// Good example
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-}
-
-const processUser = (user: UserData): ProcessedUser => {
-  return {
-    ...user,
-    processed: true
-  };
-};
-
-// Avoid this
-const processUser = (user: any): any => {
-  return user;
-};
-```
-
-### Component Guidelines
-
-1. **Functional Components**: Use functional components with hooks
-2. **Props Interface**: Always define props interfaces
-3. **Default Props**: Use default parameters instead of defaultProps
-4. **Destructuring**: Destructure props and context values
-
-```typescript
-// Good example
-interface MyComponentProps {
-  title: string;
-  data: UserData[];
-  onAction?: (action: string) => void;
-}
-
-export const MyComponent: React.FC<MyComponentProps> = ({
-  title,
-  data,
-  onAction
-}) => {
   return (
     <div>
-      <h1>{title}</h1>
-      {/* Component implementation */}
+      {processedData.map(item => (
+        <Item key={item.id} item={item} onClick={handleClick} />
+      ))}
     </div>
-  );
-};
+  )
+})
 ```
 
-### Service Guidelines
+## Deployment
 
-1. **Static Methods**: Use static methods for stateless services
-2. **Error Handling**: Always include proper error handling
-3. **Validation**: Validate inputs before processing
-4. **Type Safety**: Return properly typed results
-
-```typescript
-// Good example
-export class DataServiceV8 {
-  static async fetchData(id: string): Promise<DataResult> {
-    try {
-      if (!id || typeof id !== 'string') {
-        throw new Error('Invalid ID provided');
-      }
-      
-      const data = await api.get(`/data/${id}`);
-      return { success: true, data };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-}
-```
-
-## 🔄 Continuous Integration
-
-### Pre-commit Hooks
+### Build Process
 
 ```bash
-#!/bin/sh
-# .husky/pre-commit
-npm run lint
-npm run test
-npm run type-check
+# Build for production
+npm run build
+
+# Preview build
+npm run preview
+
+# Build with analysis
+npm run build && npm run analyze:bundle
 ```
 
-### GitHub Actions
+### Environment Variables
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
-on: [push, pull_request]
+Production environment variables:
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run test
-      - run: npm run build
+```env
+NODE_ENV=production
+VITE_API_BASE_URL=https://api.pingone.com
+VITE_APP_VERSION=9.13.4
 ```
 
-## 📖 Contributing
+## Contributing
 
 ### Pull Request Process
 
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
+1. Fork the repository
+2. Create feature branch
+3. Make changes with tests
+4. Ensure all tests pass
+5. Submit pull request
 
-### Code Review Guidelines
+### Code Review Checklist
 
-1. **Functionality**: Does the code work as intended?
-2. **Type Safety**: Are all types properly defined?
-3. **Performance**: Is the code optimized?
-4. **Testing**: Are there adequate tests?
-5. **Documentation**: Is the code well-documented?
+- [ ] Code follows style guidelines
+- [ ] Tests are included and passing
+- [ ] Documentation is updated
+- [ ] TypeScript types are correct
+- [ ] Performance impact is considered
 
-### Release Process
+## Troubleshooting
 
-1. **Update** version in package.json
-2. **Update** CHANGELOG.md
-3. **Create** release tag: `git tag v9.15.3`
-4. **Push** tag: `git push origin v9.15.3`
-5. **Create** GitHub release
+### Common Issues
 
-## 🤝 Community
+1. **Build Failures**: Check TypeScript errors and missing dependencies
+2. **Test Failures**: Verify mocks and test setup
+3. **API Errors**: Check authentication and network connectivity
+4. **Styling Issues**: Verify theme provider and styled components
 
-### Getting Help
+### Debug Tools
 
-- **GitHub Issues**: Report bugs and request features
-- **Discussions**: Ask questions and share ideas
-- **Documentation**: Check the docs folder for detailed guides
+- React Developer Tools
+- Redux DevTools (if using Redux)
+- Browser DevTools Network tab
+- Vitest test runner
+- Playwright test inspector
 
-### Contributing Guidelines
+## Resources
 
-- **Code Style**: Follow the established code style
-- **Testing**: Write tests for new features
-- **Documentation**: Update documentation for changes
-- **Performance**: Consider performance implications
-
-## 📞 Support
-
-For developer support:
-
-- Check the [Developer Guide](./DEVELOPER_GUIDE.md)
-- Review the [API Documentation](./API_DOCUMENTATION.md)
-- Browse the [Issues](https://github.com/curtismu7/oauthPlayground/issues)
-- Join the [Discussions](https://github.com/curtismu7/oauthPlayground/discussions)
-
----
-
-Happy coding! 🚀
+- [React Documentation](https://react.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
+- [Styled Components Documentation](https://styled-components.com/)
+- [Vitest Documentation](https://vitest.dev/)
+- [Playwright Documentation](https://playwright.dev/)
+- [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/)
