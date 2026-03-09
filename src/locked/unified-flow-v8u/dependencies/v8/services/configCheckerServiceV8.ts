@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file configCheckerServiceV8.ts
  * @module v8/services
  * @description Configuration checker service for V8 flows
@@ -21,6 +20,7 @@ import { logger } from '../../../../../utils/logger';
  * const comparison = ConfigCheckerServiceV8.compareConfigs(userConfig, pingOneConfig);
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔍 CONFIG-CHECKER-V8]';
 
 // ============================================================================

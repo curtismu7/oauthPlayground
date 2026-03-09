@@ -1,11 +1,11 @@
 /**
-import { logger } from '../../utils/logger';
  * @file backendConnectivityServiceV8.ts
  * @module v8/services
  * @description Service to monitor backend connectivity and show graceful error modal
  * @version 8.0.0
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔌 BACKEND-CONNECTIVITY]';
 
 interface BackendConnectivityState {

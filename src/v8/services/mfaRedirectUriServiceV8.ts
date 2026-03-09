@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file mfaRedirectUriServiceV8.ts
  * @module v8/services
  * @description Centralized service for MFA redirect URIs using flow mapping
@@ -9,6 +8,7 @@ import { logger } from '../../utils/logger';
  * Each flow has its own unique redirect URI to return to the correct place in the app.
  */
 
+import { logger } from '../../utils/logger';
 import {
 	generateRedirectUriForFlow,
 	getAllFlowRedirectUriConfigs,

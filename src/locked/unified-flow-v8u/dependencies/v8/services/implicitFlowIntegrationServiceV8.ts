@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file implicitFlowIntegrationServiceV8.ts
  * @module v8/services
  * @description Real OAuth Implicit Flow integration with PingOne APIs
@@ -17,6 +16,7 @@ import { logger } from '../../../../../utils/logger';
  * const authUrl = service.generateAuthorizationUrl(credentials);
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 
 export interface ImplicitFlowCredentials {
