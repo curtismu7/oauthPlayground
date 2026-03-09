@@ -7,7 +7,8 @@
 
 import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 type EnvironmentIdListener = (id: string | null) => void;
 
 /**

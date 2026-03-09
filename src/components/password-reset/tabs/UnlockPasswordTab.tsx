@@ -30,7 +30,6 @@ import {
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
 
-import { logger } from '../../utils/logger';
 interface UnlockPasswordTabProps {
 	environmentId: string;
 	workerToken: string;

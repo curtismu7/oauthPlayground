@@ -18,7 +18,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface UseWorkerTokenConfig {
 	/** Auto-refresh interval in milliseconds (default: 5000) */
 	refreshInterval?: number;

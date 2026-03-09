@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file environmentIdServiceV8.ts
  * @module v8/services
  * @description Global environment ID storage and retrieval service

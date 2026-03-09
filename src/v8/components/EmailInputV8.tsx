@@ -19,7 +19,8 @@
 
 import React, { useCallback, useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[✉️ EMAIL-INPUT-V8]';
 
 // ============================================================================

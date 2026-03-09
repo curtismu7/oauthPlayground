@@ -12,7 +12,8 @@
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🛡️ PROTECT-SERVICE-V8]';
 
 // Types for PingOne Protect

@@ -17,10 +17,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import { logger } from '../../utils/logger';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 
 interface WorkerTokenSectionV8Props {

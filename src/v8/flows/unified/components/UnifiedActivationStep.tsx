@@ -30,9 +30,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { logger } from '../../../../utils/logger';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
 
 // ============================================================================

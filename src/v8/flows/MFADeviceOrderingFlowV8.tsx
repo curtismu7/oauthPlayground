@@ -14,11 +14,11 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-order-v8';

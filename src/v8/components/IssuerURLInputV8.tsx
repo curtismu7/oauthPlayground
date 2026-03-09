@@ -15,7 +15,8 @@
 
 import React, { useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🌐 ISSUER-URL-V8]';
 
 export interface IssuerURLInputV8Props {
@@ -59,7 +60,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 					marginBottom: '8px',
 				}}
 			>
-				<label
+				<div
 					style={{
 						fontSize: '14px',
 						fontWeight: '600',
@@ -67,7 +68,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 					}}
 				>
 					Issuer URL <span style={{ color: '#6b7280', fontWeight: 'normal' }}>(optional)</span>
-				</label>
+				</div>
 				<button
 					type="button"
 					onClick={() => setShowInfo(!showInfo)}

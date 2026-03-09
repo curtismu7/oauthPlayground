@@ -1,5 +1,5 @@
 // Device Authorization Grant Service for PingOne Auth API
-import { logger } from '../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 export interface DeviceAuthorizationRequest {
 	client_id: string;

@@ -18,7 +18,8 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔍 SEARCHABLE-DROPDOWN-V8]';
 
 export interface SearchableDropdownOption {

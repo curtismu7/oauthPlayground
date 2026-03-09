@@ -17,7 +17,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters

@@ -12,9 +12,9 @@
  */
 
 import { decodeJwt, type JWTPayload, jwtVerify } from 'jose';
+import { logger } from '../../utils/logger';
 import { JWKSCacheServiceV8 } from './jwksCacheServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[✅ ID-TOKEN-VALIDATION-V8]';
 
 export interface IDTokenValidationResult {

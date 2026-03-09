@@ -5,7 +5,6 @@ import { useCallback, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { logger } from '../../../utils/logger';
-import { logger } from '../../utils/logger';
 // PingOneUser type definition
 export interface PingOneUser {
 	id: string;

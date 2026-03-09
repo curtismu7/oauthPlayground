@@ -16,7 +16,7 @@ import {
 import { VueTemplates } from './templates/frontend/vueTemplates';
 import { FlutterTemplates, ReactNativeTemplates } from './templates/mobile/mobileTemplates';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface CodeGenerationConfig {
 	category: CodeCategory;
 	codeType: CodeType;

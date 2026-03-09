@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { formatUserCode } from '../../utils/deviceCode';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	formatUrlForQRCode,
 	generateQRCode,

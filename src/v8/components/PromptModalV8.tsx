@@ -18,7 +18,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type PromptOptions, uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📝 PROMPT-MODAL-V8]';
 
 export const PromptModalV8: React.FC = () => {

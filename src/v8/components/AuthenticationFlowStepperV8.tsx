@@ -32,9 +32,13 @@ import type {
 } from '@/v8/flows/shared/MFATypes';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
 
@@ -49,7 +53,7 @@ export interface AuthenticationFlowStepperV8Props {
 	renderStep6: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
-		tokenStatus: any,
+		tokenStatus: TokenStatusInfo,
 		nav: ReturnType<typeof useStepNavigationV8>
 	) => boolean;
 	stepLabels?: string[];
@@ -64,7 +68,7 @@ export interface AuthenticationFlowStepperRenderProps {
 	) => void;
 	mfaState: MFAState;
 	setMfaState: (state: Partial<MFAState>) => void;
-	tokenStatus: any;
+	tokenStatus: TokenStatusInfo;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
 	nav: ReturnType<typeof useStepNavigationV8>;

@@ -20,7 +20,8 @@ import { useServerHealth } from '@/hooks/useServerHealth';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
 // Debug gate + lightweight dedupe for console noise

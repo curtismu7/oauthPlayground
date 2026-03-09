@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file enhancedCredentialsServiceV8.ts
  * @module v8/services
  * @description Enhanced multi-storage credentials service with IndexedDB, SQLite, and localStorage support

@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file tokenExchangeFlowTest.ts
  * @module v8u/tests
  * @description Test script to validate token exchange flow and single-use authorization code behavior

@@ -8,7 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { backendConnectivityService } from '@/v8/services/backendConnectivityServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export const BackendDownModalV8: React.FC = () => {
 	const [isVisible, setIsVisible] = useState(false);
 

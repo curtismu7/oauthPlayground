@@ -14,7 +14,8 @@ import { type DeviceType, type MFACredentials, type MFAState } from '@/v8/flows/
 import { type DeviceRegistrationResult, MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
 
 interface MFADeviceRegistrationV8Props {

@@ -31,7 +31,8 @@ import type { TokenType } from '@/v8/flows/shared/MFATypes';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIGURATION-STEP]';
 
 // ============================================================================

@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file tokenExchangeIntegrationTest.ts
  * @module v8u/tests
  * @description Integration test for token exchange flow with real DOM manipulation

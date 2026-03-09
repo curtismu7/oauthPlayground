@@ -9,10 +9,9 @@ import {
 	TokenExchangeResponse,
 	TokenValidationResult,
 } from '../types/tokenExchangeTypesV8';
+import { logger } from '../../utils/logger';
 import { GlobalEnvironmentService } from './globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from './tokenExchangeConfigServiceV8';
-
-import { logger } from '../utils/logger';
 /**
  * Token Exchange Service V8
  *

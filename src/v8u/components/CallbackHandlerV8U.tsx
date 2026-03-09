@@ -22,7 +22,6 @@ import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 const AUTHZ_REDIRECT_LOG_ENDPOINT = '/api/logs/authz-redirect';
 

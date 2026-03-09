@@ -30,10 +30,10 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { logger } from '../../../utils/logger';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 MOBILE-OTP-CONFIG-V8]';
 
 export const MobileOTPConfigurationPageV8: React.FC = () => {

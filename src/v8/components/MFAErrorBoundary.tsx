@@ -8,7 +8,8 @@
 import { FiAlertTriangle } from '@icons';
 import { Component, ErrorInfo, ReactNode } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 interface Props {
 	children: ReactNode;
 	fallback?: ReactNode;

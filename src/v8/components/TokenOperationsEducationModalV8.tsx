@@ -122,7 +122,10 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 						<span style={{ color: '#ffffff', fontSize: '24px' }}>ℹ️</span>
-						<h2 id="token-education-title" style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
+						<h2
+							id="token-education-title"
+							style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}
+						>
 							Token Operations Guide
 						</h2>
 					</div>

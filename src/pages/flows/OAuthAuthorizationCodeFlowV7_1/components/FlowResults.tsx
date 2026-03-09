@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 interface FlowResultsProps {
 	tokens: TokenResponse | null;
 	userInfo: UserInfo | null;

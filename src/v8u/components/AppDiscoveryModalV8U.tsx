@@ -16,7 +16,6 @@ import {
 } from '@/v8/services/appDiscoveryServiceV8';
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {
