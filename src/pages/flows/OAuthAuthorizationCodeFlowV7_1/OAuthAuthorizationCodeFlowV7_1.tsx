@@ -21,26 +21,7 @@ import { useCredentialPersistence } from './hooks/useCredentialPersistence';
 import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
-import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
-
-const _FlowCredentialService = {
-	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
-		try {
-			const stored = sessionStorage.getItem(key);
-			return stored ? JSON.parse(stored) : null;
-		} catch {
-			return null;
-		}
-	},
-	saveSharedCredentials: async (key: string, credentials: FlowCredentials): Promise<void> => {
-		try {
-			sessionStorage.setItem(key, JSON.stringify(credentials));
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.warn('Failed to save credentials:', errorMessage, 'Credentials save failed');
-		}
-	},
-};
+import type { FlowCredentials, FlowVariant, TokenResponse } from './types/flowTypes';
 
 const Container = styled.div`
   max-width: ${UI_CONSTANTS.LAYOUT.CONTENT_MAX_WIDTH};
@@ -221,7 +202,7 @@ const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
 interface OAuthAuthorizationCodeFlowV7_1Props {
 	initialVariant?: 'oauth' | 'oidc';
 	initialCredentials?: Partial<FlowCredentials>;
-	onFlowComplete?: (result: TokenResponse) => void;
+	_onFlowComplete?: (result: TokenResponse) => void;
 	onFlowError?: (error: Error) => void;
 	showDebugInfo?: boolean;
 	_enablePerformanceMonitoring?: boolean;
@@ -230,7 +211,7 @@ interface OAuthAuthorizationCodeFlowV7_1Props {
 export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlowV7_1Props> = ({
 	initialVariant = FLOW_CONSTANTS.DEFAULT_FLOW_VARIANT,
 	initialCredentials,
-	onFlowComplete,
+	_onFlowComplete,
 	onFlowError,
 	showDebugInfo = false,
 	_enablePerformanceMonitoring = true,
@@ -340,24 +321,6 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		onFlowError,
 		performanceMonitoring,
 	]);
-
-	// Handle flow completion
-	const _handleFlowComplete = useCallback(
-		(tokens: TokenResponse, userInfo?: UserInfo) => {
-			flowState.updateTokens(tokens);
-			if (userInfo) {
-				flowState.updateUserInfo(userInfo);
-			}
-			flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
-			onFlowComplete?.(tokens);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Flow completed successfully!',
-				duration: 4000,
-			});
-		},
-		[flowState, onFlowComplete]
-	);
 
 	// Handle flow error
 	const handleFlowError = useCallback(

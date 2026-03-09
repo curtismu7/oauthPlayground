@@ -821,10 +821,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			setErrorDetails(errorDetails);
 
 			// Log detailed troubleshooting info to console for developers
-			console.group('🔧 Worker Token Error - Troubleshooting Guide');
+			logger.info('CompleteMFAFlowV7', '[Worker Token Error] Troubleshooting Guide');
 			logger.error('Original Error:', error);
 			logger.info('Error Details:', errorDetails);
-			console.groupEnd();
 		} finally {
 			setIsLoading(false);
 

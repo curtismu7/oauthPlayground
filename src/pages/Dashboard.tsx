@@ -101,7 +101,7 @@ const Dashboard = () => {
 			const unifiedStorage = UnifiedTokenStorageService.getInstance();
 			const unifiedCreds = await unifiedStorage.getOAuthCredentials();
 
-			console.group('[Dashboard] 🔐 Credential Check');
+			logger.debug('Dashboard', '[Credential Check]');
 			logger.info('✅ hasSavedCredentials:', hasCredentials);
 			logger.info('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
 			logger.info('📋 Config Credentials:', {
@@ -118,7 +118,6 @@ const Dashboard = () => {
 				oauth_config: localStorageCreds ? '✅ present' : '❌ missing',
 				pingone_config_credentials: pingoneCreds ? '✅ present' : '❌ missing',
 			});
-			console.groupEnd();
 		};
 
 		checkCredentials();
