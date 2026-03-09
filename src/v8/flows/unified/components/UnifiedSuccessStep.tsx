@@ -28,6 +28,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[✅ UNIFIED-SUCCESS-STEP]';
 
 // ============================================================================
@@ -64,7 +65,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 	onComplete,
 	onRegisterAnother,
 }) => {
-	console.log(`${MODULE_TAG} Rendering success step for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering success step for:`, config.deviceType);
 
 	// ========================================================================
 	// EFFECTS
@@ -74,7 +75,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 	 * Mark step as complete on mount and log analytics
 	 */
 	useEffect(() => {
-		console.log(`${MODULE_TAG} Device registration complete:`, {
+		logger.info(`${MODULE_TAG} Device registration complete:`, {
 			deviceType: config.deviceType,
 			deviceId: mfaState.deviceId,
 			status: mfaState.deviceStatus,
@@ -120,7 +121,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 	 * Navigate back to main page like Restart Flow does
 	 */
 	const handleRegisterAnother = useCallback(() => {
-		console.log(`${MODULE_TAG} User wants to register another device`);
+		logger.info(`${MODULE_TAG} User wants to register another device`);
 
 		modernMessaging.showFooterMessage({
 			type: 'info',
@@ -312,7 +313,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 				<button
 					type="button"
 					onClick={() => {
-						console.log(`${MODULE_TAG} User finished registration flow`);
+						logger.info(`${MODULE_TAG} User finished registration flow`);
 						modernMessaging.showFooterMessage({
 							type: 'info',
 							message: 'Registration complete!',

@@ -16,6 +16,7 @@
 
 import { useCallback, useState } from 'react';
 
+import { logger } from '../utils/logger';
 export interface AuthenticationState {
 	isLoading: boolean;
 	showDeviceSelection: boolean;
@@ -100,7 +101,7 @@ export const useMFAAuthentication = (
 	// Reset authentication state
 	const resetAuthState = useCallback(() => {
 		setAuthState(INITIAL_AUTH_STATE);
-		console.log(`${MODULE_TAG} Authentication state reset`);
+		logger.info(`${MODULE_TAG} Authentication state reset`);
 	}, []);
 
 	// Close all modals
@@ -111,7 +112,7 @@ export const useMFAAuthentication = (
 		setShowEmailModal(false);
 		setShowRegistrationModal(false);
 		setShowUsernameDecisionModal(false);
-		console.log(`${MODULE_TAG} All modals closed`);
+		logger.info(`${MODULE_TAG} All modals closed`);
 	}, []);
 
 	// Computed values

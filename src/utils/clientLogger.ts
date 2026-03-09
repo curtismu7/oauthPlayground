@@ -1,4 +1,5 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+import { logger } from '../utils/logger';
 
 export async function clientLog(
 	level: LogLevel,
@@ -9,10 +10,10 @@ export async function clientLog(
 		// Always console log for local visibility
 		// Avoid printing secrets; caller must pass safe meta only
 		const prefix = `[client:${level}]`;
-		if (level === 'debug') console.debug(prefix, message, meta || {});
-		else if (level === 'info') console.info(prefix, message, meta || {});
-		else if (level === 'warn') console.warn(prefix, message, meta || {});
-		else console.error(prefix, message, meta || {});
+		if (level === 'debug') logger.debug(prefix, message, meta || {});
+		else if (level === 'info') logger.info(prefix, message, meta || {});
+		else if (level === 'warn') logger.warn(prefix, message, meta || {});
+		else logger.error(prefix, message, meta || {});
 
 		// Post to dev server endpoint; ignore failures
 		await fetch('/__client-log', {

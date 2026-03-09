@@ -17,6 +17,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
 
+import { logger } from '../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters
@@ -810,7 +811,7 @@ const user = {
 localStorage.setItem('user_profile', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
 
 // Use user information in your application
-console.log('Welcome, ' + user.name + '!');`,
+logger.info('Welcome, ' + user.name + '!');`,
 			execute: () => {
 				if (!userInfo) {
 					setError('No user information received. Please execute the API call first.');

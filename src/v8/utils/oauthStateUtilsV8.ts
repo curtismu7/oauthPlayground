@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file oauthStateUtilsV8.ts
  * @module v8/utils
  * @description Shared OAuth state parameter validation utilities
@@ -55,7 +56,7 @@ export function validateOAuthState(
 ): boolean {
 	// Both must be present
 	if (!receivedState || !storedState) {
-		console.warn(`${MODULE_TAG} State validation failed: missing state`, {
+		logger.warn(`${MODULE_TAG} State validation failed: missing state`, {
 			hasReceived: !!receivedState,
 			hasStored: !!storedState,
 		});
@@ -64,7 +65,7 @@ export function validateOAuthState(
 
 	// States must match exactly
 	if (receivedState !== storedState) {
-		console.warn(`${MODULE_TAG} State validation failed: mismatch`, {
+		logger.warn(`${MODULE_TAG} State validation failed: mismatch`, {
 			receivedLength: receivedState.length,
 			storedLength: storedState.length,
 			receivedPreview: receivedState.substring(0, 20),
@@ -75,7 +76,7 @@ export function validateOAuthState(
 
 	// Basic format validation - should be non-empty string
 	if (receivedState.trim().length === 0) {
-		console.warn(`${MODULE_TAG} State validation failed: empty state`);
+		logger.warn(`${MODULE_TAG} State validation failed: empty state`);
 		return false;
 	}
 
@@ -121,16 +122,16 @@ export function storeOAuthState(
 	key: string = 'oauth_state'
 ): void {
 	if (typeof window === 'undefined') {
-		console.warn(`${MODULE_TAG} Cannot store state: window is undefined`);
+		logger.warn(`${MODULE_TAG} Cannot store state: window is undefined`);
 		return;
 	}
 
 	try {
 		const storageObj = storage === 'sessionStorage' ? window.sessionStorage : window.localStorage;
 		storageObj.setItem(key, state);
-		console.log(`${MODULE_TAG} Stored OAuth state`, { key, stateLength: state.length });
+		logger.info(`${MODULE_TAG} Stored OAuth state`, { key, stateLength: state.length });
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to store OAuth state:`, error);
+		logger.error(`${MODULE_TAG} Failed to store OAuth state:`, error);
 	}
 }
 
@@ -153,7 +154,7 @@ export function retrieveOAuthState(
 		const storageObj = storage === 'sessionStorage' ? window.sessionStorage : window.localStorage;
 		return storageObj.getItem(key);
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to retrieve OAuth state:`, error);
+		logger.error(`${MODULE_TAG} Failed to retrieve OAuth state:`, error);
 		return null;
 	}
 }
@@ -175,8 +176,8 @@ export function clearOAuthState(
 	try {
 		const storageObj = storage === 'sessionStorage' ? window.sessionStorage : window.localStorage;
 		storageObj.removeItem(key);
-		console.log(`${MODULE_TAG} Cleared OAuth state`, { key });
+		logger.info(`${MODULE_TAG} Cleared OAuth state`, { key });
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to clear OAuth state:`, error);
+		logger.error(`${MODULE_TAG} Failed to clear OAuth state:`, error);
 	}
 }

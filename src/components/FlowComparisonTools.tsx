@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
+import { logger } from '../utils/logger';
 // Styled components
 const ComparisonContainer = styled.div`
   display: flex;
@@ -519,7 +520,7 @@ export const FlowComparisonTools: React.FC = () => {
 				});
 				announceToScreenReader('Comparison shared successfully');
 			} catch (error) {
-				log.error('FlowComparisonTools', 'Error sharing:', undefined, error as Error);
+				logger.error('FlowComparisonTools', 'Error sharing:', undefined, error as Error);
 			}
 		} else {
 			await navigator.clipboard.writeText(comparisonUrl);

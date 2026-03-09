@@ -36,6 +36,7 @@ import {
 } from '../../v8/services/specVersionServiceV8.ts';
 import { UnifiedFlowOptionsServiceV8 } from '../../v8/services/unifiedFlowOptionsServiceV8.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {
@@ -93,7 +94,7 @@ export class UnifiedFlowIntegrationV8U {
 	 * Delegates to SpecVersionServiceV8
 	 */
 	static getAvailableFlows(specVersion: SpecVersion): FlowType[] {
-		console.log(`${MODULE_TAG} Getting available flows for spec`, { specVersion });
+		logger.info(`${MODULE_TAG} Getting available flows for spec`, { specVersion });
 		return SpecVersionServiceV8.getAvailableFlows(specVersion);
 	}
 
@@ -189,7 +190,7 @@ export class UnifiedFlowIntegrationV8U {
 			codeChallengeMethod: 'S256' | 'plain';
 		}
 	) {
-		console.log(`${MODULE_TAG} 🔍 Generating authorization URL`, {
+		logger.info(`${MODULE_TAG} 🔍 Generating authorization URL`, {
 			specVersion,
 			flowType,
 			flowTypeType: typeof flowType,
@@ -215,7 +216,7 @@ export class UnifiedFlowIntegrationV8U {
 		// Prioritize user's configured redirect URI (matches PingOne config) over auto-generated default
 		const redirectUriToUse = credentials.redirectUri?.trim() || defaultRedirectUri || '';
 
-		console.log(`${MODULE_TAG} Redirect URI validation`, {
+		logger.info(`${MODULE_TAG} Redirect URI validation`, {
 			flowType,
 			flowKey,
 			credentialsRedirectUri: credentials.redirectUri,
@@ -226,7 +227,7 @@ export class UnifiedFlowIntegrationV8U {
 
 		// Implicit flow
 		if (flowType === 'implicit') {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} ✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`
 			);
 			const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
@@ -241,7 +242,7 @@ export class UnifiedFlowIntegrationV8U {
 			const generatedUrl = new URL(result.authorizationUrl);
 			const redirectUriFromUrl = generatedUrl.searchParams.get('redirect_uri') || '';
 
-			console.log(`${MODULE_TAG} Using redirect_uri from generated URL:`, {
+			logger.info(`${MODULE_TAG} Using redirect_uri from generated URL:`, {
 				redirectUriFromUrl,
 				redirectUriToUse,
 				match: redirectUriFromUrl === redirectUriToUse,
@@ -265,38 +266,38 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				console.log(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
+				logger.info(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				console.log(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.info(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
+				logger.info(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
 
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
 			const responseMode =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseMode);
-			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseMode}`);
+			logger.info(`${MODULE_TAG} 🔗 Response mode set to: ${responseMode}`);
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-			console.log(`${MODULE_TAG} ✅ Implicit flow URL generated with prefixed state`, {
+			logger.info(`${MODULE_TAG} ✅ Implicit flow URL generated with prefixed state`, {
 				hasAuthUrl: !!authorizationUrl,
 				originalState: result.state,
 				prefixedState: prefixedState,
 				authUrlPreview: authorizationUrl.substring(0, 200),
 				responseMode: responseMode,
 			});
-			console.log(`${MODULE_TAG} 🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`);
-			console.log(`${MODULE_TAG} 🔑 This prefixed state is now in the authorization URL`);
+			logger.info(`${MODULE_TAG} 🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`);
+			logger.info(`${MODULE_TAG} 🔑 This prefixed state is now in the authorization URL`);
 
 			return {
 				authorizationUrl,
@@ -336,7 +337,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// If PAR is enabled, push PAR request and use request_uri in authorization URL
 			if (credentials.usePAR) {
-				console.log(`${MODULE_TAG} 📤 PAR enabled - pushing authorization request first`, {
+				logger.info(`${MODULE_TAG} 📤 PAR enabled - pushing authorization request first`, {
 					usePAR: credentials.usePAR,
 					clientId: credentials.clientId,
 					hasClientSecret: !!credentials.clientSecret,
@@ -360,7 +361,7 @@ export class UnifiedFlowIntegrationV8U {
 						pkceCodes
 					);
 
-					console.log(`${MODULE_TAG} 📋 PAR request built`, {
+					logger.info(`${MODULE_TAG} 📋 PAR request built`, {
 						hasClientSecret: !!parRequest.clientSecret,
 						redirectUri: parRequest.redirectUri,
 						scope: parRequest.scope,
@@ -376,7 +377,7 @@ export class UnifiedFlowIntegrationV8U {
 							? credentials.clientAuthMethod
 							: 'client_secret_post';
 
-					console.log(`${MODULE_TAG} 🔐 Using PAR auth method: ${parAuthMethod}`);
+					logger.info(`${MODULE_TAG} 🔐 Using PAR auth method: ${parAuthMethod}`);
 
 					// Push PAR request
 					const parResponse = await PARRARIntegrationServiceV8U.pushPARRequest(
@@ -392,7 +393,7 @@ export class UnifiedFlowIntegrationV8U {
 						throw new Error('PAR request succeeded but no request_uri was returned');
 					}
 
-					console.log(`${MODULE_TAG} ✅ PAR request pushed successfully`, {
+					logger.info(`${MODULE_TAG} ✅ PAR request pushed successfully`, {
 						requestUri: `${parResponse.requestUri?.substring(0, 50)}...`,
 						fullRequestUri: parResponse.requestUri,
 						expiresIn: parResponse.expiresIn,
@@ -409,7 +410,7 @@ export class UnifiedFlowIntegrationV8U {
 						}
 					);
 
-					console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with PAR`, {
+					logger.info(`${MODULE_TAG} ✅ OAuth authz URL generated with PAR`, {
 						prefixedState,
 						hasPKCE: !!pkceCodes,
 						requestUri: `${parResponse.requestUri?.substring(0, 50)}...`,
@@ -429,7 +430,7 @@ export class UnifiedFlowIntegrationV8U {
 					};
 				} catch (parError) {
 					const errorMsg = parError instanceof Error ? parError.message : 'Unknown PAR error';
-					console.error(`${MODULE_TAG} ❌ PAR request failed:`, {
+					logger.error(`${MODULE_TAG} ❌ PAR request failed:`, {
 						error: errorMsg,
 						parError,
 						credentials: {
@@ -486,19 +487,19 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				console.log(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
+				logger.info(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				console.log(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.info(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
+				logger.info(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
 
 			// Add PKCE parameters if provided
@@ -511,11 +512,11 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeOAuth =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
 			params.set('response_mode', responseModeOAuth);
-			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
+			logger.info(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-			console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
+			logger.info(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState: prefixedStateRegular,
 				hasPKCE: !!pkceCodes,
 				responseMode: responseModeOAuth,
@@ -589,7 +590,7 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeHybrid =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseModeHybrid);
-			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeHybrid}`);
+			logger.info(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeHybrid}`);
 
 			// Add prompt parameter if specified
 			if (credentials.prompt) {
@@ -599,24 +600,24 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				console.log(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
+				logger.info(`${MODULE_TAG} 👤 Added login_hint: ${credentials.loginHint}`);
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				console.log(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.info(`${MODULE_TAG} ⏱️ Added max_age: ${credentials.maxAge}s`);
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
+				logger.info(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-			console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
+			logger.info(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
 				prefixedState,
 				responseMode: responseModeHybrid,
 			});
@@ -679,11 +680,11 @@ export class UnifiedFlowIntegrationV8U {
 	 *
 	 * @example
 	 * const deviceAuth = await UnifiedFlowIntegrationV8U.requestDeviceAuthorization(credentials);
-	 * console.log(`User code: ${deviceAuth.user_code}`);
-	 * console.log(`Visit: ${deviceAuth.verification_uri_complete}`);
+	 * logger.info(`User code: ${deviceAuth.user_code}`);
+	 * logger.info(`Visit: ${deviceAuth.verification_uri_complete}`);
 	 */
 	static async requestDeviceAuthorization(credentials: UnifiedFlowCredentials) {
-		console.log(`${MODULE_TAG} Requesting device authorization`);
+		logger.info(`${MODULE_TAG} Requesting device authorization`);
 
 		// Validate required credentials
 		if (!credentials.environmentId || !credentials.clientId) {
@@ -767,7 +768,7 @@ export class UnifiedFlowIntegrationV8U {
 		interval?: number, // Optional - from device authorization response
 		maxAttempts?: number // Optional - calculated from expires_in if not provided
 	) {
-		console.log(`${MODULE_TAG} Polling for tokens`, {
+		logger.info(`${MODULE_TAG} Polling for tokens`, {
 			deviceCode: `${deviceCode.substring(0, 20)}...`,
 			interval,
 			maxAttempts,
@@ -863,7 +864,7 @@ export class UnifiedFlowIntegrationV8U {
 	 * });
 	 */
 	static async requestToken(flowType: 'client-credentials', credentials: UnifiedFlowCredentials) {
-		console.log(`${MODULE_TAG} Requesting token`, {
+		logger.info(`${MODULE_TAG} Requesting token`, {
 			flowType,
 			authMethod: credentials.clientAuthMethod || 'client_secret_basic',
 			hasPrivateKey: !!(credentials as { privateKey?: string }).privateKey,
@@ -883,12 +884,12 @@ export class UnifiedFlowIntegrationV8U {
 			};
 			if (credentials.scopes) {
 				ccCredentials.scopes = credentials.scopes;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Passing scopes to client credentials service:`,
 					credentials.scopes
 				);
 			} else {
-				console.warn(`${MODULE_TAG} No scopes provided in credentials for client credentials flow`);
+				logger.warn(`${MODULE_TAG} No scopes provided in credentials for client credentials flow`);
 			}
 			// Pass clientAuthMethod if available and valid (service will default to client_secret_basic if 'none' or invalid)
 			if (credentials.clientAuthMethod && credentials.clientAuthMethod !== 'none') {
@@ -899,7 +900,7 @@ export class UnifiedFlowIntegrationV8U {
 			if (privateKey) {
 				ccCredentials.privateKey = privateKey;
 			}
-			console.log(`${MODULE_TAG} Client credentials request config:`, {
+			logger.info(`${MODULE_TAG} Client credentials request config:`, {
 				environmentId: ccCredentials.environmentId,
 				clientId: ccCredentials.clientId,
 				hasClientSecret: !!ccCredentials.clientSecret,
@@ -984,9 +985,9 @@ export class UnifiedFlowIntegrationV8U {
 		code: string,
 		codeVerifier?: string
 	) {
-		console.log(`${MODULE_TAG} ========== SERVICE LAYER: exchangeCodeForTokens ==========`);
-		console.log(`${MODULE_TAG} Flow Type:`, flowType);
-		console.log(`${MODULE_TAG} Credentials received:`, {
+		logger.info(`${MODULE_TAG} ========== SERVICE LAYER: exchangeCodeForTokens ==========`);
+		logger.info(`${MODULE_TAG} Flow Type:`, flowType);
+		logger.info(`${MODULE_TAG} Credentials received:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			hasClientSecret: !!credentials.clientSecret,
@@ -996,16 +997,16 @@ export class UnifiedFlowIntegrationV8U {
 			scopes: credentials.scopes,
 			clientAuthMethod: credentials.clientAuthMethod,
 		});
-		console.log(`${MODULE_TAG} Code length:`, code?.length);
-		console.log(`${MODULE_TAG} Code verifier length:`, codeVerifier?.length);
-		console.log(`${MODULE_TAG} Has code verifier:`, !!codeVerifier);
+		logger.info(`${MODULE_TAG} Code length:`, code?.length);
+		logger.info(`${MODULE_TAG} Code verifier length:`, codeVerifier?.length);
+		logger.info(`${MODULE_TAG} Has code verifier:`, !!codeVerifier);
 
 		if (flowType === 'oauth-authz') {
-			console.log(`${MODULE_TAG} Processing OAuth Authorization Code flow`);
+			logger.info(`${MODULE_TAG} Processing OAuth Authorization Code flow`);
 
 			// Validate required fields based on PKCE usage
 			if (!credentials.environmentId || !credentials.clientId) {
-				console.error(`${MODULE_TAG} ❌ Missing required fields:`, {
+				logger.error(`${MODULE_TAG} ❌ Missing required fields:`, {
 					hasEnvironmentId: !!credentials.environmentId,
 					hasClientId: !!credentials.clientId,
 				});
@@ -1016,7 +1017,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Redirect URI is only required when PKCE is NOT enabled
 			if (!credentials.usePKCE && !credentials.redirectUri) {
-				console.error(`${MODULE_TAG} ❌ PKCE not enabled and redirect URI missing`);
+				logger.error(`${MODULE_TAG} ❌ PKCE not enabled and redirect URI missing`);
 				throw new Error(
 					'Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.'
 				);
@@ -1024,13 +1025,13 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Code verifier is only required when PKCE IS enabled
 			if (credentials.usePKCE && !codeVerifier) {
-				console.error(`${MODULE_TAG} ❌ PKCE enabled but code verifier missing`);
+				logger.error(`${MODULE_TAG} ❌ PKCE enabled but code verifier missing`);
 				throw new Error(
 					'PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.'
 				);
 			}
 
-			console.log(`${MODULE_TAG} ✅ Validation passed, building OAuth credentials object`);
+			logger.info(`${MODULE_TAG} ✅ Validation passed, building OAuth credentials object`);
 			const oauthCredentials: OAuthCredentials = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -1041,24 +1042,24 @@ export class UnifiedFlowIntegrationV8U {
 
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Client secret included (length: ${credentials.clientSecret.length})`
 				);
 			} else {
-				console.log(`${MODULE_TAG} No client secret provided`);
+				logger.info(`${MODULE_TAG} No client secret provided`);
 			}
 
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				oauthCredentials.privateKey = credentials.privateKey;
-				console.log(`${MODULE_TAG} Private key included for private_key_jwt authentication`);
+				logger.info(`${MODULE_TAG} Private key included for private_key_jwt authentication`);
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`
 			);
 
-			console.log(`${MODULE_TAG} OAuth credentials prepared:`, {
+			logger.info(`${MODULE_TAG} OAuth credentials prepared:`, {
 				environmentId: oauthCredentials.environmentId,
 				clientId: oauthCredentials.clientId,
 				redirectUri: oauthCredentials.redirectUri,
@@ -1070,8 +1071,8 @@ export class UnifiedFlowIntegrationV8U {
 					: 'default (client_secret_post)',
 			});
 
-			console.log(`${MODULE_TAG} 🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);
-			console.log(`${MODULE_TAG} Parameters:`, {
+			logger.info(`${MODULE_TAG} 🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);
+			logger.info(`${MODULE_TAG} Parameters:`, {
 				hasCredentials: !!oauthCredentials,
 				codeLength: code.length,
 				codeVerifierLength: codeVerifier?.length,
@@ -1116,7 +1117,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				hybridCredentials.privateKey = credentials.privateKey;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Private key included for hybrid flow private_key_jwt authentication`
 				);
 			}
@@ -1146,7 +1147,7 @@ export class UnifiedFlowIntegrationV8U {
 		expectedState: string,
 		expectedNonce?: string
 	) {
-		console.log(`${MODULE_TAG} Parsing callback fragment`, { flowType });
+		logger.info(`${MODULE_TAG} Parsing callback fragment`, { flowType });
 
 		if (flowType === 'implicit') {
 			const result = ImplicitFlowIntegrationServiceV8.parseCallbackFragment(

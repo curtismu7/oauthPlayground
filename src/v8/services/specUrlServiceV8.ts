@@ -11,6 +11,7 @@
 
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📚 SPEC-URL-V8]';
 
 /**
@@ -68,7 +69,7 @@ export class SpecUrlServiceV8 {
 		primaryLabel: string;
 		related: Array<{ label: string; url: string }>;
 	} {
-		console.log(`${MODULE_TAG} Getting spec URLs for`, { specVersion });
+		logger.info(`${MODULE_TAG} Getting spec URLs for`, { specVersion });
 
 		switch (specVersion) {
 			case 'oauth2.0':
@@ -125,7 +126,7 @@ export class SpecUrlServiceV8 {
 	 * @returns Flow specification info with primary and related specs
 	 */
 	static getFlowSpecInfo(flowType: FlowType): FlowSpecInfo {
-		console.log(`${MODULE_TAG} Getting flow spec info for`, { flowType });
+		logger.info(`${MODULE_TAG} Getting flow spec info for`, { flowType });
 
 		// #region agent log
 		import('@/v8/utils/analyticsV8')

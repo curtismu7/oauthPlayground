@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
@@ -299,17 +300,17 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('SmartSpeakerDeviceFlow', 'User code copied to clipboard');
+		logger.info('SmartSpeakerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('SmartSpeakerDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('SmartSpeakerDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('SmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('SmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

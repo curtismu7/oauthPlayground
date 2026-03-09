@@ -18,6 +18,7 @@
 
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📋 RESPONSE-TYPE-V8]';
 
 export type ResponseType =
@@ -45,7 +46,7 @@ export class ResponseTypeServiceV8 {
 	 * @returns Array of valid response types
 	 */
 	static getResponseTypes(flowType: FlowType, specVersion: SpecVersion): ResponseType[] {
-		console.log(`${MODULE_TAG} Getting response types`, { flowType, specVersion });
+		logger.info(`${MODULE_TAG} Getting response types`, { flowType, specVersion });
 
 		// Authorization Code Flow
 		if (flowType === 'oauth-authz') {
@@ -107,7 +108,7 @@ export class ResponseTypeServiceV8 {
 		}
 
 		// Default fallback
-		console.warn(`${MODULE_TAG} Unknown flow type, using default response types`, { flowType });
+		logger.warn(`${MODULE_TAG} Unknown flow type, using default response types`, { flowType });
 		return ['code'];
 	}
 

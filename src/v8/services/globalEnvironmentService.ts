@@ -7,6 +7,7 @@
 
 import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
 
+import { logger } from '../utils/logger';
 type EnvironmentIdListener = (id: string | null) => void;
 
 /**
@@ -41,9 +42,9 @@ export class GlobalEnvironmentService {
 	 * Initialize the service (load from persistence)
 	 */
 	initialize(): void {
-		console.log('[GlobalEnvironmentService] Initializing...');
+		logger.info('[GlobalEnvironmentService] Initializing...');
 		this.environmentId = environmentIdPersistenceService.loadEnvironmentId();
-		console.log('[GlobalEnvironmentService] Loaded Environment ID:', this.environmentId);
+		logger.info('[GlobalEnvironmentService] Loaded Environment ID:', this.environmentId);
 		this.notifyListeners();
 	}
 
@@ -52,12 +53,12 @@ export class GlobalEnvironmentService {
 	 */
 	setEnvironmentId(id: string): void {
 		if (!id || !id.trim()) {
-			console.warn('[GlobalEnvironmentService] Cannot set empty environment ID');
+			logger.warn('[GlobalEnvironmentService] Cannot set empty environment ID');
 			return;
 		}
 
 		const trimmedId = id.trim();
-		console.log('[GlobalEnvironmentService] Setting Environment ID:', trimmedId);
+		logger.info('[GlobalEnvironmentService] Setting Environment ID:', trimmedId);
 
 		this.environmentId = trimmedId;
 		environmentIdPersistenceService.saveEnvironmentId(trimmedId, 'manual');
@@ -82,7 +83,7 @@ export class GlobalEnvironmentService {
 	 * Clear Environment ID
 	 */
 	clearEnvironmentId(): void {
-		console.log('[GlobalEnvironmentService] Clearing Environment ID');
+		logger.info('[GlobalEnvironmentService] Clearing Environment ID');
 		this.environmentId = null;
 		environmentIdPersistenceService.clearEnvironmentId();
 		this.notifyListeners();
@@ -103,7 +104,7 @@ export class GlobalEnvironmentService {
 	 * Notify all listeners of Environment ID change
 	 */
 	private notifyListeners(): void {
-		console.log('[GlobalEnvironmentService] Notifying listeners:', this.listeners.size);
+		logger.info('[GlobalEnvironmentService] Notifying listeners:', this.listeners.size);
 		this.listeners.forEach((listener) => listener(this.environmentId));
 	}
 
@@ -115,7 +116,7 @@ export class GlobalEnvironmentService {
 
 		window.addEventListener('storage', (event) => {
 			if (event.key === 'pingone_environment_id_persistence') {
-				console.log('[GlobalEnvironmentService] Storage event detected, reloading...');
+				logger.info('[GlobalEnvironmentService] Storage event detected, reloading...');
 				this.environmentId = environmentIdPersistenceService.loadEnvironmentId();
 				this.notifyListeners();
 			}

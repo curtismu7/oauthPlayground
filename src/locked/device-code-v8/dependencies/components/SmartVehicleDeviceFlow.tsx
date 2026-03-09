@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Tesla Screen Main Container - Automotive Display
 const SmartVehicleContainer = styled.div`
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
@@ -341,17 +342,17 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('SmartVehicleDeviceFlow', 'User code copied to clipboard');
+		logger.info('SmartVehicleDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('SmartVehicleDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('SmartVehicleDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('SmartVehicleDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('SmartVehicleDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

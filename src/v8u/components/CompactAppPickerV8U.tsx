@@ -14,6 +14,7 @@ import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {
@@ -154,7 +155,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			log.error('Discovery error', { error });
+			logger.error('Discovery error', { error });
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -197,7 +198,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 
 	// Debug logging to identify why button is disabled
 	if (isDisabled) {
-		console.log(`${_MODULE_TAG} App lookup button disabled:`, {
+		logger.info(`${_MODULE_TAG} App lookup button disabled:`, {
 			isLoading,
 			environmentId: environmentId.trim(),
 			environmentIdEmpty: !environmentId.trim(),

@@ -12,6 +12,7 @@
 import type { RiskThresholds } from '../../pages/protect-portal/types/protectPortal.types';
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 // ============================================================================
 // DEFAULT RISK POLICIES
 // ============================================================================
@@ -160,13 +161,13 @@ export function getActiveRiskThresholds(environment?: string): RiskThresholds {
 	// Try environment variables first
 	const envThresholds = getEnvironmentRiskThresholds();
 	if (envThresholds) {
-		console.log('[🔧 RISK-CONFIG] Using environment variable thresholds');
+		logger.info('[🔧 RISK-CONFIG] Using environment variable thresholds');
 		return envThresholds;
 	}
 
 	// Fall back to environment-specific configuration
 	const configThresholds = getRiskThresholds(environment);
-	console.log(`[🔧 RISK-CONFIG] Using ${environment || 'default'} environment thresholds`);
+	logger.info(`[🔧 RISK-CONFIG] Using ${environment || 'default'} environment thresholds`);
 	return configThresholds;
 }
 

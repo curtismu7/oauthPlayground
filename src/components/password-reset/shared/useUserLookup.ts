@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { logger } from '../../../utils/logger';
+import { logger } from '../../utils/logger';
 // PingOneUser type definition
 export interface PingOneUser {
 	id: string;
@@ -63,7 +64,7 @@ export const useUserLookup = (environmentId: string, workerToken: string): UseUs
 
 			setLoading(true);
 			try {
-				console.log('[useUserLookup] Looking up user:', {
+				logger.info('[useUserLookup] Looking up user:', {
 					hasEnvironmentId: !!environmentId,
 					hasWorkerToken: !!workerToken,
 					identifierLength: trimmedIdentifier.length,

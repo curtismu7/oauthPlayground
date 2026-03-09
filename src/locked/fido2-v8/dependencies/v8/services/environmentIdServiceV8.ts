@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file environmentIdServiceV8.ts
  * @module v8/services
  * @description Global environment ID storage and retrieval service
@@ -21,11 +22,11 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
-				console.log(`${MODULE_TAG} Retrieved stored environment ID`);
+				logger.info(`${MODULE_TAG} Retrieved stored environment ID`);
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get environment ID`, error);
+			logger.error(`${MODULE_TAG} Failed to get environment ID`, error);
 		}
 		return '';
 	}
@@ -36,17 +37,17 @@ export class EnvironmentIdServiceV8 {
 	 */
 	static saveEnvironmentId(environmentId: string): void {
 		if (!environmentId?.trim()) {
-			console.warn(`${MODULE_TAG} Attempted to save empty environment ID`);
+			logger.warn(`${MODULE_TAG} Attempted to save empty environment ID`);
 			return;
 		}
 
 		try {
 			localStorage.setItem(STORAGE_KEY, environmentId.trim());
-			console.log(`${MODULE_TAG} Saved environment ID`);
+			logger.info(`${MODULE_TAG} Saved environment ID`);
 			// Dispatch event so components can react
 			window.dispatchEvent(new Event('environmentIdUpdated'));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save environment ID`, error);
+			logger.error(`${MODULE_TAG} Failed to save environment ID`, error);
 		}
 	}
 
@@ -56,10 +57,10 @@ export class EnvironmentIdServiceV8 {
 	static clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log(`${MODULE_TAG} Cleared environment ID`);
+			logger.info(`${MODULE_TAG} Cleared environment ID`);
 			window.dispatchEvent(new Event('environmentIdUpdated'));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear environment ID`, error);
+			logger.error(`${MODULE_TAG} Failed to clear environment ID`, error);
 		}
 	}
 

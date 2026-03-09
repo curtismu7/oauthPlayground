@@ -5,6 +5,7 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,
@@ -365,17 +366,17 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('AmazonEchoShowDeviceFlow', 'User code copied to clipboard');
+		logger.info('AmazonEchoShowDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('AmazonEchoShowDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('AmazonEchoShowDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('AmazonEchoShowDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('AmazonEchoShowDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

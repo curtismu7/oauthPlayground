@@ -14,6 +14,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📲 MOBILE-CONTROLLER]';
 
 /**
@@ -23,7 +24,7 @@ const MODULE_TAG = '[📲 MOBILE-CONTROLLER]';
 export class MobileFlowController extends MFAFlowController {
 	constructor(callbacks: FlowControllerCallbacks = {}) {
 		super('MOBILE', callbacks);
-		console.log(`${MODULE_TAG} Mobile Flow Controller initialized`);
+		logger.info(`${MODULE_TAG} Mobile Flow Controller initialized`);
 	}
 
 	/**
@@ -108,7 +109,7 @@ export class MobileFlowController extends MFAFlowController {
 		status: string;
 		[key: string]: any;
 	} {
-		console.log(`${MODULE_TAG} Processing Mobile device registration result`);
+		logger.info(`${MODULE_TAG} Processing Mobile device registration result`);
 
 		// Call parent to get base fields
 		const baseResult = super.processRegistrationResult(result);

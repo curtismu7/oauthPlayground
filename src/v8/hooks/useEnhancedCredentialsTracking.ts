@@ -14,6 +14,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
 	EnhancedCredentialsServiceV8,
 	type UserInteractionData,
@@ -195,7 +196,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				return newSession;
 			});
 
-			console.log(`${MODULE_TAG} Field interaction tracked:`, {
+			logger.info(`${MODULE_TAG} Field interaction tracked:`, {
 				fieldName,
 				interactionType,
 				value,
@@ -222,7 +223,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				selections: [...prev.selections, selection],
 			}));
 
-			console.log(`${MODULE_TAG} Dropdown selection tracked:`, { dropdownId, value, text });
+			logger.info(`${MODULE_TAG} Dropdown selection tracked:`, { dropdownId, value, text });
 		},
 		[]
 	);
@@ -236,7 +237,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 			trackFieldInteraction(fieldName, 'validate', undefined, validationResult);
 
 			if (!isValid && errorMessage) {
-				console.warn(`${MODULE_TAG} Validation error:`, { fieldName, errorMessage });
+				logger.warn(`${MODULE_TAG} Validation error:`, { fieldName, errorMessage });
 			}
 		},
 		[trackFieldInteraction]
@@ -253,7 +254,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				totalTime: Date.now() - prev.startTime,
 			}));
 
-			console.log(`${MODULE_TAG} Step changed:`, { from: session.currentStep, to: newStep });
+			logger.info(`${MODULE_TAG} Step changed:`, { from: session.currentStep, to: newStep });
 		},
 		[session.currentStep]
 	);
@@ -354,17 +355,17 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 						}));
 					}
 
-					console.log(`${MODULE_TAG} Credentials saved successfully:`, result.backend);
+					logger.info(`${MODULE_TAG} Credentials saved successfully:`, result.backend);
 				} else {
 					setSaveError(result.error || 'Unknown error');
-					console.error(`${MODULE_TAG} Save failed:`, result.error);
+					logger.error(`${MODULE_TAG} Save failed:`, result.error);
 				}
 
 				return result;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				setSaveError(errorMessage);
-				console.error(`${MODULE_TAG} Save error:`, error);
+				logger.error(`${MODULE_TAG} Save error:`, error);
 				return { success: false, backend: 'none', error: errorMessage };
 			} finally {
 				setIsLoading(false);
@@ -396,10 +397,10 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				}));
 			}
 
-			console.log(`${MODULE_TAG} Credentials loaded:`, credentials ? 'success' : 'not found');
+			logger.info(`${MODULE_TAG} Credentials loaded:`, credentials ? 'success' : 'not found');
 			return credentials;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Load error:`, error);
+			logger.error(`${MODULE_TAG} Load error:`, error);
 			return null;
 		} finally {
 			setIsLoading(false);
@@ -419,7 +420,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		autoSaveTimeoutRef.current = setTimeout(() => {
 			// This would be called with actual credentials data
 			// Implementation depends on how credentials are managed in the consuming component
-			console.log(`${MODULE_TAG} Auto-save triggered`);
+			logger.info(`${MODULE_TAG} Auto-save triggered`);
 		}, autoSaveDelay);
 	}, [autoSave, autoSaveDelay]);
 
@@ -478,7 +479,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		setLastSaveTime(null);
 		setSaveError(null);
 
-		console.log(`${MODULE_TAG} Session reset`);
+		logger.info(`${MODULE_TAG} Session reset`);
 	}, []);
 
 	// Auto-save trigger when fields are modified

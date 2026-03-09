@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file workerTokenServiceV8.ts
  * @module v8/services
  * @description Centralized Worker Token Service with IndexedDB backup storage
@@ -69,7 +70,7 @@ class WorkerTokenServiceV8 {
 			const request = indexedDB.open(INDEXEDDB_DB_NAME, 1);
 
 			request.onerror = () => {
-				console.error(`${MODULE_TAG} Failed to open IndexedDB`, request.error);
+				logger.error(`${MODULE_TAG} Failed to open IndexedDB`, request.error);
 				reject(request.error);
 			};
 
@@ -113,7 +114,7 @@ class WorkerTokenServiceV8 {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to browser storage`, error);
+			logger.error(`${MODULE_TAG} Failed to save to browser storage`, error);
 		}
 
 		// Save to IndexedDB (backup)
@@ -133,7 +134,7 @@ class WorkerTokenServiceV8 {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to IndexedDB`, error);
+			logger.error(`${MODULE_TAG} Failed to save to IndexedDB`, error);
 			// Don't throw - browser storage is primary
 		}
 	}
@@ -167,7 +168,7 @@ class WorkerTokenServiceV8 {
 				return extracted;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from browser storage`, error);
+			logger.error(`${MODULE_TAG} Failed to load from browser storage`, error);
 			// #region agent log
 			// #endregion
 		}
@@ -190,12 +191,12 @@ class WorkerTokenServiceV8 {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to restore to browser storage`, error);
+					logger.warn(`${MODULE_TAG} Failed to restore to browser storage`, error);
 				}
 				return this.extractCredentials(data);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
+			logger.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
 		}
 
 		// Try legacy storage key as fallback (worker_credentials)
@@ -228,12 +229,12 @@ class WorkerTokenServiceV8 {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage`, error);
+					logger.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage`, error);
 				}
 				return this.extractCredentials(convertedData);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from legacy storage`, error);
+			logger.error(`${MODULE_TAG} Failed to load from legacy storage`, error);
 			// #region agent log
 			// #endregion
 		}
@@ -259,7 +260,7 @@ class WorkerTokenServiceV8 {
 				return this.extractCredentials(data);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from browser storage (sync)`, error);
+			logger.error(`${MODULE_TAG} Failed to load from browser storage (sync)`, error);
 		}
 
 		// Try legacy storage key as fallback (worker_credentials)
@@ -288,7 +289,7 @@ class WorkerTokenServiceV8 {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
 				} catch (error) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`,
 						error
 					);
@@ -296,7 +297,7 @@ class WorkerTokenServiceV8 {
 				return this.extractCredentials(convertedData);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from legacy storage (sync)`, error);
+			logger.error(`${MODULE_TAG} Failed to load from legacy storage (sync)`, error);
 		}
 
 		return null;
@@ -325,7 +326,7 @@ class WorkerTokenServiceV8 {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to browser storage`, error);
+			logger.error(`${MODULE_TAG} Failed to save token to browser storage`, error);
 		}
 
 		// Save to IndexedDB
@@ -343,7 +344,7 @@ class WorkerTokenServiceV8 {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to IndexedDB`, error);
+			logger.error(`${MODULE_TAG} Failed to save token to IndexedDB`, error);
 		}
 	}
 
@@ -364,7 +365,7 @@ class WorkerTokenServiceV8 {
 
 		// Check expiration
 		if (stored.expiresAt && Date.now() > stored.expiresAt) {
-			console.log(`${MODULE_TAG} Token expired, clearing`);
+			logger.info(`${MODULE_TAG} Token expired, clearing`);
 			await this.clearToken();
 			return null;
 		}
@@ -382,7 +383,7 @@ class WorkerTokenServiceV8 {
 		try {
 			localStorage.removeItem(BROWSER_STORAGE_KEY);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear browser storage`, error);
+			logger.error(`${MODULE_TAG} Failed to clear browser storage`, error);
 		}
 
 		// Clear IndexedDB
@@ -396,10 +397,10 @@ class WorkerTokenServiceV8 {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
+			logger.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
 		}
 
-		console.log(`${MODULE_TAG} Cleared all credentials`);
+		logger.info(`${MODULE_TAG} Cleared all credentials`);
 	}
 
 	/**
@@ -423,7 +424,7 @@ class WorkerTokenServiceV8 {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from browser storage`, error);
+			logger.error(`${MODULE_TAG} Failed to clear token from browser storage`, error);
 		}
 
 		// Update IndexedDB
@@ -440,7 +441,7 @@ class WorkerTokenServiceV8 {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from IndexedDB`, error);
+			logger.error(`${MODULE_TAG} Failed to clear token from IndexedDB`, error);
 		}
 	}
 
@@ -487,7 +488,7 @@ class WorkerTokenServiceV8 {
 				return JSON.parse(stored) as WorkerTokenData;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load data from storage`, error);
+			logger.error(`${MODULE_TAG} Failed to load data from storage`, error);
 		}
 		return null;
 	}

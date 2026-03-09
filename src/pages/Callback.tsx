@@ -114,16 +114,16 @@ const Callback = () => {
 		const processCallback = async () => {
 			// Prevent multiple processing attempts
 			if (hasProcessed) {
-				console.log(' [Callback] Callback already processed, skipping...');
+				logger.info(' [Callback] Callback already processed, skipping...');
 				return;
 			}
 
 			setHasProcessed(true);
 
 			try {
-				console.log(' [Callback] Starting OAuth callback processing...');
-				console.log(' [Callback] Current URL:', window.location.href);
-				console.log(' [Callback] Location details:', {
+				logger.info(' [Callback] Starting OAuth callback processing...');
+				logger.info(' [Callback] Current URL:', window.location.href);
+				logger.info(' [Callback] Location details:', {
 					href: window.location.href,
 					pathname: window.location.pathname,
 					search: window.location.search,
@@ -137,14 +137,14 @@ const Callback = () => {
 					urlParams[key] = value;
 				}
 
-				console.log(' [Callback] URL parameters:', urlParams);
+				logger.info(' [Callback] URL parameters:', urlParams);
 
 				// Check sessionStorage for stored values
 				const storedState = sessionStorage.getItem('oauth_state');
 				const storedCodeVerifier = sessionStorage.getItem('code_verifier');
 				const storedRedirectAfterLogin = sessionStorage.getItem('oauth_redirect_after_login');
 
-				console.log(' [Callback] SessionStorage values:', {
+				logger.info(' [Callback] SessionStorage values:', {
 					hasStoredState: !!storedState,
 					hasStoredCodeVerifier: !!storedCodeVerifier,
 					hasStoredRedirectAfterLogin: !!storedRedirectAfterLogin,
@@ -190,7 +190,7 @@ const Callback = () => {
 
 					// If this is a popup, send error to parent and close
 					if (window.opener && !window.opener.closed) {
-						console.log(' [Callback] Sending error message to parent window');
+						logger.info(' [Callback] Sending error message to parent window');
 						window.opener.postMessage(
 							{
 								type: 'oauth-callback',
@@ -235,11 +235,11 @@ const Callback = () => {
 					);
 				}
 
-				console.log(' [Callback] Authorization code found, processing callback...');
+				logger.info(' [Callback] Authorization code found, processing callback...');
 
 				// Check if this is a popup window and send message to parent
 				if (window.opener && !window.opener.closed) {
-					console.log(' [Callback] Sending message to parent window');
+					logger.info(' [Callback] Sending message to parent window');
 					window.opener.postMessage(
 						{
 							type: 'oauth-callback',
@@ -265,7 +265,7 @@ const Callback = () => {
 
 				// Validate the current URL before passing to handleCallback
 				const currentUrl = getValidatedCurrentUrl('Callback');
-				console.log(' [Callback] Current URL for handleCallback:', currentUrl);
+				logger.info(' [Callback] Current URL for handleCallback:', currentUrl);
 
 				const result = await handleCallback(currentUrl);
 				const elapsed = Date.now() - start;
@@ -275,13 +275,13 @@ const Callback = () => {
 				}
 
 				// If we reach here, authentication was successful
-				console.log(' [Callback] Authentication successful');
+				logger.info(' [Callback] Authentication successful');
 				setStatus('success');
 
 				// Get the redirect URL from the callback result
 				const redirectUrl = result.redirectUrl || '/dashboard';
 
-				console.log(' [Callback] Redirecting to:', redirectUrl);
+				logger.info(' [Callback] Redirecting to:', redirectUrl);
 
 				// Brief success state before navigating
 				setTimeout(() => {

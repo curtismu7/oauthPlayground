@@ -8,6 +8,7 @@ import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;
@@ -462,9 +463,9 @@ async function pushAuthorizationRequest(config) {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('PAR successful!');
-      console.log('Request URI:', result.request_uri);
-      console.log('Expires in:', result.expires_in, 'seconds');
+      logger.info('PAR successful!');
+      logger.info('Request URI:', result.request_uri);
+      logger.info('Expires in:', result.expires_in, 'seconds');
       
       // Generate authorization URL
       const authUrl = \`\${config.baseUrl}/\${config.environmentId}/as/authorize?request_uri=\${result.request_uri}&response_type=code\`;
@@ -496,7 +497,7 @@ const config = {
 
 pushAuthorizationRequest(config)
   .then(result => {
-    console.log('Redirect user to:', result.auth_url);
+    logger.info('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
   .catch(error => logger.error('Error:', error));`,
@@ -543,9 +544,9 @@ async function pushAuthorizationRequest(config) {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('PAR successful!');
-      console.log('Request URI:', result.request_uri);
-      console.log('Expires in:', result.expires_in, 'seconds');
+      logger.info('PAR successful!');
+      logger.info('Request URI:', result.request_uri);
+      logger.info('Expires in:', result.expires_in, 'seconds');
       
       // Generate authorization URL
       const authUrl = \`\${config.baseUrl}/\${config.environmentId}/as/authorize?request_uri=\${result.request_uri}&response_type=code\`;
@@ -577,7 +578,7 @@ const config = {
 
 pushAuthorizationRequest(config)
   .then(result => {
-    console.log('Redirect user to:', result.auth_url);
+    logger.info('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
   .catch(error => logger.error('Error:', error));`}</CodeBlock>
@@ -794,7 +795,7 @@ const config = {
 };
 
 const authUrl = generateRARAuthUrl(config, authorizationDetails);
-console.log('RAR Authorization URL:', authUrl);`,
+logger.info('RAR Authorization URL:', authUrl);`,
 											'RAR JavaScript code'
 										)
 									}
@@ -855,7 +856,7 @@ const config = {
 };
 
 const authUrl = generateRARAuthUrl(config, authorizationDetails);
-console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
+logger.info('RAR Authorization URL:', authUrl);`}</CodeBlock>
 						</ExampleSection>
 
 						<ExampleSection>
@@ -1198,8 +1199,8 @@ async function pushPARWithRAR(config, authorizationDetails) {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('PAR + RAR successful!');
-      console.log('Request URI:', result.request_uri);
+      logger.info('PAR + RAR successful!');
+      logger.info('Request URI:', result.request_uri);
       
       // Generate clean authorization URL
       const authUrl = \`\${config.baseUrl}/\${config.environmentId}/as/authorize?request_uri=\${result.request_uri}&response_type=code\`;
@@ -1214,7 +1215,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    log.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
+    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1243,7 +1244,7 @@ const rarDetails = [
 
 pushPARWithRAR(config, rarDetails)
   .then(result => {
-    console.log('Redirect user to:', result.auth_url);
+    logger.info('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
   .catch(error => logger.error('Error:', error));`,
@@ -1294,8 +1295,8 @@ async function pushPARWithRAR(config, authorizationDetails) {
     const result = await response.json();
     
     if (response.ok) {
-      console.log('PAR + RAR successful!');
-      console.log('Request URI:', result.request_uri);
+      logger.info('PAR + RAR successful!');
+      logger.info('Request URI:', result.request_uri);
       
       // Generate clean authorization URL
       const authUrl = \`\${config.baseUrl}/\${config.environmentId}/as/authorize?request_uri=\${result.request_uri}&response_type=code\`;
@@ -1310,7 +1311,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    log.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
+    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1339,7 +1340,7 @@ const rarDetails = [
 
 pushPARWithRAR(config, rarDetails)
   .then(result => {
-    console.log('Redirect user to:', result.auth_url);
+    logger.info('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
   .catch(error => logger.error('Error:', error));`}</CodeBlock>

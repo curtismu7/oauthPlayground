@@ -7,6 +7,7 @@
 import type { UISettings } from '../contexts/UISettingsContext';
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 const LEGACY_DEFAULTS: Pick<
 	UISettings,
 	| 'showCredentialsModal'
@@ -90,7 +91,7 @@ export const updateUISetting = <K extends keyof UISettings>(key: K, value: UISet
 				detail: { [key]: value, allSettings: updated },
 			})
 		);
-		console.log(`[UISettings] Legacy update ${String(key)} ->`, value);
+		logger.info(`[UISettings] Legacy update ${String(key)} ->`, value);
 	} catch (error) {
 		logger.error(
 			'UISettings',

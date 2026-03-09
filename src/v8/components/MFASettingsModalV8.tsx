@@ -4,6 +4,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../utils/logger';
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -56,7 +57,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			const data = await MFAServiceV8.getMFASettings(environmentId);
 			setSettings(data);
 		} catch (error) {
-			console.error('Failed to fetch MFA settings', error);
+			logger.error('Failed to fetch MFA settings', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -79,7 +80,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			});
 			onClose();
 		} catch (error) {
-			console.error('Failed to update MFA settings', error);
+			logger.error('Failed to update MFA settings', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

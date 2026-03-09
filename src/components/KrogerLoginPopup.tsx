@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 // Kroger Brand Colors
 const KROGER_COLORS = {
 	red: '#E31837',
@@ -523,7 +524,7 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 
 		// Prevent double-submission
 		if (isLoading) {
-			console.log('🔍 [KrogerLoginPopup] Already processing, ignoring duplicate submission');
+			logger.info('🔍 [KrogerLoginPopup] Already processing, ignoring duplicate submission');
 			return;
 		}
 

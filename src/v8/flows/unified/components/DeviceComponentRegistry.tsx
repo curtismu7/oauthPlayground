@@ -27,6 +27,7 @@ import type { DeviceConfigKey, DeviceFlowConfig } from '@/v8/config/deviceFlowCo
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFACredentials, MFAState } from '@/v8/flows/shared/MFATypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🎨 DEVICE-COMPONENT-REGISTRY]';
 
 // ============================================================================
@@ -181,7 +182,7 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 	config,
 	onError,
 }) => {
-	console.log(`${MODULE_TAG} Rendering TOTP registration component`, {
+	logger.info(`${MODULE_TAG} Rendering TOTP registration component`, {
 		hasQRCode: !!mfaState.qrCodeUrl,
 		hasSecret: !!mfaState.totpSecret,
 	});
@@ -195,12 +196,12 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			navigator.clipboard
 				.writeText(mfaState.totpSecret)
 				.then(() => {
-					console.log(`${MODULE_TAG} Secret copied to clipboard`);
+					logger.info(`${MODULE_TAG} Secret copied to clipboard`);
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
 				})
 				.catch((err) => {
-					console.error(`${MODULE_TAG} Failed to copy secret:`, err);
+					logger.error(`${MODULE_TAG} Failed to copy secret:`, err);
 					onError('Failed to copy secret to clipboard');
 				});
 		}
@@ -320,7 +321,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 	controller,
 	config,
 }) => {
-	console.log(`${MODULE_TAG} Rendering FIDO2 registration component`, {
+	logger.info(`${MODULE_TAG} Rendering FIDO2 registration component`, {
 		hasOptions: !!mfaState.publicKeyCredentialCreationOptions,
 	});
 
@@ -332,7 +333,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 		const supported =
 			window.PublicKeyCredential !== undefined && navigator.credentials !== undefined;
 
-		console.log(`${MODULE_TAG} WebAuthn support:`, supported);
+		logger.info(`${MODULE_TAG} WebAuthn support:`, supported);
 		setBrowserSupported(supported);
 
 		if (!supported) {
@@ -349,7 +350,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 	 * 2. Send attestation back to PingOne to activate device
 	 */
 	const handleWebAuthnRegistration = useCallback(async () => {
-		console.log(`${MODULE_TAG} Starting WebAuthn registration`);
+		logger.info(`${MODULE_TAG} Starting WebAuthn registration`);
 		setIsRegistering(true);
 
 		try {
@@ -366,7 +367,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				);
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Calling controller.registerFIDO2Device with deviceId:`,
 				mfaState.deviceId
 			);
@@ -379,7 +380,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				controller instanceof FIDO2FlowController
 					? controller
 					: new FIDO2FlowController({
-							onError: (error: string) => console.error('FIDO2 Controller Error:', error),
+							onError: (error: string) => logger.error('FIDO2 Controller Error:', error),
 						});
 
 			// Call the full FIDO2 registration flow (WebAuthn + activation)
@@ -389,7 +390,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				JSON.stringify(options)
 			);
 
-			console.log(`${MODULE_TAG} FIDO2 registration complete:`, result);
+			logger.info(`${MODULE_TAG} FIDO2 registration complete:`, result);
 
 			// Update state with final device status
 			setMfaState((prev) => ({
@@ -405,7 +406,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				credentialId: result.credentialId,
 			});
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} WebAuthn registration failed:`, error);
+			logger.error(`${MODULE_TAG} WebAuthn registration failed:`, error);
 
 			// Handle common errors
 			let errorMessage = 'Biometric registration failed';
@@ -527,7 +528,7 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 	mfaState,
 	config,
 }) => {
-	console.log(`${MODULE_TAG} Rendering Mobile registration component`, {
+	logger.info(`${MODULE_TAG} Rendering Mobile registration component`, {
 		hasQRCode: !!mfaState.qrCodeUrl,
 		hasPairingKey: !!mfaState.pairingKey,
 	});
@@ -540,12 +541,12 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			navigator.clipboard
 				.writeText(mfaState.pairingKey)
 				.then(() => {
-					console.log(`${MODULE_TAG} Pairing key copied to clipboard`);
+					logger.info(`${MODULE_TAG} Pairing key copied to clipboard`);
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
 				})
 				.catch((err) => {
-					console.error(`${MODULE_TAG} Failed to copy pairing key:`, err);
+					logger.error(`${MODULE_TAG} Failed to copy pairing key:`, err);
 				});
 		}
 	}, [mfaState.pairingKey]);

@@ -1,4 +1,5 @@
 // src/v8/services/dualStorageServiceV8.ts
+import { logger } from '../utils/logger';
 /**
  * Dual Storage Service V8
  *
@@ -41,7 +42,7 @@ export class DualStorageServiceV8 {
 					return true;
 				}
 			} catch (fallbackError) {
-				console.error('DualStorageServiceV8: Both storage mechanisms failed', fallbackError);
+				logger.error('DualStorageServiceV8: Both storage mechanisms failed', fallbackError);
 			}
 		}
 		return false;
@@ -66,7 +67,7 @@ export class DualStorageServiceV8 {
 					return sessionStorage.getItem(key);
 				}
 			} catch (fallbackError) {
-				console.error('DualStorageServiceV8: Both storage mechanisms failed', fallbackError);
+				logger.error('DualStorageServiceV8: Both storage mechanisms failed', fallbackError);
 			}
 		}
 		return null;
@@ -87,7 +88,7 @@ export class DualStorageServiceV8 {
 				success = true;
 			}
 		} catch (error) {
-			console.error('DualStorageServiceV8: Primary storage removal failed', error);
+			logger.error('DualStorageServiceV8: Primary storage removal failed', error);
 		}
 
 		try {
@@ -99,7 +100,7 @@ export class DualStorageServiceV8 {
 				success = true;
 			}
 		} catch (error) {
-			console.error('DualStorageServiceV8: Fallback storage removal failed', error);
+			logger.error('DualStorageServiceV8: Fallback storage removal failed', error);
 		}
 
 		return success;

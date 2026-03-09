@@ -8,6 +8,7 @@ import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 
+import { logger } from '../../../utils/logger';
 interface FlowConfigurationProps {
 	credentials: FlowCredentials;
 	onCredentialsChange: (credentials: FlowCredentials) => void;
@@ -294,9 +295,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 					'oauth-authorization-code-v7-1-app-config',
 					JSON.stringify(appConfig)
 				);
-				console.log('✅ Configuration saved successfully');
+				logger.info('✅ Configuration saved successfully');
 			} catch (error) {
-				log.error('❌ Failed to save configuration:', error);
+				logger.error('❌ Failed to save configuration:', error);
 			}
 		} else {
 			setValidationErrors(errors);

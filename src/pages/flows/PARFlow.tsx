@@ -12,6 +12,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
+import { logger } from '../utils/logger';
 const FlowContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -362,7 +363,7 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 				codeVerifier, // Store the verifier for later use
 			}));
 
-			console.log('🔐 [PAR Flow] Generated PKCE codes:', {
+			logger.info('🔐 [PAR Flow] Generated PKCE codes:', {
 				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 				method: 'S256',
@@ -401,7 +402,7 @@ const codeVerifier = generateCodeVerifier();
 const codeChallenge = await generateCodeChallenge(codeVerifier);
 // Result: Base64URL-encoded SHA-256 hash of the code verifier
 
-console.log('Generated PKCE parameters:', {
+logger.info('Generated PKCE parameters:', {
   codeVerifier: codeVerifier.substring(0, 20) + '...',
   codeChallenge: codeChallenge.substring(0, 20) + '...',
   method: 'S256'
@@ -455,7 +456,7 @@ const parResponse = await fetch('/as/par', {
 
 if (parResponse.ok) {
   const { request_uri, expires_in } = await parResponse.json();
-  console.log('PAR Response:', { request_uri, expires_in });
+  logger.info('PAR Response:', { request_uri, expires_in });
   return { request_uri, expires_in };
 } else {
   throw new Error('PAR request failed');
@@ -511,7 +512,7 @@ const authorizationUrl = \`https://idp.example.com/as/authorize?\${new URLSearch
   request_uri: '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}'
 })}\`;
 
-console.log('Authorization URL:', authorizationUrl);
+logger.info('Authorization URL:', authorizationUrl);
 // Redirect: window.location.href = authorizationUrl;`,
 			execute: async () => {
 				logger.info('PARFlow', 'Generating authorization URL');
@@ -538,7 +539,7 @@ const authorizationUrl = 'https://idp.example.com/as/authorize?' + new URLSearch
   request_uri: '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}'
 });
 
-console.log('🔗 Redirecting user to:', authorizationUrl);
+logger.info('🔗 Redirecting user to:', authorizationUrl);
 // In a real implementation: window.location.href = authorizationUrl;
 
 // 🔹 Step 4: User authenticates & consents
@@ -549,7 +550,7 @@ console.log('🔗 Redirecting user to:', authorizationUrl);
 // 🔹 Step 5: Authorization response
 // After approval, the IdP redirects back with an auth code:
 const callbackUrl = '${formData.redirectUri}?code=SplxlOBeZQQYbYS6WxSbIA&state=${formData.state}';
-console.log('✅ User redirected back with auth code');`,
+logger.info('✅ User redirected back with auth code');`,
 			execute: async () => {
 				logger.info('PARFlow', 'Simulating user redirect');
 
@@ -589,8 +590,8 @@ if (state !== storedState) {
   throw new Error('Invalid state parameter');
 }
 
-console.log('✅ Authorization successful, code:', code);
-console.log('✅ State validated:', state === storedState);`,
+logger.info('✅ Authorization successful, code:', code);
+logger.info('✅ State validated:', state === storedState);`,
 			execute: async () => {
 				logger.info('PARFlow', 'Handling authorization response');
 
@@ -630,7 +631,7 @@ const tokenResponse = await fetch(tokenUrl, {
 
 if (tokenResponse.ok) {
   const tokens = await tokenResponse.json();
-  console.log('✅ Tokens received:', tokens);
+  logger.info('✅ Tokens received:', tokens);
   return tokens;
 } else {
   throw new Error('Token exchange failed');

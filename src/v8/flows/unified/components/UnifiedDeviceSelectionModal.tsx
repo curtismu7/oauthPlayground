@@ -13,6 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 
+import { logger } from '../../../utils/logger';
 interface Device {
 	id: string;
 	type: 'SMS' | 'EMAIL' | 'TOTP' | 'VOICE' | 'FIDO2' | 'MOBILE' | 'WHATSAPP';
@@ -122,18 +123,18 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 								}) as Device
 						);
 
-					console.log(
+					logger.info(
 						'[DEVICE-SELECTION] Loaded devices:',
 						availableDevices.length,
 						'available devices'
 					);
-					console.log(
+					logger.info(
 						'[DEVICE-SELECTION] Device statuses:',
 						allDevices.map((d) => ({ id: d.id, type: d.type, status: d.status }))
 					);
 					setDevices(availableDevices);
 				} catch (err) {
-					console.error('[DEVICE-SELECTION] Failed to fetch devices:', err);
+					logger.error('[DEVICE-SELECTION] Failed to fetch devices:', err);
 				} finally {
 					// Loading state managed by parent
 				}
@@ -312,7 +313,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										<button
 											type="button"
 											onClick={() => {
-												console.log('[DEVICE-SELECTION] User chose SMS registration');
+												logger.info('[DEVICE-SELECTION] User chose SMS registration');
 												onRegisterDevice();
 												onClose();
 											}}
@@ -355,7 +356,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										<button
 											type="button"
 											onClick={() => {
-												console.log('[DEVICE-SELECTION] User chose Email registration');
+												logger.info('[DEVICE-SELECTION] User chose Email registration');
 												onRegisterDevice();
 												onClose();
 											}}

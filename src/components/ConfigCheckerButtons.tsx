@@ -10,6 +10,7 @@ import { pingOneAppCreationService } from '../services/pingOneAppCreationService
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { DraggableModal } from './DraggableModal';
 
+import { logger } from '../utils/logger';
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
 	<svg
@@ -715,7 +716,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				// Wait a moment for the token to be generated
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 			} catch (error) {
-				log.error(
+				logger.error(
 					'ConfigCheckerButtons',
 					'[CONFIG-CHECKER] Failed to refresh worker token:',
 					undefined,
@@ -731,7 +732,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		}
 
 		setLoading('check');
-		log.info('CONFIG-CHECKER', 'Starting configuration check', {
+		logger.info('CONFIG-CHECKER', 'Starting configuration check', {
 			clientId,
 			selectedAppType,
 			hasWorkerToken: !!workerToken,
@@ -756,13 +757,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					message: 'No differences detected.',
 					duration: 4000,
 				});
-				log.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
+				logger.info('CONFIG-CHECKER', 'Configuration check completed - no differences', {
 					clientId,
 					selectedAppType,
 					elapsed,
 				});
 			} else {
-				log.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
+				logger.info('CONFIG-CHECKER', 'Configuration check completed - differences found', {
 					clientId,
 					selectedAppType,
 					elapsed,
@@ -791,7 +792,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					dismissible: true,
 				});
 				setShowAuthErrorModal(true);
-				log.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
+				logger.error('CONFIG-CHECKER', 'Authentication failed - worker token expired or invalid', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -807,7 +808,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					duration: 6000,
 					dismissible: true,
 				});
-				log.error('CONFIG-CHECKER', 'CORS/Network error', {
+				logger.error('CONFIG-CHECKER', 'CORS/Network error', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -819,7 +820,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					message: `Configuration check failed: ${errorMessage}`,
 					dismissible: true,
 				});
-				log.error('CONFIG-CHECKER', 'Configuration check failed', {
+				logger.error('CONFIG-CHECKER', 'Configuration check failed', {
 					clientId,
 					selectedAppType,
 					error: errorMessage,
@@ -919,7 +920,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		setLoading('create');
 		setShowCreateModal(false);
-		log.info('CONFIG-CHECKER', 'Starting application creation', {
+		logger.info('CONFIG-CHECKER', 'Starting application creation', {
 			selectedAppType,
 			createFormData,
 		});
@@ -931,7 +932,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			const result = await onCreateApplication(createFormData);
 
 			const elapsed = Date.now() - startTime;
-			log.info('CONFIG-CHECKER', 'Application creation completed', {
+			logger.info('CONFIG-CHECKER', 'Application creation completed', {
 				selectedAppType,
 				elapsed,
 			});
@@ -949,7 +950,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				message: `Application creation failed: ${errorMessage}`,
 				dismissible: true,
 			});
-			log.error('CONFIG-CHECKER', 'Application creation failed', {
+			logger.error('CONFIG-CHECKER', 'Application creation failed', {
 				selectedAppType,
 				error: errorMessage,
 			});
@@ -1096,7 +1097,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				});
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Failed to update application:',
 				undefined,
@@ -1179,7 +1180,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				throw new Error('Import configuration callback not available');
 			}
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Error updating Our App:',
 				undefined,
@@ -1277,7 +1278,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ConfigCheckerButtons',
 				'[CONFIG-CHECKER] Error exporting configuration:',
 				undefined,

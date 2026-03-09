@@ -18,7 +18,7 @@
  * // Subscribe to token updates
  * const manager = MFATokenManagerV8.getInstance();
  * const unsubscribe = manager.subscribe((state) => {
- *   console.log('Token state:', state);
+ *   logger.info('Token state:', state);
  * });
  *
  * // Refresh token manually
@@ -31,6 +31,7 @@
 import { tokenGatewayV8 } from './auth/tokenGatewayV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 export type TokenUpdateCallback = (state: TokenStatusInfo) => void;
 
 export interface MFATokenManagerConfig {
@@ -70,7 +71,7 @@ export class MFATokenManagerV8 {
 		// Initialize with current token state via tokenGatewayV8
 		this.tokenState = tokenGatewayV8.getWorkerTokenStatusSync();
 
-		console.log('[MFATokenManagerV8] Initialized with state:', this.tokenState.status);
+		logger.info('[MFATokenManagerV8] Initialized with state:', this.tokenState.status);
 	}
 
 	/**
@@ -92,7 +93,7 @@ export class MFATokenManagerV8 {
 			MFATokenManagerV8.instance.subscribers.clear();
 			MFATokenManagerV8.instance = null;
 		}
-		console.log('[MFATokenManagerV8] Instance reset');
+		logger.info('[MFATokenManagerV8] Instance reset');
 	}
 
 	/**
@@ -103,7 +104,7 @@ export class MFATokenManagerV8 {
 	 */
 	subscribe(callback: TokenUpdateCallback): () => void {
 		this.subscribers.add(callback);
-		console.log(`[MFATokenManagerV8] Subscriber added (total: ${this.subscribers.size})`);
+		logger.info(`[MFATokenManagerV8] Subscriber added (total: ${this.subscribers.size})`);
 
 		// Immediately notify with current state
 		callback(this.tokenState);
@@ -122,7 +123,7 @@ export class MFATokenManagerV8 {
 	unsubscribe(callback: TokenUpdateCallback): void {
 		const removed = this.subscribers.delete(callback);
 		if (removed) {
-			console.log(`[MFATokenManagerV8] Subscriber removed (total: ${this.subscribers.size})`);
+			logger.info(`[MFATokenManagerV8] Subscriber removed (total: ${this.subscribers.size})`);
 		}
 	}
 
@@ -143,7 +144,7 @@ export class MFATokenManagerV8 {
 	 */
 	async refreshToken(): Promise<void> {
 		try {
-			console.log('[MFATokenManagerV8] Refreshing token state via tokenGatewayV8...');
+			logger.info('[MFATokenManagerV8] Refreshing token state via tokenGatewayV8...');
 
 			// Delegate to tokenGatewayV8 for status check
 			const newState = await tokenGatewayV8.getWorkerTokenStatus();
@@ -158,13 +159,13 @@ export class MFATokenManagerV8 {
 			this.tokenState = newState;
 
 			if (stateChanged) {
-				console.log('[MFATokenManagerV8] Token state changed:', newState.status);
+				logger.info('[MFATokenManagerV8] Token state changed:', newState.status);
 				this.notify();
 			} else {
-				console.log('[MFATokenManagerV8] Token state unchanged');
+				logger.info('[MFATokenManagerV8] Token state unchanged');
 			}
 		} catch (error) {
-			console.error('[MFATokenManagerV8] Error refreshing token:', error);
+			logger.error('[MFATokenManagerV8] Error refreshing token:', error);
 
 			// Update to error state
 			this.tokenState = {
@@ -183,16 +184,16 @@ export class MFATokenManagerV8 {
 	 */
 	startAutoRefresh(): void {
 		if (!this.config.autoRefresh) {
-			console.log('[MFATokenManagerV8] Auto-refresh disabled in config');
+			logger.info('[MFATokenManagerV8] Auto-refresh disabled in config');
 			return;
 		}
 
 		if (this.refreshTimer) {
-			console.log('[MFATokenManagerV8] Auto-refresh already running');
+			logger.info('[MFATokenManagerV8] Auto-refresh already running');
 			return;
 		}
 
-		console.log(
+		logger.info(
 			`[MFATokenManagerV8] Starting auto-refresh (interval: ${this.config.refreshInterval}ms)`
 		);
 
@@ -208,7 +209,7 @@ export class MFATokenManagerV8 {
 		if (this.refreshTimer) {
 			clearInterval(this.refreshTimer);
 			this.refreshTimer = null;
-			console.log('[MFATokenManagerV8] Auto-refresh stopped');
+			logger.info('[MFATokenManagerV8] Auto-refresh stopped');
 		}
 	}
 
@@ -216,12 +217,12 @@ export class MFATokenManagerV8 {
 	 * Notify all subscribers of state change
 	 */
 	private notify(): void {
-		console.log(`[MFATokenManagerV8] Notifying ${this.subscribers.size} subscribers`);
+		logger.info(`[MFATokenManagerV8] Notifying ${this.subscribers.size} subscribers`);
 		this.subscribers.forEach((callback) => {
 			try {
 				callback(this.tokenState);
 			} catch (error) {
-				console.error('[MFATokenManagerV8] Error in subscriber callback:', error);
+				logger.error('[MFATokenManagerV8] Error in subscriber callback:', error);
 			}
 		});
 	}
@@ -235,7 +236,7 @@ export class MFATokenManagerV8 {
 		const oldInterval = this.config.refreshInterval;
 		this.config = { ...this.config, ...config };
 
-		console.log('[MFATokenManagerV8] Config updated:', this.config);
+		logger.info('[MFATokenManagerV8] Config updated:', this.config);
 
 		// Restart auto-refresh if interval changed
 		if (config.refreshInterval && config.refreshInterval !== oldInterval && this.refreshTimer) {

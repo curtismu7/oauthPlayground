@@ -26,6 +26,7 @@ import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 
@@ -183,7 +184,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 		// Prevent duplicate calls - if we're already fetching or already fetched for this env, skip
 		if (isFetchingPoliciesRef.current || lastFetchedEnvIdRef.current === envId) {
-			console.log(`${MODULE_TAG} Skipping duplicate policy fetch`, {
+			logger.info(`${MODULE_TAG} Skipping duplicate policy fetch`, {
 				isFetching: isFetchingPoliciesRef.current,
 				lastFetchedEnv: lastFetchedEnvIdRef.current,
 				currentEnv: envId,
@@ -227,7 +228,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
 			setPoliciesError(message);
-			console.error(`${MODULE_TAG} Failed to load device authentication policies`, error);
+			logger.error(`${MODULE_TAG} Failed to load device authentication policies`, error);
 			toastV8.error(`Failed to load device authentication policies: ${message}`);
 		} finally {
 			// eslint-disable-next-line require-atomic-updates
@@ -296,7 +297,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			// Check current token type - only auto-populate if 'user' or not set
 			const currentTokenType = credentials.tokenType;
 			if (currentTokenType === 'user' || !currentTokenType) {
-				console.log(`${MODULE_TAG} Auto-populating user token from auth context`, {
+				logger.info(`${MODULE_TAG} Auto-populating user token from auth context`, {
 					hasToken: !!authToken,
 					tokenLength: authToken.length,
 					tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -363,7 +364,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			});
 			// #endregion
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`
 			);
 			setShowUserLoginModal(true);
@@ -422,7 +423,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd;
 
-					console.log(`${MODULE_TAG} Worker token error detected`, {
+					logger.info(`${MODULE_TAG} Worker token error detected`, {
 						silentApiRetrieval,
 						showTokenAtEnd,
 						hasWorkerTokenError,
@@ -441,10 +442,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						showTokenAtEnd
 					);
 				} catch (configError) {
-					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
+					logger.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
 					// Default to not showing modal to be safe (user can manually trigger if needed)
-					console.warn(`${MODULE_TAG} Config error - not showing modal automatically`);
+					logger.warn(`${MODULE_TAG} Config error - not showing modal automatically`);
 				}
 			})();
 		}
@@ -525,7 +526,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			// Debug logging for token validation
 			if (tokenType === 'user' && !isTokenValid) {
-				console.log(`${MODULE_TAG} [DEBUG] Next button disabled - user token validation`, {
+				logger.info(`${MODULE_TAG} [DEBUG] Next button disabled - user token validation`, {
 					hasUserToken: !!credentials.userToken,
 					userTokenLength: credentials.userToken?.length,
 					tokenType,
@@ -665,7 +666,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 								setIsLoading(true);
 								try {
-									console.log(`${MODULE_TAG} Canceling device authentication:`, {
+									logger.info(`${MODULE_TAG} Canceling device authentication:`, {
 										authenticationId: mfaState.authenticationId,
 									});
 
@@ -690,7 +691,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									toastV8.success('Authentication canceled successfully');
 								} catch (error) {
 									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-									console.error(`${MODULE_TAG} Failed to cancel authentication:`, error);
+									logger.error(`${MODULE_TAG} Failed to cancel authentication:`, error);
 									toastV8.error(`Failed to cancel authentication: ${errorMessage}`);
 									nav.setValidationErrors([`Failed to cancel: ${errorMessage}`]);
 								} finally {
@@ -742,7 +743,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							nav.goToPrevious();
 						} else {
 							// No valid previous step, this shouldn't happen (Previous button should be disabled)
-							console.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`);
+							logger.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`);
 						}
 					}}
 					onNext={() => {
@@ -763,7 +764,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									? { ...credentials, ...currentCreds }
 									: credentials;
 
-							console.log(`${MODULE_TAG} Validating step 0 before proceeding`, {
+							logger.info(`${MODULE_TAG} Validating step 0 before proceeding`, {
 								hasUserToken: !!credsToValidate.userToken,
 								tokenType: credsToValidate.tokenType,
 								hasEnvironmentId: !!credsToValidate.environmentId,
@@ -779,7 +780,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							// If user has selected an existing device and has authenticationId, they should use "Use Selected Device" button
 							// Don't allow Next button to go to registration if they have an existing device selected
 							if (mfaState.authenticationId) {
-								console.warn(
+								logger.warn(
 									`${MODULE_TAG} User has authenticationId but clicked Next - this should use "Use Selected Device" button instead`
 								);
 								nav.setValidationErrors([
@@ -801,7 +802,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								// For registration flow, don't navigate to Step 4
 								// The QR code page (Step 3) should stay on Step 3
 								// Success page will be shown after device activation
-								console.log(
+								logger.info(
 									`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`
 								);
 								return;
@@ -813,7 +814,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						}
 					}}
 					onFinal={() => {
-						console.log(`${MODULE_TAG} Starting new flow`);
+						logger.info(`${MODULE_TAG} Starting new flow`);
 						nav.reset();
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
@@ -908,7 +909,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						});
 						// #endregion
 
-						console.log(`${MODULE_TAG} Token received, updating credentials`, {
+						logger.info(`${MODULE_TAG} Token received, updating credentials`, {
 							tokenLength: token.length,
 							tokenPreview: `${token.substring(0, 20)}...`,
 						});
@@ -941,7 +942,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							});
 							// #endregion
 
-							console.log(`${MODULE_TAG} Updated credentials`, {
+							logger.info(`${MODULE_TAG} Updated credentials`, {
 								hasUserToken: !!updated.userToken,
 								tokenType: updated.tokenType,
 								userTokenLength: updated.userToken?.length,
@@ -955,7 +956,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						if (storedFlowState) {
 							try {
 								const flowState = JSON.parse(storedFlowState);
-								console.log(`${MODULE_TAG} Restoring flow state after OAuth callback`, flowState);
+								logger.info(`${MODULE_TAG} Restoring flow state after OAuth callback`, flowState);
 
 								// Restore step if device was registered with ACTIVATION_REQUIRED
 								if (flowState.deviceStatus === 'ACTIVATION_REQUIRED' && flowState.deviceId) {
@@ -970,7 +971,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 									// Navigate to validation step (Step 3 for Email, Step 4 for SMS/WhatsApp)
 									// The actual step number depends on the flow, but we'll let the flow component handle it
-									console.log(
+									logger.info(
 										`${MODULE_TAG} Device requires activation - user should proceed to OTP validation`
 									);
 								}
@@ -978,7 +979,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								// Clean up stored state
 								sessionStorage.removeItem('mfa_flow_state_after_oauth');
 							} catch (error) {
-								console.error(`${MODULE_TAG} Failed to restore flow state:`, error);
+								logger.error(`${MODULE_TAG} Failed to restore flow state:`, error);
 							}
 						}
 
@@ -995,7 +996,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								includeLogoutUri: false,
 								includeScopes: false,
 							});
-							console.log(`${MODULE_TAG} Post-save credential check`, {
+							logger.info(`${MODULE_TAG} Post-save credential check`, {
 								hasUserToken: !!currentCreds.userToken,
 								tokenType: currentCreds.tokenType,
 							});
@@ -1014,7 +1015,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									currentCreds.deviceAuthenticationPolicyId?.trim();
 
 								if (isStep0Complete) {
-									console.log(
+									logger.info(
 										`${MODULE_TAG} Step 0 is now complete after token receipt - user can proceed to next step`
 									);
 									// Don't auto-advance, let user click Next button
@@ -1042,7 +1043,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								clientId: savedCreds.clientId || prev.clientId,
 								// Note: userToken is only set when actually received via onTokenReceived
 							}));
-							console.log(`${MODULE_TAG} Synced saved credentials from User Login Modal`);
+							logger.info(`${MODULE_TAG} Synced saved credentials from User Login Modal`);
 						}
 					}}
 					environmentId={credentials.environmentId}

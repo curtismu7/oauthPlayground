@@ -10,6 +10,7 @@ import React from 'react';
 import styled from 'styled-components';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📚 API-DOCS-STEP-V8]';
 
 // Styled Components
@@ -161,7 +162,7 @@ export const APIDocsStepV8: React.FC<APIDocsStepV8Props> = ({ renderProps }) => 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text).then(() => {
 			// Show success feedback
-			console.log(`${MODULE_TAG} Copied to clipboard: ${text}`);
+			logger.info(`${MODULE_TAG} Copied to clipboard: ${text}`);
 		});
 	};
 

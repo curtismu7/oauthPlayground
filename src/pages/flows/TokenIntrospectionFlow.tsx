@@ -13,6 +13,7 @@ import { V9ModernMessagingService } from '../../services/v9/V9ModernMessagingSer
 import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
 
+import { logger } from '../utils/logger';
 const messagingService = V9ModernMessagingService.getInstance();
 
 const FlowContainer = styled.div`
@@ -53,7 +54,7 @@ const introspectionConfig = {
   introspectionEndpoint: '${config?.pingone?.introspectionEndpoint || 'https://auth.pingone.com/{envId}/as/introspection'}'
 };
 
-console.log('Token introspection configured:', introspectionConfig);`,
+logger.info('Token introspection configured:', introspectionConfig);`,
 			execute: () => {
 				logger.info('TokenIntrospectionFlow', 'Configuring token introspection');
 				if (!config?.clientId || !config?.clientSecret) {
@@ -93,7 +94,7 @@ const response = await fetch('${config?.pingone?.introspectionEndpoint || 'https
 });
 
 const introspectionResult = await response.json();
-console.log('Token introspection result:', introspectionResult);`,
+logger.info('Token introspection result:', introspectionResult);`,
 			execute: async () => {
 				if (!config?.clientId || !config?.clientSecret) {
 					messagingService.showBanner({
@@ -140,18 +141,18 @@ console.log('Token introspection result:', introspectionResult);`,
 			description: 'Review the token introspection response and validate token claims.',
 			code: `// Analyze Token Introspection Results
 if (introspectionResult.active) {
-  console.log('✅ Token is valid and active');
-  console.log('Scope:', introspectionResult.scope);
-  console.log('Client ID:', introspectionResult.client_id);
-  console.log('Token Type:', introspectionResult.token_type);
-  console.log('Expires At:', new Date(introspectionResult.exp * 1000).toISOString());
+  logger.info('✅ Token is valid and active');
+  logger.info('Scope:', introspectionResult.scope);
+  logger.info('Client ID:', introspectionResult.client_id);
+  logger.info('Token Type:', introspectionResult.token_type);
+  logger.info('Expires At:', new Date(introspectionResult.exp * 1000).toISOString());
 } else {
-  console.log('❌ Token is invalid or expired');
+  logger.info('❌ Token is invalid or expired');
 }
 
 // Check specific claims
 const hasRequiredScopes = introspectionResult.scope?.includes('openid');
-console.log('Has required scopes:', hasRequiredScopes);`,
+logger.info('Has required scopes:', hasRequiredScopes);`,
 			execute: () => {
 				if (!result) {
 					messagingService.showBanner({

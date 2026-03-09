@@ -38,6 +38,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
 type DeviceType = 'ALL' | 'SMS' | 'EMAIL' | 'FIDO2' | 'TOTP' | 'WHATSAPP' | 'VOICE' | 'OATH';
@@ -103,7 +104,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.environmentId;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
+			logger.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
 		}
 		// Fall back to best available value from all sources
 		return readBestEnvironmentId();
@@ -121,7 +122,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			// Note: Username is user-specific, not stored in worker token credentials
 			// So we don't auto-populate it from worker token
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load saved username`, error);
+			logger.error(`${MODULE_TAG} Failed to load saved username`, error);
 		}
 		return '';
 	});
@@ -136,7 +137,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.selectedDeviceType;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load saved device type filter`, error);
+			logger.error(`${MODULE_TAG} Failed to load saved device type filter`, error);
 		}
 		return 'ALL';
 	});
@@ -151,7 +152,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.selectedDeviceStatus;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load saved device status filter`, error);
+			logger.error(`${MODULE_TAG} Failed to load saved device status filter`, error);
 		}
 		return 'ALL';
 	});
@@ -239,13 +240,13 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					const credentials = await unifiedWorkerTokenService.loadCredentials();
 					if (credentials?.environmentId) {
 						setEnvironmentId(credentials.environmentId);
-						console.log(
+						logger.info(
 							`${MODULE_TAG} Auto-populated environment ID from worker token: ${credentials.environmentId}`
 						);
 					}
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to auto-populate environment ID:`, error);
+				logger.error(`${MODULE_TAG} Failed to auto-populate environment ID:`, error);
 			}
 		};
 
@@ -297,9 +298,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
 			hasLoadedDevicesRef.current = true; // Mark that devices have been loaded
 			lastAutoReloadKeyRef.current = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
-			console.log(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
+			logger.info(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load devices:`, error);
+			logger.error(`${MODULE_TAG} Failed to load devices:`, error);
 			setError(error instanceof Error ? error.message : 'Failed to load devices');
 		} finally {
 			loadingSpinner.hideSpinner();
@@ -330,7 +331,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(state.environmentId);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save delete-all-devices state`, error);
+			logger.error(`${MODULE_TAG} Failed to save delete-all-devices state`, error);
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
 
@@ -376,12 +377,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						config.defaultMfaPolicyId
 					);
 					setPolicy(policyData);
-					console.log(`${MODULE_TAG} ✅ Policy loaded:`, policyData.name);
+					logger.info(`${MODULE_TAG} ✅ Policy loaded:`, policyData.name);
 				} else {
-					console.log(`${MODULE_TAG} ℹ️ No default policy configured`);
+					logger.info(`${MODULE_TAG} ℹ️ No default policy configured`);
 				}
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
+				logger.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
 			} finally {
 				// Policy loading complete
 			}
@@ -398,7 +399,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setMfaSettings((prev) => ({ ...prev, loading: true, error: null }));
 
 			try {
-				console.log(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
+				logger.info(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
 				const settings = await MFAServiceV8.getMFASettings(environmentId);
 
 				const maxDevices = settings.pairing?.maxAllowedDevices || 20; // Default fallback
@@ -408,12 +409,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					error: null,
 				});
 
-				console.log(`${MODULE_TAG} ✅ MFA Settings loaded:`, {
+				logger.info(`${MODULE_TAG} ✅ MFA Settings loaded:`, {
 					maxAllowedDevices: maxDevices,
 					pairingKeyFormat: settings.pairing?.pairingKeyFormat,
 				});
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, error);
+				logger.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, error);
 				setMfaSettings((prev) => ({
 					...prev,
 					loading: false,
@@ -500,12 +501,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						deviceId,
 					});
 					results.success++;
-					console.log(`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`);
+					logger.info(`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`);
 				} catch (deleteError) {
 					results.failed++;
 					const errorMessage = deleteError instanceof Error ? deleteError.message : 'Unknown error';
 					results.errors.push({ deviceId, error: errorMessage });
-					console.error(`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`, deleteError);
+					logger.error(`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`, deleteError);
 				}
 			}
 

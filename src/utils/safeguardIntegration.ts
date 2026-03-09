@@ -6,6 +6,7 @@ import { flowTestSuite } from './flowTestSuite';
 import { preCommitSafeguards } from './preCommitSafeguards';
 import { regressionSafeguards } from './regressionSafeguards';
 
+import { logger } from '../utils/logger';
 export interface SafeguardIntegrationConfig {
 	enableRegressionTesting: boolean;
 	enablePreCommitChecks: boolean;
@@ -95,7 +96,7 @@ export class SafeguardIntegration {
 	private initialize(): void {
 		if (this.isInitialized) return;
 
-		console.log('[Safeguard Integration] Initializing comprehensive safeguard system...');
+		logger.info('[Safeguard Integration] Initializing comprehensive safeguard system...');
 
 		// Initialize error monitoring
 		if (this.config.enableErrorMonitoring) {
@@ -121,14 +122,14 @@ export class SafeguardIntegration {
 		this.startHealthChecks();
 
 		this.isInitialized = true;
-		console.log('[Safeguard Integration] Safeguard system initialized successfully');
+		logger.info('[Safeguard Integration] Safeguard system initialized successfully');
 	}
 
 	/**
 	 * Setup error monitoring
 	 */
 	private setupErrorMonitoring(): void {
-		console.log('[Safeguard Integration] Setting up error monitoring...');
+		logger.info('[Safeguard Integration] Setting up error monitoring...');
 
 		// Add custom alert rules for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
@@ -150,12 +151,12 @@ export class SafeguardIntegration {
 	 * Setup regression testing
 	 */
 	private setupRegressionTesting(): void {
-		console.log('[Safeguard Integration] Setting up regression testing...');
+		logger.info('[Safeguard Integration] Setting up regression testing...');
 
 		// Add custom test configurations for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
 			// This would add specific test configurations for each critical flow
-			console.log(`[Safeguard Integration] Added regression testing for ${flowName}`);
+			logger.info(`[Safeguard Integration] Added regression testing for ${flowName}`);
 		});
 	}
 
@@ -163,7 +164,7 @@ export class SafeguardIntegration {
 	 * Setup pre-commit checks
 	 */
 	private setupPreCommitChecks(): void {
-		console.log('[Safeguard Integration] Setting up pre-commit checks...');
+		logger.info('[Safeguard Integration] Setting up pre-commit checks...');
 
 		// Configure pre-commit safeguards
 		// This would integrate with git hooks in a real implementation
@@ -173,11 +174,11 @@ export class SafeguardIntegration {
 	 * Setup flow validation
 	 */
 	private setupFlowValidation(): void {
-		console.log('[Safeguard Integration] Setting up flow validation...');
+		logger.info('[Safeguard Integration] Setting up flow validation...');
 
 		// Add validation rules for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
-			console.log(`[Safeguard Integration] Added flow validation for ${flowName}`);
+			logger.info(`[Safeguard Integration] Added flow validation for ${flowName}`);
 		});
 	}
 
@@ -201,7 +202,7 @@ export class SafeguardIntegration {
 	 * Run comprehensive health check
 	 */
 	async runHealthCheck(): Promise<SafeguardStatus> {
-		console.log('[Safeguard Integration] Running comprehensive health check...');
+		logger.info('[Safeguard Integration] Running comprehensive health check...');
 
 		const startTime = Date.now();
 		const components = {
@@ -233,7 +234,7 @@ export class SafeguardIntegration {
 				}
 			} catch (error) {
 				components.regressionTesting = 'critical';
-				console.error('[Safeguard Integration] Regression testing failed:', error);
+				logger.error('[Safeguard Integration] Regression testing failed:', error);
 			}
 		}
 
@@ -248,7 +249,7 @@ export class SafeguardIntegration {
 				}
 			} catch (error) {
 				components.preCommitChecks = 'critical';
-				console.error('[Safeguard Integration] Pre-commit checks failed:', error);
+				logger.error('[Safeguard Integration] Pre-commit checks failed:', error);
 			}
 		}
 
@@ -261,7 +262,7 @@ export class SafeguardIntegration {
 				recentErrors += errorHealth.recentErrors;
 			} catch (error) {
 				components.errorMonitoring = 'critical';
-				console.error('[Safeguard Integration] Error monitoring failed:', error);
+				logger.error('[Safeguard Integration] Error monitoring failed:', error);
 			}
 		}
 
@@ -272,7 +273,7 @@ export class SafeguardIntegration {
 				components.flowValidation = flowHealth.overall;
 			} catch (error) {
 				components.flowValidation = 'critical';
-				console.error('[Safeguard Integration] Flow validation failed:', error);
+				logger.error('[Safeguard Integration] Flow validation failed:', error);
 			}
 		}
 
@@ -302,7 +303,7 @@ export class SafeguardIntegration {
 		this.lastStatus = status;
 
 		// Log status
-		console.log('[Safeguard Integration] Health check completed:', {
+		logger.info('[Safeguard Integration] Health check completed:', {
 			overall: status.overall,
 			duration: Date.now() - startTime,
 			metrics: status.metrics,
@@ -322,13 +323,13 @@ export class SafeguardIntegration {
 	private checkAlerts(status: SafeguardStatus): void {
 		// Critical status alert
 		if (status.overall === 'critical') {
-			console.error('[CRITICAL ALERT] Safeguard system detected critical issues!');
+			logger.error('[CRITICAL ALERT] Safeguard system detected critical issues!');
 			this.triggerCriticalAlert(status);
 		}
 
 		// High error rate alert
 		if (status.metrics.criticalErrors > 0) {
-			console.warn('[WARNING ALERT] Critical errors detected in safeguard system');
+			logger.warn('[WARNING ALERT] Critical errors detected in safeguard system');
 		}
 
 		// Low success rate alert
@@ -336,7 +337,7 @@ export class SafeguardIntegration {
 			status.metrics.totalTests > 0 ? status.metrics.passedTests / status.metrics.totalTests : 1;
 
 		if (successRate < this.config.alertThresholds.successRate) {
-			console.warn('[WARNING ALERT] Low success rate detected in safeguard system');
+			logger.warn('[WARNING ALERT] Low success rate detected in safeguard system');
 		}
 	}
 
@@ -346,8 +347,8 @@ export class SafeguardIntegration {
 	private triggerCriticalAlert(status: SafeguardStatus): void {
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll log to console
-		console.error('[CRITICAL ALERT] Detailed status:', status);
-		console.log(
+		logger.error('[CRITICAL ALERT] Detailed status:', status);
+		logger.info(
 			`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical issues detected in safeguard system. Check console for details.`
 		);
 	}
@@ -409,7 +410,7 @@ export class SafeguardIntegration {
 		};
 		summary: SafeguardStatus;
 	}> {
-		console.log('[Safeguard Integration] Running comprehensive safeguard check...');
+		logger.info('[Safeguard Integration] Running comprehensive safeguard check...');
 
 		const results = {
 			regressionTesting: null,
@@ -443,7 +444,7 @@ export class SafeguardIntegration {
 
 		const passed = summary.overall === 'healthy';
 
-		console.log(`[Safeguard Integration] Comprehensive check ${passed ? 'PASSED' : 'FAILED'}`);
+		logger.info(`[Safeguard Integration] Comprehensive check ${passed ? 'PASSED' : 'FAILED'}`);
 
 		return {
 			passed,
@@ -479,7 +480,7 @@ export class SafeguardIntegration {
 		errorMonitoring.clearErrorHistory();
 		flowTestSuite.clearResults();
 		this.lastStatus = null;
-		console.log('[Safeguard Integration] All safeguard data cleared');
+		logger.info('[Safeguard Integration] All safeguard data cleared');
 	}
 }
 

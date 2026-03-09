@@ -1,4 +1,5 @@
 // src/utils/enhancedDebug.ts - Enhanced debugging tools for OAuth/OIDC flows
+import { logger } from '../utils/logger';
 
 export interface DebugSession {
 	id: string;
@@ -82,7 +83,7 @@ export class EnhancedDebugger {
 		this.sessions.set(sessionId, session);
 		this.currentSession = session;
 
-		console.log(' [EnhancedDebug] Debug session started:', sessionId);
+		logger.info(' [EnhancedDebug] Debug session started:', sessionId);
 
 		// Start network monitoring
 		this.startNetworkMonitoring();
@@ -100,7 +101,7 @@ export class EnhancedDebugger {
 		this.currentSession.performance.totalDuration =
 			this.currentSession.endTime - this.currentSession.startTime;
 
-		console.log(' [EnhancedDebug] Debug session completed:', {
+		logger.info(' [EnhancedDebug] Debug session completed:', {
 			sessionId: this.currentSession.id,
 			duration: this.currentSession.performance.totalDuration,
 			steps: this.currentSession.steps.length,
@@ -153,7 +154,7 @@ export class EnhancedDebugger {
 			this.currentSession.steps.push(step);
 		}
 
-		console.log(` [EnhancedDebug] Step logged: ${stepName} (${status})`);
+		logger.info(` [EnhancedDebug] Step logged: ${stepName} (${status})`);
 	}
 
 	/**
@@ -177,7 +178,7 @@ export class EnhancedDebugger {
 		};
 
 		this.currentSession.errors.push(debugError);
-		console.error(' [EnhancedDebug] Error logged:', debugError);
+		logger.error(' [EnhancedDebug] Error logged:', debugError);
 	}
 
 	/**
@@ -201,7 +202,7 @@ export class EnhancedDebugger {
 		};
 
 		this.currentSession.networkRequests.push(networkRequest);
-		console.log(' [EnhancedDebug] Network request logged:', {
+		logger.info(' [EnhancedDebug] Network request logged:', {
 			method: networkRequest.method,
 			url: networkRequest.url,
 			status: networkRequest.responseStatus,
@@ -298,7 +299,7 @@ export class EnhancedDebugger {
 	clearDebugData(): void {
 		this.sessions.clear();
 		this.currentSession = null;
-		console.log(' [EnhancedDebug] All debug data cleared');
+		logger.info(' [EnhancedDebug] All debug data cleared');
 	}
 
 	/**

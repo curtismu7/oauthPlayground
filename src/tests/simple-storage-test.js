@@ -1,45 +1,46 @@
 // src/tests/simple-storage-test.js
+import { logger } from '../utils/logger';
 // Simple test for unified storage service functionality
 
 // Mock the unified storage service for testing
 const mockUnifiedStorage = {
 	async storeToken(token) {
-		console.log(`📝 Storing token: ${token.id}`);
+		logger.info(`📝 Storing token: ${token.id}`);
 		return true;
 	},
 
 	async getToken(id) {
-		console.log(`📖 Getting token: ${id}`);
+		logger.info(`📖 Getting token: ${id}`);
 		return { id, value: 'mock-token', type: 'access_token' };
 	},
 
 	async getTokens(query = {}) {
-		console.log(`🔍 Querying tokens:`, query);
+		logger.info(`🔍 Querying tokens:`, query);
 		return [{ id: 'test-1', type: 'access_token', value: 'mock-token' }];
 	},
 
 	async deleteToken(id) {
-		console.log(`🗑️ Deleting token: ${id}`);
+		logger.info(`🗑️ Deleting token: ${id}`);
 		return true;
 	},
 
 	async saveFlowStorageData(storageType, flowId, dataType, _data) {
-		console.log(`💾 Saving flow data: ${storageType}:${flowId}:${dataType}`);
+		logger.info(`💾 Saving flow data: ${storageType}:${flowId}:${dataType}`);
 		return true;
 	},
 
 	async loadFlowStorageData(storageType, flowId, dataType) {
-		console.log(`📖 Loading flow data: ${storageType}:${flowId}:${dataType}`);
+		logger.info(`📖 Loading flow data: ${storageType}:${flowId}:${dataType}`);
 		return { code: 'test-code', timestamp: Date.now() };
 	},
 
 	async saveFlowCredentials(flowKey, _credentials) {
-		console.log(`💾 Saving credentials: ${flowKey}`);
+		logger.info(`💾 Saving credentials: ${flowKey}`);
 		return { success: true, source: 'unified' };
 	},
 
 	async loadFlowCredentials(flowKey) {
-		console.log(`📖 Loading credentials: ${flowKey}`);
+		logger.info(`📖 Loading credentials: ${flowKey}`);
 		return {
 			success: true,
 			data: { clientId: 'test-client', environmentId: 'test-env' },
@@ -48,12 +49,12 @@ const mockUnifiedStorage = {
 	},
 
 	async savePKCECodes(flowKey, _pkceCodes) {
-		console.log(`💾 Saving PKCE codes: ${flowKey}`);
+		logger.info(`💾 Saving PKCE codes: ${flowKey}`);
 		return true;
 	},
 
 	async loadPKCECodes(flowKey) {
-		console.log(`📖 Loading PKCE codes: ${flowKey}`);
+		logger.info(`📖 Loading PKCE codes: ${flowKey}`);
 		return {
 			codeVerifier: 'test-verifier',
 			codeChallenge: 'test-challenge',
@@ -62,12 +63,12 @@ const mockUnifiedStorage = {
 	},
 
 	async clearFlowCredentials(flowKey) {
-		console.log(`🗑️ Clearing credentials: ${flowKey}`);
+		logger.info(`🗑️ Clearing credentials: ${flowKey}`);
 		return true;
 	},
 
 	async clearPKCECodes(flowKey) {
-		console.log(`🗑️ Clearing PKCE codes: ${flowKey}`);
+		logger.info(`🗑️ Clearing PKCE codes: ${flowKey}`);
 		return true;
 	},
 };
@@ -81,21 +82,21 @@ class SimpleTestRunner {
 	}
 
 	async runTest(name, testFn) {
-		console.log(`\n🧪 Running: ${name}`);
+		logger.info(`\n🧪 Running: ${name}`);
 		try {
 			await testFn();
-			console.log(`✅ PASSED: ${name}`);
+			logger.info(`✅ PASSED: ${name}`);
 			this.passed++;
 		} catch (error) {
-			console.log(`❌ FAILED: ${name}`);
-			console.log(`   Error: ${error.message}`);
+			logger.info(`❌ FAILED: ${name}`);
+			logger.info(`   Error: ${error.message}`);
 			this.failed++;
 		}
 	}
 
 	async runAllTests() {
-		console.log('🚀 Starting Unified Storage Service Tests');
-		console.log('='.repeat(50));
+		logger.info('🚀 Starting Unified Storage Service Tests');
+		logger.info('='.repeat(50));
 
 		// Basic functionality tests
 		await this.runTest('Basic Token Operations', async () => {
@@ -237,24 +238,24 @@ class SimpleTestRunner {
 				throw new Error(`Performance too slow: ${totalTime}ms for ${testCount} operations`);
 			}
 
-			console.log(`   Performance: ${totalTime}ms for ${testCount * 3} operations`);
+			logger.info(`   Performance: ${totalTime}ms for ${testCount * 3} operations`);
 		});
 
 		// Print summary
-		console.log(`\n${'='.repeat(50)}`);
-		console.log('📊 Test Results Summary');
-		console.log('='.repeat(50));
-		console.log(`✅ Passed: ${this.passed}`);
-		console.log(`❌ Failed: ${this.failed}`);
-		console.log(
+		logger.info(`\n${'='.repeat(50)}`);
+		logger.info('📊 Test Results Summary');
+		logger.info('='.repeat(50));
+		logger.info(`✅ Passed: ${this.passed}`);
+		logger.info(`❌ Failed: ${this.failed}`);
+		logger.info(
 			`📈 Success Rate: ${((this.passed / (this.passed + this.failed)) * 100).toFixed(1)}%`
 		);
-		console.log('='.repeat(50));
+		logger.info('='.repeat(50));
 
 		if (this.failed === 0) {
-			console.log('🎉 All tests passed! Unified Storage Service is working correctly.');
+			logger.info('🎉 All tests passed! Unified Storage Service is working correctly.');
 		} else {
-			console.log('⚠️ Some tests failed. Please review the implementation.');
+			logger.info('⚠️ Some tests failed. Please review the implementation.');
 		}
 	}
 }

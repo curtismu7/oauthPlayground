@@ -62,7 +62,7 @@ async function startAuthorization() {
     // Redirect to authorization page
     window.location.href = authUrl.toString();
   } catch (error) {
-    console.error('Authorization failed:', error);
+    logger.error('Authorization failed:', error);
     throw error;
   }
 }
@@ -106,13 +106,13 @@ async function getWorkerToken() {
     }
 
     const data = await response.json();
-    console.log('Worker token obtained');
-    console.log('Token type:', data.token_type);
-    console.log('Expires in:', data.expires_in, 'seconds');
+    logger.info('Worker token obtained');
+    logger.info('Token type:', data.token_type);
+    logger.info('Expires in:', data.expires_in, 'seconds');
     
     return data.access_token;
   } catch (error) {
-    console.error('Failed to get worker token:', error);
+    logger.error('Failed to get worker token:', error);
     throw error;
   }
 }
@@ -153,16 +153,16 @@ async function listMfaDevices() {
     const data = await response.json();
     const devices = data._embedded?.devices || [];
     
-    console.log(\`Found \${devices.length} MFA device(s)\`);
+    logger.info(\`Found \${devices.length} MFA device(s)\`);
     
     devices.forEach((device: any) => {
-      console.log(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
-      console.log(\`  Status: \${device.status}\`);
+      logger.info(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
+      logger.info(\`  Status: \${device.status}\`);
     });
     
     return devices;
   } catch (error) {
-    console.error('Failed to list MFA devices:', error);
+    logger.error('Failed to list MFA devices:', error);
     throw error;
   }
 }
@@ -202,13 +202,13 @@ async function sendMfaChallenge() {
     }
 
     const data = await response.json();
-    console.log('MFA challenge sent successfully');
-    console.log('Challenge ID:', data.id);
-    console.log('Expires at:', new Date(data.expiresAt).toLocaleString());
+    logger.info('MFA challenge sent successfully');
+    logger.info('Challenge ID:', data.id);
+    logger.info('Expires at:', new Date(data.expiresAt).toLocaleString());
     
     return data;
   } catch (error) {
-    console.error('Failed to send MFA challenge:', error);
+    logger.error('Failed to send MFA challenge:', error);
     throw error;
   }
 }
@@ -255,14 +255,14 @@ async function verifyMfaCode() {
     const isVerified = data.status === 'VERIFIED';
     
     if (isVerified) {
-      console.log('✓ MFA verification successful');
+      logger.info('✓ MFA verification successful');
     } else {
-      console.log('✗ MFA verification failed - Invalid code');
+      logger.info('✗ MFA verification failed - Invalid code');
     }
     
     return isVerified;
   } catch (error) {
-    console.error('Failed to verify MFA code:', error);
+    logger.error('Failed to verify MFA code:', error);
     throw error;
   }
 }
@@ -313,17 +313,17 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
     }
 
     const device = await response.json();
-    console.log(\`\${type} device registered successfully\`);
-    console.log('Device ID:', device.id);
+    logger.info(\`\${type} device registered successfully\`);
+    logger.info('Device ID:', device.id);
     
     if (type === 'TOTP') {
-      console.log('QR Code URL:', device.qrCode?.href);
-      console.log('Secret Key:', device.secret);
+      logger.info('QR Code URL:', device.qrCode?.href);
+      logger.info('Secret Key:', device.secret);
     }
     
     return device;
   } catch (error) {
-    console.error('Failed to register device:', error);
+    logger.error('Failed to register device:', error);
     throw error;
   }
 }
@@ -397,7 +397,7 @@ async function startAuthorization() {
     // Redirect to authorization page
     window.location.href = authUrl;
   } catch (error) {
-    console.error('Authorization failed:', error);
+    logger.error('Authorization failed:', error);
     throw error;
   }
 }
@@ -436,16 +436,16 @@ async function getWorkerToken() {
       }
     );
 
-    console.log('Worker token obtained');
-    console.log('Token type:', response.data.token_type);
-    console.log('Expires in:', response.data.expires_in, 'seconds');
+    logger.info('Worker token obtained');
+    logger.info('Token type:', response.data.token_type);
+    logger.info('Expires in:', response.data.expires_in, 'seconds');
     
     return response.data.access_token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Token request failed:', error.response?.data);
+      logger.error('Token request failed:', error.response?.data);
     } else {
-      console.error('Failed to get worker token:', error);
+      logger.error('Failed to get worker token:', error);
     }
     throw error;
   }
@@ -482,19 +482,19 @@ async function listMfaDevices() {
 
     const devices = response.data._embedded?.devices || [];
     
-    console.log(\`Found \${devices.length} MFA device(s)\`);
+    logger.info(\`Found \${devices.length} MFA device(s)\`);
     
     devices.forEach((device: any) => {
-      console.log(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
-      console.log(\`  Status: \${device.status}\`);
+      logger.info(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
+      logger.info(\`  Status: \${device.status}\`);
     });
     
     return devices;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Failed to fetch devices:', error.response?.data);
+      logger.error('Failed to fetch devices:', error.response?.data);
     } else {
-      console.error('Failed to list MFA devices:', error);
+      logger.error('Failed to list MFA devices:', error);
     }
     throw error;
   }
@@ -531,16 +531,16 @@ async function sendMfaChallenge() {
       }
     );
 
-    console.log('MFA challenge sent successfully');
-    console.log('Challenge ID:', response.data.id);
-    console.log('Expires at:', new Date(response.data.expiresAt).toLocaleString());
+    logger.info('MFA challenge sent successfully');
+    logger.info('Challenge ID:', response.data.id);
+    logger.info('Expires at:', new Date(response.data.expiresAt).toLocaleString());
     
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Failed to send challenge:', error.response?.data);
+      logger.error('Failed to send challenge:', error.response?.data);
     } else {
-      console.error('Failed to send MFA challenge:', error);
+      logger.error('Failed to send MFA challenge:', error);
     }
     throw error;
   }
@@ -583,17 +583,17 @@ async function verifyMfaCode() {
     const isVerified = response.data.status === 'VERIFIED';
     
     if (isVerified) {
-      console.log('✓ MFA verification successful');
+      logger.info('✓ MFA verification successful');
     } else {
-      console.log('✗ MFA verification failed - Invalid code');
+      logger.info('✗ MFA verification failed - Invalid code');
     }
     
     return isVerified;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Verification failed:', error.response?.data);
+      logger.error('Verification failed:', error.response?.data);
     } else {
-      console.error('Failed to verify MFA code:', error);
+      logger.error('Failed to verify MFA code:', error);
     }
     throw error;
   }
@@ -606,6 +606,7 @@ verifyMfaCode();`;
 		return `// REST API (Axios) - Device Registration
 import axios from 'axios';
 
+import { logger } from '../../../utils/logger';
 /**
  * Register new MFA device
  */
@@ -640,20 +641,20 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
       }
     );
 
-    console.log(\`\${type} device registered successfully\`);
-    console.log('Device ID:', response.data.id);
+    logger.info(\`\${type} device registered successfully\`);
+    logger.info('Device ID:', response.data.id);
     
     if (type === 'TOTP') {
-      console.log('QR Code URL:', response.data.qrCode?.href);
-      console.log('Secret Key:', response.data.secret);
+      logger.info('QR Code URL:', response.data.qrCode?.href);
+      logger.info('Secret Key:', response.data.secret);
     }
     
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Registration failed:', error.response?.data);
+      logger.error('Registration failed:', error.response?.data);
     } else {
-      console.error('Failed to register device:', error);
+      logger.error('Failed to register device:', error);
     }
     throw error;
   }

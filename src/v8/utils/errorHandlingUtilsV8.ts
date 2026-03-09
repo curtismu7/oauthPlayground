@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file errorHandlingUtilsV8.ts
  * @module v8/utils
  * @description Shared error handling utilities for consistent error management
@@ -222,10 +223,10 @@ export function logError(
 	};
 
 	if (level === 'error') {
-		console.error(`${MODULE_TAG} Error:`, logData);
+		logger.error(`${MODULE_TAG} Error:`, logData);
 	} else if (level === 'warn') {
-		console.warn(`${MODULE_TAG} Warning:`, logData);
+		logger.warn(`${MODULE_TAG} Warning:`, logData);
 	} else {
-		console.log(`${MODULE_TAG} Info:`, logData);
+		logger.info(`${MODULE_TAG} Info:`, logData);
 	}
 }

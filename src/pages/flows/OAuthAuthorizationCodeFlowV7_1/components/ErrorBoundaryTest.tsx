@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 
+import { logger } from '../../../utils/logger';
 const TestContainer = styled.div`
   padding: ${UI_CONSTANTS.SPACING['2XL']};
   background: ${UI_CONSTANTS.LAYOUT.MAIN_CARD_BACKGROUND};
@@ -79,11 +80,11 @@ export const ErrorBoundaryTest: React.FC = () => {
 	};
 
 	const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-		console.log('Error boundary caught error:', error, errorInfo);
+		logger.info('Error boundary caught error:', error, errorInfo);
 	};
 
 	const handleRetry = () => {
-		console.log('Error boundary retry triggered');
+		logger.info('Error boundary retry triggered');
 		setShouldThrow(false);
 	};
 

@@ -9,12 +9,13 @@
 import type { FlowSpecificCredentials } from '../services/comprehensiveFlowDataService';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 
+import { logger } from '../utils/logger';
 export const validateServiceAPI = (): {
 	success: boolean;
 	issues: string[];
 	summary: string;
 } => {
-	console.log('🔍 [API VALIDATION] Validating ComprehensiveFlowDataService API Interface');
+	logger.info('🔍 [API VALIDATION] Validating ComprehensiveFlowDataService API Interface');
 
 	const issues: string[] = [];
 
@@ -125,7 +126,7 @@ ${issues.map((issue) => `  - ${issue}`).join('\n')}
 ${success ? '🚀 READY FOR PRODUCTION USE' : '⚠️ NEEDS FIXES BEFORE PRODUCTION'}
 	`.trim();
 
-	console.log(summary);
+	logger.info(summary);
 
 	return {
 		success,
@@ -144,7 +145,7 @@ declare global {
 // Make it available globally
 if (typeof window !== 'undefined') {
 	window.validateServiceAPI = validateServiceAPI;
-	console.log('🔍 validateServiceAPI() available globally');
+	logger.info('🔍 validateServiceAPI() available globally');
 }
 
 export default validateServiceAPI;

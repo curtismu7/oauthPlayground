@@ -246,7 +246,7 @@ const logoutConfig = {
   state: '${formData.state}'
 };
 
-console.log('Logout configuration:', logoutConfig);`,
+logger.info('Logout configuration:', logoutConfig);`,
 			execute: async () => {
 				logger.info('PingOneLogoutFlow', 'Configuring logout settings');
 			},
@@ -264,7 +264,7 @@ const logoutUrl = buildPingOneLogoutUrl(environmentId, {
   state: state
 });
 
-console.log('Logout URL:', logoutUrl);
+logger.info('Logout URL:', logoutUrl);
 // Example: https://auth.pingone.com/{envId}/as/logout?id_token_hint=...&post_logout_redirect_uri=...&state=...`,
 			execute: async () => {
 				logger.info('PingOneLogoutFlow', 'Building logout URL');
@@ -314,6 +314,7 @@ window.open(logoutUrl, '_blank');
 // Option 3: Using pingOneLogoutService
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 
+import { logger } from '../utils/logger';
 const result = await pingOneLogoutService.logout({
   environmentId: environmentId,
   idToken: idToken,

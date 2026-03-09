@@ -10,6 +10,7 @@ import {
 } from '@/services/standardizedCredentialExportService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 // Styled components
 const ButtonContainer = styled.div`
 	display: flex;
@@ -137,7 +138,7 @@ export const StandardizedCredentialExportImport: React.FC<
 			});
 			onExport?.();
 		} catch (error) {
-			log.error(
+			logger.error(
 				'StandardizedCredentialExportImport',
 				'[StandardizedCredentialExportImport] Export failed:',
 				undefined,
@@ -186,7 +187,7 @@ export const StandardizedCredentialExportImport: React.FC<
 			});
 			onImport?.(importedCredentials);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'StandardizedCredentialExportImport',
 				'[StandardizedCredentialExportImport] Import failed:',
 				undefined,

@@ -26,6 +26,7 @@ import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { useFormValidation } from '@/v8/hooks/useFormValidation';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIG-MODERN]';
 
 export interface UnifiedConfigurationStepProps extends MFAFlowBaseRenderProps {
@@ -42,7 +43,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	deviceType,
 	registrationFlowType = 'admin',
 }) => {
-	console.log(`${MODULE_TAG} Rendering for:`, deviceType, 'Flow type:', registrationFlowType);
+	logger.info(`${MODULE_TAG} Rendering for:`, deviceType, 'Flow type:', registrationFlowType);
 
 	// Global MFA state
 	const {
@@ -53,7 +54,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	} = useGlobalMFA();
 
 	// Debug logging
-	console.log(`${MODULE_TAG} Global state:`, {
+	logger.info(`${MODULE_TAG} Global state:`, {
 		environmentId,
 		workerTokenStatus,
 		isConfigured,
@@ -99,7 +100,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 	// Handle continue
 	const handleContinue = useCallback(async () => {
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Continuing for device type:`,
 			deviceType,
 			'Flow type:',
@@ -156,7 +157,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 			const DIRECT_REGISTRATION_DEVICES = ['EMAIL', 'SMS', 'WHATSAPP', 'TOTP'];
 
 			if (DIRECT_REGISTRATION_DEVICES.includes(deviceType)) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`
 				);
 
@@ -188,15 +189,15 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 					...(selectedFlowType !== 'user' && { status: deviceStatus }),
 				};
 
-				console.log(`${MODULE_TAG} Registration params:`, registrationParams);
+				logger.info(`${MODULE_TAG} Registration params:`, registrationParams);
 
 				// Call MFA Service to register device
 				const result = await MFAServiceV8.registerDevice(registrationParams);
-				console.log(`${MODULE_TAG} Device registered with status:`, result.status);
+				logger.info(`${MODULE_TAG} Device registered with status:`, result.status);
 
 				// CRITICAL VALIDATION: Ensure activation flow is followed correctly
 				if (result.status === 'ACTIVATION_REQUIRED' && selectedFlowType === 'admin-active') {
-					console.error(`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`);
+					logger.error(`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`);
 					throw new Error('Device registration flow mismatch - expected ACTIVE device');
 				}
 
@@ -217,7 +218,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				 * - User flow: MUST go to activation (Step 1) even if device shows as ACTIVE
 				 */
 				if (result.status === 'ACTIVE' && selectedFlowType === 'admin-active') {
-					console.log(`${MODULE_TAG} Admin Active flow: Skipping activation, going to success`);
+					logger.info(`${MODULE_TAG} Admin Active flow: Skipping activation, going to success`);
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: `${config.displayName} device registered successfully! Device is ready to use.`,
@@ -226,7 +227,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 					nav.goToStep(2); // Skip activation, go to success
 				} else {
 					// ACTIVATION_REQUIRED or User Flow - MUST go through activation
-					console.log(`${MODULE_TAG} Activation required: Going to activation step`);
+					logger.info(`${MODULE_TAG} Activation required: Going to activation step`);
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: `${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`,
@@ -236,7 +237,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				}
 			} else {
 				// For FIDO2, MOBILE - go to device selection/registration form
-				console.log(`${MODULE_TAG} Navigating to device selection for ${deviceType}`);
+				logger.info(`${MODULE_TAG} Navigating to device selection for ${deviceType}`);
 
 				// Mark step complete
 				nav.markStepComplete();
@@ -251,7 +252,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error:`, error);
+			logger.error(`${MODULE_TAG} Error:`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to process request';
 			modernMessaging.showBanner({
 				type: 'error',

@@ -109,7 +109,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 	// Token exchange function for authorization code flow
 	const exchangeCodeForTokens = async (code: string, _flowContext: unknown) => {
-		console.log('[PingOneAuthenticationCallback] Starting token exchange...');
+		logger.info('[PingOneAuthenticationCallback] Starting token exchange...');
 
 		// Get the stored PKCE code verifier from bulletproof storage
 		const flowKeyRedirect = 'pingone-authentication-redirect';
@@ -137,7 +137,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			scope: config.scopes || DEFAULT_CONFIG.scopes, // Include scope in token request
 		};
 
-		console.log('[PingOneAuthenticationCallback] Token request:', {
+		logger.info('[PingOneAuthenticationCallback] Token request:', {
 			tokenEndpoint,
 			grant_type: tokenRequest.grant_type,
 			client_id: tokenRequest.client_id,
@@ -171,7 +171,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 		}
 
 		const tokenData = await response.json();
-		console.log('[PingOneAuthenticationCallback] Token exchange response:', tokenData);
+		logger.info('[PingOneAuthenticationCallback] Token exchange response:', tokenData);
 		// Persist minimal flow log for redirect flow visibility on results page
 		try {
 			const miniLog = [
@@ -264,7 +264,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 		const processTokens = async () => {
 			// Prevent double execution in React StrictMode (development)
 			if (hasProcessedRef.current) {
-				console.log(
+				logger.info(
 					'[PingOneAuthenticationCallback] Already processed, skipping duplicate execution (StrictMode)'
 				);
 				return;
@@ -287,7 +287,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 			let flowContext: { returnPath?: string; responseType?: string; mode?: string } | null = null;
 
-			console.log('[PingOneAuthenticationCallback] Processing tokens:', {
+			logger.info('[PingOneAuthenticationCallback] Processing tokens:', {
 				fragmentTokens,
 				queryTokens,
 				mergedTokens,
@@ -297,7 +297,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				locationSearch: location.search,
 			});
 
-			console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
+			logger.info('[PingOneAuthenticationCallback] Flow context lookup:', {
 				flowContextRaw,
 				hasFlowContext: !!flowContextRaw,
 				REDIRECT_FLOW_CONTEXT_KEY,
@@ -335,7 +335,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							);
 							delete flowContext.returnPath; // Clear invalid returnPath but keep context
 						}
-						console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
+						logger.info('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
 					}
 				} catch (err) {
 					logger.warn(
@@ -349,7 +349,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			// Don't fall back to FlowContextService - it may contain context from other flows
 			// Always use PingOne redirect-specific context or default to result page
 			if (!flowContext) {
-				console.log(
+				logger.info(
 					'[PingOneAuthenticationCallback] No redirect flow context found, will use default return path'
 				);
 			}
@@ -359,7 +359,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			const errorDescription = mergedTokens.error_description;
 
 			if (errorParam) {
-				console.log('[PingOneAuthenticationCallback] Error detected:', {
+				logger.info('[PingOneAuthenticationCallback] Error detected:', {
 					errorParam,
 					errorDescription,
 				});
@@ -434,16 +434,16 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 			// Check if we have an authorization code (for authorization code flow)
 			if (mergedTokens.code && !mergedTokens.access_token) {
-				console.log('[PingOneAuthenticationCallback] Authorization code detected:', {
+				logger.info('[PingOneAuthenticationCallback] Authorization code detected:', {
 					code: `${mergedTokens.code.substring(0, 10)}...`,
 					state: mergedTokens.state,
 					hasAccessToken: !!mergedTokens.access_token,
 				});
 
 				try {
-					console.log('[PingOneAuthenticationCallback] Starting token exchange...');
+					logger.info('[PingOneAuthenticationCallback] Starting token exchange...');
 					const tokenResponse = await exchangeCodeForTokens(mergedTokens.code, flowContext);
-					console.log('[PingOneAuthenticationCallback] Token exchange successful:', {
+					logger.info('[PingOneAuthenticationCallback] Token exchange successful:', {
 						hasAccessToken: !!tokenResponse.access_token,
 						hasIdToken: !!tokenResponse.id_token,
 						hasRefreshToken: !!tokenResponse.refresh_token,
@@ -454,7 +454,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					const finalTokens = { ...mergedTokens, ...tokenResponse };
 					setTokens(finalTokens);
 
-					console.log('[PingOneAuthenticationCallback] Final tokens prepared:', {
+					logger.info('[PingOneAuthenticationCallback] Final tokens prepared:', {
 						tokenCount: Object.keys(finalTokens).length,
 						tokenKeys: Object.keys(finalTokens),
 					});
@@ -472,7 +472,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						},
 					};
 
-					console.log('[PingOneAuthenticationCallback] Saving result to localStorage:', {
+					logger.info('[PingOneAuthenticationCallback] Saving result to localStorage:', {
 						key: RESULT_STORAGE_KEY,
 						hasTokens: !!result.tokens,
 						tokenCount: Object.keys(result.tokens).length,
@@ -482,7 +482,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 					// Verify storage
 					const storedResult = localStorage.getItem(RESULT_STORAGE_KEY);
-					console.log('[PingOneAuthenticationCallback] Verification - stored result:', {
+					logger.info('[PingOneAuthenticationCallback] Verification - stored result:', {
 						exists: !!storedResult,
 						size: storedResult?.length || 0,
 					});
@@ -531,7 +531,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						targetPath = '/pingone-authentication/result';
 					}
 
-					console.log('[PingOneAuthenticationCallback] Navigating to:', {
+					logger.info('[PingOneAuthenticationCallback] Navigating to:', {
 						targetPath,
 						validated:
 							targetPath === '/pingone-authentication/result' ||
@@ -584,7 +584,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			const popupDetected =
 				window.name === 'PingOneLoginWindow' || (window.opener && window.opener !== window);
 
-			console.log('[PingOneAuthenticationCallback] Popup detection:', {
+			logger.info('[PingOneAuthenticationCallback] Popup detection:', {
 				windowName: window.name,
 				hasOpener: !!window.opener,
 				openerSameWindow: window.opener === window,
@@ -592,10 +592,10 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			});
 
 			if (popupDetected) {
-				console.log('[PingOneAuthenticationCallback] Detected popup - sending message to opener');
+				logger.info('[PingOneAuthenticationCallback] Detected popup - sending message to opener');
 				try {
 					if (window.opener && window.opener !== window) {
-						console.log('[PingOneAuthenticationCallback] Sending message to opener:', {
+						logger.info('[PingOneAuthenticationCallback] Sending message to opener:', {
 							type: 'PINGONE_PLAYGROUND_RESULT',
 							result: result,
 							origin: window.location.origin,
@@ -609,9 +609,9 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							window.location.origin
 						);
 
-						console.log('[PingOneAuthenticationCallback] Message sent successfully');
+						logger.info('[PingOneAuthenticationCallback] Message sent successfully');
 					} else {
-						console.log('[PingOneAuthenticationCallback] No valid opener found');
+						logger.info('[PingOneAuthenticationCallback] No valid opener found');
 					}
 				} catch (error) {
 					logger.warn(
@@ -621,7 +621,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					);
 				}
 				setIsProcessing(false);
-				console.log('[PingOneAuthenticationCallback] Closing popup window');
+				logger.info('[PingOneAuthenticationCallback] Closing popup window');
 
 				// Add a small delay before closing to ensure message is sent
 				setTimeout(() => {
@@ -632,13 +632,13 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 			// Fallback: If we're not in a popup but have tokens, try to detect if we should be in a popup
 			if (Object.keys(tokens).length > 0 && !popupDetected) {
-				console.log(
+				logger.info(
 					'[PingOneAuthenticationCallback] Not in popup but have tokens - checking if we should be'
 				);
 
 				// Check if there's a parent window that might be expecting this
 				if (window.parent && window.parent !== window) {
-					console.log(
+					logger.info(
 						'[PingOneAuthenticationCallback] Found parent window - trying to communicate'
 					);
 					try {
@@ -649,7 +649,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							},
 							window.location.origin
 						);
-						console.log('[PingOneAuthenticationCallback] Message sent to parent window');
+						logger.info('[PingOneAuthenticationCallback] Message sent to parent window');
 					} catch (error) {
 						logger.warn(
 							'PingOneAuthenticationCallback',
@@ -703,7 +703,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				targetPath = '/pingone-authentication/result';
 			}
 
-			console.log('[PingOneAuthenticationCallback] Redirect decision:', {
+			logger.info('[PingOneAuthenticationCallback] Redirect decision:', {
 				hasFlowContext: !!flowContext,
 				returnPath: flowContext?.returnPath,
 				computedFallback: computeFallbackPath(),

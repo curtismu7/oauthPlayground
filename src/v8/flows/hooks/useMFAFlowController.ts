@@ -16,6 +16,7 @@ import type {
 } from '../controllers/MFAFlowController';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 export interface UseMFAFlowControllerOptions {
 	controller: MFAFlowController;
 	credentials: MFACredentials;
@@ -116,7 +117,7 @@ export const useMFAFlowController = (
 					showRegisterForm: devices.length === 0,
 				});
 			} catch (error) {
-				console.error('[useMFAFlowController] Failed to load devices', error);
+				logger.error('[useMFAFlowController] Failed to load devices', error);
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -130,7 +131,7 @@ export const useMFAFlowController = (
 	// Send OTP
 	const sendOTP = async () => {
 		if (!mfaState.deviceId) {
-			console.error('[useMFAFlowController] No device ID available');
+			logger.error('[useMFAFlowController] No device ID available');
 			return;
 		}
 		await controller.sendOTP(
@@ -146,7 +147,7 @@ export const useMFAFlowController = (
 	// Validate OTP
 	const validateOTP = async (): Promise<boolean> => {
 		if (!mfaState.deviceId || !mfaState.otpCode) {
-			console.error('[useMFAFlowController] Missing device ID or OTP code');
+			logger.error('[useMFAFlowController] Missing device ID or OTP code');
 			return false;
 		}
 		return await controller.validateOTP(

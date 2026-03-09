@@ -15,6 +15,7 @@ import {
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { isPopoutWindow, openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
 
+import { logger } from '../utils/logger';
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
@@ -375,7 +376,7 @@ export const DebugLogViewerV8: React.FC = () => {
 						const db = request.result;
 						const availableStores = Array.from(db.objectStoreNames);
 						if (availableStores.length === 0) {
-							console.warn(
+							logger.warn(
 								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`
 							);
 							db.close();
@@ -516,7 +517,7 @@ export const DebugLogViewerV8: React.FC = () => {
 					logEntries.push(entry);
 				} catch (parseError) {
 					// If line is not valid JSON, add it as a simple log entry
-					console.warn('Failed to parse callback debug log entry:', parseError);
+					logger.warn('Failed to parse callback debug log entry:', parseError);
 					const entry: LogEntry = {
 						timestamp: new Date().toISOString(),
 						level: 'WARN',

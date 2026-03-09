@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file enhancedCredentialsServiceV8.ts
  * @module v8/services
  * @description Enhanced multi-storage credentials service with IndexedDB, SQLite, and localStorage support
@@ -196,12 +197,12 @@ class IndexedDBStorage {
 			const request = indexedDB.open(IndexedDBStorage.DB_NAME, IndexedDBStorage.DB_VERSION);
 
 			request.onerror = () => {
-				console.error(`${MODULE_TAG} IndexedDB open failed:`, request.error);
+				logger.error(`${MODULE_TAG} IndexedDB open failed:`, request.error);
 				reject(request.error);
 			};
 
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} IndexedDB opened successfully`);
+				logger.info(`${MODULE_TAG} IndexedDB opened successfully`);
 				resolve(request.result);
 			};
 
@@ -220,7 +221,7 @@ class IndexedDBStorage {
 					store.createIndex('flowType', 'interactionHistory.appName', { unique: false });
 					store.createIndex('username', 'interactionHistory.username', { unique: false });
 
-					console.log(`${MODULE_TAG} IndexedDB schema created`);
+					logger.info(`${MODULE_TAG} IndexedDB schema created`);
 				}
 			};
 		});
@@ -240,17 +241,17 @@ class IndexedDBStorage {
 				const request = store.put(credentials);
 
 				request.onsuccess = () => {
-					console.log(`${MODULE_TAG} Credentials saved to IndexedDB: ${environmentId}`);
+					logger.info(`${MODULE_TAG} Credentials saved to IndexedDB: ${environmentId}`);
 					resolve(true);
 				};
 
 				request.onerror = () => {
-					console.error(`${MODULE_TAG} IndexedDB save failed:`, request.error);
+					logger.error(`${MODULE_TAG} IndexedDB save failed:`, request.error);
 					reject(request.error);
 				};
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} IndexedDB save error:`, error);
+			logger.error(`${MODULE_TAG} IndexedDB save error:`, error);
 			return false;
 		}
 	}
@@ -271,21 +272,21 @@ class IndexedDBStorage {
 				request.onsuccess = () => {
 					const result = request.result as EnhancedCredentials | undefined;
 					if (result) {
-						console.log(`${MODULE_TAG} Credentials loaded from IndexedDB: ${environmentId}`);
+						logger.info(`${MODULE_TAG} Credentials loaded from IndexedDB: ${environmentId}`);
 						resolve(result);
 					} else {
-						console.log(`${MODULE_TAG} No credentials found in IndexedDB: ${environmentId}`);
+						logger.info(`${MODULE_TAG} No credentials found in IndexedDB: ${environmentId}`);
 						resolve(null);
 					}
 				};
 
 				request.onerror = () => {
-					console.error(`${MODULE_TAG} IndexedDB load failed:`, request.error);
+					logger.error(`${MODULE_TAG} IndexedDB load failed:`, request.error);
 					reject(request.error);
 				};
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} IndexedDB load error:`, error);
+			logger.error(`${MODULE_TAG} IndexedDB load error:`, error);
 			return null;
 		}
 	}
@@ -314,12 +315,12 @@ class IndexedDBStorage {
 				};
 
 				request.onerror = () => {
-					console.error(`${MODULE_TAG} IndexedDB list failed:`, request.error);
+					logger.error(`${MODULE_TAG} IndexedDB list failed:`, request.error);
 					reject(request.error);
 				};
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} IndexedDB list error:`, error);
+			logger.error(`${MODULE_TAG} IndexedDB list error:`, error);
 			return [];
 		}
 	}
@@ -338,17 +339,17 @@ class IndexedDBStorage {
 				const request = store.delete(environmentId);
 
 				request.onsuccess = () => {
-					console.log(`${MODULE_TAG} Credentials cleared from IndexedDB: ${environmentId}`);
+					logger.info(`${MODULE_TAG} Credentials cleared from IndexedDB: ${environmentId}`);
 					resolve(true);
 				};
 
 				request.onerror = () => {
-					console.error(`${MODULE_TAG} IndexedDB clear failed:`, request.error);
+					logger.error(`${MODULE_TAG} IndexedDB clear failed:`, request.error);
 					reject(request.error);
 				};
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} IndexedDB clear error:`, error);
+			logger.error(`${MODULE_TAG} IndexedDB clear error:`, error);
 			return false;
 		}
 	}
@@ -387,14 +388,14 @@ class SQLiteStorage {
 			});
 
 			if (response.ok) {
-				console.log(`${MODULE_TAG} Credentials saved to SQLite: ${environmentId}`);
+				logger.info(`${MODULE_TAG} Credentials saved to SQLite: ${environmentId}`);
 				return true;
 			} else {
-				console.warn(`${MODULE_TAG} SQLite save failed: ${response.status}`);
+				logger.warn(`${MODULE_TAG} SQLite save failed: ${response.status}`);
 				return false;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} SQLite save error:`, error);
+			logger.error(`${MODULE_TAG} SQLite save error:`, error);
 			return false;
 		}
 	}
@@ -411,14 +412,14 @@ class SQLiteStorage {
 			if (response.ok) {
 				const data = await response.json();
 				if (data.credentials) {
-					console.log(`${MODULE_TAG} Credentials loaded from SQLite: ${environmentId}`);
+					logger.info(`${MODULE_TAG} Credentials loaded from SQLite: ${environmentId}`);
 					return data.credentials;
 				}
 			} else {
-				console.warn(`${MODULE_TAG} SQLite load failed: ${response.status}`);
+				logger.warn(`${MODULE_TAG} SQLite load failed: ${response.status}`);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} SQLite load error:`, error);
+			logger.error(`${MODULE_TAG} SQLite load error:`, error);
 		}
 
 		return null;
@@ -436,7 +437,7 @@ class SQLiteStorage {
 				return data.credentials || [];
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} SQLite list error:`, error);
+			logger.error(`${MODULE_TAG} SQLite list error:`, error);
 		}
 
 		return [];
@@ -456,11 +457,11 @@ class SQLiteStorage {
 			});
 
 			if (response.ok) {
-				console.log(`${MODULE_TAG} Credentials cleared from SQLite: ${environmentId}`);
+				logger.info(`${MODULE_TAG} Credentials cleared from SQLite: ${environmentId}`);
 				return true;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} SQLite clear error:`, error);
+			logger.error(`${MODULE_TAG} SQLite clear error:`, error);
 		}
 
 		return false;
@@ -499,10 +500,10 @@ class LocalStorageFallback {
 			existing[environmentId] = credentials;
 
 			localStorage.setItem(LocalStorageFallback.STORAGE_KEY, JSON.stringify(existing));
-			console.log(`${MODULE_TAG} Credentials saved to localStorage: ${environmentId}`);
+			logger.info(`${MODULE_TAG} Credentials saved to localStorage: ${environmentId}`);
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} localStorage save error:`, error);
+			logger.error(`${MODULE_TAG} localStorage save error:`, error);
 			return false;
 		}
 	}
@@ -515,7 +516,7 @@ class LocalStorageFallback {
 			const all = LocalStorageFallback.loadAll();
 			return all[environmentId] || null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} localStorage load error:`, error);
+			logger.error(`${MODULE_TAG} localStorage load error:`, error);
 			return null;
 		}
 	}
@@ -540,10 +541,10 @@ class LocalStorageFallback {
 			const all = LocalStorageFallback.loadAll();
 			delete all[environmentId];
 			localStorage.setItem(LocalStorageFallback.STORAGE_KEY, JSON.stringify(all));
-			console.log(`${MODULE_TAG} Credentials cleared from localStorage: ${environmentId}`);
+			logger.info(`${MODULE_TAG} Credentials cleared from localStorage: ${environmentId}`);
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} localStorage clear error:`, error);
+			logger.error(`${MODULE_TAG} localStorage clear error:`, error);
 			return false;
 		}
 	}
@@ -726,12 +727,12 @@ export class EnhancedCredentialsServiceV8 {
 						];
 						enhanced.metadata.syncStatus = 'synced';
 
-						console.log(`${MODULE_TAG} Credentials saved successfully using ${backend.name}`);
+						logger.info(`${MODULE_TAG} Credentials saved successfully using ${backend.name}`);
 						return { success: true, backend: backend.name };
 					}
 				} catch (error) {
 					lastError = error instanceof Error ? error.message : String(error);
-					console.warn(`${MODULE_TAG} Backend ${backend.name} failed:`, lastError);
+					logger.warn(`${MODULE_TAG} Backend ${backend.name} failed:`, lastError);
 				}
 			}
 
@@ -741,7 +742,7 @@ export class EnhancedCredentialsServiceV8 {
 		} catch (error) {
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
 			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error(`${MODULE_TAG} Save failed:`, errorMessage);
+			logger.error(`${MODULE_TAG} Save failed:`, errorMessage);
 			return { success: false, backend: 'none', error: errorMessage };
 		}
 	}
@@ -781,19 +782,19 @@ export class EnhancedCredentialsServiceV8 {
 								(performance.now() - startTime)) /
 							2;
 
-						console.log(`${MODULE_TAG} Credentials loaded from ${backend.name}: ${environmentId}`);
+						logger.info(`${MODULE_TAG} Credentials loaded from ${backend.name}: ${environmentId}`);
 						return credentials;
 					}
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Backend ${backend.name} load failed:`, error);
+					logger.warn(`${MODULE_TAG} Backend ${backend.name} load failed:`, error);
 				}
 			}
 
-			console.log(`${MODULE_TAG} No credentials found for ${environmentId}`);
+			logger.info(`${MODULE_TAG} No credentials found for ${environmentId}`);
 			return null;
 		} catch (error) {
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
-			console.error(`${MODULE_TAG} Load failed:`, error);
+			logger.error(`${MODULE_TAG} Load failed:`, error);
 			return null;
 		}
 	}
@@ -845,13 +846,13 @@ export class EnhancedCredentialsServiceV8 {
 						}
 					}
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Backend ${backend.name} list failed:`, error);
+					logger.warn(`${MODULE_TAG} Backend ${backend.name} list failed:`, error);
 				}
 			}
 
 			return results;
 		} catch (error) {
-			console.error(`${MODULE_TAG} List failed:`, error);
+			logger.error(`${MODULE_TAG} List failed:`, error);
 			return [];
 		}
 	}
@@ -899,7 +900,7 @@ export class EnhancedCredentialsServiceV8 {
 				...(errors.length > 0 && { errors }),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Clear failed:`, error);
+			logger.error(`${MODULE_TAG} Clear failed:`, error);
 			return { success: false, backends: [], errors: ['Unexpected error'] };
 		}
 	}
@@ -917,7 +918,7 @@ export class EnhancedCredentialsServiceV8 {
 	static trackInteraction(environmentId: string, interaction: Partial<UserInteractionData>): void {
 		// This can be called frequently, so we'll batch updates
 		// Implementation would depend on specific tracking requirements
-		console.log(`${MODULE_TAG} Tracking interaction for ${environmentId}:`, interaction);
+		logger.info(`${MODULE_TAG} Tracking interaction for ${environmentId}:`, interaction);
 	}
 
 	/**
@@ -978,7 +979,7 @@ export class EnhancedCredentialsServiceV8 {
 				...(errors.length > 0 && { errors }),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Sync failed:`, error);
+			logger.error(`${MODULE_TAG} Sync failed:`, error);
 			return { success: false, syncedBackends: [], errors: ['Sync failed'] };
 		}
 	}
@@ -1071,7 +1072,7 @@ export class EnhancedCredentialsServiceV8 {
 
 			return { success: migrated > 0, migrated, ...(errors.length > 0 && { errors }) };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Migration failed:`, error);
+			logger.error(`${MODULE_TAG} Migration failed:`, error);
 			return { success: false, migrated: 0, errors: ['Migration failed'] };
 		}
 	}

@@ -95,7 +95,7 @@ export const loadSharedCredentials = async (
 				corsAllowAnyOrigin: mergedCreds.corsAllowAnyOrigin,
 			};
 
-			console.log(
+			logger.info(
 				`[FlowCredentialService:${flowKey}] Loaded shared credentials from credentialManager:`,
 				{
 					environmentId: savedCreds.environmentId,
@@ -108,7 +108,7 @@ export const loadSharedCredentials = async (
 			return normalized;
 		}
 
-		console.log(
+		logger.info(
 			`[FlowCredentialService:${flowKey}] No shared credentials found in credentialManager`
 		);
 		return null;
@@ -136,7 +136,7 @@ export const loadFlowState = <T = unknown>(flowKey: string): FlowPersistentState
 
 		const parsed = safeJsonParse(savedState) as FlowPersistentState<T>;
 		if (parsed) {
-			console.log(
+			logger.info(
 				`[FlowCredentialService:${flowKey}] Loaded flow-specific state from localStorage`
 			);
 			return parsed;
@@ -159,8 +159,8 @@ export const saveSharedCredentials = async (
 	options: { showToast?: boolean } = { showToast: true }
 ): Promise<boolean> => {
 	try {
-		console.log(`[FlowCredentialService:${flowKey}] Starting saveSharedCredentials...`);
-		console.log(`[FlowCredentialService:${flowKey}] Credentials to save:`, {
+		logger.info(`[FlowCredentialService:${flowKey}] Starting saveSharedCredentials...`);
+		logger.info(`[FlowCredentialService:${flowKey}] Credentials to save:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			hasClientSecret: !!credentials.clientSecret,
@@ -215,7 +215,7 @@ export const saveSharedCredentials = async (
 		// Use saveAllCredentials to save to all credential stores
 		const success = credentialManager.saveAllCredentials(credentialsForStorage);
 
-		console.log(
+		logger.info(
 			`[FlowCredentialService:${flowKey}] credentialManager.saveAllCredentials result:`,
 			success
 		);
@@ -224,7 +224,7 @@ export const saveSharedCredentials = async (
 			throw new Error('Failed to save credentials to credentialManager');
 		}
 
-		console.log(
+		logger.info(
 			`[FlowCredentialService:${flowKey}] Saved shared credentials to credentialManager:`,
 			{
 				environmentId: credentials.environmentId,
@@ -268,7 +268,7 @@ export const saveFlowState = <T = unknown>(
 
 		localStorage.setItem(flowKey, JSON.stringify(stateWithTimestamp));
 
-		console.log(`[FlowCredentialService:${flowKey}] Saved flow-specific state to localStorage`);
+		logger.info(`[FlowCredentialService:${flowKey}] Saved flow-specific state to localStorage`);
 		return true;
 	} catch (error) {
 		logger.error('FlowCredentialService', 'Failed to save flow state', undefined, error as Error);
@@ -290,33 +290,33 @@ export const saveFlowCredentials = async <T = unknown>(
 	try {
 		// 🔍 INSTRUMENTATION: Track credential saving behavior
 		console.group(`🔍 [CREDENTIAL AUDIT] Saving credentials for flow: ${flowKey}`);
-		console.log(`📋 Flow Key: ${flowKey}`);
-		console.log(`📋 Credentials to Save:`, credentials);
-		console.log(`📋 Flow Config:`, flowConfig);
+		logger.info(`📋 Flow Key: ${flowKey}`);
+		logger.info(`📋 Credentials to Save:`, credentials);
+		logger.info(`📋 Flow Config:`, flowConfig);
 
 		// 🔍 INSTRUMENTATION: Check localStorage before saving
 		const beforeKeys = Object.keys(localStorage).filter((key) => key.includes('pingone'));
-		console.log(`📋 localStorage Keys BEFORE Save:`, beforeKeys);
+		logger.info(`📋 localStorage Keys BEFORE Save:`, beforeKeys);
 
 		// Save to credentialManager (shared across flows)
-		console.log(`📋 Saving to shared credentialManager...`);
+		logger.info(`📋 Saving to shared credentialManager...`);
 		const sharedSaved = await saveSharedCredentials(flowKey, credentials, { showToast: false });
-		console.log(`📋 Shared Save Result:`, sharedSaved);
+		logger.info(`📋 Shared Save Result:`, sharedSaved);
 
 		// Save flow-specific state to localStorage
-		console.log(`📋 Saving to flow-specific localStorage...`);
+		logger.info(`📋 Saving to flow-specific localStorage...`);
 		const flowState: FlowPersistentState<T> = {
 			credentials,
 			flowConfig,
 			...additionalState,
 		};
 		const flowStateSaved = saveFlowState(flowKey, flowState);
-		console.log(`📋 Flow State Save Result:`, flowStateSaved);
+		logger.info(`📋 Flow State Save Result:`, flowStateSaved);
 
 		// 🔍 INSTRUMENTATION: Check localStorage after saving
 		const afterKeys = Object.keys(localStorage).filter((key) => key.includes('pingone'));
-		console.log(`📋 localStorage Keys AFTER Save:`, afterKeys);
-		console.log(
+		logger.info(`📋 localStorage Keys AFTER Save:`, afterKeys);
+		logger.info(
 			`📋 New Keys Added:`,
 			afterKeys.filter((key) => !beforeKeys.includes(key))
 		);
@@ -329,7 +329,7 @@ export const saveFlowCredentials = async <T = unknown>(
 			showGlobalError('Failed to save credentials and configuration');
 		}
 
-		console.log(`📋 Overall Save Success:`, success);
+		logger.info(`📋 Overall Save Success:`, success);
 		console.groupEnd();
 
 		return success;
@@ -363,26 +363,26 @@ export const loadFlowCredentials = async <T = unknown>(
 
 	// 🔍 INSTRUMENTATION: Track credential loading behavior
 	console.group(`🔍 [CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
-	console.log(`📋 Flow Key: ${flowKey}`);
-	console.log(`📋 Default Credentials:`, defaultCredentials);
+	logger.info(`📋 Flow Key: ${flowKey}`);
+	logger.info(`📋 Default Credentials:`, defaultCredentials);
 
 	// Load flow-specific state from localStorage - PRIMARY SOURCE
 	const flowState = loadFlowState<T>(flowKey);
-	console.log(`📋 Flow State Found:`, !!flowState);
-	console.log(`📋 Flow State Credentials:`, flowState?.credentials);
+	logger.info(`📋 Flow State Found:`, !!flowState);
+	logger.info(`📋 Flow State Credentials:`, flowState?.credentials);
 
 	// Load from credentialManager (shared across flows) - FALLBACK ONLY
 	const sharedCredentials = disableSharedFallback
 		? null
 		: await loadSharedCredentials(flowKey, defaultCredentials);
-	console.log(`📋 Shared Credentials Found:`, !!sharedCredentials);
-	console.log(`📋 Shared Credentials:`, sharedCredentials);
+	logger.info(`📋 Shared Credentials Found:`, !!sharedCredentials);
+	logger.info(`📋 Shared Credentials:`, sharedCredentials);
 
 	// 🔍 INSTRUMENTATION: Check all localStorage keys for this flow
 	const allKeys = Object.keys(localStorage).filter(
 		(key) => key.includes('pingone') || key.includes(flowKey)
 	);
-	console.log(`📋 All PingOne/Flow Keys:`, allKeys);
+	logger.info(`📋 All PingOne/Flow Keys:`, allKeys);
 
 	// Priority: flow-specific credentials take precedence over shared credentials
 	// This ensures each flow maintains its own credentials on refresh
@@ -396,23 +396,23 @@ export const loadFlowCredentials = async <T = unknown>(
 		// Use flow-specific credentials if they exist and have data
 		finalCredentials = flowState.credentials;
 		credentialSource = 'flow-specific';
-		console.log(
+		logger.info(
 			`✅ [FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`
 		);
 	} else if (sharedCredentials) {
 		// Fall back to shared credentials only if no flow-specific credentials exist
 		finalCredentials = sharedCredentials;
 		credentialSource = 'shared-fallback';
-		console.log(
+		logger.info(
 			`⚠️ [FlowCredentialService:${flowKey}] Using shared credentials (no flow-specific credentials found)`
 		);
-		console.log(
+		logger.info(
 			`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED! Flow ${flowKey} is using shared credentials`
 		);
 	}
 
-	console.log(`📋 Final Credentials Source: ${credentialSource}`);
-	console.log(`📋 Final Credentials:`, finalCredentials);
+	logger.info(`📋 Final Credentials Source: ${credentialSource}`);
+	logger.info(`📋 Final Credentials:`, finalCredentials);
 	console.groupEnd();
 
 	return {
@@ -429,7 +429,7 @@ export const loadFlowCredentials = async <T = unknown>(
 export const clearFlowState = (flowKey: string): boolean => {
 	try {
 		localStorage.removeItem(flowKey);
-		console.log(`[FlowCredentialService:${flowKey}] Cleared flow-specific state`);
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared flow-specific state`);
 		return true;
 	} catch (error) {
 		logger.error('FlowCredentialService', 'Failed to clear flow state', undefined, error as Error);
@@ -457,9 +457,9 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 ): Promise<boolean> => {
 	try {
 		console.group(`🔒 [ISOLATED CREDENTIALS] Saving credentials for flow: ${flowKey}`);
-		console.log(`📋 Flow Key: ${flowKey}`);
-		console.log(`📋 Credentials:`, credentials);
-		console.log(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
+		logger.info(`📋 Flow Key: ${flowKey}`);
+		logger.info(`📋 Credentials:`, credentials);
+		logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
 
 		// Save to isolated storage (per-flow-first)
 		const isolatedSaved = flowCredentialIsolationService.saveFlowCredentials(flowKey, credentials, {
@@ -483,7 +483,7 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 			showGlobalError(`Failed to save credentials for ${flowKey}`);
 		}
 
-		console.log(`📋 Overall Save Success:`, success);
+		logger.info(`📋 Overall Save Success:`, success);
 		console.groupEnd();
 
 		return success;
@@ -555,7 +555,7 @@ export const clearFlowCredentialsIsolated = (flowKey: string): boolean => {
 export const clearSharedCredentials = async (flowKey: string): Promise<boolean> => {
 	try {
 		await credentialManager.clearAllCredentials();
-		console.log(`[FlowCredentialService:${flowKey}] Cleared shared credentials`);
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared shared credentials`);
 		return true;
 	} catch (error) {
 		logger.error(
@@ -575,7 +575,7 @@ export const clearAllFlowData = async (flowKey: string): Promise<boolean> => {
 	try {
 		clearFlowState(flowKey);
 		await clearSharedCredentials(flowKey);
-		console.log(`[FlowCredentialService:${flowKey}] Cleared all flow data`);
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared all flow data`);
 		return true;
 	} catch (error) {
 		logger.error(

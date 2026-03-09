@@ -9,6 +9,7 @@ import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 
+import { logger } from '../utils/logger';
 const _Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -371,7 +372,7 @@ const AdvancedConfiguration = () => {
 					return data.credentials.environmentId;
 				}
 			} catch (error) {
-				log.warn('AdvancedConfiguration', 'Failed to load environment ID from worker token', {
+				logger.warn('AdvancedConfiguration', 'Failed to load environment ID from worker token', {
 					error,
 				});
 			}
@@ -437,7 +438,7 @@ const AdvancedConfiguration = () => {
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			log.error('AdvancedConfiguration', 'Failed to copy text: ', undefined, err as Error);
+			logger.error('AdvancedConfiguration', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -571,7 +572,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
-				log.warn('AdvancedConfiguration', 'Failed to update environment ID from worker token', {
+				logger.warn('AdvancedConfiguration', 'Failed to update environment ID from worker token', {
 					error,
 				});
 			}

@@ -75,6 +75,7 @@ export interface WorkerTokenInfo {
 // import { DualStorageServiceV8 } from './dualStorageServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../../../../utils/logger';
 export class AppDiscoveryServiceV8 {
 	private static readonly WORKER_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -125,7 +126,7 @@ export class AppDiscoveryServiceV8 {
 			const token = await workerTokenServiceV8.getToken();
 			return token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get stored worker token`, {
+			logger.error(`${MODULE_TAG} Failed to get stored worker token`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
@@ -159,15 +160,15 @@ export class AppDiscoveryServiceV8 {
 			if (data.expiresAt && Date.now() > data.expiresAt) {
 				// Clear token asynchronously (can't await in sync method)
 				workerTokenServiceV8.clearToken().catch((err) => {
-					console.error(`${MODULE_TAG} Failed to clear expired token`, err);
+					logger.error(`${MODULE_TAG} Failed to clear expired token`, err);
 				});
 				return null;
 			}
 
-			console.log(`${MODULE_TAG} Retrieved stored worker token from global service (sync)`);
+			logger.info(`${MODULE_TAG} Retrieved stored worker token from global service (sync)`);
 			return data.token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get stored worker token (sync)`, {
+			logger.error(`${MODULE_TAG} Failed to get stored worker token (sync)`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
@@ -185,7 +186,7 @@ export class AppDiscoveryServiceV8 {
 			// Check if credentials exist first
 			const credentials = await workerTokenServiceV8.loadCredentials();
 			if (!credentials) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Cannot store token - credentials not found. Please save credentials first via workerTokenServiceV8.saveCredentials()`
 				);
 				return;
@@ -200,12 +201,12 @@ export class AppDiscoveryServiceV8 {
 			// Save token using global service
 			await workerTokenServiceV8.saveToken(token, expiresAt);
 
-			console.log(`${MODULE_TAG} Worker token stored to global service`, {
+			logger.info(`${MODULE_TAG} Worker token stored to global service`, {
 				expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
 				expiresAt: new Date(expiresAt).toISOString(),
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to store worker token`, {
+			logger.error(`${MODULE_TAG} Failed to store worker token`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
@@ -223,7 +224,7 @@ export class AppDiscoveryServiceV8 {
 			// Check if credentials exist first
 			const credentials = workerTokenServiceV8.loadCredentialsSync();
 			if (!credentials) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} Cannot store token (sync) - credentials not found. Please save credentials first via workerTokenServiceV8.saveCredentials()`
 				);
 				return;
@@ -254,12 +255,12 @@ export class AppDiscoveryServiceV8 {
 				localStorage.setItem('v8:worker_token', JSON.stringify(data));
 			}
 
-			console.log(`${MODULE_TAG} Worker token stored to browser storage (sync)`, {
+			logger.info(`${MODULE_TAG} Worker token stored to browser storage (sync)`, {
 				expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
 				expiresAt: new Date(expiresAt).toISOString(),
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to store worker token to browser (sync)`, {
+			logger.error(`${MODULE_TAG} Failed to store worker token to browser (sync)`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
@@ -272,9 +273,9 @@ export class AppDiscoveryServiceV8 {
 	static async clearWorkerToken(): Promise<void> {
 		try {
 			await workerTokenServiceV8.clearToken();
-			console.log(`${MODULE_TAG} Worker token cleared from global service`);
+			logger.info(`${MODULE_TAG} Worker token cleared from global service`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear worker token`, {
+			logger.error(`${MODULE_TAG} Failed to clear worker token`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
@@ -301,7 +302,7 @@ export class AppDiscoveryServiceV8 {
 			if (workerToken && typeof workerToken === 'object' && 'then' in workerToken) {
 				const thenable = workerToken as { then: unknown };
 				if (typeof thenable.then === 'function') {
-					console.error(
+					logger.error(
 						`${MODULE_TAG} Error: workerToken is a Promise, not a string. Did you forget to await?`
 					);
 					throw new Error(
@@ -311,14 +312,14 @@ export class AppDiscoveryServiceV8 {
 			}
 
 			if (typeof workerToken !== 'string' || !workerToken.trim()) {
-				console.error(`${MODULE_TAG} Error: Invalid worker token`, {
+				logger.error(`${MODULE_TAG} Error: Invalid worker token`, {
 					type: typeof workerToken,
 					value: workerToken,
 				});
 				throw new Error('Invalid worker token: must be a non-empty string');
 			}
 
-			console.log(`${MODULE_TAG} Discovering applications`, {
+			logger.info(`${MODULE_TAG} Discovering applications`, {
 				environmentId,
 				tokenPreview: `${workerToken.substring(0, 20)}...`,
 				tokenType: typeof workerToken,
@@ -343,7 +344,7 @@ export class AppDiscoveryServiceV8 {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				console.error(`${MODULE_TAG} Failed to discover applications`, {
+				logger.error(`${MODULE_TAG} Failed to discover applications`, {
 					status: response.status,
 					statusText: response.statusText,
 					error: errorData,
@@ -377,14 +378,14 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: rawApp.tokenFormat,
 			}));
 
-			console.log(`${MODULE_TAG} Discovered ${applications.length} applications`, {
+			logger.info(`${MODULE_TAG} Discovered ${applications.length} applications`, {
 				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod)
 					.length,
 			});
 
 			return applications;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error discovering applications`, {
+			logger.error(`${MODULE_TAG} Error discovering applications`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return [];
@@ -399,7 +400,7 @@ export class AppDiscoveryServiceV8 {
 	 * const config = AppDiscoveryServiceV8.getAppConfig(app);
 	 */
 	static getAppConfig(app: DiscoveredApplication): AppConfig {
-		console.log(`${MODULE_TAG} Getting app config`, { appId: app.id, appName: app.name });
+		logger.info(`${MODULE_TAG} Getting app config`, { appId: app.id, appName: app.name });
 
 		// Determine best grant type (with null safety)
 		const grantType = app.grantTypes?.includes('authorization_code')
@@ -433,7 +434,7 @@ export class AppDiscoveryServiceV8 {
 			tokenFormat: app.tokenFormat || 'OPAQUE',
 		};
 
-		console.log(`${MODULE_TAG} App config prepared`, {
+		logger.info(`${MODULE_TAG} App config prepared`, {
 			clientId: config.clientId,
 			grantType: config.grantType,
 			responseType: config.responseType,
@@ -494,7 +495,7 @@ export class AppDiscoveryServiceV8 {
 		region: string = 'na'
 	): Promise<DiscoveredApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching application with secret`, {
+			logger.info(`${MODULE_TAG} Fetching application with secret`, {
 				environmentId,
 				appId,
 				region,
@@ -509,7 +510,7 @@ export class AppDiscoveryServiceV8 {
 
 			const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
 
-			console.log(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
+			logger.info(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
 
 			const response = await fetch(proxyUrl, {
 				method: 'GET',
@@ -526,7 +527,7 @@ export class AppDiscoveryServiceV8 {
 				} catch {
 					errorData = { message: errorText };
 				}
-				console.error(`${MODULE_TAG} Failed to fetch application with secret`, {
+				logger.error(`${MODULE_TAG} Failed to fetch application with secret`, {
 					status: response.status,
 					statusText: response.statusText,
 					url: proxyUrl,
@@ -539,7 +540,7 @@ export class AppDiscoveryServiceV8 {
 			const app = await response.json();
 
 			// Log the full response to debug clientSecret availability
-			console.log(`${MODULE_TAG} Application response received`, {
+			logger.info(`${MODULE_TAG} Application response received`, {
 				appId: app.id,
 				appName: app.name,
 				hasClientSecret: 'clientSecret' in app,
@@ -573,7 +574,7 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: app.tokenFormat,
 			};
 
-			console.log(`${MODULE_TAG} ✅ Application with secret fetched`, {
+			logger.info(`${MODULE_TAG} ✅ Application with secret fetched`, {
 				appId: discoveredApp.id,
 				appName: discoveredApp.name,
 				hasSecret: !!discoveredApp.clientSecret,
@@ -585,7 +586,7 @@ export class AppDiscoveryServiceV8 {
 
 			return discoveredApp;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error fetching application with secret`, {
+			logger.error(`${MODULE_TAG} Error fetching application with secret`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
@@ -644,7 +645,7 @@ export class AppDiscoveryServiceV8 {
 	 * @returns New worker token or null
 	 */
 	static async refreshWorkerToken(): Promise<string | null> {
-		console.log(`${MODULE_TAG} Refreshing worker token`);
+		logger.info(`${MODULE_TAG} Refreshing worker token`);
 
 		AppDiscoveryServiceV8.clearWorkerToken();
 		return AppDiscoveryServiceV8.getWorkerToken();
@@ -658,12 +659,12 @@ export class AppDiscoveryServiceV8 {
 	 * const apps = await AppDiscoveryServiceV8.discoverApps('12345678-1234-1234-1234-123456789012');
 	 */
 	static async discoverApps(environmentId: string): Promise<DiscoveredApplication[]> {
-		console.log(`${MODULE_TAG} Discovering apps (convenience method)`, { environmentId });
+		logger.info(`${MODULE_TAG} Discovering apps (convenience method)`, { environmentId });
 
 		// Get worker token from global service
 		const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
 		if (!workerToken) {
-			console.error(`${MODULE_TAG} No worker token available for discovery`);
+			logger.error(`${MODULE_TAG} No worker token available for discovery`);
 			throw new Error('Worker token required. Please generate a worker token first.');
 		}
 

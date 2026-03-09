@@ -16,6 +16,7 @@
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
@@ -141,19 +142,19 @@ export class UnifiedFlowLoggerService {
 
 		switch (level) {
 			case 'debug':
-				console.debug(formattedMessage, logData || '');
+				logger.debug(formattedMessage, logData || '');
 				break;
 			case 'info':
-				console.log(formattedMessage, logData || '');
+				logger.info(formattedMessage, logData || '');
 				break;
 			case 'warn':
-				console.warn(formattedMessage, logData || '');
+				logger.warn(formattedMessage, logData || '');
 				break;
 			case 'error':
-				console.error(formattedMessage, logData || '');
+				logger.error(formattedMessage, logData || '');
 				break;
 			case 'success':
-				console.log(formattedMessage, logData || '');
+				logger.info(formattedMessage, logData || '');
 				break;
 		}
 	}

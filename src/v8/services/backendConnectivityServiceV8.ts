@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file backendConnectivityServiceV8.ts
  * @module v8/services
  * @description Service to monitor backend connectivity and show graceful error modal
@@ -79,7 +80,7 @@ class BackendConnectivityServiceV8 {
 			this.state.modalShown = true;
 			this.notifyListeners(false);
 
-			console.error(
+			logger.error(
 				`${MODULE_TAG} Backend appears to be down (${this.state.consecutiveFailures} consecutive failures). Please restart the server.`
 			);
 		}
@@ -97,7 +98,7 @@ class BackendConnectivityServiceV8 {
 		this.state.modalShown = false;
 
 		if (wasDisconnected) {
-			console.log(`${MODULE_TAG} Backend connection restored`);
+			logger.info(`${MODULE_TAG} Backend connection restored`);
 			this.notifyListeners(true);
 		}
 	}
@@ -138,7 +139,7 @@ class BackendConnectivityServiceV8 {
 			try {
 				callback(isConnected);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in connectivity listener:`, error);
+				logger.error(`${MODULE_TAG} Error in connectivity listener:`, error);
 			}
 		});
 	}

@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { logger } from '../../../../utils/logger';
 import {
 	type FlowType,
 	type SpecVersion,
@@ -39,7 +40,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newFlowType = event.target.value as FlowType;
-		console.log(`${MODULE_TAG} Flow type changed`, {
+		logger.info(`${MODULE_TAG} Flow type changed`, {
 			specVersion,
 			from: flowType,
 			to: newFlowType,

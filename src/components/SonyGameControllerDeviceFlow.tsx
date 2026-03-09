@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // Sony DualSense Controller Physical Housing - Authentic White Design
 const SonyControllerContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%);
@@ -350,12 +351,12 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
+		logger.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

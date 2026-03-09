@@ -18,6 +18,7 @@ import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🚨 UNIFIED-ERROR-DISPLAY-V8]';
 
 interface UnifiedErrorDisplayV8Props {
@@ -80,7 +81,7 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 				setIsGettingWorkerToken
 			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error opening worker token modal:`, error);
+			logger.error(`${MODULE_TAG} Error opening worker token modal:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

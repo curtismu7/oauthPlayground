@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { type SecurityScan, securityService } from '../services/securityService';
 
+import { logger } from '../utils/logger';
 const PageContainer = styled.div`
 	padding: 2rem;
 	max-width: 1400px;
@@ -331,7 +332,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				},
 			});
 		} catch (error) {
-			log.error('Security scan failed:', error);
+			logger.error('Security scan failed:', error);
 		} finally {
 			setIsScanning(false);
 		}

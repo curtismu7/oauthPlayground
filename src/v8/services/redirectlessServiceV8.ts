@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file redirectlessServiceV8.ts
  * @module v8/services
  * @description Redirectless authentication service for V8 flows using PingOne pi.flow
@@ -16,7 +17,7 @@
  * const result = await RedirectlessServiceV8.startFlow({
  *   credentials,
  *   flowType: 'authorization_code',
- *   onAuthCodeReceived: (code) => console.log(code)
+ *   onAuthCodeReceived: (code) => logger.info(code)
  * });
  */
 
@@ -80,7 +81,7 @@ export class RedirectlessServiceV8 {
 	 * Start redirectless authorization flow
 	 */
 	static async startFlow(config: RedirectlessConfig): Promise<RedirectlessFlowResponse> {
-		console.log(`${MODULE_TAG} Starting redirectless flow`, {
+		logger.info(`${MODULE_TAG} Starting redirectless flow`, {
 			flowType: config.flowType,
 			flowKey: config.flowKey,
 		});
@@ -125,7 +126,7 @@ export class RedirectlessServiceV8 {
 			requestBody.redirectUri = credentials.redirectUri;
 		}
 
-		console.log(`${MODULE_TAG} Request details`, {
+		logger.info(`${MODULE_TAG} Request details`, {
 			environmentId: credentials.environmentId,
 			clientId: `${credentials.clientId.substring(0, 8)}...`,
 			responseType: requestBody.responseType,
@@ -144,7 +145,7 @@ export class RedirectlessServiceV8 {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(`${MODULE_TAG} Authorization failed`, {
+			logger.error(`${MODULE_TAG} Authorization failed`, {
 				status: response.status,
 				statusText: response.statusText,
 				responseText: errorText,
@@ -173,7 +174,7 @@ export class RedirectlessServiceV8 {
 		}
 
 		const flowData: RedirectlessFlowResponse = await response.json();
-		console.log(`${MODULE_TAG} Authorization response`, {
+		logger.info(`${MODULE_TAG} Authorization response`, {
 			flowId: flowData.flowId,
 			status: flowData.status,
 			hasResumeUrl: !!flowData.resumeUrl,
@@ -212,7 +213,7 @@ export class RedirectlessServiceV8 {
 		clientId?: string;
 		clientSecret?: string;
 	}): Promise<RedirectlessFlowResponse> {
-		console.log(`${MODULE_TAG} Submitting credentials`, {
+		logger.info(`${MODULE_TAG} Submitting credentials`, {
 			flowKey: params.flowKey,
 			flowId: params.flowId,
 			hasSessionId: !!params.sessionId,
@@ -265,7 +266,7 @@ export class RedirectlessServiceV8 {
 					pending.sessionId = result._sessionId || result.sessionId || pending.sessionId;
 					sessionStorage.setItem(`${params.flowKey}_redirectless_pending`, JSON.stringify(pending));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to update pending resume data`, error);
+					logger.warn(`${MODULE_TAG} Failed to update pending resume data`, error);
 				}
 			}
 		}
@@ -281,11 +282,11 @@ export class RedirectlessServiceV8 {
 		tokens?: RedirectlessTokens;
 		state: string;
 	} | null> {
-		console.log(`${MODULE_TAG} Resuming flow`, { flowKey: config.flowKey });
+		logger.info(`${MODULE_TAG} Resuming flow`, { flowKey: config.flowKey });
 
 		const pendingRaw = sessionStorage.getItem(`${config.flowKey}_redirectless_pending`);
 		if (!pendingRaw) {
-			console.warn(`${MODULE_TAG} No pending resume data found`);
+			logger.warn(`${MODULE_TAG} No pending resume data found`);
 			return null;
 		}
 
@@ -300,13 +301,13 @@ export class RedirectlessServiceV8 {
 		try {
 			resumeData = JSON.parse(pendingRaw);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to parse pending resume data`, error);
+			logger.error(`${MODULE_TAG} Failed to parse pending resume data`, error);
 			sessionStorage.removeItem(`${config.flowKey}_redirectless_pending`);
 			return null;
 		}
 
 		if (!resumeData.sessionId) {
-			console.error(`${MODULE_TAG} Missing sessionId before resume`);
+			logger.error(`${MODULE_TAG} Missing sessionId before resume`);
 			throw new Error('PingOne session context is missing. Please restart the flow.');
 		}
 
@@ -330,7 +331,7 @@ export class RedirectlessServiceV8 {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(`${MODULE_TAG} Resume failed`, {
+			logger.error(`${MODULE_TAG} Resume failed`, {
 				status: response.status,
 				statusText: response.statusText,
 				responseText: errorText,
@@ -359,7 +360,7 @@ export class RedirectlessServiceV8 {
 		}
 
 		const resumeResult: RedirectlessFlowResponse = await response.json();
-		console.log(`${MODULE_TAG} Resume response`, {
+		logger.info(`${MODULE_TAG} Resume response`, {
 			hasCode: !!resumeResult.authorizeResponse?.code,
 			hasAccessToken: !!resumeResult.authorizeResponse?.access_token,
 			status: resumeResult.status,
@@ -509,7 +510,7 @@ export class RedirectlessServiceV8 {
 			return resumeResult;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Flow failed`, errorMessage);
+			logger.error(`${MODULE_TAG} Flow failed`, errorMessage);
 
 			if (config.onError) {
 				config.onError(error instanceof Error ? error : new Error(errorMessage));

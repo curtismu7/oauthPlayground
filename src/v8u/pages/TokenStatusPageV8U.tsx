@@ -31,6 +31,7 @@ import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
+import { logger } from '../utils/logger';
 // Token monitoring interfaces
 
 // Styled components
@@ -148,7 +149,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				log.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
+				logger.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
 				setTokenStatus({
 					isValid: false,
 					status: 'error',
@@ -188,7 +189,7 @@ const TokenStatusPageV8U: React.FC = () => {
 
 	const handleShowWorkerTokenModal = async () => {
 		try {
-			console.log('[TOKEN-STATUS-V8U] Starting worker token modal with params:', {
+			logger.info('[TOKEN-STATUS-V8U] Starting worker token modal with params:', {
 				silentApiRetrieval,
 				showTokenAtEnd,
 				hasSetShowWorkerTokenModal: typeof setShowWorkerTokenModal,
@@ -196,7 +197,7 @@ const TokenStatusPageV8U: React.FC = () => {
 			});
 
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			console.log('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal');
+			logger.info('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal');
 
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
@@ -206,15 +207,15 @@ const TokenStatusPageV8U: React.FC = () => {
 				false
 			);
 
-			console.log('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
+			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
 		} catch (error) {
-			log.error('TokenStatusPageV8U', ' Detailed error:', {
+			logger.error('TokenStatusPageV8U', ' Detailed error:', {
 				error,
 				message: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? error.stack : undefined,
 				name: error instanceof Error ? error.name : 'Unknown',
 			});
-			log.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
+			logger.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
 		}
 	};
 
@@ -321,7 +322,7 @@ const TokenStatusPageV8U: React.FC = () => {
 												const currentStatus =
 													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
-													log.debug(
+													logger.debug(
 														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 													);
 													const { handleShowWorkerTokenModal } = await import(
@@ -336,7 +337,7 @@ const TokenStatusPageV8U: React.FC = () => {
 													);
 												}
 											} catch (error) {
-												log.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
+												logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
 											}
 										}
 									}}
@@ -439,7 +440,7 @@ const TokenStatusPageV8U: React.FC = () => {
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
 						onTokenGenerated={(token) => {
-							console.log('Worker token generated for token status page:', token);
+							logger.info('Worker token generated for token status page:', token);
 						}}
 					/>
 				)}

@@ -20,6 +20,7 @@ import { useServerHealth } from '@/hooks/useServerHealth';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
 // Debug gate + lightweight dedupe for console noise
@@ -41,7 +42,7 @@ const debugLog = (label: string, data?: Record<string, unknown>) => {
 	if (key === __lastDebugKey && now - __lastDebugTs < 2000) return;
 	__lastDebugKey = key;
 	__lastDebugTs = now;
-	console.log(label, data);
+	logger.info(label, data);
 };
 
 interface ApiCall {
@@ -378,13 +379,13 @@ const createPopOutWindow = (
 			}
 
 			// Debug: Log that JavaScript is loading
-			console.log('Popout window JavaScript loading...');
-			console.log('Processed calls available:', !!window.processedCalls);
-			console.log('Processed calls count:', window.processedCalls?.length || 0);
+			logger.info('Popout window JavaScript loading...');
+			logger.info('Processed calls available:', !!window.processedCalls);
+			logger.info('Processed calls count:', window.processedCalls?.length || 0);
 
 			// Fallback: Use inline data if window.processedCalls is not available
 			if (!window.processedCalls) {
-				console.log('No processed calls found, using fallback data');
+				logger.info('No processed calls found, using fallback data');
 				window.processedCalls = [];
 			}
 
@@ -621,7 +622,7 @@ const createPopOutWindow = (
 	popOutWindow.initialFlowFilter = flowFilter;
 	popOutWindow.initialExcludePatterns = excludePatterns;
 	popOutWindow.initialIncludePatterns = includePatterns;
-	console.log('Popout window created with processed calls:', processedCalls.length);
+	logger.info('Popout window created with processed calls:', processedCalls.length);
 
 	newWindow.document.write(html);
 	newWindow.document.close();
@@ -858,7 +859,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							'*'
 						);
 					} catch (error) {
-						console.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
+						logger.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
 					}
 				}
 			}, 500); // Update every 500ms for real-time sync
@@ -1030,7 +1031,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				} catch (error) {
 					// Enhanced error logging for debugging
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					console.error('[SuperSimpleApiDisplayV8] Failed to fetch API calls:', {
+					logger.error('[SuperSimpleApiDisplayV8] Failed to fetch API calls:', {
 						error,
 						errorMessage,
 						isConnectionError: errorMessage.includes('ERR_EMPTY_RESPONSE'),
@@ -1052,7 +1053,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						error instanceof DOMException;
 					// Only log non-connection errors (actual API errors, not network issues)
 					if (!isConnectionError) {
-						console.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
+						logger.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
 					}
 				}
 			}
@@ -1131,7 +1132,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							url.includes('/as/par') || // Direct PAR endpoint
 							step?.startsWith('unified-');
 
-						console.log('🔍 UNIFIED FILTER: Result', {
+						logger.info('🔍 UNIFIED FILTER: Result', {
 							isUnifiedFlow,
 							matchesAuthorize: url.includes('/as/authorize'),
 							matchesToken: url.includes('/as/token'),
@@ -1245,7 +1246,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 			setApiCalls(relevantCalls);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error updating API calls:`, error);
+			logger.error(`${MODULE_TAG} Error updating API calls:`, error);
 		}
 		// Note: excludePatterns and includePatterns are NOT in dependencies because
 		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
@@ -1406,7 +1407,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
+			logger.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
 			// Fallback for older browsers
 			try {
 				const textArea = document.createElement('textarea');
@@ -1420,7 +1421,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				setCopiedField(field);
 				setTimeout(() => setCopiedField(null), 2000);
 			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
+				logger.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
 			}
 		}
 	};

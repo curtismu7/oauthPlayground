@@ -63,7 +63,7 @@ export class SessionStorageManager {
 		sessionStorage.removeItem(otherKey);
 		sessionStorage.setItem(activeKey, 'true');
 
-		console.log(
+		logger.info(
 			`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} flow marked as active`
 		);
 
@@ -82,7 +82,7 @@ export class SessionStorageManager {
 		Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
-		console.log('[SessionStorageManager] All implicit flow flags cleared');
+		logger.info('[SessionStorageManager] All implicit flow flags cleared');
 	}
 
 	/**
@@ -112,7 +112,7 @@ export class SessionStorageManager {
 	): void {
 		const key = `${variant}-implicit-${version}-app-config`;
 		sessionStorage.setItem(key, JSON.stringify(config));
-		console.log(
+		logger.info(
 			`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} PingOne config saved`
 		);
 	}
@@ -369,7 +369,7 @@ export class ImplicitFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, environmentId: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Implicit V5] Environment ID updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Implicit V5] Environment ID updated:`, value);
 		};
 	}
 
@@ -385,7 +385,7 @@ export class ImplicitFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, clientId: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Implicit V5] Client ID updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Implicit V5] Client ID updated:`, value);
 		};
 	}
 
@@ -415,7 +415,7 @@ export class ImplicitFlowCredentialsHandlers {
 			const updated = { ...controller.credentials, redirectUri: value };
 			controller.setCredentials(updated);
 			setCredentials(updated);
-			console.log(`[${variant.toUpperCase()} Implicit V5] Redirect URI updated:`, value);
+			logger.info(`[${variant.toUpperCase()} Implicit V5] Redirect URI updated:`, value);
 
 			// Auto-save redirect URI to persist across refreshes
 			controller
@@ -482,7 +482,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 */
 	static createDiscoveryHandler(variant: ImplicitFlowVariant) {
 		return (result: unknown) => {
-			console.log(`[${variant.toUpperCase()} Implicit V5] OIDC Discovery completed:`, result);
+			logger.info(`[${variant.toUpperCase()} Implicit V5] OIDC Discovery completed:`, result);
 			// Service already handles environment ID extraction
 		};
 	}
@@ -515,7 +515,7 @@ export class ImplicitFlowAuthorizationManager {
 		credentials: StepCredentials,
 		controller: ControllerLike
 	): Promise<boolean> {
-		console.log(`[${variant.toUpperCase()} Implicit V5] Generate URL - Checking credentials:`, {
+		logger.info(`[${variant.toUpperCase()} Implicit V5] Generate URL - Checking credentials:`, {
 			local_clientId: credentials.clientId,
 			local_environmentId: credentials.environmentId,
 			controller_clientId: controller.credentials?.clientId,
@@ -760,20 +760,20 @@ export class ImplicitFlowTokenFragmentProcessor {
 		setShowSuccessModal: (show: boolean) => void
 	): boolean {
 		const hash = window.location.hash;
-		console.log('[TokenFragmentProcessor] Checking for tokens in hash:', hash);
+		logger.info('[TokenFragmentProcessor] Checking for tokens in hash:', hash);
 
 		if (!hash?.includes('access_token')) {
-			console.log('[TokenFragmentProcessor] No access_token found in hash, returning false');
+			logger.info('[TokenFragmentProcessor] No access_token found in hash, returning false');
 			return false;
 		}
 
-		console.log('[TokenFragmentProcessor] Access token found in hash, processing...');
+		logger.info('[TokenFragmentProcessor] Access token found in hash, processing...');
 
 		// Extract and set tokens
 		controller.setTokensFromFragment(hash);
 
 		// Navigate to token response step (Step 3: Token Response = index 2)
-		console.log('[TokenFragmentProcessor] Setting current step to 2 (Step 3: Token Response)');
+		logger.info('[TokenFragmentProcessor] Setting current step to 2 (Step 3: Token Response)');
 		setCurrentStep(2);
 
 		// Show success feedback
@@ -783,7 +783,7 @@ export class ImplicitFlowTokenFragmentProcessor {
 		// Clean up URL
 		window.history.replaceState({}, '', window.location.pathname);
 
-		console.log(
+		logger.info(
 			'[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)'
 		);
 		return true;
@@ -803,7 +803,7 @@ export class ImplicitFlowStepRestoration {
 		// Check if we have tokens in the URL fragment first (highest priority)
 		const hash = window.location.hash;
 		if (hash?.includes('access_token')) {
-			console.log(
+			logger.info(
 				'[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)'
 			);
 			return 2; // Step 3: Token Response
@@ -814,11 +814,11 @@ export class ImplicitFlowStepRestoration {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step');
-			console.log('[StepRestoration] Restoring to step:', step);
+			logger.info('[StepRestoration] Restoring to step:', step);
 			return step;
 		}
 
-		console.log('[StepRestoration] No restore_step found, returning step 0');
+		logger.info('[StepRestoration] No restore_step found, returning step 0');
 		return 0;
 	}
 
@@ -827,7 +827,7 @@ export class ImplicitFlowStepRestoration {
 	 */
 	static storeStepForRestoration(step: number): void {
 		sessionStorage.setItem('restore_step', step.toString());
-		console.log('[StepRestoration] Step stored for restoration:', step);
+		logger.info('[StepRestoration] Step stored for restoration:', step);
 	}
 
 	/**
@@ -971,7 +971,7 @@ export class ImplicitFlowResponseTypeEnforcer {
 		const expectedType = ImplicitFlowResponseTypeEnforcer.getExpectedResponseType(variant);
 
 		if (credentials.responseType !== expectedType) {
-			console.log(
+			logger.info(
 				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
 			);
 			setCredentials({
@@ -996,7 +996,7 @@ export class ImplicitFlowCredentialsSync {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
-			console.log(
+			logger.info(
 				`[${variant.toUpperCase()} Implicit V5] Syncing credentials from controller:`,
 				controllerCredentials
 			);

@@ -20,6 +20,7 @@ import { useServerHealth } from '@/hooks/useServerHealth';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { apiDisplayServiceV8 } from '../services/apiDisplayServiceV8.ts';
 
+import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
 interface ApiCall {
@@ -282,7 +283,7 @@ const createPopOutWindow = (
 						setTimeout(() => { copiedField = null; render(); }, 2000);
 						render();
 					} catch (e) {
-						console.error('Copy failed:', e);
+						logger.error('Copy failed:', e);
 					}
 				}
 			}
@@ -696,7 +697,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							'*'
 						);
 					} catch (error) {
-						console.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
+						logger.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
 					}
 				}
 			}, 500); // Update every 500ms for real-time sync
@@ -875,7 +876,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						error instanceof DOMException;
 					// Only log non-connection errors (actual API errors, not network issues)
 					if (!isConnectionError) {
-						console.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
+						logger.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
 					}
 				}
 			}
@@ -1004,7 +1005,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						originalUrl.includes('validate-otp') ||
 						originalUrl.includes('initialize-device')
 					) {
-						console.log('[SuperSimpleApiDisplayV8] Mapping call with headers:', {
+						logger.info('[SuperSimpleApiDisplayV8] Mapping call with headers:', {
 							originalUrl,
 							hasHeaders: !!callHeaders,
 							headersType: typeof callHeaders,
@@ -1040,7 +1041,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						originalUrl.includes('validate-otp') ||
 						originalUrl.includes('initialize-device')
 					) {
-						console.log('[SuperSimpleApiDisplayV8] Mapped API call with headers:', {
+						logger.info('[SuperSimpleApiDisplayV8] Mapped API call with headers:', {
 							apiCallId: apiCall.id,
 							apiCallUrl: apiCall.url,
 							hasHeaders: !!(apiCall as { headers?: Record<string, string> }).headers,
@@ -1069,7 +1070,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 			setApiCalls(relevantCalls);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error updating API calls:`, error);
+			logger.error(`${MODULE_TAG} Error updating API calls:`, error);
 		}
 		// Note: excludePatterns and includePatterns are NOT in dependencies because
 		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
@@ -1255,7 +1256,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
+			logger.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
 			// Fallback for older browsers
 			try {
 				const textArea = document.createElement('textarea');
@@ -1269,7 +1270,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				setCopiedField(field);
 				setTimeout(() => setCopiedField(null), 2000);
 			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
+				logger.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
 			}
 		}
 	};
@@ -2034,7 +2035,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			call.url?.includes('validate-otp') ||
 																			call.url?.includes('initialize-device')
 																		) {
-																			console.log(
+																			logger.info(
 																				'[SuperSimpleApiDisplayV8] Rendering headers section:',
 																				{
 																					callUrl: call.url,
@@ -2064,7 +2065,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																				call.url?.includes('validate-otp') ||
 																				call.url?.includes('initialize-device')
 																			) {
-																				console.warn(
+																				logger.warn(
 																					'[SuperSimpleApiDisplayV8] Headers section NOT rendered - headers missing or empty:',
 																					{
 																						callUrl: call.url,

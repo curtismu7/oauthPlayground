@@ -19,6 +19,7 @@ import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType } from './MFATypes';
 
+import { logger } from '../../utils/logger';
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
 	deviceTypeLabel: string;
@@ -60,7 +61,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 				setSilentApiRetrieval(config.workerToken.silentApiRetrieval || false);
 				setShowTokenAtEnd(config.workerToken.showTokenAtEnd !== false);
 			} catch (error) {
-				console.error('[MFA-CONFIG-V2] Failed to load settings:', error);
+				logger.error('[MFA-CONFIG-V2] Failed to load settings:', error);
 			}
 		};
 		loadSettings();
@@ -70,7 +71,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 	useEffect(() => {
 		if (deviceAuthPolicies.length > 0 && !credentials.deviceAuthenticationPolicyId) {
 			const firstPolicy = deviceAuthPolicies[0];
-			console.log(`[MFA-CONFIG-V2] Auto-selecting policy: ${firstPolicy.name}`);
+			logger.info(`[MFA-CONFIG-V2] Auto-selecting policy: ${firstPolicy.name}`);
 			setCredentials((prev) => ({
 				...prev,
 				deviceAuthenticationPolicyId: firstPolicy.id,

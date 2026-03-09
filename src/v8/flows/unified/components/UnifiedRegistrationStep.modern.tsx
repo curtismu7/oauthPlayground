@@ -25,6 +25,7 @@ import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
+import { logger } from '../../../utils/logger';
 export { computeDeviceStatus } from './UnifiedRegistrationStep';
 
 const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-MODERN]';
@@ -69,7 +70,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 	validate,
 	touchField,
 }) => {
-	console.log(`${MODULE_TAG} Rendering for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering for:`, config.deviceType);
 
 	const [registrationError, setRegistrationError] = useState<string | null>(null);
 
@@ -120,7 +121,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 
 			nav.next();
 		} catch (error) {
-			console.error(`${MODULE_TAG} Registration failed:`, error);
+			logger.error(`${MODULE_TAG} Registration failed:`, error);
 			const msg = error instanceof Error ? error.message : 'Registration failed';
 			setRegistrationError(msg);
 			modernMessaging.showBanner({

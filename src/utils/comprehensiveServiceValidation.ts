@@ -9,23 +9,24 @@
 import { runServiceTests } from './runServiceTests';
 import { validateServiceAPI } from './validateServiceAPI';
 
+import { logger } from '../utils/logger';
 export const runComprehensiveValidation = async (): Promise<{
 	overallSuccess: boolean;
 	apiValidation: any;
 	testResults: any;
 	summary: string;
 }> => {
-	console.log('🚀 [COMPREHENSIVE VALIDATION] Starting Complete Service Validation');
-	console.log('='.repeat(80));
+	logger.info('🚀 [COMPREHENSIVE VALIDATION] Starting Complete Service Validation');
+	logger.info('='.repeat(80));
 
 	// Step 1: API Interface Validation
-	console.log('\n🔍 STEP 1: API Interface Validation');
-	console.log('-'.repeat(50));
+	logger.info('\n🔍 STEP 1: API Interface Validation');
+	logger.info('-'.repeat(50));
 	const apiValidation = validateServiceAPI();
 
 	// Step 2: Comprehensive Test Suite
-	console.log('\n🧪 STEP 2: Comprehensive Test Suite');
-	console.log('-'.repeat(50));
+	logger.info('\n🧪 STEP 2: Comprehensive Test Suite');
+	logger.info('-'.repeat(50));
 	const testResults = await runServiceTests();
 
 	// Step 3: Overall Assessment
@@ -68,7 +69,7 @@ ${testResults.results.results
 }
 	`.trim();
 
-	console.log(summary);
+	logger.info(summary);
 
 	return {
 		overallSuccess,
@@ -81,8 +82,8 @@ ${testResults.results.results
 // Make it available globally
 if (typeof window !== 'undefined') {
 	(window as any).runComprehensiveValidation = runComprehensiveValidation;
-	console.log('🚀 runComprehensiveValidation() available globally');
-	console.log('🚀 Run with: runComprehensiveValidation()');
+	logger.info('🚀 runComprehensiveValidation() available globally');
+	logger.info('🚀 Run with: runComprehensiveValidation()');
 }
 
 export default runComprehensiveValidation;

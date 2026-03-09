@@ -1,4 +1,5 @@
 // src/utils/sessionStorageHelpers.ts
+import { logger } from '../utils/logger';
 /**
  * Helper utilities for managing OAuth/OIDC flow sessionStorage
  */
@@ -24,7 +25,7 @@ export function clearFlowSessionStorage(): void {
 		sessionStorage.removeItem(key);
 	});
 
-	console.log('✅ [SessionStorage] All flow data cleared');
+	logger.info('✅ [SessionStorage] All flow data cleared');
 }
 
 /**
@@ -65,7 +66,7 @@ export function getAuthCodeIfFresh(flowKey: string): string | null {
 	}
 
 	if (isAuthCodeStale(flowKey)) {
-		console.log(`⏰ [SessionStorage] Authorization code for ${flowKey} is stale, ignoring`);
+		logger.info(`⏰ [SessionStorage] Authorization code for ${flowKey} is stale, ignoring`);
 		sessionStorage.removeItem('oauth_auth_code');
 		sessionStorage.removeItem(`${flowKey}-auth-code-timestamp`);
 		return null;

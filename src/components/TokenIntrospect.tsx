@@ -7,6 +7,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
 
+import { logger } from '../utils/logger';
 // Styled components (reused from AuthorizationCodeFlowV5)
 const CollapsibleSection = styled.section`
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -442,7 +443,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
+			logger.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

@@ -157,7 +157,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			});
 
 			if (enableDebugger) {
-				console.log('🔐 Mock credentials saved:', credentials);
+				logger.info('🔐 Mock credentials saved:', credentials);
 			}
 		} catch (_error) {
 			modernMessaging.showBanner({
@@ -192,7 +192,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		setIsAuthenticating(true);
 		try {
 			if (enableDebugger) {
-				console.log('🔐 [V7RM-Enhanced] Starting authentication with real PingOne API...');
+				logger.info('🔐 [V7RM-Enhanced] Starting authentication with real PingOne API...');
 			}
 
 			// Prepare request for real PingOne token endpoint
@@ -206,7 +206,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			};
 
 			if (enableDebugger) {
-				console.log('🔍 [V7RM-Enhanced] Token request:', {
+				logger.info('🔍 [V7RM-Enhanced] Token request:', {
 					url: '/api/token-exchange',
 					grant_type: 'password',
 					username: credentials.username,
@@ -245,7 +245,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			};
 
 			if (enableDebugger) {
-				console.log('🎫 [V7RM-Enhanced] Real tokens received:', {
+				logger.info('🎫 [V7RM-Enhanced] Real tokens received:', {
 					hasAccessToken: !!enhancedTokens.access_token,
 					hasIdToken: !!enhancedTokens.id_token,
 					hasRefreshToken: !!enhancedTokens.refresh_token,
@@ -331,7 +331,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			const userData = await response.json();
 
 			if (enableDebugger) {
-				console.log('👤 [V7RM-Enhanced] Real user info received:', userData);
+				logger.info('👤 [V7RM-Enhanced] Real user info received:', userData);
 			}
 
 			setUserInfo(userData);
@@ -343,7 +343,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			});
 
 			if (enableDebugger) {
-				console.log('👤 Mock user info fetched:', userData);
+				logger.info('👤 Mock user info fetched:', userData);
 			}
 		} catch (error) {
 			modernMessaging.showBanner({
@@ -396,7 +396,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			});
 
 			if (enableDebugger) {
-				console.log('🔄 Mock tokens refreshed:', newTokens);
+				logger.info('🔄 Mock tokens refreshed:', newTokens);
 			}
 		} catch (error) {
 			modernMessaging.showBanner({

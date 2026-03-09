@@ -14,6 +14,7 @@ import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { useBrandTheme } from '../themes/theme-provider';
 
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -248,7 +249,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onCompanyChange, sele
 	// Debug: Check what companies are available
 	React.useEffect(() => {
 		const createdCompanies = companyService.getRegistry();
-		console.log('[🚀 COMPANY-SELECTOR] Available companies:', {
+		logger.info('[🚀 COMPANY-SELECTOR] Available companies:', {
 			defaultCount: defaultCompanies.length,
 			createdCount: createdCompanies.length,
 			createdCompanyNames: createdCompanies.map((c) => c.name),
@@ -263,7 +264,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onCompanyChange, sele
 		companies[0];
 
 	// Debug logging
-	console.log('[🚀 COMPANY-SELECTOR] Component rendering:', {
+	logger.info('[🚀 COMPANY-SELECTOR] Component rendering:', {
 		selectedCompany,
 		currentCompany: currentCompany.id,
 		activeTheme: activeTheme.name,

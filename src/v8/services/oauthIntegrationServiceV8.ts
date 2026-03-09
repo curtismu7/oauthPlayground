@@ -18,6 +18,7 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
 /**
@@ -167,7 +168,7 @@ export class OAuthIntegrationServiceV8 {
 
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
-			console.warn(
+			logger.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For user authentication flows, 'openid' scope is required for OIDC. Adding it automatically.`
 			);
 		}
@@ -189,7 +190,7 @@ export class OAuthIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			logger.info(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -226,11 +227,11 @@ export class OAuthIntegrationServiceV8 {
 					// Only add for OIDC flows (openid scope is present)
 					if (finalScopes.includes('openid')) {
 						(jarRequestParams as Record<string, unknown>).login_hint = credentials.username;
-						console.log(
+						logger.info(
 							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`
 						);
 					} else {
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} WARNING: login_hint skipped in JAR - not an OIDC flow (missing openid scope)`
 						);
 					}
@@ -252,7 +253,7 @@ export class OAuthIntegrationServiceV8 {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
+				logger.info(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
 					algorithm,
 					jti: jarResult.payload?.jti,
 				});
@@ -314,7 +315,7 @@ export class OAuthIntegrationServiceV8 {
 			} catch (error) {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error during JAR generation';
-				console.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
+				logger.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
 				throw new Error(`Failed to generate JAR authorization URL: ${errorMessage}`);
 			}
 		}
@@ -337,9 +338,9 @@ export class OAuthIntegrationServiceV8 {
 			// Only add for OIDC flows (openid scope is present)
 			if (finalScopes.includes('openid')) {
 				params.append('login_hint', credentials.username);
-				console.log(`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`);
+				logger.info(`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`);
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} WARNING: login_hint skipped - not an OIDC flow (missing openid scope)`
 				);
 			}
@@ -403,8 +404,8 @@ export class OAuthIntegrationServiceV8 {
 		expectedState: string
 	): { code: string; state: string } {
 		try {
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
+			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
+			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
 
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
@@ -412,7 +413,7 @@ export class OAuthIntegrationServiceV8 {
 			const error = url.searchParams.get('error');
 			const errorDescription = url.searchParams.get('error_description');
 
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, {
+			logger.info(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, {
 				code: code ? '***REDACTED***' : null,
 				state,
 				error,
@@ -430,7 +431,7 @@ export class OAuthIntegrationServiceV8 {
 				url.searchParams.forEach((value, key) => {
 					allParams[key] = value;
 				});
-				console.log(`[🔐 OAUTH-INTEGRATION-V8] All URL params:`, allParams);
+				logger.info(`[🔐 OAUTH-INTEGRATION-V8] All URL params:`, allParams);
 				throw new Error('Authorization code not found in callback URL');
 			}
 
@@ -443,10 +444,10 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`);
+			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`);
 			return { code, state };
 		} catch (error) {
-			console.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
+			logger.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
 			throw error;
 		}
 	}
@@ -529,7 +530,7 @@ export class OAuthIntegrationServiceV8 {
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
+					logger.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
 					throw new Error(
 						`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -640,9 +641,9 @@ export class OAuthIntegrationServiceV8 {
 			);
 
 			if (!response.ok) {
-				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
+				logger.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
 				const errorData = responseData as Record<string, unknown>;
-				console.error(`${MODULE_TAG} Error response:`, errorData);
+				logger.error(`${MODULE_TAG} Error response:`, errorData);
 
 				// Check for MUST_CHANGE_PASSWORD requirement
 				const requiresPasswordChange =
@@ -655,7 +656,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					console.log(`${MODULE_TAG} 🔐 Password change required detected`);
+					logger.info(`${MODULE_TAG} 🔐 Password change required detected`);
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 					passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 					passwordChangeError.requiresPasswordChange = true;
@@ -697,7 +698,7 @@ export class OAuthIntegrationServiceV8 {
 						if (credentials.environmentId && credentials.clientId) {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								console.log(`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`);
+								logger.info(`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
@@ -710,7 +711,7 @@ export class OAuthIntegrationServiceV8 {
 										const { appDiscoveryServiceV8 } = await import(
 											'@/v8/services/appDiscoveryServiceV8'
 										);
-										console.log(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
+										logger.info(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
 											environmentId: credentials.environmentId,
 											clientId: credentials.clientId,
 											hasWorkerToken: !!workerToken,
@@ -722,7 +723,7 @@ export class OAuthIntegrationServiceV8 {
 											workerToken
 										);
 
-										console.log(`${MODULE_TAG} 📦 Application with secret response:`, {
+										logger.info(`${MODULE_TAG} 📦 Application with secret response:`, {
 											hasAppWithSecret: !!appWithSecret,
 											hasClientSecret: !!appWithSecret?.clientSecret,
 											clientSecretType: typeof appWithSecret?.clientSecret,
@@ -739,17 +740,17 @@ export class OAuthIntegrationServiceV8 {
 										};
 
 										if (pingOneConfig.clientSecret) {
-											console.log(
+											logger.info(
 												`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`
 											);
 										} else {
-											console.warn(
+											logger.warn(
 												`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`
 											);
 										}
 									} catch (secretError) {
 										// Got app config but couldn't fetch secret - still use what we have
-										console.error(`${MODULE_TAG} ❌ Error fetching application with secret:`, {
+										logger.error(`${MODULE_TAG} ❌ Error fetching application with secret:`, {
 											error:
 												secretError instanceof Error ? secretError.message : String(secretError),
 											stack: secretError instanceof Error ? secretError.stack : undefined,
@@ -758,7 +759,7 @@ export class OAuthIntegrationServiceV8 {
 											clientId: appConfig.id,
 											tokenEndpointAuthMethod: appConfig.tokenEndpointAuthMethod,
 										};
-										console.warn(
+										logger.warn(
 											`${MODULE_TAG} ⚠️ Could not fetch client secret, but have app config`
 										);
 									}
@@ -774,7 +775,7 @@ export class OAuthIntegrationServiceV8 {
 					} catch (configError) {
 						pingOneConfigError =
 							configError instanceof Error ? configError.message : 'Unknown error';
-						console.warn(`${MODULE_TAG} ⚠️ Could not fetch PingOne config:`, configError);
+						logger.warn(`${MODULE_TAG} ⚠️ Could not fetch PingOne config:`, configError);
 					}
 
 					// ALWAYS build comparison section - show what we have vs what PingOne has (or error fetching)
@@ -807,7 +808,7 @@ export class OAuthIntegrationServiceV8 {
 						const normalizedConfiguredMethod = normalizeAuthMethod(authMethod);
 						const authMethodMatch = normalizedPingOneMethod === normalizedConfiguredMethod;
 
-						console.log(`${MODULE_TAG} Comparing auth methods for error display`, {
+						logger.info(`${MODULE_TAG} Comparing auth methods for error display`, {
 							pingOneRaw: pingOneConfig.tokenEndpointAuthMethod,
 							pingOneNormalized: normalizedPingOneMethod,
 							configuredRaw: authMethod,
@@ -918,7 +919,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							payload.password_state || payload.password_status || payload.pwd_state;
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
-							console.log(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
+							logger.info(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 							passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 							passwordChangeError.requiresPasswordChange = true;
@@ -931,7 +932,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				} catch {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
-						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
+						logger.info(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 						passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 						passwordChangeError.requiresPasswordChange = true;
@@ -944,7 +945,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				}
 			}
 
-			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
+			logger.info(`${MODULE_TAG} ✅ Tokens received successfully!`, {
 				hasAccessToken: !!tokens.access_token,
 				accessTokenLength: tokens.access_token?.length,
 				hasIdToken: !!tokens.id_token,
@@ -958,10 +959,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Error exchanging code for tokens:`, error);
+			logger.error(`${MODULE_TAG} ❌ Error exchanging code for tokens:`, error);
 			if (error instanceof Error) {
-				console.error(`${MODULE_TAG} Error message:`, error.message);
-				console.error(`${MODULE_TAG} Error stack:`, error.stack);
+				logger.error(`${MODULE_TAG} Error message:`, error.message);
+				logger.error(`${MODULE_TAG} Error stack:`, error.stack);
 			}
 			throw error;
 		}
@@ -977,7 +978,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 		credentials: OAuthCredentials,
 		refreshToken: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Refreshing access token`, {
+		logger.info(`${MODULE_TAG} Refreshing access token`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 		});
@@ -1017,11 +1018,11 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Access token refreshed successfully`);
+			logger.info(`${MODULE_TAG} Access token refreshed successfully`);
 
 			return tokens;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error refreshing access token`, { error });
+			logger.error(`${MODULE_TAG} Error refreshing access token`, { error });
 			throw error;
 		}
 	}
@@ -1032,7 +1033,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -1045,11 +1046,11 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			logger.error(`${MODULE_TAG} Error decoding token`, { error });
 			throw error;
 		}
 	}
@@ -1130,7 +1131,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 		// Fallback: simple base64 encoding (not cryptographically secure, but works)
 		// This should not happen in modern browsers
-		console.warn(`${MODULE_TAG} Web Crypto API not available, using fallback`);
+		logger.warn(`${MODULE_TAG} Web Crypto API not available, using fallback`);
 		return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
 	}
 
@@ -1155,7 +1156,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			// Convert to base64url (RFC 4648 §5)
 			return hashBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 		} catch (err) {
-			console.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
+			logger.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
 			// Fallback to base64url encoding (not secure, but better than failing)
 			return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
 		}

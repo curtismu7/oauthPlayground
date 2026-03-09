@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,
@@ -46,7 +47,7 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 				});
 				setFixResult(result);
 			} catch (error) {
-				console.error('Error analyzing scopes:', error);
+				logger.error('Error analyzing scopes:', error);
 			} finally {
 				setIsAnalyzing(false);
 			}

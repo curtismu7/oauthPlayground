@@ -1,4 +1,5 @@
 // src/v8/services/tokenExchangeConfigServiceV8.ts
+import { logger } from '../utils/logger';
 // Token Exchange Phase 1 - Admin Configuration Service
 
 import {
@@ -25,25 +26,25 @@ export class TokenExchangeConfigServiceV8 {
 	 */
 	static async isEnabled(environmentId: string): Promise<boolean> {
 		try {
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Checking Token Exchange enablement for environment: ${environmentId}`
 			);
 
 			const config = await TokenExchangeConfigServiceV8.getAdminConfig(environmentId);
 
 			if (!config.enabled) {
-				console.warn(
+				logger.warn(
 					`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange is disabled for environment: ${environmentId}`
 				);
 				return false;
 			}
 
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange is enabled for environment: ${environmentId}`
 			);
 			return true;
 		} catch (error) {
-			console.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error checking enablement:`, error);
+			logger.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error checking enablement:`, error);
 			// Default to disabled for safety
 			return false;
 		}
@@ -59,7 +60,7 @@ export class TokenExchangeConfigServiceV8 {
 			// Return previously set config if present (simulates admin API persistence within session)
 			const stored = TokenExchangeConfigServiceV8.configStore.get(environmentId);
 			if (stored) {
-				console.log(
+				logger.info(
 					`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved config for environment: ${environmentId}`
 				);
 				return stored;
@@ -76,12 +77,12 @@ export class TokenExchangeConfigServiceV8 {
 				updatedBy: 'system',
 			};
 
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved default config for environment: ${environmentId}`
 			);
 			return defaultConfig;
 		} catch (error) {
-			console.error(
+			logger.error(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Error getting admin config:`,
 				error
 			);
@@ -101,7 +102,7 @@ export class TokenExchangeConfigServiceV8 {
 		config?: Partial<AdminTokenExchangeConfig>
 	): Promise<void> {
 		try {
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Enabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
 			);
 
@@ -117,12 +118,12 @@ export class TokenExchangeConfigServiceV8 {
 			};
 			TokenExchangeConfigServiceV8.configStore.set(environmentId, updatedConfig);
 
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange enabled successfully:`,
 				updatedConfig
 			);
 		} catch (error) {
-			console.error(
+			logger.error(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Error enabling Token Exchange:`,
 				error
 			);
@@ -138,18 +139,18 @@ export class TokenExchangeConfigServiceV8 {
 	 */
 	static async disableTokenExchange(environmentId: string, adminUserId: string): Promise<void> {
 		try {
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Disabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
 			);
 
 			// Remove from in-memory store so subsequent getAdminConfig calls see enabled=false
 			TokenExchangeConfigServiceV8.configStore.delete(environmentId);
 
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange disabled successfully`
 			);
 		} catch (error) {
-			console.error(
+			logger.error(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Error disabling Token Exchange:`,
 				error
 			);
@@ -173,20 +174,20 @@ export class TokenExchangeConfigServiceV8 {
 			);
 
 			if (invalidScopes.length > 0) {
-				console.warn(
+				logger.warn(
 					`${TokenExchangeConfigServiceV8.MODULE_TAG} Invalid scopes requested:`,
 					invalidScopes
 				);
 				return false;
 			}
 
-			console.log(
+			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} All scopes validated successfully:`,
 				requestedScopes
 			);
 			return true;
 		} catch (error) {
-			console.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error validating scopes:`, error);
+			logger.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error validating scopes:`, error);
 			return false;
 		}
 	}

@@ -16,6 +16,7 @@ import type { DeviceConfigKey, DeviceFlowConfig } from '@/v8/config/deviceFlowCo
 import type { MFACredentials } from '@/v8/flows/shared/MFATypes';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔧 DEVICE-FLOW-HELPERS]';
 
 // ============================================================================
@@ -80,7 +81,7 @@ export function getNextStepAfterRegistration(
 	config: DeviceFlowConfig,
 	registrationResult: { status?: string; deviceId?: string; [key: string]: unknown }
 ): number {
-	console.log(`${MODULE_TAG} Determining next step`, {
+	logger.info(`${MODULE_TAG} Determining next step`, {
 		deviceType: config.deviceType,
 		status: registrationResult.status,
 		requiresOTP: config.requiresOTP,
@@ -89,14 +90,14 @@ export function getNextStepAfterRegistration(
 	// FIDO2: Registration includes activation (WebAuthn ceremony)
 	// Go straight to success
 	if (config.deviceType === 'FIDO2') {
-		console.log(`${MODULE_TAG} FIDO2 device - skip to success`);
+		logger.info(`${MODULE_TAG} FIDO2 device - skip to success`);
 		return 4; // Success step
 	}
 
 	// Mobile: Pairing happens via QR code scan
 	// Go to activation to show pairing status
 	if (config.deviceType === 'MOBILE') {
-		console.log(`${MODULE_TAG} Mobile device - go to pairing status`);
+		logger.info(`${MODULE_TAG} Mobile device - go to pairing status`);
 		return 3; // Activation step (shows pairing status)
 	}
 
@@ -105,18 +106,18 @@ export function getNextStepAfterRegistration(
 
 	// If device is already ACTIVE, skip activation step
 	if (status === 'ACTIVE') {
-		console.log(`${MODULE_TAG} Device already active - skip to success`);
+		logger.info(`${MODULE_TAG} Device already active - skip to success`);
 		return 4; // Success step
 	}
 
 	// If device requires OTP activation
 	if (config.requiresOTP && status === 'ACTIVATION_REQUIRED') {
-		console.log(`${MODULE_TAG} Device requires OTP activation`);
+		logger.info(`${MODULE_TAG} Device requires OTP activation`);
 		return 3; // Activation step
 	}
 
 	// Default: go to activation step
-	console.log(`${MODULE_TAG} Default - go to activation`);
+	logger.info(`${MODULE_TAG} Default - go to activation`);
 	return 3; // Activation step
 }
 
@@ -137,7 +138,7 @@ export function canProceedToNextStep(
 	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
-	console.log(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
+	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
 
 	// Step 0 (Configuration): Validate credentials and token
 	if (currentStep === 0) {
