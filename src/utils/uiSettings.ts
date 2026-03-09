@@ -5,9 +5,9 @@
 // runtime errors from stale imports.
 
 import type { UISettings } from '../contexts/UISettingsContext';
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 
-import { logger } from '../utils/logger';
 const LEGACY_DEFAULTS: Pick<
 	UISettings,
 	| 'showCredentialsModal'

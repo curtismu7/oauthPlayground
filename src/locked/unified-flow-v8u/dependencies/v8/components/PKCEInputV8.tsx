@@ -17,6 +17,7 @@ import { FiAlertTriangle, FiChevronDown } from '@icons';
 import React, { useState } from 'react';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔐 PKCE-V8]';
 
 export type PKCEMode = 'DISABLED' | 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';

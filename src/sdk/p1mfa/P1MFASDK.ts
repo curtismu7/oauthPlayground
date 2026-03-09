@@ -21,8 +21,8 @@
  * });
  */
 import { WorkerTokenManager } from '@/services/workerTokenManager';
-import { ConfigurationError, P1MFAError } from './errors';
 import { logger } from '../../utils/logger';
+import { ConfigurationError, P1MFAError } from './errors';
 import type {
 	AuthenticationCompleteParams,
 	AuthenticationInitParams,

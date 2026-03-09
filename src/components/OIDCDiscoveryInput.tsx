@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
 import { logger } from '../utils/logger';
+
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
 	onCredentialsGenerated?: (credentials: any) => void;

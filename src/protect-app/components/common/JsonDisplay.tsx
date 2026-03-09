@@ -12,9 +12,9 @@
  */
 
 import React, { useState } from 'react';
+import { logger } from '../../../utils/logger';
 import { useTheme } from '../../contexts/ThemeContext';
 
-import { logger } from '../../../utils/logger';
 interface JsonDisplayProps {
 	/** JSON data to display */
 	data: unknown;

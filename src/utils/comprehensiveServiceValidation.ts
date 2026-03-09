@@ -6,10 +6,9 @@
  * is rock solid and ready for production use.
  */
 
+import { logger } from '../utils/logger';
 import { runServiceTests } from './runServiceTests';
 import { validateServiceAPI } from './validateServiceAPI';
-
-import { logger } from '../utils/logger';
 export const runComprehensiveValidation = async (): Promise<{
 	overallSuccess: boolean;
 	apiValidation: any;

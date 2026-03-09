@@ -4,9 +4,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
+import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 
-import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;

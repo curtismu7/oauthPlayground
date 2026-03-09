@@ -18,11 +18,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
+import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
 import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
-import { logger } from '../../utils/logger';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 export interface WorkerTokenUIServiceV8Props {

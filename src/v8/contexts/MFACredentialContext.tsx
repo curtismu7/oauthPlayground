@@ -22,11 +22,10 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import type { MFACredentials } from '../flows/shared/MFATypes';
 import type { ValidationResult } from '../services/mfaCredentialManagerV8';
 import { MFACredentialManagerV8 } from '../services/mfaCredentialManagerV8';
-
-import { logger } from '../../utils/logger';
 
 interface MFACredentialContextValue {
 	credentials: MFACredentials | null;

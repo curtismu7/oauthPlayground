@@ -12,10 +12,10 @@ import {
 	importCredentials,
 	triggerFileImport,
 } from '../services/credentialExportImportService';
+import { logger } from '../utils/logger';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 
-import { logger } from '../utils/logger';
 const FormSection = styled.div`
 	display: flex;
 	flex-direction: column;

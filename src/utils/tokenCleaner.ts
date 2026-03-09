@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 // src/utils/tokenCleaner.ts
 // Utility for clearing all OAuth/OIDC tokens from storage
 

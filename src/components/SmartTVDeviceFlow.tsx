@@ -6,9 +6,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);

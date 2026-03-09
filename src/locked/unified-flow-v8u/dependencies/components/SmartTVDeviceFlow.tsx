@@ -5,10 +5,10 @@ import { FiCheckCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);

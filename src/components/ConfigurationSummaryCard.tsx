@@ -6,6 +6,7 @@ import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
 import { logger } from '../utils/logger';
+
 // Styled Components
 const Card = styled.div`
 	background: white;

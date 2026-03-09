@@ -1,9 +1,8 @@
 // Security Audit Utility for OAuth Playground
 
+import { logger } from '../utils/logger';
 import { tokenLifecycleManager } from './tokenLifecycle';
 import { getOAuthTokens } from './tokenStorage';
-
-import { logger } from '../utils/logger';
 export interface SecurityVulnerability {
 	id: string;
 	severity: 'low' | 'medium' | 'high' | 'critical';

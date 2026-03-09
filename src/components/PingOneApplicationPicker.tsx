@@ -3,11 +3,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../utils/logger';
 import {
 	fetchApplications as fetchPingOneApplications,
 	type PingOneApplication,
 } from '../services/pingOneApplicationService';
+import { logger } from '../utils/logger';
 
 export interface PingOneApplicationPickerProps {
 	environmentId: string;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
-import { logger } from '../../../utils/logger';
 const StatusContent = styled.div`
   color: #075985;
   line-height: 1.4;

@@ -14,6 +14,7 @@
 import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { logger } from '../../../utils/logger';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { MFANavigationV8 } from '../../dependencies/v8/components/MFANavigationV8.tsx';
@@ -31,7 +32,6 @@ import { navigateToMfaHubWithCleanup } from '../../dependencies/v8/utils/mfaFlow
 import { toastV8 } from '../../dependencies/v8/utils/toastNotificationsV8.ts';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 
-import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {

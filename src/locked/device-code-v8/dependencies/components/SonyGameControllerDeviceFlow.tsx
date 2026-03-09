@@ -5,10 +5,10 @@
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../../../utils/logger';
 // Sony DualSense Controller Physical Housing - Authentic White Design
 const SonyControllerContainer = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);

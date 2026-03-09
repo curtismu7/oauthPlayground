@@ -73,9 +73,7 @@ export const safeJsonParse = <T = unknown>(
 			}
 			// Only block constructor if it's an own property and not a flowContext object
 			if (Object.hasOwn(parsed, 'constructor') && !parsed.flow) {
-				logger.warn(
-					' [Security] Blocked prototype pollution attempt in parsed JSON (constructor)'
-				);
+				logger.warn(' [Security] Blocked prototype pollution attempt in parsed JSON (constructor)');
 				return null;
 			}
 		}

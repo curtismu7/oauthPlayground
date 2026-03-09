@@ -7,6 +7,7 @@ import { type ConfigStatus, getSharedConfigurationStatusAsync } from '../utils/c
 import { credentialManager } from '../utils/credentialManager';
 
 import { logger } from '../utils/logger';
+
 interface OAuthConfig {
 	environmentId?: string;
 	clientId?: string;

@@ -10,9 +10,9 @@ import {
 	deviceFlowService,
 } from '../services/deviceFlowService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);

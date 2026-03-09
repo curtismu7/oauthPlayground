@@ -1,6 +1,6 @@
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 
-import { logger } from '../utils/logger';
 // src/utils/clipboard.ts - Clipboard utilities
 
 /**

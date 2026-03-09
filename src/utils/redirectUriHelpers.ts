@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 // src/utils/redirectUriHelpers.ts
 // Utility functions to ensure redirect_uri consistency between authorization request and token exchange
 

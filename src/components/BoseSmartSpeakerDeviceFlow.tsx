@@ -10,9 +10,9 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
 const BoseSpeakerContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);

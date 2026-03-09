@@ -1,7 +1,7 @@
 // src/utils/tokenDebug.ts
-import { oauthStorage } from './storage';
 
 import { logger } from '../utils/logger';
+import { oauthStorage } from './storage';
 /**
  * Debug utility for token validation and troubleshooting
  */

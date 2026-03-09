@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { logger } from '../utils/logger';
+import { logger } from './logger';
 // src/utils/idTokenValidation.ts
 // Comprehensive ID token validation service for OIDC flows
 

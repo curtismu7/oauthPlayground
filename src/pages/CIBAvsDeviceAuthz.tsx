@@ -11,6 +11,7 @@ import PageLayoutService from '../services/pageLayoutService';
 import { copyToClipboard } from '../utils/clipboard';
 
 import { logger } from '../utils/logger';
+
 // Container styling handled by PageLayoutService
 
 const OverviewCard = styled(Card)`

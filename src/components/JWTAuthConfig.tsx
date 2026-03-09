@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
 
 import { logger } from '../utils/logger';
+
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;
 	initialConfig?: Partial<JWTAuthConfig>;

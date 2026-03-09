@@ -8,6 +8,7 @@ import FlowContextService from '../services/flowContextService';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
 
 import { logger } from '../utils/logger';
+
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -199,7 +200,7 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 		RedirectStateManager.clearFlowState(flowId);
 		FlowContextService.clearFlowContext(flowId);
 
-			showGlobalInfo('OAuth flow completed successfully! Flow state has been cleaned up.');
+		showGlobalInfo('OAuth flow completed successfully! Flow state has been cleaned up.');
 	}, [flowId]);
 
 	return (

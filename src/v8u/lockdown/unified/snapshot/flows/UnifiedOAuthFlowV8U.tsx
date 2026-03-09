@@ -43,6 +43,7 @@ import {
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
+import { logger } from '../../../../utils/logger';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
@@ -54,7 +55,6 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { logger } from '../../../../utils/logger';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,

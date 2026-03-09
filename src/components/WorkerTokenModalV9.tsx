@@ -23,10 +23,10 @@ import {
 } from '../services/credentialExportImportService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
+import { logger } from '../utils/logger';
 import { DraggableModal } from './DraggableModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
-import { logger } from '../utils/logger';
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
 // ---------------------------------------------------------------------------

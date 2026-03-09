@@ -9,6 +9,7 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 
 import { logger } from '../utils/logger';
+
 const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;

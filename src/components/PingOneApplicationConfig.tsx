@@ -4,9 +4,8 @@ import { FiInfo } from '@icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
-import { ColoredUrlDisplay } from './ColoredUrlDisplay';
-
 import { logger } from '../utils/logger';
+import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 export interface PingOneApplicationState {
 	clientAuthMethod:
 		| 'client_secret_post'

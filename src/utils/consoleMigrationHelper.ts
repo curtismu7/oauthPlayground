@@ -9,6 +9,7 @@
 import { LogLevel, logger } from '@/services/loggingService';
 
 import { logger } from '../utils/logger';
+
 /**
  * Mapping of console methods to logging service methods
  */

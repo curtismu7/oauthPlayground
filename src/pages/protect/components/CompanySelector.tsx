@@ -11,10 +11,10 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { useBrandTheme } from '../themes/theme-provider';
 
-import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

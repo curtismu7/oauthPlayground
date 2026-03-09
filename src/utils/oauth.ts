@@ -1,8 +1,8 @@
 import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVerify } from 'jose';
 import { IdTokenPayload, UserInfo } from '../types/oauth';
+import { logger } from '../utils/logger';
 import { logger } from './logger';
 
-import { logger } from '../utils/logger';
 // Client logging function for server.log
 const clientLog = async (_message: string) => {
 	// Disabled to prevent 404 errors - endpoint not implemented
