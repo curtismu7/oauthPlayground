@@ -265,7 +265,7 @@ export class AuthCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.authCode(flowId), JSON.stringify(data));
-		logger.info(`🔑 [FlowStorage] Stored auth code for ${flowId}`);
+		logger.info(`🔑 [FlowStorage] Stored auth code for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -309,7 +309,7 @@ export class AuthCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.authCode(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed auth code for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed auth code for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -346,7 +346,7 @@ export class DeviceCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.deviceCode(flowId), JSON.stringify(dataWithTimestamp));
-		logger.info(`📱 [FlowStorage] Stored device code for ${flowId}`);
+		logger.info(`📱 [FlowStorage] Stored device code for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -372,7 +372,7 @@ export class DeviceCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.deviceCode(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed device code for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed device code for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -408,7 +408,7 @@ export class StateStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.state(flowId), JSON.stringify(data));
-		logger.info(`🎲 [FlowStorage] Stored state for ${flowId}`);
+		logger.info(`🎲 [FlowStorage] Stored state for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -435,7 +435,7 @@ export class StateStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.state(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed state for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed state for ${flowId}`, "Logger info");
 	}
 }
 
@@ -456,7 +456,7 @@ export class PKCEStorage {
 		sessionStorage.setItem(StorageKeys.pkceVerifier(flowId), pkce.codeVerifier);
 		sessionStorage.setItem(StorageKeys.pkceChallenge(flowId), pkce.codeChallenge);
 		sessionStorage.setItem(StorageKeys.pkceMethod(flowId), pkce.codeChallengeMethod);
-		logger.info(`🔐 [FlowStorage] Stored PKCE for ${flowId}`);
+		logger.info(`🔐 [FlowStorage] Stored PKCE for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -489,7 +489,7 @@ export class PKCEStorage {
 		sessionStorage.removeItem(StorageKeys.pkceVerifier(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceChallenge(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceMethod(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed PKCE for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed PKCE for ${flowId}`, "Logger info");
 	}
 }
 
@@ -508,7 +508,7 @@ export class FlowStateStorage {
 	 */
 	static setCurrentStep(flowId: FlowId, step: number): void {
 		sessionStorage.setItem(StorageKeys.currentStep(flowId), step.toString());
-		logger.info(`📍 [FlowStorage] Set current step for ${flowId}: ${step}`);
+		logger.info(`📍 [FlowStorage] Set current step for ${flowId}: ${step}`, "Logger info");
 	}
 
 	/**
@@ -529,7 +529,7 @@ export class FlowStateStorage {
 	 */
 	static removeCurrentStep(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.currentStep(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed current step for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed current step for ${flowId}`, "Logger info");
 	}
 }
 
@@ -548,7 +548,7 @@ export class CredentialsStorage {
 	 */
 	static set(flowId: FlowId, credentials: CredentialsData): void {
 		localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
-		logger.info(`💾 [FlowStorage] Saved credentials for ${flowId}`);
+		logger.info(`💾 [FlowStorage] Saved credentials for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -574,7 +574,7 @@ export class CredentialsStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.credentials(flowId));
-		logger.info(`🗑️ [FlowStorage] Removed credentials for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Removed credentials for ${flowId}`, "Logger info");
 	}
 }
 
@@ -592,7 +592,7 @@ export class TokenStorage {
 	 */
 	static set(tokens: TokenData): void {
 		sessionStorage.setItem(StorageKeys.tokens(), JSON.stringify(tokens));
-		logger.info(`🎫 [FlowStorage] Stored tokens securely`);
+		logger.info(`🎫 [FlowStorage] Stored tokens securely`, "Logger info");
 	}
 
 	/**
@@ -616,7 +616,7 @@ export class TokenStorage {
 	 */
 	static remove(): void {
 		sessionStorage.removeItem(StorageKeys.tokens());
-		logger.info(`🗑️ [FlowStorage] Removed tokens`);
+		logger.info(`🗑️ [FlowStorage] Removed tokens`, "Logger info");
 	}
 
 	/**
@@ -647,7 +647,7 @@ export class NavigationStorage {
 	 */
 	static setFlowContext(context: FlowNavigationData): void {
 		sessionStorage.setItem(StorageKeys.flowContext(), JSON.stringify(context));
-		logger.info(`🧭 [FlowStorage] Set flow context: ${context.flowId}`);
+		logger.info(`🧭 [FlowStorage] Set flow context: ${context.flowId}`, "Logger info");
 	}
 
 	/**
@@ -671,7 +671,7 @@ export class NavigationStorage {
 	 */
 	static removeFlowContext(): void {
 		sessionStorage.removeItem(StorageKeys.flowContext());
-		logger.info(`🗑️ [FlowStorage] Removed flow context`);
+		logger.info(`🗑️ [FlowStorage] Removed flow context`, "Logger info");
 	}
 
 	/**
@@ -680,7 +680,7 @@ export class NavigationStorage {
 	 */
 	static setRestoreStep(step: number): void {
 		sessionStorage.setItem(StorageKeys.restoreStep(), step.toString());
-		logger.info(`📍 [FlowStorage] Set restore step: ${step}`);
+		logger.info(`📍 [FlowStorage] Set restore step: ${step}`, "Logger info");
 	}
 
 	/**
@@ -699,7 +699,7 @@ export class NavigationStorage {
 	 */
 	static removeRestoreStep(): void {
 		sessionStorage.removeItem(StorageKeys.restoreStep());
-		logger.info(`🗑️ [FlowStorage] Removed restore step`);
+		logger.info(`🗑️ [FlowStorage] Removed restore step`, "Logger info");
 	}
 }
 
@@ -716,7 +716,7 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlow(flowId: FlowId): void {
-		logger.info(`🧹 [FlowStorage] Clearing session data for ${flowId}`);
+		logger.info(`🧹 [FlowStorage] Clearing session data for ${flowId}`, "Logger info");
 
 		AuthCodeStorage.remove(flowId);
 		DeviceCodeStorage.remove(flowId);
@@ -724,7 +724,7 @@ export class StorageCleanup {
 		PKCEStorage.remove(flowId);
 		FlowStateStorage.removeCurrentStep(flowId);
 
-		logger.info(`✅ [FlowStorage] Cleared session data for ${flowId}`);
+		logger.info(`✅ [FlowStorage] Cleared session data for ${flowId}`, "Logger info");
 	}
 
 	/**
@@ -732,22 +732,22 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlowCompletely(flowId: FlowId): void {
-		logger.info(`🧹 [FlowStorage] Completely clearing ${flowId}`);
+		logger.info(`🧹 [FlowStorage] Completely clearing ${flowId}`, "Logger info");
 
 		StorageCleanup.clearFlow(flowId);
 		CredentialsStorage.remove(flowId);
 
-		logger.info(`✅ [FlowStorage] Completely cleared ${flowId}`);
+		logger.info(`✅ [FlowStorage] Completely cleared ${flowId}`, "Logger info");
 	}
 
 	/**
 	 * Clear all navigation data
 	 */
 	static clearNavigation(): void {
-		logger.info(`🧹 [FlowStorage] Clearing navigation data`);
+		logger.info(`🧹 [FlowStorage] Clearing navigation data`, "Logger info");
 		NavigationStorage.removeFlowContext();
 		NavigationStorage.removeRestoreStep();
-		logger.info(`✅ [FlowStorage] Cleared navigation data`);
+		logger.info(`✅ [FlowStorage] Cleared navigation data`, "Logger info");
 	}
 
 	/**
@@ -755,10 +755,10 @@ export class StorageCleanup {
 	 * ⚠️ Use with caution!
 	 */
 	static clearAll(): void {
-		logger.warn(`☢️ [FlowStorage] CLEARING ALL STORAGE`);
+		logger.warn(`☢️ [FlowStorage] CLEARING ALL STORAGE`, "Logger warning");
 		sessionStorage.clear();
 		localStorage.clear();
-		logger.warn(`☢️ [FlowStorage] ALL STORAGE CLEARED`);
+		logger.warn(`☢️ [FlowStorage] ALL STORAGE CLEARED`, "Logger warning");
 	}
 }
 
@@ -821,7 +821,7 @@ export class AdvancedParametersStorage {
 	 */
 	static clear(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.advancedParameters(flowId));
-		logger.info(`🗑️ [FlowStorage] Cleared advanced parameters for ${flowId}`);
+		logger.info(`🗑️ [FlowStorage] Cleared advanced parameters for ${flowId}`, "Logger info");
 	}
 
 	/**

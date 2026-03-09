@@ -106,7 +106,7 @@ async function getWorkerToken() {
     }
 
     const data = await response.json();
-    logger.info('Worker token obtained');
+    logger.info('Worker token obtained', "Logger info");
     logger.info('Token type:', data.token_type);
     logger.info('Expires in:', data.expires_in, 'seconds');
     
@@ -157,7 +157,7 @@ async function listMfaDevices() {
     
     devices.forEach((device: any) => {
       logger.info(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
-      logger.info(\`  Status: \${device.status}\`);
+      logger.info(\`  Status: \${device.status}\`, "Logger info");
     });
     
     return devices;
@@ -202,7 +202,7 @@ async function sendMfaChallenge() {
     }
 
     const data = await response.json();
-    logger.info('MFA challenge sent successfully');
+    logger.info('MFA challenge sent successfully', "Logger info");
     logger.info('Challenge ID:', data.id);
     logger.info('Expires at:', new Date(data.expiresAt).toLocaleString());
     
@@ -255,9 +255,9 @@ async function verifyMfaCode() {
     const isVerified = data.status === 'VERIFIED';
     
     if (isVerified) {
-      logger.info('✓ MFA verification successful');
+      logger.info('✓ MFA verification successful', "Logger info");
     } else {
-      logger.info('✗ MFA verification failed - Invalid code');
+      logger.info('✗ MFA verification failed - Invalid code', "Logger info");
     }
     
     return isVerified;
@@ -313,7 +313,7 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
     }
 
     const device = await response.json();
-    logger.info(\`\${type} device registered successfully\`);
+    logger.info(\`\${type} device registered successfully\`, "Logger info");
     logger.info('Device ID:', device.id);
     
     if (type === 'TOTP') {
@@ -436,7 +436,7 @@ async function getWorkerToken() {
       }
     );
 
-    logger.info('Worker token obtained');
+    logger.info('Worker token obtained', "Logger info");
     logger.info('Token type:', response.data.token_type);
     logger.info('Expires in:', response.data.expires_in, 'seconds');
     
@@ -486,7 +486,7 @@ async function listMfaDevices() {
     
     devices.forEach((device: any) => {
       logger.info(\`- \${device.type}: \${device.name} (ID: \${device.id})\`);
-      logger.info(\`  Status: \${device.status}\`);
+      logger.info(\`  Status: \${device.status}\`, "Logger info");
     });
     
     return devices;
@@ -531,7 +531,7 @@ async function sendMfaChallenge() {
       }
     );
 
-    logger.info('MFA challenge sent successfully');
+    logger.info('MFA challenge sent successfully', "Logger info");
     logger.info('Challenge ID:', response.data.id);
     logger.info('Expires at:', new Date(response.data.expiresAt).toLocaleString());
     
@@ -583,9 +583,9 @@ async function verifyMfaCode() {
     const isVerified = response.data.status === 'VERIFIED';
     
     if (isVerified) {
-      logger.info('✓ MFA verification successful');
+      logger.info('✓ MFA verification successful', "Logger info");
     } else {
-      logger.info('✗ MFA verification failed - Invalid code');
+      logger.info('✗ MFA verification failed - Invalid code', "Logger info");
     }
     
     return isVerified;
@@ -641,7 +641,7 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
       }
     );
 
-    logger.info(\`\${type} device registered successfully\`);
+    logger.info(\`\${type} device registered successfully\`, "Logger info");
     logger.info('Device ID:', response.data.id);
     
     if (type === 'TOTP') {

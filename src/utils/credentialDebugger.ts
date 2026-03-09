@@ -73,7 +73,7 @@ export class CredentialDebugger {
 			credentialSource = 'shared-fallback';
 		}
 
-		logger.info(`📋 Credential source: ${credentialSource}`);
+		logger.info(`📋 Credential source: ${credentialSource}`, "Logger info");
 		console.groupEnd();
 
 		return {
@@ -117,7 +117,7 @@ export class CredentialDebugger {
 			.map(([flowKey, _]) => flowKey);
 
 		if (flowsUsingSharedCredentials.length > 0) {
-			logger.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
+			logger.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`, "Logger warning");
 			logger.warn(`📋 Flows using shared credentials:`, flowsUsingSharedCredentials);
 		}
 
@@ -138,7 +138,7 @@ export class CredentialDebugger {
 
 		keysToRemove.forEach((key) => {
 			localStorage.removeItem(key);
-			logger.info(`🗑️ Removed: ${key}`);
+			logger.info(`🗑️ Removed: ${key}`, "Logger info");
 		});
 
 		// Also clear session storage
@@ -148,12 +148,12 @@ export class CredentialDebugger {
 
 		sessionKeysToRemove.forEach((key) => {
 			sessionStorage.removeItem(key);
-			logger.info(`🗑️ Removed from session: ${key}`);
+			logger.info(`🗑️ Removed from session: ${key}`, "Logger info");
 		});
 
 		logger.info(
 			`✅ Cleared ${keysToRemove.length} localStorage keys and ${sessionKeysToRemove.length} sessionStorage keys`
-		);
+		, "Logger info");
 		console.groupEnd();
 	}
 
@@ -168,14 +168,14 @@ export class CredentialDebugger {
 
 		// Dump all PingOne-related data
 		const pingoneKeys = Object.keys(localStorage).filter((key) => key.includes('pingone'));
-		logger.info(`📋 PingOne localStorage data:`);
+		logger.info(`📋 PingOne localStorage data:`, "Logger info");
 		pingoneKeys.forEach((key) => {
 			const data = localStorage.getItem(key);
 			logger.info(`  ${key}:`, data);
 		});
 
 		const pingoneSessionKeys = Object.keys(sessionStorage).filter((key) => key.includes('pingone'));
-		logger.info(`📋 PingOne sessionStorage data:`);
+		logger.info(`📋 PingOne sessionStorage data:`, "Logger info");
 		pingoneSessionKeys.forEach((key) => {
 			const data = sessionStorage.getItem(key);
 			logger.info(`  ${key}:`, data);
@@ -245,9 +245,9 @@ export class CredentialDebugger {
 			flow2Result.flowSpecificData?.credentials?.clientId === 'test-client-2';
 
 		if (flow1Isolated && flow2Isolated) {
-			logger.info(`✅ ISOLATION TEST PASSED: Both flows have their own credentials`);
+			logger.info(`✅ ISOLATION TEST PASSED: Both flows have their own credentials`, "Logger info");
 		} else {
-			logger.error(`❌ ISOLATION TEST FAILED: Credential bleeding detected`);
+			logger.error(`❌ ISOLATION TEST FAILED: Credential bleeding detected`, "Logger error");
 		}
 
 		console.groupEnd();

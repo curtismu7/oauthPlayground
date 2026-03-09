@@ -311,7 +311,7 @@ export const useAuthorizationCodeFlowController = (
 		}
 
 		// No existing PKCE codes found
-		logger.info('🔄 [useAuthorizationCodeFlowController] No existing PKCE codes in sessionStorage');
+		logger.info('🔄 [useAuthorizationCodeFlowController] No existing PKCE codes in sessionStorage', "Logger info");
 		return {
 			codeVerifier: '',
 			codeChallenge: '',
@@ -324,7 +324,7 @@ export const useAuthorizationCodeFlowController = (
 		if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
 			const pkceStorageKey = `${persistKey}-pkce-codes`;
 			sessionStorage.setItem(pkceStorageKey, JSON.stringify(pkceCodes));
-			logger.info('💾 [useAuthorizationCodeFlowController] PKCE codes persisted to sessionStorage');
+			logger.info('💾 [useAuthorizationCodeFlowController] PKCE codes persisted to sessionStorage', "Logger info");
 		}
 	}, [pkceCodes, persistKey]);
 
@@ -430,7 +430,7 @@ export const useAuthorizationCodeFlowController = (
 		];
 		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
 
-		logger.info('✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load');
+		logger.info('✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load', "Logger info");
 	}, [flowKey, persistKey]); // Only run once on mount
 
 	// Track current flow for error handling
@@ -460,7 +460,7 @@ export const useAuthorizationCodeFlowController = (
 			try {
 				logger.info(
 					'🔄 [useAuthorizationCodeFlowController] Loading flow-specific credentials on mount...'
-				);
+				, "Logger info");
 
 				const {
 					credentials: loadedCreds,
@@ -491,7 +491,7 @@ export const useAuthorizationCodeFlowController = (
 						setFlowConfig((prev) => ({ ...prev, ...flowState.flowConfig }));
 						logger.info(
 							'✅ [useAuthorizationCodeFlowController] Loaded flow config from saved state'
-						);
+						, "Logger info");
 					}
 				} else {
 					logger.info(
@@ -549,7 +549,7 @@ export const useAuthorizationCodeFlowController = (
 		const handlePopupCallback = (event: CustomEvent) => {
 			logger.info(
 				'🎉 [useAuthorizationCodeFlowController] ===== POPUP CALLBACK EVENT RECEIVED ====='
-			);
+			, "Logger info");
 			logger.info('✅ [useAuthorizationCodeFlowController] Event detail:', event.detail);
 			logger.info(
 				'✅ [useAuthorizationCodeFlowController] Current authCode state:',
@@ -563,7 +563,7 @@ export const useAuthorizationCodeFlowController = (
 					`${code.substring(0, 10)}...`
 				);
 				setAuthCode(code);
-				logger.info('✅ [useAuthorizationCodeFlowController] Auth code SET in state');
+				logger.info('✅ [useAuthorizationCodeFlowController] Auth code SET in state', "Logger info");
 
 				saveStepResult('handle-callback', {
 					code,
@@ -571,7 +571,7 @@ export const useAuthorizationCodeFlowController = (
 					timestamp: Date.now(),
 					source: 'popup',
 				});
-				logger.info('✅ [useAuthorizationCodeFlowController] Step result saved');
+				logger.info('✅ [useAuthorizationCodeFlowController] Step result saved', "Logger info");
 			} else {
 				logger.warn('useAuthorizationCodeFlowController', 'No code in event detail!');
 			}
@@ -579,11 +579,11 @@ export const useAuthorizationCodeFlowController = (
 
 		logger.info(
 			'🎧 [useAuthorizationCodeFlowController] Event listener registered for auth-code-received'
-		);
+		, "Logger info");
 		window.addEventListener('auth-code-received', handlePopupCallback as EventListener);
 
 		return () => {
-			logger.info('🔌 [useAuthorizationCodeFlowController] Removing auth-code-received listener');
+			logger.info('🔌 [useAuthorizationCodeFlowController] Removing auth-code-received listener', "Logger info");
 			window.removeEventListener('auth-code-received', handlePopupCallback as EventListener);
 		};
 	}, [authCode, saveStepResult]);
@@ -603,7 +603,7 @@ export const useAuthorizationCodeFlowController = (
 			if (callbackProcessed && callbackProcessed !== lastProcessedTimestamp) {
 				logger.info(
 					'🔍 [useAuthorizationCodeFlowController] Polling detected callback_processed flag!'
-				);
+				, "Logger info");
 				logger.info(
 					'🔍 [useAuthorizationCodeFlowController] Callback timestamp:',
 					callbackProcessed
@@ -636,7 +636,7 @@ export const useAuthorizationCodeFlowController = (
 						// Clear the flag so we don't process it again
 						sessionStorage.removeItem('callback_processed');
 						sessionStorage.removeItem('callback_flow_type');
-						logger.info('✅ [useAuthorizationCodeFlowController] Cleared callback flags');
+						logger.info('✅ [useAuthorizationCodeFlowController] Cleared callback flags', "Logger info");
 					}
 				}
 
@@ -654,7 +654,7 @@ export const useAuthorizationCodeFlowController = (
 
 		return () => {
 			if (pollInterval) {
-				logger.info('🔌 [useAuthorizationCodeFlowController] Stopping callback polling');
+				logger.info('🔌 [useAuthorizationCodeFlowController] Stopping callback polling', "Logger info");
 				clearInterval(pollInterval);
 			}
 		};
@@ -747,7 +747,7 @@ export const useAuthorizationCodeFlowController = (
 			const codeVerifier = generateCodeVerifier();
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-			logger.info('🔐 [PKCE DEBUG] ===== GENERATING NEW PKCE CODES =====');
+			logger.info('🔐 [PKCE DEBUG] ===== GENERATING NEW PKCE CODES =====', "Logger info");
 			logger.info(
 				'🔐 [PKCE DEBUG] code_verifier (first 20 chars):',
 				`${codeVerifier.substring(0, 20)}...`
@@ -770,7 +770,7 @@ export const useAuthorizationCodeFlowController = (
 				timestamp: Date.now(),
 			});
 
-			logger.info('✅ [PKCE DEBUG] PKCE codes generated and saved to state');
+			logger.info('✅ [PKCE DEBUG] PKCE codes generated and saved to state', "Logger info");
 		} catch (error) {
 			logger.error(
 				'useAuthorizationCodeFlowController',
@@ -840,7 +840,7 @@ export const useAuthorizationCodeFlowController = (
 			});
 		}
 
-		logger.info('🔧 [useAuthorizationCodeFlowController] ===== AUTHORIZATION URL GENERATION =====');
+		logger.info('🔧 [useAuthorizationCodeFlowController] ===== AUTHORIZATION URL GENERATION =====', "Logger info");
 		logger.info(
 			'🔧 [useAuthorizationCodeFlowController] Using redirect URI:',
 			credentials.redirectUri
@@ -882,7 +882,7 @@ export const useAuthorizationCodeFlowController = (
 				// Update state for future use
 				setPkceCodes(currentPkceCodes);
 
-				logger.info('✅ [PKCE] PKCE codes generated automatically');
+				logger.info('✅ [PKCE] PKCE codes generated automatically', "Logger info");
 			} catch (error) {
 				logger.error(
 					'useAuthorizationCodeFlowController',
@@ -894,7 +894,7 @@ export const useAuthorizationCodeFlowController = (
 			}
 		}
 
-		logger.info('🌐 [PKCE DEBUG] ===== BUILDING AUTHORIZATION URL =====');
+		logger.info('🌐 [PKCE DEBUG] ===== BUILDING AUTHORIZATION URL =====', "Logger info");
 		logger.info('🌐 [PKCE DEBUG] Using PKCE codes:', {
 			codeVerifier: `${currentPkceCodes.codeVerifier.substring(0, 20)}...`,
 			codeChallenge: `${currentPkceCodes.codeChallenge.substring(0, 20)}...`,
@@ -1136,7 +1136,7 @@ export const useAuthorizationCodeFlowController = (
 			url = `${baseUrl}&${scopeParam}`;
 		}
 
-		logger.info('🔧 [useAuthorizationCodeFlowController] ===== FINAL AUTHORIZATION URL =====');
+		logger.info('🔧 [useAuthorizationCodeFlowController] ===== FINAL AUTHORIZATION URL =====', "Logger info");
 		logger.info('🔧 [useAuthorizationCodeFlowController] Generated URL:', url);
 		logger.info(
 			'🔧 [useAuthorizationCodeFlowController] URL parameters:',
@@ -1431,7 +1431,7 @@ export const useAuthorizationCodeFlowController = (
 			});
 
 			// Try to get code verifier from multiple possible storage locations
-			logger.info('🔍 [PKCE DEBUG] ===== TOKEN EXCHANGE PKCE RETRIEVAL =====');
+			logger.info('🔍 [PKCE DEBUG] ===== TOKEN EXCHANGE PKCE RETRIEVAL =====', "Logger info");
 			logger.info('🔍 [PKCE DEBUG] Current pkceCodes state:', {
 				codeVerifier: pkceCodes.codeVerifier
 					? `${pkceCodes.codeVerifier.substring(0, 20)}...`
@@ -1533,7 +1533,7 @@ export const useAuthorizationCodeFlowController = (
 			// Handle JWT-based authentication methods
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-				logger.info(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`);
+				logger.info(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`, "Logger info");
 
 				try {
 					const tokenEndpoint = resolveTokenEndpoint(credentials);
@@ -1884,7 +1884,7 @@ export const useAuthorizationCodeFlowController = (
 			// Handle JWT-based authentication methods
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-				logger.info(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} for refresh`);
+				logger.info(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} for refresh`, "Logger info");
 
 				try {
 					const tokenEndpoint = resolveTokenEndpoint(credentials);
@@ -1986,7 +1986,7 @@ export const useAuthorizationCodeFlowController = (
 		setIsSavingCredentials(true);
 
 		try {
-			logger.info('💾 [useAuthorizationCodeFlowController] Saving credentials...');
+			logger.info('💾 [useAuthorizationCodeFlowController] Saving credentials...', "Logger info");
 			logger.info('💾 [useAuthorizationCodeFlowController] Credentials to save:', {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -2025,7 +2025,7 @@ export const useAuthorizationCodeFlowController = (
 			// Credentials are already saved via FlowCredentialService above
 			logger.info(
 				'✅ [useAuthorizationCodeFlowController] Credentials saved via FlowCredentialService'
-			);
+			, "Logger info");
 
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
@@ -2037,13 +2037,13 @@ export const useAuthorizationCodeFlowController = (
 			// Dispatch events to notify dashboard and other components
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-			logger.info('📢 [useAuthorizationCodeFlowController] Configuration change events dispatched');
+			logger.info('📢 [useAuthorizationCodeFlowController] Configuration change events dispatched', "Logger info");
 
 			saveStepResult('save-credentials', {
 				...credentials,
 				timestamp: Date.now(),
 			});
-			logger.info('✅ [useAuthorizationCodeFlowController] Credentials saved successfully');
+			logger.info('✅ [useAuthorizationCodeFlowController] Credentials saved successfully', "Logger info");
 
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Credentials saved', 'PingOne configuration saved successfully.');
@@ -2113,7 +2113,7 @@ export const useAuthorizationCodeFlowController = (
 	);
 
 	const clearPKCE = useCallback(() => {
-		logger.info('🧹 [useAuthorizationCodeFlowController] Clearing PKCE codes...');
+		logger.info('🧹 [useAuthorizationCodeFlowController] Clearing PKCE codes...', "Logger info");
 
 		// Clear PKCE codes from state
 		setPkceCodes({
@@ -2136,7 +2136,7 @@ export const useAuthorizationCodeFlowController = (
 		];
 		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
 
-		logger.info('✅ [useAuthorizationCodeFlowController] PKCE codes cleared');
+		logger.info('✅ [useAuthorizationCodeFlowController] PKCE codes cleared', "Logger info");
 		showGlobalSuccess('PKCE codes cleared', {
 			description: 'Generate new PKCE codes to start a fresh authorization flow.',
 			meta: { action: 'clearPKCE' },

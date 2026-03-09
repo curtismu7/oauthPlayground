@@ -22,13 +22,13 @@ export const FlowStateProvider: React.FC<{ children: ReactNode }> = ({ children 
 	const [currentAction, setCurrentAction] = useState<string | null>(null);
 
 	const startAction = useCallback((actionName: string) => {
-		logger.info('[FlowState] Starting action:', actionName);
+		logger.info('[FlowState] Starting action:', actionName, 'Flow action started');
 		setIsActionInProgress(true);
 		setCurrentAction(actionName);
 	}, []);
 
 	const endAction = useCallback(() => {
-		logger.info('[FlowState] Ending action:', currentAction);
+		logger.info('[FlowState] Ending action:', currentAction || 'unknown', 'Flow action ended');
 		setIsActionInProgress(false);
 		setCurrentAction(null);
 	}, [currentAction]);

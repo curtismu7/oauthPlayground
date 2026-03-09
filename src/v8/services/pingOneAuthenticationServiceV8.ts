@@ -29,7 +29,7 @@ export interface PingOneAuthResult {
  * Always provides success message for user feedback
  */
 export function checkPingOneAuthentication(): PingOneAuthResult {
-	logger.info(`${MODULE_TAG} 🔍 Checking PingOne authentication status...`);
+	logger.info(`${MODULE_TAG} 🔍 Checking PingOne authentication status...`, "Logger info");
 
 	// Check for session cookies first (most reliable indicator)
 	const hasSessionCookie = hasPingOneSessionCookie();
@@ -291,7 +291,7 @@ export function shouldRedirectToPingOne(): boolean {
 	}
 
 	// Otherwise, recommend redirect
-	logger.info(`${MODULE_TAG} 🔄 Recommend redirect to PingOne for authentication`);
+	logger.info(`${MODULE_TAG} 🔄 Recommend redirect to PingOne for authentication`, "Logger info");
 	return true;
 }
 

@@ -139,7 +139,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 		async (environmentId: string) => {
 			logger.info(
 				`${MODULE_TAG} Loading CIBA discovery metadata for environment: ${environmentId}`
-			);
+			, "Logger info");
 
 			setIsLoadingDiscovery(true);
 			setDiscoveryError(null);
@@ -198,7 +198,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 */
 	const initiateAuthentication = useCallback(
 		async (credentials: CibaCredentials): Promise<CibaAuthRequest> => {
-			logger.info(`${MODULE_TAG} Initiating CIBA authentication`);
+			logger.info(`${MODULE_TAG} Initiating CIBA authentication`, "Logger info");
 
 			setIsInitiating(true);
 			setError(null);
@@ -356,11 +356,11 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				for (let attempt = 1; attempt <= maxRetries; attempt++) {
 					// Check if polling was cancelled
 					if (abortControllerRef.current.signal.aborted) {
-						logger.info(`${MODULE_TAG} Polling cancelled`);
+						logger.info(`${MODULE_TAG} Polling cancelled`, "Logger info");
 						break;
 					}
 
-					logger.info(`${MODULE_TAG} Polling attempt ${attempt}/${maxRetries}`);
+					logger.info(`${MODULE_TAG} Polling attempt ${attempt}/${maxRetries}`, "Logger info");
 
 					const result = await pollingSpinner.withSpinner(
 						() => pollForTokens(authReqId, credentials),
@@ -369,14 +369,14 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 					// If we got a final result, return it
 					if (result.status !== 'pending') {
-						logger.info(`${MODULE_TAG} Final result received: ${result.status}`);
+						logger.info(`${MODULE_TAG} Final result received: ${result.status}`, "Logger info");
 						return result;
 					}
 
 					// For pending status, wait before next poll
 					if (result.status === 'pending' && attempt < maxRetries) {
 						const interval = result.interval || pollingInterval;
-						logger.info(`${MODULE_TAG} Waiting ${interval} seconds before next poll...`);
+						logger.info(`${MODULE_TAG} Waiting ${interval} seconds before next poll...`, "Logger info");
 
 						await new Promise((resolve) => {
 							const timeout = setTimeout(resolve, interval * 1000);
@@ -390,7 +390,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				}
 
 				// Max retries reached
-				logger.warn(`${MODULE_TAG} Maximum polling attempts reached`);
+				logger.warn(`${MODULE_TAG} Maximum polling attempts reached`, "Logger warning");
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -419,7 +419,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 	 * Reset all state
 	 */
 	const reset = useCallback(() => {
-		logger.info(`${MODULE_TAG} Resetting CIBA flow state`);
+		logger.info(`${MODULE_TAG} Resetting CIBA flow state`, "Logger info");
 
 		// Cancel any ongoing polling
 		if (abortControllerRef.current) {

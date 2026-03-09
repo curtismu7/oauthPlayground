@@ -243,7 +243,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						setEnvironmentId(credentials.environmentId);
 						logger.info(
 							`${MODULE_TAG} Auto-populated environment ID from worker token: ${credentials.environmentId}`
-						);
+						, "Logger info");
 					}
 				}
 			} catch (error) {
@@ -299,7 +299,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
 			hasLoadedDevicesRef.current = true; // Mark that devices have been loaded
 			lastAutoReloadKeyRef.current = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
-			logger.info(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
+			logger.info(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to load devices:`, error);
 			setError(error instanceof Error ? error.message : 'Failed to load devices');
@@ -380,7 +380,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					setPolicy(policyData);
 					logger.info(`${MODULE_TAG} ✅ Policy loaded:`, policyData.name);
 				} else {
-					logger.info(`${MODULE_TAG} ℹ️ No default policy configured`);
+					logger.info(`${MODULE_TAG} ℹ️ No default policy configured`, "Logger info");
 				}
 			} catch (error) {
 				logger.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
@@ -400,7 +400,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setMfaSettings((prev) => ({ ...prev, loading: true, error: null }));
 
 			try {
-				logger.info(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
+				logger.info(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`, "Logger info");
 				const settings = await MFAServiceV8.getMFASettings(environmentId);
 
 				const maxDevices = settings.pairing?.maxAllowedDevices || 20; // Default fallback

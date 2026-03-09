@@ -49,7 +49,7 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 
-		logger.info(`${MODULE_TAG} Exported authentication data`);
+		logger.info(`${MODULE_TAG} Exported authentication data`, "Logger info");
 	};
 
 	const handleStartNewFlow = () => {

@@ -340,7 +340,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 			// If no devices found, show registration option
 			if (devicesResponse.data.devices.length === 0) {
-				logger.info('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device');
+				logger.info('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device', "Logger info");
 				setError('No MFA devices registered. Please register an MFA device first.');
 			} else {
 				logger.info('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);

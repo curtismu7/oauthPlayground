@@ -91,14 +91,14 @@ export function getNextStepAfterRegistration(
 	// FIDO2: Registration includes activation (WebAuthn ceremony)
 	// Go straight to success
 	if (config.deviceType === 'FIDO2') {
-		logger.info(`${MODULE_TAG} FIDO2 device - skip to success`);
+		logger.info(`${MODULE_TAG} FIDO2 device - skip to success`, "Logger info");
 		return 4; // Success step
 	}
 
 	// Mobile: Pairing happens via QR code scan
 	// Go to activation to show pairing status
 	if (config.deviceType === 'MOBILE') {
-		logger.info(`${MODULE_TAG} Mobile device - go to pairing status`);
+		logger.info(`${MODULE_TAG} Mobile device - go to pairing status`, "Logger info");
 		return 3; // Activation step (shows pairing status)
 	}
 
@@ -107,18 +107,18 @@ export function getNextStepAfterRegistration(
 
 	// If device is already ACTIVE, skip activation step
 	if (status === 'ACTIVE') {
-		logger.info(`${MODULE_TAG} Device already active - skip to success`);
+		logger.info(`${MODULE_TAG} Device already active - skip to success`, "Logger info");
 		return 4; // Success step
 	}
 
 	// If device requires OTP activation
 	if (config.requiresOTP && status === 'ACTIVATION_REQUIRED') {
-		logger.info(`${MODULE_TAG} Device requires OTP activation`);
+		logger.info(`${MODULE_TAG} Device requires OTP activation`, "Logger info");
 		return 3; // Activation step
 	}
 
 	// Default: go to activation step
-	logger.info(`${MODULE_TAG} Default - go to activation`);
+	logger.info(`${MODULE_TAG} Default - go to activation`, "Logger info");
 	return 3; // Activation step
 }
 
@@ -139,7 +139,7 @@ export function canProceedToNextStep(
 	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
 	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
-	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
+	logger.info(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`, "Logger info");
 
 	// Step 0 (Configuration): Validate credentials and token
 	if (currentStep === 0) {

@@ -309,7 +309,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						hypothesisId: 'F',
 					});
 					// #endregion
-					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`, "Logger warning");
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -520,7 +520,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
@@ -543,7 +543,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('user');
 			// Reset flag after state update
@@ -554,7 +554,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('admin');
 			// Reset flag after state update
@@ -784,7 +784,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			e.preventDefault();
 			e.stopPropagation();
 
-			logger.info(`${_MODULE_TAG} handleProceedToRegistration called`);
+			logger.info(`${_MODULE_TAG} handleProceedToRegistration called`, "Logger info");
 			logger.info(`${_MODULE_TAG} credentials:`, credentials);
 			logger.info(`${_MODULE_TAG} tokenStatus:`, tokenStatus);
 
@@ -802,7 +802,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			logger.info(`${_MODULE_TAG} isTokenValid:`, isTokenValid);
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				logger.info(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`);
+				logger.info(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`, "Logger info");
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -826,7 +826,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!credentials.environmentId) {
-				logger.info(`${_MODULE_TAG} Missing environmentId`);
+				logger.info(`${_MODULE_TAG} Missing environmentId`, "Logger info");
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -837,7 +837,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!credentials.username) {
-				logger.info(`${_MODULE_TAG} Missing username`);
+				logger.info(`${_MODULE_TAG} Missing username`, "Logger info");
 				modernMessaging.showBanner({
 					type: 'warning',
 					title: 'Warning',
@@ -847,7 +847,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			logger.info(`${_MODULE_TAG} All validations passed - navigating to device registration`);
+			logger.info(`${_MODULE_TAG} All validations passed - navigating to device registration`, "Logger info");
 			// Navigate to actual SMS registration flow device route
 			navigate('/v8/mfa/register/sms/device', {
 				replace: false,

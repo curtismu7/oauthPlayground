@@ -618,7 +618,7 @@ class TokenGatewayV8 {
 			if (data) {
 				logger.info(`${MODULE_TAG} ${message}`, data);
 			} else {
-				logger.info(`${MODULE_TAG} ${message}`);
+				logger.info(`${MODULE_TAG} ${message}`, "Logger info");
 			}
 		}
 	}

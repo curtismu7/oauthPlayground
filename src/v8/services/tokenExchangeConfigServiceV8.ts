@@ -28,20 +28,20 @@ export class TokenExchangeConfigServiceV8 {
 		try {
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Checking Token Exchange enablement for environment: ${environmentId}`
-			);
+			, "Logger info");
 
 			const config = await TokenExchangeConfigServiceV8.getAdminConfig(environmentId);
 
 			if (!config.enabled) {
 				logger.warn(
 					`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange is disabled for environment: ${environmentId}`
-				);
+				, "Logger warning");
 				return false;
 			}
 
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange is enabled for environment: ${environmentId}`
-			);
+			, "Logger info");
 			return true;
 		} catch (error) {
 			logger.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error checking enablement:`, error);
@@ -62,7 +62,7 @@ export class TokenExchangeConfigServiceV8 {
 			if (stored) {
 				logger.info(
 					`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved config for environment: ${environmentId}`
-				);
+				, "Logger info");
 				return stored;
 			}
 
@@ -79,7 +79,7 @@ export class TokenExchangeConfigServiceV8 {
 
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Retrieved default config for environment: ${environmentId}`
-			);
+			, "Logger info");
 			return defaultConfig;
 		} catch (error) {
 			logger.error(`${TokenExchangeConfigServiceV8.MODULE_TAG} Error getting admin config:`, error);
@@ -101,7 +101,7 @@ export class TokenExchangeConfigServiceV8 {
 		try {
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Enabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
-			);
+			, "Logger info");
 
 			// Persist in the in-memory store so subsequent getAdminConfig calls see enabled=true
 			const updatedConfig: AdminTokenExchangeConfig = {
@@ -138,14 +138,14 @@ export class TokenExchangeConfigServiceV8 {
 		try {
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Disabling Token Exchange for environment: ${environmentId} by admin: ${adminUserId}`
-			);
+			, "Logger info");
 
 			// Remove from in-memory store so subsequent getAdminConfig calls see enabled=false
 			TokenExchangeConfigServiceV8.configStore.delete(environmentId);
 
 			logger.info(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Token Exchange disabled successfully`
-			);
+			, "Logger info");
 		} catch (error) {
 			logger.error(
 				`${TokenExchangeConfigServiceV8.MODULE_TAG} Error disabling Token Exchange:`,

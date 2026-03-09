@@ -215,7 +215,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 	// Load initial status and update when credentials change
 	useEffect(() => {
 		const updateStatus = async () => {
-			logger.info(' [ConfigurationStatus] Checking credentials from unified storage...');
+			logger.info(' [ConfigurationStatus] Checking credentials from unified storage...', "Logger info");
 			const newStatus = await getSharedConfigurationStatusAsync(flowType);
 			setStatusData(newStatus);
 		};
@@ -262,7 +262,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
 	const handleRefresh = async (e: React.MouseEvent) => {
 		e.stopPropagation();
-		logger.info(' [ConfigurationStatus] Manual refresh button clicked');
+		logger.info(' [ConfigurationStatus] Manual refresh button clicked', "Logger info");
 		const newStatus = await getSharedConfigurationStatusAsync(flowType);
 		setStatusData(newStatus);
 	};

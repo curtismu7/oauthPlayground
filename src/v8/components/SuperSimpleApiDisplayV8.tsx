@@ -380,7 +380,7 @@ const createPopOutWindow = (
 			}
 
 			// Debug: Log that JavaScript is loading
-			logger.info('Popout window JavaScript loading...');
+			logger.info('Popout window JavaScript loading...', "Logger info");
 			logger.info('Processed calls available:', !!window.processedCalls);
 			logger.info('Processed calls count:', window.processedCalls?.length || 0);
 

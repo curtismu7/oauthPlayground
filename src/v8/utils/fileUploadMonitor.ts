@@ -26,14 +26,14 @@ export class FileUploadMonitor {
 		// Check if customLogoUrl contains base64 data while uploadedFileInfo is null
 		if (customLogoUrl.startsWith('data:') && !uploadedFileInfo) {
 			const warning = '⚠️ WARNING: Base64 data detected in customLogoUrl without uploadedFileInfo';
-			logger.warn(warning);
+			logger.warn(warning, "Logger warning");
 			this.warnings.push(warning);
 		}
 
 		// Check if both states are set (potential state mixing)
 		if (customLogoUrl && uploadedFileInfo && customLogoUrl.startsWith('data:')) {
 			const warning = '⚠️ WARNING: Both customLogoUrl (base64) and uploadedFileInfo are set';
-			logger.warn(warning);
+			logger.warn(warning, "Logger warning");
 			this.warnings.push(warning);
 		}
 	}

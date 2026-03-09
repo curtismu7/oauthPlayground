@@ -58,7 +58,7 @@ export const AuthScreen = () => {
         // Exchange code for tokens
       }
     } catch (error) {
-      Alert.alert('Error', 'Login failed');
+      Alert.console.warn("Alert:", 'Error', 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -192,10 +192,10 @@ export const MFAChallenge = ({ userId, deviceId, accessToken }: any) => {
 
       if (response.ok) {
         setSent(true);
-        Alert.alert('Success', 'Challenge code sent!');
+        Alert.console.warn("Alert:", 'Success', 'Challenge code sent!');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to send challenge');
+      Alert.console.warn("Alert:", 'Error', 'Failed to send challenge');
     } finally {
       setLoading(false);
     }
@@ -239,13 +239,13 @@ export const MFAVerification = ({ userId, deviceId, accessToken, onSuccess }: an
 
       const data = await response.json();
       if (data.status === 'VERIFIED') {
-        Alert.alert('Success', 'Verification successful!');
+        Alert.console.warn("Alert:", 'Success', 'Verification successful!');
         onSuccess();
       } else {
-        Alert.alert('Error', 'Invalid code');
+        Alert.console.warn("Alert:", 'Error', 'Invalid code');
       }
     } catch (error) {
-      Alert.alert('Error', 'Verification failed');
+      Alert.console.warn("Alert:", 'Error', 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -308,11 +308,11 @@ export const DeviceRegistration = ({ userId, accessToken, onSuccess }: any) => {
 
       if (response.ok) {
         const device = await response.json();
-        Alert.alert('Success', 'Device registered!');
+        Alert.console.warn("Alert:", 'Success', 'Device registered!');
         onSuccess(device);
       }
     } catch (error) {
-      Alert.alert('Error', 'Registration failed');
+      Alert.console.warn("Alert:", 'Error', 'Registration failed');
     } finally {
       setLoading(false);
     }

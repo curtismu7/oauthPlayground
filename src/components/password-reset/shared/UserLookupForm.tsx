@@ -96,7 +96,7 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 						}}
 						placeholder={placeholder}
 						onGetToken={() => {
-							logger.info('Worker token required for user search in password reset');
+							logger.info('Worker token required for user search in password reset', "Logger info");
 						}}
 					/>
 					{user && (

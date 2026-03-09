@@ -192,7 +192,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		setIsAuthenticating(true);
 		try {
 			if (enableDebugger) {
-				logger.info('🔐 [V7RM-Enhanced] Starting authentication with real PingOne API...');
+				logger.info('🔐 [V7RM-Enhanced] Starting authentication with real PingOne API...', "Logger info");
 			}
 
 			// Prepare request for real PingOne token endpoint

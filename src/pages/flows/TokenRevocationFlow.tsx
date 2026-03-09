@@ -388,9 +388,9 @@ const tokenService = new TokenManagementService('${formData.environmentId}');
 const revoked = await tokenService.revokeToken(revocationRequest);
 
 if (revoked) {
-  logger.info('Token revoked successfully');
+  logger.info('Token revoked successfully', "Logger info");
 } else {
-  logger.info('Token revocation failed');
+  logger.info('Token revocation failed', "Logger info");
 }`,
 			execute: async () => {
 				logger.info('TokenRevocationFlow', 'Revoking token(s)', {
@@ -470,7 +470,7 @@ const verifyRevocation = async (token) => {
       logger.info(' Token is revoked (401 Unauthorized)');
       return { revoked: true, reason: 'Token rejected by server' };
     } else if (response.ok) {
-      logger.info(' Token is still valid');
+      logger.info(' Token is still valid', "Logger info");
       return { revoked: false, reason: 'Token accepted by server' };
     }
   } catch (error) {
@@ -526,7 +526,7 @@ const cleanupAfterRevocation = (revocationResult) => {
       delete storedTokens.refresh_token;
     }
     localStorage.setItem('oauth_tokens', JSON.stringify(storedTokens));
-    logger.info('Single token removed from local storage');
+    logger.info('Single token removed from local storage', "Logger info");
   } else {
     // Remove multiple tokens from local storage
     const tokensToRemove = revocationResult.results
@@ -543,7 +543,7 @@ const cleanupAfterRevocation = (revocationResult) => {
       }
     });
     localStorage.setItem('oauth_tokens', JSON.stringify(storedTokens));
-    logger.info(\`\${tokensToRemove.length} tokens removed from local storage\`);
+    logger.info(\`\${tokensToRemove.length} tokens removed from local storage\`, "Logger info");
   }
   
   // Clear any cached user data
