@@ -16,10 +16,15 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import {
-	type DetailedServerStatus,
-	fetchDetailedHealth,
+	saveRegion,
+	type PingOneRegion,
+	getCurrentRegion,
+} from '../services/regionService';
+import {
 	formatBytes,
 	formatUptime,
+	type DetailedServerStatus,
+	fetchDetailedHealth,
 } from '../services/serverHealthService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -49,6 +54,7 @@ const Dashboard = () => {
 	const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
 	const [refreshError, setRefreshError] = useState<string | null>(null);
 	const [customDomain, setCustomDomain] = useState('');
+	const [selectedRegion, setSelectedRegion] = useState<PingOneRegion>('na');
 	const [savingDomain, setSavingDomain] = useState(false);
 	const [domainError, setDomainError] = useState<string | null>(null);
 	const [hasSavedCredentials, setHasSavedCredentials] = useState(false);
@@ -142,6 +148,22 @@ const Dashboard = () => {
 		getCustomDomain().then(setCustomDomain);
 	}, [isOnline]);
 
+	// Load the current region on component mount
+	useEffect(() => {
+		const loadCurrentRegion = async () => {
+			try {
+				const region = await getCurrentRegion();
+				setSelectedRegion(region);
+			} catch (error) {
+				console.error('Failed to load current region:', error);
+				// Default to 'na' if loading fails
+				setSelectedRegion('na');
+			}
+		};
+		
+		loadCurrentRegion();
+	}, []);
+
 	const appDisplayUrl =
 		typeof customDomain === 'string' && customDomain.trim()
 			? getAppUrlForDomain(customDomain.trim())
@@ -152,14 +174,19 @@ const Dashboard = () => {
 		setDomainError(null);
 		setSavingDomain(true);
 		try {
-			const newAppUrl = await saveCustomDomain(customDomain.trim());
+			// Save both domain and region
+			await Promise.all([
+				saveCustomDomain(customDomain.trim()),
+				saveRegion(selectedRegion)
+			]);
+			const newAppUrl = getAppUrlForDomain(customDomain.trim());
 			window.location.href = `${newAppUrl}/dashboard`;
 		} catch (err) {
-			setDomainError(err instanceof Error ? err.message : 'Failed to save domain');
+			setDomainError(err instanceof Error ? err.message : 'Failed to save domain and region');
 		} finally {
 			setSavingDomain(false);
 		}
-	}, [customDomain]);
+	}, [customDomain, selectedRegion]);
 
 	// Load initial dashboard data
 	useEffect(() => {
@@ -555,6 +582,23 @@ const Dashboard = () => {
 									}}
 									aria-describedby="dashboard-domain-hint dashboard-domain-error"
 								/>
+								
+								<label htmlFor="dashboard-region" className="fw-600 text-muted text-small mt-3">
+									PingOne Region
+								</label>
+								<select
+									id="dashboard-region"
+									className="form-control"
+									value={selectedRegion}
+									onChange={(e) => setSelectedRegion(e.target.value as PingOneRegion)}
+									aria-describedby="dashboard-region-hint"
+								>
+									<option value="na">North America (.us)</option>
+									<option value="eu">Europe (.eu)</option>
+									<option value="ca">Canada (.ca)</option>
+									<option value="ap">Asia Pacific (.asia)</option>
+								</select>
+								
 								{domainError && (
 									<p
 										id="dashboard-domain-error"
@@ -567,6 +611,9 @@ const Dashboard = () => {
 								<p id="dashboard-domain-hint" className="text-small text-muted mb-0">
 									Saved to SQLite (backend) and IndexedDB. After saving, the app will open at the
 									new URL.
+								</p>
+								<p id="dashboard-region-hint" className="text-small text-muted mb-0">
+									Region determines PingOne API endpoints for your environment.
 								</p>
 								<button
 									type="button"

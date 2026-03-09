@@ -8,7 +8,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { useServerStatusOptional } from './ServerStatusProvider';
 
 const BACKEND_DOWN_MESSAGE =

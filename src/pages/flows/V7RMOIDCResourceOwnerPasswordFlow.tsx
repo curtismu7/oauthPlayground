@@ -11,7 +11,6 @@ import InlineDocumentation, { QuickReference } from '../../components/InlineDocu
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { useV7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import CompactAppPickerV8U from '../../v8u/components/CompactAppPickerV8U';
 

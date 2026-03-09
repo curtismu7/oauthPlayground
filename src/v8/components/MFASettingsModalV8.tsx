@@ -98,18 +98,42 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
 
 	return (
-		<div className="modal-overlay" style={hasPosition ? { display: 'block' } : {}}>
-			<div className="modal-content" ref={modalRef} style={modalStyle}>
+		<div 
+			className="modal-overlay" 
+			aria-hidden="true"
+			style={hasPosition ? { display: 'block' } : {}}
+			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
+		>
+			<div 
+				className="modal-content" 
+				ref={modalRef} 
+				style={modalStyle}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="mfa-settings-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
+			>
 				<div
 					className="modal-header"
 					onMouseDown={handleMouseDown}
 					style={{ cursor: 'grab', userSelect: 'none' }}
 				>
-					<h3>
+					<h3 id="mfa-settings-title">
 						<FiSettings style={{ marginRight: '8px' }} />
 						MFA Settings
 					</h3>
 					<button
+						type="button"
 						onMouseDown={(e) => e.stopPropagation()}
 						onClick={onClose}
 						className="close-button"

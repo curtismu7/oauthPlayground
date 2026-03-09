@@ -67,9 +67,8 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 	return (
 		<>
 			{/* Backdrop */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop dismissal on click, keyboard close via Cancel button */}
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -83,12 +82,24 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 					justifyContent: 'center',
 				}}
 				onClick={onCancel}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onCancel();
+					}
+				}}
 			/>
 
 			{/* Modal */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: inner modal stops backdrop click propagation */}
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: inner modal content container */}
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="confirm-modal-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onCancel();
+					}
+				}}
 				style={{
 					position: 'fixed',
 					top: '50%',
@@ -101,7 +112,6 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 					maxWidth: '400px',
 					width: '90%',
 				}}
-				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
 				<div
@@ -113,7 +123,10 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 						borderTopRightRadius: '8px',
 					}}
 				>
-					<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: color.text }}>
+					<h2
+						id="confirm-modal-title"
+						style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: color.text }}
+					>
 						{title}
 					</h2>
 				</div>

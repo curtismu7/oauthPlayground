@@ -16,7 +16,6 @@ import {
 	TokenValidationCard,
 	ValidationStatus,
 } from '../components/token/TokenStyles';
-import { BootstrapIcon } from '../components/v9/BootstrapIcon';
 import {
 	createTokenError,
 	isTokenError,

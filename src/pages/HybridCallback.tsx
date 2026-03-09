@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
-const log = createModuleLogger('pages/HybridCallback.tsx');
+const _log = createModuleLogger('pages/HybridCallback.tsx');
 
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';

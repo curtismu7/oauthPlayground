@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Types
 interface MFAUserSettings {

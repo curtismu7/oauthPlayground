@@ -70,6 +70,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -83,10 +84,18 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 					justifyContent: 'center',
 				}}
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			/>
 
 			{/* Modal */}
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="oidc-discovery-title"
 				style={{
 					position: 'fixed',
 					top: '50%',
@@ -103,10 +112,16 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 					padding: '24px',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			>
 				{/* Header */}
 				<div style={{ marginBottom: '16px' }}>
 					<h2
+						id="oidc-discovery-title"
 						style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}
 					>
 						🔍 OIDC Discovery Results

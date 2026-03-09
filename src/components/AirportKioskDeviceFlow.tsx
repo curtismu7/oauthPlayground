@@ -10,7 +10,6 @@ import {
 	type DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel

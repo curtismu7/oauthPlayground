@@ -1,5 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
-
 // src/pages/WebhookReceiver.tsx
 // Webhook Receiver - Receives and processes PingOne webhook events
 

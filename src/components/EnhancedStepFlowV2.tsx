@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import '../styles/enhanced-flow.css';
 
 // Enhanced step interface with more options

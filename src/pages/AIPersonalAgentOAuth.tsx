@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Content = styled.div`
 	display: grid;

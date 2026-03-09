@@ -8,7 +8,6 @@ import { FiInfo } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);

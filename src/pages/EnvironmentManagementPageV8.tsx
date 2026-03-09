@@ -1,7 +1,6 @@
 // src/pages/EnvironmentManagementPageV8.tsx
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
-import { FiCode, FiDownload, FiPlus } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
@@ -1026,7 +1025,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			{/* API Endpoints Section - Full Width */}
 			<div style={styles.apiEndpointsSection}>
 				<h3 style={styles.apiEndpointsHeader}>
-					<span>[FiCode]</span>Enterprise API Operations
+					<i className="bi bi-code-slash" />Enterprise API Operations
 				</h3>
 				<p style={styles.apiEndpointsDescription}>
 					MasterFlow API provides comprehensive environment management capabilities with full audit
@@ -1107,7 +1106,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
 						onClick={handleToggleApiDisplay}
 					>
-						<span>[FiCode]</span>
+						<i className="bi bi-code-slash" />
 						{showApiDisplay ? 'Hide API' : 'Show API'}
 					</button>
 					<button
@@ -1115,7 +1114,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={styles.button('secondary')}
 						onClick={handleExportEnvironments}
 					>
-						<span>[FiDownload]</span>Export
+						<i className="bi bi-download" />Export
 					</button>
 					<button
 						type="button"
@@ -1125,7 +1124,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<span>⬆️</span>Import
 					</button>
 					<button type="button" style={styles.button('primary')} onClick={handleCreateEnvironment}>
-						<span>[FiPlus]</span>Create Environment
+						<i className="bi bi-plus-circle" />Create Environment
 					</button>
 				</div>
 			</div>
@@ -1364,7 +1363,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title="Edit"
 							>
-								<span>[FiEdit2]</span>
+								<i className="bi bi-pencil" />
 							</button>
 							<button
 								type="button"
@@ -1423,7 +1422,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showEditModal)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<span>[FiEdit2]</span>Edit Environment
+						<i className="bi bi-pencil" />Edit Environment
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
 						×
@@ -1565,7 +1564,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiDisplayModal(showApiDisplay)}>
 				<div style={styles.apiDisplayHeader}>
 					<h3 style={styles.apiDisplayTitle}>
-						<span>[FiCode]</span>API Call History
+						<i className="bi bi-code-slash" />API Call History
 					</h3>
 					<button type="button" style={styles.closeButton} onClick={() => setShowApiDisplay(false)}>
 						×

@@ -13,7 +13,6 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { isTokenExpired } from '../../utils/oauth';
@@ -274,7 +273,7 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	);
 };
 
-const log = createModuleLogger('src/pages/flows/UserInfoFlow.tsx');
+const _log = createModuleLogger('src/pages/flows/UserInfoFlow.tsx');
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();

@@ -202,7 +202,12 @@ export const V7MClientCredentialsV9: React.FC = () => {
 									>
 										Inspect Access Token
 									</button>
-									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={handleIntrospect}
+										style={secondaryBtn}
+									>
 										Introspect Token
 									</button>
 									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>

@@ -1,8 +1,6 @@
-import { FiAward } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const PageContainer = styled.div`
@@ -381,7 +379,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 				{/* Hero Section */}
 				<HeroSection>
 					<TrophyIcon>
-						<span>[FiAward]</span>
+						<i className="bi bi-award" />
 					</TrophyIcon>
 					<HeroTitle>OAuth Implicit Flow Mastered!</HeroTitle>
 					<HeroSubtitle>

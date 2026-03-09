@@ -4,7 +4,6 @@ import { FiLoader } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 

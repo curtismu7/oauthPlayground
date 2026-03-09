@@ -10,7 +10,6 @@ import {
 	type ImportValidationResult,
 } from '../services/exportImportService';
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { FileDropHandler, validateFile } from '../utils/fileHandling';
 
 const Container = styled.div`

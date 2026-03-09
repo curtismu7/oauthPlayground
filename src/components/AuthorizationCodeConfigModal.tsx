@@ -12,7 +12,6 @@ import {
 	importCredentials,
 	triggerFileImport,
 } from '../services/credentialExportImportService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 

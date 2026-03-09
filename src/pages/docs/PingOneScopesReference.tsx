@@ -1,7 +1,6 @@
 // src/pages/docs/PingOneScopesReference.tsx
 // Educational reference for PingOne OAuth and OIDC scopes, including catalog, usage tips, and best practices
 
-import { FiBook, FiCheckCircle, FiInfo, FiShield, FiTarget } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -13,7 +12,6 @@ import {
 	FiTarget,
 } from '../../services/commonImportsService';
 import PageLayoutService from '../../services/pageLayoutService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 

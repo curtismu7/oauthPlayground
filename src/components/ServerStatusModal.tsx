@@ -1,7 +1,6 @@
 import { FiRefreshCw } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface ServerStatusModalProps {
 	isOpen: boolean;

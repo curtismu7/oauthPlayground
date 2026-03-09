@@ -1,5 +1,3 @@
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
-
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/types/index.ts
 // V7.1 Types Index - Central export for all types
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   background: V9_COLORS.BG.GRAY_LIGHT;

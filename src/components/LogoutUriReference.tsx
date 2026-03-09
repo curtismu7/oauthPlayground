@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface LogoutUriReferenceProps {
 	isOpen: boolean;
