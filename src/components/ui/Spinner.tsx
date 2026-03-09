@@ -5,7 +5,6 @@ interface SpinnerProps {
 	variant?: 'spin' | 'pulse' | 'dots';
 	color?: string;
 	className?: string;
-	label?: string; // For accessibility
 }
 
 export const Spinner: React.FC<SpinnerProps> = ({
@@ -13,7 +12,6 @@ export const Spinner: React.FC<SpinnerProps> = ({
 	variant = 'spin',
 	color = 'currentColor',
 	className = '',
-	label = 'Loading',
 }) => {
 	const getIcon = () => {
 		switch (variant) {
@@ -27,7 +25,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
 	};
 
 	return (
-		<div
+		<output
 			className={`spinner spinner--${variant} ${className}`}
 			style={{
 				width: size,
@@ -38,12 +36,9 @@ export const Spinner: React.FC<SpinnerProps> = ({
 				justifyContent: 'center',
 				background: 'transparent',
 			}}
-			role="status"
-			aria-label={label}
-			aria-live="polite"
 		>
 			{getIcon()}
-		</div>
+		</output>
 	);
 };
 
