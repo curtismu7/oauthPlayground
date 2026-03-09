@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
+import { logger } from '../utils/logger';
 const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {
 		switch ($severity) {
@@ -225,15 +226,15 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 			await navigator.clipboard.writeText(errorText);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-			log.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
+			logger.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
 		} catch (err) {
-			log.error('PingOneErrorDisplay', 'Failed to copy error details', err);
+			logger.error('PingOneErrorDisplay', 'Failed to copy error details', err);
 		}
 	};
 
 	const handleToggleDetails = () => {
 		setIsExpanded(!isExpanded);
-		log.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
+		logger.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
 	};
 
 	return (

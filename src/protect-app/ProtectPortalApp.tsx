@@ -71,7 +71,7 @@ export const ProtectPortalApp: React.FC = () => {
 	}, []);
 
 	const handleConfigurationSaved = (config: ProtectPortalConfiguration) => {
-		console.log('Protect Portal configuration saved:', config);
+		logger.info('Protect Portal configuration saved:', config);
 		// Optionally reload the app to apply new configuration
 		window.location.reload();
 	};

@@ -1,4 +1,5 @@
 const DEFAULT_DOMAIN = 'https://auth.pingone.com';
+import { logger } from '../../../utils/logger';
 
 const DEFAULT_STORAGE_KEYS = {
 	local: ['token_to_analyze', 'token_type', 'flow_source'],
@@ -84,7 +85,7 @@ const extractUserIdFromIdToken = (idToken?: MaybeString): string | null => {
 		const payload = JSON.parse(payloadJson) as { sub?: string };
 		return payload?.sub ?? null;
 	} catch (error) {
-		console.warn('[sessionTerminationService] Failed to parse ID token payload', error);
+		logger.warn('[sessionTerminationService] Failed to parse ID token payload', error);
 		return null;
 	}
 };
@@ -151,7 +152,7 @@ const resolveLogoutUrl = (
 
 		return url.toString();
 	} catch (error) {
-		console.warn('[sessionTerminationService] Failed to build logout URL', error);
+		logger.warn('[sessionTerminationService] Failed to build logout URL', error);
 		return null;
 	}
 };

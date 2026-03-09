@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file ApiDisplayService.ts
  * @module protect-app/services
  * @description API call tracking service for Protect Portal
@@ -67,7 +68,7 @@ export const trackCall = (call: Omit<ProtectApiCall, 'apiType'>): void => {
 		apiCalls = apiCalls.slice(0, config.maxCalls);
 	}
 
-	console.log(`${MODULE_TAG} API call tracked:`, apiType.label, call.method, call.url);
+	logger.info(`${MODULE_TAG} API call tracked:`, apiType.label, call.method, call.url);
 };
 
 /**
@@ -148,7 +149,7 @@ export const getApiCallsByCategory = (category: string): ProtectApiCall[] => {
  */
 export const clearCalls = (): void => {
 	apiCalls = [];
-	console.log(`${MODULE_TAG} All API calls cleared`);
+	logger.info(`${MODULE_TAG} All API calls cleared`);
 };
 
 /**
@@ -156,7 +157,7 @@ export const clearCalls = (): void => {
  */
 export const setEnabled = (enabled: boolean): void => {
 	config.enabled = enabled;
-	console.log(`${MODULE_TAG} API display ${enabled ? 'enabled' : 'disabled'}`);
+	logger.info(`${MODULE_TAG} API display ${enabled ? 'enabled' : 'disabled'}`);
 };
 
 /**
@@ -171,7 +172,7 @@ export const getConfig = (): ApiDisplayConfig => {
  */
 export const updateConfig = (updates: Partial<ApiDisplayConfig>): void => {
 	config = { ...config, ...updates };
-	console.log(`${MODULE_TAG} Configuration updated:`, updates);
+	logger.info(`${MODULE_TAG} Configuration updated:`, updates);
 };
 
 /**

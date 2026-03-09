@@ -9,6 +9,7 @@ import { useNotifications } from '../hooks/useNotifications';
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Temporarily commented - not used
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
+import { logger } from '../utils/logger';
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
 	try {
@@ -23,7 +24,7 @@ const decodeJWT = (token: string) => {
 		);
 		return JSON.parse(jsonPayload);
 	} catch (error) {
-		log.error('WorkerTokenRequestModal', 'Failed to decode JWT:', undefined, error as Error);
+		logger.error('WorkerTokenRequestModal', 'Failed to decode JWT:', undefined, error as Error);
 		return { error: 'Invalid token format' };
 	}
 };
@@ -454,7 +455,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 				throw new Error(data.error_description || 'Failed to get access token');
 			}
 		} catch (error) {
-			log.error('WorkerTokenRequestModal', 'Error generating token:', undefined, error as Error);
+			logger.error('WorkerTokenRequestModal', 'Error generating token:', undefined, error as Error);
 			// Handle error (show toast or error message)
 		} finally {
 			setIsLoading(false);

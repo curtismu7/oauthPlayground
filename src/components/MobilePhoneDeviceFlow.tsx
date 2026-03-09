@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
 const MobilePhoneContainer = styled.div`
   background: linear-gradient(135deg, #5a5a5c 0%, #8e8e93 10%, #5a5a5c 100%);
@@ -357,12 +358,12 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({ state }) 
 
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
+		logger.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusText = () => {

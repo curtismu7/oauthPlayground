@@ -26,6 +26,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
+import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[🔐 TOTP-CONFIG-V8]';
 
 export const TOTPConfigurationPageV8: React.FC = () => {
@@ -86,7 +87,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	useEffect(() => {
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
-			console.log('[TOTP] Environment ID saved globally', {
+			logger.info('[TOTP] Environment ID saved globally', {
 				environmentId: credentials.environmentId,
 			});
 		}
@@ -112,7 +113,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 			try {
 				if (!storedState || !storedCodeVerifier || !storedCredentials) {
-					console.error('[🔐 TOTP-CONFIG-V8] Missing OAuth callback data');
+					logger.error('[🔐 TOTP-CONFIG-V8] Missing OAuth callback data');
 					navigate('/v8/unified-mfa');
 					return;
 				}
@@ -162,7 +163,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				sessionStorage.removeItem('user_login_redirect_uri_v8');
 				window.history.replaceState({}, document.title, window.location.pathname);
 
-				console.log(`[🔐 TOTP-CONFIG-V8] ✅ OAuth token exchange successful`);
+				logger.info(`[🔐 TOTP-CONFIG-V8] ✅ OAuth token exchange successful`);
 				setCredentials((prev) => ({
 					...prev,
 					userToken: 'oauth_completed',
@@ -175,7 +176,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					duration: 3000,
 				});
 			} catch (error) {
-				console.error(`[🔐 TOTP-CONFIG-V8] Failed to exchange code for tokens`, error);
+				logger.error(`[🔐 TOTP-CONFIG-V8] Failed to exchange code for tokens`, error);
 				const errorMessage =
 					error instanceof Error
 						? error.message
@@ -213,7 +214,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 	// Handle device authentication policy selection
 	const handlePolicySelect = useCallback((policy: DeviceAuthenticationPolicy) => {
-		console.log(`[🔐 TOTP-CONFIG-V8] Selected device authentication policy:`, policy);
+		logger.info(`[🔐 TOTP-CONFIG-V8] Selected device authentication policy:`, policy);
 		setCredentials((prev) => ({
 			...prev,
 			deviceAuthenticationPolicyId: policy.id,
@@ -392,7 +393,7 @@ const DeviceAuthenticationPolicySelector: React.FC<{
 					await MFAConfigurationServiceV8.getDeviceAuthenticationPolicies(environmentId);
 				setPolicies(availablePolicies);
 			} catch (error) {
-				console.error('Failed to load device authentication policies:', error);
+				logger.error('Failed to load device authentication policies:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',

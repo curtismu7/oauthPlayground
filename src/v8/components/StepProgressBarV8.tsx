@@ -22,6 +22,7 @@
 import React from 'react';
 import { StepProgressBarProps } from '@/v8/types/stepNavigation';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📊 STEP-PROGRESS-V8]';
 
 /**
@@ -38,7 +39,7 @@ export const StepProgressBarV8: React.FC<StepProgressBarProps> = ({
 	completedSteps,
 	className = '',
 }) => {
-	console.log(`${MODULE_TAG} Rendering progress bar`, {
+	logger.info(`${MODULE_TAG} Rendering progress bar`, {
 		currentStep,
 		totalSteps,
 		completedSteps: completedSteps.length,

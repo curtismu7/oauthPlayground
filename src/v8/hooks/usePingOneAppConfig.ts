@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { PingOneAppConfig, PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 
+import { logger } from '../utils/logger';
 const STORAGE_KEY = 'pingone_app_config';
 
 const DEFAULT_CONFIG: PingOneAppConfig = {
@@ -27,7 +28,7 @@ export const usePingOneAppConfig = () => {
 				setConfig({ ...DEFAULT_CONFIG, ...parsedConfig });
 			}
 		} catch (error) {
-			console.error('Failed to load PingOne app config:', error);
+			logger.error('Failed to load PingOne app config:', error);
 		}
 	}, []);
 
@@ -36,7 +37,7 @@ export const usePingOneAppConfig = () => {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 		} catch (error) {
-			console.error('Failed to save PingOne app config:', error);
+			logger.error('Failed to save PingOne app config:', error);
 		}
 	}, [config]);
 

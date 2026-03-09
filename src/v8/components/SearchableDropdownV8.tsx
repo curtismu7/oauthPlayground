@@ -18,6 +18,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 SEARCHABLE-DROPDOWN-V8]';
 
 export interface SearchableDropdownOption {
@@ -58,7 +59,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 	onSearchChange,
 }) => {
 	// Debug: Log props to understand the issue
-	console.log(`${MODULE_TAG} Component props:`, {
+	logger.info(`${MODULE_TAG} Component props:`, {
 		id,
 		value,
 		optionsLength: options?.length,
@@ -152,12 +153,12 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 
 		// If user clears the search, keep dropdown open to show full list
 		if (newSearchTerm === '') {
-			console.log(`${MODULE_TAG} Search cleared - dropdown stays open`);
+			logger.info(`${MODULE_TAG} Search cleared - dropdown stays open`);
 		}
 	};
 
 	const handleOptionClick = (optionValue: string) => {
-		console.log(`${MODULE_TAG} Option selected:`, optionValue);
+		logger.info(`${MODULE_TAG} Option selected:`, optionValue);
 
 		// Update the value first
 		onChange(optionValue);

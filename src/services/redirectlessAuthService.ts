@@ -167,10 +167,10 @@ export class RedirectlessAuthService {
 			requestBody.redirectUri = credentials.redirectUri;
 		}
 
-		console.log(
+		logger.info(
 			`[RedirectlessAuthService] Starting authorization flow for ${flowKey || 'default'}`
 		);
-		console.log(`[RedirectlessAuthService] 🐛 DEBUG - Request details:`, {
+		logger.info(`[RedirectlessAuthService] 🐛 DEBUG - Request details:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'MISSING',
 			hasClientSecret: !!credentials.clientSecret,
@@ -189,7 +189,7 @@ export class RedirectlessAuthService {
 			body: JSON.stringify(requestBody),
 		});
 
-		console.log(`[RedirectlessAuthService] 🐛 DEBUG - Authorization response:`, {
+		logger.info(`[RedirectlessAuthService] 🐛 DEBUG - Authorization response:`, {
 			status: response.status,
 			statusText: response.statusText,
 			ok: response.ok,
@@ -220,7 +220,7 @@ export class RedirectlessAuthService {
 		}
 
 		const flowData: RedirectlessFlowResponse = await response.json();
-		console.log(`[RedirectlessAuthService] Authorization response:`, {
+		logger.info(`[RedirectlessAuthService] Authorization response:`, {
 			flowId: flowData.flowId,
 			status: flowData.status,
 			hasResumeUrl: !!flowData.resumeUrl,
@@ -233,7 +233,7 @@ export class RedirectlessAuthService {
 			// Server returns _sessionId (with underscore) - extract it from response
 			const sessionId =
 				(flowData as unknown as { _sessionId?: string })._sessionId || flowData.sessionId;
-			console.log(
+			logger.info(
 				`[RedirectlessAuthService] Storing resume data with sessionId:`,
 				sessionId ? `${sessionId.substring(0, 8)}...` : 'MISSING'
 			);
@@ -346,8 +346,8 @@ export class RedirectlessAuthService {
 			);
 		}
 
-		console.log(`[RedirectlessAuthService] Redirecting to sign-on page:`, signOnPageUrl);
-		console.log(`[RedirectlessAuthService] Flow details:`, {
+		logger.info(`[RedirectlessAuthService] Redirecting to sign-on page:`, signOnPageUrl);
+		logger.info(`[RedirectlessAuthService] Flow details:`, {
 			flowId: flowResponse.flowId,
 			status: flowResponse.status,
 			hasSessionId:
@@ -358,7 +358,7 @@ export class RedirectlessAuthService {
 
 		// CRITICAL: Redirect immediately to prevent flow expiration
 		// PingOne flows expire after ~15 minutes, so we need to redirect ASAP
-		console.log(
+		logger.info(
 			`[RedirectlessAuthService] ⚠️ IMPORTANT: Redirecting immediately to prevent flow expiration`
 		);
 
@@ -406,7 +406,7 @@ export class RedirectlessAuthService {
 			return null;
 		}
 
-		console.log(`[RedirectlessAuthService] Resuming flow:`, {
+		logger.info(`[RedirectlessAuthService] Resuming flow:`, {
 			flowId: resumeData.flowId,
 			hasResumeUrl: !!resumeData.resumeUrl,
 			hasSessionId: !!resumeData.sessionId,
@@ -444,7 +444,7 @@ export class RedirectlessAuthService {
 			body: JSON.stringify(requestBody),
 		});
 
-		console.log(`[RedirectlessAuthService] 🐛 DEBUG - Resume response:`, {
+		logger.info(`[RedirectlessAuthService] 🐛 DEBUG - Resume response:`, {
 			status: response.status,
 			statusText: response.statusText,
 			ok: response.ok,
@@ -502,7 +502,7 @@ export class RedirectlessAuthService {
 		}
 
 		const resumeResult: ResumeFlowResponse = await response.json();
-		console.log(`[RedirectlessAuthService] Resume response:`, {
+		logger.info(`[RedirectlessAuthService] Resume response:`, {
 			hasCode: !!resumeResult.code || !!resumeResult.authorizeResponse?.code,
 			status: resumeResult.status,
 		});
@@ -541,16 +541,16 @@ export class RedirectlessAuthService {
 		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		try {
-			console.log(`[RedirectlessAuthService] 🔍 Checking page for completed flow JSON...`);
-			console.log(`[RedirectlessAuthService] 🔍 Current URL:`, window.location.href);
-			console.log(`[RedirectlessAuthService] 🔍 Page hostname:`, window.location.hostname);
+			logger.info(`[RedirectlessAuthService] 🔍 Checking page for completed flow JSON...`);
+			logger.info(`[RedirectlessAuthService] 🔍 Current URL:`, window.location.href);
+			logger.info(`[RedirectlessAuthService] 🔍 Page hostname:`, window.location.hostname);
 
 			// Check if page content contains JSON
 			const pageText = document.body?.textContent || document.documentElement?.textContent || '';
-			console.log(`[RedirectlessAuthService] 🔍 Page content preview:`, pageText.substring(0, 200));
+			logger.info(`[RedirectlessAuthService] 🔍 Page content preview:`, pageText.substring(0, 200));
 
 			if (!pageText.trim()) {
-				console.log(`[RedirectlessAuthService] 🔍 No page content found`);
+				logger.info(`[RedirectlessAuthService] 🔍 No page content found`);
 				return null;
 			}
 
@@ -560,19 +560,19 @@ export class RedirectlessAuthService {
 			if (pageText.trim().startsWith('{') && pageText.trim().endsWith('}')) {
 				try {
 					flowData = JSON.parse(pageText.trim());
-					console.log(`[RedirectlessAuthService] ✅ Page is pure JSON:`, {
+					logger.info(`[RedirectlessAuthService] ✅ Page is pure JSON:`, {
 						status: flowData?.status,
 						hasAuthorizeResponse: !!flowData?.authorizeResponse,
 						hasCode: !!(flowData?.authorizeResponse?.code || flowData?.code),
 					});
 				} catch (parseError) {
-					console.log(`[RedirectlessAuthService] 🔍 Failed to parse as pure JSON:`, parseError);
+					logger.info(`[RedirectlessAuthService] 🔍 Failed to parse as pure JSON:`, parseError);
 				}
 			}
 
 			// Method 2: If not pure JSON, search for JSON patterns within HTML content
 			if (!flowData && pageText.includes('authorizeResponse')) {
-				console.log(`[RedirectlessAuthService] 🔍 Searching for JSON patterns in HTML content...`);
+				logger.info(`[RedirectlessAuthService] 🔍 Searching for JSON patterns in HTML content...`);
 
 				// Find JSON objects that contain "authorizeResponse" and "COMPLETED"
 				const jsonMatches = pageText.match(
@@ -582,7 +582,7 @@ export class RedirectlessAuthService {
 				if (jsonMatches && jsonMatches.length > 0) {
 					try {
 						flowData = JSON.parse(jsonMatches[0]);
-						console.log(`[RedirectlessAuthService] ✅ Extracted JSON from HTML content:`, {
+						logger.info(`[RedirectlessAuthService] ✅ Extracted JSON from HTML content:`, {
 							matchLength: jsonMatches[0].length,
 							status: flowData?.status,
 							hasAuthorizeResponse: !!flowData?.authorizeResponse,
@@ -596,7 +596,7 @@ export class RedirectlessAuthService {
 						);
 					}
 				} else {
-					console.log(
+					logger.info(
 						`[RedirectlessAuthService] 🔍 No COMPLETED + authorizeResponse JSON patterns found`
 					);
 				}
@@ -604,7 +604,7 @@ export class RedirectlessAuthService {
 
 			// Method 3: Fallback - search for any JSON with authorizeResponse
 			if (!flowData && pageText.includes('authorizeResponse')) {
-				console.log(
+				logger.info(
 					`[RedirectlessAuthService] 🔍 Fallback: searching for any authorizeResponse JSON...`
 				);
 
@@ -612,7 +612,7 @@ export class RedirectlessAuthService {
 				if (broadMatches && broadMatches.length > 0) {
 					try {
 						flowData = JSON.parse(broadMatches[0]);
-						console.log(
+						logger.info(
 							`[RedirectlessAuthService] ✅ Found JSON with authorizeResponse (fallback):`,
 							{
 								status: flowData?.status,
@@ -631,7 +631,7 @@ export class RedirectlessAuthService {
 			}
 
 			if (!flowData) {
-				console.log(`[RedirectlessAuthService] 🔍 No valid JSON found in page content`);
+				logger.info(`[RedirectlessAuthService] 🔍 No valid JSON found in page content`);
 				return null;
 			}
 
@@ -647,7 +647,7 @@ export class RedirectlessAuthService {
 				) {
 					authCode = flowData.authorizeResponse.code;
 					authState = flowData.authorizeResponse.state || '';
-					console.log(
+					logger.info(
 						'✅ [RedirectlessAuthService] Found code in authorizeResponse.code (pi.flow format):',
 						{
 							codeLength: authCode.length,
@@ -660,14 +660,14 @@ export class RedirectlessAuthService {
 				else if (flowData.code && typeof flowData.code === 'string' && flowData.code !== 'null') {
 					authCode = flowData.code;
 					authState = flowData.state || '';
-					console.log('✅ [RedirectlessAuthService] Found code in direct code field:', {
+					logger.info('✅ [RedirectlessAuthService] Found code in direct code field:', {
 						codeLength: authCode.length,
 						codePreview: `${authCode.substring(0, 20)}...`,
 					});
 				}
 
 				if (authCode) {
-					console.log(`[RedirectlessAuthService] ✅ Successfully extracted authorization code:`, {
+					logger.info(`[RedirectlessAuthService] ✅ Successfully extracted authorization code:`, {
 						flowId: flowData.id,
 						codePreview: `${authCode.substring(0, 20)}...`,
 						state: authState ? `${authState.substring(0, 30)}...` : 'none',
@@ -687,7 +687,7 @@ export class RedirectlessAuthService {
 				}
 			}
 
-			console.log(`[RedirectlessAuthService] 🔍 JSON found but no authorization code:`, {
+			logger.info(`[RedirectlessAuthService] 🔍 JSON found but no authorization code:`, {
 				status: flowData?.status,
 				hasAuthorizeResponse: !!flowData?.authorizeResponse,
 				hasDirectCode: !!flowData?.code,

@@ -23,6 +23,7 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+import { logger } from '../../utils/logger';
 /**
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters
@@ -376,7 +377,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			log.info('ClientCredentialsFlowV9', 'Saving credentials to flow-specific storage', {
+			logger.info('ClientCredentialsFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'client-credentials-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -550,7 +551,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											log.info(
+											logger.info(
 												'ClientCredentialsFlowV9',
 												'Setting auth method to client_secret_post'
 											);
@@ -577,7 +578,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											log.info(
+											logger.info(
 												'ClientCredentialsFlowV9',
 												'Setting auth method to client_secret_basic'
 											);

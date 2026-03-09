@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/flowNavigation.ts
 // Utility for handling flow navigation and step restoration
 
@@ -62,7 +63,7 @@ export const storeFlowNavigationState = (
 	localStorage.setItem('flow_navigation_state', JSON.stringify(navigationState));
 	sessionStorage.setItem('flow_navigation_state', JSON.stringify(navigationState));
 
-	console.log('🔗 [FlowNavigation] Stored navigation state:', navigationState);
+	logger.info('🔗 [FlowNavigation] Stored navigation state:', navigationState);
 };
 
 /**
@@ -99,7 +100,7 @@ export const getFlowNavigationState = (): FlowNavigationState | null => {
 export const clearFlowNavigationState = (): void => {
 	localStorage.removeItem('flow_navigation_state');
 	sessionStorage.removeItem('flow_navigation_state');
-	console.log('🔗 [FlowNavigation] Cleared navigation state');
+	logger.info('🔗 [FlowNavigation] Cleared navigation state');
 };
 
 /**
@@ -132,7 +133,7 @@ export const navigateBackToFlow = (navigate: (path: string) => void): boolean =>
 	// Store the step to restore in the flow
 	sessionStorage.setItem('restore_step', navigationState.stepIndex.toString());
 
-	console.log('🔗 [FlowNavigation] Navigating back to flow:', {
+	logger.info('🔗 [FlowNavigation] Navigating back to flow:', {
 		flowSource: navigationState.flowSource,
 		stepIndex: navigationState.stepIndex,
 		route,

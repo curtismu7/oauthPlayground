@@ -31,6 +31,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔢 UNIFIED-OTP-MODAL]';
 
 // ============================================================================
@@ -90,7 +91,7 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 	resendCooldownSeconds = 60,
 	maxAttempts = 3,
 }) => {
-	console.log(`${MODULE_TAG} Rendering OTP modal for device:`, deviceType);
+	logger.info(`${MODULE_TAG} Rendering OTP modal for device:`, deviceType);
 
 	// ========================================================================
 	// LOCAL STATE
@@ -191,17 +192,17 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Validating OTP:`, otp);
+		logger.info(`${MODULE_TAG} Validating OTP:`, otp);
 
 		setValidationAttempts((prev) => prev + 1);
 
 		const isValid = await onValidate(otp);
 
 		if (isValid) {
-			console.log(`${MODULE_TAG} OTP validation successful`);
+			logger.info(`${MODULE_TAG} OTP validation successful`);
 			// Success - parent component will handle close
 		} else {
-			console.log(`${MODULE_TAG} OTP validation failed`);
+			logger.info(`${MODULE_TAG} OTP validation failed`);
 			// Clear OTP for retry
 			setOtp('');
 			// Focus back to input
@@ -219,7 +220,7 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Resending OTP`);
+		logger.info(`${MODULE_TAG} Resending OTP`);
 
 		setCanResend(false);
 		setResendCooldown(resendCooldownSeconds);

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 /**
  * Centralized success and error message system
  * Displays messages at top and bottom of pages with consistent styling
@@ -270,7 +271,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
 
 	useEffect(() => {
 		if (hasPrimaryToastInstance) {
-			log.warn(
+			logger.warn(
 				'CentralizedSuccessMessage',
 				'Multiple CentralizedSuccessMessage instances detected. Additional instances will be inactive.'
 			);

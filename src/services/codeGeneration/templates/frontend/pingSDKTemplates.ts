@@ -8,6 +8,7 @@ export class PingSDKJavaScriptTemplates {
 		return `// PingOne SDK - Authorization Flow
 import { PingOneClient } from '@pingidentity/pingone-js-sdk';
 
+import { logger } from '../../../utils/logger';
 /**
  * OAuth 2.0 Authorization Code Flow with PKCE
  * 
@@ -37,7 +38,7 @@ async function startAuthorization() {
     // Redirect to PingOne authorization page
     window.location.href = authUrl;
   } catch (error) {
-    console.error('Authorization failed:', error);
+    logger.error('Authorization failed:', error);
     throw error;
   }
 }
@@ -89,10 +90,10 @@ async function getWorkerToken() {
     }
 
     const data = await response.json();
-    console.log('Worker token obtained:', data.access_token);
+    logger.info('Worker token obtained:', data.access_token);
     return data.access_token;
   } catch (error) {
-    console.error('Failed to get worker token:', error);
+    logger.error('Failed to get worker token:', error);
     throw error;
   }
 }
@@ -132,16 +133,16 @@ async function listMfaDevices() {
     const data = await response.json();
     const devices = data._embedded?.devices || [];
     
-    console.log('Available MFA devices:', devices);
+    logger.info('Available MFA devices:', devices);
     
     // Display devices to user
     devices.forEach((device: any, index: number) => {
-      console.log(\`[\${index + 1}] \${device.type} - \${device.name}\`);
+      logger.info(\`[\${index + 1}] \${device.type} - \${device.name}\`);
     });
     
     return devices;
   } catch (error) {
-    console.error('Failed to list MFA devices:', error);
+    logger.error('Failed to list MFA devices:', error);
     throw error;
   }
 }
@@ -180,13 +181,13 @@ async function sendMfaChallenge() {
     }
 
     const data = await response.json();
-    console.log('MFA challenge sent successfully');
-    console.log('Challenge ID:', data.id);
-    console.log('Expires at:', data.expiresAt);
+    logger.info('MFA challenge sent successfully');
+    logger.info('Challenge ID:', data.id);
+    logger.info('Expires at:', data.expiresAt);
     
     return data;
   } catch (error) {
-    console.error('Failed to send MFA challenge:', error);
+    logger.error('Failed to send MFA challenge:', error);
     throw error;
   }
 }
@@ -232,17 +233,17 @@ async function verifyMfaCode() {
     const data = await response.json();
     const isVerified = data.status === 'VERIFIED';
     
-    console.log('MFA verification result:', isVerified ? 'SUCCESS' : 'FAILED');
+    logger.info('MFA verification result:', isVerified ? 'SUCCESS' : 'FAILED');
     
     if (isVerified) {
-      console.log('User successfully authenticated with MFA');
+      logger.info('User successfully authenticated with MFA');
     } else {
-      console.log('Invalid code. Please try again.');
+      logger.info('Invalid code. Please try again.');
     }
     
     return isVerified;
   } catch (error) {
-    console.error('Failed to verify MFA code:', error);
+    logger.error('Failed to verify MFA code:', error);
     throw error;
   }
 }
@@ -286,10 +287,10 @@ async function registerSmsDevice(phoneNumber: string) {
     }
 
     const device = await response.json();
-    console.log('SMS device registered:', device);
+    logger.info('SMS device registered:', device);
     return device;
   } catch (error) {
-    console.error('Failed to register SMS device:', error);
+    logger.error('Failed to register SMS device:', error);
     throw error;
   }
 }
@@ -318,10 +319,10 @@ async function registerEmailDevice(email: string) {
     }
 
     const device = await response.json();
-    console.log('Email device registered:', device);
+    logger.info('Email device registered:', device);
     return device;
   } catch (error) {
-    console.error('Failed to register email device:', error);
+    logger.error('Failed to register email device:', error);
     throw error;
   }
 }
@@ -349,13 +350,13 @@ async function registerTotpDevice(name: string = 'Authenticator App') {
     }
 
     const device = await response.json();
-    console.log('TOTP device registered:', device);
-    console.log('QR Code URL:', device.qrCode?.href);
-    console.log('Secret Key:', device.secret);
+    logger.info('TOTP device registered:', device);
+    logger.info('QR Code URL:', device.qrCode?.href);
+    logger.info('Secret Key:', device.secret);
     
     return device;
   } catch (error) {
-    console.error('Failed to register TOTP device:', error);
+    logger.error('Failed to register TOTP device:', error);
     throw error;
   }
 }

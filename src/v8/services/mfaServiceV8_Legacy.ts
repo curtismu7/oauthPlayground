@@ -36,6 +36,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[📱 MFA-SERVICE-V8-LEGACY]';
 
 export interface MFACredentials {
@@ -279,7 +280,7 @@ export class MFAServiceV8 {
 			}
 			return scopes;
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Unable to decode token payload to extract scopes`, error);
+			logger.warn(`${MODULE_TAG} Unable to decode token payload to extract scopes`, error);
 			return [];
 		}
 	}
@@ -318,7 +319,7 @@ export class MFAServiceV8 {
 					(data as PingOneResponse).message ||
 					(data as PingOneResponse).error ||
 					'Failed to allow MFA bypass';
-				console.error(`${MODULE_TAG} Error allowing MFA bypass:`, {
+				logger.error(`${MODULE_TAG} Error allowing MFA bypass:`, {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -326,7 +327,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully allowed MFA bypass`, {
+			logger.info(`${MODULE_TAG} Successfully allowed MFA bypass`, {
 				userId,
 				requestId,
 			});
@@ -344,7 +345,7 @@ export class MFAServiceV8 {
 					showToast: false,
 				}
 			);
-			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
+			logger.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
 			});
@@ -386,7 +387,7 @@ export class MFAServiceV8 {
 					(data as PingOneResponse).message ||
 					(data as PingOneResponse).error ||
 					'Failed to check MFA bypass status';
-				console.error(`${MODULE_TAG} Error checking MFA bypass:`, {
+				logger.error(`${MODULE_TAG} Error checking MFA bypass:`, {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -394,7 +395,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully checked MFA bypass status`, {
+			logger.info(`${MODULE_TAG} Successfully checked MFA bypass status`, {
 				userId,
 				requestId,
 			});
@@ -412,7 +413,7 @@ export class MFAServiceV8 {
 					showToast: false,
 				}
 			);
-			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
+			logger.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
 			});
@@ -440,7 +441,7 @@ export class MFAServiceV8 {
 					const padded = normalized + '='.repeat((4 - (normalized.length % 4 || 4)) % 4);
 					return JSON.parse(atob(padded));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Unable to decode worker token payload`, error);
+					logger.warn(`${MODULE_TAG} Unable to decode worker token payload`, error);
 					return null;
 				}
 			};
@@ -472,7 +473,7 @@ export class MFAServiceV8 {
 							scopes.push(...credentials.scopes);
 						}
 					} catch (credError) {
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} Unable to inspect worker token credentials scopes`,
 							credError
 						);
@@ -482,13 +483,13 @@ export class MFAServiceV8 {
 				// NOTE: MFA scope requirements removed - worker token provides necessary permissions
 			}
 
-			console.log(`${MODULE_TAG} Using worker token from WorkerTokenServiceV8`, {
+			logger.info(`${MODULE_TAG} Using worker token from WorkerTokenServiceV8`, {
 				tokenLength: token.length,
 				tokenPrefix: token.substring(0, 20),
 			});
 			return token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get worker token from WorkerTokenServiceV8`, error);
+			logger.error(`${MODULE_TAG} Failed to get worker token from WorkerTokenServiceV8`, error);
 			throw error instanceof Error ? error : new Error(String(error));
 		}
 	}
@@ -504,7 +505,7 @@ export class MFAServiceV8 {
 		username: string
 	): Promise<UserLookupResult> {
 		try {
-			console.log(`${MODULE_TAG} lookupUserByUsername called with:`, {
+			logger.info(`${MODULE_TAG} lookupUserByUsername called with:`, {
 				environmentId: environmentId ? 'provided' : 'MISSING',
 				username: username ? 'provided' : 'MISSING',
 				environmentIdValue: environmentId,
@@ -513,7 +514,7 @@ export class MFAServiceV8 {
 
 			// Validate inputs before proceeding
 			if (!environmentId || !environmentId.trim()) {
-				console.error(`${MODULE_TAG} Invalid environmentId provided:`, {
+				logger.error(`${MODULE_TAG} Invalid environmentId provided:`, {
 					environmentId,
 					type: typeof environmentId,
 					isEmpty: !environmentId,
@@ -522,7 +523,7 @@ export class MFAServiceV8 {
 				throw new Error('Environment ID is required and cannot be empty');
 			}
 			if (!username || !username.trim()) {
-				console.error(`${MODULE_TAG} Invalid username provided:`, {
+				logger.error(`${MODULE_TAG} Invalid username provided:`, {
 					username,
 					type: typeof username,
 					isEmpty: !username,
@@ -533,14 +534,14 @@ export class MFAServiceV8 {
 
 			// Additional validation for environment ID format
 			if (environmentId.length < 10) {
-				console.warn(`${MODULE_TAG} Environment ID seems too short:`, {
+				logger.warn(`${MODULE_TAG} Environment ID seems too short:`, {
 					environmentId,
 					length: environmentId.length,
 				});
 			}
 
 			const accessToken = await MFAServiceV8.getWorkerToken();
-			console.log(`${MODULE_TAG} Worker token obtained:`, accessToken ? 'success' : 'FAILED');
+			logger.info(`${MODULE_TAG} Worker token obtained:`, accessToken ? 'success' : 'FAILED');
 
 			if (!accessToken || !accessToken.trim()) {
 				throw new Error('Worker token is required and cannot be empty');
@@ -553,7 +554,7 @@ export class MFAServiceV8 {
 				workerToken: accessToken.trim(),
 			};
 
-			console.log(`${MODULE_TAG} Request body validated:`, {
+			logger.info(`${MODULE_TAG} Request body validated:`, {
 				environmentId: requestBody.environmentId ? 'provided' : 'MISSING',
 				username: requestBody.username ? 'provided' : 'MISSING',
 				workerToken: requestBody.workerToken ? 'provided' : 'MISSING',
@@ -614,14 +615,14 @@ export class MFAServiceV8 {
 
 			const userData = user as PingOneResponse;
 
-			console.log(`${MODULE_TAG} User found`, {
+			logger.info(`${MODULE_TAG} User found`, {
 				userId: userData.id,
 				username: userData.username,
 			});
 
 			return userData as unknown as UserLookupResult;
 		} catch (error) {
-			console.error(`${MODULE_TAG} User lookup error`, error);
+			logger.error(`${MODULE_TAG} User lookup error`, error);
 			throw error;
 		}
 	}
@@ -664,7 +665,7 @@ export class MFAServiceV8 {
 	 * @returns Device registration result
 	 */
 	static async registerDevice(params: RegisterDeviceParams): Promise<DeviceRegistrationResult> {
-		console.log(`${MODULE_TAG} Registering ${params.type} device`, {
+		logger.info(`${MODULE_TAG} Registering ${params.type} device`, {
 			username: params.username,
 			type: params.type,
 		});
@@ -768,7 +769,7 @@ export class MFAServiceV8 {
 			}
 
 			// Register device via backend proxy
-			console.log(`${MODULE_TAG} Calling device registration endpoint`, {
+			logger.info(`${MODULE_TAG} Calling device registration endpoint`, {
 				type: params.type,
 				userId: user.id,
 				nickname: devicePayload.nickname || params.nickname || params.name,
@@ -876,7 +877,7 @@ export class MFAServiceV8 {
 
 					// Log policy for TOTP devices to ensure it's being sent
 					if (params.type === 'TOTP') {
-						console.log(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
+						logger.info(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
 							policyId: typeof params.policy === 'object' ? params.policy.id : params.policy,
 							policyObject: requestBody.policy,
 							status: devicePayload.status,
@@ -884,7 +885,7 @@ export class MFAServiceV8 {
 						});
 					}
 				} else if (params.type === 'TOTP') {
-					console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device registration missing policy!`, {
+					logger.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device registration missing policy!`, {
 						note: 'Per totp.md line 69-72: Policy MUST be included in request body for TOTP devices. Without policy, properties.secret and properties.keyUri will NOT be returned by PingOne API.',
 					});
 				}
@@ -1009,7 +1010,7 @@ export class MFAServiceV8 {
 
 				// Enhanced error message for 400 errors (validation errors)
 				if (response.status === 400) {
-					console.error(`${MODULE_TAG} Device registration failed with 400 Bad Request:`, {
+					logger.error(`${MODULE_TAG} Device registration failed with 400 Bad Request:`, {
 						error: errorMessage,
 						details,
 						fullError: errorData,
@@ -1022,7 +1023,7 @@ export class MFAServiceV8 {
 					if (Array.isArray(details) && details.length > 0) {
 						const firstError = details[0];
 
-						console.error(`${MODULE_TAG} First error details:`, {
+						logger.error(`${MODULE_TAG} First error details:`, {
 							code: firstError.code,
 							message: firstError.message,
 							target: firstError.target,
@@ -1032,7 +1033,7 @@ export class MFAServiceV8 {
 						// Handle specific error codes
 						if (firstError.code === 'LIMIT_EXCEEDED') {
 							// Log more details about the limit issue
-							console.error(
+							logger.error(
 								`${MODULE_TAG} LIMIT_EXCEEDED error - Check if this is a device limit or rate limit`,
 								{
 									innerError: firstError.innerError,
@@ -1090,7 +1091,7 @@ export class MFAServiceV8 {
 							? `User token (access token from Authorization Code Flow)`
 							: `Worker token`;
 
-					console.error(`${MODULE_TAG} Device registration failed with 403 Forbidden:`, {
+					logger.error(`${MODULE_TAG} Device registration failed with 403 Forbidden:`, {
 						error: errorMessage,
 						tokenType,
 						tokenInfo,
@@ -1132,7 +1133,7 @@ export class MFAServiceV8 {
 				.publicKeyCredentialCreationOptions as string | undefined;
 			const hasPublicKeyInRaw = 'publicKeyCredentialCreationOptions' in deviceDataWithoutMetadata;
 
-			console.log(`${MODULE_TAG} Raw device data (before type assertion):`, {
+			logger.info(`${MODULE_TAG} Raw device data (before type assertion):`, {
 				hasPublicKeyCredentialCreationOptions: hasPublicKeyInRaw,
 				publicKeyCredentialCreationOptionsValue:
 					rawPublicKeyOptions?.substring(0, 100) || 'NOT FOUND',
@@ -1182,7 +1183,7 @@ export class MFAServiceV8 {
 
 			if (hasPublicKeyOptionsValue && publicKeyOptions) {
 			} else {
-				console.warn(`${MODULE_TAG} ⚠️ publicKeyCredentialCreationOptions NOT found in response:`, {
+				logger.warn(`${MODULE_TAG} ⚠️ publicKeyCredentialCreationOptions NOT found in response:`, {
 					deviceType: dd.type,
 					deviceId: dd.id,
 					status: dd.status,
@@ -1221,7 +1222,7 @@ export class MFAServiceV8 {
 
 			// Log raw device data structure for TOTP devices to debug missing properties
 			if (dd.type === 'TOTP') {
-				console.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
+				logger.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
 					deviceId: dd.id,
 					status: dd.status,
 					requestedStatus: params.status,
@@ -1240,7 +1241,7 @@ export class MFAServiceV8 {
 
 				// Check alternative locations where secret/keyUri might be
 				if (secretFromRoot || keyUriFromRoot) {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`,
 						{
 							hasSecretAtRoot: !!secretFromRoot,
@@ -1253,7 +1254,7 @@ export class MFAServiceV8 {
 			}
 
 			if (dd.type === 'TOTP' && dd.status === 'ACTIVATION_REQUIRED' && !secret && !keyUri) {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`,
 					{
 						deviceId: dd.id,
@@ -1297,7 +1298,7 @@ export class MFAServiceV8 {
 
 			// Log confirmation that it's included
 			if (hasPublicKeyOptionsValue && publicKeyOptions) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} ✅ Including publicKeyCredentialCreationOptions in return object:`,
 					{
 						length: publicKeyOptions.length,
@@ -1315,7 +1316,7 @@ export class MFAServiceV8 {
 			if (dd.type === 'TOTP') {
 				const resultSecret = (result as { secret?: string }).secret;
 				const resultKeyUri = (result as { keyUri?: string }).keyUri;
-				console.log(`${MODULE_TAG} 🔍 TOTP result check (after extraction):`, {
+				logger.info(`${MODULE_TAG} 🔍 TOTP result check (after extraction):`, {
 					hasSecretInResult: !!resultSecret,
 					hasKeyUriInResult: !!resultKeyUri,
 					secretLength: resultSecret?.length || 0,
@@ -1341,16 +1342,16 @@ export class MFAServiceV8 {
 				// Also log the raw result object
 				resultObject: result,
 			};
-			console.log(`${MODULE_TAG} 🔍 FINAL RESULT CHECK before return:`, finalCheck);
-			console.log(`${MODULE_TAG} 🔍 FULL RESULT OBJECT:`, result);
-			console.log(
+			logger.info(`${MODULE_TAG} 🔍 FINAL RESULT CHECK before return:`, finalCheck);
+			logger.info(`${MODULE_TAG} 🔍 FULL RESULT OBJECT:`, result);
+			logger.info(
 				`${MODULE_TAG} 🔍 RESULT.publicKeyCredentialCreationOptions:`,
 				result.publicKeyCredentialCreationOptions
 			);
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Device registration error`, error);
+			logger.error(`${MODULE_TAG} Device registration error`, error);
 			throw error;
 		}
 	}
@@ -1500,7 +1501,7 @@ export class MFAServiceV8 {
 					(result.status === 'COMPLETED' ? 'OTP validated successfully' : 'Invalid OTP code'),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error validating OTP:`, error);
+			logger.error(`${MODULE_TAG} Error validating OTP:`, error);
 			throw error;
 		}
 	}
@@ -1511,7 +1512,7 @@ export class MFAServiceV8 {
 	 * @returns Device details
 	 */
 	static async getDevice(params: SendOTPParams): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Getting device details`, {
+		logger.info(`${MODULE_TAG} Getting device details`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -1586,7 +1587,7 @@ export class MFAServiceV8 {
 
 			// const deviceData = await response.json(); // Already parsed
 
-			console.log(`${MODULE_TAG} Device details retrieved`, {
+			logger.info(`${MODULE_TAG} Device details retrieved`, {
 				deviceId: (deviceData as PingOneResponse).id,
 				type: (deviceData as PingOneResponse).type,
 				status: (deviceData as PingOneResponse).status,
@@ -1594,7 +1595,7 @@ export class MFAServiceV8 {
 
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get device error`, error);
+			logger.error(`${MODULE_TAG} Get device error`, error);
 			throw error;
 		}
 	}
@@ -1607,7 +1608,7 @@ export class MFAServiceV8 {
 	 * @param environmentId - PingOne environment ID
 	 */
 	static async getMFASettings(environmentId: string): Promise<MFASettings> {
-		console.log(`${MODULE_TAG} Getting MFA settings`);
+		logger.info(`${MODULE_TAG} Getting MFA settings`);
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1668,10 +1669,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} MFA settings retrieved`);
+			logger.info(`${MODULE_TAG} MFA settings retrieved`);
 			return settingsData as MFASettings;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get MFA settings error`, error);
+			logger.error(`${MODULE_TAG} Get MFA settings error`, error);
 			throw error;
 		}
 	}
@@ -1688,7 +1689,7 @@ export class MFAServiceV8 {
 		environmentId: string,
 		settings: MFASettings
 	): Promise<MFASettings> {
-		console.log(`${MODULE_TAG} Updating MFA settings`);
+		logger.info(`${MODULE_TAG} Updating MFA settings`);
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1750,10 +1751,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} MFA settings updated`);
+			logger.info(`${MODULE_TAG} MFA settings updated`);
 			return settingsData as MFASettings;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Update MFA settings error`, error);
+			logger.error(`${MODULE_TAG} Update MFA settings error`, error);
 			throw error;
 		}
 	}
@@ -1765,7 +1766,7 @@ export class MFAServiceV8 {
 	 * @param environmentId - PingOne environment ID
 	 */
 	static async resetMFASettings(environmentId: string): Promise<void> {
-		console.log(`${MODULE_TAG} Resetting MFA settings to defaults`);
+		logger.info(`${MODULE_TAG} Resetting MFA settings to defaults`);
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1818,9 +1819,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} MFA settings reset to defaults`);
+			logger.info(`${MODULE_TAG} MFA settings reset to defaults`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Reset MFA settings error`, error);
+			logger.error(`${MODULE_TAG} Reset MFA settings error`, error);
 			throw error;
 		}
 	}
@@ -1830,7 +1831,7 @@ export class MFAServiceV8 {
 	 * @param params - Device deletion parameters
 	 */
 	static async deleteDevice(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} Deleting device`, {
+		logger.info(`${MODULE_TAG} Deleting device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -1901,9 +1902,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device deleted successfully`);
+			logger.info(`${MODULE_TAG} Device deleted successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Delete device error`, error);
+			logger.error(`${MODULE_TAG} Delete device error`, error);
 			throw error;
 		}
 	}
@@ -1918,7 +1919,7 @@ export class MFAServiceV8 {
 		params: MFACredentials,
 		filter?: string
 	): Promise<Array<Record<string, unknown>>> {
-		console.log(`${MODULE_TAG} Getting all devices for user`, {
+		logger.info(`${MODULE_TAG} Getting all devices for user`, {
 			username: params.username,
 			environmentId: params.environmentId,
 			filter,
@@ -1927,7 +1928,7 @@ export class MFAServiceV8 {
 		try {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
-			console.log(`${MODULE_TAG} User lookup successful, userId:`, user.id);
+			logger.info(`${MODULE_TAG} User lookup successful, userId:`, user.id);
 
 			// CRITICAL: Getting all devices ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1941,7 +1942,7 @@ export class MFAServiceV8 {
 			}
 
 			const startTime = Date.now();
-			console.log(`${MODULE_TAG} Tracking API call:`, {
+			logger.info(`${MODULE_TAG} Tracking API call:`, {
 				proxyEndpoint,
 				actualPingOneUrl,
 				userId: user.id,
@@ -1963,7 +1964,7 @@ export class MFAServiceV8 {
 				step: 'mfa-Get All Devices',
 				flowType: 'mfa',
 			});
-			console.log(`${MODULE_TAG} API call tracked with ID:`, callId);
+			logger.info(`${MODULE_TAG} API call tracked with ID:`, callId);
 
 			const response = await pingOneFetch(`${proxyEndpoint}?_t=${Date.now()}`, {
 				method: 'POST',
@@ -2022,7 +2023,7 @@ export class MFAServiceV8 {
 					?.devices || [];
 
 			// Log all devices with user information to verify they belong to the correct user
-			console.log(`${MODULE_TAG} 📋 All devices retrieved from PingOne API:`, {
+			logger.info(`${MODULE_TAG} 📋 All devices retrieved from PingOne API:`, {
 				username: params.username,
 				userId: user.id,
 				deviceCount: devices.length,
@@ -2050,7 +2051,7 @@ export class MFAServiceV8 {
 				const deviceUserId = userObj?.id || (d.userId as string | undefined);
 				const matches = !deviceUserId || deviceUserId === user.id;
 				if (!matches) {
-					console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+					logger.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
 						deviceId: d.id,
 						deviceType: d.type,
 						deviceUserId,
@@ -2061,7 +2062,7 @@ export class MFAServiceV8 {
 				return matches;
 			});
 
-			console.log(`${MODULE_TAG} ✅ Filtered devices for user "${params.username}":`, {
+			logger.info(`${MODULE_TAG} ✅ Filtered devices for user "${params.username}":`, {
 				originalCount: devices.length,
 				filteredCount: userDevices.length,
 				removedCount: devices.length - userDevices.length,
@@ -2075,7 +2076,7 @@ export class MFAServiceV8 {
 			// Log device structure to debug "Unnamed Device" issue
 			if (userDevices.length > 0) {
 				const firstDevice = userDevices[0];
-				console.log(`${MODULE_TAG} Sample device structure (first device):`, {
+				logger.info(`${MODULE_TAG} Sample device structure (first device):`, {
 					id: firstDevice.id,
 					type: firstDevice.type,
 					status: firstDevice.status,
@@ -2089,7 +2090,7 @@ export class MFAServiceV8 {
 
 			return userDevices;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get all devices error`, error);
+			logger.error(`${MODULE_TAG} Get all devices error`, error);
 			throw error;
 		}
 	}
@@ -2105,7 +2106,7 @@ export class MFAServiceV8 {
 		params: SendOTPParams,
 		nickname: string
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Updating device nickname`, {
+		logger.info(`${MODULE_TAG} Updating device nickname`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			nickname,
@@ -2193,10 +2194,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device nickname updated successfully`);
+			logger.info(`${MODULE_TAG} Device nickname updated successfully`);
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Update device nickname error`, error);
+			logger.error(`${MODULE_TAG} Update device nickname error`, error);
 			throw error;
 		}
 	}
@@ -2215,7 +2216,7 @@ export class MFAServiceV8 {
 			return MFAServiceV8.updateDeviceNickname(params, updates.name);
 		}
 
-		console.log(`${MODULE_TAG} Updating device`, {
+		logger.info(`${MODULE_TAG} Updating device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			updates,
@@ -2309,10 +2310,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device updated successfully`);
+			logger.info(`${MODULE_TAG} Device updated successfully`);
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Update device error`, error);
+			logger.error(`${MODULE_TAG} Update device error`, error);
 			throw error;
 		}
 	}
@@ -2324,7 +2325,7 @@ export class MFAServiceV8 {
 	 * @param params - Device parameters
 	 */
 	static async blockDevice(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} Blocking device`, {
+		logger.info(`${MODULE_TAG} Blocking device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -2407,9 +2408,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device blocked successfully`);
+			logger.info(`${MODULE_TAG} Device blocked successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Block device error`, error);
+			logger.error(`${MODULE_TAG} Block device error`, error);
 			throw error;
 		}
 	}
@@ -2421,7 +2422,7 @@ export class MFAServiceV8 {
 	 * @param params - Device parameters
 	 */
 	static async unblockDevice(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} Unblocking device`, {
+		logger.info(`${MODULE_TAG} Unblocking device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -2504,9 +2505,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device unblocked successfully`);
+			logger.info(`${MODULE_TAG} Device unblocked successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Unblock device error`, error);
+			logger.error(`${MODULE_TAG} Unblock device error`, error);
 			throw error;
 		}
 	}
@@ -2518,7 +2519,7 @@ export class MFAServiceV8 {
 	 * @param params - Device parameters
 	 */
 	static async unlockDevice(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} Unlocking device`, {
+		logger.info(`${MODULE_TAG} Unlocking device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -2601,9 +2602,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device unlocked successfully`);
+			logger.info(`${MODULE_TAG} Device unlocked successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Unlock device error`, error);
+			logger.error(`${MODULE_TAG} Unlock device error`, error);
 			throw error;
 		}
 	}
@@ -2619,7 +2620,7 @@ export class MFAServiceV8 {
 	static async activateTOTPDevice(
 		params: SendOTPParams & { otp: string }
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Activating TOTP device`, {
+		logger.info(`${MODULE_TAG} Activating TOTP device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			hasOtp: !!params.otp,
@@ -2710,10 +2711,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} TOTP device activated successfully`);
+			logger.info(`${MODULE_TAG} TOTP device activated successfully`);
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Activate TOTP device error`, error);
+			logger.error(`${MODULE_TAG} Activate TOTP device error`, error);
 			throw error;
 		}
 	}
@@ -2742,10 +2743,10 @@ export class MFAServiceV8 {
 		_links?: Record<string, { href: string }>;
 		[key: string]: unknown;
 	}> {
-		console.warn(
+		logger.warn(
 			`${MODULE_TAG} DEPRECATION WARNING: initializeOneTimeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
 		);
-		console.log(`${MODULE_TAG} Initializing one-time device authentication`, {
+		logger.info(`${MODULE_TAG} Initializing one-time device authentication`, {
 			type: params.type,
 			environmentId: params.environmentId,
 			username: params.username,
@@ -2760,7 +2761,7 @@ export class MFAServiceV8 {
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-				console.error(`${MODULE_TAG} Worker token validation failed`, {
+				logger.error(`${MODULE_TAG} Worker token validation failed`, {
 					hasToken: !!accessToken,
 					tokenType: typeof accessToken,
 					tokenLength: accessToken?.length || 0,
@@ -2774,7 +2775,7 @@ export class MFAServiceV8 {
 			// Validate JWT format (should have 3 parts separated by dots)
 			const tokenParts = cleanToken.split('.');
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
-				console.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
+				logger.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
 					tokenLength: cleanToken.length,
 					partsCount: tokenParts.length,
 					partsLength: tokenParts.map((p) => p.length),
@@ -2785,7 +2786,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Worker token validated`, {
+			logger.info(`${MODULE_TAG} Worker token validated`, {
 				tokenLength: cleanToken.length,
 				partsCount: tokenParts.length,
 				hasBearerPrefix: accessToken.trim().startsWith('Bearer '),
@@ -2802,7 +2803,7 @@ export class MFAServiceV8 {
 				region: params.region,
 			};
 
-			console.log(`${MODULE_TAG} Sending one-time device authentication request`, {
+			logger.info(`${MODULE_TAG} Sending one-time device authentication request`, {
 				environmentId: params.environmentId,
 				userId: user.id,
 				type: params.type,
@@ -2836,12 +2837,12 @@ export class MFAServiceV8 {
 			let otpCheckUrl: string | undefined;
 			if (authData._links?.['otp.check']?.href) {
 				otpCheckUrl = authData._links['otp.check'].href;
-				console.log(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
+				logger.info(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
 			} else {
-				console.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
+				logger.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
 			}
 
-			console.log(`${MODULE_TAG} One-time device authentication initialized`, {
+			logger.info(`${MODULE_TAG} One-time device authentication initialized`, {
 				deviceAuthId,
 				status: authData.status,
 				hasOtpCheckLink: !!otpCheckUrl,
@@ -2854,7 +2855,7 @@ export class MFAServiceV8 {
 				...authData,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error in one-time device authentication:`, error);
+			logger.error(`${MODULE_TAG} Error in one-time device authentication:`, error);
 			throw error;
 		}
 	}
@@ -2881,10 +2882,10 @@ export class MFAServiceV8 {
 	static async sendOTP(
 		params: SendOTPParams
 	): Promise<{ deviceAuthId: string; otpCheckUrl?: string }> {
-		console.warn(
+		logger.warn(
 			`${MODULE_TAG} DEPRECATION WARNING: sendOTP() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
 		);
-		console.log(
+		logger.info(
 			`${MODULE_TAG} Initializing device authentication (OTP will be sent automatically if deviceId provided)`
 		);
 
@@ -2897,7 +2898,7 @@ export class MFAServiceV8 {
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-				console.error(`${MODULE_TAG} Worker token validation failed`, {
+				logger.error(`${MODULE_TAG} Worker token validation failed`, {
 					hasToken: !!accessToken,
 					tokenType: typeof accessToken,
 					tokenLength: accessToken?.length || 0,
@@ -2911,7 +2912,7 @@ export class MFAServiceV8 {
 			// Validate JWT format (should have 3 parts separated by dots)
 			const tokenParts = cleanToken.split('.');
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
-				console.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
+				logger.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
 					tokenLength: cleanToken.length,
 					partsCount: tokenParts.length,
 					partsLength: tokenParts.map((p) => p.length),
@@ -2922,7 +2923,7 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Worker token validated`, {
+			logger.info(`${MODULE_TAG} Worker token validated`, {
 				tokenLength: cleanToken.length,
 				partsCount: tokenParts.length,
 				hasBearerPrefix: accessToken.trim().startsWith('Bearer '),
@@ -2945,7 +2946,7 @@ export class MFAServiceV8 {
 				customDomain: params.customDomain,
 			};
 
-			console.log(`${MODULE_TAG} Initializing device authentication`, {
+			logger.info(`${MODULE_TAG} Initializing device authentication`, {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
@@ -2975,12 +2976,12 @@ export class MFAServiceV8 {
 			let otpCheckUrl: string | undefined;
 			if (authData._links?.['otp.check']?.href) {
 				otpCheckUrl = authData._links['otp.check'].href;
-				console.log(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
+				logger.info(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
 			} else {
-				console.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
+				logger.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
 			}
 
-			console.log(`${MODULE_TAG} Device authentication initialized`, {
+			logger.info(`${MODULE_TAG} Device authentication initialized`, {
 				deviceAuthId,
 				status: authData.status,
 				nextStep: authData.nextStep,
@@ -2995,12 +2996,12 @@ export class MFAServiceV8 {
 			// For resending OTP, use the resend-pairing-code endpoint instead (api.pingone.com).
 
 			if (authData.status === 'OTP_REQUIRED' || authData.nextStep === 'OTP_REQUIRED') {
-				console.log(`${MODULE_TAG} OTP automatically sent during initialization`, {
+				logger.info(`${MODULE_TAG} OTP automatically sent during initialization`, {
 					deviceAuthId,
 					hasOtpCheckUrl: !!otpCheckUrl,
 				});
 			} else {
-				console.log(`${MODULE_TAG} Device authentication initialized, status: ${authData.status}`, {
+				logger.info(`${MODULE_TAG} Device authentication initialized, status: ${authData.status}`, {
 					deviceAuthId,
 				});
 			}
@@ -3010,7 +3011,7 @@ export class MFAServiceV8 {
 				...(otpCheckUrl ? { otpCheckUrl } : {}),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error in OTP flow:`, error);
+			logger.error(`${MODULE_TAG} Error in OTP flow:`, error);
 			throw error;
 		}
 	}
@@ -3027,7 +3028,7 @@ export class MFAServiceV8 {
 	 * @param params - Device parameters
 	 */
 	static async resendPairingCode(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} [RESEND] Resending pairing code`, {
+		logger.info(`${MODULE_TAG} [RESEND] Resending pairing code`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			environmentId: params.environmentId,
@@ -3050,7 +3051,7 @@ export class MFAServiceV8 {
 			// Check if token is a valid JWT (should have 3 parts separated by dots)
 			const tokenParts = trimmedToken.split('.');
 			if (tokenParts.length !== 3) {
-				console.error(`${MODULE_TAG} Invalid JWT token format`, {
+				logger.error(`${MODULE_TAG} Invalid JWT token format`, {
 					tokenParts: tokenParts.length,
 					tokenLength: trimmedToken.length,
 					tokenStart: trimmedToken.substring(0, 30),
@@ -3060,7 +3061,7 @@ export class MFAServiceV8 {
 				throw new Error('Worker token is not a valid JWT. Please generate a new worker token.');
 			}
 
-			console.log(`${MODULE_TAG} Token validation before resend:`, {
+			logger.info(`${MODULE_TAG} Token validation before resend:`, {
 				tokenLength: trimmedToken.length,
 				tokenStart: trimmedToken.substring(0, 30),
 				tokenEnd: trimmedToken.substring(trimmedToken.length - 10),
@@ -3084,19 +3085,19 @@ export class MFAServiceV8 {
 					deviceId: params.deviceId,
 				});
 				deviceStatus = (device.status as string) || 'UNKNOWN';
-				console.log(`${MODULE_TAG} [RESEND] Device status check:`, {
+				logger.info(`${MODULE_TAG} [RESEND] Device status check:`, {
 					deviceId: params.deviceId,
 					status: deviceStatus,
 					canResend: deviceStatus === 'ACTIVATION_REQUIRED',
 				});
 
 				if (deviceStatus === 'ACTIVE') {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} [RESEND] Device is already ACTIVE. Resend pairing code may fail. Consider using device authentication flow instead.`
 					);
 				}
 			} catch (deviceError) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} [RESEND] Could not check device status, proceeding anyway:`,
 					deviceError
 				);
@@ -3202,7 +3203,7 @@ export class MFAServiceV8 {
 				const errorMessage = errorData.message || errorData.error || response.statusText;
 				const details = errorData.details || errorData.pingOneError;
 
-				console.error(`${MODULE_TAG} [RESEND] Failed to resend pairing code:`, {
+				logger.error(`${MODULE_TAG} [RESEND] Failed to resend pairing code:`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorMessage,
@@ -3255,9 +3256,9 @@ export class MFAServiceV8 {
 				throw new Error(`Failed to resend pairing code: ${errorMessage}`);
 			}
 
-			console.log(`${MODULE_TAG} Pairing code resent successfully`);
+			logger.info(`${MODULE_TAG} Pairing code resent successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Resend pairing code error`, error);
+			logger.error(`${MODULE_TAG} Resend pairing code error`, error);
 			throw error;
 		}
 	}
@@ -3282,7 +3283,7 @@ export class MFAServiceV8 {
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/order`;
 
 		try {
-			console.log(`${MODULE_TAG} Setting device order for user ${userId}`, {
+			logger.info(`${MODULE_TAG} Setting device order for user ${userId}`, {
 				environmentId,
 				deviceCount: orderedDeviceIds.length,
 				requestId,
@@ -3340,7 +3341,7 @@ export class MFAServiceV8 {
 
 			if (!response.ok) {
 				const errorMsg = data.message || data.error || 'Failed to update device order';
-				console.error(`${MODULE_TAG} Error setting device order:`, {
+				logger.error(`${MODULE_TAG} Error setting device order:`, {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -3348,7 +3349,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully updated device order`, {
+			logger.info(`${MODULE_TAG} Successfully updated device order`, {
 				userId,
 				deviceCount: orderedDeviceIds.length,
 				requestId,
@@ -3356,7 +3357,7 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Exception in setUserMfaDeviceOrder:`, {
+			logger.error(`${MODULE_TAG} Exception in setUserMfaDeviceOrder:`, {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				requestId,
 				stack: error instanceof Error ? error.stack : undefined,
@@ -3382,7 +3383,7 @@ export class MFAServiceV8 {
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
 
 		try {
-			console.log(`${MODULE_TAG} Removing MFA device order for user ${userId}`, {
+			logger.info(`${MODULE_TAG} Removing MFA device order for user ${userId}`, {
 				environmentId,
 				requestId,
 			});
@@ -3436,7 +3437,7 @@ export class MFAServiceV8 {
 
 			if (!response.ok) {
 				const errorMsg = data.message || data.error || 'Failed to remove MFA device order';
-				console.error(`${MODULE_TAG} Error removing device order:`, {
+				logger.error(`${MODULE_TAG} Error removing device order:`, {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -3444,14 +3445,14 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully removed MFA device order`, {
+			logger.info(`${MODULE_TAG} Successfully removed MFA device order`, {
 				userId,
 				requestId,
 			});
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Exception in removeUserMfaDeviceOrder:`, {
+			logger.error(`${MODULE_TAG} Exception in removeUserMfaDeviceOrder:`, {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				requestId,
 			});
@@ -3466,7 +3467,7 @@ export class MFAServiceV8 {
 	static async activateFIDO2Device(
 		params: ActivateFIDO2DeviceParams
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Activating FIDO2 device`, {
+		logger.info(`${MODULE_TAG} Activating FIDO2 device`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -3486,7 +3487,7 @@ export class MFAServiceV8 {
 				const helpMessage =
 					'\n\n🔑 To fix this:\n1. Go to the MFA Hub page\n2. Click "Manage Token" or "Add Token"\n3. Generate a new worker token\n4. Try registering your FIDO2 device again';
 
-				console.error(`${MODULE_TAG} ❌ Token validation failed before FIDO2 activation:`, {
+				logger.error(`${MODULE_TAG} ❌ Token validation failed before FIDO2 activation:`, {
 					tokenStatus: tokenStatus.status,
 					message: tokenStatus.message,
 					isValid: tokenStatus.isValid,
@@ -3499,7 +3500,7 @@ export class MFAServiceV8 {
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-				console.error(`${MODULE_TAG} ❌ Token validation failed: token is empty or invalid type`);
+				logger.error(`${MODULE_TAG} ❌ Token validation failed: token is empty or invalid type`);
 				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
 			}
 
@@ -3507,7 +3508,7 @@ export class MFAServiceV8 {
 			const tokenParts = accessToken.trim().split('.');
 
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
-				console.error(`${MODULE_TAG} ❌ Invalid token format`, {
+				logger.error(`${MODULE_TAG} ❌ Invalid token format`, {
 					tokenLength: accessToken.length,
 					tokenPreview: accessToken.substring(0, 50),
 					partsCount: tokenParts.length,
@@ -3651,10 +3652,10 @@ export class MFAServiceV8 {
 								tokenStatusMessage += '\n4. Try registering your FIDO2 device again';
 							}
 						} catch (tokenCheckError) {
-							console.warn(`${MODULE_TAG} Could not check token status:`, tokenCheckError);
+							logger.warn(`${MODULE_TAG} Could not check token status:`, tokenCheckError);
 						}
 
-						console.error(`${MODULE_TAG} FIDO2 activation failed with 403 (likely token issue):`, {
+						logger.error(`${MODULE_TAG} FIDO2 activation failed with 403 (likely token issue):`, {
 							status: response.status,
 							error: errorMessage,
 							tokenExpired,
@@ -3671,7 +3672,7 @@ export class MFAServiceV8 {
 				}
 
 				// Log detailed error info for debugging origin/RPID issues
-				console.error(`${MODULE_TAG} FIDO2 activation failed:`, {
+				logger.error(`${MODULE_TAG} FIDO2 activation failed:`, {
 					status: response.status,
 					error: errorMessage,
 					debugInfo: originDebugInfo,
@@ -3720,10 +3721,10 @@ export class MFAServiceV8 {
 				throw new Error(userFriendlyMessage);
 			}
 
-			console.log(`${MODULE_TAG} FIDO2 device activated successfully`);
+			logger.info(`${MODULE_TAG} FIDO2 device activated successfully`);
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} activateFIDO2Device error`, error);
+			logger.error(`${MODULE_TAG} activateFIDO2Device error`, error);
 			throw error;
 		}
 	}
@@ -3738,7 +3739,7 @@ export class MFAServiceV8 {
 	static async getFIDO2RegistrationOptions(
 		params: SendOTPParams
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Getting FIDO2 registration options`, {
+		logger.info(`${MODULE_TAG} Getting FIDO2 registration options`, {
 			username: params.username,
 			deviceId: params.deviceId,
 		});
@@ -3821,10 +3822,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} FIDO2 registration options retrieved successfully`);
+			logger.info(`${MODULE_TAG} FIDO2 registration options retrieved successfully`);
 			return optionsData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} getFIDO2RegistrationOptions error`, error);
+			logger.error(`${MODULE_TAG} getFIDO2RegistrationOptions error`, error);
 			throw error;
 		}
 	}
@@ -3838,7 +3839,7 @@ export class MFAServiceV8 {
 	 * @returns Activated device data
 	 */
 	static async activateDevice(params: ActivateDeviceParams): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Activating device with OTP`, {
+		logger.info(`${MODULE_TAG} Activating device with OTP`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			hasOtp: !!params.otp,
@@ -3932,10 +3933,10 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Device activated successfully`);
+			logger.info(`${MODULE_TAG} Device activated successfully`);
 			return deviceData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Activate device error`, error);
+			logger.error(`${MODULE_TAG} Activate device error`, error);
 			throw error;
 		}
 	}
@@ -3950,7 +3951,7 @@ export class MFAServiceV8 {
 	static async getUserMFAEnabled(
 		params: MFACredentials & { userId: string }
 	): Promise<{ mfaEnabled: boolean }> {
-		console.log(`${MODULE_TAG} Getting user MFA enabled status`, {
+		logger.info(`${MODULE_TAG} Getting user MFA enabled status`, {
 			username: params.username,
 			userId: params.userId,
 		});
@@ -4034,10 +4035,10 @@ export class MFAServiceV8 {
 			}
 
 			const mfaData = responseData as { mfaEnabled: boolean };
-			console.log(`${MODULE_TAG} User MFA enabled status:`, mfaData);
+			logger.info(`${MODULE_TAG} User MFA enabled status:`, mfaData);
 			return mfaData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get user MFA enabled error`, error);
+			logger.error(`${MODULE_TAG} Get user MFA enabled error`, error);
 			throw error;
 		}
 	}
@@ -4052,7 +4053,7 @@ export class MFAServiceV8 {
 	static async updateUserMFAEnabled(
 		params: MFACredentials & { userId: string; mfaEnabled: boolean }
 	): Promise<{ mfaEnabled: boolean }> {
-		console.log(`${MODULE_TAG} Updating user MFA enabled status`, {
+		logger.info(`${MODULE_TAG} Updating user MFA enabled status`, {
 			username: params.username,
 			userId: params.userId,
 			mfaEnabled: params.mfaEnabled,
@@ -4137,10 +4138,10 @@ export class MFAServiceV8 {
 			}
 
 			const mfaData = responseData as { mfaEnabled: boolean };
-			console.log(`${MODULE_TAG} User MFA enabled status updated:`, mfaData);
+			logger.info(`${MODULE_TAG} User MFA enabled status updated:`, mfaData);
 			return mfaData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Update user MFA enabled error`, error);
+			logger.error(`${MODULE_TAG} Update user MFA enabled error`, error);
 			throw error;
 		}
 	}
@@ -4171,10 +4172,10 @@ export class MFAServiceV8 {
 		otpCheckUrl?: string; // URL from _links['otp.check'].href when OTP_REQUIRED
 		[key: string]: unknown;
 	}> {
-		console.warn(
+		logger.warn(
 			`${MODULE_TAG} DEPRECATION WARNING: initializeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
 		);
-		console.log(`${MODULE_TAG} Initializing device authentication via PingOne MFA API`, {
+		logger.info(`${MODULE_TAG} Initializing device authentication via PingOne MFA API`, {
 			username: params.username,
 			deviceId: params.deviceId,
 			policyId: params.deviceAuthenticationPolicyId,
@@ -4189,7 +4190,7 @@ export class MFAServiceV8 {
 						params.environmentId,
 						params.deviceAuthenticationPolicyId
 					);
-					console.log(`${MODULE_TAG} [DEVICE_SELECTION] Policy loaded successfully:`, {
+					logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Policy loaded successfully:`, {
 						policyId: params.deviceAuthenticationPolicyId,
 						policyName: policy.name,
 						authentication: policy.authentication,
@@ -4201,7 +4202,7 @@ export class MFAServiceV8 {
 					});
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} [DEVICE_SELECTION] Failed to read policy, continuing without policy check:`,
 						{
 							policyId: params.deviceAuthenticationPolicyId,
@@ -4213,7 +4214,7 @@ export class MFAServiceV8 {
 					// The policy might not be available via API yet, so we'll proceed without it
 				}
 			} else {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} [DEVICE_SELECTION] No policy ID provided, skipping policy check`
 				);
 			}
@@ -4234,7 +4235,7 @@ export class MFAServiceV8 {
 				if (isLocked) {
 					const errorMessage =
 						'User account is locked. Please contact your administrator to unlock your account.';
-					console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
+					logger.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
 						userId: user.id,
 						username: params.username,
 						userStatus: user?.status,
@@ -4245,7 +4246,7 @@ export class MFAServiceV8 {
 					throw new Error(errorMessage);
 				}
 			} else {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`
 				);
 			}
@@ -4279,7 +4280,7 @@ export class MFAServiceV8 {
 				requestBody.region = params.region;
 			}
 
-			console.log(`${MODULE_TAG} Calling backend initialize-device-authentication endpoint`, {
+			logger.info(`${MODULE_TAG} Calling backend initialize-device-authentication endpoint`, {
 				url: '/api/pingone/mfa/initialize-device-authentication',
 				body: requestBody,
 			});
@@ -4342,7 +4343,7 @@ export class MFAServiceV8 {
 				const errorData = responseData as PingOneResponse;
 				const errorMessage = errorData.message || errorData.error || response.statusText;
 
-				console.error(`${MODULE_TAG} Initialize device authentication (PingOne MFA API) failed`, {
+				logger.error(`${MODULE_TAG} Initialize device authentication (PingOne MFA API) failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorData,
@@ -4380,9 +4381,9 @@ export class MFAServiceV8 {
 			if (authData.status === 'OTP_REQUIRED' || authData.nextStep === 'OTP_REQUIRED') {
 				if (authData._links?.['otp.check']?.href) {
 					otpCheckUrl = authData._links['otp.check'].href;
-					console.log(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
+					logger.info(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
 				} else {
-					console.warn(
+					logger.warn(
 						`${MODULE_TAG} Status is OTP_REQUIRED but no otp.check URL found in _links`,
 						{
 							status: authData.status,
@@ -4408,7 +4409,7 @@ export class MFAServiceV8 {
 				authData.nextStep === 'SELECTION_REQUIRED' ||
 				(authData.devices && authData.devices.length > 0);
 
-			console.log(`${MODULE_TAG} [DEVICE_SELECTION] Evaluating device selection logic:`, {
+			logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Evaluating device selection logic:`, {
 				hasPolicy: !!policy,
 				deviceSelection,
 				deviceSelectionType: typeof deviceSelection,
@@ -4446,7 +4447,7 @@ export class MFAServiceV8 {
 
 				if (shouldAutoSelect) {
 					const firstDevice = authData.devices[0];
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Policy requires auto-selection, automatically selecting first device:`,
 						{
 							deviceId: firstDevice.id,
@@ -4465,7 +4466,7 @@ export class MFAServiceV8 {
 							deviceId: firstDevice.id,
 						});
 
-						console.log(`${MODULE_TAG} Automatically selected first device per policy`, {
+						logger.info(`${MODULE_TAG} Automatically selected first device per policy`, {
 							deviceId: firstDevice.id,
 							newStatus: selectResult.status,
 							newNextStep: selectResult.nextStep,
@@ -4498,14 +4499,14 @@ export class MFAServiceV8 {
 
 						return result;
 					} catch (selectError) {
-						console.error(
+						logger.error(
 							`${MODULE_TAG} Failed to auto-select first device, returning initial response:`,
 							selectError
 						);
 						// If auto-selection fails, return the original response so UI can handle it
 					}
 				} else {
-					console.log(`${MODULE_TAG} [DEVICE_SELECTION] Policy requires device selection UI:`, {
+					logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Policy requires device selection UI:`, {
 						deviceSelection,
 						deviceSelectionValue: String(deviceSelection),
 						deviceCount: authData.devices.length,
@@ -4521,7 +4522,7 @@ export class MFAServiceV8 {
 					});
 				}
 			} else {
-				console.log(`${MODULE_TAG} [DEVICE_SELECTION] Skipping auto-selection:`, {
+				logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Skipping auto-selection:`, {
 					hasPreSelectedDevice: !!params.deviceId,
 					needsDeviceSelection,
 					hasDevices: !!(authData.devices && authData.devices.length > 0),
@@ -4529,7 +4530,7 @@ export class MFAServiceV8 {
 				});
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} [DEVICE_SELECTION] Device authentication initialized via PingOne API`,
 				{
 					id: authData.id,
@@ -4552,7 +4553,7 @@ export class MFAServiceV8 {
 				...(otpCheckUrl ? { otpCheckUrl } : {}),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Initialize device authentication error`, error);
+			logger.error(`${MODULE_TAG} Initialize device authentication error`, error);
 			throw error;
 		}
 	}
@@ -4576,7 +4577,7 @@ export class MFAServiceV8 {
 		challengeId?: string;
 		[key: string]: unknown;
 	}> {
-		console.warn(
+		logger.warn(
 			`${MODULE_TAG} initializeDeviceAuthenticationAuth is deprecated. Forwarding to initializeDeviceAuthentication().`,
 			{ hasPolicy: !!params.deviceAuthenticationPolicyId }
 		);
@@ -4599,7 +4600,7 @@ export class MFAServiceV8 {
 		authenticationId: string;
 		region?: string;
 	}): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Reading device authentication record`, {
+		logger.info(`${MODULE_TAG} Reading device authentication record`, {
 			environmentId: params.environmentId,
 			authenticationId: params.authenticationId,
 			region: params.region || 'na',
@@ -4686,7 +4687,7 @@ export class MFAServiceV8 {
 
 			return responseData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Read device authentication error`, error);
+			logger.error(`${MODULE_TAG} Read device authentication error`, error);
 			throw error instanceof Error ? error : new Error(String(error));
 		}
 	}
@@ -4704,7 +4705,7 @@ export class MFAServiceV8 {
 	static async validateOTPForDevice(
 		params: MFACredentials & { authenticationId: string; otp: string }
 	): Promise<{ status: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Validating OTP for device authentication`, {
+		logger.info(`${MODULE_TAG} Validating OTP for device authentication`, {
 			username: params.username,
 			authenticationId: params.authenticationId,
 		});
@@ -4812,17 +4813,17 @@ export class MFAServiceV8 {
 
 				if (typeof attemptsRemaining === 'number') {
 					pingError.attemptsRemaining = attemptsRemaining;
-					console.warn(`${MODULE_TAG} OTP validation attempts remaining:`, attemptsRemaining);
+					logger.warn(`${MODULE_TAG} OTP validation attempts remaining:`, attemptsRemaining);
 				}
 
 				throw pingError;
 			}
 
 			const validationData = responseData as { status: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} OTP validated:`, validationData);
+			logger.info(`${MODULE_TAG} OTP validated:`, validationData);
 			return validationData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Validate OTP for device error`, error);
+			logger.error(`${MODULE_TAG} Validate OTP for device error`, error);
 			throw error;
 		}
 	}
@@ -4845,7 +4846,7 @@ export class MFAServiceV8 {
 		}
 	): Promise<{ status: string; [key: string]: unknown }> {
 		const cancelReason = params.reason || 'USER_CANCELLED';
-		console.log(`${MODULE_TAG} Canceling device authentication`, {
+		logger.info(`${MODULE_TAG} Canceling device authentication`, {
 			username: params.username,
 			authenticationId: params.authenticationId,
 			reason: cancelReason,
@@ -4859,7 +4860,7 @@ export class MFAServiceV8 {
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Cancel device authentication via backend proxy
-			console.log(`${MODULE_TAG} [CANCEL] Debug: Worker token before sending to backend`, {
+			logger.info(`${MODULE_TAG} [CANCEL] Debug: Worker token before sending to backend`, {
 				tokenLength: accessToken.length,
 				tokenStart: accessToken.substring(0, 50),
 				tokenEnd: accessToken.substring(accessToken.length - 20),
@@ -4944,10 +4945,10 @@ export class MFAServiceV8 {
 			}
 
 			const cancelData = responseData as { status: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} Device authentication canceled:`, cancelData);
+			logger.info(`${MODULE_TAG} Device authentication canceled:`, cancelData);
 			return cancelData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Cancel device authentication error`, error);
+			logger.error(`${MODULE_TAG} Cancel device authentication error`, error);
 			throw error;
 		}
 	}
@@ -4968,7 +4969,7 @@ export class MFAServiceV8 {
 	static async selectDeviceForAuthentication(
 		params: MFACredentials & { authenticationId: string; deviceId: string }
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Selecting device for authentication`, {
+		logger.info(`${MODULE_TAG} Selecting device for authentication`, {
 			username: params.username,
 			authenticationId: params.authenticationId,
 			deviceId: params.deviceId,
@@ -4989,7 +4990,7 @@ export class MFAServiceV8 {
 				workerToken: accessToken.trim(),
 			};
 
-			console.log(`${MODULE_TAG} [DEBUG] Request body being sent:`, {
+			logger.info(`${MODULE_TAG} [DEBUG] Request body being sent:`, {
 				...requestBody,
 				workerToken: `[REDACTED_${accessToken.length}_chars]`,
 			});
@@ -5080,7 +5081,7 @@ export class MFAServiceV8 {
 
 			if (!response.ok) {
 				const errorData = responseData as PingOneResponse;
-				console.error(`${MODULE_TAG} [DEBUG] Server error response:`, {
+				logger.error(`${MODULE_TAG} [DEBUG] Server error response:`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorData: JSON.stringify(errorData, null, 2), // Stringify for full visibility
@@ -5105,10 +5106,10 @@ export class MFAServiceV8 {
 				nextStep?: string;
 				[key: string]: unknown;
 			};
-			console.log(`${MODULE_TAG} Device selected:`, selectData);
+			logger.info(`${MODULE_TAG} Device selected:`, selectData);
 			return selectData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Select device for authentication error`, error);
+			logger.error(`${MODULE_TAG} Select device for authentication error`, error);
 			throw error;
 		}
 	}
@@ -5116,7 +5117,7 @@ export class MFAServiceV8 {
 	static async listDeviceAuthenticationPolicies(
 		environmentId: string
 	): Promise<DeviceAuthenticationPolicy[]> {
-		console.log(`${MODULE_TAG} Listing device authentication policies`, { environmentId });
+		logger.info(`${MODULE_TAG} Listing device authentication policies`, { environmentId });
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -5151,7 +5152,7 @@ export class MFAServiceV8 {
 				});
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
-				console.error(`${MODULE_TAG} Network error fetching device authentication policies:`, {
+				logger.error(`${MODULE_TAG} Network error fetching device authentication policies:`, {
 					error: errorMessage,
 					environmentId,
 					endpoint: '/api/pingone/mfa/device-authentication-policies',
@@ -5177,14 +5178,14 @@ export class MFAServiceV8 {
 			let rawResponseText = '';
 			try {
 				rawResponseText = await responseClone.text();
-				console.log(`${MODULE_TAG} Raw response text length:`, rawResponseText.length);
-				console.log(
+				logger.info(`${MODULE_TAG} Raw response text length:`, rawResponseText.length);
+				logger.info(
 					`${MODULE_TAG} Raw response text (first 500 chars):`,
 					rawResponseText.substring(0, 500)
 				);
 
 				if (!rawResponseText || !rawResponseText.trim()) {
-					console.warn(`${MODULE_TAG} Empty response body from backend`);
+					logger.warn(`${MODULE_TAG} Empty response body from backend`);
 					responseData = {
 						error: 'Empty response',
 						message: 'Backend returned an empty response body',
@@ -5195,7 +5196,7 @@ export class MFAServiceV8 {
 					try {
 						responseData = JSON.parse(rawResponseText);
 					} catch (parseError) {
-						console.error(`${MODULE_TAG} Failed to parse response as JSON:`, {
+						logger.error(`${MODULE_TAG} Failed to parse response as JSON:`, {
 							status: response.status,
 							statusText: response.statusText,
 							contentType: response.headers.get('content-type'),
@@ -5214,7 +5215,7 @@ export class MFAServiceV8 {
 					}
 				}
 			} catch (textError) {
-				console.error(`${MODULE_TAG} Failed to read response text:`, textError);
+				logger.error(`${MODULE_TAG} Failed to read response text:`, textError);
 				responseData = {
 					error: 'Failed to read response',
 					message: textError instanceof Error ? textError.message : String(textError),
@@ -5251,7 +5252,7 @@ export class MFAServiceV8 {
 				const errorMessage =
 					errorData.message || errorData.error || response.statusText || 'Unknown error';
 
-				console.error(`${MODULE_TAG} Backend returned error:`, {
+				logger.error(`${MODULE_TAG} Backend returned error:`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorData: errorData,
@@ -5291,10 +5292,10 @@ export class MFAServiceV8 {
 						? (policiesResponse.deviceAuthenticationPolicies ?? [])
 						: [];
 
-			console.log(`${MODULE_TAG} Retrieved ${policies.length} device authentication policies`);
+			logger.info(`${MODULE_TAG} Retrieved ${policies.length} device authentication policies`);
 			return policies;
 		} catch (error) {
-			console.error(`${MODULE_TAG} List device authentication policies error`, error);
+			logger.error(`${MODULE_TAG} List device authentication policies error`, error);
 			throw error;
 		}
 	}
@@ -5311,7 +5312,7 @@ export class MFAServiceV8 {
 		environmentId: string,
 		policyId: string
 	): Promise<DeviceAuthenticationPolicy> {
-		console.log(`${MODULE_TAG} [DEVICE_SELECTION] Reading device authentication policy`, {
+		logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Reading device authentication policy`, {
 			environmentId,
 			policyId,
 		});
@@ -5387,14 +5388,14 @@ export class MFAServiceV8 {
 
 			// If endpoint returns 404 (not available yet), fall back to listing policies
 			if (response.status === 404) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} [DEVICE_SELECTION] Single policy endpoint not available (404), falling back to list endpoint`
 				);
 				const allPolicies = await MFAServiceV8.listDeviceAuthenticationPolicies(environmentId);
 				const foundPolicy = allPolicies.find((p) => p.id === policyId);
 
 				if (foundPolicy) {
-					console.log(`${MODULE_TAG} [DEVICE_SELECTION] Found policy via list endpoint:`, {
+					logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Found policy via list endpoint:`, {
 						id: foundPolicy.id,
 						name: foundPolicy.name,
 						authentication: foundPolicy.authentication,
@@ -5412,7 +5413,7 @@ export class MFAServiceV8 {
 
 			if (!response.ok) {
 				const errorData = responseData as PingOneResponse;
-				console.error(`${MODULE_TAG} [DEVICE_SELECTION] Failed to read policy:`, {
+				logger.error(`${MODULE_TAG} [DEVICE_SELECTION] Failed to read policy:`, {
 					status: response.status,
 					error: errorData,
 					policyId,
@@ -5423,7 +5424,7 @@ export class MFAServiceV8 {
 			}
 
 			const policy = responseData as DeviceAuthenticationPolicy;
-			console.log(`${MODULE_TAG} [DEVICE_SELECTION] Retrieved device authentication policy:`, {
+			logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Retrieved device authentication policy:`, {
 				id: policy.id,
 				name: policy.name,
 				authentication: policy.authentication,
@@ -5435,7 +5436,7 @@ export class MFAServiceV8 {
 			});
 			return policy;
 		} catch (error) {
-			console.error(`${MODULE_TAG} [DEVICE_SELECTION] Read device authentication policy error:`, {
+			logger.error(`${MODULE_TAG} [DEVICE_SELECTION] Read device authentication policy error:`, {
 				error: error instanceof Error ? error.message : String(error),
 				errorDetails: error instanceof Error ? error.stack : undefined,
 				policyId,
@@ -5458,7 +5459,7 @@ export class MFAServiceV8 {
 		policy: Partial<DeviceAuthenticationPolicy> & { name: string; type?: string },
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
 	): Promise<DeviceAuthenticationPolicy> {
-		console.log(`${MODULE_TAG} Creating device authentication policy`, {
+		logger.info(`${MODULE_TAG} Creating device authentication policy`, {
 			environmentId,
 			policyName: policy.name,
 			updateKeys: Object.keys(policy),
@@ -5544,7 +5545,7 @@ export class MFAServiceV8 {
 				const errorData = responseData as { message?: string; error?: string; details?: unknown };
 				const errorMessage =
 					errorData.message || errorData.error || response.statusText || 'Unknown error';
-				console.error(`${MODULE_TAG} Create policy error:`, {
+				logger.error(`${MODULE_TAG} Create policy error:`, {
 					status: response.status,
 					error: errorMessage,
 					details: errorData.details,
@@ -5553,13 +5554,13 @@ export class MFAServiceV8 {
 			}
 
 			const createdPolicy = responseData as DeviceAuthenticationPolicy;
-			console.log(`${MODULE_TAG} Created device authentication policy:`, {
+			logger.info(`${MODULE_TAG} Created device authentication policy:`, {
 				id: createdPolicy.id,
 				name: createdPolicy.name,
 			});
 			return createdPolicy;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Create device authentication policy error:`, {
+			logger.error(`${MODULE_TAG} Create device authentication policy error:`, {
 				error: error instanceof Error ? error.message : String(error),
 				errorDetails: error instanceof Error ? error.stack : undefined,
 				environmentId,
@@ -5583,7 +5584,7 @@ export class MFAServiceV8 {
 		policy: Partial<DeviceAuthenticationPolicy>,
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
 	): Promise<DeviceAuthenticationPolicy> {
-		console.log(`${MODULE_TAG} [DEVICE_SELECTION] Updating device authentication policy`, {
+		logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Updating device authentication policy`, {
 			environmentId,
 			policyId,
 			updateKeys: Object.keys(policy),
@@ -5667,7 +5668,7 @@ export class MFAServiceV8 {
 				const errorData = responseData as { message?: string; error?: string };
 				const errorMessage =
 					errorData.message || errorData.error || response.statusText || 'Unknown error';
-				console.error(`${MODULE_TAG} [DEVICE_SELECTION] Update policy error:`, {
+				logger.error(`${MODULE_TAG} [DEVICE_SELECTION] Update policy error:`, {
 					status: response.status,
 					error: errorMessage,
 				});
@@ -5675,13 +5676,13 @@ export class MFAServiceV8 {
 			}
 
 			const updatedPolicy = responseData as DeviceAuthenticationPolicy;
-			console.log(`${MODULE_TAG} [DEVICE_SELECTION] Updated device authentication policy:`, {
+			logger.info(`${MODULE_TAG} [DEVICE_SELECTION] Updated device authentication policy:`, {
 				id: updatedPolicy.id,
 				name: updatedPolicy.name,
 			});
 			return updatedPolicy;
 		} catch (error) {
-			console.error(`${MODULE_TAG} [DEVICE_SELECTION] Update device authentication policy error:`, {
+			logger.error(`${MODULE_TAG} [DEVICE_SELECTION] Update device authentication policy error:`, {
 				error: error instanceof Error ? error.message : String(error),
 				errorDetails: error instanceof Error ? error.stack : undefined,
 				policyId,
@@ -5723,7 +5724,7 @@ export class MFAServiceV8 {
 
 			const result = await response.json();
 
-			console.log(`${MODULE_TAG} Image uploaded successfully`, {
+			logger.info(`${MODULE_TAG} Image uploaded successfully`, {
 				fileId: result.fileId,
 				imageUrl: result.imageUrl,
 				fileName: file.name,
@@ -5732,7 +5733,7 @@ export class MFAServiceV8 {
 
 			return result;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Image upload error`, error);
+			logger.error(`${MODULE_TAG} Image upload error`, error);
 			throw error;
 		}
 	}

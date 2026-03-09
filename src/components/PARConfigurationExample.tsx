@@ -24,7 +24,7 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 
 	// Handle configuration changes
 	const handleConfigChange = (newConfig: any) => {
-		console.log('PAR Configuration changed:', newConfig);
+		logger.info('PAR Configuration changed:', newConfig);
 		setParConfig(newConfig);
 
 		// Validate configuration

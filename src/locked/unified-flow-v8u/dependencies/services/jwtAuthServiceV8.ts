@@ -4,6 +4,7 @@
 
 import { createClientAssertion } from '../utils/clientAuthentication';
 
+import { logger } from '../../../utils/logger';
 export interface JWTConfigV8 {
 	clientId: string;
 	tokenEndpoint: string;
@@ -126,7 +127,7 @@ class JWTAuthServiceV8 {
 			const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
 			return payload;
 		} catch (error) {
-			console.error('Failed to decode JWT payload:', error);
+			logger.error('Failed to decode JWT payload:', error);
 			return {};
 		}
 	}
@@ -143,7 +144,7 @@ class JWTAuthServiceV8 {
 			const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
 			return header;
 		} catch (error) {
-			console.error('Failed to decode JWT header:', error);
+			logger.error('Failed to decode JWT header:', error);
 			return { alg: 'RS256', typ: 'JWT' };
 		}
 	}

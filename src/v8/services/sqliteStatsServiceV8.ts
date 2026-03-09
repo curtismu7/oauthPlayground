@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file sqliteStatsServiceV8.ts
  * @module v8/services
  * @description SQLite database statistics service
@@ -108,7 +109,7 @@ export class SQLiteStatsServiceV8 {
 		circuitBreakerOpen = false;
 		connectionErrors = 0;
 		lastCircuitBreakerTime = 0;
-		console.log(`${MODULE_TAG} Circuit breaker reset`);
+		logger.info(`${MODULE_TAG} Circuit breaker reset`);
 	}
 
 	/**
@@ -117,7 +118,7 @@ export class SQLiteStatsServiceV8 {
 	private static openCircuitBreaker(): void {
 		circuitBreakerOpen = true;
 		lastCircuitBreakerTime = Date.now();
-		console.warn(`${MODULE_TAG} Circuit breaker opened due to ${connectionErrors} failures`);
+		logger.warn(`${MODULE_TAG} Circuit breaker opened due to ${connectionErrors} failures`);
 	}
 
 	/**
@@ -158,7 +159,7 @@ export class SQLiteStatsServiceV8 {
 					connectionErrors++;
 
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					console.error(`${MODULE_TAG} ${operation} attempt ${attempt} failed:`, errorMessage);
+					logger.error(`${MODULE_TAG} ${operation} attempt ${attempt} failed:`, errorMessage);
 
 					// Check if we should open circuit breaker
 					if (connectionErrors >= CIRCUIT_BREAKER_THRESHOLD) {
@@ -169,7 +170,7 @@ export class SQLiteStatsServiceV8 {
 					// If we have retries left, wait with exponential backoff
 					if (attempt < MAX_RETRIES) {
 						const delay = RETRY_DELAY * 2 ** (attempt - 1);
-						console.log(`${MODULE_TAG} Retrying ${operation} in ${delay}ms...`);
+						logger.info(`${MODULE_TAG} Retrying ${operation} in ${delay}ms...`);
 						await new Promise((resolve) => setTimeout(resolve, delay));
 					} else {
 						throw error;
@@ -202,7 +203,7 @@ export class SQLiteStatsServiceV8 {
 		// Check cache first
 		const cached = SQLiteStatsServiceV8.userCountCache.get(environmentId);
 		if (cached && Date.now() - cached.timestamp < SQLiteStatsServiceV8.CACHE_TTL) {
-			console.log(`${MODULE_TAG} Using cached count for ${environmentId}:`, cached.count);
+			logger.info(`${MODULE_TAG} Using cached count for ${environmentId}:`, cached.count);
 			return {
 				environmentId,
 				totalUsers: cached.count,
@@ -230,7 +231,7 @@ export class SQLiteStatsServiceV8 {
 				timestamp: Date.now(),
 			});
 
-			console.log(`${MODULE_TAG} Fetched user count for ${environmentId}:`, count);
+			logger.info(`${MODULE_TAG} Fetched user count for ${environmentId}:`, count);
 
 			return {
 				environmentId,
@@ -238,7 +239,7 @@ export class SQLiteStatsServiceV8 {
 				success: true,
 			};
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} Failed to get user count:`, error);
+			logger.error(`${MODULE_TAG} Failed to get user count:`, error);
 			return {
 				environmentId,
 				totalUsers: 0,
@@ -287,7 +288,7 @@ export class SQLiteStatsServiceV8 {
 				lastError: data.lastError,
 			};
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} Failed to get sync metadata:`, error);
+			logger.error(`${MODULE_TAG} Failed to get sync metadata:`, error);
 
 			// Fallback to user count endpoint
 			const countResult = await SQLiteStatsServiceV8.getUserCount(environmentId);
@@ -307,7 +308,7 @@ export class SQLiteStatsServiceV8 {
 	 */
 	static clearCache(): void {
 		SQLiteStatsServiceV8.userCountCache.clear();
-		console.log(`${MODULE_TAG} Cache cleared`);
+		logger.info(`${MODULE_TAG} Cache cleared`);
 	}
 
 	/**
@@ -315,7 +316,7 @@ export class SQLiteStatsServiceV8 {
 	 */
 	static clearCacheForEnvironment(environmentId: string): void {
 		SQLiteStatsServiceV8.userCountCache.delete(environmentId);
-		console.log(`${MODULE_TAG} Cache cleared for ${environmentId}`);
+		logger.info(`${MODULE_TAG} Cache cleared for ${environmentId}`);
 	}
 }
 

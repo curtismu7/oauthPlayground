@@ -20,6 +20,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔕 SILENT-API-CONFIG-V8]';
 
 export interface WorkerTokenConfig {
@@ -42,7 +43,7 @@ export const useWorkerTokenConfigV8 = () => {
 				showTokenAtEnd: serviceConfig.showTokenAtEnd,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initialize config:`, error);
+			logger.error(`${MODULE_TAG} Failed to initialize config:`, error);
 			return {
 				silentApiRetrieval: false,
 				showTokenAtEnd: true,
@@ -62,9 +63,9 @@ export const useWorkerTokenConfigV8 = () => {
 					showTokenAtEnd: serviceConfig.showTokenAtEnd,
 				});
 				setIsReady(true);
-				console.log(`${MODULE_TAG} Configuration loaded:`, serviceConfig);
+				logger.info(`${MODULE_TAG} Configuration loaded:`, serviceConfig);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load configuration:`, error);
+				logger.error(`${MODULE_TAG} Failed to load configuration:`, error);
 				setIsReady(true);
 			}
 		};
@@ -73,7 +74,7 @@ export const useWorkerTokenConfigV8 = () => {
 
 		// Listen for configuration updates from other components
 		const handleConfigUpdate = (event?: Event) => {
-			console.log(`${MODULE_TAG} Configuration update detected, reloading...`, {
+			logger.info(`${MODULE_TAG} Configuration update detected, reloading...`, {
 				eventType: event?.type,
 				timestamp: Date.now(),
 			});
@@ -87,7 +88,7 @@ export const useWorkerTokenConfigV8 = () => {
 		window.addEventListener('workerTokenConfigUpdated', handleConfigUpdate);
 
 		// Add debugging for event registration
-		console.log(`${MODULE_TAG} 📡 Event listeners registered`, {
+		logger.info(`${MODULE_TAG} 📡 Event listeners registered`, {
 			mfaConfigListener: true,
 			workerTokenConfigListener: true,
 			timestamp: Date.now(),
@@ -96,7 +97,7 @@ export const useWorkerTokenConfigV8 = () => {
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			window.removeEventListener('workerTokenConfigUpdated', handleConfigUpdate);
-			console.log(`${MODULE_TAG} 📡 Event listeners cleaned up`, {
+			logger.info(`${MODULE_TAG} 📡 Event listeners cleaned up`, {
 				timestamp: Date.now(),
 			});
 		};
@@ -105,7 +106,7 @@ export const useWorkerTokenConfigV8 = () => {
 	// Update silentApiRetrieval setting
 	const updateSilentApiRetrieval = useCallback(async (value: boolean) => {
 		try {
-			console.log(`${MODULE_TAG} Updating silentApiRetrieval to:`, value);
+			logger.info(`${MODULE_TAG} Updating silentApiRetrieval to:`, value);
 
 			// Update local state immediately for responsive UI
 			setConfig((prev) => ({ ...prev, silentApiRetrieval: value }));
@@ -136,9 +137,9 @@ export const useWorkerTokenConfigV8 = () => {
 				message: `Silent API Token Retrieval set to: ${value}`,
 				duration: 3000,
 			});
-			console.log(`${MODULE_TAG} SilentApiRetrieval updated successfully`);
+			logger.info(`${MODULE_TAG} SilentApiRetrieval updated successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
+			logger.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -158,7 +159,7 @@ export const useWorkerTokenConfigV8 = () => {
 	// Update showTokenAtEnd setting
 	const updateShowTokenAtEnd = useCallback(async (value: boolean) => {
 		try {
-			console.log(`${MODULE_TAG} Updating showTokenAtEnd to:`, value);
+			logger.info(`${MODULE_TAG} Updating showTokenAtEnd to:`, value);
 
 			// Update local state immediately for responsive UI
 			setConfig((prev) => ({ ...prev, showTokenAtEnd: value }));
@@ -189,9 +190,9 @@ export const useWorkerTokenConfigV8 = () => {
 				message: `Show Token After Generation set to: ${value}`,
 				duration: 3000,
 			});
-			console.log(`${MODULE_TAG} ShowTokenAtEnd updated successfully`);
+			logger.info(`${MODULE_TAG} ShowTokenAtEnd updated successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
+			logger.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -221,9 +222,9 @@ export const useWorkerTokenConfigV8 = () => {
 				showTokenAtEnd: serviceConfig.showTokenAtEnd,
 			});
 
-			console.log(`${MODULE_TAG} Configuration refreshed:`, serviceConfig);
+			logger.info(`${MODULE_TAG} Configuration refreshed:`, serviceConfig);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to refresh configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to refresh configuration:`, error);
 		}
 	}, []);
 

@@ -45,6 +45,7 @@ import { PAR_FLOW_CONSTANTS, STEP_METADATA } from './constants/parFlowConstants'
 import { usePARFlowState } from './hooks/usePARFlowState';
 import { usePAROperations } from './hooks/usePAROperations';
 
+import { logger } from '../../utils/logger';
 // Styled Components
 const Container = styled.div`
 	max-width: 1200px;
@@ -235,7 +236,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 			state.updatePKCE(codes);
 			state.markStepCompleted(1);
 		} catch (error) {
-			console.error('PKCE generation failed:', error);
+			logger.error('PKCE generation failed:', error);
 		}
 	}, [operations, state]);
 
@@ -249,7 +250,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 			state.setPARRequestUri(response.request_uri, response.expires_in);
 			state.markStepCompleted(2);
 		} catch (error) {
-			console.error('PAR request failed:', error);
+			logger.error('PAR request failed:', error);
 		}
 	}, [operations, state]);
 
@@ -283,7 +284,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 				state.updateUserInfo(userInfo);
 			}
 		} catch (error) {
-			console.error('Token exchange failed:', error);
+			logger.error('Token exchange failed:', error);
 		}
 	}, [operations, state]);
 

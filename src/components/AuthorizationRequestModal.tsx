@@ -301,7 +301,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 			};
 			localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
 
-			console.log(
+			logger.info(
 				' [AuthorizationRequestModal] User chose to skip this modal in future - updated configuration:',
 				updatedFlowConfig
 			);

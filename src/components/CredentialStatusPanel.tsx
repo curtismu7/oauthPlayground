@@ -10,6 +10,7 @@ import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import ServerStatusModal from './ServerStatusModal';
 
+import { logger } from '../utils/logger';
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
   border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -351,21 +352,21 @@ const CredentialStatusPanel: React.FC = () => {
 	);
 
 	const refreshStatuses = useCallback(async () => {
-		console.log(' [CredentialStatusPanel] Refreshing statuses - button clicked');
+		logger.info(' [CredentialStatusPanel] Refreshing statuses - button clicked');
 		setIsLoading(true);
 		try {
-			console.log(' [CredentialStatusPanel] Loading credentials...');
+			logger.info(' [CredentialStatusPanel] Loading credentials...');
 			const configCredentials = credentialManager.loadConfigCredentials();
 			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
 			const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
 
-			console.log(' [CredentialStatusPanel] Loaded credentials:', {
+			logger.info(' [CredentialStatusPanel] Loaded credentials:', {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
 			});
 
-			log.debug('CredentialStatusPanel', 'Loaded credentials', {
+			logger.debug('CredentialStatusPanel', 'Loaded credentials', {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
@@ -395,18 +396,18 @@ const CredentialStatusPanel: React.FC = () => {
 				},
 			];
 
-			console.log(' [CredentialStatusPanel] Setting new statuses:', statuses);
+			logger.info(' [CredentialStatusPanel] Setting new statuses:', statuses);
 			setFlowStatuses(statuses);
 			setLastRefresh(new Date());
 
-			console.log(' [CredentialStatusPanel] Statuses updated successfully');
-			log.debug('CredentialStatusPanel', 'Statuses updated', statuses);
+			logger.info(' [CredentialStatusPanel] Statuses updated successfully');
+			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
 			showGlobalSuccess(
 				' System Status Refreshed',
 				'All credential statuses have been updated successfully'
 			);
 		} catch (error) {
-			log.error('CredentialStatusPanel', 'Error refreshing statuses', error);
+			logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
 			showGlobalError(' Refresh Failed', 'Failed to refresh system status. Please try again.');
 		} finally {
 			setIsLoading(false);
@@ -460,7 +461,7 @@ const CredentialStatusPanel: React.FC = () => {
 				<ButtonGroup>
 					<RefreshButton
 						onClick={(e) => {
-							console.log(' [CredentialStatusPanel] Refresh button clicked!', e);
+							logger.info(' [CredentialStatusPanel] Refresh button clicked!', e);
 							modernMessaging.showFooterMessage({
 								type: 'status',
 								message: 'Refreshing system status - loading all credential statuses...',

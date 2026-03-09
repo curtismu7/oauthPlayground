@@ -13,6 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sqlite3 from 'sqlite3';
 
+import { logger } from '../utils/logger';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,7 +43,7 @@ class BackupDatabaseService {
 		return new Promise((resolve, reject) => {
 			this.db = new sqlite3.Database(DB_PATH, (err) => {
 				if (err) {
-					console.error(`${MODULE_TAG} Failed to open database:`, err);
+					logger.error(`${MODULE_TAG} Failed to open database:`, err);
 					reject(err);
 					return;
 				}
@@ -50,7 +51,7 @@ class BackupDatabaseService {
 				this.createTables()
 					.then(() => {
 						this.initialized = true;
-						console.log(`${MODULE_TAG} Backup database initialized at ${DB_PATH}`);
+						logger.info(`${MODULE_TAG} Backup database initialized at ${DB_PATH}`);
 						resolve();
 					})
 					.catch(reject);
@@ -79,7 +80,7 @@ class BackupDatabaseService {
 		`;
 
 		await this.run(sql);
-		console.log(`${MODULE_TAG} Backup tables created`);
+		logger.info(`${MODULE_TAG} Backup tables created`);
 	}
 
 	/**
@@ -142,7 +143,7 @@ class BackupDatabaseService {
 			expiresAt,
 		]);
 
-		console.log(`${MODULE_TAG} Saved backup: ${key} (type: ${dataType})`);
+		logger.info(`${MODULE_TAG} Saved backup: ${key} (type: ${dataType})`);
 	}
 
 	/**
@@ -172,7 +173,7 @@ class BackupDatabaseService {
 				expired: false,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to parse backup data:`, error);
+			logger.error(`${MODULE_TAG} Failed to parse backup data:`, error);
 			return null;
 		}
 	}
@@ -183,7 +184,7 @@ class BackupDatabaseService {
 	async deleteBackup(key, environmentId) {
 		const sql = `DELETE FROM backups WHERE key = ? AND environment_id = ?`;
 		await this.run(sql, [key, environmentId]);
-		console.log(`${MODULE_TAG} Deleted backup: ${key}`);
+		logger.info(`${MODULE_TAG} Deleted backup: ${key}`);
 	}
 
 	/**
@@ -221,7 +222,7 @@ class BackupDatabaseService {
 	async clearEnvironment(environmentId) {
 		const sql = `DELETE FROM backups WHERE environment_id = ?`;
 		const result = await this.run(sql, [environmentId]);
-		console.log(`${MODULE_TAG} Cleared ${result.changes} backups for environment ${environmentId}`);
+		logger.info(`${MODULE_TAG} Cleared ${result.changes} backups for environment ${environmentId}`);
 		return result.changes;
 	}
 
@@ -231,7 +232,7 @@ class BackupDatabaseService {
 	async cleanupExpired() {
 		const sql = `DELETE FROM backups WHERE expires_at IS NOT NULL AND expires_at <= ?`;
 		const result = await this.run(sql, [Date.now()]);
-		console.log(`${MODULE_TAG} Cleaned up ${result.changes} expired backups`);
+		logger.info(`${MODULE_TAG} Cleaned up ${result.changes} expired backups`);
 		return result.changes;
 	}
 
@@ -278,7 +279,7 @@ export const backupDatabaseService = new BackupDatabaseService();
 
 // Initialize on module load
 backupDatabaseService.init().catch((err) => {
-	console.error(`${MODULE_TAG} Failed to initialize:`, err);
+	logger.error(`${MODULE_TAG} Failed to initialize:`, err);
 });
 
 export default backupDatabaseService;

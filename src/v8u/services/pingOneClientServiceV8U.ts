@@ -1,5 +1,6 @@
 import { logger } from '../../utils/logger';
 
+import { logger } from '../utils/logger';
 /**
  * @file pingOneClientServiceV8U.ts
  * @module v8u/services
@@ -184,7 +185,7 @@ export async function updatePingOneClient(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating PingOne client`, {
+		logger.info(`${MODULE_TAG} Updating PingOne client`, {
 			clientId,
 			featureId,
 			featureName,
@@ -196,7 +197,7 @@ export async function updatePingOneClient(
 
 		// In real implementation, this would call PingOne API
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} PingOne client updated successfully`);
+		logger.info(`${MODULE_TAG} PingOne client updated successfully`);
 
 		return { success: true };
 	} catch (error) {
@@ -218,7 +219,7 @@ export async function updateApplicationConfig(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating application configuration`, {
+		logger.info(`${MODULE_TAG} Updating application configuration`, {
 			appName,
 			featureId,
 			featureName,
@@ -230,7 +231,7 @@ export async function updateApplicationConfig(
 
 		// In real implementation, this would update app configuration
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} Application configuration updated successfully`);
+		logger.info(`${MODULE_TAG} Application configuration updated successfully`);
 
 		return { success: true };
 	} catch (error) {
@@ -307,7 +308,7 @@ export async function updateFeatureConfiguration(
 			};
 		}
 
-		console.log(`${MODULE_TAG} Feature configuration updated successfully`, {
+		logger.info(`${MODULE_TAG} Feature configuration updated successfully`, {
 			featureId,
 			featureName,
 			isEnabling,

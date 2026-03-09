@@ -13,7 +13,7 @@
  * @example
  * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
  * if (result.success) {
- *   console.log('Discovered endpoints:', result.data);
+ *   logger.info('Discovered endpoints:', result.data);
  * }
  */
 
@@ -45,7 +45,7 @@ export class OidcDiscoveryServiceV8 {
 	 * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
 	 */
 	static async discover(issuerUrl: string, environmentId?: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl, environmentId });
+		logger.info(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl, environmentId });
 
 		try {
 			// Normalize issuer URL
@@ -57,7 +57,7 @@ export class OidcDiscoveryServiceV8 {
 					const { getCachedDiscoveryDocument } = await import('./discoveryCacheServiceV8');
 					const cached = await getCachedDiscoveryDocument(normalized, environmentId);
 					if (cached) {
-						console.log(`${MODULE_TAG} ✅ Using cached discovery document`, {
+						logger.info(`${MODULE_TAG} ✅ Using cached discovery document`, {
 							issuerUrl: normalized,
 						});
 						return {
@@ -66,11 +66,11 @@ export class OidcDiscoveryServiceV8 {
 						};
 					}
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Cache check failed, fetching fresh`, { error });
+					logger.warn(`${MODULE_TAG} ⚠️ Cache check failed, fetching fresh`, { error });
 				}
 			}
 
-			console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
+			logger.info(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -128,7 +128,7 @@ Original error: ${errorMessage}`;
 					errorMessage = `OIDC Discovery endpoint not found (404). Please verify the issuer URL is correct: ${normalized}`;
 				}
 
-				console.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
+				logger.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
 					issuerUrl: normalized,
 					error: errorMessage,
 					details: errorBody.details,
@@ -150,7 +150,7 @@ Original error: ${errorMessage}`;
 
 			const data = await response.json();
 
-			console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
+			logger.info(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
 
 			// Update API call tracking with success
 			apiCallTrackerService.updateApiCallResponse(
@@ -189,9 +189,10 @@ Original error: ${errorMessage}`;
 			if (typeof window !== 'undefined') {
 				try {
 					const { cacheDiscoveryDocument } = await import('./discoveryCacheServiceV8');
+import { logger } from '../utils/logger';
 					await cacheDiscoveryDocument(normalized, discoveryData, environmentId);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document (non-critical)`, {
+					logger.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document (non-critical)`, {
 						error,
 					});
 				}
@@ -203,7 +204,7 @@ Original error: ${errorMessage}`;
 			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Discovery failed`, { error: message });
+			logger.error(`${MODULE_TAG} Discovery failed`, { error: message });
 
 			return {
 				success: false,
@@ -263,11 +264,11 @@ Original error: ${errorMessage}`;
 	 * @returns Discovery result
 	 */
 	static async discoverFromInput(input: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Attempting discovery from input`, { input });
+		logger.info(`${MODULE_TAG} Attempting discovery from input`, { input });
 
 		// Check if it's an environment ID (UUID)
 		if (OidcDiscoveryServiceV8.isValidEnvironmentId(input)) {
-			console.log(`${MODULE_TAG} Input appears to be environment ID, constructing PingOne URL`);
+			logger.info(`${MODULE_TAG} Input appears to be environment ID, constructing PingOne URL`);
 			// Construct PingOne issuer URL from environment ID
 			const issuerUrl = `https://auth.pingone.com/${input}/as`;
 			return OidcDiscoveryServiceV8.discover(issuerUrl);

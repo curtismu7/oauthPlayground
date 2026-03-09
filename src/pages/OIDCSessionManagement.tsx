@@ -7,6 +7,7 @@ import { BootstrapIcon } from '../components/v9/BootstrapIcon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 
+import { logger } from '../utils/logger';
 // White background container with better spacing
 const WhiteContainer = styled.div`
   background-color: white;
@@ -371,7 +372,7 @@ const OIDCSessionManagement = () => {
 			setCopiedCode(id);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			log.error('OIDCSessionManagement', 'Failed to copy text: ', undefined, err as Error);
+			logger.error('OIDCSessionManagement', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -901,9 +902,9 @@ function validateSessionState(sessionState, clientId, origin, opSessionState) {
 
 // Usage
 if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
-  console.log('Session state is valid');
+  logger.info('Session state is valid');
 } else {
-  console.log('Session state mismatch - user may have logged out');
+  logger.info('Session state mismatch - user may have logged out');
   redirectToLogin();
 }`,
 													'session-state-validation'
@@ -1562,12 +1563,12 @@ async function sendBackchannelLogout(rpEndpoint, logoutToken) {
     });
     
     if (response.ok) {
-      console.log('Back-channel logout successful');
+      logger.info('Back-channel logout successful');
     } else {
-      log.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
+      logger.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
     }
   } catch (error) {
-    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
   }
 }
 
@@ -1596,7 +1597,7 @@ app.post('/backchannel_logout', async (req, res) => {
     
     res.status(200).send('OK');
   } catch (error) {
-    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     res.status(400).send('Invalid logout token');
   }
 });`,
@@ -1739,10 +1740,10 @@ function validateSessionState(receivedState, clientId, origin, opSessionState, s
   const expectedState = calculateSessionState(clientId, origin, opSessionState, salt);
   
   if (receivedState === expectedState) {
-    console.log('Session state is valid');
+    logger.info('Session state is valid');
     return true;
   } else {
-    console.log('Session state mismatch - user may have logged out');
+    logger.info('Session state mismatch - user may have logged out');
     return false;
   }
 }
@@ -2004,7 +2005,7 @@ const opUserAgentState = 'op-session-state-from-pingone';
 const salt = 'your-salt-value';
 
 const sessionState = calculateSessionState(clientId, origin, opUserAgentState, salt);
-console.log('Calculated session state:', sessionState);`,
+logger.info('Calculated session state:', sessionState);`,
 										'session-state-calculation'
 									)}
 								</CardBody>
@@ -2308,7 +2309,7 @@ class SessionMonitor {
           this.handleSessionExpired();
         }
       } catch (error) {
-        log.error('OIDCSessionManagement', 'Session monitoring error:', undefined, error as Error);
+        logger.error('OIDCSessionManagement', 'Session monitoring error:', undefined, error as Error);
       }
     }, this.interval);
   }
@@ -2482,9 +2483,9 @@ if (returnedState === storedState) {
   sessionStorage.removeItem('logout_state');
   
   // Show confirmation message
-  console.log('User logged out successfully');
+  logger.info('User logged out successfully');
 } else {
-  log.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
+  logger.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
 }`,
 											'pingone-rp-initiated-logout'
 										)}
@@ -2626,7 +2627,7 @@ app.get('/logout', (req, res) => {
   // Terminate user session using session ID (sid)
   req.session.destroy((err) => {
     if (err) {
-      log.error('OIDCSessionManagement', 'Error destroying session:', undefined, err as Error);
+      logger.error('OIDCSessionManagement', 'Error destroying session:', undefined, err as Error);
       return res.status(500).send('Logout failed');
     }
     
@@ -2819,7 +2820,7 @@ app.post('/backchannel_logout', async (req, res) => {
       audience: process.env.PINGONE_CLIENT_ID,
     }, (err, decoded) => {
       if (err) {
-        log.error('OIDCSessionManagement', 'Logout token verification failed:', undefined, err as Error);
+        logger.error('OIDCSessionManagement', 'Logout token verification failed:', undefined, err as Error);
         return res.status(400).json({ error: 'Invalid logout token' });
       }
       
@@ -2841,7 +2842,7 @@ app.post('/backchannel_logout', async (req, res) => {
       res.status(200).send('OK');
     });
   } catch (error) {
-    log.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     // Still return 200 OK to prevent PingOne from retrying
     res.status(200).send('OK');
   }
@@ -2854,7 +2855,7 @@ async function terminateSessionBySid(sessionId) {
   // - Invalidating the session in your session store
   // - Clearing any cached user data
   // - Logging the logout event
-  console.log(\`Terminating session: \${sessionId}\`);
+  logger.info(\`Terminating session: \${sessionId}\`);
 }`,
 											'back-channel-logout-implementation'
 										)}
@@ -2998,7 +2999,7 @@ window.addEventListener('message', (event) => {
   
   // Handle session state change
   if (event.data.type === 'session_state_changed') {
-    console.log('Session state changed - user logged out at PingOne');
+    logger.info('Session state changed - user logged out at PingOne');
     handleSessionExpired();
   }
 });
@@ -3020,7 +3021,7 @@ function checkSessionState() {
   const storedSessionState = localStorage.getItem('session_state');
   
   if (currentSessionState !== storedSessionState) {
-    console.log('Session state mismatch - user may have logged out');
+    logger.info('Session state mismatch - user may have logged out');
     handleSessionExpired();
   }
 }

@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file discoveryCacheServiceV8.ts
  * @module v8/services
  * @description Caching service for OIDC discovery documents
@@ -38,12 +39,12 @@ async function initDB(): Promise<IDBDatabase> {
 		const request = indexedDB.open(DB_NAME, DB_VERSION);
 
 		request.onerror = () => {
-			console.error(`${MODULE_TAG} Failed to open database:`, request.error);
+			logger.error(`${MODULE_TAG} Failed to open database:`, request.error);
 			reject(request.error);
 		};
 
 		request.onsuccess = () => {
-			console.log(`${MODULE_TAG} ✅ Discovery cache database opened`);
+			logger.info(`${MODULE_TAG} ✅ Discovery cache database opened`);
 			resolve(request.result);
 		};
 
@@ -56,7 +57,7 @@ async function initDB(): Promise<IDBDatabase> {
 				});
 				store.createIndex('issuer', 'issuer', { unique: false });
 				store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				console.log(`${MODULE_TAG} ✅ Discovery cache object store created`);
+				logger.info(`${MODULE_TAG} ✅ Discovery cache object store created`);
 			}
 		};
 	});
@@ -98,13 +99,13 @@ export async function cacheDiscoveryDocument(
 		await new Promise<void>((resolve, reject) => {
 			const request = store.put({ cacheKey, ...cached });
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ Discovery document cached`, { issuer, environmentId });
+				logger.info(`${MODULE_TAG} ✅ Discovery document cached`, { issuer, environmentId });
 				resolve();
 			};
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document`, { issuer, error });
+		logger.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document`, { issuer, error });
 		// Don't throw - caching is non-critical
 	}
 }
@@ -131,14 +132,14 @@ export async function getCachedDiscoveryDocument(
 					| undefined;
 
 				if (!result) {
-					console.log(`${MODULE_TAG} ⚠️ No cached discovery document found`, { issuer });
+					logger.info(`${MODULE_TAG} ⚠️ No cached discovery document found`, { issuer });
 					resolve(null);
 					return;
 				}
 
 				// Check if expired
 				if (Date.now() > result.expiresAt) {
-					console.log(`${MODULE_TAG} ⚠️ Cached discovery document expired`, {
+					logger.info(`${MODULE_TAG} ⚠️ Cached discovery document expired`, {
 						issuer,
 						age: Date.now() - result.cachedAt,
 					});
@@ -148,7 +149,7 @@ export async function getCachedDiscoveryDocument(
 					return;
 				}
 
-				console.log(`${MODULE_TAG} ✅ Using cached discovery document`, {
+				logger.info(`${MODULE_TAG} ✅ Using cached discovery document`, {
 					issuer,
 					age: Date.now() - result.cachedAt,
 					expiresIn: result.expiresAt - Date.now(),
@@ -157,12 +158,12 @@ export async function getCachedDiscoveryDocument(
 			};
 
 			request.onerror = () => {
-				console.warn(`${MODULE_TAG} ⚠️ Failed to get cached discovery document`, { issuer });
+				logger.warn(`${MODULE_TAG} ⚠️ Failed to get cached discovery document`, { issuer });
 				resolve(null); // Return null on error, don't reject
 			};
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error getting cached discovery document`, { issuer, error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error getting cached discovery document`, { issuer, error });
 		return null;
 	}
 }
@@ -187,7 +188,7 @@ export async function clearExpiredCache(): Promise<void> {
 					cursor.delete();
 					cursor.continue();
 				} else {
-					console.log(`${MODULE_TAG} ✅ Expired cache entries cleared`);
+					logger.info(`${MODULE_TAG} ✅ Expired cache entries cleared`);
 					resolve();
 				}
 			};
@@ -195,7 +196,7 @@ export async function clearExpiredCache(): Promise<void> {
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error clearing expired cache`, { error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error clearing expired cache`, { error });
 	}
 }
 
@@ -211,13 +212,13 @@ export async function clearAllCache(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
 			const request = store.clear();
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ All discovery cache cleared`);
+				logger.info(`${MODULE_TAG} ✅ All discovery cache cleared`);
 				resolve();
 			};
 			request.onerror = () => reject(request.error);
 		});
 	} catch (error) {
-		console.warn(`${MODULE_TAG} ⚠️ Error clearing cache`, { error });
+		logger.warn(`${MODULE_TAG} ⚠️ Error clearing cache`, { error });
 	}
 }
 

@@ -3,6 +3,7 @@
 import { logger } from './logger';
 import { generateCodeVerifier } from './oauth';
 
+import { logger } from '../utils/logger';
 /**
  * OIDC Discovery Document interface
  */
@@ -75,7 +76,7 @@ export interface ClaimsRequest {
 export const fetchOIDCDiscovery = async (issuer: string): Promise<OIDCDiscoveryDocument> => {
 	const discoveryUrl = `${issuer.replace(/\/$/, '')}/.well-known/openid_configuration`;
 
-	console.log(' [AdvancedOIDC] Fetching discovery document:', discoveryUrl);
+	logger.info(' [AdvancedOIDC] Fetching discovery document:', discoveryUrl);
 
 	try {
 		const response = await fetch(discoveryUrl);
@@ -84,7 +85,7 @@ export const fetchOIDCDiscovery = async (issuer: string): Promise<OIDCDiscoveryD
 		}
 
 		const discovery = (await response.json()) as OIDCDiscoveryDocument;
-		console.log(' [AdvancedOIDC] Discovery document retrieved:', discovery);
+		logger.info(' [AdvancedOIDC] Discovery document retrieved:', discovery);
 
 		return discovery;
 	} catch (error) {
@@ -217,7 +218,7 @@ export const performOIDCLogout = async (
 	}
 
 	const logoutUrl = `${endSessionEndpoint}?${params.toString()}`;
-	console.log(' [AdvancedOIDC] Performing OIDC logout:', logoutUrl);
+	logger.info(' [AdvancedOIDC] Performing OIDC logout:', logoutUrl);
 
 	window.location.href = logoutUrl;
 };

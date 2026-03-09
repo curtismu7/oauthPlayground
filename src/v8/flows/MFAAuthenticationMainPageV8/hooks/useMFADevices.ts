@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[🔐 useMFADevices]';
 
 export interface UnavailableDevice {
@@ -224,7 +225,7 @@ export const useMFADevices = (options: UseMFADevicesOptions): MFADevicesHookResu
 					setDevicesError(errorMessage);
 				}
 
-				console.error(`${MODULE_TAG} Failed to load user devices:`, error);
+				logger.error(`${MODULE_TAG} Failed to load user devices:`, error);
 			} finally {
 				setIsLoadingDevices(false);
 			}

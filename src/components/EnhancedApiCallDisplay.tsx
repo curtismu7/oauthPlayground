@@ -6,6 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import {
 	type ApiCallDisplayOptions,
 	type EnhancedApiCallData,
@@ -1051,7 +1052,7 @@ ${
 });
 
 const data = await response.json();
-console.log('PingOne Response:', data);`}
+logger.info('PingOne Response:', data);`}
 							</CodeBlock>
 							<ActionButtons style={{ marginTop: '0.75rem' }}>
 								<ActionButton
@@ -1077,7 +1078,7 @@ ${
 });
 
 const data = await response.json();
-console.log('PingOne Response:', data);`,
+logger.info('PingOne Response:', data);`,
 											'JavaScript Fetch Example'
 										)
 									}

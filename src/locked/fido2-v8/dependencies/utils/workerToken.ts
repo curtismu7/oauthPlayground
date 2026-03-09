@@ -2,6 +2,7 @@
 
 import { logger } from './logger';
 
+import { logger } from '../../../utils/logger';
 export interface WorkerTokenResponse {
 	access_token: string;
 	token_type: string;
@@ -45,11 +46,11 @@ export async function requestClientCredentialsToken(
 	});
 
 	// Debug: Log the scopes being sent
-	console.log('🔍 [requestClientCredentialsToken] Scopes debug:');
-	console.log('  - scopes array:', scopes);
-	console.log('  - scopes length:', scopes.length);
-	console.log('  - scopes joined:', scopes.join(' '));
-	console.log('  - scopes joined length:', scopes.join(' ').length);
+	logger.info('🔍 [requestClientCredentialsToken] Scopes debug:');
+	logger.info('  - scopes array:', scopes);
+	logger.info('  - scopes length:', scopes.length);
+	logger.info('  - scopes joined:', scopes.join(' '));
+	logger.info('  - scopes joined length:', scopes.join(' ').length);
 
 	// Safety check: Ensure we have valid scopes
 	if (!scopes || scopes.length === 0 || scopes.join(' ').trim() === '') {
@@ -65,14 +66,14 @@ export async function requestClientCredentialsToken(
 	});
 
 	// Debug: Log the final body
-	console.log('🔍 [requestClientCredentialsToken] Final body:');
-	console.log('  - grant_type:', body.get('grant_type'));
-	console.log('  - scope:', body.get('scope'));
-	console.log('  - client_id:', body.get('client_id'));
-	console.log('  - client_secret:', body.get('client_secret') ? '[REDACTED]' : 'not set');
+	logger.info('🔍 [requestClientCredentialsToken] Final body:');
+	logger.info('  - grant_type:', body.get('grant_type'));
+	logger.info('  - scope:', body.get('scope'));
+	logger.info('  - client_id:', body.get('client_id'));
+	logger.info('  - client_secret:', body.get('client_secret') ? '[REDACTED]' : 'not set');
 
 	// Debug: Log the full body as URL-encoded string
-	console.log('🔍 [requestClientCredentialsToken] Full body string:', body.toString());
+	logger.info('🔍 [requestClientCredentialsToken] Full body string:', body.toString());
 
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/x-www-form-urlencoded',

@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../../../utils/logger';
 // Ring Doorbell Physical Housing
 const RingDoorbellContainer = styled.div`
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
@@ -322,12 +323,12 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
+		logger.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

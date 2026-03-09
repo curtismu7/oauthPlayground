@@ -12,6 +12,7 @@ import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -345,7 +346,7 @@ const IDTokensFlow = () => {
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }
 			);
-			console.log(`IDTokensFlow: Selected app: ${app.name}`);
+			logger.info(`IDTokensFlow: Selected app: ${app.name}`);
 		},
 		[config?.environmentId]
 	);
@@ -363,7 +364,7 @@ const IDTokensFlow = () => {
 			try {
 				// First try to get from auth context
 				if (tokens?.id_token) {
-					console.log(
+					logger.info(
 						' [IDTokensFlow] Found ID token in auth context:',
 						`${tokens.id_token.substring(0, 50)}...`
 					);
@@ -374,7 +375,7 @@ const IDTokensFlow = () => {
 				// Fallback to token storage utility
 				const oauthTokens = getOAuthTokens();
 				if (oauthTokens?.id_token) {
-					console.log(
+					logger.info(
 						' [IDTokensFlow] Found ID token in storage:',
 						`${oauthTokens.id_token.substring(0, 50)}...`
 					);
@@ -388,7 +389,7 @@ const IDTokensFlow = () => {
 					try {
 						const parsed = JSON.parse(storedTokens);
 						if (parsed.id_token) {
-							console.log(
+							logger.info(
 								' [IDTokensFlow] Found ID token in localStorage:',
 								`${parsed.id_token.substring(0, 50)}...`
 							);
@@ -400,7 +401,7 @@ const IDTokensFlow = () => {
 					}
 				}
 
-				console.log(' [IDTokensFlow] No ID token found in storage');
+				logger.info(' [IDTokensFlow] No ID token found in storage');
 			} catch {
 				// Silently ignore storage read errors
 			}
@@ -429,7 +430,7 @@ const IDTokensFlow = () => {
 				);
 			}
 
-			console.log(' [IDTokensFlow] Processing stored ID token:', `${idToken.substring(0, 50)}...`);
+			logger.info(' [IDTokensFlow] Processing stored ID token:', `${idToken.substring(0, 50)}...`);
 			setCurrentStep(2);
 
 			// Parse the ID token
@@ -545,7 +546,7 @@ sessionStorage.setItem('id_token', idToken);
 
 // ID token structure: header.payload.signature
 const [header, payload, signature] = idToken.split('.');
-console.log('ID Token received:', idToken.substring(0, 50) + '...');`,
+logger.info('ID Token received:', idToken.substring(0, 50) + '...');`,
 		},
 		{
 			title: 'Parse ID Token Claims',
@@ -573,7 +574,7 @@ const claims = {
   locale: payload.locale
 };
 
-console.log('User claims:', claims);`,
+logger.info('User claims:', claims);`,
 		},
 		{
 			title: 'Validate ID Token',
@@ -603,7 +604,7 @@ if (!isValid) {
   throw new Error('ID token validation failed');
 }
 
-console.log('ID token is valid!');`,
+logger.info('ID token is valid!');`,
 		},
 	];
 
@@ -650,7 +651,7 @@ console.log('ID token is valid!');`,
 			<FlowCredentials
 				flowType="id_tokens"
 				onCredentialsChange={(credentials) => {
-					console.log('ID Tokens flow credentials updated:', credentials);
+					logger.info('ID Tokens flow credentials updated:', credentials);
 				}}
 			/>
 

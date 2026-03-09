@@ -10,6 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sqlite3 from 'sqlite3';
 
+import { logger } from '../utils/logger';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -37,7 +38,7 @@ class SettingsDatabaseService {
 		return new Promise((resolve, reject) => {
 			this.db = new sqlite3.Database(DB_PATH, (err) => {
 				if (err) {
-					console.error('[SettingsDB] Failed to open database:', err);
+					logger.error('[SettingsDB] Failed to open database:', err);
 					reject(err);
 					return;
 				}
@@ -53,7 +54,7 @@ class SettingsDatabaseService {
 				`,
 					(err) => {
 						if (err) {
-							console.error('[SettingsDB] Failed to create table:', err);
+							logger.error('[SettingsDB] Failed to create table:', err);
 							reject(err);
 							return;
 						}

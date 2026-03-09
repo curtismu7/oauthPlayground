@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
+import { logger } from '../utils/logger';
 export interface PingOneApplicationState {
 	clientAuthMethod:
 		| 'client_secret_post'
@@ -798,7 +799,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 								type="text"
 								value={value.keyId || ''}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									console.log('🔧 PingOne Key ID input changed:', e.target.value);
+									logger.info('🔧 PingOne Key ID input changed:', e.target.value);
 									update({ keyId: e.target.value });
 								}}
 								placeholder="my-key-id"

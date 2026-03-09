@@ -3,6 +3,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
+import { logger } from '../utils/logger';
 interface MaintenanceMetrics {
 	codeQuality: {
 		errors: number;
@@ -68,7 +69,7 @@ const MaintenanceDashboard: React.FC<MaintenanceDashboardProps> = ({ refreshInte
 			setMetrics(mockMetrics);
 			setLastUpdated(new Date());
 		} catch (error) {
-			console.error('Failed to fetch maintenance metrics:', error);
+			logger.error('Failed to fetch maintenance metrics:', error);
 		} finally {
 			setLoading(false);
 			setIsRefreshing(false);

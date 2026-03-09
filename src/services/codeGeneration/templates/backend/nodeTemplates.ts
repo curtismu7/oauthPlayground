@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../utils/logger';
  * Backend Node.js Templates
  * Express.js server implementations
  */
@@ -93,13 +94,13 @@ app.get('/auth/callback', async (req, res) => {
 
     res.json({ success: true, tokens });
   } catch (error) {
-    console.error('Token exchange failed:', error);
+    logger.error('Token exchange failed:', error);
     res.status(500).json({ error: 'Authentication failed' });
   }
 });
 
 app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+  logger.info('Server running on http://localhost:3000');
 });`;
 	}
 
@@ -141,12 +142,12 @@ async function getWorkerToken() {
     }
 
     const data = await response.json();
-    console.log('Worker token obtained');
-    console.log('Expires in:', data.expires_in, 'seconds');
+    logger.info('Worker token obtained');
+    logger.info('Expires in:', data.expires_in, 'seconds');
     
     return data.access_token;
   } catch (error) {
-    console.error('Failed to get worker token:', error);
+    logger.error('Failed to get worker token:', error);
     throw error;
   }
 }
@@ -188,7 +189,7 @@ async function listMfaDevices(accessToken) {
     const data = await response.json();
     const devices = data._embedded?.devices || [];
     
-    console.log(\`Found \${devices.length} MFA device(s)\`);
+    logger.info(\`Found \${devices.length} MFA device(s)\`);
     
     return devices.map(device => ({
       id: device.id,
@@ -197,7 +198,7 @@ async function listMfaDevices(accessToken) {
       status: device.status,
     }));
   } catch (error) {
-    console.error('Failed to list MFA devices:', error);
+    logger.error('Failed to list MFA devices:', error);
     throw error;
   }
 }
@@ -237,15 +238,15 @@ async function sendMfaChallenge(accessToken, deviceId) {
     }
 
     const data = await response.json();
-    console.log('MFA challenge sent successfully');
-    console.log('Challenge ID:', data.id);
+    logger.info('MFA challenge sent successfully');
+    logger.info('Challenge ID:', data.id);
     
     return {
       challengeId: data.id,
       expiresAt: data.expiresAt,
     };
   } catch (error) {
-    console.error('Failed to send MFA challenge:', error);
+    logger.error('Failed to send MFA challenge:', error);
     throw error;
   }
 }
@@ -288,14 +289,14 @@ async function verifyMfaCode(accessToken, deviceId, otp) {
     const data = await response.json();
     const isVerified = data.status === 'VERIFIED';
     
-    console.log('MFA verification:', isVerified ? 'SUCCESS' : 'FAILED');
+    logger.info('MFA verification:', isVerified ? 'SUCCESS' : 'FAILED');
     
     return {
       verified: isVerified,
       status: data.status,
     };
   } catch (error) {
-    console.error('Failed to verify MFA code:', error);
+    logger.error('Failed to verify MFA code:', error);
     throw error;
   }
 }
@@ -347,7 +348,7 @@ async function registerDevice(accessToken, type, details) {
     }
 
     const device = await response.json();
-    console.log(\`\${type} device registered successfully\`);
+    logger.info(\`\${type} device registered successfully\`);
     
     const result = {
       id: device.id,
@@ -363,7 +364,7 @@ async function registerDevice(accessToken, type, details) {
     
     return result;
   } catch (error) {
-    console.error('Failed to register device:', error);
+    logger.error('Failed to register device:', error);
     throw error;
   }
 }
@@ -378,7 +379,7 @@ async function example() {
     name: 'My Phone',
   });
   
-  console.log('Registered device:', smsDevice);
+  logger.info('Registered device:', smsDevice);
 }
 
 module.exports = { registerDevice };`;

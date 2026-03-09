@@ -28,6 +28,7 @@ import {
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
 
+import { logger } from '../../utils/logger';
 interface ForceResetTabProps {
 	environmentId: string;
 	workerToken: string;
@@ -72,7 +73,7 @@ export const ForceResetTab: React.FC<ForceResetTabProps> = ({
 
 	// Debug logging
 	React.useEffect(() => {
-		console.log('[ForceResetTab] Props received:', {
+		logger.info('[ForceResetTab] Props received:', {
 			environmentId: environmentId ? `${environmentId.substring(0, 8)}...` : 'empty',
 			workerToken: workerToken ? `${workerToken.substring(0, 10)}...` : 'empty',
 			hasOnGenerateCode: !!onGenerateCode,

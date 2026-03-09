@@ -9,6 +9,7 @@
 import React, { useState } from 'react';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
+import { logger } from '../../../../utils/logger';
 interface WorkerTokenRequestModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -238,7 +239,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												toastV8.success('Token saved successfully!');
 											} catch (error) {
-												console.error('[WorkerTokenRequestModal] Failed to save token:', error);
+												logger.error('[WorkerTokenRequestModal] Failed to save token:', error);
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												toastV8.error('Failed to save token');
 											}

@@ -28,6 +28,7 @@ import {
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { logger } from '../utils/logger';
 import {
 	type FlowType,
 	type SpecVersion,
@@ -519,7 +520,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				workerTokenEnvId = data.credentials?.environmentId || '';
 			}
 		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
+			logger.info('Failed to load environment ID from worker token:', error);
 		}
 
 		const credentials: {
@@ -1178,7 +1179,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			log.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1265,7 +1266,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			log.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1356,7 +1357,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			log.error(MODULE_TAG, 'Error generating environment:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Error generating environment:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1390,7 +1391,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			log.error(MODULE_TAG, 'Error downloading MFA collection:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Error downloading MFA collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1421,7 +1422,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			log.error(MODULE_TAG, 'Error downloading complete collection:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Error downloading complete collection:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

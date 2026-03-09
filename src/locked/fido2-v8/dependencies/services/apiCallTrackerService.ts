@@ -1,4 +1,5 @@
 // src/services/apiCallTrackerService.ts
+import { logger } from '../../../utils/logger';
 // Service to track all API calls made to PingOne for educational display
 
 export interface ApiCall {
@@ -46,7 +47,7 @@ class ApiCallTrackerService {
 			call.url?.includes('select-device') ||
 			call.url?.includes('validate-otp')
 		) {
-			console.log('[ApiCallTrackerService] Tracking API call with headers:', {
+			logger.info('[ApiCallTrackerService] Tracking API call with headers:', {
 				id,
 				url: call.url,
 				method: call.method,

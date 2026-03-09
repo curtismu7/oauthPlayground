@@ -31,6 +31,7 @@ import type { TokenType } from '@/v8/flows/shared/MFATypes';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 
+import { logger } from '../../../utils/logger';
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIGURATION-STEP]';
 
 // ============================================================================
@@ -74,7 +75,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	config,
 	registrationFlowType = 'admin',
 }) => {
-	console.log(`${MODULE_TAG} Rendering configuration step for:`, config.deviceType);
+	logger.info(`${MODULE_TAG} Rendering configuration step for:`, config.deviceType);
 
 	// ========================================================================
 	// LOCAL STATE
@@ -121,7 +122,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		if (!environmentId && tokenStatus.isValid) {
 			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
 			if (workerCreds?.environmentId) {
-				console.log(`${MODULE_TAG} Auto-populating environment ID:`, workerCreds.environmentId);
+				logger.info(`${MODULE_TAG} Auto-populating environment ID:`, workerCreds.environmentId);
 				setEnvironmentId(workerCreds.environmentId);
 				setCredentials((prev) => ({
 					...prev,
@@ -140,7 +141,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		if (username.trim()) {
 			try {
 				localStorage.setItem('mfa_unified_username', username.trim());
-				console.log(`${MODULE_TAG} Saved username to localStorage`);
+				logger.info(`${MODULE_TAG} Saved username to localStorage`);
 			} catch {
 				// Ignore localStorage errors
 			}
@@ -153,7 +154,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	useEffect(() => {
 		if (deviceAuthPolicies.length > 0 && !selectedPolicyId) {
 			const firstPolicy = deviceAuthPolicies[0];
-			console.log(`${MODULE_TAG} Auto-selecting first policy:`, firstPolicy.name);
+			logger.info(`${MODULE_TAG} Auto-selecting first policy:`, firstPolicy.name);
 			setSelectedPolicyId(firstPolicy.id);
 			setCredentials((prev) => ({
 				...prev,
@@ -167,7 +168,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 */
 	useEffect(() => {
 		if (registrationFlowType === 'user' && flowType !== 'user') {
-			console.log(`${MODULE_TAG} User registration flow - switching to user flow type`);
+			logger.info(`${MODULE_TAG} User registration flow - switching to user flow type`);
 			setFlowType('user');
 		}
 	}, [registrationFlowType, flowType]);
@@ -190,7 +191,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			username.trim() &&
 			!hasAutoAdvanced.current
 		) {
-			console.log(`${MODULE_TAG} Auto-advancing after OAuth login`);
+			logger.info(`${MODULE_TAG} Auto-advancing after OAuth login`);
 			hasAutoAdvanced.current = true;
 
 			// Update credentials with final values
@@ -257,7 +258,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		setErrors(newErrors);
 
 		if (Object.keys(newErrors).length > 0) {
-			console.error(`${MODULE_TAG} Validation failed:`, newErrors);
+			logger.error(`${MODULE_TAG} Validation failed:`, newErrors);
 			nav.setValidationErrors(Object.values(newErrors));
 			return false;
 		}
@@ -269,7 +270,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 * Handle continue button click
 	 */
 	const handleContinue = useCallback(() => {
-		console.log(`${MODULE_TAG} Continuing to device selection`);
+		logger.info(`${MODULE_TAG} Continuing to device selection`);
 
 		// Validate configuration
 		if (!validateConfiguration()) {
@@ -339,7 +340,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 */
 	const handleFlowTypeChange = useCallback(
 		(type: 'admin-active' | 'admin-activation' | 'user') => {
-			console.log(`${MODULE_TAG} Flow type changed to:`, type);
+			logger.info(`${MODULE_TAG} Flow type changed to:`, type);
 			setFlowType(type);
 			setErrors((prev) => {
 				const { token, ...rest } = prev;
@@ -359,7 +360,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 */
 	const handlePolicyChange = useCallback(
 		(policyId: string) => {
-			console.log(`${MODULE_TAG} Policy changed to:`, policyId);
+			logger.info(`${MODULE_TAG} Policy changed to:`, policyId);
 			setSelectedPolicyId(policyId);
 			setCredentials((prev) => ({
 				...prev,

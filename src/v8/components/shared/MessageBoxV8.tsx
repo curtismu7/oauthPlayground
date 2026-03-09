@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { logger } from '../../utils/logger';
 type MessageBoxType = 'success' | 'warning' | 'error' | 'info';
 
 interface MessageBoxProps {
@@ -35,7 +36,7 @@ interface MessageBoxProps {
  *   Device registered successfully
  * </MessageBox>
  *
- * <MessageBox type="error" icon="❌" dismissible onDismiss={() => console.log('Dismissed')}>
+ * <MessageBox type="error" icon="❌" dismissible onDismiss={() => logger.info('Dismissed')}>
  *   Authentication failed: Invalid code
  * </MessageBox>
  */

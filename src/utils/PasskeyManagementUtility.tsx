@@ -7,8 +7,9 @@
 
 import { FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
-import { showGlobalError } from '../contexts/NotificationSystem';
+import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
 
+import { logger } from '../utils/logger';
 interface PasskeyDevice {
 	id: string;
 	name?: string;
@@ -85,7 +86,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			setDevices(enrichedDevices);
 		} catch (err) {
-			log.error('PasskeyManagement', 'Failed to load devices:', undefined, err as Error);
+			logger.error('PasskeyManagement', 'Failed to load devices:', undefined, err as Error);
 			setError(err instanceof Error ? err.message : 'Failed to load devices');
 		} finally {
 			setLoading(false);
@@ -104,7 +105,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (err) {
-			log.error('PasskeyManagement', 'Failed to copy:', undefined, err as Error);
+			logger.error('PasskeyManagement', 'Failed to copy:', undefined, err as Error);
 		}
 	};
 
@@ -144,12 +145,12 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					credentialId: credentialIdBuffer,
 				});
 
-				console.log('✅ Successfully signaled Chrome to remove passkey', {
+				logger.info('✅ Successfully signaled Chrome to remove passkey', {
 					credentialId: `${credentialId.substring(0, 20)}...`,
 					rpId,
 				});
 			} catch (signalError) {
-				log.warn(
+				logger.warn(
 					'PasskeyManagement',
 					'Failed to signal Chrome about deleted credential:',
 					undefined,
@@ -158,7 +159,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 				// Don't throw - this is best effort, deletion from server is what matters
 			}
 		} else {
-			console.log('ℹ️ WebAuthn Signal API not supported in this browser');
+			logger.info('ℹ️ WebAuthn Signal API not supported in this browser');
 		}
 	};
 
@@ -195,12 +196,12 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					credentialIds: credentialIdBuffers,
 				});
 
-				console.log('✅ Successfully signaled Chrome with all accepted credentials', {
+				logger.info('✅ Successfully signaled Chrome with all accepted credentials', {
 					count: validCredentialIds.length,
 					rpId,
 				});
 			} catch (signalError) {
-				log.warn(
+				logger.warn(
 					'PasskeyManagement',
 					'Failed to signal Chrome with accepted credentials:',
 					undefined,
@@ -223,6 +224,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 		}
 
 		if (
+			// eslint-disable-next-line no-alert
 			!confirm(
 				'Are you sure you want to delete this passkey device? This will also remove it from Chrome. This action cannot be undone.'
 			)
@@ -268,7 +270,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			onDeviceDeleted?.();
 		} catch (err) {
-			log.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
+			logger.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
 			showGlobalError(
 				`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`
 			);

@@ -1,4 +1,5 @@
 // src/utils/fieldEditingDiagnostic.ts
+import { logger } from '../utils/logger';
 // Comprehensive diagnostic tool for field editing issues
 
 interface FieldEditingIssue {
@@ -39,7 +40,7 @@ class FieldEditingDiagnostic {
 		let nonEditableFields = 0;
 
 		allInputs.forEach((input, index) => {
-			console.log(`\n📝 Analyzing field ${index + 1}:`, {
+			logger.info(`\n📝 Analyzing field ${index + 1}:`, {
 				tagName: input.tagName,
 				type: input.type,
 				id: input.id,
@@ -52,10 +53,10 @@ class FieldEditingDiagnostic {
 			if (fieldIssues.length > 0) {
 				issues.push(...fieldIssues);
 				nonEditableFields++;
-				console.warn(`❌ Field ${index + 1} has ${fieldIssues.length} issue(s):`, fieldIssues);
+				logger.warn(`❌ Field ${index + 1} has ${fieldIssues.length} issue(s):`, fieldIssues);
 			} else {
 				editableFields++;
-				console.log(`✅ Field ${index + 1} is fully editable`);
+				logger.info(`✅ Field ${index + 1} is fully editable`);
 			}
 		});
 
@@ -244,7 +245,7 @@ class FieldEditingDiagnostic {
 			if (input.hasAttribute('disabled')) {
 				input.removeAttribute('disabled');
 				(input as HTMLInputElement).disabled = false;
-				console.log(`✅ Fixed disabled state for field ${index + 1}`);
+				logger.info(`✅ Fixed disabled state for field ${index + 1}`);
 				fieldFixed = true;
 			}
 
@@ -252,7 +253,7 @@ class FieldEditingDiagnostic {
 			if (input.hasAttribute('readonly')) {
 				input.removeAttribute('readonly');
 				(input as HTMLInputElement).readOnly = false;
-				console.log(`✅ Fixed readonly state for field ${index + 1}`);
+				logger.info(`✅ Fixed readonly state for field ${index + 1}`);
 				fieldFixed = true;
 			}
 
@@ -260,7 +261,7 @@ class FieldEditingDiagnostic {
 			const computedStyle = window.getComputedStyle(input);
 			if (computedStyle.pointerEvents === 'none') {
 				(input as HTMLInputElement).style.pointerEvents = 'auto';
-				console.log(`✅ Fixed pointer-events for field ${index + 1}`);
+				logger.info(`✅ Fixed pointer-events for field ${index + 1}`);
 				fieldFixed = true;
 			}
 
@@ -269,7 +270,7 @@ class FieldEditingDiagnostic {
 			}
 		});
 
-		console.log(`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`);
+		logger.info(`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`);
 		console.groupEnd();
 	}
 
@@ -277,7 +278,7 @@ class FieldEditingDiagnostic {
 	 * Monitor field editing in real-time
 	 */
 	startMonitoring(): void {
-		console.log('👀 [FIELD EDITING MONITOR] Starting real-time monitoring...');
+		logger.info('👀 [FIELD EDITING MONITOR] Starting real-time monitoring...');
 
 		const observer = new MutationObserver((mutations) => {
 			mutations.forEach((mutation) => {
@@ -289,7 +290,7 @@ class FieldEditingDiagnostic {
 						target.tagName === 'SELECT'
 					) {
 						if (mutation.attributeName === 'disabled' || mutation.attributeName === 'readonly') {
-							console.warn('🚨 Field editing state changed:', {
+							logger.warn('🚨 Field editing state changed:', {
 								element: target,
 								attribute: mutation.attributeName,
 								newValue: target.getAttribute(mutation.attributeName!),

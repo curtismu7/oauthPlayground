@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
+import { logger } from '../utils/logger';
 // Square POS Terminal Main Container - Authentic Square Design
 const POSTerminalContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
@@ -337,17 +338,17 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
-		log.info('POSTerminalDeviceFlow', 'User code copied to clipboard');
+		logger.info('POSTerminalDeviceFlow', 'User code copied to clipboard');
 	};
 
 	const handleCopyVerificationUri = () => {
 		navigator.clipboard.writeText(state.verificationUri);
-		log.info('POSTerminalDeviceFlow', 'Verification URI copied to clipboard');
+		logger.info('POSTerminalDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');
-		log.info('POSTerminalDeviceFlow', 'Verification URI opened in new tab');
+		logger.info('POSTerminalDeviceFlow', 'Verification URI opened in new tab');
 	};
 
 	const getStatusIcon = () => {

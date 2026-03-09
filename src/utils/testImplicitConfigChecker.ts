@@ -1,4 +1,5 @@
 // src/utils/testImplicitConfigChecker.ts
+import { logger } from '../utils/logger';
 // Test file for Implicit Flow Config Checker functionality
 
 export function testImplicitConfigChecker() {
@@ -15,7 +16,7 @@ export function testImplicitConfigChecker() {
 			tokenEndpointAuthMethod: 'none',
 		};
 	} catch (error) {
-		console.error('❌ Implicit Flow Config Checker test failed:', error);
+		logger.error('❌ Implicit Flow Config Checker test failed:', error);
 	}
 }
 

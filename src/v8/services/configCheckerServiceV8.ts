@@ -119,7 +119,7 @@ export class ConfigCheckerServiceV8 {
 		workerToken: string
 	): Promise<PingOneApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching app config`, { environmentId, clientId });
+			logger.info(`${MODULE_TAG} Fetching app config`, { environmentId, clientId });
 
 			// Use backend proxy to avoid CORS issues
 			// The backend endpoint /api/pingone/applications returns all apps, so we'll filter by clientId
@@ -132,10 +132,11 @@ export class ConfigCheckerServiceV8 {
 			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
 			const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
 
-			console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
+			logger.info(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+import { logger } from '../utils/logger';
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
@@ -162,7 +163,7 @@ export class ConfigCheckerServiceV8 {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				console.error(`${MODULE_TAG} Failed to fetch app config`, {
+				logger.error(`${MODULE_TAG} Failed to fetch app config`, {
 					status: response.status,
 					statusText: response.statusText,
 					error: errorData,
@@ -192,7 +193,7 @@ export class ConfigCheckerServiceV8 {
 			);
 
 			if (!rawApp) {
-				console.error(`${MODULE_TAG} Application not found`, {
+				logger.error(`${MODULE_TAG} Application not found`, {
 					clientId,
 					availableApps: applications.map((a: { id: string; clientId?: string }) => ({
 						id: a.id,
@@ -234,7 +235,7 @@ export class ConfigCheckerServiceV8 {
 				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
 			};
 
-			console.log(`${MODULE_TAG} App config fetched successfully`, {
+			logger.info(`${MODULE_TAG} App config fetched successfully`, {
 				appId: app.id,
 				appName: app.name,
 				grantTypes: app.grantTypes,
@@ -266,7 +267,7 @@ export class ConfigCheckerServiceV8 {
 
 			return app;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error fetching app config`, {
+			logger.error(`${MODULE_TAG} Error fetching app config`, {
 				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
@@ -292,7 +293,7 @@ export class ConfigCheckerServiceV8 {
 		},
 		pingOneConfig: PingOneApplication
 	): ConfigComparison {
-		console.log(`${MODULE_TAG} Comparing configurations`);
+		logger.info(`${MODULE_TAG} Comparing configurations`);
 
 		const comparison: ConfigComparison = {
 			clientId: { match: userConfig.clientId === pingOneConfig.id },
@@ -380,7 +381,7 @@ export class ConfigCheckerServiceV8 {
 			message: `Token format: ${pingOneTokenFormat}`,
 		};
 
-		console.log(`${MODULE_TAG} Configuration comparison complete`, {
+		logger.info(`${MODULE_TAG} Configuration comparison complete`, {
 			matches: Object.values(comparison).filter((c) => c.match).length,
 			total: Object.keys(comparison).length,
 		});
@@ -467,7 +468,7 @@ export class ConfigCheckerServiceV8 {
 			});
 		}
 
-		console.log(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`);
+		logger.info(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`);
 
 		return suggestions;
 	}

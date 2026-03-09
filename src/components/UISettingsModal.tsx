@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 
+import { logger } from '../utils/logger';
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -256,7 +257,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 			setSaveStatus('saved');
 			setTimeout(() => setSaveStatus('idle'), 2000);
 		} catch (error) {
-			log.error('UISettingsModal', 'Failed to save settings:', undefined, error as Error);
+			logger.error('UISettingsModal', 'Failed to save settings:', undefined, error as Error);
 			setSaveStatus('idle');
 		}
 	};

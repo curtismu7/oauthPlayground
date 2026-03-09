@@ -10,6 +10,7 @@ import { fetchApplications } from '../services/pingOneApplicationService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
+import { logger } from '../utils/logger';
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
 	environmentId?: string;
@@ -226,14 +227,14 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			try {
 				const token = await workerTokenServiceV8.getToken();
 				if (token) {
-					console.log('[Config URI Checker] ✅ Worker token valid from global service');
+					logger.info('[Config URI Checker] ✅ Worker token valid from global service');
 					setRetrievedWorkerToken(token);
 				} else {
-					console.log('[Config URI Checker] ⚠️ No worker token found in global service');
+					logger.info('[Config URI Checker] ⚠️ No worker token found in global service');
 					setRetrievedWorkerToken('');
 				}
 			} catch (error) {
-				log.error(
+				logger.error(
 					'ConfigurationURIChecker',
 					'[Config URI Checker] Failed to check worker token:',
 					undefined,
@@ -331,7 +332,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 				});
 			}
 		} catch (err) {
-			log.error(
+			logger.error(
 				'ConfigurationURIChecker',
 				'[ConfigurationURIChecker] Error checking URIs:',
 				undefined,

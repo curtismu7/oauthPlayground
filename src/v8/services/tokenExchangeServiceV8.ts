@@ -12,6 +12,7 @@ import {
 import { GlobalEnvironmentService } from './globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from './tokenExchangeConfigServiceV8';
 
+import { logger } from '../utils/logger';
 /**
  * Token Exchange Service V8
  *
@@ -39,7 +40,7 @@ export class TokenExchangeServiceV8 {
 		environmentId: string
 	): Promise<TokenExchangeResponse> {
 		try {
-			console.log(
+			logger.info(
 				`${TokenExchangeServiceV8.MODULE_TAG} Starting token exchange for environment: ${environmentId}`
 			);
 
@@ -114,10 +115,10 @@ export class TokenExchangeServiceV8 {
 				environmentId
 			);
 
-			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange completed successfully`);
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange completed successfully`);
 			return response;
 		} catch (error) {
-			console.error(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange failed:`, error);
+			logger.error(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange failed:`, error);
 			if (error instanceof TokenExchangeError) {
 				throw error;
 			}
@@ -136,7 +137,7 @@ export class TokenExchangeServiceV8 {
 		expectedEnvironmentId: string
 	): Promise<TokenValidationResult> {
 		try {
-			console.log(
+			logger.info(
 				`${TokenExchangeServiceV8.MODULE_TAG} Validating token for environment: ${expectedEnvironmentId}`
 			);
 
@@ -182,10 +183,10 @@ export class TokenExchangeServiceV8 {
 				issuer: payload.iss,
 			};
 
-			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Token validation successful:`, result);
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token validation successful:`, result);
 			return result;
 		} catch (error) {
-			console.error(`${TokenExchangeServiceV8.MODULE_TAG} Token validation error:`, error);
+			logger.error(`${TokenExchangeServiceV8.MODULE_TAG} Token validation error:`, error);
 			return {
 				isValid: false,
 				environmentId: '',
@@ -203,7 +204,7 @@ export class TokenExchangeServiceV8 {
 		environmentId: string
 	): Promise<TokenExchangeResponse> {
 		try {
-			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Executing token exchange with PingOne`);
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Executing token exchange with PingOne`);
 
 			// Simulate a successful PingOne token exchange response (educational demo only).
 
@@ -226,7 +227,7 @@ export class TokenExchangeServiceV8 {
 				...(params.audience && { audience: params.audience }),
 			};
 
-			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange request:`, {
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange request:`, {
 				...requestBody,
 				subject_token: '[REDACTED]',
 				...(params.actor_token && { actor_token: '[REDACTED]' }),
@@ -251,14 +252,14 @@ export class TokenExchangeServiceV8 {
 				issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
 			};
 
-			console.log(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange response received:`, {
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange response received:`, {
 				...response,
 				access_token: '[REDACTED]',
 			});
 
 			return response;
 		} catch (error) {
-			console.error(`${TokenExchangeServiceV8.MODULE_TAG} PingOne API error:`, error);
+			logger.error(`${TokenExchangeServiceV8.MODULE_TAG} PingOne API error:`, error);
 			throw new TokenExchangeError(
 				TokenExchangeErrorType.SERVER_ERROR,
 				`PingOne API call failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -301,7 +302,7 @@ export class TokenExchangeServiceV8 {
 				subjectTokenClaims = JSON.parse(atob(tokenParts[1]));
 			}
 		} catch (error) {
-			console.warn(
+			logger.warn(
 				`${TokenExchangeServiceV8.MODULE_TAG} Failed to parse subject token claims:`,
 				error
 			);
@@ -316,7 +317,7 @@ export class TokenExchangeServiceV8 {
 					actorTokenClaims = JSON.parse(atob(tokenParts[1]));
 				}
 			} catch (error) {
-				console.warn(
+				logger.warn(
 					`${TokenExchangeServiceV8.MODULE_TAG} Failed to parse actor token claims:`,
 					error
 				);

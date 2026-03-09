@@ -8,6 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 
 // V8 Styled Components
@@ -168,7 +169,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 				setCurrentConfig(config);
 				onConfigChange?.(enabled);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error loading configuration:`, error);
+				logger.error(`${MODULE_TAG} Error loading configuration:`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -212,7 +213,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			const config = await TokenExchangeConfigServiceV8.getAdminConfig(currentEnvironmentId);
 			setCurrentConfig(config);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error toggling Token Exchange:`, error);
+			logger.error(`${MODULE_TAG} Error toggling Token Exchange:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

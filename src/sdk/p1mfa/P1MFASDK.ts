@@ -22,6 +22,7 @@
  */
 import { WorkerTokenManager } from '@/services/workerTokenManager';
 import { ConfigurationError, P1MFAError } from './errors';
+import { logger } from '../utils/logger';
 import type {
 	AuthenticationCompleteParams,
 	AuthenticationInitParams,
@@ -48,7 +49,7 @@ export class P1MFASDK {
 	 * Initialize the SDK with configuration
 	 */
 	async initialize(config: P1MFAConfig): Promise<void> {
-		console.log(`${MODULE_TAG} Initializing SDK`, { environmentId: config.environmentId });
+		logger.info(`${MODULE_TAG} Initializing SDK`, { environmentId: config.environmentId });
 
 		// Validate configuration
 		if (!config.environmentId?.trim()) {
@@ -106,7 +107,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Registering device`, {
+		logger.info(`${MODULE_TAG} Registering device`, {
 			userId: params.userId,
 			type: params.type,
 		});
@@ -202,7 +203,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Activating device`, {
+		logger.info(`${MODULE_TAG} Activating device`, {
 			userId: params.userId,
 			deviceId: params.deviceId,
 		});
@@ -288,7 +289,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Listing devices`, { userId });
+		logger.info(`${MODULE_TAG} Listing devices`, { userId });
 
 		try {
 			// Use backend proxy endpoint - worker token sent to backend, not exposed in browser
@@ -339,7 +340,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Deleting device`, { userId, deviceId });
+		logger.info(`${MODULE_TAG} Deleting device`, { userId, deviceId });
 
 		try {
 			// Use backend proxy endpoint - worker token sent to backend, not exposed in browser
@@ -388,7 +389,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Initializing authentication`, {
+		logger.info(`${MODULE_TAG} Initializing authentication`, {
 			userId: params.userId,
 			deviceId: params.deviceId,
 		});
@@ -478,7 +479,7 @@ export class P1MFASDK {
 
 		const token = await this.getWorkerToken();
 
-		console.log(`${MODULE_TAG} Completing authentication`, {
+		logger.info(`${MODULE_TAG} Completing authentication`, {
 			authenticationId: params.authenticationId,
 		});
 

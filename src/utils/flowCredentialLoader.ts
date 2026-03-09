@@ -3,6 +3,7 @@
 
 import { getAppOrigin } from './flowRedirectUriMapping';
 
+import { logger } from '../utils/logger';
 export interface FlowCredentials {
 	environmentId: string;
 	clientId: string;
@@ -38,7 +39,7 @@ export const loadFlowCredentials = (config: FlowCredentialConfig): FlowCredentia
 
 	// If flow-specific credentials are not complete and fallback is enabled
 	if (fallbackToShared && (!flowCredentials.environmentId || !flowCredentials.clientId)) {
-		console.log(
+		logger.info(
 			`🔄 [FlowCredentialLoader:${flowKey}] Flow-specific credentials incomplete, falling back to shared credentials`
 		);
 
@@ -57,7 +58,7 @@ export const loadFlowCredentials = (config: FlowCredentialConfig): FlowCredentia
 			flowCredentials.apiUrl || import.meta.env.VITE_PINGONE_API_URL || 'https://auth.pingone.com';
 	}
 
-	console.log(`🔐 [FlowCredentialLoader:${flowKey}] Loaded credentials:`, {
+	logger.info(`🔐 [FlowCredentialLoader:${flowKey}] Loaded credentials:`, {
 		flowKey,
 		hasEnvironmentId: !!flowCredentials.environmentId,
 		hasClientId: !!flowCredentials.clientId,

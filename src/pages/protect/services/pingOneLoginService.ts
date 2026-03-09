@@ -12,6 +12,7 @@
 import { logger } from '../../../utils/logger';
 import type { PortalError, ServiceResponse, UserContext } from '../types/protectPortal.types';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 PINGONE-LOGIN-SERVICE]';
 
 // ============================================================================
@@ -31,7 +32,7 @@ export class PingOneLoginService {
 		scopes: string[] = ['openid', 'profile', 'email']
 	): Promise<ServiceResponse<{ flowId: string; authorizeUrl: string }>> {
 		try {
-			console.log(`${MODULE_TAG} Initializing PingOne embedded login`, {
+			logger.info(`${MODULE_TAG} Initializing PingOne embedded login`, {
 				environmentId,
 				clientId,
 				redirectUri,
@@ -56,7 +57,7 @@ export class PingOneLoginService {
 				state: state,
 			};
 
-			console.log(`${MODULE_TAG} Request body:`, {
+			logger.info(`${MODULE_TAG} Request body:`, {
 				...requestBody,
 				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 				clientId: `${clientId.substring(0, 8)}...`,
@@ -103,7 +104,7 @@ export class PingOneLoginService {
 				redirectUri
 			);
 
-			console.log(`${MODULE_TAG} PingOne embedded login initialized`, {
+			logger.info(`${MODULE_TAG} PingOne embedded login initialized`, {
 				flowId: state,
 				proxyResponse: result,
 			});
@@ -151,7 +152,7 @@ export class PingOneLoginService {
 		password: string
 	): Promise<ServiceResponse<{ flowId: string; requiresMFA: boolean; resumeUrl?: string }>> {
 		try {
-			console.log(`${MODULE_TAG} Submitting credentials for flow:`, flowId);
+			logger.info(`${MODULE_TAG} Submitting credentials for flow:`, flowId);
 
 			// Get stored PKCE parameters
 			const pkceParams = PingOneLoginService.getPKCEParams(flowId);
@@ -184,7 +185,7 @@ export class PingOneLoginService {
 
 			const result = await response.json();
 
-			console.log(`${MODULE_TAG} Credentials submitted successfully`, {
+			logger.info(`${MODULE_TAG} Credentials submitted successfully`, {
 				flowId,
 				requiresMFA: result.requiresMFA || false,
 				hasResumeUrl: !!result.resumeUrl,
@@ -232,7 +233,7 @@ export class PingOneLoginService {
 		flowId: string
 	): Promise<ServiceResponse<{ authorizationCode: string; state: string }>> {
 		try {
-			console.log(`${MODULE_TAG} Resuming flow:`, flowId);
+			logger.info(`${MODULE_TAG} Resuming flow:`, flowId);
 
 			// Get stored PKCE parameters
 			const pkceParams = PingOneLoginService.getPKCEParams(flowId);
@@ -272,7 +273,7 @@ export class PingOneLoginService {
 			// Clean up stored PKCE params
 			PingOneLoginService.clearPKCEParams(flowId);
 
-			console.log(`${MODULE_TAG} Flow resumed successfully`, {
+			logger.info(`${MODULE_TAG} Flow resumed successfully`, {
 				flowId,
 				hasAuthCode: !!authorizationCode,
 				state,
@@ -333,7 +334,7 @@ export class PingOneLoginService {
 		}>
 	> {
 		try {
-			console.log(`${MODULE_TAG} Exchanging authorization code for tokens`);
+			logger.info(`${MODULE_TAG} Exchanging authorization code for tokens`);
 
 			const requestBody = {
 				environment_id: environmentId,
@@ -360,7 +361,7 @@ export class PingOneLoginService {
 
 			const tokens = await response.json();
 
-			console.log(`${MODULE_TAG} Token exchange successful`, {
+			logger.info(`${MODULE_TAG} Token exchange successful`, {
 				hasAccessToken: !!tokens.access_token,
 				hasIdToken: !!tokens.id_token,
 				tokenType: tokens.token_type,
@@ -436,7 +437,7 @@ export class PingOneLoginService {
 			const decodedPayload = atob(paddedPayload.replace(/-/g, '+').replace(/_/g, '/'));
 			const claims = JSON.parse(decodedPayload);
 
-			console.log(`${MODULE_TAG} Extracted user claims from ID token:`, {
+			logger.info(`${MODULE_TAG} Extracted user claims from ID token:`, {
 				sub: claims.sub,
 				email: claims.email,
 				name: claims.name,

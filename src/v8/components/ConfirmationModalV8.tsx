@@ -16,6 +16,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
 	type ConfirmOptions,
 	uiNotificationServiceV8,
@@ -29,7 +30,7 @@ export const ConfirmationModalV8: React.FC = () => {
 	const [resolver, setResolver] = useState<((value: boolean) => void) | null>(null);
 
 	const handleConfirm = useCallback(() => {
-		console.log(`${MODULE_TAG} User confirmed`);
+		logger.info(`${MODULE_TAG} User confirmed`);
 		if (resolver) {
 			resolver(true);
 		}
@@ -39,7 +40,7 @@ export const ConfirmationModalV8: React.FC = () => {
 	}, [resolver]);
 
 	const handleCancel = useCallback(() => {
-		console.log(`${MODULE_TAG} User cancelled`);
+		logger.info(`${MODULE_TAG} User cancelled`);
 		if (resolver) {
 			resolver(false);
 		}
@@ -51,7 +52,7 @@ export const ConfirmationModalV8: React.FC = () => {
 	useEffect(() => {
 		// Register handler with service
 		const handler = (opts: ConfirmOptions): Promise<boolean> => {
-			console.log(`${MODULE_TAG} Showing confirmation:`, opts.message);
+			logger.info(`${MODULE_TAG} Showing confirmation:`, opts.message);
 			return new Promise((resolve) => {
 				setOptions(opts);
 				setIsOpen(true);

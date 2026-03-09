@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // src/utils/backendHealthCheck.ts
 // Utility to ensure backend is ready before making API calls
 
@@ -35,7 +36,7 @@ export async function ensureBackendReady(maxAttempts = 5): Promise<boolean> {
 
 				if (response.ok) {
 					backendReady = true;
-					console.log('[Backend Health Check] Backend is ready');
+					logger.info('[Backend Health Check] Backend is ready');
 					return true;
 				}
 

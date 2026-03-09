@@ -1,4 +1,5 @@
 // src/services/tokenDisplayService.ts
+import { logger } from '../../../utils/logger';
 /**
  * Token Display Service
  *
@@ -59,7 +60,7 @@ class TokenDisplayService {
 				signature: parts[2],
 			};
 		} catch (error) {
-			console.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to decode JWT:', error);
+			logger.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to decode JWT:', error);
 			return null;
 		}
 	}
@@ -72,7 +73,7 @@ class TokenDisplayService {
 			await navigator.clipboard.writeText(text);
 			return true;
 		} catch (error) {
-			console.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to copy to clipboard:', error);
+			logger.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to copy to clipboard:', error);
 
 			// Fallback for older browsers
 			try {
@@ -88,7 +89,7 @@ class TokenDisplayService {
 				document.body.removeChild(textArea);
 				return successful;
 			} catch (fallbackError) {
-				console.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Fallback copy failed:', fallbackError);
+				logger.error('[🔐 TOKEN-DISPLAY-V6][ERROR] Fallback copy failed:', fallbackError);
 				return false;
 			}
 		}
@@ -130,7 +131,7 @@ class TokenDisplayService {
 	 */
 	public static logTokenRender(tokenInfo: TokenInfo): void {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(
+		logger.info(
 			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][INFO] Rendered ${tokenInfo.type} Token panel (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}
@@ -140,7 +141,7 @@ class TokenDisplayService {
 	 */
 	public static logTokenCopy(tokenInfo: TokenInfo): void {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(
+		logger.info(
 			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][INFO] Copied ${tokenInfo.type} Token (length=${tokenInfo.length}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}
@@ -151,7 +152,7 @@ class TokenDisplayService {
 	public static logTokenDecode(tokenInfo: TokenInfo, success: boolean): void {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		const level = success ? 'INFO' : 'WARN';
-		console.log(
+		logger.info(
 			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][${level}] Decode ${tokenInfo.type} Token (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, success=${success}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}

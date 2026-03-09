@@ -18,6 +18,7 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import { logger } from '../../../utils/logger';
 
+import { logger } from '../../utils/logger';
 const messagingService = V9ModernMessagingService.getInstance();
 
 // Styled Components
@@ -81,7 +82,7 @@ const ResourcesAPIFlowV9: React.FC = () => {
   }
 }
 
-console.log('Resources API initialized');`,
+logger.info('Resources API initialized');`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 1: Understanding Resources API');
 				messagingService.showFooterMessage({
@@ -124,10 +125,10 @@ const registerResource = async () => {
     });
     
     const resource = await response.json();
-    console.log('Resource registered:', resource);
+    logger.info('Resource registered:', resource);
     return resource;
   } catch (error) {
-    console.error('Failed to register resource:', error);
+    logger.error('Failed to register resource:', error);
   }
 };
 
@@ -158,10 +159,10 @@ const updateResourceScopes = async (resourceId: string, scopes: string[]) => {
     });
     
     const updatedResource = await response.json();
-    console.log('Scopes updated:', updatedResource.scopes);
+    logger.info('Scopes updated:', updatedResource.scopes);
     return updatedResource;
   } catch (error) {
-    console.error('Failed to update scopes:', error);
+    logger.error('Failed to update scopes:', error);
   }
 };
 
@@ -169,7 +170,7 @@ const updateResourceScopes = async (resourceId: string, scopes: string[]) => {
 const newScopes = ['profile:avatar', 'profile:preferences'];
 await updateResourceScopes('user-profile-id', newScopes);
 
-console.log('Resource scopes management completed');`,
+logger.info('Resource scopes management completed');`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 3: Manage Resource Scopes');
 				messagingService.showFooterMessage({
@@ -196,10 +197,10 @@ const updateResourceAttributes = async (resourceId: string, attributes: Record<s
     });
     
     const updatedResource = await response.json();
-    console.log('Attributes updated:', updatedResource.attributes);
+    logger.info('Attributes updated:', updatedResource.attributes);
     return updatedResource;
   } catch (error) {
-    console.error('Failed to update attributes:', error);
+    logger.error('Failed to update attributes:', error);
   }
 };
 
@@ -212,7 +213,7 @@ const newAttributes = {
 
 await updateResourceAttributes('user-profile-id', newAttributes);
 
-console.log('Resource attributes management completed');`,
+logger.info('Resource attributes management completed');`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 4: Resource Attributes');
 				messagingService.showFooterMessage({
@@ -254,9 +255,9 @@ const checkResourceAccess = async (resourceId: string, token: string) => {
     
     const hasAccess = requiredScopes.every(scope => tokenScopes.includes(scope));
     
-    console.log('Access granted:', hasAccess);
-    console.log('Token scopes:', tokenScopes);
-    console.log('Required scopes:', requiredScopes);
+    logger.info('Access granted:', hasAccess);
+    logger.info('Token scopes:', tokenScopes);
+    logger.info('Required scopes:', requiredScopes);
     
     return {
       hasAccess,
@@ -265,14 +266,14 @@ const checkResourceAccess = async (resourceId: string, token: string) => {
       resource
     };
   } catch (error) {
-    console.error('Access check failed:', error);
+    logger.error('Access check failed:', error);
     return { hasAccess: false, error };
   }
 };
 
 // Check access
 const accessResult = await checkResourceAccess('user-profile-id', 'ACCESS_TOKEN');
-console.log('Access control check completed:', accessResult);`,
+logger.info('Access control check completed:', accessResult);`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 5: Resource Access Control');
 				messagingService.showFooterMessage({

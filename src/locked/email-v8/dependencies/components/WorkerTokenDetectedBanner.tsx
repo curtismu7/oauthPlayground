@@ -6,6 +6,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 
+import { logger } from '../../../utils/logger';
 interface WorkerTokenDetectedBannerProps {
 	token: string;
 	message?: string;
@@ -125,7 +126,7 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 					expiryTime: expiresAtFormatted,
 				});
 			} catch (error) {
-				console.warn('[WorkerTokenDetectedBanner] Error checking expiry:', error);
+				logger.warn('[WorkerTokenDetectedBanner] Error checking expiry:', error);
 				setExpiryInfo(null);
 			}
 		};

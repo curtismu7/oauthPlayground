@@ -30,6 +30,7 @@ import {
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
 
+import { logger } from '../../utils/logger';
 interface UnlockPasswordTabProps {
 	environmentId: string;
 	workerToken: string;
@@ -86,7 +87,7 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 		setAfterState(null);
 
 		try {
-			console.log('[UnlockPasswordTab] Unlocking password for user:', {
+			logger.info('[UnlockPasswordTab] Unlocking password for user:', {
 				userId: user.id,
 				environmentId: `${environmentId?.substring(0, 20)}...`,
 				hasWorkerToken: !!workerToken,
@@ -100,7 +101,7 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 			setBeforeState(beforeUserState);
 
 			const result = await unlockPassword(environmentId, user.id, workerToken);
-			console.log('[UnlockPasswordTab] Unlock result:', result);
+			logger.info('[UnlockPasswordTab] Unlock result:', result);
 
 			if (result.success) {
 				const passwordStateAfter = await readPasswordState(environmentId, user.id, workerToken);
