@@ -70,7 +70,7 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 			setApiCalls(pingOneCalls);
 
 			if (pingOneCalls.length > 0) {
-				logger.info(`${MODULE_TAG} Displaying ${pingOneCalls.length} API calls`, "Logger info");
+				logger.info(`${MODULE_TAG} Displaying ${pingOneCalls.length} API calls`, 'Logger info');
 			}
 		};
 
