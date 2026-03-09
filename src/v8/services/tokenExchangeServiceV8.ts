@@ -41,7 +41,7 @@ export class TokenExchangeServiceV8 {
 		try {
 			logger.info(
 				`${TokenExchangeServiceV8.MODULE_TAG} Starting token exchange for environment: ${environmentId}`
-			);
+			, "Logger info");
 
 			// 1. CRITICAL: Validate admin enablement
 			if (!(await TokenExchangeConfigServiceV8.isEnabled(environmentId))) {
@@ -114,7 +114,7 @@ export class TokenExchangeServiceV8 {
 				environmentId
 			);
 
-			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange completed successfully`);
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange completed successfully`, "Logger info");
 			return response;
 		} catch (error) {
 			logger.error(`${TokenExchangeServiceV8.MODULE_TAG} Token exchange failed:`, error);
@@ -138,7 +138,7 @@ export class TokenExchangeServiceV8 {
 		try {
 			logger.info(
 				`${TokenExchangeServiceV8.MODULE_TAG} Validating token for environment: ${expectedEnvironmentId}`
-			);
+			, "Logger info");
 
 			// Simulate token validation: parse JWT claims locally (educational demo only)
 
@@ -203,7 +203,7 @@ export class TokenExchangeServiceV8 {
 		environmentId: string
 	): Promise<TokenExchangeResponse> {
 		try {
-			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Executing token exchange with PingOne`);
+			logger.info(`${TokenExchangeServiceV8.MODULE_TAG} Executing token exchange with PingOne`, "Logger info");
 
 			// Simulate a successful PingOne token exchange response (educational demo only).
 

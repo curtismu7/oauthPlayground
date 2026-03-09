@@ -354,7 +354,7 @@ const CIBAFlowV9: React.FC = () => {
 			// Check cache first (cache for 5 minutes)
 			const cached = discoveryCache.get(envId);
 			if (cached && Date.now() - cached.timestamp < 300000) {
-				logger.info(`${MODULE_TAG} Using cached discovery metadata for ${envId}`);
+				logger.info(`${MODULE_TAG} Using cached discovery metadata for ${envId}`, "Logger info");
 				return;
 			}
 
@@ -483,7 +483,7 @@ const CIBAFlowV9: React.FC = () => {
 				loginHintToken: data.login_hint_token,
 			}));
 
-			logger.info(`${MODULE_TAG} Generated login hint token successfully`);
+			logger.info(`${MODULE_TAG} Generated login hint token successfully`, "Logger info");
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			modernMessaging.showBanner({

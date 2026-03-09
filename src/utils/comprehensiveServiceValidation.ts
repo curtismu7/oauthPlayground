@@ -15,16 +15,16 @@ export const runComprehensiveValidation = async (): Promise<{
 	testResults: any;
 	summary: string;
 }> => {
-	logger.info('🚀 [COMPREHENSIVE VALIDATION] Starting Complete Service Validation');
+	logger.info('🚀 [COMPREHENSIVE VALIDATION] Starting Complete Service Validation', "Logger info");
 	logger.info('='.repeat(80));
 
 	// Step 1: API Interface Validation
-	logger.info('\n🔍 STEP 1: API Interface Validation');
+	logger.info('\n🔍 STEP 1: API Interface Validation', "Logger info");
 	logger.info('-'.repeat(50));
 	const apiValidation = validateServiceAPI();
 
 	// Step 2: Comprehensive Test Suite
-	logger.info('\n🧪 STEP 2: Comprehensive Test Suite');
+	logger.info('\n🧪 STEP 2: Comprehensive Test Suite', "Logger info");
 	logger.info('-'.repeat(50));
 	const testResults = await runServiceTests();
 
@@ -68,7 +68,7 @@ ${testResults.results.results
 }
 	`.trim();
 
-	logger.info(summary);
+	logger.info(summary, "Logger info");
 
 	return {
 		overallSuccess,

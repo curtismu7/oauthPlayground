@@ -13,7 +13,7 @@ export const runServiceTests = async (): Promise<{
 	results: any;
 	summary: string;
 }> => {
-	logger.info('🧪 [PROGRAMMATIC TEST RUNNER] Starting ComprehensiveFlowDataService Tests');
+	logger.info('🧪 [PROGRAMMATIC TEST RUNNER] Starting ComprehensiveFlowDataService Tests', "Logger info");
 
 	try {
 		// Run all tests
@@ -45,14 +45,14 @@ export const runServiceTests = async (): Promise<{
 ${failed > 0 ? '❌ SOME TESTS FAILED - SERVICE NOT READY' : '✅ ALL TESTS PASSED - SERVICE IS ROCK SOLID'}
 		`.trim();
 
-		logger.info(summary);
+		logger.info(summary, "Logger info");
 
 		if (failed > 0) {
-			logger.info('\n❌ Failed Tests:');
+			logger.info('\n❌ Failed Tests:', "Logger info");
 			testResults
 				.filter((r) => !r.passed)
 				.forEach((result) => {
-					logger.info(`  - ${result.testName}: ${result.error}`);
+					logger.info(`  - ${result.testName}: ${result.error}`, "Logger info");
 				});
 		}
 

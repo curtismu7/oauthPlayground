@@ -151,7 +151,7 @@ class WorkerTokenServiceV8 {
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				if (!data || !data.credentials) {
-					logger.warn('[WorkerTokenServiceV8] No credentials found in stored data');
+					logger.warn('[WorkerTokenServiceV8] No credentials found in stored data', "Logger warning");
 					return null;
 				}
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars

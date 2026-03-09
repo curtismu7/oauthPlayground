@@ -61,7 +61,7 @@ export function cleanupMfaFlowState(
 		// Preserve return path if we're in the middle of an OAuth callback
 		if (key === 'user_login_return_to_mfa' && isOAuthCallback) {
 			if (logCleanup) {
-				logger.info(`${MODULE_TAG} Preserving return path during OAuth callback: ${key}`);
+				logger.info(`${MODULE_TAG} Preserving return path during OAuth callback: ${key}`, "Logger info");
 			}
 			return;
 		}
@@ -70,7 +70,7 @@ export function cleanupMfaFlowState(
 			sessionStorage.removeItem(key);
 			cleanedCount++;
 			if (logCleanup) {
-				logger.info(`${MODULE_TAG} Cleaned up: ${key}`);
+				logger.info(`${MODULE_TAG} Cleaned up: ${key}`, "Logger info");
 			}
 		}
 	});
@@ -78,7 +78,7 @@ export function cleanupMfaFlowState(
 	if (logCleanup && cleanedCount > 0) {
 		logger.info(`${MODULE_TAG} ✅ Cleaned up ${cleanedCount} sessionStorage item(s)`);
 	} else if (logCleanup) {
-		logger.info(`${MODULE_TAG} No sessionStorage items to clean up`);
+		logger.info(`${MODULE_TAG} No sessionStorage items to clean up`, "Logger info");
 	}
 }
 
@@ -104,7 +104,7 @@ export function cleanupUrlParameters(): void {
 		url.searchParams.delete('error_uri');
 
 		window.history.replaceState({}, document.title, url.toString());
-		logger.info(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+		logger.info(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`, "Logger info");
 	}
 }
 

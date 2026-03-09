@@ -21,7 +21,7 @@ export function clearAllTokens(): TokenCleanupResult {
 	};
 
 	try {
-		logger.info('[TokenCleaner] Starting comprehensive token cleanup...');
+		logger.info('[TokenCleaner] Starting comprehensive token cleanup...', "Logger info");
 
 		// Define all known token storage keys
 		const tokenKeys = [
@@ -86,7 +86,7 @@ export function clearAllTokens(): TokenCleanupResult {
 				if (localStorage.getItem(key)) {
 					localStorage.removeItem(key);
 					result.clearedCount++;
-					logger.info(`[TokenCleaner] Cleared localStorage: ${key}`);
+					logger.info(`[TokenCleaner] Cleared localStorage: ${key}`, "Logger info");
 				}
 			} catch (error) {
 				result.errors.push(`Failed to clear localStorage key "${key}": ${error}`);
@@ -99,7 +99,7 @@ export function clearAllTokens(): TokenCleanupResult {
 				if (sessionStorage.getItem(key)) {
 					sessionStorage.removeItem(key);
 					result.clearedCount++;
-					logger.info(`[TokenCleaner] Cleared sessionStorage: ${key}`);
+					logger.info(`[TokenCleaner] Cleared sessionStorage: ${key}`, "Logger info");
 				}
 			} catch (error) {
 				result.errors.push(`Failed to clear sessionStorage key "${key}": ${error}`);
@@ -123,7 +123,7 @@ export function clearAllTokens(): TokenCleanupResult {
 			keysToRemove.forEach((key) => {
 				localStorage.removeItem(key);
 				result.clearedCount++;
-				logger.info(`[TokenCleaner] Cleared token cache: ${key}`);
+				logger.info(`[TokenCleaner] Cleared token cache: ${key}`, "Logger info");
 			});
 		} catch (error) {
 			result.errors.push(`Failed to clear token cache: ${error}`);
@@ -143,7 +143,7 @@ export function clearAllTokens(): TokenCleanupResult {
 			sessionKeysToRemove.forEach((key) => {
 				sessionStorage.removeItem(key);
 				result.clearedCount++;
-				logger.info(`[TokenCleaner] Cleared session flow data: ${key}`);
+				logger.info(`[TokenCleaner] Cleared session flow data: ${key}`, "Logger info");
 			});
 		} catch (error) {
 			result.errors.push(`Failed to clear session flow data: ${error}`);
@@ -157,7 +157,7 @@ export function clearAllTokens(): TokenCleanupResult {
 		} else {
 			logger.info(
 				`[TokenCleaner] Token cleanup completed successfully. Cleared ${result.clearedCount} items.`
-			);
+			, "Logger info");
 		}
 	} catch (error) {
 		result.success = false;
@@ -179,7 +179,7 @@ export function clearFlowTokens(flowId: string): TokenCleanupResult {
 	};
 
 	try {
-		logger.info(`[TokenCleaner] Clearing tokens for flow: ${flowId}`);
+		logger.info(`[TokenCleaner] Clearing tokens for flow: ${flowId}`, "Logger info");
 
 		const flowKeys = [
 			`${flowId}_tokens`,
@@ -211,7 +211,7 @@ export function clearFlowTokens(flowId: string): TokenCleanupResult {
 
 		logger.info(
 			`[TokenCleaner] Flow cleanup completed. Cleared ${result.clearedCount} items for ${flowId}.`
-		);
+		, "Logger info");
 	} catch (error) {
 		result.success = false;
 		result.errors.push(`Flow cleanup failed: ${error}`);

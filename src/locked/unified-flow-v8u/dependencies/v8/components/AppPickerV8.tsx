@@ -57,7 +57,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 
 		// Listen for storage events (token updates)
 		const handleStorageChange = () => {
-			logger.info(`${MODULE_TAG} Storage/token updated event received`);
+			logger.info(`${MODULE_TAG} Storage/token updated event received`, "Logger info");
 			checkStatus();
 		};
 		window.addEventListener('storage', handleStorageChange);

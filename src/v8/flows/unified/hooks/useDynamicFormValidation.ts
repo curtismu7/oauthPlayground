@@ -14,7 +14,7 @@
  *
  * // Validate all fields
  * if (validate()) {
- *   logger.info('All fields valid!');
+ *   logger.info('All fields valid!', "Logger info");
  * }
  *
  * // Validate single field
@@ -188,7 +188,7 @@ export const useDynamicFormValidation = (
 	 * Clear all errors
 	 */
 	const clearErrors = useCallback(() => {
-		logger.info(`${MODULE_TAG} Clearing all errors`);
+		logger.info(`${MODULE_TAG} Clearing all errors`, "Logger info");
 		setErrors({});
 		setWarnings({});
 	}, []);
@@ -197,7 +197,7 @@ export const useDynamicFormValidation = (
 	 * Reset validation state
 	 */
 	const reset = useCallback(() => {
-		logger.info(`${MODULE_TAG} Resetting validation state`);
+		logger.info(`${MODULE_TAG} Resetting validation state`, "Logger info");
 		setErrors({});
 		setWarnings({});
 		setIsValid(false);
@@ -211,7 +211,7 @@ export const useDynamicFormValidation = (
 	// Validate on mount if requested
 	useEffect(() => {
 		if (validateOnMount) {
-			logger.info(`${MODULE_TAG} Validating on mount`);
+			logger.info(`${MODULE_TAG} Validating on mount`, "Logger info");
 			validate();
 		}
 	}, [validate, validateOnMount]); // Only run once on mount
@@ -219,7 +219,7 @@ export const useDynamicFormValidation = (
 	// Validate on change if requested
 	useEffect(() => {
 		if (validateOnChange && touchedFields.size > 0) {
-			logger.info(`${MODULE_TAG} Validating on change`);
+			logger.info(`${MODULE_TAG} Validating on change`, "Logger info");
 			validateTouchedFields();
 		}
 	}, [validateOnChange, validateTouchedFields, touchedFields]);

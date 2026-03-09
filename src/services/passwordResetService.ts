@@ -86,7 +86,7 @@ export async function sendRecoveryCode(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Recovery code sent successfully');
+		logger.info('[🔐 PASSWORD] ✅ Recovery code sent successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Recovery code sent successfully',
@@ -145,7 +145,7 @@ export async function recoverPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password recovered successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password recovered successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password recovered successfully',
@@ -202,7 +202,7 @@ export async function forcePasswordChange(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password change forced successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password change forced successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'User will be required to change password on next sign-on',
@@ -268,7 +268,7 @@ export async function changePassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password changed successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password changed successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password changed successfully',
@@ -327,7 +327,7 @@ export async function checkPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password check successful');
+		logger.info('[🔐 PASSWORD] ✅ Password check successful', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password check successful',
@@ -383,7 +383,7 @@ export async function unlockPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password unlocked successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password unlocked successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password unlocked successfully',
@@ -443,7 +443,7 @@ export async function readPasswordState(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password state read successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password state read successfully', "Logger info");
 		return {
 			success: true,
 			passwordState: data.passwordState,
@@ -570,7 +570,7 @@ export async function setPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password set successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password set successfully',
@@ -632,7 +632,7 @@ export async function setPasswordValue(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password value set successfully');
+		logger.info('[🔐 PASSWORD] ✅ Password value set successfully', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password value set successfully',
@@ -697,7 +697,7 @@ export async function setPasswordLdapGateway(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway');
+		logger.info('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway', "Logger info");
 		return {
 			success: true,
 			message: data.message || 'Password set successfully via LDAP Gateway',

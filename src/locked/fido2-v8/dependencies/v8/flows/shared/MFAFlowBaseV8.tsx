@@ -417,7 +417,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					logger.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
 					// Default to not showing modal to be safe (user can manually trigger if needed)
-					logger.warn(`${MODULE_TAG} Config error - not showing modal automatically`);
+					logger.warn(`${MODULE_TAG} Config error - not showing modal automatically`, "Logger warning");
 				}
 			})();
 		}
@@ -715,7 +715,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							nav.goToPrevious();
 						} else {
 							// No valid previous step, this shouldn't happen (Previous button should be disabled)
-							logger.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`);
+							logger.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`, "Logger warning");
 						}
 					}}
 					onNext={() => {
@@ -754,7 +754,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							if (mfaState.authenticationId) {
 								logger.warn(
 									`${MODULE_TAG} User has authenticationId but clicked Next - this should use "Use Selected Device" button instead`
-								);
+								, "Logger warning");
 								nav.setValidationErrors([
 									'Please click "Use Selected Device" button to authenticate with the selected device, or select "Register New Device" to register a new one.',
 								]);
@@ -776,7 +776,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								// Success page will be shown after device activation
 								logger.info(
 									`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`
-								);
+								, "Logger info");
 								return;
 							}
 							// For authentication flow, allow navigation to Step 4
@@ -786,7 +786,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						}
 					}}
 					onFinal={() => {
-						logger.info(`${MODULE_TAG} Starting new flow`);
+						logger.info(`${MODULE_TAG} Starting new flow`, "Logger info");
 						nav.reset();
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
@@ -919,7 +919,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									// The actual step number depends on the flow, but we'll let the flow component handle it
 									logger.info(
 										`${MODULE_TAG} Device requires activation - user should proceed to OTP validation`
-									);
+									, "Logger info");
 								}
 
 								// Clean up stored state
@@ -963,7 +963,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								if (isStep0Complete) {
 									logger.info(
 										`${MODULE_TAG} Step 0 is now complete after token receipt - user can proceed to next step`
-									);
+									, "Logger info");
 									// Don't auto-advance, let user click Next button
 									// But ensure they stay on the current page
 								}
@@ -989,7 +989,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								clientId: savedCreds.clientId || prev.clientId,
 								// Note: userToken is only set when actually received via onTokenReceived
 							}));
-							logger.info(`${MODULE_TAG} Synced saved credentials from User Login Modal`);
+							logger.info(`${MODULE_TAG} Synced saved credentials from User Login Modal`, "Logger info");
 						}
 					}}
 					environmentId={credentials.environmentId}

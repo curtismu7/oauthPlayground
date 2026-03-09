@@ -1639,7 +1639,7 @@ return (
 											handleCredentialsChange(updatedCredentials);
 											logger.info(
 												`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`
-											);
+											, "Logger info");
 										}
 									} else {
 										logger.info(`${MODULE_TAG} Suggested flow not available for spec`, {

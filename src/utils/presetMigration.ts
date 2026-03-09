@@ -109,7 +109,7 @@ export function migrateCustomPresets(): MigrationResult {
 		}
 
 		if (result.migratedCount > 0) {
-			logger.info(`[PresetMigration] Successfully migrated ${result.migratedCount} presets`);
+			logger.info(`[PresetMigration] Successfully migrated ${result.migratedCount} presets`, "Logger info");
 		}
 	} catch (error) {
 		result.success = false;
@@ -153,7 +153,7 @@ export function createPresetBackup(): boolean {
 		const backupKey = `app-generator-custom-presets-backup-${Date.now()}`;
 		localStorage.setItem(backupKey, stored);
 
-		logger.info(`[PresetMigration] Created backup at key: ${backupKey}`);
+		logger.info(`[PresetMigration] Created backup at key: ${backupKey}`, "Logger info");
 		return true;
 	} catch (error) {
 		logger.error('PresetMigration', 'Failed to create backup:', undefined, error as Error);
@@ -173,7 +173,7 @@ export function restoreFromBackup(backupKey: string): boolean {
 		}
 
 		localStorage.setItem('app-generator-custom-presets', backup);
-		logger.info(`[PresetMigration] Restored presets from backup: ${backupKey}`);
+		logger.info(`[PresetMigration] Restored presets from backup: ${backupKey}`, "Logger info");
 		return true;
 	} catch (error) {
 		logger.error('PresetMigration', 'Failed to restore from backup:', undefined, error as Error);
@@ -224,7 +224,7 @@ export function cleanupOldBackups(): number {
 	}
 
 	if (deletedCount > 0) {
-		logger.info(`[PresetMigration] Cleaned up ${deletedCount} old backups`);
+		logger.info(`[PresetMigration] Cleaned up ${deletedCount} old backups`, "Logger info");
 	}
 
 	return deletedCount;

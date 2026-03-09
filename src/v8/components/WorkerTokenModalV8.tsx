@@ -175,9 +175,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						setRegion(creds.region || 'us');
 						setCustomDomain(creds.customDomain || '');
 						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-						logger.debug(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
+						logger.debug(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`, "Logger debug");
 					} else {
-						logger.debug(`${MODULE_TAG} No credentials found in unified storage`);
+						logger.debug(`${MODULE_TAG} No credentials found in unified storage`, "Logger debug");
 					}
 				})
 				.catch((error) => {
@@ -251,7 +251,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				// If we have a valid token, use it for validation
 				if (tokenValidation?.isValid) {
-					logger.debug(`${MODULE_TAG} 🔑 Using existing token for validation`);
+					logger.debug(`${MODULE_TAG} 🔑 Using existing token for validation`, "Logger debug");
 				} else {
 					logger.debug(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
 				}
@@ -267,7 +267,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						errors: string[];
 					}>((resolve) =>
 						setTimeout(() => {
-							logger.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`);
+							logger.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`, "Logger warning");
 							resolve({ passed: true, warnings: [], errors: [] });
 						}, PREFLIGHT_TIMEOUT_MS)
 					);
@@ -305,7 +305,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							// If only 'openid' is mentioned, it might be a false positive for worker tokens
 							logger.warn(
 								`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`
-							);
+							, "Logger warning");
 						}
 
 						// Show other validation errors
@@ -351,11 +351,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				if (authMethod === 'client_secret_post') {
 					params.set('client_secret', clientSecret.trim());
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_post method`);
+					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_post method`, "Logger debug");
 				} else if (authMethod === 'client_secret_basic') {
 					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
 					headers.Authorization = `Basic ${basicAuth}`;
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_basic method`);
+					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_basic method`, "Logger debug");
 				} else {
 					logger.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
 				}
@@ -517,7 +517,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						requestDetails.authMethod === 'client_secret_basic'
 							? ('client_secret_post' as const)
 							: ('client_secret_basic' as const);
-					logger.debug(`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`);
+					logger.debug(`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`, "Logger debug");
 
 					const retryParams = new URLSearchParams(requestDetails.resolvedBody);
 					const retryHeaders: Record<string, string> = {
@@ -628,9 +628,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Dispatch event for status update
-			logger.debug(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
+			logger.debug(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`, "Logger debug");
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			logger.debug(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`);
+			logger.debug(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`, "Logger debug");
 
 			modernMessaging.showFooterMessage({
 				type: 'info',

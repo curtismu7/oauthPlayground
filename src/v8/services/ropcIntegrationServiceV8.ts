@@ -125,7 +125,7 @@ export class ROPCIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
 
 		try {
 			const parts = token.split('.');
@@ -138,7 +138,7 @@ export class ROPCIntegrationServiceV8 {
 			const payload = JSON.parse(ROPCIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
 
 			return { header, payload, signature };
 		} catch (error) {

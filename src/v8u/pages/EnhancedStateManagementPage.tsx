@@ -369,7 +369,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Export state
 	const handleExport = async () => {
-		logger.debug('handleExport called');
+		logger.debug('handleExport called', "Logger debug");
 		await exportSpinner.executeWithSpinner(
 			async () => {
 				const stateData = stateUtils.exportAllState();
@@ -443,7 +443,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Reset all state
 	const handleResetAll = () => {
-		logger.debug('handleResetAll called');
+		logger.debug('handleResetAll called', "Logger debug");
 		stateUtils.resetAllState();
 		setMessage('All state has been reset to defaults');
 		setMessageType('info');
@@ -1131,7 +1131,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
-						logger.debug('Theme reset button clicked');
+						logger.debug('Theme reset button clicked', "Logger debug");
 						try {
 							actions.setTheme('auto');
 							setMessage('Theme set to auto');

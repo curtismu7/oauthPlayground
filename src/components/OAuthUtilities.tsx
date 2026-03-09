@@ -328,7 +328,7 @@ const OAuthUtilities: React.FC = () => {
 									const sampleToken =
 										'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 									setJwtInput(sampleToken);
-									logger.info(' [JWT Decoder] Loaded sample token for testing');
+									logger.info(' [JWT Decoder] Loaded sample token for testing', "Logger info");
 								}}
 							>
 								Load Sample Token

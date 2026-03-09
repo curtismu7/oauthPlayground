@@ -106,7 +106,7 @@ export class MFAReportingServiceV8 {
 	 * @returns Access token
 	 */
 	private static async getWorkerToken(): Promise<string> {
-		logger.info(`${MODULE_TAG} Getting worker token`);
+		logger.info(`${MODULE_TAG} Getting worker token`, "Logger info");
 
 		const cachedToken = await workerTokenServiceV8.getToken();
 		if (cachedToken) {
@@ -262,7 +262,7 @@ export class MFAReportingServiceV8 {
 					}
 				)._embedded?.userMfaDeviceAuthentications || ([] as UserAuthenticationReport[]);
 
-			logger.info(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`, "Logger info");
 			return reports;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get user authentication reports error`, error);
@@ -357,7 +357,7 @@ export class MFAReportingServiceV8 {
 				(reportsData as { _embedded?: { mfaDeviceAuthentications?: DeviceAuthenticationReport[] } })
 					._embedded?.mfaDeviceAuthentications || [];
 
-			logger.info(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`, "Logger info");
 			return reports;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get device authentication reports error`, error);
@@ -448,7 +448,7 @@ export class MFAReportingServiceV8 {
 				(reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded
 					?.fido2Devices || ([] as FIDO2DeviceReport[]);
 
-			logger.info(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
+			logger.info(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`, "Logger info");
 			return reports;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
@@ -578,7 +578,7 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to create SMS devices report: ${errorMessage}`);
 			}
 
-			logger.info(`${MODULE_TAG} SMS devices report created successfully`);
+			logger.info(`${MODULE_TAG} SMS devices report created successfully`, "Logger info");
 			return reportData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Create SMS devices report error`, error);
@@ -676,7 +676,7 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get report results: ${errorMessage}`);
 			}
 
-			logger.info(`${MODULE_TAG} Report results retrieved successfully`);
+			logger.info(`${MODULE_TAG} Report results retrieved successfully`, "Logger info");
 			return reportData as Record<string, unknown>;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get report results error`, error);
@@ -844,7 +844,7 @@ export class MFAReportingServiceV8 {
 				const status = (reportData as { status?: string })?.status;
 
 				if (status === 'COMPLETED') {
-					logger.info(`${MODULE_TAG} Report completed successfully`);
+					logger.info(`${MODULE_TAG} Report completed successfully`, "Logger info");
 					return reportData;
 				}
 
@@ -971,7 +971,7 @@ export class MFAReportingServiceV8 {
 			};
 			const devices = devicesResponse._embedded?.devices || [];
 
-			logger.info(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);
+			logger.info(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`, "Logger info");
 			return devices;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get devices by type error:`, error);
@@ -1068,7 +1068,7 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Data exploration created successfully`);
+			logger.info(`${MODULE_TAG} Data exploration created successfully`, "Logger info");
 			return explorationData;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Create data exploration error:`, error);
@@ -1343,7 +1343,7 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			logger.info(`${MODULE_TAG} Data exploration entries retrieved successfully`);
+			logger.info(`${MODULE_TAG} Data exploration entries retrieved successfully`, "Logger info");
 			return entriesData;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Get data exploration entries error:`, error);
@@ -1376,7 +1376,7 @@ export class MFAReportingServiceV8 {
 				logger.info(`${MODULE_TAG} Poll attempt ${attempt}/${maxAttempts}, status:`, status.status);
 
 				if (status.status === 'SUCCESS') {
-					logger.info(`${MODULE_TAG} Data exploration completed successfully`);
+					logger.info(`${MODULE_TAG} Data exploration completed successfully`, "Logger info");
 					return status;
 				}
 

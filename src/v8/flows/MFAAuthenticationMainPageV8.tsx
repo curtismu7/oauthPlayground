@@ -226,7 +226,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Don't redirect based on stored.deviceType as it might be from a different flow
 			logger.warn(
 				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`
-			);
+			, "Logger warning");
 		}
 	}, [searchParams]);
 
@@ -463,7 +463,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						// Load stored credentials for token refresh
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (!credentials) {
-							logger.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
+							logger.warn(`${MODULE_TAG} No stored credentials for auto-refresh`, "Logger warning");
 							return;
 						}
 
@@ -1386,7 +1386,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			});
 
 			if (!tokenStatus.isValid) {
-				logger.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`, "Logger warning");
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1397,7 +1397,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 
 			if (!credentials.environmentId) {
-				logger.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`, "Logger warning");
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1408,7 +1408,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				logger.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
+				logger.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`, "Logger warning");
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1648,7 +1648,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					// Fallback: If we have devices, show device selection. Otherwise, show success.
 					setTimeout(() => {
 						if (authDevices.length > 0) {
-							logger.info(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
+							logger.info(`${MODULE_TAG} 🔄 Fallback: Showing device selection`, "Logger info");
 							setAuthState((prev) => ({ ...prev, showDeviceSelection: true }));
 						} else {
 							logger.info(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
@@ -5259,7 +5259,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// Validate required fields
 															if (!authState.authenticationId) {
-																logger.error(`${MODULE_TAG} Missing authenticationId`);
+																logger.error(`${MODULE_TAG} Missing authenticationId`, "Logger error");
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5271,7 +5271,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 
 															if (!usernameInput.trim()) {
-																logger.error(`${MODULE_TAG} Missing username`);
+																logger.error(`${MODULE_TAG} Missing username`, "Logger error");
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5711,7 +5711,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// Validate required fields
 															if (!authState.authenticationId) {
-																logger.error(`${MODULE_TAG} Missing authenticationId`);
+																logger.error(`${MODULE_TAG} Missing authenticationId`, "Logger error");
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -5723,7 +5723,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 
 															if (!usernameInput.trim()) {
-																logger.error(`${MODULE_TAG} Missing username`);
+																logger.error(`${MODULE_TAG} Missing username`, "Logger error");
 																modernMessaging.showBanner({
 																	type: 'error',
 																	title: 'Error',
@@ -6217,7 +6217,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							if (links?.cancel) {
 								logger.info(
 									`${MODULE_TAG} 🔄 Using cancel + re-initialize approach for OTP resend`
-								);
+								, "Logger info");
 								try {
 									// Cancel current authentication
 									await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
@@ -6268,7 +6268,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										success = true;
 										logger.info(
 											`${MODULE_TAG} ✅ OTP resent successfully via cancel + re-initialize`
-										);
+										, "Logger info");
 									}
 								} catch (cancelError) {
 									logger.warn(`${MODULE_TAG} Cancel + re-initialize approach failed:`, cancelError);
@@ -6277,7 +6277,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 							// Strategy 2: Fallback - try direct device re-selection
 							if (!success) {
-								logger.info(`${MODULE_TAG} 🔄 Using fallback device re-selection for OTP resend`);
+								logger.info(`${MODULE_TAG} 🔄 Using fallback device re-selection for OTP resend`, "Logger info");
 								const reselectResult =
 									await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
 										{
@@ -6321,7 +6321,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								}));
 
 								success = true;
-								logger.info(`${MODULE_TAG} ✅ OTP resent successfully via direct re-selection`);
+								logger.info(`${MODULE_TAG} ✅ OTP resent successfully via direct re-selection`, "Logger info");
 							}
 
 							if (success) {
@@ -6418,7 +6418,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							setFido2Error(null);
 
 							try {
-								logger.info(`${MODULE_TAG} Starting FIDO2 authentication...`);
+								logger.info(`${MODULE_TAG} Starting FIDO2 authentication...`, "Logger info");
 
 								// Get the WebAuthn credential
 								const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
@@ -6438,7 +6438,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								if (newPublicKeyOptions) {
 									logger.info(
 										`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
-									);
+									, "Logger info");
 									setAuthState((prev) => ({
 										...prev,
 										publicKeyCredentialRequestOptions: newPublicKeyOptions,

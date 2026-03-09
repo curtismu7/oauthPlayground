@@ -78,7 +78,7 @@ export const useFlowVariantSwitching = (
 				// Preserve PKCE codes during variant switch
 				if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge && onPkceCodesChange) {
 					onPkceCodesChange(currentPkceCodes);
-					logger.info('🔐 Preserved PKCE codes during variant switch');
+					logger.info('🔐 Preserved PKCE codes during variant switch', "Logger info");
 				}
 
 				// Update scope based on variant

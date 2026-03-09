@@ -30,7 +30,7 @@ export class BulletproofDiscoveryService {
 			// Strategy 1: Backend proxy with retry and region failover
 			try {
 				const document = await this.tryBackendProxyWithFailover(environmentId, region);
-				logger.info('[Bulletproof Discovery] ✅ SUCCESS via backend proxy');
+				logger.info('[Bulletproof Discovery] ✅ SUCCESS via backend proxy', "Logger info");
 				return {
 					success: true,
 					document,
@@ -44,7 +44,7 @@ export class BulletproofDiscoveryService {
 			// Strategy 2: Direct OIDC discovery (might fail due to CORS)
 			try {
 				const document = await this.tryDirectDiscovery(environmentId);
-				logger.info('[Bulletproof Discovery] ✅ SUCCESS via direct discovery');
+				logger.info('[Bulletproof Discovery] ✅ SUCCESS via direct discovery', "Logger info");
 				return {
 					success: true,
 					document,
@@ -56,9 +56,9 @@ export class BulletproofDiscoveryService {
 			}
 
 			// Strategy 3: Generate fallback document from known PingOne patterns
-			logger.info('[Bulletproof Discovery] Using fallback document generation');
+			logger.info('[Bulletproof Discovery] Using fallback document generation', "Logger info");
 			const document = this.generateFallbackDocument(environmentId);
-			logger.info('[Bulletproof Discovery] ✅ SUCCESS via fallback generation');
+			logger.info('[Bulletproof Discovery] ✅ SUCCESS via fallback generation', "Logger info");
 
 			return {
 				success: true,
@@ -159,7 +159,7 @@ export class BulletproofDiscoveryService {
 
 				if (attempt < this.MAX_RETRIES) {
 					const delay = this.RETRY_DELAY * 2 ** (attempt - 1); // Exponential backoff
-					logger.info(`[Bulletproof Discovery] Retrying in ${delay}ms...`);
+					logger.info(`[Bulletproof Discovery] Retrying in ${delay}ms...`, "Logger info");
 					await this.sleep(delay);
 				}
 			}

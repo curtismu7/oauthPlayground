@@ -578,7 +578,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 
 			logger.info(
 				'🔄 [OAuth2CompliantAuthorizationCodeFlow] Reset: cleared ConfigChecker and pre-flight cache data'
-			);
+			, "Logger info");
 		} catch (error) {
 			logger.warn('useOAuth2CompliantAuthorizationCodeFlow', 'Failed to clear cache data', {
 				detail: String(error),

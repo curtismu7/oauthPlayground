@@ -81,7 +81,7 @@ const ResourcesAPIFlowV9: React.FC = () => {
   }
 }
 
-logger.info('Resources API initialized');`,
+logger.info('Resources API initialized', "Logger info");`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 1: Understanding Resources API');
 				messagingService.showFooterMessage({
@@ -169,7 +169,7 @@ const updateResourceScopes = async (resourceId: string, scopes: string[]) => {
 const newScopes = ['profile:avatar', 'profile:preferences'];
 await updateResourceScopes('user-profile-id', newScopes);
 
-logger.info('Resource scopes management completed');`,
+logger.info('Resource scopes management completed', "Logger info");`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 3: Manage Resource Scopes');
 				messagingService.showFooterMessage({
@@ -212,7 +212,7 @@ const newAttributes = {
 
 await updateResourceAttributes('user-profile-id', newAttributes);
 
-logger.info('Resource attributes management completed');`,
+logger.info('Resource attributes management completed', "Logger info");`,
 			execute: () => {
 				logger.info('ResourcesAPIFlowV9', 'Step 4: Resource Attributes');
 				messagingService.showFooterMessage({

@@ -166,7 +166,7 @@ export class DiscoveryPersistenceService {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
 			localStorage.removeItem(this.LAST_USED_KEY);
-			logger.info('[Discovery Persistence] Cleared all discoveries');
+			logger.info('[Discovery Persistence] Cleared all discoveries', "Logger info");
 		} catch (error) {
 			logger.error('[Discovery Persistence] Failed to clear discoveries:', error);
 		}
