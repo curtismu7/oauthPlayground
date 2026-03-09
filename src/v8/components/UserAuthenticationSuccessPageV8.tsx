@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { showGlobalInfo } from '../../contexts/NotificationSystem';
 
 export interface UserInfo {
 	sub?: string;
@@ -404,7 +405,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.accessToken);
 										if (decoded) {
 											const payload = JSON.stringify(decoded.payload, null, 2);
-											alert(`Token Payload:\n\n${payload}`);
+											showGlobalInfo(`Token Payload:\n\n${payload}`);
 										} else {
 											modernMessaging.showBanner({
 												type: 'error',
@@ -647,7 +648,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.idToken!);
 										if (decoded) {
 											const payload = JSON.stringify(decoded.payload, null, 2);
-											alert(`ID Token Payload:\n\n${payload}`);
+											showGlobalInfo(`ID Token Payload:\n\n${payload}`);
 										} else {
 											modernMessaging.showBanner({
 												type: 'error',
