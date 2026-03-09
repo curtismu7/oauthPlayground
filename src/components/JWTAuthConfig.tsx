@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;

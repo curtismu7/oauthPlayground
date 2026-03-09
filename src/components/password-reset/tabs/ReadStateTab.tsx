@@ -1,17 +1,6 @@
 // src/components/password-reset/tabs/ReadStateTab.tsx
 // Read Password State Tab Component
 
-import {
-	FiAlertCircle,
-	FiBook,
-	FiCheckCircle,
-	FiClock,
-	FiExternalLink,
-	FiLock,
-	FiRefreshCw,
-	FiUnlock,
-	FiXCircle,
-} from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

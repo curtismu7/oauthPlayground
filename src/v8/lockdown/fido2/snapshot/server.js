@@ -15936,7 +15936,8 @@ app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) =>
 )
 
 // Step 3: Get Resource Scopes
-app.get('/api/pingone/email-mfa-signon/get-resource-scopes', async (req, res) => {
+app.get('/api/pingone/email-mfa-signon/get-resource-scopes', async (req, res) =>
+{
 	try {
 		const { environmentId, resourceId, workerToken } = req.query;
 
@@ -15969,10 +15970,12 @@ app.get('/api/pingone/email-mfa-signon/get-resource-scopes', async (req, res) =>
 		console.error('[📧 EMAIL-MFA-SIGNON] Error getting resource scopes:', error);
 		res.status(500).json({ error: 'Failed to get resource scopes', message: error.message });
 	}
-});
+}
+)
 
 // Step 4: Create Resource Access Grant
-app.post('/api/pingone/email-mfa-signon/create-resource-grant', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-resource-grant', async (req, res) =>
+{
 	try {
 		const { environmentId, applicationId, resourceId, scopes, workerToken } = req.body;
 
@@ -16011,7 +16014,8 @@ app.post('/api/pingone/email-mfa-signon/create-resource-grant', async (req, res)
 		console.error('[📧 EMAIL-MFA-SIGNON] Error creating resource grant:', error);
 		res.status(500).json({ error: 'Failed to create resource grant', message: error.message });
 	}
-});
+}
+)
 
 // Step 5: Create Sign-On Policy
 app.post('/api/pingone/email-mfa-signon/create-signon-policy', async (req, res) => {

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
 // Styled components

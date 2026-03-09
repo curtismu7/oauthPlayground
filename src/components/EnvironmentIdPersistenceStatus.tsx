@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const StatusContent = styled.div`
   color: #075985;

@@ -1,4 +1,3 @@
-import { FiActivity, FiCloud, FiCpu, FiDatabase, FiEye, FiGitBranch } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -262,7 +261,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 			<Header>
 				<h1>
-					<span>[FiCpu]</span>Identity for AI Architectures
+					<i className="bi bi-cpu" />Identity for AI Architectures
 				</h1>
 				<p>
 					Exploring the future of identity management in an AI-driven world. Understanding how to
@@ -302,7 +301,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#06b6d4">
-								<span>[FiCpu]</span>
+								<i className="bi bi-cpu" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Workloads</h3>
@@ -312,7 +311,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.GREEN">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Devices/Machines</h3>
@@ -397,7 +396,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>[FiCpu]</span>Digital Workers
+							<i className="bi bi-cpu" />Digital Workers
 						</h3>
 						<p style={{ color: '#d97706', marginBottom: '1rem' }}>
 							<strong>Semi-Supervised Agent LCM</strong>
@@ -449,7 +448,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Architecture Patterns"
 				subtitle="Different architectural patterns for AI agent identity management"
-				icon={<span>[FiGitBranch]</span>}
+				icon={<i className="bi bi-git" />}
 				theme="highlight"
 				defaultCollapsed={false}
 			>
@@ -496,7 +495,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>[FiCloud]</span>Multi-Platform, Multi-Domain
+								<i className="bi bi-cloud" />Multi-Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
 								Distributed identity management across multiple platforms and domains
@@ -624,7 +623,7 @@ const AIIdentityArchitectures: React.FC = () => {
 				<Card>
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.BLUE">
-							<span>[FiEye]</span>
+							<i className="bi bi-eye" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Making Agents Visible Across The Estate</h4>
@@ -678,7 +677,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.YELLOW">
-							<span>[FiActivity]</span>
+							<i className="bi bi-activity" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Enterprise Grade Service Layer for Agents</h4>
@@ -725,7 +724,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>[FiEye]</span>Agent Discovery
+								<i className="bi bi-eye" />Agent Discovery
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Agent Platform Integrations</li>
@@ -803,7 +802,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>[FiActivity]</span>Operations & Monitoring
+								<i className="bi bi-activity" />Operations & Monitoring
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Governance & Certification</li>

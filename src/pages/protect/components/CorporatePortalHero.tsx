@@ -12,7 +12,6 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { BrandTheme } from '../themes/brand-theme.interface';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';

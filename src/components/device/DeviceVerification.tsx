@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { formatUserCode } from '../../utils/deviceCode';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 import {

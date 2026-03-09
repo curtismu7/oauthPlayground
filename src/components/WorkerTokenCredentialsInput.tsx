@@ -11,7 +11,6 @@ import {
 	type WorkerTokenValidationResult,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;

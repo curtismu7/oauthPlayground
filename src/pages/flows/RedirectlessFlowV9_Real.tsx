@@ -1,12 +1,9 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-
 // src/pages/flows/RedirectlessFlowV9_Real.tsx
 // lint-file-disable: token-value-in-jsx
 // ⭐ V9 FLOW - Redirectless Flow using PingOne API without browser redirects
 // Uses response_mode=pi.flow for server-to-server token exchange
 // Enhanced with fresh PKCE generation and improved error handling
 
-import { FiCode, FiEye } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -1165,7 +1162,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>[FiEye]</span>Mock Custom Login UI (What Your Users Would See) - V9
+								<i className="bi bi-eye" />Mock Custom Login UI (What Your Users Would See) - V9
 							</h3>
 							<p style={{ margin: '0 0 1.5rem 0', color: '#6b7280' }}>
 								This is what your custom authentication UI might look like. Instead of redirecting
@@ -1488,7 +1485,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								{controller.authUrl ? <span>✅</span> : <span>[FiCode]</span>}{' '}
+								{controller.authUrl ? <span>✅</span> : <i className="bi bi-code-slash" />}{' '}
 								{controller.authUrl ? 'Authorization URL Generated' : 'Generate Authorization URL'}
 								<HighlightBadge>2</HighlightBadge>
 							</button>
@@ -1640,7 +1637,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Token Management (V9)"
-						icon={<span>[FiEye]</span>}
+						icon={<i className="bi bi-eye" />}
 						defaultCollapsed={shouldCollapseAll}
 					>
 						<div style={{ marginBottom: '1rem' }}>
@@ -1667,7 +1664,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>[FiEye]</span>Token Management
+							<i className="bi bi-eye" />Token Management
 							<HighlightBadge>1</HighlightBadge>
 						</button>
 
@@ -1733,7 +1730,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				{apiCalls.length > 0 && (
 					<StepSection>
 						<ExplanationHeading>
-							<span>[FiCode]</span>API Calls & Responses (V9)
+							<i className="bi bi-code-slash" />API Calls & Responses (V9)
 						</ExplanationHeading>
 						<ExplanationSection>
 							<HelperText>

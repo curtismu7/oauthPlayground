@@ -1,4 +1,3 @@
-import { FiEye, FiEyeOff } from '@icons';
 // lint-file-disable: token-value-in-jsx
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -11,7 +10,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 const PageContainer = styled.div`
@@ -284,7 +282,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										type="button"
 										onClick={() => setShowClientSecret(!showClientSecret)}
 									>
-										{showClientSecret ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
+										{showClientSecret ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
@@ -324,7 +322,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										autoComplete="current-password"
 									/>
 									<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
-										{showPassword ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
+										{showPassword ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
 									</PasswordToggle>
 								</PasswordInputContainer>
 							</FormGroup>
