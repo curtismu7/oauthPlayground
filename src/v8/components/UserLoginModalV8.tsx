@@ -33,6 +33,7 @@ import { useRedirectURIRouting } from '@/v8/services/redirectURIRoutingServiceV8
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
+import { logger } from '../utils/logger';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -72,11 +73,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const loginHint = userInfo.preferred_username || userInfo.email || userInfo.sub;
 				if (loginHint) {
 					setUsername(loginHint);
-					console.log(`${MODULE_TAG} 🔑 Auto-populated login_hint with current user: ${loginHint}`);
+					logger.info(`${MODULE_TAG} 🔑 Auto-populated login_hint with current user: ${loginHint}`);
 				}
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to auto-populate login_hint:`, error);
+			logger.warn(`${MODULE_TAG} Failed to auto-populate login_hint:`, error);
 		}
 	}, []); // Only run once on mount
 
@@ -91,7 +92,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			: `${protocol}://${window.location.host}/user-login-callback`;
 
 		// DEBUG: Log initial state
-		console.log('🔍 [REDIRECT-URI-DEBUG] Initial state:', {
+		logger.info('🔍 [REDIRECT-URI-DEBUG] Initial state:', {
 			isMfaFlow,
 			currentPath: location.pathname,
 			initialUri: uri,
@@ -126,7 +127,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							}
 						}
 					} catch (jwtError) {
-						console.warn('Failed to extract environment ID from worker token:', jwtError);
+						logger.warn('Failed to extract environment ID from worker token:', jwtError);
 					}
 				}
 			} catch {
@@ -230,7 +231,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		}
 
 		// DEBUG: Log current redirect URI
-		console.log('🔍 [REDIRECT-URI-DEBUG] Pre-flight validation:', {
+		logger.info('🔍 [REDIRECT-URI-DEBUG] Pre-flight validation:', {
 			currentRedirectUri: redirectUri,
 			isMfaFlow,
 			currentPath: location.pathname,
@@ -253,7 +254,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				return;
 			}
 
-			console.log(`${MODULE_TAG} Running pre-flight validation...`);
+			logger.info(`${MODULE_TAG} Running pre-flight validation...`);
 			const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 				environmentId.trim(),
 				clientId.trim(),
@@ -291,7 +292,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				errors.push('No redirect URIs configured');
 			} else if (!appConfig.redirectUris.includes(redirectUri)) {
 				// DEBUG: Log redirect URI comparison
-				console.log('🔍 [REDIRECT-URI-DEBUG] URI Mismatch:', {
+				logger.info('🔍 [REDIRECT-URI-DEBUG] URI Mismatch:', {
 					yourUri: redirectUri,
 					registeredUris: appConfig.redirectUris,
 					isMfaFlow,
@@ -302,7 +303,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Check PKCE
 			if (appConfig.pkceEnforced) {
-				console.log(`${MODULE_TAG} PKCE is enforced (good for security)`);
+				logger.info(`${MODULE_TAG} PKCE is enforced (good for security)`);
 			} else if (!appConfig.pkceRequired) {
 				warnings.push('PKCE is not required - consider enabling for better security');
 			}
@@ -335,7 +336,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+			logger.error(`${MODULE_TAG} Pre-flight validation error:`, error);
 			const errorMessage = `Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`;
 			setValidationResult({
 				passed: false,
@@ -422,7 +423,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			});
 			// FOOLPROOF: Migrate credentials if they have old redirect URI
 			if (isMfaFlow && MFARedirectUriServiceV8.needsMigration(saved.redirectUri)) {
-				console.warn('[🔐 USER-LOGIN-MODAL-V8] MIGRATION: Updating to unified MFA callback URI');
+				logger.warn('[🔐 USER-LOGIN-MODAL-V8] MIGRATION: Updating to unified MFA callback URI');
 				const migrated = MFARedirectUriServiceV8.migrateCredentials(saved, 'unified-mfa-v8');
 				CredentialsServiceV8.saveCredentials(FLOW_KEY, migrated);
 			}
@@ -445,7 +446,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const initialRedirectUri = saved.redirectUri || defaultRedirectUri;
 
 				// DEBUG: Log redirect URI values
-				console.log('🔍 [REDIRECT-URI-DEBUG] Credentials loading:', {
+				logger.info('🔍 [REDIRECT-URI-DEBUG] Credentials loading:', {
 					isMfaFlow,
 					savedRedirectUri: saved.redirectUri,
 					defaultRedirectUri,
@@ -581,7 +582,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
-				console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -676,7 +677,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					if (credentials.redirectUri) {
 						const routing = routeToCorrectStep(credentials.redirectUri);
 
-						console.log(`${MODULE_TAG} 🎯 Redirect URI Routing Applied`, {
+						logger.info(`${MODULE_TAG} 🎯 Redirect URI Routing Applied`, {
 							originalUri: routing.originalUri,
 							targetStep: routing.targetStep,
 							flowType: routing.flowType,
@@ -697,7 +698,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						// Validate redirect URI against known tables
 						const isValidUri = validateRedirectURI(credentials.redirectUri);
 						if (!isValidUri) {
-							console.warn(`${MODULE_TAG} ⚠️ Redirect URI not found in routing tables`, {
+							logger.warn(`${MODULE_TAG} ⚠️ Redirect URI not found in routing tables`, {
 								redirectUri: credentials.redirectUri,
 								availableRoutes: routeToCorrectStep('/callback'), // Show available routes for debugging
 							});
@@ -728,7 +729,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						try {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								console.log(
+								logger.info(
 									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
 								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -745,7 +746,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										'client_secret_post';
 
 									if (currentAuthMethod !== pingOneAuthMethod) {
-										console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+										logger.info(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 											from: currentAuthMethod,
 											to: pingOneAuthMethod,
 										});
@@ -758,7 +759,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								}
 							}
 						} catch (configError) {
-							console.warn(
+							logger.warn(
 								`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
 								configError
 							);
@@ -824,7 +825,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						tokenType: 'user', // Mark as user token type
 					};
 					CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-					console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
 
 					// Store session info for success page
 					const newSessionInfo: SessionInfo = {
@@ -903,7 +904,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						});
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+					logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 
 					// Remove from processed set so user can retry with a new code
 					processedCodesRef.current.delete(code);
@@ -1056,7 +1057,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (!storedState) return;
 
 				if (storedState && state && storedState !== state) {
-					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -1088,7 +1089,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							try {
 								const workerToken = await workerTokenServiceV8.getToken();
 								if (workerToken) {
-									console.log(
+									logger.info(
 										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
 									);
 									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -1105,7 +1106,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											'client_secret_post';
 
 										if (currentAuthMethod !== pingOneAuthMethod) {
-											console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+											logger.info(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 												from: currentAuthMethod,
 												to: pingOneAuthMethod,
 											});
@@ -1118,7 +1119,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}
 								}
 							} catch (configError) {
-								console.warn(
+								logger.warn(
 									`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
 									configError
 								);
@@ -1165,11 +1166,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							tokenType: 'user', // Mark as user token type
 						};
 						CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-						console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+						logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
+						logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 						processedCodesRef.current.delete(code);
 						// eslint-disable-next-line require-atomic-updates
 						isProcessingRef.current = false;
@@ -1202,7 +1203,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Get worker token
 					const workerToken = await workerTokenServiceV8.getToken();
 					if (!workerToken) {
-						console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -1222,7 +1223,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					);
 
 					if (!app) {
-						console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
+						logger.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -1257,12 +1258,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								message: `Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`,
 								dismissible: true,
 							});
-							console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
+							logger.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
 						}
 						setIsUpdatingApp(false);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
+					logger.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
 					modernMessaging.showBanner({
 						type: 'warning',
 						title: 'Warning',
@@ -1341,7 +1342,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to export configuration:`, error);
+			logger.error(`${MODULE_TAG} Failed to export configuration:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1394,7 +1395,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					duration: 3000,
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to import configuration:`, error);
+				logger.error(`${MODULE_TAG} Failed to import configuration:`, error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1447,7 +1448,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+			logger.error(`${MODULE_TAG} Failed to save credentials:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1614,7 +1615,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-				console.log(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {
+				logger.info(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {
 					returnPath: currentPath,
 					returnStep: step,
 					flowType,
@@ -1633,7 +1634,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					}
 				);
 			} else {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ Not storing flow context - current path does not start with /v8/mfa:`,
 					currentPath
 				);
@@ -1659,7 +1660,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Redirect to PingOne
 			window.location.href = authorizationUrl;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
+			logger.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1968,7 +1969,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											environmentId={environmentId}
 											onAppSelected={async (app: DiscoveredApp) => {
 												try {
-													console.log(`${MODULE_TAG} App selected:`, {
+													logger.info(`${MODULE_TAG} App selected:`, {
 														appId: app.id,
 														appName: app.name,
 													});
@@ -1979,7 +1980,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														try {
 															const workerToken = await workerTokenServiceV8.getToken();
 															if (workerToken) {
-																console.log(
+																logger.info(
 																	`${MODULE_TAG} Fetching application secret from PingOne API...`
 																);
 																const fetchedApp =
@@ -1998,7 +1999,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 																}
 															}
 														} catch (error) {
-															console.warn(
+															logger.warn(
 																`${MODULE_TAG} Could not fetch app secret, continuing with app data:`,
 																error
 															);
@@ -2034,7 +2035,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														if (validMethods.includes(methodValue as AuthMethodV8)) {
 															setAuthMethod(methodValue as AuthMethodV8);
 														} else {
-															console.warn(
+															logger.warn(
 																`${MODULE_TAG} Unsupported auth method from app: ${methodValue}, using default`
 															);
 														}
@@ -2046,7 +2047,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														duration: 3000,
 													});
 												} catch (error) {
-													console.error(`${MODULE_TAG} Error applying app selection:`, error);
+													logger.error(`${MODULE_TAG} Error applying app selection:`, error);
 													modernMessaging.showBanner({
 														type: 'error',
 														title: 'Error',

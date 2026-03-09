@@ -12,6 +12,7 @@
 import { FIDO2Service } from '@/services/fido2Service';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 WEBAUTHN-AUTHN-SERVICE-V8]';
 
 export interface WebAuthnAuthenticationParams {
@@ -56,7 +57,7 @@ export class WebAuthnAuthenticationServiceV8 {
 	static async getWebAuthnAssertion(
 		publicKeyOptions: PublicKeyCredentialRequestOptions
 	): Promise<WebAuthnAuthenticationResult> {
-		console.log(`${MODULE_TAG} Getting WebAuthn assertion`, {
+		logger.info(`${MODULE_TAG} Getting WebAuthn assertion`, {
 			hasPublicKeyOptions: !!publicKeyOptions,
 			challengeType: publicKeyOptions.challenge?.constructor?.name,
 			rpId: publicKeyOptions.rpId,
@@ -77,7 +78,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				publicKey: publicKeyOptions,
 			})) as PublicKeyCredential;
 
-			console.log(`${MODULE_TAG} WebAuthn assertion successful`, {
+			logger.info(`${MODULE_TAG} WebAuthn assertion successful`, {
 				credentialId: credential.id,
 				rawIdLength: credential.rawId.byteLength,
 				hasResponse: !!credential.response,
@@ -107,7 +108,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				authenticatorData: arrayBufferToBase64(response.authenticatorData),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
+			logger.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
 
 			// Handle different error types
 			if (error instanceof Error) {
@@ -151,7 +152,7 @@ export class WebAuthnAuthenticationServiceV8 {
 	static async authenticateWithWebAuthn(
 		params: WebAuthnAuthenticationParams
 	): Promise<WebAuthnAuthenticationResult> {
-		console.log(`${MODULE_TAG} Starting WebAuthn authentication`, {
+		logger.info(`${MODULE_TAG} Starting WebAuthn authentication`, {
 			challengeId: params.challengeId,
 			rpId: params.rpId,
 			userName: params.userName,
@@ -195,7 +196,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					preferPlatform
 				);
 
-				console.log(`${MODULE_TAG} Using PingOne publicKeyOptions`, {
+				logger.info(`${MODULE_TAG} Using PingOne publicKeyOptions`, {
 					hasAllowCredentials: !!preparedOptions.allowCredentials,
 					allowCredentialsCount: preparedOptions.allowCredentials?.length || 0,
 					authenticatorAttachment: (preparedOptions as { authenticatorAttachment?: unknown })
@@ -232,7 +233,7 @@ export class WebAuthnAuthenticationServiceV8 {
 							typeof id === 'object' && id !== null && ArrayBuffer.isView(id as ArrayBufferView);
 						const isValid = idIsArrayBuffer || idIsArrayBufferView;
 						if (!isValid) {
-							console.error(
+							logger.error(
 								`${MODULE_TAG} ❌ CRITICAL: allowCredentials[${index}].id is NOT ArrayBuffer/ArrayBufferView!`,
 								{
 									idType: typeof id,
@@ -251,13 +252,13 @@ export class WebAuthnAuthenticationServiceV8 {
 							);
 						}
 					});
-					console.log(
+					logger.info(
 						`${MODULE_TAG} ✅ All allowCredentials IDs validated - all are ArrayBuffer/ArrayBufferView`
 					);
 				}
 
 				// CRITICAL: Log right before the WebAuthn call
-				console.log(
+				logger.info(
 					`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() - Browser prompt should appear NOW!`,
 					{
 						timestamp: new Date().toISOString(),
@@ -284,12 +285,12 @@ export class WebAuthnAuthenticationServiceV8 {
 						publicKey: preparedOptions,
 					})) as PublicKeyCredential;
 
-					console.log(`${MODULE_TAG} ✅ navigator.credentials.get() completed`, {
+					logger.info(`${MODULE_TAG} ✅ navigator.credentials.get() completed`, {
 						hasCredential: !!credential,
 						credentialId: `${credential?.id?.slice(0, 20) ?? ''}...`,
 					});
 				} catch (webauthnError) {
-					console.error(`${MODULE_TAG} ❌ navigator.credentials.get() threw an error:`, {
+					logger.error(`${MODULE_TAG} ❌ navigator.credentials.get() threw an error:`, {
 						error: webauthnError,
 						errorName: webauthnError instanceof Error ? webauthnError.name : 'Unknown',
 						errorMessage:
@@ -316,7 +317,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				const credentialId = credential.id;
 				const rawId = FIDO2Service.arrayBufferToBase64url(credential.rawId);
 
-				console.log(`${MODULE_TAG} WebAuthn authentication successful`, {
+				logger.info(`${MODULE_TAG} WebAuthn authentication successful`, {
 					credentialId: `${credentialId.slice(0, 20)}...`,
 					hasSignature: !!signature,
 				});
@@ -369,16 +370,16 @@ export class WebAuthnAuthenticationServiceV8 {
 					const platformAvailable =
 						await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
 					if (!platformAvailable) {
-						console.warn(
+						logger.warn(
 							`${MODULE_TAG} Platform authenticator requested but not available. Falling back to any authenticator.`
 						);
 						// Remove platform restriction - allow any authenticator
 						delete authenticatorSelection.authenticatorAttachment;
 					} else {
-						console.log(`${MODULE_TAG} Platform authenticator is available and will be used`);
+						logger.info(`${MODULE_TAG} Platform authenticator is available and will be used`);
 					}
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
+					logger.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
 					// If we can't check, remove platform restriction to be safe
 					delete authenticatorSelection.authenticatorAttachment;
 				}
@@ -401,7 +402,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			const publicKeyOptionsForLog = getOptions.publicKey as PublicKeyCredentialRequestOptions & {
 				authenticatorAttachment?: 'platform' | 'cross-platform';
 			};
-			console.log(`${MODULE_TAG} Using fallback WebAuthn options (challengeId)`, {
+			logger.info(`${MODULE_TAG} Using fallback WebAuthn options (challengeId)`, {
 				hasAuthenticatorAttachment: !!publicKeyOptionsForLog.authenticatorAttachment,
 				authenticatorAttachment: publicKeyOptionsForLog.authenticatorAttachment,
 				userVerification: publicKeyOptionsForLog.userVerification,
@@ -409,7 +410,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			});
 
 			// CRITICAL: Log right before the WebAuthn call
-			console.log(
+			logger.info(
 				`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() (fallback path) - Browser prompt should appear NOW!`,
 				{
 					timestamp: new Date().toISOString(),
@@ -428,12 +429,12 @@ export class WebAuthnAuthenticationServiceV8 {
 			try {
 				credential = (await navigator.credentials.get(getOptions)) as PublicKeyCredential;
 
-				console.log(`${MODULE_TAG} ✅ navigator.credentials.get() completed (fallback path)`, {
+				logger.info(`${MODULE_TAG} ✅ navigator.credentials.get() completed (fallback path)`, {
 					hasCredential: !!credential,
 					credentialId: `${credential?.id?.slice(0, 20) ?? ''}...`,
 				});
 			} catch (webauthnError) {
-				console.error(
+				logger.error(
 					`${MODULE_TAG} ❌ navigator.credentials.get() threw an error (fallback path):`,
 					{
 						error: webauthnError,
@@ -447,7 +448,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			}
 
 			if (!credential) {
-				console.warn(
+				logger.warn(
 					`${MODULE_TAG} ⚠️ navigator.credentials.get() returned null - user may have cancelled`
 				);
 				return {
@@ -467,7 +468,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			const credentialId = credential.id;
 			const rawId = FIDO2Service.arrayBufferToBase64url(credential.rawId);
 
-			console.log(`${MODULE_TAG} WebAuthn authentication successful`, {
+			logger.info(`${MODULE_TAG} WebAuthn authentication successful`, {
 				credentialId: `${credentialId.slice(0, 20)}...`,
 				hasSignature: !!signature,
 			});
@@ -482,7 +483,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				authenticatorData,
 			};
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} WebAuthn authentication failed:`, error);
+			logger.error(`${MODULE_TAG} WebAuthn authentication failed:`, error);
 
 			let errorMessage = 'Authentication failed';
 			if (error instanceof DOMException) {
@@ -546,9 +547,9 @@ export class WebAuthnAuthenticationServiceV8 {
 			try {
 				platformAvailable =
 					await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-				console.log(`${MODULE_TAG} Platform authenticator available: ${platformAvailable}`);
+				logger.info(`${MODULE_TAG} Platform authenticator available: ${platformAvailable}`);
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
+				logger.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
 				platformAvailable = false;
 			}
 		}
@@ -565,7 +566,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			// This is because PingOne might return allowCredentials for cross-platform devices only,
 			// but we want to use platform authenticator if available
 			if (preferPlatform && platformAvailable && !hasPlatformTransport) {
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Platform authenticator preferred but allowCredentials restricts to cross-platform only. Removing allowCredentials restriction to allow platform authenticator.`
 				);
 				// Explicitly remove allowCredentials - this allows any authenticator including platform
@@ -573,7 +574,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				const allowCredentialsCount = clonedOptions.allowCredentials?.length || 0;
 				delete clonedOptions.allowCredentials;
 				clonedOptions.authenticatorAttachment = 'platform';
-				console.log(`${MODULE_TAG} ✅ Removed allowCredentials restriction:`, {
+				logger.info(`${MODULE_TAG} ✅ Removed allowCredentials restriction:`, {
 					hadAllowCredentials,
 					allowCredentialsCount,
 					hasAllowCredentialsAfter: !!clonedOptions.allowCredentials,
@@ -591,7 +592,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					const isString = typeof originalId === 'string';
 					const isArray = Array.isArray(originalId);
 
-					console.log(`${MODULE_TAG} Processing allowCredentials[${index}]:`, {
+					logger.info(`${MODULE_TAG} Processing allowCredentials[${index}]:`, {
 						idType,
 						isArrayBuffer,
 						isArrayBufferView,
@@ -603,7 +604,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					let convertedId: Uint8Array;
 					try {
 						convertedId = WebAuthnAuthenticationServiceV8.toUint8Array(originalId);
-						console.log(
+						logger.info(
 							`${MODULE_TAG} ✅ Successfully converted credential ID[${index}] to Uint8Array:`,
 							{
 								originalType: idType,
@@ -612,7 +613,7 @@ export class WebAuthnAuthenticationServiceV8 {
 							}
 						);
 					} catch (conversionError) {
-						console.error(`${MODULE_TAG} ❌ Failed to convert credential ID[${index}]:`, {
+						logger.error(`${MODULE_TAG} ❌ Failed to convert credential ID[${index}]:`, {
 							error: conversionError,
 							originalIdType: idType,
 							originalIdValue: isString ? (originalId as string).substring(0, 50) : originalId,
@@ -642,7 +643,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				// set authenticatorAttachment to platform
 				if (preferPlatform && platformAvailable && hasPlatformTransport) {
 					clonedOptions.authenticatorAttachment = 'platform';
-					console.log(
+					logger.info(
 						`${MODULE_TAG} Platform authenticator preferred - allowCredentials includes platform transports`
 					);
 				}
@@ -650,7 +651,7 @@ export class WebAuthnAuthenticationServiceV8 {
 		} else if (preferPlatform && platformAvailable) {
 			// No allowCredentials restriction - allow platform authenticator
 			clonedOptions.authenticatorAttachment = 'platform';
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Platform authenticator preferred - no allowCredentials restriction, using platform`
 			);
 		}
@@ -682,7 +683,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			);
 		}
 
-		console.warn(`${MODULE_TAG} RP ID mismatch detected`, {
+		logger.warn(`${MODULE_TAG} RP ID mismatch detected`, {
 			providedRpId,
 			currentHost,
 		});
@@ -704,7 +705,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				for (let i = 0; i < binary.length; i++) {
 					bytes[i] = binary.charCodeAt(i);
 				}
-				console.log(`${MODULE_TAG} Converted base64/base64url string to Uint8Array:`, {
+				logger.info(`${MODULE_TAG} Converted base64/base64url string to Uint8Array:`, {
 					originalLength: bufferSource.length,
 					convertedLength: bytes.byteLength,
 					isUint8Array: bytes instanceof Uint8Array,
@@ -712,7 +713,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				});
 				return bytes;
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to convert base64 string to Uint8Array:`, error);
+				logger.error(`${MODULE_TAG} Failed to convert base64 string to Uint8Array:`, error);
 				throw new Error(
 					`Failed to convert base64 string to ArrayBuffer: ${error instanceof Error ? error.message : String(error)}`
 				);
@@ -722,7 +723,7 @@ export class WebAuthnAuthenticationServiceV8 {
 		// Handle number array (from JSON)
 		if (Array.isArray(bufferSource)) {
 			const bytes = new Uint8Array(bufferSource);
-			console.log(`${MODULE_TAG} Converted number array to Uint8Array:`, {
+			logger.info(`${MODULE_TAG} Converted number array to Uint8Array:`, {
 				arrayLength: bufferSource.length,
 				convertedLength: bytes.byteLength,
 				isUint8Array: bytes instanceof Uint8Array,
@@ -733,7 +734,7 @@ export class WebAuthnAuthenticationServiceV8 {
 		// Handle ArrayBuffer
 		if (bufferSource instanceof ArrayBuffer) {
 			const bytes = new Uint8Array(bufferSource);
-			console.log(`${MODULE_TAG} Converted ArrayBuffer to Uint8Array:`, {
+			logger.info(`${MODULE_TAG} Converted ArrayBuffer to Uint8Array:`, {
 				bufferLength: bufferSource.byteLength,
 				convertedLength: bytes.byteLength,
 			});
@@ -747,7 +748,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				bufferSource.byteOffset,
 				bufferSource.byteLength
 			);
-			console.log(`${MODULE_TAG} Converted ArrayBufferView to Uint8Array:`, {
+			logger.info(`${MODULE_TAG} Converted ArrayBufferView to Uint8Array:`, {
 				viewType: bufferSource.constructor.name,
 				convertedLength: bytes.byteLength,
 			});
@@ -773,7 +774,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					}
 				}
 				const bytes = new Uint8Array(values);
-				console.log(`${MODULE_TAG} Converted serialized TypedArray object to Uint8Array:`, {
+				logger.info(`${MODULE_TAG} Converted serialized TypedArray object to Uint8Array:`, {
 					objectKeys: keys.length,
 					convertedLength: bytes.byteLength,
 					isUint8Array: bytes instanceof Uint8Array,
@@ -785,7 +786,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			if ('data' in bufferSource && Array.isArray((bufferSource as { data: unknown }).data)) {
 				const data = (bufferSource as { data: number[] }).data;
 				const bytes = new Uint8Array(data);
-				console.log(`${MODULE_TAG} Converted object.data array to Uint8Array:`, {
+				logger.info(`${MODULE_TAG} Converted object.data array to Uint8Array:`, {
 					dataLength: data.length,
 					convertedLength: bytes.byteLength,
 				});
@@ -795,7 +796,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			// Check if it has a 'buffer' property that might be an ArrayBuffer
 			if ('buffer' in bufferSource && bufferSource.buffer instanceof ArrayBuffer) {
 				const bytes = new Uint8Array(bufferSource.buffer);
-				console.log(`${MODULE_TAG} Converted object.buffer to Uint8Array:`, {
+				logger.info(`${MODULE_TAG} Converted object.buffer to Uint8Array:`, {
 					bufferLength: bufferSource.buffer.byteLength,
 					convertedLength: bytes.byteLength,
 				});
@@ -804,7 +805,7 @@ export class WebAuthnAuthenticationServiceV8 {
 		}
 
 		// If we get here, we don't know how to convert it
-		console.error(`${MODULE_TAG} Cannot convert to Uint8Array:`, {
+		logger.error(`${MODULE_TAG} Cannot convert to Uint8Array:`, {
 			type: typeof bufferSource,
 			constructor: bufferSource?.constructor?.name,
 			isNull: bufferSource === null,

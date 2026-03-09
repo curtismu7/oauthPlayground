@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
+import { logger } from '../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -280,7 +281,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 			setHasMore(result.hasMore);
 			setOffset(startOffset + result.limit);
 		} catch (error) {
-			log.error('UserSearchDropdown', 'Error searching users:', undefined, error as Error);
+			logger.error('UserSearchDropdown', 'Error searching users:', undefined, error as Error);
 			if (startOffset === 0) {
 				setUsers([]);
 			}

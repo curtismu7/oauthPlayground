@@ -290,7 +290,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	const [workerCredentials, setWorkerCredentials] = useState(() => {
 		// If prefillCredentials provided, use them (these are the CURRENT credentials)
 		if (prefillCredentials) {
-			console.log('[WorkerTokenModal] 🎯 Using prefillCredentials (CURRENT form values):', {
+			logger.info('[WorkerTokenModal] 🎯 Using prefillCredentials (CURRENT form values):', {
 				environmentId: `${prefillCredentials.environmentId?.substring(0, 20)}...`,
 				clientId: `${prefillCredentials.clientId?.substring(0, 20)}...`,
 				clientSecretLength: prefillCredentials.clientSecret?.length || 0,
@@ -352,7 +352,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
 
 						if (isValidEnvId) {
-							console.log(
+							logger.info(
 								'[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage'
 							);
 							setWorkerCredentials({
@@ -402,7 +402,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 			// If prefillCredentials are provided, use them (they are the current form values)
 			if (prefillCredentials) {
-				console.log('[WorkerTokenModal] 🔍 Modal opened, using prefillCredentials:', {
+				logger.info('[WorkerTokenModal] 🔍 Modal opened, using prefillCredentials:', {
 					prefillEnvironmentId: prefillCredentials.environmentId || 'missing',
 					propEnvironmentId: environmentId || 'missing',
 					prefillClientIdLength: prefillCredentials.clientId?.length || 0,
@@ -442,7 +442,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						| 'private_key_jwt',
 				});
 
-				console.log('[WorkerTokenModal] ✅ Credentials updated from prefillCredentials:', {
+				logger.info('[WorkerTokenModal] ✅ Credentials updated from prefillCredentials:', {
 					environmentId: effectiveEnvId,
 					environmentIdLength: effectiveEnvId.length,
 					clientIdLength: (prefillCredentials.clientId || '').trim().length,
@@ -460,7 +460,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							const savedEnvId = savedCredentials.environmentId?.trim() || '';
 							const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
 
-							console.log(
+							logger.info(
 								'[WorkerTokenModal] 🔄 Loading saved credentials from flow-specific storage:',
 								{
 									flowType,
@@ -512,7 +512,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										| 'private_key_jwt'),
 							});
 
-							console.log(
+							logger.info(
 								'[WorkerTokenModal] ✅ Loaded credentials from flow-specific storage (ignoring environmentId prop)'
 							);
 						} else {
@@ -521,11 +521,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							const propEnvId = environmentId?.trim() || '';
 							const isValidPropEnvId = propEnvId && uuidRegex.test(propEnvId);
 
-							console.log(
+							logger.info(
 								'[WorkerTokenModal] ℹ️ No saved credentials found for flowType:',
 								flowType
 							);
-							console.log('[WorkerTokenModal] ℹ️ Environment ID prop validation:', {
+							logger.info('[WorkerTokenModal] ℹ️ Environment ID prop validation:', {
 								propEnvironmentId: propEnvId ? `${propEnvId.substring(0, 20)}...` : 'MISSING',
 								isValid: isValidPropEnvId,
 							});
@@ -610,7 +610,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					savedCredentials.clientId &&
 					savedCredentials.clientSecret
 				) {
-					console.log(
+					logger.info(
 						'[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from global storage'
 					);
 					const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -628,7 +628,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						setWorkerCredentials((prev) => {
 							// Only update if current credentials are empty or different from saved
 							if (!prev.clientId || !prev.clientSecret || prev.environmentId !== savedEnvId) {
-								console.log('[WorkerTokenModal] ✅ Updating credentials from saved storage');
+								logger.info('[WorkerTokenModal] ✅ Updating credentials from saved storage');
 								return {
 									environmentId: savedEnvId,
 									clientId: savedCredentials.clientId || '',
@@ -647,7 +647,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						});
 					}
 				} else {
-					console.log('[WorkerTokenModal] ⚠️ No saved credentials found in global storage');
+					logger.info('[WorkerTokenModal] ⚠️ No saved credentials found in global storage');
 				}
 			};
 			loadCredentials();
@@ -672,7 +672,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		});
 
 		showSuccess('Saved credentials cleared successfully');
-		console.log('[WorkerTokenModal] Cleared all saved credentials via service');
+		logger.info('[WorkerTokenModal] Cleared all saved credentials via service');
 	};
 
 	const handleSaveCredentials = async () => {
@@ -758,7 +758,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			})
 		);
 
-		console.log('[WorkerTokenModal] Credentials saved via service (cleaned & trimmed):', {
+		logger.info('[WorkerTokenModal] Credentials saved via service (cleaned & trimmed):', {
 			environmentId: credentialsToSave.environmentId,
 			clientId: credentialsToSave.clientId ? '***' : 'missing',
 			clientIdLength: credentialsToSave.clientId.length,
@@ -826,7 +826,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 			try {
 				await unifiedWorkerTokenService.saveCredentials(credentialsToSave);
-				console.log(
+				logger.info(
 					'[WorkerTokenModal] ✅ Credentials saved automatically before token generation'
 				);
 			} catch (error) {
@@ -849,7 +849,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		// Note: Identity Metrics API uses ROLES, not scopes
 		// Any token will work as long as the Worker App has the correct role assigned in PingOne
 		if (flowType === 'pingone-identity-metrics') {
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] ℹ️ Note: Metrics API uses roles, not scopes. Ensure your Worker App has "Identity Data Read Only" or "Environment Admin" role assigned.'
 			);
 		}
@@ -859,19 +859,19 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		let effectiveEnvironmentId = '';
 		if (prefillCredentials?.environmentId?.trim()) {
 			effectiveEnvironmentId = prefillCredentials.environmentId.trim();
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] 🎯 Using environmentId from prefillCredentials:',
 				`${effectiveEnvironmentId.substring(0, 20)}...`
 			);
 		} else if (environmentId?.trim()) {
 			effectiveEnvironmentId = environmentId.trim();
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] 🎯 Using environmentId from prop:',
 				`${effectiveEnvironmentId.substring(0, 20)}...`
 			);
 		} else {
 			effectiveEnvironmentId = workerCredentials.environmentId.trim();
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] ⚠️ Using environmentId from workerCredentials state:',
 				`${effectiveEnvironmentId.substring(0, 20)}...`
 			);
@@ -926,28 +926,28 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		if (finalScopes && finalScopes !== '') {
 			const scopeArray = finalScopes.split(/\s+/).filter(Boolean);
 			if (scopeArray.length > 1) {
-				console.log(
+				logger.info(
 					'[WorkerTokenModal] ℹ️ Multiple scopes provided - using first one. Note: Scopes are NOT used for authorization.'
 				);
 				finalScopes = scopeArray[0];
 			}
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] ℹ️ User provided scope:',
 				finalScopes,
 				'- will be sent in request (but not used for authorization)'
 			);
 		} else {
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] ℹ️ No scopes provided - no scope parameter will be sent. Worker tokens use ROLES for authorization, not scopes.'
 			);
 			finalScopes = ''; // Empty - no scope will be sent
 		}
 
-		console.log(
+		logger.info(
 			'[WorkerTokenModal] 📝 REMINDER: Worker token authorization is based on ROLES (e.g., Identity Data Admin), not scopes. Scopes are optional and do not grant permissions.'
 		);
 
-		console.log('[WorkerTokenModal] 🔍 SCOPES DEBUG - Token Request:', {
+		logger.info('[WorkerTokenModal] 🔍 SCOPES DEBUG - Token Request:', {
 			original: workerCredentials.scopes,
 			afterProcessing: finalScopes,
 			willIncludeInRequest: finalScopes !== '',
@@ -966,7 +966,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			return;
 		}
 
-		console.log('[WorkerTokenModal] 🔍 CREDENTIALS BEING USED FOR REQUEST:', {
+		logger.info('[WorkerTokenModal] 🔍 CREDENTIALS BEING USED FOR REQUEST:', {
 			clientIdLength: trimmedClientId.length,
 			clientIdPreview: `${trimmedClientId.substring(0, 20)}...`,
 			clientSecretLength: trimmedClientSecret.length,
@@ -1001,13 +1001,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			requestParams.scope = finalScopes.trim();
 		} else {
 			// No scope - will let PingOne use default scopes for the application
-			console.log(
+			logger.info(
 				'[WorkerTokenModal] ℹ️ No scopes specified - PingOne will use default scopes for this application'
 			);
 		}
 
 		// Store request details and show educational modal
-		console.log('[WorkerTokenModal] 🎯 Showing educational modal with request details:', {
+		logger.info('[WorkerTokenModal] 🎯 Showing educational modal with request details:', {
 			tokenEndpoint,
 			clientIdLength: trimmedClientId.length,
 			clientSecretLength: trimmedClientSecret.length,
@@ -1023,7 +1023,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				region: workerCredentials.region || 'us',
 			});
 			setShowRequestModal(true);
-			console.log('[WorkerTokenModal] ✅ Educational modal state set to true');
+			logger.info('[WorkerTokenModal] ✅ Educational modal state set to true');
 			return;
 		}
 
@@ -1060,8 +1060,8 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				scope: requestParams.scope || '',
 			};
 
-			console.log('[WorkerTokenModal] Using auth method:', authMethod);
-			console.log('[WorkerTokenModal] Credential lengths:', {
+			logger.info('[WorkerTokenModal] Using auth method:', authMethod);
+			logger.info('[WorkerTokenModal] Credential lengths:', {
 				clientId: requestParams.client_id.length,
 				clientSecret: requestParams.client_secret.length,
 			});
@@ -1073,13 +1073,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						`Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
 					// Still need client_id in body for token endpoint (PingOne requirement)
 					bodyParams.client_id = requestParams.client_id;
-					console.log('[WorkerTokenModal] Using Basic auth in header with client_id in body');
+					logger.info('[WorkerTokenModal] Using Basic auth in header with client_id in body');
 					break;
 				case 'client_secret_post':
 					// Send client credentials in request body
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					console.log('[WorkerTokenModal] Using client credentials in body');
+					logger.info('[WorkerTokenModal] Using client credentials in body');
 					break;
 				case 'client_secret_jwt':
 				case 'private_key_jwt':
@@ -1087,20 +1087,20 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					// For now, fall back to client_secret_post
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					console.log(
+					logger.info(
 						'[WorkerTokenModal] JWT auth not implemented, falling back to client_secret_post'
 					);
 					break;
 				case 'none':
 					// No authentication - just send client_id
 					bodyParams.client_id = requestParams.client_id;
-					console.log('[WorkerTokenModal] Using no authentication');
+					logger.info('[WorkerTokenModal] Using no authentication');
 					break;
 				default:
 					// Default to client_secret_post
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					console.log('[WorkerTokenModal] Default to client_secret_post');
+					logger.info('[WorkerTokenModal] Default to client_secret_post');
 			}
 
 			// Build URLSearchParams from bodyParams (ensures proper encoding and handles empty values)
@@ -1109,7 +1109,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			Object.entries(bodyParams).forEach(([key, value]) => {
 				// Skip scope if it's empty, undefined, or null - let PingOne use default scopes
 				if (key === 'scope' && (!value || value.trim() === '')) {
-					console.log(
+					logger.info(
 						'[WorkerTokenModal] ⚠️ Skipping empty scope parameter - PingOne will use default scopes'
 					);
 					return;
@@ -1119,14 +1119,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				}
 			});
 
-			console.log('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====');
-			console.log('[WorkerTokenModal] Endpoint:', tokenEndpoint);
-			console.log('[WorkerTokenModal] Region:', pendingRequestDetails.region);
-			console.log('[WorkerTokenModal] Headers:', headers);
-			console.log('[WorkerTokenModal] Body params:', bodyParams);
-			console.log('[WorkerTokenModal] Body string:', body.toString());
-			console.log('[WorkerTokenModal] Scopes being sent:', bodyParams.scope);
-			console.log('[WorkerTokenModal] ===============================');
+			logger.info('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====');
+			logger.info('[WorkerTokenModal] Endpoint:', tokenEndpoint);
+			logger.info('[WorkerTokenModal] Region:', pendingRequestDetails.region);
+			logger.info('[WorkerTokenModal] Headers:', headers);
+			logger.info('[WorkerTokenModal] Body params:', bodyParams);
+			logger.info('[WorkerTokenModal] Body string:', body.toString());
+			logger.info('[WorkerTokenModal] Scopes being sent:', bodyParams.scope);
+			logger.info('[WorkerTokenModal] ===============================');
 
 			// Use trackedFetch to automatically track this API call in the API calls table
 			const response = await trackedFetch(tokenEndpoint, {
@@ -1240,14 +1240,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						grantedScopes = payload.scope ? payload.scope.split(' ').filter(Boolean) : [];
 					}
 				} catch (e) {
-					console.debug(
+					logger.debug(
 						'[WorkerTokenModal] Token is not a JWT or could not decode (this is OK for opaque tokens):',
 						e
 					);
 				}
 			}
 
-			console.log('[WorkerTokenModal] ✅ TOKEN RECEIVED FROM PINGONE:', {
+			logger.info('[WorkerTokenModal] ✅ TOKEN RECEIVED FROM PINGONE:', {
 				hasAccessToken: !!tokenData.access_token,
 				expiresIn: tokenData.expires_in,
 				tokenType: tokenData.token_type,
@@ -1277,15 +1277,15 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 					// For Identity Metrics, remind about role requirements (not scope requirements)
 					if (flowType === 'pingone-identity-metrics') {
-						console.log(
+						logger.info(
 							'[WorkerTokenModal] ℹ️ Reminder: Metrics API uses roles. If you get 403, assign "Identity Data Read Only" role to your Worker App.'
 						);
 					}
 				} else {
-					console.log('[WorkerTokenModal] ✅ All requested scopes were granted:', grantedScopes);
+					logger.info('[WorkerTokenModal] ✅ All requested scopes were granted:', grantedScopes);
 				}
 			} else {
-				console.debug(
+				logger.debug(
 					'[WorkerTokenModal] 📝 Could not verify granted scopes (token may be opaque). If you encounter 403 errors, check roles in PingOne.'
 				);
 			}
@@ -1298,7 +1298,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			localStorage.setItem(tokenStorageKey, tokenData.access_token);
 			localStorage.setItem(tokenExpiryKey, expiresAt.toString());
 
-			console.log('[WorkerTokenModal] ✅ Token stored successfully:', {
+			logger.info('[WorkerTokenModal] ✅ Token stored successfully:', {
 				tokenKey: tokenStorageKey,
 				tokenPreview: `${tokenData.access_token.substring(0, 20)}...`,
 				expiresIn: `${Math.floor(expiresIn / 60)} minutes`,
@@ -1356,7 +1356,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			);
 
 			if (persistedViaService) {
-				console.log('[WorkerTokenModal] Token and credentials saved successfully:', {
+				logger.info('[WorkerTokenModal] Token and credentials saved successfully:', {
 					expiresIn: `${expiresIn} seconds`,
 					expiresAt: new Date(expiresAt).toISOString(),
 					savedCredentials: {
@@ -1770,10 +1770,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 												},
 											}}
 											onExport={() => {
-												console.log('WorkerTokenModal: Credentials exported');
+												logger.info('WorkerTokenModal: Credentials exported');
 											}}
 											onImport={(imported) => {
-												console.log('WorkerTokenModal: Credentials imported', imported);
+												logger.info('WorkerTokenModal: Credentials imported', imported);
 												window.location.reload();
 											}}
 										/>

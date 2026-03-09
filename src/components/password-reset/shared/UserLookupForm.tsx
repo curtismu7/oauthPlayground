@@ -13,6 +13,7 @@ import {
 } from './PasswordResetSharedComponents';
 import { type PingOneUser, useUserLookup } from './useUserLookup';
 
+import { logger } from '../../utils/logger';
 interface UserLookupFormProps {
 	environmentId: string;
 	workerToken: string;
@@ -33,7 +34,7 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 
 	// Debug logging
 	React.useEffect(() => {
-		console.log('[UserLookupForm] Props received:', {
+		logger.info('[UserLookupForm] Props received:', {
 			environmentId: environmentId ? `${environmentId.substring(0, 8)}...` : 'empty',
 			workerToken: workerToken ? `${workerToken.substring(0, 10)}...` : 'empty',
 			hasOnUserFound: !!onUserFound,
@@ -95,7 +96,7 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 						}}
 						placeholder={placeholder}
 						onGetToken={() => {
-							console.log('Worker token required for user search in password reset');
+							logger.info('Worker token required for user search in password reset');
 						}}
 					/>
 					{user && (

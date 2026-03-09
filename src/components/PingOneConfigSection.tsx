@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 import { credentialManager } from '../utils/credentialManager';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   background: V9_COLORS.BG.WARNING;
   border: 2px solid V9_COLORS.PRIMARY.YELLOW;
@@ -196,7 +197,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 		finalCredentials?.clientSecret &&
 		finalCredentials.clientSecret.trim() !== '';
 
-	console.log(' [PingOneConfigSection] Credential check for styling:', {
+	logger.info(' [PingOneConfigSection] Credential check for styling:', {
 		getAllCredentials: credentials,
 		authzCredentials: authzCredentials,
 		finalCredentials: finalCredentials,
@@ -225,14 +226,14 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			log.error('PingOneConfigSection', 'Failed to copy URL:', undefined, error as Error);
+			logger.error('PingOneConfigSection', 'Failed to copy URL:', undefined, error as Error);
 		}
 	};
 
 	const handleOpenInNewTab = () => {
 		// Don't proceed if no valid Environment ID
 		if (!hasValidEnvironmentId) {
-			console.log(
+			logger.info(
 				' [PingOneConfigSection] Console button clicked but no valid Environment ID available'
 			);
 			return;
@@ -240,7 +241,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 
 		// Create proper PingOne console URL with Environment ID
 		const consoleUrl = `https://console.pingone.com/index.html?env=${credentials.environmentId}`;
-		console.log(' [PingOneConfigSection] Opening PingOne console with Environment ID:', {
+		logger.info(' [PingOneConfigSection] Opening PingOne console with Environment ID:', {
 			environmentId: credentials.environmentId,
 			consoleUrl: consoleUrl,
 		});

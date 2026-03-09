@@ -496,7 +496,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				const storedSettings = localStorage.getItem(STORAGE_KEY);
 				if (storedSettings) {
 					const backupSettings = JSON.parse(storedSettings);
-					console.log('[ENV-MGMT] ✅ Loaded settings from localStorage');
+					logger.info('[ENV-MGMT] ✅ Loaded settings from localStorage');
 					setSelectedApiRegion(backupSettings.selectedApiRegion || 'na');
 					setTypeFilter(backupSettings.typeFilter || 'all');
 					setStatusFilter(backupSettings.statusFilter || 'all');
@@ -531,7 +531,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			try {
 				// Save to localStorage (fallback since unified storage is for tokens)
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-				console.log('[ENV-MGMT] ✅ Settings saved to localStorage');
+				logger.info('[ENV-MGMT] ✅ Settings saved to localStorage');
 			} catch (error) {
 				logger.warn(
 					'EnvironmentManagementPageV8',
@@ -548,7 +548,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	// Test function to debug environment fetching
 	const _testEnvironmentFetch = useCallback(async () => {
-		console.log('[TEST] Starting environment fetch test...');
+		logger.info('[TEST] Starting environment fetch test...');
 		try {
 			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
 			if (!token) {
@@ -558,20 +558,20 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			const response = await fetch(`/api/test-environments?accessToken=${token}&region=na`);
 			const data = await response.json();
-			console.log('[TEST] Response:', data);
+			logger.info('[TEST] Response:', data);
 		} catch (error) {
 			logger.error('EnvironmentManagementPageV8', '[TEST] Error:', undefined, error as Error);
 		}
 	}, []);
 
 	const fetchEnvironments = useCallback(async () => {
-		console.log('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...');
+		logger.info('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...');
 
 		try {
 			setLoading(true);
 			setEnvError(null);
 
-			console.log('[EnvironmentManagementPageV8] 📊 Fetching environments - Token status:', {
+			logger.info('[EnvironmentManagementPageV8] 📊 Fetching environments - Token status:', {
 				isLoading: globalTokenStatus.isLoading,
 				isValid: globalTokenStatus.isValid,
 				hasToken: !!globalTokenStatus.token,
@@ -582,7 +582,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			// Check if global worker token is still loading
 			if (globalTokenStatus.isLoading) {
-				console.log(
+				logger.info(
 					'[EnvironmentManagementPageV8] ⏳ Global worker token is still loading, skipping fetch'
 				);
 				return;
@@ -590,7 +590,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			// Check if global worker token is available and valid
 			if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
-				console.log(
+				logger.info(
 					'[EnvironmentManagementPageV8] ❌ Global worker token not available, skipping fetch',
 					{
 						isValid: globalTokenStatus.isValid,
@@ -602,7 +602,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				return;
 			}
 
-			console.log(
+			logger.info(
 				'[EnvironmentManagementPageV8] ✅ Token is valid, proceeding with environment fetch'
 			);
 
@@ -635,7 +635,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				filters.pageSize = pageSize;
 			}
 
-			console.log('[EnvironmentManagementPageV8] 🔍 Fetching with filters:', {
+			logger.info('[EnvironmentManagementPageV8] 🔍 Fetching with filters:', {
 				filters,
 				selectedApiRegion,
 				currentPage,
@@ -656,7 +656,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				),
 			});
 
-			console.log(
+			logger.info(
 				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments'
 			);
 
@@ -666,7 +666,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				selectedApiRegion // Use selected API region
 			);
 
-			console.log('[EnvironmentManagementPageV8] 📦 Received response:', {
+			logger.info('[EnvironmentManagementPageV8] 📦 Received response:', {
 				response,
 				environmentsCount: response?.environments?.length,
 				totalCount: response?.totalCount,
@@ -685,7 +685,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			// CRITICAL FIX: Ensure environments is always an array, never undefined
 			const envs = response?.environments ?? [];
-			console.log('[EnvironmentManagementPageV8] 📝 Setting environments:', {
+			logger.info('[EnvironmentManagementPageV8] 📝 Setting environments:', {
 				count: envs.length,
 				firstEnv: envs[0] || 'No environments',
 			});
@@ -693,7 +693,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments(envs);
 			setTotalPages(Math.ceil((response?.totalCount ?? 0) / pageSize));
 
-			console.log('[EnvironmentManagementPageV8] ✅ Successfully loaded environments');
+			logger.info('[EnvironmentManagementPageV8] ✅ Successfully loaded environments');
 		} catch (err) {
 			logger.error(
 				'EnvironmentManagementPageV8',
@@ -712,7 +712,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments([]);
 			setTotalPages(1);
 		} finally {
-			console.log('[EnvironmentManagementPageV8] 🏁 Fetch environments completed');
+			logger.info('[EnvironmentManagementPageV8] 🏁 Fetch environments completed');
 			setLoading(false);
 		}
 	}, [
@@ -742,7 +742,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newRegion = e.target.value;
-		console.log('[EnvironmentManagementPageV8] 🌍 Region changing to:', newRegion);
+		logger.info('[EnvironmentManagementPageV8] 🌍 Region changing to:', newRegion);
 		setIsChangingRegion(true);
 		setSelectedApiRegion(newRegion);
 		// Reset to first page when changing region
@@ -766,7 +766,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 		if (name?.trim()) {
 			// Simple environment creation - in a real app this would call an API
-			console.log('Create environment:', name.trim());
+			logger.info('Create environment:', name.trim());
 
 			// For demo purposes, we'll just log it
 			// In production: await EnvironmentServiceV8.createEnvironment({ name: name.trim() });
@@ -801,7 +801,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleImportEnvironments = () => {
 		// TODO: Implement import functionality
-		console.log('Import environments - Feature not yet implemented');
+		logger.info('Import environments - Feature not yet implemented');
 		setEnvError('Import functionality coming soon');
 	};
 
@@ -821,7 +821,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 		if (editName.trim() !== editingEnvironment.name) {
 			// Simple name update - in a real app this would call an API
-			console.log('Update environment name:', editingEnvironment.id, editName.trim());
+			logger.info('Update environment name:', editingEnvironment.id, editName.trim());
 
 			// For demo purposes, we'll just log it
 			// In production: await EnvironmentServiceV8.updateEnvironmentName(editingEnvironment.id, editName.trim());

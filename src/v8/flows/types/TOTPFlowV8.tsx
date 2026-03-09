@@ -43,6 +43,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
 interface TOTPConfigureStepProps extends MFAFlowBaseRenderProps {
@@ -70,7 +71,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
-			console.log(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -80,7 +81,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 				isSyncingRef.current = false;
 			}, 0);
 		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
-			console.log(`${MODULE_TAG} Admin Flow selected - ensuring Worker Token is used`);
+			logger.info(`${MODULE_TAG} Admin Flow selected - ensuring Worker Token is used`);
 			isSyncingRef.current = true;
 			if (props.showUserLoginModal) {
 				props.setShowUserLoginModal(false);
@@ -107,13 +108,13 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 		if (isSyncingRef.current) return;
 
 		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
 			);
 			setRegistrationFlowType?.('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
 			);
 			setRegistrationFlowType?.('user');
@@ -587,7 +588,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						nav.goToPrevious();
 					} else {
 						// No valid previous step, go to hub
-						console.log(`${MODULE_TAG} No valid previous step, navigating to hub`);
+						logger.info(`${MODULE_TAG} No valid previous step, navigating to hub`);
 						navigateToMfaHubWithCleanup(navigate);
 					}
 					return;
@@ -598,11 +599,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					nav.goToStep(targetStep);
 				} else {
 					// Invalid step, go to hub
-					console.warn(`${MODULE_TAG} Invalid target step ${targetStep}, navigating to hub`);
+					logger.warn(`${MODULE_TAG} Invalid target step ${targetStep}, navigating to hub`);
 					navigateToMfaHubWithCleanup(navigate);
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Navigation error, falling back to hub:`, error);
+				logger.error(`${MODULE_TAG} Navigation error, falling back to hub:`, error);
 				navigateToMfaHubWithCleanup(navigate);
 			}
 		},
@@ -668,7 +669,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const handleActivateDevice = useCallback(async () => {
 		const props = activationPropsRef.current;
 		if (!props) {
-			console.error(`${MODULE_TAG} Activation props not available`);
+			logger.error(`${MODULE_TAG} Activation props not available`);
 			return;
 		}
 
@@ -739,7 +740,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// On error: Stay on activation modal and show error message
 			// Don't close modal, don't navigate away
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to activate TOTP device:`, error);
+			logger.error(`${MODULE_TAG} Failed to activate TOTP device:`, error);
 
 			// Normalize error message for better UX
 			const normalizedError =
@@ -856,7 +857,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// Only navigate if we're on Step 1 and haven't already triggered navigation
 			// CRITICAL: Don't retry if already triggered - that causes infinite loops
 			if (currentStep === 1 && !autoNavigateRef.current.triggered) {
-				console.log(`${MODULE_TAG} [useEffect] Auto-navigating from Step 1 to Step 3`, {
+				logger.info(`${MODULE_TAG} [useEffect] Auto-navigating from Step 1 to Step 3`, {
 					currentStep,
 					userClosedQrModal: userClosedQrModalRef.current,
 				});
@@ -935,7 +936,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		// Auto-navigation removed - user must manually click "Next" button
 		// Show guidance modal instead when configured
 		if (isConfiguredValue && currentStep === 0 && !autoNavigateRef.current.triggered) {
-			console.log(
+			logger.info(
 				`${MODULE_TAG} [useEffect] TOTP configured, showing guidance instead of auto-navigating`,
 				{
 					currentStep,
@@ -1046,7 +1047,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						showRegisterForm: devices.length === 0,
 					});
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					logger.error(`${MODULE_TAG} Failed to load devices`, error);
 					setDeviceSelection((prev) => ({
 						...prev,
 						loadingDevices: false,
@@ -1084,7 +1085,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// Auto-navigate to Step 3 if we're on Step 1 during registration flow
 			// BUT: Don't auto-navigate if user explicitly closed the QR modal (they want to go back)
 			if (nav.currentStep === 1 && !userClosedQrModalRef.current) {
-				console.log(`${MODULE_TAG} [Step 1] Registration flow detected, navigating to Step 3`, {
+				logger.info(`${MODULE_TAG} [Step 1] Registration flow detected, navigating to Step 3`, {
 					currentStep: nav.currentStep,
 					alreadyTriggered: autoNavigateRef.current.triggered,
 				});
@@ -1092,7 +1093,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				// Navigate immediately - don't wait
 				if (!autoNavigateRef.current.triggered) {
 					autoNavigateRef.current = { step: 3, triggered: true };
-					console.log(`${MODULE_TAG} [Step 1] Calling nav.goToStep(3)`);
+					logger.info(`${MODULE_TAG} [Step 1] Calling nav.goToStep(3)`);
 
 					// Try multiple approaches to ensure navigation happens
 					nav.goToStep(3); // Direct call
@@ -1100,7 +1101,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					// Also try with setTimeout as backup
 					setTimeout(() => {
 						if (nav.currentStep === 1) {
-							console.warn(
+							logger.warn(
 								`${MODULE_TAG} [Step 1] Still on step 1 after direct call, retrying navigation`
 							);
 							nav.goToStep(3);
@@ -1218,7 +1219,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+					logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 
 					// Check for LIMIT_EXCEEDED error
 					const errorWithCode = error as Error & {
@@ -1407,9 +1408,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								},
 								registrationCredentials.nickname
 							);
-							console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+							logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`);
 						} catch (nicknameError) {
-							console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
+							logger.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
 							// Don't fail the registration if nickname update fails
 						}
 					}
@@ -1439,7 +1440,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					let finalKeyUri = keyUri;
 
 					if (!secret && !keyUri && result.deviceId) {
-						console.log(
+						logger.info(
 							`${MODULE_TAG} ⚠️ Secret/keyUri not in registration response, fetching device details...`
 						);
 						try {
@@ -1448,7 +1449,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								deviceId: result.deviceId,
 							} as SendOTPParams);
 
-							console.log(`${MODULE_TAG} 📋 Full device details response:`, {
+							logger.info(`${MODULE_TAG} 📋 Full device details response:`, {
 								deviceId: (deviceDetails as { id?: string }).id,
 								status: (deviceDetails as { status?: string }).status,
 								hasProperties: !!(deviceDetails as { properties?: unknown }).properties,
@@ -1469,21 +1470,21 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							if (deviceProperties) {
 								finalSecret = deviceProperties.secret || finalSecret;
 								finalKeyUri = deviceProperties.keyUri || finalKeyUri;
-								console.log(`${MODULE_TAG} ✅ Fetched secret/keyUri from device details:`, {
+								logger.info(`${MODULE_TAG} ✅ Fetched secret/keyUri from device details:`, {
 									hasSecret: !!finalSecret,
 									hasKeyUri: !!finalKeyUri,
 									secretLength: finalSecret?.length,
 									keyUriLength: finalKeyUri?.length,
 								});
 							} else {
-								console.warn(`${MODULE_TAG} ⚠️ Device details response has no properties object:`, {
+								logger.warn(`${MODULE_TAG} ⚠️ Device details response has no properties object:`, {
 									deviceDetailsKeys: Object.keys(deviceDetails as Record<string, unknown>),
 								});
 							}
 						} catch (error) {
-							console.error(`${MODULE_TAG} ❌ Failed to fetch device details for QR code:`, error);
+							logger.error(`${MODULE_TAG} ❌ Failed to fetch device details for QR code:`, error);
 							if (error instanceof Error) {
-								console.error(`${MODULE_TAG} Error details:`, {
+								logger.error(`${MODULE_TAG} Error details:`, {
 									message: error.message,
 									stack: error.stack,
 								});
@@ -1493,7 +1494,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 					// Debug logging to diagnose missing QR code data
 					if (!finalSecret && !finalKeyUri) {
-						console.warn(`${MODULE_TAG} ⚠️ TOTP registration response missing secret and keyUri:`, {
+						logger.warn(`${MODULE_TAG} ⚠️ TOTP registration response missing secret and keyUri:`, {
 							deviceId: result.deviceId,
 							status: result.status,
 							resultKeys: Object.keys(result),
@@ -1505,7 +1506,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								: [],
 						});
 					} else {
-						console.log(`${MODULE_TAG} ✅ TOTP QR code data extracted:`, {
+						logger.info(`${MODULE_TAG} ✅ TOTP QR code data extracted:`, {
 							hasSecret: !!finalSecret,
 							hasKeyUri: !!finalKeyUri,
 							secretLength: finalSecret?.length,
@@ -1572,7 +1573,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					setShowQrModal(true);
 
 					// Log state before navigation
-					console.log(`${MODULE_TAG} Navigating to Step 3 with QR code data:`, {
+					logger.info(`${MODULE_TAG} Navigating to Step 3 with QR code data:`, {
 						hasDeviceId: !!result.deviceId,
 						deviceStatus: result.status,
 						hasFinalSecret: !!finalSecret,
@@ -2160,7 +2161,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			// Removed verbose debug logging - only log once per session if needed
 			// if (nav.currentStep === 3 && !shouldShowQrCode && !hasLoggedQrWarning) {
-			// 	console.warn(`${MODULE_TAG} Missing QR code data on Step 3`);
+			// 	logger.warn(`${MODULE_TAG} Missing QR code data on Step 3`);
 			// 	hasLoggedQrWarning = true;
 			// }
 
@@ -2869,7 +2870,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															setShowQrModal(false);
 															nav.goToStep(2);
 														} catch (error) {
-															console.error(`${MODULE_TAG} Failed to delete device:`, error);
+															logger.error(`${MODULE_TAG} Failed to delete device:`, error);
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
@@ -4045,7 +4046,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							// For now, just navigate to hub
 							navigateToMfaHubWithCleanup(navigate);
 						} catch (error) {
-							console.error(`${MODULE_TAG} Failed to delete expired device:`, error);
+							logger.error(`${MODULE_TAG} Failed to delete expired device:`, error);
 							modernMessaging.showBanner({
 								type: 'error',
 								title: 'Error',

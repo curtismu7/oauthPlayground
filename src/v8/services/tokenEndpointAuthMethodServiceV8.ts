@@ -19,6 +19,7 @@
 
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 TOKEN-ENDPOINT-AUTH-METHOD-V8]';
 
 export type TokenEndpointAuthMethod =
@@ -48,7 +49,7 @@ export class TokenEndpointAuthMethodServiceV8 {
 		specVersion: SpecVersion,
 		usePKCE: boolean = false
 	): TokenEndpointAuthMethod[] {
-		console.log(`${MODULE_TAG} Getting auth methods`, { flowType, specVersion, usePKCE });
+		logger.info(`${MODULE_TAG} Getting auth methods`, { flowType, specVersion, usePKCE });
 
 		// Authorization Code Flow
 		if (flowType === 'oauth-authz') {
@@ -111,7 +112,7 @@ export class TokenEndpointAuthMethodServiceV8 {
 		}
 
 		// Default fallback
-		console.warn(`${MODULE_TAG} Unknown flow type, using default auth methods`, { flowType });
+		logger.warn(`${MODULE_TAG} Unknown flow type, using default auth methods`, { flowType });
 		return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
 	}
 

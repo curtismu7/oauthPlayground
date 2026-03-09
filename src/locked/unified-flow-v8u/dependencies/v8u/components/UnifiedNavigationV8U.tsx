@@ -19,6 +19,7 @@ import { ApiDisplayCheckbox } from '../../v8/components/SuperSimpleApiDisplayV8.
 import type { FlowType } from '../../v8/services/specVersionServiceV8.ts';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
+import { logger } from '../../../../utils/logger';
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
 	currentFlowType?: FlowType;
@@ -81,11 +82,11 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			console.log(
+			logger.info(
 				'🔄 [UnifiedNavigationV8U-locked] Back to main: cleared ConfigChecker and pre-flight cache data'
 			);
 		} catch (error) {
-			console.warn('[UnifiedNavigationV8U-locked] Failed to clear cache data:', error);
+			logger.warn('[UnifiedNavigationV8U-locked] Failed to clear cache data:', error);
 		}
 
 		navigate('/v8u/unified');

@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { logger } from '../utils/logger';
 // src/utils/errorMonitoring.ts
 // Comprehensive error monitoring and alerting system
 
@@ -304,7 +305,7 @@ export class ErrorMonitoring {
 			`[CRITICAL ALERT] ${error.message}`,
 			error.context as Record<string, unknown>
 		);
-		console.log(
+		logger.info(
 			`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical error detected: ${error.message}`
 		);
 
@@ -367,7 +368,7 @@ export class ErrorMonitoring {
 	 */
 	addAlertRule(rule: AlertRule): void {
 		this.alertRules.push(rule);
-		console.log(`[Error Monitoring] Added alert rule: ${rule.name}`);
+		logger.info(`[Error Monitoring] Added alert rule: ${rule.name}`);
 	}
 
 	/**
@@ -375,7 +376,7 @@ export class ErrorMonitoring {
 	 */
 	removeAlertRule(ruleId: string): void {
 		this.alertRules = this.alertRules.filter((rule) => rule.id !== ruleId);
-		console.log(`[Error Monitoring] Removed alert rule: ${ruleId}`);
+		logger.info(`[Error Monitoring] Removed alert rule: ${ruleId}`);
 	}
 
 	/**
@@ -420,7 +421,7 @@ export class ErrorMonitoring {
 	clearErrorHistory(): void {
 		this.errorHistory = [];
 		this.metrics = null;
-		console.log('[Error Monitoring] Error history cleared');
+		logger.info('[Error Monitoring] Error history cleared');
 	}
 
 	/**

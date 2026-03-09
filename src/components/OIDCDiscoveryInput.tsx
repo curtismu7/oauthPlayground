@@ -12,6 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
+import { logger } from '../utils/logger';
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
 	onCredentialsGenerated?: (credentials: any) => void;
@@ -360,7 +361,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 				};
 			}
 		} catch (error) {
-			log.warn('OIDCDiscoveryInput', 'Failed to load OIDC Discovery settings:', { error });
+			logger.warn('OIDCDiscoveryInput', 'Failed to load OIDC Discovery settings:', { error });
 		}
 		return {
 			issuerUrl: initialIssuerUrl || '',
@@ -393,7 +394,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		try {
 			localStorage.setItem('oidc-discovery-settings', JSON.stringify(settings));
 		} catch (error) {
-			log.warn('OIDCDiscoveryInput', 'Failed to save OIDC Discovery settings:', { error });
+			logger.warn('OIDCDiscoveryInput', 'Failed to save OIDC Discovery settings:', { error });
 		}
 	}, [issuerUrl, discoveryResult, error]);
 
@@ -408,7 +409,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			setError(null);
 			setShowResults(false);
 		} catch (error) {
-			log.warn('OIDCDiscoveryInput', 'Failed to clear OIDC Discovery settings:', { error });
+			logger.warn('OIDCDiscoveryInput', 'Failed to clear OIDC Discovery settings:', { error });
 		}
 	}, [initialIssuerUrl]);
 
@@ -448,7 +449,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-			log.error('OIDCDiscoveryInput', '[OIDC Discovery Input] Discovery failed:', {
+			logger.error('OIDCDiscoveryInput', '[OIDC Discovery Input] Discovery failed:', {
 				message: errorMessage,
 			});
 			setError(errorMessage);

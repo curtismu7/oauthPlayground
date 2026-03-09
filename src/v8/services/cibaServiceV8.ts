@@ -20,6 +20,7 @@
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 CIBA-SERVICE-V8]';
 
 export interface CibaCredentials {
@@ -83,7 +84,7 @@ export const CibaServiceV8 = {
 	 * @returns Promise<CibaAuthRequest> - Authentication request details
 	 */
 	async initiateAuthentication(credentials: CibaCredentials): Promise<CibaAuthRequest> {
-		console.log(`${MODULE_TAG} Initiating CIBA authentication request`);
+		logger.info(`${MODULE_TAG} Initiating CIBA authentication request`);
 
 		try {
 			const formData = new URLSearchParams();
@@ -122,7 +123,7 @@ export const CibaServiceV8 = {
 			}
 
 			const authRequest = await response.json();
-			console.log(`${MODULE_TAG} CIBA authentication request initiated:`, {
+			logger.info(`${MODULE_TAG} CIBA authentication request initiated:`, {
 				auth_req_id: `${authRequest.auth_req_id?.substring(0, 20)}...`,
 				expires_in: authRequest.expires_in,
 				interval: authRequest.interval,
@@ -135,7 +136,7 @@ export const CibaServiceV8 = {
 			});
 			return authRequest;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
+			logger.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -153,7 +154,7 @@ export const CibaServiceV8 = {
 	 * @returns Promise<CibaPollingResult> - Polling result with tokens or error
 	 */
 	async pollForTokens(authReqId: string, credentials: CibaCredentials): Promise<CibaPollingResult> {
-		console.log(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
+		logger.info(`${MODULE_TAG} Polling for CIBA tokens: ${authReqId.substring(0, 20)}...`);
 
 		try {
 			const formData = new URLSearchParams();
@@ -182,7 +183,7 @@ export const CibaServiceV8 = {
 
 				// Authorization pending - user hasn't approved yet
 				if (errorCode === 'authorization_pending') {
-					console.log(`${MODULE_TAG} Authorization pending - continue polling`);
+					logger.info(`${MODULE_TAG} Authorization pending - continue polling`);
 					return {
 						status: 'pending',
 						interval: data.interval || 5,
@@ -191,7 +192,7 @@ export const CibaServiceV8 = {
 
 				// Slow down - polling too frequently
 				if (errorCode === 'slow_down') {
-					console.log(`${MODULE_TAG} Slow down - increase polling interval`);
+					logger.info(`${MODULE_TAG} Slow down - increase polling interval`);
 					return {
 						status: 'pending',
 						error: 'slow_down',
@@ -202,7 +203,7 @@ export const CibaServiceV8 = {
 
 				// Request expired
 				if (errorCode === 'expired_token') {
-					console.log(`${MODULE_TAG} Request expired`);
+					logger.info(`${MODULE_TAG} Request expired`);
 					return {
 						status: 'expired',
 						error: 'expired_token',
@@ -212,7 +213,7 @@ export const CibaServiceV8 = {
 
 				// Access denied by user
 				if (errorCode === 'access_denied') {
-					console.log(`${MODULE_TAG} Access denied by user`);
+					logger.info(`${MODULE_TAG} Access denied by user`);
 					return {
 						status: 'denied',
 						error: 'access_denied',
@@ -221,7 +222,7 @@ export const CibaServiceV8 = {
 				}
 
 				// Other errors
-				console.error(`${MODULE_TAG} CIBA polling error:`, data);
+				logger.error(`${MODULE_TAG} CIBA polling error:`, data);
 				return {
 					status: 'error',
 					error: errorCode || 'unknown_error',
@@ -231,7 +232,7 @@ export const CibaServiceV8 = {
 			}
 
 			// Success - tokens issued
-			console.log(`${MODULE_TAG} CIBA tokens received successfully`);
+			logger.info(`${MODULE_TAG} CIBA tokens received successfully`);
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'CIBA authentication completed successfully',
@@ -243,7 +244,7 @@ export const CibaServiceV8 = {
 				tokens: data as CibaTokens,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to poll for CIBA tokens:`, error);
+			logger.error(`${MODULE_TAG} Failed to poll for CIBA tokens:`, error);
 			return {
 				status: 'error',
 				error: 'network_error',
@@ -342,7 +343,7 @@ export const CibaServiceV8 = {
 			const grantTypesSupported = discovery.grant_types_supported || [];
 			return grantTypesSupported.includes('urn:openid:params:grant-type:ciba');
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to check CIBA support:`, error);
+			logger.error(`${MODULE_TAG} Failed to check CIBA support:`, error);
 			return false;
 		}
 	},

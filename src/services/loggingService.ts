@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file loggingService.ts
  * @module services
  * @description Centralized logging service with file output capability
@@ -118,16 +119,16 @@ class LoggingService {
 
 		switch (entry.level) {
 			case LogLevel.ERROR:
-				console.error(message, entry.data);
+				logger.error(message, entry.data);
 				break;
 			case LogLevel.WARN:
-				console.warn(message, entry.data);
+				logger.warn(message, entry.data);
 				break;
 			case LogLevel.INFO:
-				console.info(message, entry.data);
+				logger.info(message, entry.data);
 				break;
 			case LogLevel.DEBUG:
-				console.debug(message, entry.data);
+				logger.debug(message, entry.data);
 				break;
 		}
 	}

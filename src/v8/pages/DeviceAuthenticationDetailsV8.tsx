@@ -14,6 +14,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 interface DeviceAuthenticationRecord {
 	success?: boolean;
 	environmentId?: string;
@@ -138,7 +139,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				console.warn(`${MODULE_TAG} Unable to determine worker token status`, err);
+				logger.warn(`${MODULE_TAG} Unable to determine worker token status`, err);
 				if (isMounted) {
 					setHasWorkerToken(false);
 				}
@@ -187,7 +188,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Unknown error';
-				console.error(`${MODULE_TAG} Failed to read device authentication`, err);
+				logger.error(`${MODULE_TAG} Failed to read device authentication`, err);
 				setError(message);
 				modernMessaging.showBanner({
 					type: 'error',

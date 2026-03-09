@@ -13,6 +13,7 @@
 
 import { userDatabaseService } from '../services/userDatabaseService.js';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔍 USER-API]';
 
 /**
@@ -48,7 +49,7 @@ export function setupUserApiRoutes(app) {
 				total: users.length,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Search error:`, error);
+			logger.error(`${MODULE_TAG} Search error:`, error);
 			res.status(500).json({
 				error: 'Search failed',
 				details: error.message,
@@ -72,7 +73,7 @@ export function setupUserApiRoutes(app) {
 				total: users.length,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Recent users error:`, error);
+			logger.error(`${MODULE_TAG} Recent users error:`, error);
 			res.status(500).json({
 				error: 'Failed to get recent users',
 				details: error.message,
@@ -92,7 +93,7 @@ export function setupUserApiRoutes(app) {
 				totalUsers: count,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Count error:`, error);
+			logger.error(`${MODULE_TAG} Count error:`, error);
 			res.status(500).json({
 				error: 'Failed to get user count',
 				details: error.message,
@@ -109,7 +110,7 @@ export function setupUserApiRoutes(app) {
 
 			res.json(metadata);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Metadata error:`, error);
+			logger.error(`${MODULE_TAG} Metadata error:`, error);
 			res.status(500).json({
 				error: 'Failed to get sync metadata',
 				details: error.message,
@@ -129,7 +130,7 @@ export function setupUserApiRoutes(app) {
 				message: `Cleared data for environment ${environmentId}`,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Clear error:`, error);
+			logger.error(`${MODULE_TAG} Clear error:`, error);
 			res.status(500).json({
 				error: 'Failed to clear environment data',
 				details: error.message,
@@ -150,7 +151,7 @@ export function setupUserApiRoutes(app) {
 				});
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Starting ${incremental ? 'incremental' : 'full'} sync for ${environmentId}`
 			);
 
@@ -161,7 +162,7 @@ export function setupUserApiRoutes(app) {
 					maxPages,
 					delayMs,
 					onProgress: (totalFetched, pages, _users) => {
-						console.log(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
+						logger.info(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
 					},
 				});
 			} else {
@@ -170,7 +171,7 @@ export function setupUserApiRoutes(app) {
 					maxPages,
 					delayMs,
 					onProgress: (totalFetched, pages, _users) => {
-						console.log(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
+						logger.info(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
 					},
 				});
 			}
@@ -181,7 +182,7 @@ export function setupUserApiRoutes(app) {
 				message: `${incremental ? 'Incremental' : 'Full'} sync completed`,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Sync error:`, error);
+			logger.error(`${MODULE_TAG} Sync error:`, error);
 			res.status(500).json({
 				error: 'Sync failed',
 				details: error.message,
@@ -204,7 +205,7 @@ export function setupUserApiRoutes(app) {
 				isSyncing: metadata.sync_in_progress === 1,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Sync status error:`, error);
+			logger.error(`${MODULE_TAG} Sync status error:`, error);
 			res.status(500).json({
 				error: 'Failed to get sync status',
 				details: error.message,
@@ -229,14 +230,14 @@ export function setupUserApiRoutes(app) {
 				});
 			}
 
-			console.log(
+			logger.info(
 				`${MODULE_TAG} Bulk insert: ${users.length} users for ${environmentId} (clear first: ${clearFirst})`
 			);
 
 			// Clear existing data if requested
 			if (clearFirst) {
 				await userDatabaseService.clearEnvironmentData(environmentId);
-				console.log(`${MODULE_TAG} Cleared existing data for ${environmentId}`);
+				logger.info(`${MODULE_TAG} Cleared existing data for ${environmentId}`);
 			}
 
 			// Insert users in batches
@@ -251,7 +252,7 @@ export function setupUserApiRoutes(app) {
 				await userDatabaseService.saveUsers(environmentId, batch, i + batch.length >= users.length);
 
 				insertedCount += batch.length;
-				console.log(
+				logger.info(
 					`${MODULE_TAG} Inserted batch ${Math.floor(i / batchSize) + 1}: ${insertedCount}/${users.length}`
 				);
 			}
@@ -264,7 +265,7 @@ export function setupUserApiRoutes(app) {
 				totalUsers: users.length,
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Bulk insert error:`, error);
+			logger.error(`${MODULE_TAG} Bulk insert error:`, error);
 			res.status(500).json({
 				error: 'Bulk insert failed',
 				details: error.message,

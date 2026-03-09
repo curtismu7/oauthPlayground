@@ -1,4 +1,5 @@
 // src/services/fido2Service.ts
+import { logger } from '../../../utils/logger';
 // FIDO2/WebAuthn Service for Passkey Registration and Authentication
 
 export interface FIDO2Credential {
@@ -103,7 +104,7 @@ export class FIDO2Service {
 				};
 			}
 
-			console.log('🔐 [FIDO2] Starting credential registration', {
+			logger.info('🔐 [FIDO2] Starting credential registration', {
 				rpId: config.rpId,
 				rpName: config.rpName,
 				userName: config.userName,
@@ -183,7 +184,7 @@ export class FIDO2Service {
 				clientExtensionResults: {},
 			});
 
-			console.log('✅ [FIDO2] Credential registered successfully', {
+			logger.info('✅ [FIDO2] Credential registered successfully', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
 				hasPublicKey: !!publicKey,
 				hasAttestation: !!attestationObject,
@@ -213,7 +214,7 @@ export class FIDO2Service {
 				userHandle: config.userHandle,
 			};
 		} catch (error: unknown) {
-			console.error('❌ [FIDO2] Credential registration failed:', error);
+			logger.error('❌ [FIDO2] Credential registration failed:', error);
 
 			let errorMessage = 'Credential registration failed';
 			if (error instanceof DOMException) {
@@ -262,7 +263,7 @@ export class FIDO2Service {
 				};
 			}
 
-			console.log('🔐 [FIDO2] Starting credential authentication', {
+			logger.info('🔐 [FIDO2] Starting credential authentication', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
 				rpId: rpId || FIDO2Service.DEFAULT_RP_ID,
 			});
@@ -305,7 +306,7 @@ export class FIDO2Service {
 				? FIDO2Service.arrayBufferToBase64(response.userHandle)
 				: undefined;
 
-			console.log('✅ [FIDO2] Credential authenticated successfully', {
+			logger.info('✅ [FIDO2] Credential authenticated successfully', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
 				hasSignature: !!signature,
 			});
@@ -317,7 +318,7 @@ export class FIDO2Service {
 				...(userHandle ? { userHandle } : {}),
 			};
 		} catch (error: unknown) {
-			console.error('❌ [FIDO2] Credential authentication failed:', error);
+			logger.error('❌ [FIDO2] Credential authentication failed:', error);
 
 			let errorMessage = 'Authentication failed';
 			if (error instanceof DOMException) {

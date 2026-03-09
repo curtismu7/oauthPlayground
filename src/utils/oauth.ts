@@ -2,10 +2,11 @@ import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVeri
 import { IdTokenPayload, UserInfo } from '../types/oauth';
 import { logger } from './logger';
 
+import { logger } from '../utils/logger';
 // Client logging function for server.log
 const clientLog = async (_message: string) => {
 	// Disabled to prevent 404 errors - endpoint not implemented
-	// console.log('[ClientLog]', message);
+	// logger.info('[ClientLog]', message);
 };
 
 /**
@@ -54,36 +55,36 @@ export const generateCodeChallenge = async (codeVerifier: string): Promise<strin
  * @returns {Object} Parsed parameters as key-value pairs
  */
 export const parseUrlParams = (url: string): Record<string, string> => {
-	console.log(' [OAuth] Parsing URL parameters from:', url);
+	logger.info(' [OAuth] Parsing URL parameters from:', url);
 	clientLog(`[OAuth] Parsing URL parameters from: ${url}`);
 	const params = new URLSearchParams(url.split('?')[1] || '');
 	const result = {};
 
-	console.log(' [OAuth] Query parameters:');
+	logger.info(' [OAuth] Query parameters:');
 	clientLog(`[OAuth] Query parameters:`);
 	for (const [key, value] of params.entries()) {
 		result[key] = value;
-		console.log(`   ${key}: ${value}`);
+		logger.info(`   ${key}: ${value}`);
 		clientLog(`   ${key}: ${value}`);
 	}
 
 	// Also check hash parameters
 	const hash = url.split('#')[1];
 	if (hash) {
-		console.log(' [OAuth] Hash parameters:');
+		logger.info(' [OAuth] Hash parameters:');
 		clientLog(`[OAuth] Hash parameters:`);
 		const hashParams = new URLSearchParams(hash);
 		for (const [key, value] of hashParams.entries()) {
 			result[key] = value;
-			console.log(`   ${key}: ${value}`);
+			logger.info(`   ${key}: ${value}`);
 			clientLog(`   ${key}: ${value}`);
 		}
 	} else {
-		console.log(' [OAuth] No hash parameters found');
+		logger.info(' [OAuth] No hash parameters found');
 		clientLog(`[OAuth] No hash parameters found`);
 	}
 
-	console.log(' [OAuth] Final parsed parameters:', result);
+	logger.info(' [OAuth] Final parsed parameters:', result);
 	clientLog(`[OAuth] Final parsed parameters: ${JSON.stringify(result)}`);
 	return result;
 };
@@ -105,7 +106,7 @@ export const createSignedRequestObject = async (
 		x5t?: string;
 	}
 ): Promise<string> => {
-	console.log(' [OAuth] Creating signed request object (JAR)...');
+	logger.info(' [OAuth] Creating signed request object (JAR)...');
 	clientLog(`[OAuth] Creating signed request object (JAR)...`);
 
 	const { SignJWT, importPKCS8 } = await import('jose');
@@ -125,7 +126,7 @@ export const createSignedRequestObject = async (
 		const key = await importPKCS8(options.privateKey, alg);
 		const signedRequest = await jwt.sign(key);
 
-		console.log(' [OAuth] Signed request object created successfully');
+		logger.info(' [OAuth] Signed request object created successfully');
 		clientLog(`[OAuth] Signed request object created successfully`);
 
 		return signedRequest;
@@ -160,7 +161,7 @@ export const pushAuthorizationRequest = async ({
 	requestParams: Record<string, string>;
 	requestObject?: string;
 }): Promise<{ request_uri: string; expires_in: number }> => {
-	console.log(' [OAuth] Pushing authorization request to PAR endpoint...');
+	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...');
 	clientLog(`[OAuth] Pushing authorization request to PAR endpoint...`);
 
 	const body = new URLSearchParams();
@@ -201,7 +202,7 @@ export const pushAuthorizationRequest = async ({
 		}
 
 		const parResponse = await response.json();
-		console.log(' [OAuth] PAR request successful:', parResponse);
+		logger.info(' [OAuth] PAR request successful:', parResponse);
 		clientLog(`[OAuth] PAR request successful: ${JSON.stringify(parResponse)}`);
 
 		return parResponse;
@@ -403,7 +404,7 @@ export const exchangeCodeForTokens = async ({
 	};
 }) => {
 	try {
-		console.debug('[oauth.util] Preparing token request', {
+		logger.debug('[oauth.util] Preparing token request', {
 			tokenEndpoint,
 			authMethod,
 			has_client_secret: !!clientSecret,
@@ -486,7 +487,7 @@ export const exchangeCodeForTokens = async ({
 		body,
 	});
 	try {
-		console.debug('[oauth.util] Token endpoint responded', {
+		logger.debug('[oauth.util] Token endpoint responded', {
 			ok: response.ok,
 			status: response.status,
 			statusText: response.statusText,
@@ -533,11 +534,11 @@ export const validateIdToken = async (
 	maxAge?: number,
 	accessToken?: string
 ): Promise<IdTokenPayload> => {
-	console.log(' [OAuth] Validating ID token with signature verification...');
+	logger.info(' [OAuth] Validating ID token with signature verification...');
 	clientLog(`[OAuth] Validating ID token with signature verification...`);
-	console.log(' [OAuth] Expected issuer:', issuer);
+	logger.info(' [OAuth] Expected issuer:', issuer);
 	clientLog(`[OAuth] Expected issuer: ${issuer}`);
-	console.log(' [OAuth] Expected clientId:', clientId);
+	logger.info(' [OAuth] Expected clientId:', clientId);
 	clientLog(`[OAuth] Expected clientId: ${clientId}`);
 
 	try {
@@ -553,9 +554,9 @@ export const validateIdToken = async (
 			? expectedIssuer.replace('/as', '')
 			: expectedIssuer;
 
-		console.log(' [OAuth] Issuer validation details:');
-		console.log('   Expected base issuer:', expectedIssuerBase);
-		console.log('   Expected issuer with /as:', expectedIssuerWithAs);
+		logger.info(' [OAuth] Issuer validation details:');
+		logger.info('   Expected base issuer:', expectedIssuerBase);
+		logger.info('   Expected issuer with /as:', expectedIssuerWithAs);
 
 		// Verify the JWT signature and decode the payload
 		const verifyOptions: JWTVerifyOptions = {
@@ -565,9 +566,9 @@ export const validateIdToken = async (
 
 		const { payload, protectedHeader } = await jwtVerify(idToken, JWKS, verifyOptions);
 
-		console.log(' [OAuth] Token header:', protectedHeader);
+		logger.info(' [OAuth] Token header:', protectedHeader);
 		clientLog(`[OAuth] Token header: ${JSON.stringify(protectedHeader)}`);
-		console.log(' [OAuth] Token payload:', {
+		logger.info(' [OAuth] Token payload:', {
 			iss: payload.iss,
 			aud: payload.aud,
 			exp: payload.exp,
@@ -604,7 +605,7 @@ export const validateIdToken = async (
 				clientLog(`[OIDC] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
 				throw new Error('Nonce validation failed - possible replay attack');
 			}
-			console.log(' [OIDC] Nonce validation successful');
+			logger.info(' [OIDC] Nonce validation successful');
 		} else {
 			logger.warn('OIDC', 'No nonce provided - this reduces security against replay attacks');
 		}
@@ -628,7 +629,7 @@ export const validateIdToken = async (
 					`Authentication too old: performed ${authAge} seconds ago, max_age allows ${maxAge} seconds`
 				);
 			}
-			console.log(' [OIDC] auth_time validation successful');
+			logger.info(' [OIDC] auth_time validation successful');
 		}
 
 		// 8. CONDITIONAL: Validate azp (authorized party) for multiple audiences
@@ -639,7 +640,7 @@ export const validateIdToken = async (
 					'ID token missing required azp (authorized party) claim for multiple audiences'
 				);
 			}
-			console.log(' [OIDC] azp validation successful for multiple audiences');
+			logger.info(' [OIDC] azp validation successful for multiple audiences');
 		}
 
 		// 9. OIDC CORE 1.0: Validate at_hash if access token is present (Section 3.1.3.6)
@@ -665,7 +666,7 @@ export const validateIdToken = async (
 					});
 					throw new Error('at_hash validation failed - access token may have been tampered with');
 				}
-				console.log(' [OIDC] at_hash validation successful');
+				logger.info(' [OIDC] at_hash validation successful');
 			} catch (error) {
 				logger.error('OIDC', 'at_hash validation error:', undefined, error as Error);
 				throw new Error(
@@ -685,8 +686,8 @@ export const validateIdToken = async (
 			}
 		}
 
-		console.log(' [OAuth] ID token signature and claims validation successful');
-		console.log(' [OAuth] Validation details:', {
+		logger.info(' [OAuth] ID token signature and claims validation successful');
+		logger.info(' [OAuth] Validation details:', {
 			nonce: nonce ? (payload.nonce === nonce ? ' Valid' : ' Invalid') : 'Not checked',
 			maxAge: maxAge ? (payload.auth_time ? ' Checked' : ' Missing auth_time') : 'Not specified',
 		});

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
+import { logger } from '../utils/logger';
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -346,7 +347,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 			await onLogin(username.trim(), password);
 		} catch (err) {
 			// Error will be handled by parent component
-			log.error('RedirectlessLoginModal', 'Login failed:', undefined, err as Error);
+			logger.error('RedirectlessLoginModal', 'Login failed:', undefined, err as Error);
 		}
 	};
 

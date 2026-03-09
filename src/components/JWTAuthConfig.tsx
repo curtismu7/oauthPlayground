@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
 
+import { logger } from '../utils/logger';
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;
 	initialConfig?: Partial<JWTAuthConfig>;
@@ -369,7 +370,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			setStatus({ type: 'info', message: 'Copied to clipboard!' });
 			setTimeout(() => setStatus(null), 2000);
 		} catch (error) {
-			log.error('JWTAuthConfig', 'Failed to copy:', undefined, error as Error);
+			logger.error('JWTAuthConfig', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 

@@ -1,4 +1,5 @@
 /**
+import { logger } from '../utils/logger';
  * @file mfaNextStepNormalizer.ts
  * @module v8/utils
  * @description Normalizes MFA nextStep/status values to prevent UI regressions
@@ -60,7 +61,7 @@ export type MfaNextStepVariant =
 export function normalizeMfaNextStep(step: string | undefined | null): NormalizedMfaNextStep {
 	// Handle null/undefined
 	if (!step) {
-		console.warn('[MFA-NORMALIZER] Received null/undefined step, defaulting to SELECTION_REQUIRED');
+		logger.warn('[MFA-NORMALIZER] Received null/undefined step, defaulting to SELECTION_REQUIRED');
 		return 'SELECTION_REQUIRED';
 	}
 
@@ -88,7 +89,7 @@ export function normalizeMfaNextStep(step: string | undefined | null): Normalize
 
 		// Unknown value - log warning and use safe default
 		default:
-			console.warn(
+			logger.warn(
 				`[MFA-NORMALIZER] Unknown MFA step value: "${step}". Defaulting to SELECTION_REQUIRED. ` +
 					`Please update normalizeMfaNextStep() to handle this value explicitly.`
 			);

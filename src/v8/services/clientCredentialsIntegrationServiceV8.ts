@@ -17,6 +17,7 @@
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import { ScopeFixServiceV8 } from './scopeFixServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 CLIENT-CREDENTIALS-V8]';
 
 export type ClientAuthMethod =
@@ -81,7 +82,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 	 * @returns Token response
 	 */
 	static async requestToken(credentials: ClientCredentialsCredentials): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Requesting access token`, {
+		logger.info(`${MODULE_TAG} Requesting access token`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
@@ -123,7 +124,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// NOTE: Client credentials is for machine-to-machine auth, NOT user auth
 			// Scopes are required for client credentials flow
 			if (!credentials.scopes || credentials.scopes.trim() === '') {
-				console.error(`${MODULE_TAG} No scopes provided - client credentials flow requires scopes`);
+				logger.error(`${MODULE_TAG} No scopes provided - client credentials flow requires scopes`);
 				throw new Error(
 					'Scopes are required for client credentials flow. Use custom resource server scopes (e.g., api:read, api:write) or Management API scopes (e.g., p1:read:user, p1:read:environments). See https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles'
 				);
@@ -142,7 +143,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 			);
 
 			if (invalidScopes.length > 0) {
-				console.error(`${MODULE_TAG} Invalid scopes for client credentials flow`, {
+				logger.error(`${MODULE_TAG} Invalid scopes for client credentials flow`, {
 					invalidScopes,
 					allScopes: scopesList,
 					message: 'OpenID Connect scopes cannot be used with client credentials flow',
@@ -215,9 +216,9 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						console.log(`${MODULE_TAG} Using Client Secret JWT assertion authentication`);
+						logger.info(`${MODULE_TAG} Using Client Secret JWT assertion authentication`);
 					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, {
+						logger.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, {
 							error,
 						});
 						throw new Error(
@@ -246,9 +247,9 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						console.log(`${MODULE_TAG} Using Private Key JWT assertion authentication`);
+						logger.info(`${MODULE_TAG} Using Private Key JWT assertion authentication`);
 					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
+						logger.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
 						throw new Error(
 							`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
 						);
@@ -258,7 +259,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 				default: {
 					// Fallback to client_secret_post for any unexpected values
-					console.warn(`${MODULE_TAG} Unknown authentication method, using client_secret_post`);
+					logger.warn(`${MODULE_TAG} Unknown authentication method, using client_secret_post`);
 					proxyRequestBody.client_secret = credentials.clientSecret;
 					break;
 				}
@@ -266,7 +267,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 			// Verify grant_type is present
 			if (!proxyRequestBody.grant_type || proxyRequestBody.grant_type !== 'client_credentials') {
-				console.error(`${MODULE_TAG} ERROR: grant_type is missing or incorrect!`, {
+				logger.error(`${MODULE_TAG} ERROR: grant_type is missing or incorrect!`, {
 					hasGrantType: !!proxyRequestBody.grant_type,
 					grantType: proxyRequestBody.grant_type,
 					expected: 'client_credentials',
@@ -278,14 +279,14 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// VERIFY: Ensure client_secret is a string and not corrupted
 			if (authMethod === 'client_secret_post' && proxyRequestBody.client_secret) {
 				if (typeof proxyRequestBody.client_secret !== 'string') {
-					console.error(`${MODULE_TAG} ❌ ERROR: client_secret is not a string!`, {
+					logger.error(`${MODULE_TAG} ❌ ERROR: client_secret is not a string!`, {
 						type: typeof proxyRequestBody.client_secret,
 						value: proxyRequestBody.client_secret,
 					});
 					throw new Error('Client secret must be a string');
 				}
 				if (proxyRequestBody.client_secret.trim().length === 0) {
-					console.error(`${MODULE_TAG} ❌ ERROR: client_secret is empty or whitespace!`);
+					logger.error(`${MODULE_TAG} ❌ ERROR: client_secret is empty or whitespace!`);
 					throw new Error('Client secret cannot be empty');
 				}
 			}
@@ -381,7 +382,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 				// #endregion
 
 				// Log the FULL error response for debugging
-				console.error(`${MODULE_TAG} Full PingOne error response:`, {
+				logger.error(`${MODULE_TAG} Full PingOne error response:`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorCode,
@@ -409,7 +410,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 				// Enhanced error handling for invalid_client with diagnostic info
 				if (errorCode === 'invalid_client') {
 					const diagnosticInfo = (errorData as { diagnostic?: unknown }).diagnostic;
-					console.error(`${MODULE_TAG} Invalid client error with diagnostics:`, {
+					logger.error(`${MODULE_TAG} Invalid client error with diagnostics:`, {
 						errorCode,
 						errorMessage,
 						correlationId,
@@ -471,7 +472,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 				// Provide helpful error message for invalid_grant errors (grant type not enabled)
 				if (errorCode === 'invalid_grant') {
-					console.error(`${MODULE_TAG} Invalid grant type error`, {
+					logger.error(`${MODULE_TAG} Invalid grant type error`, {
 						grantTypeRequested: 'client_credentials',
 						errorCode,
 						errorMessage,
@@ -518,7 +519,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 				// Provide helpful error message for invalid_scope errors
 				if (errorCode === 'invalid_scope') {
-					console.error(`${MODULE_TAG} Invalid scope error`, {
+					logger.error(`${MODULE_TAG} Invalid scope error`, {
 						scopesRequested: credentials.scopes,
 						errorCode,
 						errorMessage,
@@ -632,7 +633,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 					);
 				}
 
-				console.error(`${MODULE_TAG} Token request failed`, {
+				logger.error(`${MODULE_TAG} Token request failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorCode,
@@ -646,7 +647,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 			const tokens: TokenResponse = responseData as TokenResponse;
 
-			console.log(`${MODULE_TAG} Access token received successfully`, {
+			logger.info(`${MODULE_TAG} Access token received successfully`, {
 				hasAccessToken: !!tokens.access_token,
 				expiresIn: tokens.expires_in,
 				scope: tokens.scope,
@@ -670,7 +671,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 			errorDetails.scopes = credentials.scopes;
 			errorDetails.authMethod = credentials.clientAuthMethod || 'client_secret_post';
 
-			console.error(`${MODULE_TAG} Error requesting access token`, errorDetails);
+			logger.error(`${MODULE_TAG} Error requesting access token`, errorDetails);
 			throw error;
 		}
 	}
@@ -681,7 +682,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -694,11 +695,11 @@ export class ClientCredentialsIntegrationServiceV8 {
 			const payload = JSON.parse(ClientCredentialsIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			logger.error(`${MODULE_TAG} Error decoding token`, { error });
 			throw error;
 		}
 	}

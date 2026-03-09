@@ -9,6 +9,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { logger } from '../utils/logger';
 const DetectiveContainer = styled.div`
 	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
 	border-radius: 1rem;
@@ -510,7 +511,7 @@ const OAuthDetective: React.FC = () => {
 				duration: 4000,
 			});
 		} catch (error) {
-			log.error(
+			logger.error(
 				'OAuthDetective',
 				'[OAuth Detective] Error analyzing URL:',
 				undefined,

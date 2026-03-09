@@ -3,6 +3,7 @@
 import Prism from 'prismjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';
@@ -356,7 +357,7 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			log.error('VSCodeCodeDisplay', 'Failed to copy code:', undefined, err as Error);
+			logger.error('VSCodeCodeDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

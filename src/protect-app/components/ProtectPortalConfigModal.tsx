@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 
+import { logger } from '../utils/logger';
 interface ProtectPortalConfigModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -89,7 +90,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 			onConfigurationSaved?.(config);
 			onClose();
 		} catch (error) {
-			log.error(
+			logger.error(
 				'ProtectPortalConfigModal',
 				'Failed to save configuration:',
 				undefined,

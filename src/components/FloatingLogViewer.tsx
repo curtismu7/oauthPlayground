@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
 import { useServerStatusOptional } from './ServerStatusProvider';
 
+import { logger } from '../utils/logger';
 const BACKEND_DOWN_MESSAGE =
 	'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.';
 
@@ -311,7 +312,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : '';
 			if (!msg.includes('Log API not available')) {
-				log.error(
+				logger.error(
 					'FloatingLogViewer',
 					'[FloatingLogViewer] Failed to load files:',
 					undefined,
@@ -364,7 +365,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 								setLogContent((prev) => prev + data.content);
 							}
 						} catch (error) {
-							log.error(
+							logger.error(
 								'FloatingLogViewer',
 								'[FloatingLogViewer] Failed to parse tail data:',
 								undefined,
@@ -374,14 +375,14 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 					};
 
 					eventSource.onerror = () => {
-						log.error('FloatingLogViewer', '[FloatingLogViewer] Tail stream error');
+						logger.error('FloatingLogViewer', '[FloatingLogViewer] Tail stream error');
 						setIsTailMode(false);
 						eventSourceRef.current = null;
 					};
 
 					setIsTailMode(true);
 				} catch (error) {
-					log.error(
+					logger.error(
 						'FloatingLogViewer',
 						'[FloatingLogViewer] Failed to start tail mode:',
 						undefined,

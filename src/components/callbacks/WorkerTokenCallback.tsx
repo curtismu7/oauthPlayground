@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
+import { logger } from '../utils/logger';
 const CallbackContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -93,14 +94,14 @@ const WorkerTokenCallback: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				const currentUrl = getValidatedCurrentUrl('WorkerTokenCallback');
-				log.info('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
+				logger.info('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
 
 				const result = await handleCallback(currentUrl);
 
 				if (result.success) {
 					setStatus('success');
 					setMessage('Worker token flow successful! Redirecting...');
-					log.success('WorkerTokenCallback', 'Worker token flow successful', {
+					logger.success('WorkerTokenCallback', 'Worker token flow successful', {
 						redirectUrl: result.redirectUrl,
 					});
 
@@ -112,13 +113,13 @@ const WorkerTokenCallback: React.FC = () => {
 					setStatus('error');
 					setMessage('Worker token flow failed');
 					setError(result.error || 'Unknown error occurred');
-					log.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
+					logger.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
 				}
 			} catch (err) {
 				setStatus('error');
 				setMessage('Worker token flow failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				log.error('WorkerTokenCallback', 'Error processing worker token callback', err);
+				logger.error('WorkerTokenCallback', 'Error processing worker token callback', err);
 			}
 		};
 

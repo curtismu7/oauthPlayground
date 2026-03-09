@@ -17,6 +17,7 @@ import { credentialManager } from '../../../utils/credentialManager';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+import { logger } from '../../utils/logger';
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();
@@ -414,7 +415,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			}
 
 			try {
-				log.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', {
+				logger.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', {
 					environmentId,
 				});
 				const issuerUrl = `https://auth.pingone.com/${environmentId}/as`;
@@ -423,7 +424,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					const { token_endpoint, issuer } = result.data;
 					if (token_endpoint) {
 						setTokenEndpoint(token_endpoint);
-						log.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
+						logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
 							token_endpoint,
 						});
 					}
@@ -433,7 +434,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							issuer,
 							audience: issuer,
 						}));
-						log.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
+						logger.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
 							issuer,
 						});
 					}
@@ -459,7 +460,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		const hasSubject = samlAssertion.subject.trim().length > 0;
 		const hasAudience = samlAssertion.audience.trim().length > 0;
 
-		log.info('SAMLBearerAssertionFlowV9', 'Validation check', {
+		logger.info('SAMLBearerAssertionFlowV9', 'Validation check', {
 			hasClientId,
 			hasTokenEndpoint,
 			hasIssuer,
@@ -580,17 +581,17 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const comprehensiveCredentials = credentialManager.getAllCredentials();
 
 				if (comprehensiveCredentials?.environmentId) {
-					log.info('SAMLBearerAssertionFlowV9', 'Loading credentials from comprehensive system', {
+					logger.info('SAMLBearerAssertionFlowV9', 'Loading credentials from comprehensive system', {
 						comprehensiveCredentials,
 					});
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					log.info('SAMLBearerAssertionFlowV9', 'Comprehensive credentials loaded for mock flow');
+					logger.info('SAMLBearerAssertionFlowV9', 'Comprehensive credentials loaded for mock flow');
 
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
 					setTokenEndpoint(tokenEndpointUrl);
-					log.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated from credentials', {
+					logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated from credentials', {
 						tokenEndpointUrl,
 					});
 				}
@@ -621,7 +622,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		setIsLoading(true);
 		try {
 			// MOCK IMPLEMENTATION - Simulating network delay
-			log.info('SAMLBearerAssertionFlowV9', 'Simulating token request');
+			logger.info('SAMLBearerAssertionFlowV9', 'Simulating token request');
 			await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
 
 			// MOCK IMPLEMENTATION - Generate mock JWT access token (real-looking format)
@@ -701,7 +702,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					'This is a simulated response for educational purposes. PingOne does not support SAML Bearer assertions.',
 			};
 
-			log.info('SAMLBearerAssertionFlowV9', 'Mock token response', { mockTokenResponse });
+			logger.info('SAMLBearerAssertionFlowV9', 'Mock token response', { mockTokenResponse });
 			setTokenResponse(mockTokenResponse);
 			modernMessaging.showFooterMessage({
 				type: 'info',
@@ -1053,7 +1054,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							<Button
 								onClick={() => {
 									const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
-									log.info('SAMLBearerAssertionFlowV9', 'Formatted SAML', { formatted });
+									logger.info('SAMLBearerAssertionFlowV9', 'Formatted SAML', { formatted });
 									modernMessaging.showFooterMessage({
 										type: 'info',
 										message: 'SAML assertion formatted for display',

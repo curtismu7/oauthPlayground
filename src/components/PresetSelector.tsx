@@ -10,6 +10,7 @@ import {
 } from '../services/presetManagerService';
 import { performAutoMigration } from '../utils/presetMigration';
 
+import { logger } from '../utils/logger';
 const Container = styled.div`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
   border-radius: 1.25rem;
@@ -290,7 +291,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 			// Perform auto-migration if needed
 			const migrationResult = performAutoMigration();
 			if (!migrationResult.success) {
-				log.warn('PresetSelector', '[PresetSelector] Migration warnings:', {
+				logger.warn('PresetSelector', '[PresetSelector] Migration warnings:', {
 					warnings: migrationResult.warnings,
 				});
 			}
@@ -299,7 +300,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 			const allPresets = presetManagerService.getAllPresets();
 			setPresets(allPresets);
 		} catch (error) {
-			log.error(
+			logger.error(
 				'PresetSelector',
 				'[PresetSelector] Failed to load presets:',
 				undefined,
@@ -487,7 +488,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 											onClick={(e) => {
 												e.stopPropagation();
 												// TODO: Show preset details modal
-												console.log('Show preset details:', preset);
+												logger.info('Show preset details:', preset);
 											}}
 											title="View preset details"
 										>

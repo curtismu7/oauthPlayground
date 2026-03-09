@@ -38,6 +38,7 @@ import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsSer
 import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
+import { logger } from '../utils/logger';
 const _MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {
@@ -603,8 +604,8 @@ export class UnifiedFlowIntegrationV8U {
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
 			// Track authorization URL generation for API documentation
-			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
-			console.log(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
+			logger.info(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
 				authorizationEndpoint,
 				authorizationUrl: `${authorizationUrl.substring(0, 100)}...`,
 				step: 'unified-authorization-url',
@@ -614,7 +615,7 @@ export class UnifiedFlowIntegrationV8U {
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-			console.log(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`);
 
 			const apiCallId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
@@ -631,7 +632,7 @@ export class UnifiedFlowIntegrationV8U {
 				flowType: 'unified',
 			});
 
-			console.log(`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`);
 
 			apiCallTrackerService.updateApiCallResponse(
 				apiCallId,
@@ -650,7 +651,7 @@ export class UnifiedFlowIntegrationV8U {
 				Date.now() - startTime
 			);
 
-			console.log(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`);
 
 			logger.debug(`✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState: prefixedStateRegular,
@@ -1260,7 +1261,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			// Track token exchange API call for unified flow visibility
-			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`);
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const tokenEndpoint = `https://auth.pingone.com/${oauthCredentials.environmentId}/as/token`;
 			const startTime = Date.now();

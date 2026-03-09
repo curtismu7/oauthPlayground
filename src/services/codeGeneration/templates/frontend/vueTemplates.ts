@@ -64,7 +64,7 @@ const login = async () => {
 
     window.location.href = authUrl.toString();
   } catch (error) {
-    console.error('Login failed:', error);
+    logger.error('Login failed:', error);
   }
 };
 
@@ -82,7 +82,7 @@ onMounted(() => {
   const state = params.get('state');
 
   if (code && state === sessionStorage.getItem('oauth_state')) {
-    console.log('Authorization code received:', code);
+    logger.info('Authorization code received:', code);
     isAuthenticated.value = true;
   }
 });
@@ -476,6 +476,7 @@ const verifyCode = async () => {
 <script setup lang="ts">
 import { ref } from 'vue';
 
+import { logger } from '../../../utils/logger';
 /**
  * MFA Device Registration Component
  */

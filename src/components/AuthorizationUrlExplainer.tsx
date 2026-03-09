@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface AuthorizationUrlExplainerProps {
 	authUrl: string;
 	isOpen: boolean;
@@ -237,9 +238,9 @@ const copyToClipboard = async (text: string, label: string) => {
 	try {
 		await navigator.clipboard.writeText(text);
 		// You could add a toast notification here
-		console.log(`${label} copied to clipboard`);
+		logger.info(`${label} copied to clipboard`);
 	} catch (err) {
-		log.error('AuthorizationUrlExplainer', 'Failed to copy to clipboard:', undefined, err as Error);
+		logger.error('AuthorizationUrlExplainer', 'Failed to copy to clipboard:', undefined, err as Error);
 	}
 };
 
@@ -388,7 +389,7 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 
 		return parameters;
 	} catch (error) {
-		log.error(
+		logger.error(
 			'AuthorizationUrlExplainer',
 			'Error parsing authorization URL:',
 			undefined,

@@ -257,7 +257,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				message: 'PKCE codes generated successfully',
 				duration: 4000,
 			});
-			console.log('[OAuth2CompliantFlow] PKCE codes generated:', {
+			logger.info('[OAuth2CompliantFlow] PKCE codes generated:', {
 				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 20)}...`,
 				method: pkceCodes.codeChallengeMethod,
@@ -342,7 +342,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				message: 'Authorization URL generated successfully',
 				duration: 4000,
 			});
-			console.log('[OAuth2CompliantFlow] Authorization URL generated:', {
+			logger.info('[OAuth2CompliantFlow] Authorization URL generated:', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
 				codeChallenge: `${state.pkceCodes.codeChallenge.substring(0, 20)}...`,
@@ -399,7 +399,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 					message: 'Authorization callback received successfully',
 					duration: 4000,
 				});
-				console.log('[OAuth2CompliantFlow] Authorization callback processed:', {
+				logger.info('[OAuth2CompliantFlow] Authorization callback processed:', {
 					code: `${code.substring(0, 20)}...`,
 					stateValid,
 				});
@@ -472,7 +472,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				}
 			});
 
-			console.log('[OAuth2CompliantFlow] Making token request:', {
+			logger.info('[OAuth2CompliantFlow] Making token request:', {
 				endpoint: tokenEndpoint,
 				grantType: tokenRequest.grant_type,
 				clientId: tokenRequest.client_id,
@@ -533,7 +533,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				message: 'Tokens exchanged successfully',
 				duration: 4000,
 			});
-			console.log('[OAuth2CompliantFlow] Token exchange successful:', {
+			logger.info('[OAuth2CompliantFlow] Token exchange successful:', {
 				hasAccessToken: !!tokens.access_token,
 				hasRefreshToken: !!tokens.refresh_token,
 				tokenType: tokens.token_type,
@@ -576,7 +576,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			console.log(
+			logger.info(
 				'🔄 [OAuth2CompliantAuthorizationCodeFlow] Reset: cleared ConfigChecker and pre-flight cache data'
 			);
 		} catch (error) {

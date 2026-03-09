@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file flowOptionsServiceV8.ts
  * @module v8/services
  * @description Flow-aware options service - determines which OAuth/OIDC options are valid for each flow
@@ -58,7 +59,7 @@ export class FlowOptionsServiceV8 {
 	static getOptionsForFlow(flowKey: string): FlowOptions {
 		const normalized = flowKey.toLowerCase().replace(/[-_]/g, '-');
 
-		console.log(`${MODULE_TAG} Getting options for flow`, { flowKey, normalized });
+		logger.info(`${MODULE_TAG} Getting options for flow`, { flowKey, normalized });
 
 		// Authorization Code Flow
 		if (normalized.includes('oauth-authz') || normalized.includes('authorization-code')) {
@@ -209,7 +210,7 @@ export class FlowOptionsServiceV8 {
 		}
 
 		// Default fallback
-		console.warn(`${MODULE_TAG} Unknown flow type, using defaults`, { flowKey });
+		logger.warn(`${MODULE_TAG} Unknown flow type, using defaults`, { flowKey });
 		return {
 			responseTypes: ['code'],
 			authMethods: [

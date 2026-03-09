@@ -11,6 +11,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import {
 	type EducationMode,
 	EducationPreferenceService,
@@ -194,7 +195,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 	useEffect(() => {
 		const handleModeChange = () => {
 			const newMode = mode || EducationPreferenceService.getEducationMode();
-			console.log('[MasterEducationSection] Mode changed to:', newMode);
+			logger.info('[MasterEducationSection] Mode changed to:', newMode);
 			setCurrentMode(newMode);
 		};
 
@@ -205,7 +206,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 		const pollInterval = setInterval(() => {
 			const latestMode = mode || EducationPreferenceService.getEducationMode();
 			if (latestMode !== currentMode) {
-				console.log('[MasterEducationSection] Mode changed via polling:', latestMode);
+				logger.info('[MasterEducationSection] Mode changed via polling:', latestMode);
 				setCurrentMode(latestMode);
 			}
 		}, 100); // Poll every 100ms

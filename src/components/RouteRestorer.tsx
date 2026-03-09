@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RoutePersistenceService } from '../services/routePersistenceService';
 
+import { logger } from '../utils/logger';
 export const RouteRestorer: React.FC = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -24,10 +25,10 @@ export const RouteRestorer: React.FC = () => {
 			sessionStorage.setItem('route_restored', 'true');
 
 			if (lastRoute && lastRoute !== '/') {
-				console.log(`🔄 [RouteRestorer] Restoring last route: ${lastRoute}`);
+				logger.info(`🔄 [RouteRestorer] Restoring last route: ${lastRoute}`);
 				navigate(lastRoute, { replace: true });
 			} else {
-				console.log(`🏠 [RouteRestorer] No last route, staying at default`);
+				logger.info(`🏠 [RouteRestorer] No last route, staying at default`);
 			}
 		}
 	}, [location.pathname, navigate]);

@@ -1,4 +1,5 @@
 // src/utils/clipboard.ts - Clipboard utilities
+import { logger } from '../../../utils/logger';
 
 /**
  * Show visual copy success feedback
@@ -61,13 +62,13 @@ const showCopySuccess = (label: string) => {
 export const copyToClipboard = async (text: string, label?: string): Promise<void> => {
 	try {
 		await navigator.clipboard.writeText(text);
-		console.log(` [Clipboard] Copied ${label || 'text'} to clipboard`);
+		logger.info(` [Clipboard] Copied ${label || 'text'} to clipboard`);
 
 		// Show visual success feedback
 		const labelText = label || 'Text';
 		showCopySuccess(labelText);
 	} catch (error) {
-		console.error(' [Clipboard] Failed to copy to clipboard:', error);
+		logger.error(' [Clipboard] Failed to copy to clipboard:', error);
 
 		// Fallback for older browsers
 		try {
@@ -82,10 +83,10 @@ export const copyToClipboard = async (text: string, label?: string): Promise<voi
 			document.execCommand('copy');
 			textArea.remove();
 
-			console.log(` [Clipboard] Copied ${label || 'text'} using fallback method`);
+			logger.info(` [Clipboard] Copied ${label || 'text'} using fallback method`);
 			showCopySuccess(label || 'Text');
 		} catch (fallbackError) {
-			console.error(' [Clipboard] Fallback copy failed:', fallbackError);
+			logger.error(' [Clipboard] Fallback copy failed:', fallbackError);
 			throw new Error(`Failed to copy ${label || 'text'} to clipboard`);
 		}
 	}

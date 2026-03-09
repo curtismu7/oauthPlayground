@@ -10,6 +10,7 @@
 
 import { getCachedDomain } from '@/services/customDomainService';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔗 REDIRECT-URI-V8]';
 
 export interface FlowRedirectUriConfig {
@@ -200,12 +201,12 @@ export const getRedirectUriForFlow = (flowKey: string): string => {
 	const config = getFlowConfig(flowKey);
 
 	if (!config || !config.requiresRedirectUri) {
-		console.log(`${MODULE_TAG} No redirect URI for flow`, { flowKey });
+		logger.info(`${MODULE_TAG} No redirect URI for flow`, { flowKey });
 		return '';
 	}
 
 	const redirectUri = `${baseUrl}/${config.callbackPath}`;
-	console.log(`${MODULE_TAG} Generated redirect URI`, {
+	logger.info(`${MODULE_TAG} Generated redirect URI`, {
 		flowKey,
 		redirectUri,
 		spec: config.specification,
@@ -240,12 +241,12 @@ export const getPostLogoutRedirectUriForFlow = (flowKey: string): string => {
 	const path = flowLogoutPaths[flowKey] || '/callback/logout';
 
 	if (!path) {
-		console.log(`${MODULE_TAG} No post-logout redirect URI for flow`, { flowKey });
+		logger.info(`${MODULE_TAG} No post-logout redirect URI for flow`, { flowKey });
 		return '';
 	}
 
 	const logoutUri = `${baseUrl}${path}`;
-	console.log(`${MODULE_TAG} Generated post-logout redirect URI`, { flowKey, logoutUri });
+	logger.info(`${MODULE_TAG} Generated post-logout redirect URI`, { flowKey, logoutUri });
 	return logoutUri;
 };
 
@@ -276,7 +277,7 @@ export const initializeRedirectUris = (
 	const redirectUri = currentRedirectUri || getRedirectUriForFlow(flowKey);
 	const postLogoutRedirectUri = currentPostLogoutUri || getPostLogoutRedirectUriForFlow(flowKey);
 
-	console.log(`${MODULE_TAG} Initialized redirect URIs`, {
+	logger.info(`${MODULE_TAG} Initialized redirect URIs`, {
 		flowKey,
 		redirectUri,
 		postLogoutRedirectUri,

@@ -34,6 +34,7 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
 
@@ -188,7 +189,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 					false // forceShowModal=false: automatic mount check
 				);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error in worker token check:`, error);
+				logger.error(`${MODULE_TAG} Error in worker token check:`, error);
 			}
 		};
 
@@ -201,7 +202,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		const currentPath = location.pathname;
 
 		if (isOAuthCallbackReturn) {
-			console.log(`${MODULE_TAG} OAuth callback detected, processing return...`);
+			logger.info(`${MODULE_TAG} OAuth callback detected, processing return...`);
 
 			// Store flow context for callback handler (Unified OAuth pattern)
 			const flowContext = {
@@ -213,7 +214,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-			console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication`);
+			logger.info(`${MODULE_TAG} 🎯 Stored flow context for authentication`);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
@@ -256,10 +257,10 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				setPoliciesError(null);
 				try {
 					// Refresh policies logic here
-					console.log(`${MODULE_TAG} Refreshing device auth policies...`);
+					logger.info(`${MODULE_TAG} Refreshing device auth policies...`);
 				} catch (error) {
 					setPoliciesError('Failed to refresh policies');
-					console.error(`${MODULE_TAG} Error refreshing policies:`, error);
+					logger.error(`${MODULE_TAG} Error refreshing policies:`, error);
 				} finally {
 					setIsLoadingPolicies(false);
 				}
@@ -390,7 +391,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 								nav
 							)
 						) {
-							console.log(`${MODULE_TAG} Step 0 validation passed`);
+							logger.info(`${MODULE_TAG} Step 0 validation passed`);
 						}
 					}
 				}}
@@ -424,7 +425,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				onClose={() => setShowWorkerTokenModal(false)}
 				onGetToken={async () => {
 					// Handle worker token acquisition
-					console.log(`${MODULE_TAG} Getting worker token...`);
+					logger.info(`${MODULE_TAG} Getting worker token...`);
 					setShowWorkerTokenModal(false);
 				}}
 			/>

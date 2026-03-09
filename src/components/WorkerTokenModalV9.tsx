@@ -26,6 +26,7 @@ import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageSe
 import { DraggableModal } from './DraggableModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
+import { logger } from '../utils/logger';
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
 // ---------------------------------------------------------------------------
@@ -372,7 +373,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				setTokenStatus('success');
 			}
 		} catch (error) {
-			console.error('Failed to load existing credentials:', error);
+			logger.error('Failed to load existing credentials:', error);
 		}
 	}, []);
 

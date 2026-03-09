@@ -2,6 +2,7 @@ import { FiRefreshCw } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { logger } from '../utils/logger';
 interface ServerStatusModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -289,7 +290,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 			const updatedServers = await Promise.all(servers.map((server) => checkServerStatus(server)));
 			setServers(updatedServers);
 		} catch (error) {
-			log.error('ServerStatusModal', 'Error refreshing servers:', undefined, error as Error);
+			logger.error('ServerStatusModal', 'Error refreshing servers:', undefined, error as Error);
 		} finally {
 			setIsRefreshing(false);
 		}

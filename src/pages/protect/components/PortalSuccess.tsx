@@ -21,6 +21,7 @@ import type {
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
 
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
@@ -475,7 +476,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 			setCopiedToken(tokenType);
 			setTimeout(() => setCopiedToken(null), 2000);
 		} catch (err) {
-			log.error('PortalSuccess', 'Failed to copy token:', undefined, err as Error);
+			logger.error('PortalSuccess', 'Failed to copy token:', undefined, err as Error);
 		}
 	}, []);
 
@@ -526,7 +527,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		console.log('[🎉 PORTAL-SUCCESS] Portal success page loaded', {
+		logger.info('[🎉 PORTAL-SUCCESS] Portal success page loaded', {
 			userId: userContext.id,
 			riskLevel: riskEvaluation.result.level,
 			hasTokens: !!tokens,
@@ -537,7 +538,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 			const validation = TokenUtilityService.validateTokens(tokens);
 			setTokenValidation(validation);
 
-			console.log('[🎉 PORTAL-SUCCESS] Token validation completed', {
+			logger.info('[🎉 PORTAL-SUCCESS] Token validation completed', {
 				isValid: validation.isValid,
 				errors: validation.errors.length,
 				warnings: validation.warnings.length,

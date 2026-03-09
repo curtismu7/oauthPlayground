@@ -54,6 +54,7 @@ export class FileStorageUtil {
 			/*
 			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
 			
+import { logger } from '../../../utils/logger';
 			try {
 				const response = await fetch(`${backendUrl}/api/credentials/save`, {
 					method: 'POST',
@@ -74,7 +75,7 @@ export class FileStorageUtil {
 				const result = await response.json();
 				
 				if (result.success) {
-					console.log(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`);
+					logger.info(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`);
 					return { success: true };
 				} else {
 					throw new Error(result.error || 'Backend save failed');
@@ -92,7 +93,7 @@ export class FileStorageUtil {
 			}
 			*/
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to save:`, error);
+			logger.error(`❌ [FileStorage] Failed to save:`, error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
@@ -127,7 +128,7 @@ export class FileStorageUtil {
 				data,
 			};
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to load:`, error);
+			logger.error(`❌ [FileStorage] Failed to load:`, error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
@@ -152,7 +153,7 @@ export class FileStorageUtil {
 				success: true,
 			};
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to delete:`, error);
+			logger.error(`❌ [FileStorage] Failed to delete:`, error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',

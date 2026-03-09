@@ -13,6 +13,7 @@ import {
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
+import { logger } from '../../../utils/logger';
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
 export type NotificationActionVariant = 'primary' | 'secondary';
 
@@ -425,7 +426,7 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 
 const warnMissingProvider = () => {
 	if (!globalBridge && typeof console !== 'undefined') {
-		console.warn('[Notification] NotificationProvider is not mounted. Notification skipped.');
+		logger.warn('[Notification] NotificationProvider is not mounted. Notification skipped.');
 	}
 };
 

@@ -3,6 +3,7 @@
 
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
+import { logger } from '../utils/logger';
 const MODULE_TAG = '[🔑 SIMPLE-WORKER-TOKEN-MODAL]';
 
 /**
@@ -19,11 +20,11 @@ export async function handleShowWorkerTokenModalSimple(
 	forceShowModal: boolean = false // User explicitly clicked button
 ): Promise<void> {
 	try {
-		console.log(`${MODULE_TAG} Starting simple modal check`);
+		logger.info(`${MODULE_TAG} Starting simple modal check`);
 
 		// If user explicitly clicked button, always show modal
 		if (forceShowModal) {
-			console.log(`${MODULE_TAG} User clicked button → showing modal`);
+			logger.info(`${MODULE_TAG} User clicked button → showing modal`);
 			setShowModal(true);
 			return;
 		}
@@ -32,23 +33,23 @@ export async function handleShowWorkerTokenModalSimple(
 		const credentials = await workerTokenServiceV8.loadCredentials();
 		const hasCredentials = credentials !== null;
 
-		console.log(`${MODULE_TAG} Credentials check:`, { hasCredentials });
+		logger.info(`${MODULE_TAG} Credentials check:`, { hasCredentials });
 
 		if (hasCredentials) {
 			// Credentials exist → NO MODAL
 			// Let the silent API do its thing in the background
-			console.log(`${MODULE_TAG} Credentials exist → no modal needed`);
+			logger.info(`${MODULE_TAG} Credentials exist → no modal needed`);
 			setShowModal(false);
 			return;
 		} else {
 			// No credentials → SHOW MODAL
 			// Tell user they need to enter credentials
-			console.log(`${MODULE_TAG} No credentials → showing modal for credential entry`);
+			logger.info(`${MODULE_TAG} No credentials → showing modal for credential entry`);
 			setShowModal(true);
 			return;
 		}
 	} catch (error) {
-		console.error(`${MODULE_TAG} Error in simple modal logic:`, error);
+		logger.error(`${MODULE_TAG} Error in simple modal logic:`, error);
 		// On error, show modal to be safe
 		setShowModal(true);
 	}
@@ -66,7 +67,7 @@ export function hasCredentialsSync(): boolean {
 		const credentials = data.credentials || data.data?.credentials;
 		return credentials !== null && typeof credentials === 'object';
 	} catch (error) {
-		console.error(`${MODULE_TAG} Error checking credentials sync:`, error);
+		logger.error(`${MODULE_TAG} Error checking credentials sync:`, error);
 		return false;
 	}
 }

@@ -593,7 +593,7 @@ const authAge = Date.now()/1000 - idToken.auth_time;
 
 if (authAge > 300) {
   // Force re-authentication
-  console.log('Auth too old, re-authenticating...');
+  logger.info('Auth too old, re-authenticating...');
   redirectToAuth({ max_age: 300 });
 }
 
@@ -813,6 +813,7 @@ await fetch('/api/redirectless/resume', {
 import { SignJWT } from 'jose';
 import { FiAlertTriangle } from '@icons';
 
+import { logger } from '../utils/logger';
 const assertion = await new SignJWT({
   iss: clientId,
   sub: clientId,

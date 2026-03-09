@@ -1,4 +1,5 @@
 /**
+import { logger } from '../../../../utils/logger';
  * @file mfaFlowCleanupV8.ts
  * @module v8/utils
  * @description Cleanup utilities for MFA flows when navigating away
@@ -60,7 +61,7 @@ export function cleanupMfaFlowState(
 		// Preserve return path if we're in the middle of an OAuth callback
 		if (key === 'user_login_return_to_mfa' && isOAuthCallback) {
 			if (logCleanup) {
-				console.log(`${MODULE_TAG} Preserving return path during OAuth callback: ${key}`);
+				logger.info(`${MODULE_TAG} Preserving return path during OAuth callback: ${key}`);
 			}
 			return;
 		}
@@ -69,15 +70,15 @@ export function cleanupMfaFlowState(
 			sessionStorage.removeItem(key);
 			cleanedCount++;
 			if (logCleanup) {
-				console.log(`${MODULE_TAG} Cleaned up: ${key}`);
+				logger.info(`${MODULE_TAG} Cleaned up: ${key}`);
 			}
 		}
 	});
 
 	if (logCleanup && cleanedCount > 0) {
-		console.log(`${MODULE_TAG} ✅ Cleaned up ${cleanedCount} sessionStorage item(s)`);
+		logger.info(`${MODULE_TAG} ✅ Cleaned up ${cleanedCount} sessionStorage item(s)`);
 	} else if (logCleanup) {
-		console.log(`${MODULE_TAG} No sessionStorage items to clean up`);
+		logger.info(`${MODULE_TAG} No sessionStorage items to clean up`);
 	}
 }
 
@@ -103,7 +104,7 @@ export function cleanupUrlParameters(): void {
 		url.searchParams.delete('error_uri');
 
 		window.history.replaceState({}, document.title, url.toString());
-		console.log(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+		logger.info(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
 	}
 }
 
