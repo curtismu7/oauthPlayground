@@ -4,7 +4,6 @@
 import { FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
 import {
 	type EnvironmentListOptions,
 	type EnvironmentStatus,
@@ -12,6 +11,7 @@ import {
 	environmentServiceV8,
 	type PingOneEnvironment,
 } from '../services/environmentServiceV8Simple';
+import { logger } from '../../utils/logger';
 
 // Styled Components
 const PageContainer = styled.div`

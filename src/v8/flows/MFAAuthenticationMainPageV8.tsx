@@ -66,8 +66,8 @@ import {
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { logger } from '../../utils/logger';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
-import { logger } from '../utils/logger';
 import {
 	MFADeviceSelectionInfoModal,
 	MFAFIDO2ChallengeModal,
@@ -1548,10 +1548,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				// Validate that we got an authenticationId from the response
 				if (!response.id) {
-					logger.error(
-						`${MODULE_TAG} Authentication initialized but no ID in response:`,
-						response
-					);
+					logger.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -6274,10 +6271,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										);
 									}
 								} catch (cancelError) {
-									logger.warn(
-										`${MODULE_TAG} Cancel + re-initialize approach failed:`,
-										cancelError
-									);
+									logger.warn(`${MODULE_TAG} Cancel + re-initialize approach failed:`, cancelError);
 								}
 							}
 

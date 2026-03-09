@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * FIDO2 Session Cookie Service
  *
  * Detects PingOne session cookies and determines if FIDO2 platform devices

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 interface TokenResponseBoxesProps {
 	tokens: {
 		access_token?: string;

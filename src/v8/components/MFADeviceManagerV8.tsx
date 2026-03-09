@@ -25,7 +25,8 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { ButtonSpinner } from '../../components/ui';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 
 interface MFADeviceManagerV8Props {

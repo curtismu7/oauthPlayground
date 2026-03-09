@@ -8,7 +8,6 @@ import {
 import { logger } from '../../utils/logger';
 import ConfirmationModal from '../ConfirmationModal';
 
-import { logger } from '../utils/logger';
 interface MFADeviceManagerProps {
 	credentials: {
 		accessToken: string;

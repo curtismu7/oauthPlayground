@@ -20,7 +20,7 @@ import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
 // ============================================================================

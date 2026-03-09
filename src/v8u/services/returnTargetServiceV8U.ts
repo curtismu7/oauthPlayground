@@ -1,6 +1,5 @@
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 /**
  * @file returnTargetServiceV8U.ts
  * @module v8u/services

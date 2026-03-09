@@ -31,9 +31,9 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
 
 export const SMSOTPConfigurationPageV8: React.FC = () => {

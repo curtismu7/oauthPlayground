@@ -6,9 +6,8 @@
  */
 
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import { logger } from '../../utils/logger';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
-
-import { logger } from '../utils/logger';
 // Token Types
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 

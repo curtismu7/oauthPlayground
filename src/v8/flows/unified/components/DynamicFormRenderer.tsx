@@ -29,7 +29,8 @@ import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { EmailInputV8 } from '@/v8/components/EmailInputV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[📋 DYNAMIC-FORM-RENDERER]';
 
 // ============================================================================

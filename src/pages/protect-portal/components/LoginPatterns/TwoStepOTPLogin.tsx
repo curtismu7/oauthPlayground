@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

@@ -33,6 +33,7 @@ import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../../hooks/useProductionSpinner';
+import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -40,7 +41,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
 const PUBLIC_KEY_OPTION_KEYS = [

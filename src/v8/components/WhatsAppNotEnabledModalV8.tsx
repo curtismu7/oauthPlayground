@@ -193,10 +193,10 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 		: 'https://admin.pingone.com';
 
 	return (
-		<ModalOverlay 
+		<ModalOverlay
 			aria-hidden="true"
-			role="presentation" 
-			onClick={onClose} 
+			role="presentation"
+			onClick={onClose}
 			onKeyDown={handleKeyDown}
 		>
 			<ModalContent

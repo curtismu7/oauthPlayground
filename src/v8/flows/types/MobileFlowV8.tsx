@@ -23,6 +23,7 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { logger } from '../../../utils/logger';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -33,7 +34,6 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[📱 MOBILE-FLOW-V8]';
 
 type DeviceSelectionState = {

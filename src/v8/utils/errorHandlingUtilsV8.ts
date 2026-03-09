@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file errorHandlingUtilsV8.ts
  * @module v8/utils
  * @description Shared error handling utilities for consistent error management

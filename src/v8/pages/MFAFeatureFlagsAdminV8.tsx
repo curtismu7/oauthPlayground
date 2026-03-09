@@ -8,12 +8,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logger } from '../utils/logger';
 import {
 	type MFAFeatureFlag,
 	MFAFeatureFlagsV8,
 	type RolloutPercentage,
 } from '../services/mfaFeatureFlagsV8';
+import { logger } from '../../utils/logger';
 import {
 	disableUnifiedFlowForAll,
 	disableUnifiedFlowForDevice,

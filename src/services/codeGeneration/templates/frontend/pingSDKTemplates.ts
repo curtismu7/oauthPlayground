@@ -8,7 +8,7 @@ export class PingSDKJavaScriptTemplates {
 		return `// PingOne SDK - Authorization Flow
 import { PingOneClient } from '@pingidentity/pingone-js-sdk';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * OAuth 2.0 Authorization Code Flow with PKCE
  * 

@@ -26,7 +26,7 @@
 
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 /**
  * V8 Toast Notification Service
  * Wrapper around modernMessaging for consistent V8 messaging

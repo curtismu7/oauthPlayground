@@ -30,7 +30,7 @@ import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;

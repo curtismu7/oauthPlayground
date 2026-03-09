@@ -15,7 +15,8 @@ import type {
 } from '../../services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 // Re-export types for backward compatibility
 export type { WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
 

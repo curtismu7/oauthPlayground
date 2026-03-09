@@ -20,7 +20,8 @@ import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const _MODULE_TAG = '[📋 ENHANCED-CREDENTIALS-FORM-V8]';
 
 // ============================================================================

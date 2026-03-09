@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../../utils/logger';
 import type {
 	DeviceSelectionState,
 	MFAFlowController,
@@ -15,8 +16,6 @@ import type {
 	ValidationState,
 } from '../controllers/MFAFlowController';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
-
-import { logger } from '../../utils/logger';
 export interface UseMFAFlowControllerOptions {
 	controller: MFAFlowController;
 	credentials: MFACredentials;

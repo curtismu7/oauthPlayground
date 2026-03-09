@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file sqliteStatsServiceV8.ts
  * @module v8/services
  * @description SQLite database statistics service

@@ -28,7 +28,8 @@ import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowSer
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
 
 // Styled Components

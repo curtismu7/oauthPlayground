@@ -32,7 +32,8 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
 
