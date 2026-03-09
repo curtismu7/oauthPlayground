@@ -19,7 +19,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 import { pingOneLogoutService } from '../dependencies/services/pingOneLogoutService.ts';
 import {
 	downloadPostmanCollectionWithEnvironment,

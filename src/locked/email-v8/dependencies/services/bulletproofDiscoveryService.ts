@@ -12,7 +12,7 @@
  * - Backend health check
  */
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import type { DiscoveryResult, OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 export class BulletproofDiscoveryService {
 	private readonly MAX_RETRIES = 3;

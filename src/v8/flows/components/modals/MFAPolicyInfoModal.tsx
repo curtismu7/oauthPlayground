@@ -25,7 +25,8 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 	if (!show) return null;
 
 	return (
-		<div
+		<button
+			type="button"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -38,8 +39,16 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 				justifyContent: 'center',
 				zIndex: 10000,
 				padding: '20px',
+				border: 'none',
+				cursor: 'pointer',
 			}}
 			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					onClose();
+				}
+			}}
+			aria-label="Close modal"
 		>
 			<div
 				style={{
@@ -50,9 +59,13 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 					width: '100%',
 					boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 					maxHeight: '90vh',
-					overflowY: 'auto',
+					overflow: 'auto',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="policy-modal-title"
 			>
 				{/* Header */}
 				<div

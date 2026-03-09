@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file redirectUriServiceV8.ts
  * @module v8/services
  * @description Service for generating flow-specific redirect URIs (V8 - Enhanced from V7)

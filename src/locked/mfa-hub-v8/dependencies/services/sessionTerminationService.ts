@@ -1,6 +1,6 @@
 const DEFAULT_DOMAIN = 'https://auth.pingone.com';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 const DEFAULT_STORAGE_KEYS = {
 	local: ['token_to_analyze', 'token_type', 'flow_source'],

@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { TokenDisplayServiceV8 } from '../services/tokenDisplayServiceV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 export interface UserInfo {

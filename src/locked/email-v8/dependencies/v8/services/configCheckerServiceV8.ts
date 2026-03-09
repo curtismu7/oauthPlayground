@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file configCheckerServiceV8.ts
  * @module v8/services
  * @description Configuration checker service for V8 flows

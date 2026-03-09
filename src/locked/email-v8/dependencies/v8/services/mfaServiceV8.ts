@@ -28,7 +28,7 @@
  * });
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 import type { DeviceAuthenticationPolicy } from '../flows/shared/MFATypes.ts';
@@ -626,44 +626,12 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'mfaServiceV8.ts:626',
-				message: 'registerDevice entry',
-				data: {
-					tokenType: (params as { tokenType?: string }).tokenType,
-					hasUserToken: !!(params as { userToken?: string }).userToken,
-					username: params.username,
-					deviceType: params.type,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'pre-fix',
-				hypothesisId: 'A',
-			});
-			// #endregion
 
 			// CRITICAL FIX: Device registration should ALWAYS use worker tokens, regardless of flow type
 			// The user login (OAuth flow) is only for authentication - the API calls must use worker tokens
 			// This ensures device registration works correctly for both admin and user flows
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'mfaServiceV8.ts:632',
-				message: 'registerDevice using worker token',
-				data: {
-					hasAccessToken: !!accessToken,
-					accessTokenLength: accessToken?.length,
-					username: params.username,
-					deviceType: params.type,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'pre-fix',
-				hypothesisId: 'A',
-			});
-			// #endregion
 
 			// NOTE: User token scope validation removed - device registration always uses worker tokens
 			// The user login (OAuth flow) is only for authentication purposes

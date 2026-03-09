@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file oidcDiscoveryServiceV8.ts
  * @module v8/services
  * @description OIDC Discovery service for V8 flows

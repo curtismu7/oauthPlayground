@@ -27,7 +27,7 @@
  * - Can modify settings: `FlowSettingsServiceV8U.saveSpecVersion('implicit', 'oauth2.1')`
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
 
 const MODULE_TAG = '[⚙️ FLOW-SETTINGS-V8U]';

@@ -1,5 +1,5 @@
 /**
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
  * @file workerTokenServiceV8.ts
  * @module v8/services
  * @description Centralized Worker Token Service with IndexedDB backup storage
