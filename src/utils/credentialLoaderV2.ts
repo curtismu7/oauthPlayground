@@ -3,7 +3,6 @@
 
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialStorageManager } from '../services/credentialStorageManager';
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 /**
  * Load credentials for a specific flow using the new isolated storage system
@@ -18,21 +17,19 @@ export async function loadFlowCredentialsV2(
 	flowKey: string,
 	defaultRedirectUri?: string
 ): Promise<StepCredentials> {
-	console.group(`🔍 [CredentialLoaderV2] Loading credentials for: ${flowKey}`);
+	logger.info(`[CredentialLoaderV2] Loading credentials for: ${flowKey}`);
 
 	// Try to load from new isolated storage
 	const result = await credentialStorageManager.loadFlowCredentials(flowKey);
 
 	if (result.success && result.data) {
 		logger.info(`✅ Loaded from ${result.source}`, "Logger info");
-		console.groupEnd();
 		return result.data as StepCredentials;
 	}
 
 	// No credentials found - return empty credentials
 	logger.info(`❌ No credentials found for ${flowKey}`, "Logger info");
 	logger.info(`ℹ️ User will need to enter credentials or copy from Configuration`, "Logger info");
-	console.groupEnd();
 
 	return createEmptyCredentials(defaultRedirectUri);
 }

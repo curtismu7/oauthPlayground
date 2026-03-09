@@ -1,8 +1,6 @@
 // src/utils/credentialManager.ts
 
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { logger } from '../utils/logger';
-import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
 export interface PermanentCredentials {
 	environmentId: string;
@@ -1066,7 +1064,7 @@ class CredentialManager {
 	 */
 	saveAllCredentials(credentials: Partial<AllCredentials>): boolean {
 		// 🔍 INSTRUMENTATION: Track global credential contamination
-		console.group(`🚨 [CREDENTIAL CONTAMINATION] saveAllCredentials called`);
+		logger.warn('credentialManager', '[CREDENTIAL CONTAMINATION] saveAllCredentials called');
 		logger.info(`📋 Credentials being saved globally:`, credentials);
 		logger.info(`📋 This will overwrite pingone_permanent_credentials for ALL flows!`, "Logger info");
 
@@ -1090,7 +1088,6 @@ class CredentialManager {
 		logger.info(`📋 Permanent Save Success:`, permanentSuccess);
 		logger.info(`📋 Session Save Success:`, sessionSuccess);
 		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, "Logger info");
-		console.groupEnd();
 
 		return permanentSuccess && sessionSuccess;
 	}

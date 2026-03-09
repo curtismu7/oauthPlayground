@@ -33,7 +33,7 @@ class FieldEditingDiagnostic {
 	 * Diagnose all input fields in the current page
 	 */
 	diagnoseAllFields(): FieldEditingReport {
-		console.group('🔍 [FIELD EDITING DIAGNOSTIC] Starting comprehensive field analysis...');
+		logger.info('fieldEditingDiagnostic', '[FIELD EDITING DIAGNOSTIC] Starting comprehensive field analysis...');
 
 		const allInputs = this.getAllInputElements();
 		const issues: FieldEditingIssue[] = [];
@@ -69,7 +69,6 @@ class FieldEditingDiagnostic {
 			recommendations: this.generateRecommendations(issues),
 		};
 
-		console.groupEnd();
 		return report;
 	}
 
@@ -234,7 +233,7 @@ class FieldEditingDiagnostic {
 	 * Fix common field editing issues
 	 */
 	fixCommonIssues(): void {
-		console.group('🔧 [FIELD EDITING FIX] Applying common fixes...');
+		logger.info('fieldEditingDiagnostic', '[FIELD EDITING FIX] Applying common fixes...');
 
 		const allInputs = this.getAllInputElements();
 		let fixedCount = 0;
@@ -272,7 +271,6 @@ class FieldEditingDiagnostic {
 		});
 
 		logger.info(`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`, "Logger info");
-		console.groupEnd();
 	}
 
 	/**
