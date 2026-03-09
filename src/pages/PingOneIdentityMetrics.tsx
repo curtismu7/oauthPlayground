@@ -1113,3 +1113,4 @@ const PingOneIdentityMetrics: React.FC = () => {
 	);
 };
 
+export default PingOneIdentityMetrics;
