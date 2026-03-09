@@ -61,7 +61,7 @@ export class MFACredentialManagerV8 {
 		this.subscribers = new Set();
 		this.credentials = null;
 
-		logger.info('[MFACredentialManagerV8] Initialized');
+		logger.info('[MFACredentialManagerV8] Initialized', "Logger info");
 	}
 
 	/**
@@ -82,7 +82,7 @@ export class MFACredentialManagerV8 {
 			MFACredentialManagerV8.instance.subscribers.clear();
 			MFACredentialManagerV8.instance = null;
 		}
-		logger.info('[MFACredentialManagerV8] Instance reset');
+		logger.info('[MFACredentialManagerV8] Instance reset', "Logger info");
 	}
 
 	/**
@@ -162,7 +162,7 @@ export class MFACredentialManagerV8 {
 			// Update internal state
 			this.credentials = mfaCredentials;
 
-			logger.info('[MFACredentialManagerV8] Credentials loaded successfully');
+			logger.info('[MFACredentialManagerV8] Credentials loaded successfully', "Logger info");
 			return mfaCredentials;
 		} catch (error) {
 			logger.error('[MFACredentialManagerV8] Error loading credentials:', error);
@@ -221,7 +221,7 @@ export class MFACredentialManagerV8 {
 			this.credentials = mfaCredentials;
 			this.notify();
 
-			logger.info('[MFACredentialManagerV8] Credentials loaded with backup successfully');
+			logger.info('[MFACredentialManagerV8] Credentials loaded with backup successfully', "Logger info");
 			return mfaCredentials;
 		} catch (error) {
 			logger.error('[MFACredentialManagerV8] Error loading credentials with backup:', error);
@@ -256,7 +256,7 @@ export class MFACredentialManagerV8 {
 			// Notify subscribers
 			this.notify();
 
-			logger.info('[MFACredentialManagerV8] Credentials saved successfully');
+			logger.info('[MFACredentialManagerV8] Credentials saved successfully', "Logger info");
 		} catch (error) {
 			logger.error('[MFACredentialManagerV8] Error saving credentials:', error);
 			throw error;
@@ -280,7 +280,7 @@ export class MFACredentialManagerV8 {
 			// Notify subscribers
 			this.notify();
 
-			logger.info('[MFACredentialManagerV8] Credentials cleared successfully');
+			logger.info('[MFACredentialManagerV8] Credentials cleared successfully', "Logger info");
 		} catch (error) {
 			logger.error('[MFACredentialManagerV8] Error clearing credentials:', error);
 			throw error;
@@ -439,7 +439,7 @@ export class MFACredentialManagerV8 {
 	 * Notify all subscribers of credential change
 	 */
 	private notify(): void {
-		logger.info(`[MFACredentialManagerV8] Notifying ${this.subscribers.size} subscribers`);
+		logger.info(`[MFACredentialManagerV8] Notifying ${this.subscribers.size} subscribers`, "Logger info");
 		this.subscribers.forEach((callback) => {
 			try {
 				callback(this.credentials);

@@ -394,20 +394,20 @@ class TokenExchangeIntegrationTest {
 		const hasTokens = !!sessionStorage.getItem(tokensKey);
 		// PKCE variable unused - remove to fix lint warning
 
-		logger.info('');
+		logger.info('', "Logger info");
 
 		if (!onFlowPage) {
 		} else if (!hasTokens) {
 		} else {
 		}
-		logger.info('');
+		logger.info('', "Logger info");
 	}
 
 	/**
 	 * Run all integration tests
 	 */
 	public async runAllTests(): Promise<void> {
-		logger.info('');
+		logger.info('', "Logger info");
 
 		// Check flow state first
 		this.checkFlowState();
@@ -430,8 +430,8 @@ class TokenExchangeIntegrationTest {
 	 * Print test results
 	 */
 	private printResults(): void {
-		logger.info('');
-		logger.info('');
+		logger.info('', "Logger info");
+		logger.info('', "Logger info");
 
 		// Passed variable unused - remove to fix lint warning
 		const skipped = this.results.filter((r) => r.message.includes('⏭️')).length;
@@ -443,7 +443,7 @@ class TokenExchangeIntegrationTest {
 			// Icon variable unused - remove to fix lint warning
 			if (result.domState && !result.message.includes('⏭️')) {
 			}
-			logger.info('');
+			logger.info('', "Logger info");
 		});
 
 		if (actualTests > 0) {
@@ -472,18 +472,18 @@ function _checkTokenExchangeState() {
 	const pkceKey = `v8u_flow_${flowKey}_pkce`;
 	const callbackKey = `v8u_flow_${flowKey}_callback`;
 
-	logger.info('');
+	logger.info('', "Logger info");
 
 	// Check location
 	const onFlowPage = window.location.pathname.includes('/v8u/unified/oauth-authz');
-	logger.info('');
+	logger.info('', "Logger info");
 
 	// Check storage
 	const tokensData = sessionStorage.getItem(tokensKey);
 	const pkceData = sessionStorage.getItem(pkceKey);
 	const callbackData = sessionStorage.getItem(callbackKey);
 
-	logger.info('');
+	logger.info('', "Logger info");
 
 	// Check DOM
 	const successMessages = Array.from(document.querySelectorAll('div')).filter((div) => {
@@ -508,7 +508,7 @@ function _checkTokenExchangeState() {
 	} else {
 	}
 
-	logger.info('');
+	logger.info('', "Logger info");
 
 	return {
 		onFlowPage,

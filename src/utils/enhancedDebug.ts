@@ -299,7 +299,7 @@ export class EnhancedDebugger {
 	clearDebugData(): void {
 		this.sessions.clear();
 		this.currentSession = null;
-		logger.info(' [EnhancedDebug] All debug data cleared');
+		logger.info(' [EnhancedDebug] All debug data cleared', "Logger info");
 	}
 
 	/**

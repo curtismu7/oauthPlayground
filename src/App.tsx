@@ -1748,22 +1748,22 @@ function AppContent() {
 
 	// Handle global worker token modal events
 	useEffect(() => {
-		logger.info('[App] Setting up worker token modal event listener...');
+		logger.info('[App] Setting up worker token modal event listener...', "Logger info");
 
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
 			logger.info('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
-			logger.info('[App] Setting showWorkerTokenModal to true');
+			logger.info('[App] Setting showWorkerTokenModal to true', "Logger info");
 			setShowWorkerTokenModal(true);
 		};
 
-		logger.info('[App] Adding event listener for open-worker-token-modal');
+		logger.info('[App] Adding event listener for open-worker-token-modal', "Logger info");
 		window.addEventListener(
 			'open-worker-token-modal',
 			handleWorkerTokenModalEvent as EventListener
 		);
 
 		return () => {
-			logger.info('[App] Cleaning up worker token modal event listener');
+			logger.info('[App] Cleaning up worker token modal event listener', "Logger info");
 			window.removeEventListener(
 				'open-worker-token-modal',
 				handleWorkerTokenModalEvent as EventListener
@@ -1839,11 +1839,11 @@ function AppContent() {
 					<WorkerTokenModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => {
-							logger.info('[App] WorkerTokenModal onClose called');
+							logger.info('[App] WorkerTokenModal onClose called', "Logger info");
 							setShowWorkerTokenModal(false);
 						}}
 						onContinue={() => {
-							logger.info('[App] Worker token modal closed');
+							logger.info('[App] Worker token modal closed', "Logger info");
 							setShowWorkerTokenModal(false);
 						}}
 						flowType="global"

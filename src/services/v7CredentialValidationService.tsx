@@ -66,7 +66,7 @@ export interface V7FlowCredentialConfig {
  * ```typescript
  * // Access configuration for a specific flow
  * const config = V7_FLOW_CONFIGS['oidc-hybrid-v7'];
- * logger.info(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
+ * logger.info(config.requiredFields, "Logger info"); // ['environmentId', 'clientId', 'redirectUri']
  * ```
  */
 export const V7_FLOW_CONFIGS: Record<string, V7FlowCredentialConfig> = {

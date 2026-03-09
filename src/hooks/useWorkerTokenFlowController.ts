@@ -88,7 +88,7 @@ const loadInitialCredentials = (): StepCredentials => {
 		// Fallback to credentialManager if no worker token credentials found
 		const stored = credentialManager.getAllCredentials();
 		if (stored.environmentId && stored.clientId) {
-			logger.info('🔄 [useWorkerTokenFlowController] Loaded credentials from credentialManager');
+			logger.info('🔄 [useWorkerTokenFlowController] Loaded credentials from credentialManager', "Logger info");
 			return { ...createEmptyCredentials(), ...stored };
 		}
 	} catch (error) {
@@ -104,7 +104,7 @@ const loadStoredConfig = (storageKey: string, defaultConfig: FlowConfig): FlowCo
 		const stored = sessionStorage.getItem(storageKey);
 		if (stored) {
 			const parsed = safeJsonParse(stored, {});
-			logger.info('🔄 [useWorkerTokenFlowController] Loaded flow config from storage');
+			logger.info('🔄 [useWorkerTokenFlowController] Loaded flow config from storage', "Logger info");
 			return { ...defaultConfig, ...parsed };
 		}
 	} catch (error) {
@@ -226,7 +226,7 @@ export const useWorkerTokenFlowController = (
 			try {
 				logger.info(
 					'🔄 [useWorkerTokenFlowController] Loading flow-specific credentials on mount...'
-				);
+				, "Logger info");
 
 				const {
 					credentials: loadedCreds,
@@ -250,10 +250,10 @@ export const useWorkerTokenFlowController = (
 					// Load flow-specific state if available
 					if (flowState?.flowConfig) {
 						setFlowConfig(flowState.flowConfig);
-						logger.info('✅ [useWorkerTokenFlowController] Loaded flow config from saved state');
+						logger.info('✅ [useWorkerTokenFlowController] Loaded flow config from saved state', "Logger info");
 					}
 				} else {
-					logger.info('ℹ️ [useWorkerTokenFlowController] No saved credentials found');
+					logger.info('ℹ️ [useWorkerTokenFlowController] No saved credentials found', "Logger info");
 				}
 			} catch (error) {
 				logger.error(
@@ -272,7 +272,7 @@ export const useWorkerTokenFlowController = (
 		(newConfig: FlowConfig) => {
 			setFlowConfig(newConfig);
 			sessionStorage.setItem(configStorageKey, JSON.stringify(newConfig));
-			logger.info('💾 [useWorkerTokenFlowController] Flow config updated and persisted');
+			logger.info('💾 [useWorkerTokenFlowController] Flow config updated and persisted', "Logger info");
 		},
 		[configStorageKey]
 	);
@@ -346,7 +346,7 @@ export const useWorkerTokenFlowController = (
 			trackTokenOperation('worker-token-request', true, 'Token requested successfully');
 			showGlobalSuccess('Worker token requested successfully!');
 
-			logger.info('✅ [useWorkerTokenFlowController] Token request completed successfully');
+			logger.info('✅ [useWorkerTokenFlowController] Token request completed successfully', "Logger info");
 		} catch (error) {
 			logger.error(
 				'useWorkerTokenFlowController',
@@ -413,7 +413,7 @@ export const useWorkerTokenFlowController = (
 			trackTokenOperation('token-introspection', true, 'Token introspection completed');
 			showGlobalSuccess('Token introspection completed successfully!');
 
-			logger.info('✅ [useWorkerTokenFlowController] Token introspection completed successfully');
+			logger.info('✅ [useWorkerTokenFlowController] Token introspection completed successfully', "Logger info");
 		} catch (error) {
 			logger.error(
 				'useWorkerTokenFlowController',
@@ -435,7 +435,7 @@ export const useWorkerTokenFlowController = (
 
 	const saveCredentials = useCallback(async () => {
 		try {
-			logger.info('💾 [useWorkerTokenFlowController] Save credentials button clicked!');
+			logger.info('💾 [useWorkerTokenFlowController] Save credentials button clicked!', "Logger info");
 			logger.info(
 				'📋 [useWorkerTokenFlowController] Credentials object:',
 				JSON.stringify(credentials, null, 2)
@@ -476,7 +476,7 @@ export const useWorkerTokenFlowController = (
 			if (success) {
 				logger.info(
 					'✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService'
-				);
+				, "Logger info");
 				logger.info('🔍 [useWorkerTokenFlowController] Saved loginHint:', credentials.loginHint);
 
 				// Also save to worker token specific storage
@@ -484,7 +484,7 @@ export const useWorkerTokenFlowController = (
 					localStorage.setItem('worker_credentials', JSON.stringify(credentials));
 					logger.info(
 						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage'
-					);
+					, "Logger info");
 				} catch (error) {
 					logger.warn(
 						'useWorkerTokenFlowController',
@@ -503,7 +503,7 @@ export const useWorkerTokenFlowController = (
 				// Dispatch events to notify dashboard and other components
 				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-				logger.info('📢 [useWorkerTokenFlowController] Configuration change events dispatched');
+				logger.info('📢 [useWorkerTokenFlowController] Configuration change events dispatched', "Logger info");
 			} else {
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
@@ -543,7 +543,7 @@ export const useWorkerTokenFlowController = (
 	}, [clearStepResults, stepManager, credentials]);
 
 	const loadCredentials = useCallback((config: StepCredentials) => {
-		logger.info('📥 [useWorkerTokenFlowController] Loading credentials from config');
+		logger.info('📥 [useWorkerTokenFlowController] Loading credentials from config', "Logger info");
 		setCredentials(config);
 		originalCredentialsRef.current = { ...config };
 		setHasUnsavedCredentialChanges(false);

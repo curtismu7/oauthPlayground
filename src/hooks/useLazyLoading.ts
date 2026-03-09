@@ -110,7 +110,7 @@ export const useLazyLoading = (config: UseLazyLoadingConfig) => {
 
 			onLoadComplete?.(component);
 
-			logger.info(`[useLazyLoading] Successfully loaded ${flowType} in ${loadTime}ms`);
+			logger.info(`[useLazyLoading] Successfully loaded ${flowType} in ${loadTime}ms`, "Logger info");
 		} catch (error) {
 			const loadTime = Date.now() - startTimeRef.current;
 			lazyLoadingMetrics.recordError(flowType);
@@ -154,7 +154,7 @@ export const useLazyLoading = (config: UseLazyLoadingConfig) => {
 
 		try {
 			await lazyLoadingManager.loadOAuthFlow(flowType);
-			logger.info(`[useLazyLoading] Preloaded ${flowType}`);
+			logger.info(`[useLazyLoading] Preloaded ${flowType}`, "Logger info");
 		} catch (error) {
 			logger.warn(`[useLazyLoading] Preload failed for ${flowType}:`, error);
 		}
@@ -209,7 +209,7 @@ export const usePreloadFlows = (flowTypes: string[]) => {
 		try {
 			await lazyLoadingManager.preloadOAuthFlows(flowTypes);
 			setPreloadedFlows(new Set(flowTypes));
-			logger.info(`[usePreloadFlows] Preloaded ${flowTypes.length} flows`);
+			logger.info(`[usePreloadFlows] Preloaded ${flowTypes.length} flows`, "Logger info");
 		} catch (error) {
 			setPreloadError(error as Error);
 			logger.error('[usePreloadFlows] Preload failed:', error);

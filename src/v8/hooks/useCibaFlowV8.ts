@@ -109,7 +109,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 */
 	const initiateAuthentication = useCallback(
 		async (credentials: CibaCredentials): Promise<CibaAuthRequest | null> => {
-			logger.info(`${MODULE_TAG} Initiating CIBA authentication`);
+			logger.info(`${MODULE_TAG} Initiating CIBA authentication`, "Logger info");
 
 			// Validate credentials first
 			const validation = CibaServiceV8.validateCredentials(credentials);
@@ -141,7 +141,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					error: null,
 				}));
 
-				logger.info(`${MODULE_TAG} CIBA authentication initiated successfully`);
+				logger.info(`${MODULE_TAG} CIBA authentication initiated successfully`, "Logger info");
 				return authRequest;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -193,7 +193,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 							message: 'CIBA authentication completed successfully!',
 							duration: 3000,
 						});
-						logger.info(`${MODULE_TAG} CIBA authentication completed successfully`);
+						logger.info(`${MODULE_TAG} CIBA authentication completed successfully`, "Logger info");
 						break;
 					case 'denied':
 						modernMessaging.showBanner({
@@ -254,7 +254,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 * Stop polling
 	 */
 	const stopPolling = useCallback(() => {
-		logger.info(`${MODULE_TAG} Stopping polling`);
+		logger.info(`${MODULE_TAG} Stopping polling`, "Logger info");
 
 		if (pollingTimeoutRef.current) {
 			clearTimeout(pollingTimeoutRef.current);
@@ -289,7 +289,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 
 				// Check if we've exceeded max attempts
 				if (state.pollingCount >= state.maxPollingAttempts) {
-					logger.warn(`${MODULE_TAG} Max polling attempts reached`);
+					logger.warn(`${MODULE_TAG} Max polling attempts reached`, "Logger warning");
 					setState((prev) => ({
 						...prev,
 						isPolling: false,
@@ -329,7 +329,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 	 * Reset the entire flow state
 	 */
 	const reset = useCallback(() => {
-		logger.info(`${MODULE_TAG} Resetting CIBA flow state`);
+		logger.info(`${MODULE_TAG} Resetting CIBA flow state`, "Logger info");
 
 		stopPolling();
 

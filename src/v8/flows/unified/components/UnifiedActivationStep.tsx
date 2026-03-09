@@ -104,7 +104,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	 */
 	useEffect(() => {
 		if (config.deviceType === 'TOTP' && (mfaState.qrCodeUrl || mfaState.totpSecret)) {
-			logger.info('🔍 [TOTP DEBUG] Scrolling to top - QR code data available');
+			logger.info('🔍 [TOTP DEBUG] Scrolling to top - QR code data available', "Logger info");
 
 			const scrollToTop = () => {
 				// Scroll main window
@@ -194,7 +194,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		setIsLoading(true);
 
 		try {
-			logger.info(`${MODULE_TAG} Activating device via activateDevice API`);
+			logger.info(`${MODULE_TAG} Activating device via activateDevice API`, "Logger info");
 
 			// Activate device via MFAServiceV8.activateDevice()
 			// This is the correct method for registration flows (not validateOTP)
@@ -290,7 +290,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 				deviceId: mfaState.deviceId,
 			});
 
-			logger.info(`${MODULE_TAG} Pairing code resent successfully`);
+			logger.info(`${MODULE_TAG} Pairing code resent successfully`, "Logger info");
 
 			// Show success toast
 			modernMessaging.showFooterMessage({

@@ -84,11 +84,11 @@ export const usePerformanceMonitoring = (
 
 		// Log performance warnings
 		if (renderCount.current > finalThresholds.renderCountThreshold) {
-			logger.warn(`[Performance] ${componentName} high render count: ${renderCount.current}`);
+			logger.warn(`[Performance] ${componentName} high render count: ${renderCount.current}`, "Logger warning");
 		}
 
 		if (errorCount.current > finalThresholds.errorThreshold) {
-			logger.warn(`[Performance] ${componentName} high error count: ${errorCount.current}`);
+			logger.warn(`[Performance] ${componentName} high error count: ${errorCount.current}`, "Logger warning");
 		}
 	}, [componentName, finalThresholds]);
 

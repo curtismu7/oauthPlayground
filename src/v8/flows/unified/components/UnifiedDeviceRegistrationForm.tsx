@@ -126,7 +126,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 	// Debug logging on mount
 	useEffect(() => {
-		logger.info('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted');
+		logger.info('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted', "Logger info");
 		logger.info('🔍 [FLOW TYPE DEBUG] Initial flowType:', flowType);
 		logger.info('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
 	}, [flowType, selectedTab]);
@@ -232,7 +232,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 			return;
 		}
 
-		logger.info('🔍 [FORM DEBUG] Calling onSubmit callback');
+		logger.info('🔍 [FORM DEBUG] Calling onSubmit callback', "Logger info");
 
 		// Special handling for FIDO2
 		if (selectedTab === 'FIDO2') {
@@ -340,7 +340,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="admin-active"
 								checked={flowType === 'admin-active'}
 								onChange={(e) => {
-									logger.info('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected');
+									logger.info('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected', "Logger info");
 									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
@@ -377,7 +377,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 									value="admin-activation"
 									checked={flowType === 'admin-activation'}
 									onChange={(e) => {
-										logger.info('🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected');
+										logger.info('🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected', "Logger info");
 										logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 										setFlowType(e.target.value as FlowType);
 									}}
@@ -415,7 +415,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="user"
 								checked={flowType === 'user'}
 								onChange={(e) => {
-									logger.info('🔍 [FLOW TYPE DEBUG] User Flow radio selected');
+									logger.info('🔍 [FLOW TYPE DEBUG] User Flow radio selected', "Logger info");
 									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
@@ -790,7 +790,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								<Button
 									variant="secondary"
 									onClick={() => {
-										logger.info('[UNIFIED-FLOW] Manual fallback: User clicked continue button');
+										logger.info('[UNIFIED-FLOW] Manual fallback: User clicked continue button', "Logger info");
 
 										// Store flow context for callback handler (Unified OAuth pattern)
 										const flowContext = {
@@ -805,7 +805,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 											JSON.stringify(flowContext)
 										);
 
-										logger.info('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback');
+										logger.info('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback', "Logger info");
 
 										// Proceed with registration
 										handleSubmit();
@@ -843,7 +843,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							environment: environmentId,
 						}}
 						onExport={() => {
-							logger.info(`${MODULE_TAG} MFA credentials exported`);
+							logger.info(`${MODULE_TAG} MFA credentials exported`, "Logger info");
 							modernMessaging.showFooterMessage({
 								type: 'info',
 								message: 'MFA credentials exported successfully',

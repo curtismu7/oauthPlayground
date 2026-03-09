@@ -44,7 +44,7 @@ async function initDB(): Promise<IDBDatabase> {
 		};
 
 		request.onsuccess = () => {
-			logger.info(`${MODULE_TAG} ✅ Discovery cache database opened`);
+			logger.info(`${MODULE_TAG} ✅ Discovery cache database opened`, "Logger info");
 			resolve(request.result);
 		};
 
@@ -57,7 +57,7 @@ async function initDB(): Promise<IDBDatabase> {
 				});
 				store.createIndex('issuer', 'issuer', { unique: false });
 				store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				logger.info(`${MODULE_TAG} ✅ Discovery cache object store created`);
+				logger.info(`${MODULE_TAG} ✅ Discovery cache object store created`, "Logger info");
 			}
 		};
 	});
@@ -188,7 +188,7 @@ export async function clearExpiredCache(): Promise<void> {
 					cursor.delete();
 					cursor.continue();
 				} else {
-					logger.info(`${MODULE_TAG} ✅ Expired cache entries cleared`);
+					logger.info(`${MODULE_TAG} ✅ Expired cache entries cleared`, "Logger info");
 					resolve();
 				}
 			};
@@ -212,7 +212,7 @@ export async function clearAllCache(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
 			const request = store.clear();
 			request.onsuccess = () => {
-				logger.info(`${MODULE_TAG} ✅ All discovery cache cleared`);
+				logger.info(`${MODULE_TAG} ✅ All discovery cache cleared`, "Logger info");
 				resolve();
 			};
 			request.onerror = () => reject(request.error);

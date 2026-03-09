@@ -270,7 +270,7 @@ export class HybridFlowCredentialsSync {
 
 		// Validate credentials
 		if (!credentials.environmentId || !credentials.clientId) {
-			logger.warn('Missing required credentials for hybrid flow');
+			logger.warn('Missing required credentials for hybrid flow', "Logger warning");
 			return;
 		}
 

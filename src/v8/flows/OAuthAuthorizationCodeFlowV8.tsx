@@ -63,7 +63,7 @@ interface AuthorizationState {
 }
 
 export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
-	logger.info(`${MODULE_TAG} Initializing flow`);
+	logger.info(`${MODULE_TAG} Initializing flow`, "Logger info");
 
 	const nav = useStepNavigationV8(4, {
 		onStepChange: (step) => logger.info(`${MODULE_TAG} Step changed to`, { step }),
@@ -257,7 +257,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						async () => {
 							logger.info(
 								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
-							);
+							, "Logger info");
 
 							if (!credentials.redirectUri) {
 								nav.setValidationErrors(['Redirect URI is required']);
@@ -299,7 +299,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 									username: redirectlessCredentials.username,
 									password: redirectlessCredentials.password,
 									onAuthCodeReceived: () => {
-										logger.info(`${MODULE_TAG} Received authorization code via redirectless`);
+										logger.info(`${MODULE_TAG} Received authorization code via redirectless`, "Logger info");
 									},
 								});
 
@@ -385,7 +385,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					<SecondaryButton
 						onClick={() => {
 							navigator.clipboard.writeText(authState.authorizationUrl);
-							logger.info(`${MODULE_TAG} URL copied to clipboard`);
+							logger.info(`${MODULE_TAG} URL copied to clipboard`, "Logger info");
 						}}
 						disabled={isActionInProgress}
 					>
@@ -431,7 +431,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 			<PrimaryButton
 				onClick={() => {
-					logger.info(`${MODULE_TAG} Parsing callback URL`);
+					logger.info(`${MODULE_TAG} Parsing callback URL`, "Logger info");
 					setIsActionInProgress(true);
 					try {
 						const parsed = OAuthIntegrationServiceV8.parseCallbackUrl(
@@ -474,7 +474,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<SecondaryButton
 								onClick={() => {
 									navigator.clipboard.writeText(authState.tokens.accessToken);
-									logger.info(`${MODULE_TAG} Token copied to clipboard`);
+									logger.info(`${MODULE_TAG} Token copied to clipboard`, "Logger info");
 								}}
 								disabled={isActionInProgress}
 							>
@@ -509,7 +509,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.idToken || '');
-										logger.info(`${MODULE_TAG} Token copied to clipboard`);
+										logger.info(`${MODULE_TAG} Token copied to clipboard`, "Logger info");
 									}}
 									disabled={isActionInProgress}
 								>
@@ -545,7 +545,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.refreshToken || '');
-										logger.info(`${MODULE_TAG} Token copied to clipboard`);
+										logger.info(`${MODULE_TAG} Token copied to clipboard`, "Logger info");
 									}}
 									disabled={isActionInProgress}
 								>
@@ -716,7 +716,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						onPrevious={nav.goToPrevious}
 						onNext={nav.goToNext}
 						onFinal={() => {
-							logger.info(`${MODULE_TAG} Starting new flow`);
+							logger.info(`${MODULE_TAG} Starting new flow`, "Logger info");
 							nav.reset();
 							// Clear PKCE codes from bulletproof storage
 							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
@@ -753,7 +753,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 					<DangerButton
 						onClick={() => {
-							logger.info(`${MODULE_TAG} Resetting flow`);
+							logger.info(`${MODULE_TAG} Resetting flow`, "Logger info");
 							FlowResetServiceV8.resetFlow('oauth-authz-v8');
 							// Clear PKCE codes from bulletproof storage
 							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {

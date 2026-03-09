@@ -78,25 +78,25 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleApproveDevice() {
 		if (!deviceCode) {
-			alert('No device code available. Request device authorization first.');
+			console.warn("Alert: No device code available. Request device authorization first.");
 			return;
 		}
 		const approved = V7MStateStore.approveDeviceCode(deviceCode);
 		if (approved) {
 			setIsApproved(true);
-			alert('Device approved! You can now poll for tokens.');
+			console.warn("Alert: Device approved! You can now poll for tokens.");
 		} else {
-			alert('Failed to approve device. Device code may be expired.');
+			console.warn("Alert: Failed to approve device. Device code may be expired.");
 		}
 	}
 
 	async function handlePollToken() {
 		if (!deviceCode) {
-			alert('No device code available');
+			console.warn("Alert: No device code available");
 			return;
 		}
 		if (!isApproved) {
-			alert('Device not yet approved. Click "Simulate User Approval" first.');
+			console.warn("Alert:", 'Device not yet approved. Click "Simulate User Approval" first.');
 			return;
 		}
 		const res = tokenExchangeDeviceCode({
@@ -112,7 +112,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		});
 		if ('error' in res) {
 			if (res.error === 'authorization_pending') {
-				alert('User has not yet approved the device. Click "Simulate User Approval" first.');
+				console.warn("Alert:", 'User has not yet approved the device. Click "Simulate User Approval" first.');
 			} else {
 				showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			}
@@ -125,7 +125,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleUserInfo() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
@@ -134,7 +134,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleIntrospect() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = introspectToken(accessToken);
@@ -143,7 +143,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function copyToClipboard(text: string) {
 		navigator.clipboard.writeText(text);
-		alert('Copied to clipboard!');
+		console.warn("Alert: Copied to clipboard!");
 	}
 
 	return (

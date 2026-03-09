@@ -32,7 +32,7 @@ export class EnvironmentIdServiceV8 {
 			if (stored) {
 				// Only log if debug mode is enabled or if this is the first call
 				if (typeof window !== 'undefined' && !window.__envIdLogged) {
-					logger.info(`${MODULE_TAG} Retrieved stored environment ID`);
+					logger.info(`${MODULE_TAG} Retrieved stored environment ID`, "Logger info");
 					window.__envIdLogged = true;
 				}
 				return stored;
@@ -57,7 +57,7 @@ export class EnvironmentIdServiceV8 {
 		if (typeof window !== 'undefined') {
 			window.resetEnvironmentIdLogging = () => {
 				EnvironmentIdServiceV8.resetLoggingState();
-				logger.info('🔧 Environment ID logging state reset');
+				logger.info('🔧 Environment ID logging state reset', "Logger info");
 			};
 		}
 	}
@@ -68,14 +68,14 @@ export class EnvironmentIdServiceV8 {
 	 */
 	static saveEnvironmentId(environmentId: string): void {
 		if (!environmentId?.trim()) {
-			logger.warn(`${MODULE_TAG} Attempted to save empty environment ID`);
+			logger.warn(`${MODULE_TAG} Attempted to save empty environment ID`, "Logger warning");
 			return;
 		}
 
 		try {
 			const trimmed = environmentId.trim();
 			localStorage.setItem(STORAGE_KEY, trimmed);
-			logger.info(`${MODULE_TAG} Saved environment ID`);
+			logger.info(`${MODULE_TAG} Saved environment ID`, "Logger info");
 
 			// Add to history (new feature)
 			EnvironmentIdServiceV8.addToHistory(trimmed);
@@ -93,7 +93,7 @@ export class EnvironmentIdServiceV8 {
 	static clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			logger.info(`${MODULE_TAG} Cleared environment ID`);
+			logger.info(`${MODULE_TAG} Cleared environment ID`, "Logger info");
 			window.dispatchEvent(new Event('environmentIdUpdated'));
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to clear environment ID`, error);
@@ -227,7 +227,7 @@ export class EnvironmentIdServiceV8 {
 	static clearHistory(): void {
 		try {
 			localStorage.removeItem('v8:env_id_history');
-			logger.info(`${MODULE_TAG} Cleared environment ID history`);
+			logger.info(`${MODULE_TAG} Cleared environment ID history`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to clear history`, error);
 		}

@@ -279,7 +279,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load credentials from environment variables
 	const loadFromEnvironmentVariables = useCallback(async () => {
 		try {
-			logger.info(' [CredentialSetupModal] Loading credentials from environment variables...');
+			logger.info(' [CredentialSetupModal] Loading credentials from environment variables...', "Logger info");
 
 			const response = await fetch('/api/env-config');
 			if (!response.ok) {
@@ -318,7 +318,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load existing credentials using V7 standardized system when modal opens
 	useEffect(() => {
 		if (isOpen) {
-			logger.info(' [CredentialSetupModal] Loading credentials using V7 standardized system...');
+			logger.info(' [CredentialSetupModal] Loading credentials using V7 standardized system...', "Logger info");
 
 			const loadCredentialsV7 = async () => {
 				try {
@@ -350,7 +350,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					logger.info(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
 
 					if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
-						logger.info(' [CredentialSetupModal] Using V7 FlowCredentialService credentials');
+						logger.info(' [CredentialSetupModal] Using V7 FlowCredentialService credentials', "Logger info");
 						const newFormData = {
 							environmentId: v7Credentials.credentials.environmentId || '',
 							clientId: v7Credentials.credentials.clientId || '',
@@ -372,7 +372,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 				// Fallback to legacy credential manager
 				try {
-					logger.info(' [CredentialSetupModal] Loading from legacy credential manager...');
+					logger.info(' [CredentialSetupModal] Loading from legacy credential manager...', "Logger info");
 					const allCredentials = credentialManager.getAllCredentials();
 					logger.info(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
 
@@ -411,7 +411,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 					// Pre-populate form with existing credentials
 					if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
-						logger.info(' [CredentialSetupModal] Pre-populating form with existing credentials');
+						logger.info(' [CredentialSetupModal] Pre-populating form with existing credentials', "Logger info");
 						const newFormData = {
 							environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
 							clientId: allCredentials.clientId || oldCredentials?.clientId || '',
@@ -546,7 +546,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			const minDelay = new Promise((resolve) => setTimeout(resolve, 500));
 
 			// Save using V7 standardized storage system
-			logger.info(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
+			logger.info(' [CredentialSetupModal] Saving credentials using V7 standardized system...', "Logger info");
 
 			// Build base URL - use custom domain if provided, otherwise use region-based domain
 			const baseUrl = formData.customDomain.trim()
@@ -618,7 +618,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 			logger.info(
 				' [CredentialSetupModal] Configuration saved successfully using V7 standardized system and legacy compatibility'
-			);
+			, "Logger info");
 
 			setSaveStatus({
 				type: 'success',
@@ -640,7 +640,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 			// Auto-close after success
 			setTimeout(() => {
-				logger.info(' [CredentialSetupModal] Auto-closing modal after successful save');
+				logger.info(' [CredentialSetupModal] Auto-closing modal after successful save', "Logger info");
 				onClose();
 			}, 1500);
 		} catch (error) {
@@ -1067,10 +1067,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										localStorage.setItem('skip_startup_credentials_modal', 'true');
 										logger.info(
 											' [CredentialSetupModal] User chose to skip startup credentials modal'
-										);
+										, "Logger info");
 									} else {
 										localStorage.removeItem('skip_startup_credentials_modal');
-										logger.info(' [CredentialSetupModal] User will see startup credentials modal');
+										logger.info(' [CredentialSetupModal] User will see startup credentials modal', "Logger info");
 									}
 								}}
 							/>

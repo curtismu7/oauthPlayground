@@ -20,7 +20,7 @@ export const UserLoginStepV8: React.FC<UserLoginStepV8Props> = ({ renderProps })
 	const { credentials, setShowUserLoginModal } = renderProps;
 
 	const handleStartAuthentication = () => {
-		logger.info(`${MODULE_TAG} Starting PingOne Authentication`);
+		logger.info(`${MODULE_TAG} Starting PingOne Authentication`, "Logger info");
 		setShowUserLoginModal(true);
 	};
 

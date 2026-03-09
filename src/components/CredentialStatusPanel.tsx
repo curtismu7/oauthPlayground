@@ -352,10 +352,10 @@ const CredentialStatusPanel: React.FC = () => {
 	);
 
 	const refreshStatuses = useCallback(async () => {
-		logger.info(' [CredentialStatusPanel] Refreshing statuses - button clicked');
+		logger.info(' [CredentialStatusPanel] Refreshing statuses - button clicked', "Logger info");
 		setIsLoading(true);
 		try {
-			logger.info(' [CredentialStatusPanel] Loading credentials...');
+			logger.info(' [CredentialStatusPanel] Loading credentials...', "Logger info");
 			const configCredentials = credentialManager.loadConfigCredentials();
 			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
 			const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
@@ -400,7 +400,7 @@ const CredentialStatusPanel: React.FC = () => {
 			setFlowStatuses(statuses);
 			setLastRefresh(new Date());
 
-			logger.info(' [CredentialStatusPanel] Statuses updated successfully');
+			logger.info(' [CredentialStatusPanel] Statuses updated successfully', "Logger info");
 			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
 			showGlobalSuccess(
 				' System Status Refreshed',

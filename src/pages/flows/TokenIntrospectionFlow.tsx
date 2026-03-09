@@ -140,13 +140,13 @@ logger.info('Token introspection result:', introspectionResult);`,
 			description: 'Review the token introspection response and validate token claims.',
 			code: `// Analyze Token Introspection Results
 if (introspectionResult.active) {
-  logger.info('✅ Token is valid and active');
+  logger.info('✅ Token is valid and active', "Logger info");
   logger.info('Scope:', introspectionResult.scope);
   logger.info('Client ID:', introspectionResult.client_id);
   logger.info('Token Type:', introspectionResult.token_type);
   logger.info('Expires At:', new Date(introspectionResult.exp * 1000).toISOString());
 } else {
-  logger.info('❌ Token is invalid or expired');
+  logger.info('❌ Token is invalid or expired', "Logger info");
 }
 
 // Check specific claims

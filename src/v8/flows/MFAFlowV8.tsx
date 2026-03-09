@@ -85,7 +85,7 @@ const DEVICE_TYPE_TO_FLAG_MAP: Record<DeviceType, MFAFeatureFlag> = {
  * - Unified: Single component for all device types (UnifiedMFARegistrationFlowV8)
  */
 export const MFAFlowV8: React.FC = () => {
-	logger.info(`${MODULE_TAG} Initializing MFA flow router`);
+	logger.info(`${MODULE_TAG} Initializing MFA flow router`, "Logger info");
 
 	// Load device type from stored credentials, default to SMS
 	// Make it state so it can be updated when user changes device type
@@ -116,7 +116,7 @@ export const MFAFlowV8: React.FC = () => {
 			const customEvent = event as CustomEvent<DeviceType>;
 			const newDeviceType = customEvent.detail;
 			if (newDeviceType !== deviceType) {
-				logger.info(`${MODULE_TAG} Device type changed from ${deviceType} to ${newDeviceType}`);
+				logger.info(`${MODULE_TAG} Device type changed from ${deviceType} to ${newDeviceType}`, "Logger info");
 				setDeviceType(newDeviceType);
 			}
 		};
@@ -129,7 +129,7 @@ export const MFAFlowV8: React.FC = () => {
 
 	// Route to unified flow or legacy flow based on feature flag
 	if (useUnifiedFlow) {
-		logger.info(`${MODULE_TAG} ✨ Using UNIFIED flow for ${deviceType}`);
+		logger.info(`${MODULE_TAG} ✨ Using UNIFIED flow for ${deviceType}`, "Logger info");
 		return (
 			<MFAErrorBoundary>
 				<Suspense fallback={<MFAFlowSkeleton />}>
@@ -140,7 +140,7 @@ export const MFAFlowV8: React.FC = () => {
 	}
 
 	// Use factory to create the appropriate legacy component
-	logger.info(`${MODULE_TAG} 📱 Using LEGACY flow for ${deviceType}`);
+	logger.info(`${MODULE_TAG} 📱 Using LEGACY flow for ${deviceType}`, "Logger info");
 	const FlowComponent = MFAFlowComponentFactory.create(deviceType);
 
 	return (

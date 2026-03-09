@@ -779,7 +779,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 			});
 
 			if (!step || !step.execute) {
-				logger.info(' [EnhancedStepFlowV2] No step or execute function found');
+				logger.info(' [EnhancedStepFlowV2] No step or execute function found', "Logger info");
 				return;
 			}
 

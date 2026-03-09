@@ -116,30 +116,30 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 		});
 
 		// Log to console with detailed formatting
-		logger.info(`${MODULE_TAG} ========================================`);
-		logger.info(`${MODULE_TAG} OAUTH CALLBACK DEBUG PAGE LOADED`);
-		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
+		logger.info(`${MODULE_TAG} OAUTH CALLBACK DEBUG PAGE LOADED`, "Logger info");
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
 		logger.info(`${MODULE_TAG} Timestamp:`, info.timestamp);
 		logger.info(`${MODULE_TAG} Current URL:`, info.currentUrl);
 		logger.info(`${MODULE_TAG} Pathname:`, info.pathname);
 		logger.info(`${MODULE_TAG} Search:`, info.search);
-		logger.info(`${MODULE_TAG} ========================================`);
-		logger.info(`${MODULE_TAG} CALLBACK PARAMETERS:`);
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
+		logger.info(`${MODULE_TAG} CALLBACK PARAMETERS:`, "Logger info");
 		logger.info(`${MODULE_TAG} Code present:`, !!code);
 		logger.info(`${MODULE_TAG} State present:`, !!state);
 		logger.info(`${MODULE_TAG} Error:`, error || 'None');
 		logger.info(`${MODULE_TAG} All params:`, callbackParams);
-		logger.info(`${MODULE_TAG} ========================================`);
-		logger.info(`${MODULE_TAG} SESSION STORAGE:`);
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
+		logger.info(`${MODULE_TAG} SESSION STORAGE:`, "Logger info");
 		logger.info(`${MODULE_TAG} Total keys:`, sessionKeys.length);
 		logger.info(`${MODULE_TAG} All keys:`, sessionKeys);
 		logger.info(`${MODULE_TAG} Relevant data:`, sessionData);
-		logger.info(`${MODULE_TAG} ========================================`);
-		logger.info(`${MODULE_TAG} NAVIGATION:`);
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
+		logger.info(`${MODULE_TAG} NAVIGATION:`, "Logger info");
 		logger.info(`${MODULE_TAG} Return path:`, returnPath || 'NOT FOUND');
 		logger.info(`${MODULE_TAG} Will redirect:`, willRedirect);
 		logger.info(`${MODULE_TAG} Redirect target:`, redirectTarget || 'N/A');
-		logger.info(`${MODULE_TAG} ========================================`);
+		logger.info(`${MODULE_TAG} ========================================`, "Logger info");
 	}, [searchParams]);
 
 	// Countdown timer for auto-redirect
@@ -176,7 +176,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 	const handleManualRedirect = () => {
 		if (!debugInfo?.redirectTarget) return;
 
-		logger.info(`${MODULE_TAG} 👆 Manual redirect triggered`);
+		logger.info(`${MODULE_TAG} 👆 Manual redirect triggered`, "Logger info");
 		handleRedirect();
 	};
 

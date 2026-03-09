@@ -36,7 +36,7 @@ export async function ensureBackendReady(maxAttempts = 5): Promise<boolean> {
 
 				if (response.ok) {
 					backendReady = true;
-					logger.info('[Backend Health Check] Backend is ready');
+					logger.info('[Backend Health Check] Backend is ready', "Logger info");
 					return true;
 				}
 

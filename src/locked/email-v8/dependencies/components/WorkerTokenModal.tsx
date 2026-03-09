@@ -334,7 +334,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			if (isValidEnvId) {
 				logger.info(
 					'[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage'
-				);
+				, "Logger info");
 				return {
 					environmentId: savedEnvId,
 					clientId: savedCredentials.clientId || '',
@@ -596,7 +596,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				) {
 					logger.info(
 						'[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from global storage'
-					);
+					, "Logger info");
 					const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 					const savedEnvId = savedCredentials.environmentId?.trim() || '';
 					const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
@@ -612,7 +612,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						setWorkerCredentials((prev) => {
 							// Only update if current credentials are empty or different from saved
 							if (!prev.clientId || !prev.clientSecret || prev.environmentId !== savedEnvId) {
-								logger.info('[WorkerTokenModal] ✅ Updating credentials from saved storage');
+								logger.info('[WorkerTokenModal] ✅ Updating credentials from saved storage', "Logger info");
 								return {
 									environmentId: savedEnvId,
 									clientId: savedCredentials.clientId || '',
@@ -631,7 +631,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						});
 					}
 				} else {
-					logger.info('[WorkerTokenModal] ⚠️ No saved credentials found in global storage');
+					logger.info('[WorkerTokenModal] ⚠️ No saved credentials found in global storage', "Logger info");
 				}
 			};
 			loadCredentials();
@@ -656,7 +656,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		});
 
 		v4ToastManager.showSuccess('Saved credentials cleared successfully');
-		logger.info('[WorkerTokenModal] Cleared all saved credentials via service');
+		logger.info('[WorkerTokenModal] Cleared all saved credentials via service', "Logger info");
 	};
 
 	const handleSaveCredentials = async () => {
@@ -807,7 +807,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				await workerTokenServiceV8.saveCredentials(credentialsToSave);
 				logger.info(
 					'[WorkerTokenModal] ✅ Credentials saved automatically before token generation'
-				);
+				, "Logger info");
 			} catch (error) {
 				logger.warn(
 					'[WorkerTokenModal] ⚠️ Failed to save credentials, but continuing with token generation',
@@ -900,7 +900,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			if (scopeArray.length > 1) {
 				logger.info(
 					'[WorkerTokenModal] ℹ️ Multiple scopes provided - using first one. Note: Scopes are NOT used for authorization.'
-				);
+				, "Logger info");
 				finalScopes = scopeArray[0];
 			}
 			logger.info(
@@ -975,7 +975,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			// No scope - will let PingOne use default scopes for the application
 			logger.info(
 				'[WorkerTokenModal] ℹ️ No scopes specified - PingOne will use default scopes for this application'
-			);
+			, "Logger info");
 		}
 
 		// Store request details and show educational modal
@@ -995,7 +995,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				region: workerCredentials.region || 'us',
 			});
 			setShowRequestModal(true);
-			logger.info('[WorkerTokenModal] ✅ Educational modal state set to true');
+			logger.info('[WorkerTokenModal] ✅ Educational modal state set to true', "Logger info");
 			return;
 		}
 
@@ -1045,13 +1045,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						`Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
 					// Still need client_id in body for token endpoint (PingOne requirement)
 					bodyParams.client_id = requestParams.client_id;
-					logger.info('[WorkerTokenModal] Using Basic auth in header with client_id in body');
+					logger.info('[WorkerTokenModal] Using Basic auth in header with client_id in body', "Logger info");
 					break;
 				case 'client_secret_post':
 					// Send client credentials in request body
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					logger.info('[WorkerTokenModal] Using client credentials in body');
+					logger.info('[WorkerTokenModal] Using client credentials in body', "Logger info");
 					break;
 				case 'client_secret_jwt':
 				case 'private_key_jwt':
@@ -1066,13 +1066,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				case 'none':
 					// No authentication - just send client_id
 					bodyParams.client_id = requestParams.client_id;
-					logger.info('[WorkerTokenModal] Using no authentication');
+					logger.info('[WorkerTokenModal] Using no authentication', "Logger info");
 					break;
 				default:
 					// Default to client_secret_post
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					logger.info('[WorkerTokenModal] Default to client_secret_post');
+					logger.info('[WorkerTokenModal] Default to client_secret_post', "Logger info");
 			}
 
 			// Build URLSearchParams from bodyParams (ensures proper encoding and handles empty values)
@@ -1083,7 +1083,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				if (key === 'scope' && (!value || value.trim() === '')) {
 					logger.info(
 						'[WorkerTokenModal] ⚠️ Skipping empty scope parameter - PingOne will use default scopes'
-					);
+					, "Logger info");
 					return;
 				}
 				if (value !== undefined && value !== null && value !== '') {
@@ -1091,14 +1091,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				}
 			});
 
-			logger.info('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====');
+			logger.info('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====', "Logger info");
 			logger.info('[WorkerTokenModal] Endpoint:', tokenEndpoint);
 			logger.info('[WorkerTokenModal] Region:', pendingRequestDetails.region);
 			logger.info('[WorkerTokenModal] Headers:', headers);
 			logger.info('[WorkerTokenModal] Body params:', bodyParams);
 			logger.info('[WorkerTokenModal] Body string:', body.toString());
 			logger.info('[WorkerTokenModal] Scopes being sent:', bodyParams.scope);
-			logger.info('[WorkerTokenModal] ===============================');
+			logger.info('[WorkerTokenModal] ===============================', "Logger info");
 
 			// Use trackedFetch to automatically track this API call in the API calls table
 			const response = await trackedFetch(tokenEndpoint, {
@@ -1332,7 +1332,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			} else {
 				logger.warn(
 					'[WorkerTokenModal] Token saved to legacy storage only; V8 service persistence failed.'
-				);
+				, "Logger warning");
 			}
 
 			// Dispatch custom event to notify other components that worker token was updated
