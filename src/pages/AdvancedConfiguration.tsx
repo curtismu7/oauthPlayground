@@ -17,7 +17,7 @@ const _Container = styled.div`
   padding: 1.5rem;
 `;
 
-const _Header = styled.div`
+const Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
 
@@ -342,7 +342,7 @@ const pageConfig = {
 	flowType: 'documentation' as const,
 	theme: 'blue' as const,
 	maxWidth: '72rem',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'pingone-defaults',
@@ -351,7 +351,6 @@ const pageConfig = {
 const {
 	PageContainer,
 	ContentWrapper,
-	PageHeader: LayoutPageHeader,
 } = PageLayoutService.createPageLayout(pageConfig);
 
 const AdvancedConfiguration = () => {
@@ -591,11 +590,20 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutPageHeader && <LayoutPageHeader />}
+				<Header>
+					<h1>
+						<FiEdit size={40} />
+						Advanced Configuration
+					</h1>
+					<p>
+						Configure default OAuth scopes, claims, and environment-wide settings used across all
+						flows.
+					</p>
+				</Header>
 
-				<BackButton onClick={() => navigate('/')} aria-label="Back to Dashboard">
+				<BackButton onClick={() => navigate('/configuration')} aria-label="Back to Configuration">
 					<span>⬅️</span>
-					Back to Dashboard
+					Back to Configuration
 				</BackButton>
 
 				{/* PingOne Defaults Configuration */}
