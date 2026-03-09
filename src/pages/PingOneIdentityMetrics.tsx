@@ -630,7 +630,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 					<div style={styles.card}>
 						<h2 style={styles.sectionTitle}>
-							<i className="bi bi-calendar" />Metrics Configuration
+							<i className="bi bi-calendar" />
+							Metrics Configuration
 						</h2>
 
 						<div style={styles.fieldGroup}>
@@ -766,7 +767,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 									</>
 								) : (
 									<>
-										<i className="bi bi-bar-chart-line" />Retrieve counts
+										<i className="bi bi-bar-chart-line" />
+										Retrieve counts
 									</>
 								)}
 							</button>
@@ -795,7 +797,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 											}}
 										>
 											<h2 style={styles.sectionTitle}>
-												<i className="bi bi-bar-chart-line" />Summary Statistics
+												<i className="bi bi-bar-chart-line" />
+												Summary Statistics
 											</h2>
 											<div
 												style={{
@@ -961,7 +964,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 											<div
 												style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}
 											>
-												<i className="bi bi-database" />Full API Response
+												<i className="bi bi-database" />
+												Full API Response
 											</div>
 											{formattedMetrics && (
 												<div
