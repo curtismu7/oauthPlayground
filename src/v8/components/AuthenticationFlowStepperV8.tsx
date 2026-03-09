@@ -87,7 +87,7 @@ export interface AuthenticationFlowStepperRenderProps {
 }
 
 export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Props> = ({
-	deviceType,
+	_deviceType,
 	renderStep0,
 	renderStep1,
 	renderStep2,
@@ -105,7 +105,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		'API Documentation',
 		'Success',
 	],
-	shouldHideNextButton,
+	_shouldHideNextButton,
 }) => {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
