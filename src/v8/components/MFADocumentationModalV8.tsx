@@ -10,6 +10,7 @@
 
 import { FiDownload, FiFileText } from '@icons';
 import React, { useState } from 'react';
+import { showGlobalError, showGlobalWarning } from '../../contexts/NotificationSystem';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
 	downloadAsMarkdown,
@@ -100,7 +101,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
-			alert('Please select at least one use case to download.');
+			showGlobalWarning('Please select at least one use case to download.');
 			return;
 		}
 
@@ -114,7 +115,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 			}
 		} catch (error) {
 			console.error('Failed to download documentation:', error);
-			alert('Failed to download documentation. Please try again.');
+			showGlobalError('Failed to download documentation. Please try again.');
 		}
 	};
 
