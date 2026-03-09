@@ -251,7 +251,17 @@ export const MFACooldownModalV8: React.FC<MFACooldownModalV8Props> = ({
 	const timeRemaining = getTimeRemaining();
 
 	return (
-		<ModalOverlay role="presentation" onClick={onClose} $hasPosition={hasPosition}>
+		<ModalOverlay
+			aria-hidden="true"
+			role="presentation"
+			onClick={onClose}
+			$hasPosition={hasPosition}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
+		>
 			<ModalContent
 				ref={modalRef}
 				role="dialog"

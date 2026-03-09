@@ -639,13 +639,25 @@ const FlowCategories: React.FC = () => {
 
 						<CardBody>
 							<FlowsList>
-								<div className="flows-header" onClick={() => toggleCategory(category.id)}>
+								<button
+									type="button"
+									className="flows-header"
+									onClick={() => toggleCategory(category.id)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											toggleCategory(category.id);
+										}
+									}}
+									aria-expanded={expandedCategories.has(category.id)}
+									aria-controls={`flows-${category.id}`}
+								>
 									<h3>Available Flows</h3>
 									<div className="flow-count">
 										{category.flows.length} flow{category.flows.length !== 1 ? 's' : ''}
 										{expandedCategories.has(category.id) ? <span>⬇️</span> : <span>➡️</span>}
 									</div>
-								</div>
+								</button>
 
 								{expandedCategories.has(category.id) && (
 									<div className="flows-list">

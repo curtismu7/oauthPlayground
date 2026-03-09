@@ -778,7 +778,11 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 														}}
 													>
 														<Button onClick={() => setShowTokens(!showTokens)}>
-															{showTokens ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
+															{showTokens ? (
+																<i className="bi bi-eye-slash" />
+															) : (
+																<i className="bi bi-eye" />
+															)}
 															{showTokens ? 'Hide' : 'Show'} Tokens
 														</Button>
 													</div>

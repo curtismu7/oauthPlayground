@@ -611,7 +611,8 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.tokenRequest}
 						>
 							<CollapsibleTitle>
-								<i className="bi bi-code-slash" />Token Request
+								<i className="bi bi-code-slash" />
+								Token Request
 							</CollapsibleTitle>
 							<span>🔽</span>
 						</CollapsibleHeaderButton>

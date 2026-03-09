@@ -15,16 +15,12 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
+import { getCurrentRegion, type PingOneRegion, saveRegion } from '../services/regionService';
 import {
-	saveRegion,
-	type PingOneRegion,
-	getCurrentRegion,
-} from '../services/regionService';
-import {
-	formatBytes,
-	formatUptime,
 	type DetailedServerStatus,
 	fetchDetailedHealth,
+	formatBytes,
+	formatUptime,
 } from '../services/serverHealthService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -160,7 +156,7 @@ const Dashboard = () => {
 				setSelectedRegion('na');
 			}
 		};
-		
+
 		loadCurrentRegion();
 	}, []);
 
@@ -175,10 +171,7 @@ const Dashboard = () => {
 		setSavingDomain(true);
 		try {
 			// Save both domain and region
-			await Promise.all([
-				saveCustomDomain(customDomain.trim()),
-				saveRegion(selectedRegion)
-			]);
+			await Promise.all([saveCustomDomain(customDomain.trim()), saveRegion(selectedRegion)]);
 			const newAppUrl = getAppUrlForDomain(customDomain.trim());
 			window.location.href = `${newAppUrl}/dashboard`;
 		} catch (err) {
@@ -582,7 +575,7 @@ const Dashboard = () => {
 									}}
 									aria-describedby="dashboard-domain-hint dashboard-domain-error"
 								/>
-								
+
 								<label htmlFor="dashboard-region" className="fw-600 text-muted text-small mt-3">
 									PingOne Region
 								</label>
@@ -598,7 +591,7 @@ const Dashboard = () => {
 									<option value="ca">Canada (.ca)</option>
 									<option value="ap">Asia Pacific (.asia)</option>
 								</select>
-								
+
 								{domainError && (
 									<p
 										id="dashboard-domain-error"

@@ -168,7 +168,9 @@ export const DeviceCodePollingModalV8U: React.FC<DeviceCodePollingModalProps> = 
 				<StatusText>
 					Attempt {attempts} of {maxAttempts}
 				</StatusText>
-				<CancelButton type="button" onClick={onCancel}>Cancel Polling</CancelButton>
+				<CancelButton type="button" onClick={onCancel}>
+					Cancel Polling
+				</CancelButton>
 			</ModalContent>
 		</Modal>
 	);

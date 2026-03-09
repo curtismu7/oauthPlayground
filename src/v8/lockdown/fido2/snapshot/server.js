@@ -3592,31 +3592,33 @@ app.post('/api/device-authorization', async (req, res) => {
 				.text()
 				.catch(() => 'FAILED_TO_READ');
 			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: 'Content-Type': 'application/json' ,
-				body: JSON.stringify(
-					location: 'server.js:3380',
-					message: 'Received response from PingOne',
-					data: 
-						status: response.status,
-						statusText: response.statusText,
-						responseHeaders: Object.fromEntries(response.headers.entries()),
-						responseBody: responseText,
-						responseBodyLength: responseText.length,,
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'pre-fix',
-					hypothesisId: 'C',),
-			}).catch(() => );
+			// 	method: 'POST',
+			// 	headers: { 'Content-Type': 'application/json' },
+			// 	body: JSON.stringify({
+			// 		location: 'server.js:3380',
+			// 		message: 'Received response from PingOne',
+			// 		data: {
+			// 			status: response.status,
+			// 			statusText: response.statusText,
+			// 			responseHeaders: Object.fromEntries(response.headers.entries()),
+			// 			responseBody: responseText,
+			// 			responseBodyLength: responseText.length,
+			// 		},
+			// 		timestamp: Date.now(),
+			// 		sessionId: 'debug-session',
+			// 		runId: 'pre-fix',
+			// 		hypothesisId: 'C',
+			// 	}),
+			// }).catch(() => {});
 		} catch (_e) {}
 		// #endregion
 
 		let data;
-try {
-	const responseText = await response.text();
-	try {
-		data = JSON.parse(responseText);
-	} catch {
+		try {
+			const responseText = await response.text();
+			try {
+				data = JSON.parse(responseText);
+			} catch {
 		// If response is not JSON, create error object
 		data = {
 			error: 'invalid_response',
@@ -16018,7 +16020,8 @@ app.post('/api/pingone/email-mfa-signon/create-resource-grant', async (req, res)
 )
 
 // Step 5: Create Sign-On Policy
-app.post('/api/pingone/email-mfa-signon/create-signon-policy', async (req, res) => {
+app.post('/api/pingone/email-mfa-signon/create-signon-policy', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, name, description, default: isDefault } = req.body;
 
@@ -16058,7 +16061,8 @@ app.post('/api/pingone/email-mfa-signon/create-signon-policy', async (req, res) 
 		console.error('[📧 EMAIL-MFA-SIGNON] Error creating sign-on policy:', error);
 		res.status(500).json({ error: 'Failed to create sign-on policy', message: error.message });
 	}
-});
+}
+)
 
 // Step 6: Create Email MFA Sign-On Policy Action
 app.post('/api/pingone/email-mfa-signon/create-email-mfa-action', async (req, res) => {
