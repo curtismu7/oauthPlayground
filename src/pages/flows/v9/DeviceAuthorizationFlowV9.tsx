@@ -55,7 +55,6 @@ import {
 } from '../../../services/tokenIntrospectionService';
 import { useV7CredentialValidation } from '../../../services/v7CredentialValidationService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { logger } from '../../../utils/logger';
@@ -543,8 +542,6 @@ const VariantDescription = styled.div`
 	opacity: 0.8;
 `;
 
-const log = createModuleLogger('src/pages/flows/v9/DeviceAuthorizationFlowV9.tsx');
-
 const DeviceAuthorizationFlowV9: React.FC = () => {
 	const location = useLocation();
 
@@ -582,10 +579,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			const current = deviceFlow.credentials ?? { clientId: '', clientSecret: '', redirectUri: '' };
 			const updated = { ...current, clientId: app.id };
 			deviceFlow.setCredentials(updated);
+			const envId = deviceFlow.credentials?.environmentId || '';
 			V9CredentialStorageService.save(
 				'v9:device-authorization',
-				{ clientId: app.id, environmentId: current.environmentId },
-				current.environmentId ? { environmentId: current.environmentId } : {}
+				{ clientId: app.id, environmentId: envId },
+				envId ? { environmentId: envId } : {}
 			);
 		},
 		[deviceFlow]
@@ -714,7 +712,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step'); // Clear after use
-			logger.info('DeviceAuthorizationFlowV9', 'Restoring to step', JSON.stringify({ step }), 'Step restoration');
+			logger.info('DeviceAuthorizationFlowV9', 'Restoring to step', JSON.stringify({ step }));
 			return step;
 		}
 		return 0;
@@ -869,8 +867,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					environmentId: flowData.sharedEnvironment?.environmentId || '',
 					clientId: flowData.flowCredentials.clientId,
 					clientSecret: flowData.flowCredentials.clientSecret,
-					redirectUri: flowData.flowCredentials.redirectUri,
-					scopes: flowData.flowCredentials.scopes,
+					scopes: Array.isArray(flowData.flowCredentials.scopes) 
+						? flowData.flowCredentials.scopes.join(' ')
+						: flowData.flowCredentials.scopes || '',
 				};
 				ensureCredentials(updatedCredentials);
 			} else if (flowData.sharedEnvironment?.environmentId) {
@@ -948,10 +947,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							'',
 						clientId: flowData.flowCredentials.clientId || '',
 						clientSecret: flowData.flowCredentials.clientSecret || '',
-						redirectUri: flowData.flowCredentials.redirectUri || '',
 						scopes:
-							flowData.flowCredentials.scopes ||
-							(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
+							Array.isArray(flowData.flowCredentials.scopes)
+								? flowData.flowCredentials.scopes.join(' ')
+								: flowData.flowCredentials.scopes ||
+								(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 					};
 					logger.info('DeviceAuthorizationFlowV9', 'Setting loaded credentials', {
 						environmentId: updatedCredentials.environmentId ? '***' : '',
