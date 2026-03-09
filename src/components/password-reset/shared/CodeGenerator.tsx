@@ -60,15 +60,15 @@ const CollapseToggle = styled.button`
 	width: 2rem;
 	height: 2rem;
 	border-radius: 0.375rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-	background: V9_COLORS.TEXT.WHITE;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid #e5e7eb;
+	background: #ffffff;
+	color: #1f2937;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
 		background: #f3f4f6;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: #9ca3af;
 	}
 `;
 
@@ -79,8 +79,8 @@ const CodeButton = styled.button`
 	padding: 0.5rem 1rem;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.375rem;
-	background: V9_COLORS.TEXT.WHITE;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: #ffffff;
+	color: #1f2937;
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -118,7 +118,7 @@ const CodeBlock = styled.pre`
 	margin: 0;
 	white-space: pre;
 	word-wrap: normal;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e5e7eb;
 	border-radius: 6px;
 	
 	${getVSCodeStyles()}
@@ -145,9 +145,9 @@ const CodeCollapseButton = styled.button`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e5e7eb;
 	background: white;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #1f2937;
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -156,7 +156,7 @@ const CodeCollapseButton = styled.button`
 	
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: #9ca3af;
 	}
 `;
 
