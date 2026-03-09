@@ -241,6 +241,7 @@ const ConfigTab: React.FC<{ currentState: UnifiedMFAStateData; runId: string | n
 	};
 
 	const handleClearData = async () => {
+		// eslint-disable-next-line no-alert
 		if (window.confirm('Are you sure you want to clear all MFA data?')) {
 			await workerTokenServiceV8.clearCredentials();
 			await unifiedStateServiceV8.clearState();
