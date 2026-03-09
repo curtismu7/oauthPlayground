@@ -817,7 +817,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			'🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button'
 		, "Logger info");
 		logger.info('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:', "Logger info");
-		console.trace('🚨 [NewAuthContext] FULL STACK TRACE for proceedWithOAuth call');
+		logger.debug('useAuthActions', '[NewAuthContext] proceedWithOAuth stack trace', { stack: new Error().stack });
 
 		// CRITICAL: Check if user actually clicked the Continue button
 		// The modal sets this flag in sessionStorage when user clicks Continue
