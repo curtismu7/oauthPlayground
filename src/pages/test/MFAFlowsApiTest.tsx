@@ -6,9 +6,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { logger } from '../../utils/logger';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
-import { logger } from '../../utils/logger';
 // Test Configuration for MFA flows
 interface MFATestConfig {
 	environmentId: string;

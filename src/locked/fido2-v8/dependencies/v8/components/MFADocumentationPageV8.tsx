@@ -13,9 +13,9 @@ import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
+import { logger } from '../../../../utils/logger';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
-import { logger } from '../../../../utils/logger';
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
 	flowType: 'registration' | 'authentication';

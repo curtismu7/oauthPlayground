@@ -37,6 +37,7 @@ import {
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {

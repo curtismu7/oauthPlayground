@@ -8,9 +8,9 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import ServerStatusModal from './ServerStatusModal';
 
-import { logger } from '../utils/logger';
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
   border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;

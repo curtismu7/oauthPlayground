@@ -25,6 +25,7 @@
 
 import { FiChevronDown } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import { DraggableModal } from '../../components/DraggableModal.tsx';
 import { JWTConfigV8 } from '../../components/JWTConfigV8.tsx';
 import type { ResponseMode } from '../../services/responseModeService.ts';
@@ -72,7 +73,6 @@ import { WorkerTokenStatusServiceV8 } from '../../v8/services/workerTokenStatusS
 import { toastV8 } from '../../v8/utils/toastNotificationsV8.ts';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
-import { logger } from '../../../../utils/logger';
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 

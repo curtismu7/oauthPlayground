@@ -10,11 +10,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../../utils/logger';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
 
-import { logger } from '../../../utils/logger';
 const PageContainer = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;

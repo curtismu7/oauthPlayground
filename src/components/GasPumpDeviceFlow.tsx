@@ -6,9 +6,9 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
+import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
-import { logger } from '../utils/logger';
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED 50%, V9_COLORS.PRIMARY.RED_DARK 100%);

@@ -16,9 +16,9 @@
 
 import { FiChevronDown } from '@icons';
 import React, { useState } from 'react';
+import { logger } from '../../../../utils/logger';
 import type { ResponseMode } from '../../services/responseModeService.ts';
 
-import { logger } from '../../../../utils/logger';
 const MODULE_TAG = '[🔗 RESPONSE-MODE-V8]';
 
 export interface ResponseModeDropdownV8Props {

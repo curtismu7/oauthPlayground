@@ -8,6 +8,7 @@ import {
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 import { logger } from '../utils/logger';
+
 const log = createModuleLogger('ErrorBoundary');
 
 const ErrorContainer = styled.div`

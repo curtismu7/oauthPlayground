@@ -6,6 +6,7 @@ import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
 
 import { logger } from '../utils/logger';
+
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;

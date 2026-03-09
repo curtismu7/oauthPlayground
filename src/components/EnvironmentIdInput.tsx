@@ -5,6 +5,7 @@ import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDisc
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 import { logger } from '../utils/logger';
+
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
 	onEnvironmentIdChange?: (envId: string) => void;

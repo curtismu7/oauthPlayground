@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 import { logger } from '../utils/logger';
+
 // Animation for loading spinner
 const spin = keyframes`
   0% { transform: rotate(0deg); }

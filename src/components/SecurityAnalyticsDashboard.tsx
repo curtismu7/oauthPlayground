@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
+import { logger } from '../utils/logger';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
-import { logger } from '../utils/logger';
 // Styled components
 const DashboardContainer = styled.div`
   display: flex;

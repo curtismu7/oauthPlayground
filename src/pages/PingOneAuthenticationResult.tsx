@@ -6,9 +6,9 @@ import TokenIntrospect from '../components/TokenIntrospect';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
+import { logger } from '../utils/logger';
 import { type PlaygroundResult, RESPONSE_TYPES, RESULT_STORAGE_KEY } from './PingOneAuthentication';
 
-import { logger } from '../utils/logger';
 const Page = styled.div`
   background: white;
   min-height: 100vh;

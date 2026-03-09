@@ -10,13 +10,13 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
-import { logger } from '../utils/logger';
 const styles = {
 	container: {
 		width: '100%',

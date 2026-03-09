@@ -22,6 +22,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
 import { logger } from '../../../utils/logger';
+
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
 // Styled Components

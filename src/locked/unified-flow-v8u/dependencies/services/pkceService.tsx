@@ -2,12 +2,11 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CopyButtonVariants } from './copyButtonService';
-
-import { logger } from '../../../utils/logger';
 export interface PKCECodes {
 	codeVerifier: string;
 	codeChallenge: string;

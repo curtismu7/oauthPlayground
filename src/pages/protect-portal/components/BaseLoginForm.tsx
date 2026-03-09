@@ -17,11 +17,11 @@ import { FiLockIcon } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { logger } from '../../../utils/logger';
 import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
-import { logger } from '../../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
 // ============================================================================

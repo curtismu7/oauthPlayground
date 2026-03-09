@@ -67,9 +67,8 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import credentialManager from '../utils/credentialManager';
-import OAuthErrorDisplay from './OAuthErrorDisplay';
-
 import { logger } from '../utils/logger';
+import OAuthErrorDisplay from './OAuthErrorDisplay';
 export interface CompleteMFAFlowProps {
 	requireMFA?: boolean;
 	maxRetries?: number;

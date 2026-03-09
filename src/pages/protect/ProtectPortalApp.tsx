@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { logger } from '../../utils/logger';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
@@ -29,7 +30,6 @@ import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
-import { logger } from '../../utils/logger';
 // Import types and config
 import type {
 	LoginContext,
@@ -423,7 +423,12 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		logger.error('ProtectPortalApp', '[🚀 PROTECT-PORTAL] Error occurred:', undefined, error as Error);
+		logger.error(
+			'ProtectPortalApp',
+			'[🚀 PROTECT-PORTAL] Error occurred:',
+			undefined,
+			error as Error
+		);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',

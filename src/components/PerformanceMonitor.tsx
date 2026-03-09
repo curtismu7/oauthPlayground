@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 
 import { logger } from '../utils/logger';
+
 // Performance metrics interface
 interface PerformanceMetrics {
 	loadTime: number;

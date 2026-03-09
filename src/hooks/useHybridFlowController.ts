@@ -22,6 +22,7 @@ import {
 import { StepCredentials } from '../types/flowTypes';
 import { credentialManager } from '../utils/credentialManager';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
+import { logger } from '../utils/logger';
 import {
 	auditRedirectUri,
 	clearRedirectUri,
@@ -29,8 +30,6 @@ import {
 	storeRedirectUriFromAuthUrl,
 } from '../utils/redirectUriHelpers';
 import { safeSessionStorageParse } from '../utils/secureJson';
-
-import { logger } from '../utils/logger';
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
 	defaultFlowVariant?: HybridFlowVariant;

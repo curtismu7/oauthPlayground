@@ -8,11 +8,11 @@
 
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,
 } from '../services/clientCredentialsIntegrationServiceV8';
-import { logger } from '../../utils/logger';
 
 interface ScopeFixModalV8Props {
 	isOpen: boolean;

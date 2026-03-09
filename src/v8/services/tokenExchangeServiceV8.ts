@@ -1,6 +1,7 @@
 // src/v8/services/tokenExchangeServiceV8.ts
 // Token Exchange Phase 1 - Core Service Implementation
 
+import { logger } from '../../utils/logger';
 import {
 	TokenExchangeContext,
 	TokenExchangeError,
@@ -9,7 +10,6 @@ import {
 	TokenExchangeResponse,
 	TokenValidationResult,
 } from '../types/tokenExchangeTypesV8';
-import { logger } from '../../utils/logger';
 import { GlobalEnvironmentService } from './globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from './tokenExchangeConfigServiceV8';
 /**
