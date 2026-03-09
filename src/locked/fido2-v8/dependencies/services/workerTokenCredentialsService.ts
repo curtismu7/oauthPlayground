@@ -1,5 +1,5 @@
 // src/services/workerTokenCredentialsService.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // Worker Token Credentials Service - Specialized service for managing PingOne Worker Token credentials
 // Provides client credentials grant configuration for machine-to-machine authentication
 

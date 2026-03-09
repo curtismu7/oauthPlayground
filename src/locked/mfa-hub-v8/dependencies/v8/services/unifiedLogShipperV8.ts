@@ -13,7 +13,7 @@
  * - Server.log integration with checksum verification
  */
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { type UnifiedLogEntry, unifiedLoggerV8 } from './unifiedLoggerV8';
 
 // Shipper configuration

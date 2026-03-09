@@ -6,7 +6,7 @@
  * @since 2025-01-20
  */
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 
 // Record types matching spec
 export interface ApiCallRecord {

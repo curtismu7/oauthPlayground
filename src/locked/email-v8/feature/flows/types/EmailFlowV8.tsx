@@ -8,7 +8,7 @@
 import { FiMail } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { SuperSimpleApiDisplayV8 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
 import { useDraggableModal } from '../../../dependencies/v8/hooks/useDraggableModal.ts';

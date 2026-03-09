@@ -37,7 +37,7 @@ import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServic
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
 	type UnifiedFlowCredentials,

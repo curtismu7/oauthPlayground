@@ -1,7 +1,7 @@
 // src/services/redirectStateManager.ts
 // Redirect State Manager for preserving flow state across redirects
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import FlowContextService, { type FlowContext } from './flowContextService';
 export interface FlowState {
 	credentials?: {

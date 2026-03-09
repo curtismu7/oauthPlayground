@@ -239,7 +239,7 @@ export class MFAConfigurationServiceV8 {
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to import configuration:`, error);
-			import { logger } from '../../../utils/logger';
+			import { logger } from '../../../../utils/logger';
 			return false;
 		}
 	}

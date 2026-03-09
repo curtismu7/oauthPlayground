@@ -129,22 +129,6 @@ export const convertTrackedCallsToDocumentation = (
 const getApiDocsUrlForFlow = (_flowType: FlowType): string => {
 	const _baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
-	// #region agent log
-	method: 'POST', headers;
-	: 'Content-Type': 'application/json' ,
-		body: JSON.stringify(
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
-			message: 'Getting PingOne API docs URL for flow',
-			data: flowType, baseUrl ,
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			hypothesisId: 'F',),
-};
-).catch(() =>
-{
-}
-)
-// #endregion
 
 let url: string;
 switch (flowType) {
@@ -167,29 +151,6 @@ switch (flowType) {
 		url = baseUrl;
 }
 
-// #region agent log
-method: 'POST', headers;
-:
-{
-	('Content-Type');
-	: 'application/json'
-}
-,
-		body: JSON.stringify(
-{
-	location: 'UnifiedFlowDocumentationPageV8U.tsx:153', message;
-	: 'Generated PingOne API docs URL',
-			data: flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null ,
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			hypothesisId: 'F',
-}
-),
-	}).catch(() =>
-{
-}
-)
-// #endregion
 
 return url;
 }
@@ -281,29 +242,6 @@ export const generateUnifiedFlowMarkdown = (
 	const _specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
 	const _versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 
-	// #region agent log
-	method: 'POST', headers;
-	: 'Content-Type': 'application/json' ,
-		body: JSON.stringify(
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
-			message: 'Generating documentation references',
-			data: 
-				flowType,
-				specVersion,
-				flowPrimarySpec: flowSpecs.primarySpec,
-				flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => (label: s.label, url: s.url )),
-				combinedPrimaryUrl: specUrls.primary,
-				combinedPrimaryLabel: specUrls.primaryLabel,
-				combinedAllSpecs: specUrls.allSpecs.map((s) => (label: s.label, url: s.url, isPrimary: s.isPrimary )),,
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			hypothesisId: 'E',),
-};
-).catch(() =>
-{
-}
-)
-// #endregion
 
 // Add primary specification with section anchor if available
 if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
@@ -326,29 +264,6 @@ versionSpecs.related.forEach((spec) => {
 // Add PingOne API documentation with flow-specific anchor
 const _apiDocsUrl = getApiDocsUrlForFlow(flowType);
 
-// #region agent log
-method: 'POST', headers;
-:
-{
-	('Content-Type');
-	: 'application/json'
-}
-,
-		body: JSON.stringify(
-{
-	location: 'UnifiedFlowDocumentationPageV8U.tsx:257', message;
-	: 'Adding PingOne API documentation link',
-			data: flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') ,
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			hypothesisId: 'E',
-}
-),
-	}).catch(() =>
-{
-}
-)
-// #endregion
 
 md += `- [PingOne API Documentation - $
 {

@@ -1,5 +1,5 @@
 // src/services/fido2Service.ts
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 // FIDO2/WebAuthn Service for Passkey Registration and Authentication
 
 export interface FIDO2Credential {

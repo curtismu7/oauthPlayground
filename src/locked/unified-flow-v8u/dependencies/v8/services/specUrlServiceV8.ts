@@ -9,7 +9,7 @@
  * Provides canonical URLs to official OAuth and OIDC specifications
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 
 const MODULE_TAG = '[📚 SPEC-URL-V8]';
@@ -128,21 +128,6 @@ export class SpecUrlServiceV8 {
 	static getFlowSpecInfo(flowType: FlowType): FlowSpecInfo {
 		logger.info(`${MODULE_TAG} Getting flow spec info for`, { flowType });
 
-		// #region agent log
-		method: 'POST', headers;
-		: 'Content-Type': 'application/json' ,
-			body: JSON.stringify(
-				location: 'specUrlServiceV8.ts:124',
-				message: 'Getting flow-specific specification info',
-				data: flowType ,
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				hypothesisId: 'C',),
-	}
-	).catch(() => {
-}
-)
-// #endregion
 
 switch (flowType) {
 	case 'oauth-authz':
@@ -238,30 +223,6 @@ switch (flowType) {
 		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
 	): void
 {
-	// #region agent log
-	method: 'POST', headers;
-	: 'Content-Type': 'application/json' ,
-			body: JSON.stringify(
-				location: 'specUrlServiceV8.ts:205',
-				message: 'Specification URL results',
-				data: 
-					specVersion,
-					flowType,
-					flowPrimarySpec: flowSpecs.primarySpec,
-					flowSpecLabel: flowSpecs.specLabel,
-					flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => (label: s.label, url: s.url )),
-					versionPrimarySpec: versionSpecs.primary,
-					versionPrimaryLabel: versionSpecs.primaryLabel,
-					versionRelatedSpecs: versionSpecs.related.map((s) => (label: s.label, url: s.url )),,
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				hypothesisId: 'D',),
-}
-).catch(() =>
-{
-}
-)
-// #endregion
 }
 
 	/**

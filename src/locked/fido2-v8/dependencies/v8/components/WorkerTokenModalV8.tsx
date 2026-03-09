@@ -22,7 +22,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';

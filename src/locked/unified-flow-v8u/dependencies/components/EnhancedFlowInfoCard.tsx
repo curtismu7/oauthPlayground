@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';
 
