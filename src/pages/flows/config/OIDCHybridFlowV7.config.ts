@@ -1,7 +1,6 @@
 // src/pages/flows/config/OIDCHybridFlowV7.config.ts
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import FlowStateService from '../../../services/flowStateService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const FLOW_TYPE = 'oidc';
 

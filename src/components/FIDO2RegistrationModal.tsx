@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface FIDO2RegistrationModalProps {
 	isOpen: boolean;

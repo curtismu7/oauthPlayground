@@ -15,6 +15,11 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
+import {
+	saveRegion,
+	type PingOneRegion,
+	getCurrentRegion,
+} from '../services/regionService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,
@@ -22,7 +27,6 @@ import {
 } from '../v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '../v8/utils/workerTokenModalHelperV8';
 import '../styles/dashboard.css';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface ApiTestSpec {
 	method: string;
@@ -69,6 +73,7 @@ interface TestResult {
 
 export default function CustomDomainTestPage() {
 	const [customDomain, setCustomDomain] = useState('');
+	const [selectedRegion, setSelectedRegion] = useState<PingOneRegion>('na');
 	const [savingDomain, setSavingDomain] = useState(false);
 	const [domainError, setDomainError] = useState<string | null>(null);
 	const [testResults, setTestResults] = useState<Record<string, TestResult>>({});

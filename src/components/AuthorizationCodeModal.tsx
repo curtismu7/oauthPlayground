@@ -1,6 +1,5 @@
 // src/components/AuthorizationCodeModal.tsx
 
-import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { logger } from '../utils/logger';

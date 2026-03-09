@@ -8,7 +8,6 @@ import {
 	type ConfigurationPreset,
 	presetManagerService,
 } from '../services/presetManagerService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { performAutoMigration } from '../utils/presetMigration';
 
 const Container = styled.div`

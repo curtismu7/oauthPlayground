@@ -1,13 +1,3 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiExternalLink,
-	FiHelpCircle,
-	FiInfo,
-	FiShield,
-} from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from './Card';

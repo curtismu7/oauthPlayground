@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
@@ -49,7 +48,6 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { trackedFetch } from '../../utils/trackedFetch';
 
 // Type for PingOne user objects

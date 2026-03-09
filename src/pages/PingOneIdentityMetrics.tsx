@@ -1,17 +1,14 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
-import { FlowHeader } from '../services/flowHeaderService';
-
-// src/pages/PingOneIdentityMetrics.tsx
-// Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
-// Updated with unified worker token management
-// Cache bust: 2025-02-17-11:32
-
-import { FiCalendar, FiDatabase } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
+import { FlowHeader } from '../services/flowHeaderService';
+// src/pages/PingOneIdentityMetrics.tsx
+// Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
+// Updated with unified worker token management
+// Cache bust: 2025-02-17-11:32
+
 import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
@@ -585,530 +582,559 @@ const PingOneIdentityMetrics: React.FC = () => {
 			<FlowHeader flowId="pingone-identity-metrics" />
 			<div style={styles.pageContainer}>
 				<div style={styles.headerCard}>
-				<div style={styles.titleRow}>
-					<span>[FiBarChart2]</span>
-					<h1 style={styles.title}>PingOne Identity Counts</h1>
+					<div style={styles.titleRow}>
+						<i className="bi bi-bar-chart-line" />
+						<h1 style={styles.title}>PingOne Identity Counts</h1>
+					</div>
+					<p style={styles.subtitle}>
+						Query PingOne active identity counts with time-series data and sampling periods.
+						Requires <strong>Identity Data Admin</strong> role.
+					</p>
+					{!hasWorkerToken && (
+						<div style={styles.warningBanner}>
+							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+								<span>⚠️</span>
+								<div style={{ flex: 1 }}>
+									<strong>Worker Token Required</strong>
+									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+										Click "Get Worker Token" below to generate a token with your PingOne
+										credentials.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
-				<p style={styles.subtitle}>
-					Query PingOne active identity counts with time-series data and sampling periods. Requires{' '}
-					<strong>Identity Data Admin</strong> role.
-				</p>
-				{!hasWorkerToken && (
-					<div style={styles.warningBanner}>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-							<span>⚠️</span>
-							<div style={{ flex: 1 }}>
-								<strong>Worker Token Required</strong>
-								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									Click "Get Worker Token" below to generate a token with your PingOne credentials.
-								</p>
+
+				<div style={styles.layoutGrid}>
+					<div style={styles.card}>
+						<h2 style={styles.sectionTitle}>
+							<span>🛡️</span>Authentication & Worker Token
+						</h2>
+
+						<WorkerTokenSectionV8 compact />
+
+						{/* Configuration Checkboxes */}
+						<div
+							style={{
+								marginBottom: '1rem',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '0.75rem',
+							}}
+						>
+							<SilentApiConfigCheckboxV8 />
+							<ShowTokenConfigCheckboxV8 />
+						</div>
+					</div>
+
+					<div style={styles.card}>
+						<h2 style={styles.sectionTitle}>
+							<i className="bi bi-calendar" />Metrics Configuration
+						</h2>
+
+						<div style={styles.fieldGroup}>
+							<label htmlFor="metrics-endpoint-type" style={styles.label}>
+								Endpoint Type
+							</label>
+							<select
+								id="metrics-endpoint-type"
+								style={styles.select}
+								value={endpointType}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+									setEndpointType(e.target.value as EndpointType)
+								}
+							>
+								<option value="byDateRange">By Date Range</option>
+								<option value="byLicense">By License</option>
+								<option value="simple">Simple (No Filters)</option>
+							</select>
+							<p style={styles.hint}>
+								{endpointType === 'byDateRange' && 'Filter by date range and sampling period'}
+								{endpointType === 'byLicense' && 'Filter by license ID and sampling period'}
+								{endpointType === 'simple' && 'Get recent counts without filters'}
+							</p>
+						</div>
+
+						{endpointType === 'byDateRange' && (
+							<>
+								<div style={styles.fieldGroup}>
+									<label htmlFor="metrics-start-date" style={styles.label}>
+										Start date
+									</label>
+									<input
+										id="metrics-start-date"
+										style={styles.input}
+										type="date"
+										value={start}
+										onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+									/>
+								</div>
+								<div style={styles.fieldGroup}>
+									<label htmlFor="metrics-sampling-dr" style={styles.label}>
+										Sampling Period
+									</label>
+									<select
+										id="metrics-sampling-dr"
+										style={styles.select}
+										value={samplingPeriod}
+										onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+											setSamplingPeriod(e.target.value)
+										}
+									>
+										<option value="1">1 hour (hourly)</option>
+										<option value="24">24 hours (daily)</option>
+										<option value="168">168 hours (weekly)</option>
+									</select>
+									<p style={styles.hint}>
+										Time interval for data points in the time-series response.
+									</p>
+								</div>
+							</>
+						)}
+
+						{endpointType === 'byLicense' && (
+							<>
+								<div style={styles.fieldGroup}>
+									<label htmlFor="metrics-license-id" style={styles.label}>
+										License ID
+									</label>
+									<input
+										id="metrics-license-id"
+										style={styles.input}
+										type="text"
+										value={licenseId}
+										onChange={(e) => setLicenseId(e.target.value)}
+										placeholder="Enter license ID"
+									/>
+									<p style={styles.hint}>License ID to filter identity counts by.</p>
+								</div>
+								<div style={styles.fieldGroup}>
+									<label htmlFor="metrics-sampling-lic" style={styles.label}>
+										Sampling Period
+									</label>
+									<select
+										id="metrics-sampling-lic"
+										style={styles.select}
+										value={samplingPeriod}
+										onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+											setSamplingPeriod(e.target.value)
+										}
+									>
+										<option value="1">1 hour (hourly)</option>
+										<option value="24">24 hours (daily)</option>
+										<option value="168">168 hours (weekly)</option>
+									</select>
+									<p style={styles.hint}>
+										Time interval for data points in the time-series response.
+									</p>
+								</div>
+							</>
+						)}
+
+						{endpointType === 'simple' && (
+							<div style={styles.fieldGroup}>
+								<label htmlFor="metrics-limit" style={styles.label}>
+									Limit
+								</label>
+								<input
+									id="metrics-limit"
+									style={{ ...styles.input, background: '#f1f5f9', cursor: 'not-allowed' }}
+									type="number"
+									value="100"
+									readOnly
+								/>
+								<p style={styles.hint}>Returns up to 100 most recent data points.</p>
+							</div>
+						)}
+
+						<div style={styles.buttonRow}>
+							<button
+								style={{
+									...styles.primaryButton,
+									...(!hasWorkerToken || loading
+										? { background: '#e5e7eb', cursor: 'not-allowed' }
+										: {}),
+								}}
+								type="button"
+								onClick={handleFetch}
+								disabled={!hasWorkerToken || loading}
+							>
+								{loading ? (
+									<>
+										<span>🔄</span>Fetching…
+									</>
+								) : (
+									<>
+										<i className="bi bi-bar-chart-line" />Retrieve counts
+									</>
+								)}
+							</button>
+
+							<button type="button" style={styles.secondaryButton} onClick={resetDates}>
+								<span>⏰</span>Reset dates
+							</button>
+						</div>
+
+						{error && (
+							<div style={styles.errorBanner}>
+								<span>ℹ️</span>
+								<span>{error}</span>
+							</div>
+						)}
+
+						<div style={styles.resultContainer}>
+							{metrics ? (
+								<>
+									{summary && (
+										<div
+											style={{
+												...styles.card,
+												border: '1px solid #10b981',
+												background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+											}}
+										>
+											<h2 style={styles.sectionTitle}>
+												<i className="bi bi-bar-chart-line" />Summary Statistics
+											</h2>
+											<div
+												style={{
+													display: 'grid',
+													gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+													gap: '1rem',
+													marginTop: '1rem',
+												}}
+											>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Latest Count
+													</div>
+													<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+														{summary.latest.toLocaleString()}
+													</div>
+												</div>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Average
+													</div>
+													<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+														{summary.average.toLocaleString()}
+													</div>
+												</div>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Maximum
+													</div>
+													<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+														{summary.max.toLocaleString()}
+													</div>
+												</div>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Minimum
+													</div>
+													<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+														{summary.min.toLocaleString()}
+													</div>
+												</div>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Data Points
+													</div>
+													<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+														{summary.dataPoints}
+													</div>
+												</div>
+												<div
+													style={{
+														padding: '0.75rem',
+														background: 'white',
+														borderRadius: '0.5rem',
+														border: '1px solid #ecfdf5',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginBottom: '0.25rem',
+														}}
+													>
+														Period
+													</div>
+													<div
+														style={{
+															fontSize: '1.1rem',
+															fontWeight: 600,
+															color: '#059669',
+															textTransform: 'capitalize',
+														}}
+													>
+														{summary.period}
+													</div>
+												</div>
+											</div>
+											{lastUpdated && (
+												<p
+													style={{
+														...styles.hint,
+														marginTop: '1rem',
+														paddingTop: '1rem',
+														borderTop: '1px solid #ecfdf5',
+													}}
+												>
+													Last updated: {new Date(lastUpdated).toLocaleString()}
+												</p>
+											)}
+										</div>
+									)}
+
+									<div
+										style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}
+									>
+										<h2 style={styles.sectionTitle}>
+											<div
+												style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}
+											>
+												<i className="bi bi-database" />Full API Response
+											</div>
+											{formattedMetrics && (
+												<div
+													style={{
+														display: 'flex',
+														gap: '0.25rem',
+														background: '#f1f5f9',
+														borderRadius: '0.5rem',
+														padding: '0.2rem',
+													}}
+												>
+													<button
+														type="button"
+														onClick={() => setShowRawJson(false)}
+														style={{
+															padding: '0.25rem 0.75rem',
+															borderRadius: '0.375rem',
+															border: 'none',
+															fontSize: '0.75rem',
+															fontWeight: 600,
+															cursor: 'pointer',
+															background: !showRawJson ? '#3b82f6' : 'transparent',
+															color: !showRawJson ? 'white' : '#6b7280',
+															transition: 'all 0.15s',
+														}}
+													>
+														Formatted
+													</button>
+													<button
+														type="button"
+														onClick={() => setShowRawJson(true)}
+														style={{
+															padding: '0.25rem 0.75rem',
+															borderRadius: '0.375rem',
+															border: 'none',
+															fontSize: '0.75rem',
+															fontWeight: 600,
+															cursor: 'pointer',
+															background: showRawJson ? '#3b82f6' : 'transparent',
+															color: showRawJson ? 'white' : '#6b7280',
+															transition: 'all 0.15s',
+														}}
+													>
+														Raw JSON
+													</button>
+												</div>
+											)}
+										</h2>
+										{formattedMetrics && (
+											<div style={{ maxHeight: '600px', overflow: 'auto' }}>
+												{showRawJson ? (
+													<pre
+														style={{
+															margin: 0,
+															padding: '1rem',
+															background: '#1f2937',
+															color: '#e5e7eb',
+															borderRadius: '0.5rem',
+															fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+															fontSize: '0.8rem',
+															lineHeight: 1.6,
+															whiteSpace: 'pre-wrap',
+															wordBreak: 'break-all',
+														}}
+													>
+														{JSON.stringify(metrics, null, 2)}
+													</pre>
+												) : (
+													<JSONHighlighter data={formattedMetrics} />
+												)}
+											</div>
+										)}
+									</div>
+								</>
+							) : (
+								<div style={styles.emptyState}>
+									<i className="bi bi-bar-chart-line" />
+									<span>Run the request to see active identity counts returned by PingOne.</span>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+
+				{/* Permissions Error Modal */}
+				{showPermissionsErrorModal && (
+					<div style={styles.permissionsModalOverlay}>
+						<div
+							role="dialog"
+							aria-modal="true"
+							aria-labelledby="metrics-permissions-modal-title"
+							style={styles.permissionsModalContent}
+							onKeyDown={(e) => e.key === 'Escape' && setShowPermissionsErrorModal(false)}
+						>
+							<h2 style={styles.permissionsModalTitle}>
+								<span>⚠️</span>403 Forbidden - Missing Roles
+							</h2>
+							<p style={styles.permissionsModalMessage}>
+								<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a
+								role assigned at the <strong>Environment</strong> level.
+							</p>
+							<p
+								style={{
+									...styles.permissionsModalMessage,
+									marginTop: '0.5rem',
+									padding: '0.5rem',
+									background: '#fef3c7',
+									border: '1px solid #fbbf24',
+									borderRadius: '0.5rem',
+									fontSize: '0.7rem',
+								}}
+							>
+								💡 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
+								<strong>NEW</strong> worker token to pick up the permissions.
+							</p>
+							<div style={styles.permissionsModalInstructions}>
+								<strong>🔧 Fix in PingOne Admin Console:</strong>
+								<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
+									<li>
+										Applications → Your Worker App → <strong>Roles</strong> tab
+									</li>
+									<li>
+										Click <strong>"Grant Roles"</strong>
+									</li>
+									<li>
+										<strong style={{ color: '#dc2626' }}>Select your Environment</strong> (not
+										Organization) from dropdown
+									</li>
+									<li>
+										Assign the{' '}
+										<code>
+											<strong>Identity Data Admin</strong>
+										</code>{' '}
+										role
+										<br />
+										<span
+											style={{
+												fontSize: '0.65rem',
+												color: '#6b7280',
+												marginTop: '0.25rem',
+												display: 'inline-block',
+											}}
+										>
+											(Or <code>Environment Admin</code> which includes Identity Data Admin
+											permissions)
+										</span>
+									</li>
+									<li>
+										Click <strong>"Save"</strong>
+									</li>
+								</ol>
+								<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>
+									✅ After assigning role:
+								</strong>
+								<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
+									<li>Click "Clear Token" on this page</li>
+									<li>Click "Get Worker Token" (scopes don't matter for metrics)</li>
+									<li>Retry "Fetch Total Identity Counts"</li>
+								</ol>
+							</div>
+							<div style={styles.permissionsModalActions}>
+								<button
+									type="button"
+									style={styles.permissionsModalButton}
+									onClick={() => setShowPermissionsErrorModal(false)}
+								>
+									Close
+								</button>
 							</div>
 						</div>
 					</div>
 				)}
 			</div>
-
-			<div style={styles.layoutGrid}>
-				<div style={styles.card}>
-					<h2 style={styles.sectionTitle}>
-						<span>🛡️</span>Authentication & Worker Token
-					</h2>
-
-					<WorkerTokenSectionV8 compact />
-
-					{/* Configuration Checkboxes */}
-					<div
-						style={{
-							marginBottom: '1rem',
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '0.75rem',
-						}}
-					>
-						<SilentApiConfigCheckboxV8 />
-						<ShowTokenConfigCheckboxV8 />
-					</div>
-				</div>
-
-				<div style={styles.card}>
-					<h2 style={styles.sectionTitle}>
-						<span>[FiCalendar]</span>Metrics Configuration
-					</h2>
-
-					<div style={styles.fieldGroup}>
-						<label htmlFor="metrics-endpoint-type" style={styles.label}>
-							Endpoint Type
-						</label>
-						<select
-							id="metrics-endpoint-type"
-							style={styles.select}
-							value={endpointType}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-								setEndpointType(e.target.value as EndpointType)
-							}
-						>
-							<option value="byDateRange">By Date Range</option>
-							<option value="byLicense">By License</option>
-							<option value="simple">Simple (No Filters)</option>
-						</select>
-						<p style={styles.hint}>
-							{endpointType === 'byDateRange' && 'Filter by date range and sampling period'}
-							{endpointType === 'byLicense' && 'Filter by license ID and sampling period'}
-							{endpointType === 'simple' && 'Get recent counts without filters'}
-						</p>
-					</div>
-
-					{endpointType === 'byDateRange' && (
-						<>
-							<div style={styles.fieldGroup}>
-								<label htmlFor="metrics-start-date" style={styles.label}>
-									Start date
-								</label>
-								<input
-									id="metrics-start-date"
-									style={styles.input}
-									type="date"
-									value={start}
-									onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
-								/>
-							</div>
-							<div style={styles.fieldGroup}>
-								<label htmlFor="metrics-sampling-dr" style={styles.label}>
-									Sampling Period
-								</label>
-								<select
-									id="metrics-sampling-dr"
-									style={styles.select}
-									value={samplingPeriod}
-									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-										setSamplingPeriod(e.target.value)
-									}
-								>
-									<option value="1">1 hour (hourly)</option>
-									<option value="24">24 hours (daily)</option>
-									<option value="168">168 hours (weekly)</option>
-								</select>
-								<p style={styles.hint}>
-									Time interval for data points in the time-series response.
-								</p>
-							</div>
-						</>
-					)}
-
-					{endpointType === 'byLicense' && (
-						<>
-							<div style={styles.fieldGroup}>
-								<label htmlFor="metrics-license-id" style={styles.label}>
-									License ID
-								</label>
-								<input
-									id="metrics-license-id"
-									style={styles.input}
-									type="text"
-									value={licenseId}
-									onChange={(e) => setLicenseId(e.target.value)}
-									placeholder="Enter license ID"
-								/>
-								<p style={styles.hint}>License ID to filter identity counts by.</p>
-							</div>
-							<div style={styles.fieldGroup}>
-								<label htmlFor="metrics-sampling-lic" style={styles.label}>
-									Sampling Period
-								</label>
-								<select
-									id="metrics-sampling-lic"
-									style={styles.select}
-									value={samplingPeriod}
-									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-										setSamplingPeriod(e.target.value)
-									}
-								>
-									<option value="1">1 hour (hourly)</option>
-									<option value="24">24 hours (daily)</option>
-									<option value="168">168 hours (weekly)</option>
-								</select>
-								<p style={styles.hint}>
-									Time interval for data points in the time-series response.
-								</p>
-							</div>
-						</>
-					)}
-
-					{endpointType === 'simple' && (
-						<div style={styles.fieldGroup}>
-							<label htmlFor="metrics-limit" style={styles.label}>
-								Limit
-							</label>
-							<input
-								id="metrics-limit"
-								style={{ ...styles.input, background: '#f1f5f9', cursor: 'not-allowed' }}
-								type="number"
-								value="100"
-								readOnly
-							/>
-							<p style={styles.hint}>Returns up to 100 most recent data points.</p>
-						</div>
-					)}
-
-					<div style={styles.buttonRow}>
-						<button
-							style={{
-								...styles.primaryButton,
-								...(!hasWorkerToken || loading
-									? { background: '#e5e7eb', cursor: 'not-allowed' }
-									: {}),
-							}}
-							type="button"
-							onClick={handleFetch}
-							disabled={!hasWorkerToken || loading}
-						>
-							{loading ? (
-								<>
-									<span>🔄</span>Fetching…
-								</>
-							) : (
-								<>
-									<span>[FiBarChart2]</span>Retrieve counts
-								</>
-							)}
-						</button>
-
-						<button type="button" style={styles.secondaryButton} onClick={resetDates}>
-							<span>⏰</span>Reset dates
-						</button>
-					</div>
-
-					{error && (
-						<div style={styles.errorBanner}>
-							<span>ℹ️</span>
-							<span>{error}</span>
-						</div>
-					)}
-
-					<div style={styles.resultContainer}>
-						{metrics ? (
-							<>
-								{summary && (
-									<div
-										style={{
-											...styles.card,
-											border: '1px solid #10b981',
-											background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
-										}}
-									>
-										<h2 style={styles.sectionTitle}>
-											<span>[FiBarChart2]</span>Summary Statistics
-										</h2>
-										<div
-											style={{
-												display: 'grid',
-												gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-												gap: '1rem',
-												marginTop: '1rem',
-											}}
-										>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Latest Count
-												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
-													{summary.latest.toLocaleString()}
-												</div>
-											</div>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Average
-												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
-													{summary.average.toLocaleString()}
-												</div>
-											</div>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Maximum
-												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
-													{summary.max.toLocaleString()}
-												</div>
-											</div>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Minimum
-												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
-													{summary.min.toLocaleString()}
-												</div>
-											</div>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Data Points
-												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
-													{summary.dataPoints}
-												</div>
-											</div>
-											<div
-												style={{
-													padding: '0.75rem',
-													background: 'white',
-													borderRadius: '0.5rem',
-													border: '1px solid #ecfdf5',
-												}}
-											>
-												<div
-													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
-												>
-													Period
-												</div>
-												<div
-													style={{
-														fontSize: '1.1rem',
-														fontWeight: 600,
-														color: '#059669',
-														textTransform: 'capitalize',
-													}}
-												>
-													{summary.period}
-												</div>
-											</div>
-										</div>
-										{lastUpdated && (
-											<p
-												style={{
-													...styles.hint,
-													marginTop: '1rem',
-													paddingTop: '1rem',
-													borderTop: '1px solid #ecfdf5',
-												}}
-											>
-												Last updated: {new Date(lastUpdated).toLocaleString()}
-											</p>
-										)}
-									</div>
-								)}
-
-								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}>
-									<h2 style={styles.sectionTitle}>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
-											<span>[FiDatabase]</span>Full API Response
-										</div>
-										{formattedMetrics && (
-											<div
-												style={{
-													display: 'flex',
-													gap: '0.25rem',
-													background: '#f1f5f9',
-													borderRadius: '0.5rem',
-													padding: '0.2rem',
-												}}
-											>
-												<button
-													type="button"
-													onClick={() => setShowRawJson(false)}
-													style={{
-														padding: '0.25rem 0.75rem',
-														borderRadius: '0.375rem',
-														border: 'none',
-														fontSize: '0.75rem',
-														fontWeight: 600,
-														cursor: 'pointer',
-														background: !showRawJson ? '#3b82f6' : 'transparent',
-														color: !showRawJson ? 'white' : '#6b7280',
-														transition: 'all 0.15s',
-													}}
-												>
-													Formatted
-												</button>
-												<button
-													type="button"
-													onClick={() => setShowRawJson(true)}
-													style={{
-														padding: '0.25rem 0.75rem',
-														borderRadius: '0.375rem',
-														border: 'none',
-														fontSize: '0.75rem',
-														fontWeight: 600,
-														cursor: 'pointer',
-														background: showRawJson ? '#3b82f6' : 'transparent',
-														color: showRawJson ? 'white' : '#6b7280',
-														transition: 'all 0.15s',
-													}}
-												>
-													Raw JSON
-												</button>
-											</div>
-										)}
-									</h2>
-									{formattedMetrics && (
-										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
-											{showRawJson ? (
-												<pre
-													style={{
-														margin: 0,
-														padding: '1rem',
-														background: '#1f2937',
-														color: '#e5e7eb',
-														borderRadius: '0.5rem',
-														fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
-														fontSize: '0.8rem',
-														lineHeight: 1.6,
-														whiteSpace: 'pre-wrap',
-														wordBreak: 'break-all',
-													}}
-												>
-													{JSON.stringify(metrics, null, 2)}
-												</pre>
-											) : (
-												<JSONHighlighter data={formattedMetrics} />
-											)}
-										</div>
-									)}
-								</div>
-							</>
-						) : (
-							<div style={styles.emptyState}>
-								<span>[FiBarChart2]</span>
-								<span>Run the request to see active identity counts returned by PingOne.</span>
-							</div>
-						)}
-					</div>
-				</div>
-			</div>
-
-			{/* Permissions Error Modal */}
-			{showPermissionsErrorModal && (
-				<div style={styles.permissionsModalOverlay}>
-					<div
-						role="dialog"
-						aria-modal="true"
-						aria-labelledby="metrics-permissions-modal-title"
-						style={styles.permissionsModalContent}
-						onKeyDown={(e) => e.key === 'Escape' && setShowPermissionsErrorModal(false)}
-					>
-						<h2 style={styles.permissionsModalTitle}>
-							<span>⚠️</span>403 Forbidden - Missing Roles
-						</h2>
-						<p style={styles.permissionsModalMessage}>
-							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a
-							role assigned at the <strong>Environment</strong> level.
-						</p>
-						<p
-							style={{
-								...styles.permissionsModalMessage,
-								marginTop: '0.5rem',
-								padding: '0.5rem',
-								background: '#fef3c7',
-								border: '1px solid #fbbf24',
-								borderRadius: '0.5rem',
-								fontSize: '0.7rem',
-							}}
-						>
-							💡 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
-							<strong>NEW</strong> worker token to pick up the permissions.
-						</p>
-						<div style={styles.permissionsModalInstructions}>
-							<strong>🔧 Fix in PingOne Admin Console:</strong>
-							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
-								<li>
-									Applications → Your Worker App → <strong>Roles</strong> tab
-								</li>
-								<li>
-									Click <strong>"Grant Roles"</strong>
-								</li>
-								<li>
-									<strong style={{ color: '#dc2626' }}>Select your Environment</strong> (not
-									Organization) from dropdown
-								</li>
-								<li>
-									Assign the{' '}
-									<code>
-										<strong>Identity Data Admin</strong>
-									</code>{' '}
-									role
-									<br />
-									<span
-										style={{
-											fontSize: '0.65rem',
-											color: '#6b7280',
-											marginTop: '0.25rem',
-											display: 'inline-block',
-										}}
-									>
-										(Or <code>Environment Admin</code> which includes Identity Data Admin
-										permissions)
-									</span>
-								</li>
-								<li>
-									Click <strong>"Save"</strong>
-								</li>
-							</ol>
-							<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>
-								✅ After assigning role:
-							</strong>
-							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
-								<li>Click "Clear Token" on this page</li>
-								<li>Click "Get Worker Token" (scopes don't matter for metrics)</li>
-								<li>Retry "Fetch Total Identity Counts"</li>
-							</ol>
-						</div>
-						<div style={styles.permissionsModalActions}>
-							<button
-								type="button"
-								style={styles.permissionsModalButton}
-								onClick={() => setShowPermissionsErrorModal(false)}
-							>
-								Close
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
-		</div>
 		</>
 	);
 };

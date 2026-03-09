@@ -2,7 +2,6 @@ import React from 'react';
 import { FlowComparisonTool } from '../components/FlowComparisonTool';
 import { usePageScroll } from '../hooks/usePageScroll';
 import PageLayoutService from '../services/pageLayoutService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.

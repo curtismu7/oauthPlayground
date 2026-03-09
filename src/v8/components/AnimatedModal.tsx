@@ -54,6 +54,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
 
 	return createPortal(
 		<div
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				inset: 0,
@@ -64,6 +65,11 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
 				padding: spacing.lg,
 			}}
 			onClick={handleBackdropClick}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					handleClose();
+				}
+			}}
 		>
 			{/* Backdrop */}
 			<div

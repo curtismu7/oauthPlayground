@@ -10,7 +10,6 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { TokenManagementService } from '../../services/tokenManagementService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`

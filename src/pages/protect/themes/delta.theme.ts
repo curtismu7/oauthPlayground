@@ -8,7 +8,6 @@
  * Delta Air Lines brand theme with their signature red and blue colors.
  */
 
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
 

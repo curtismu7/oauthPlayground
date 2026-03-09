@@ -13,7 +13,6 @@ import {
 	FlowSpecificConfig,
 	FlowType,
 } from '../services/enhancedConfigurationService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const Container = styled.div`
   max-width: 1200px;

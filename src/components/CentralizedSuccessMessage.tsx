@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 /**
  * Centralized success and error message system

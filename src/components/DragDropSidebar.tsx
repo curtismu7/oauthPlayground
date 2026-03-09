@@ -21,7 +21,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
 const ColoredIcon = styled.div<{ $color: string }>`

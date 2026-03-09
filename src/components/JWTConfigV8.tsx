@@ -12,7 +12,6 @@ import {
 	jwtAuthServiceV8,
 	type PrivateKeyJWTConfig,
 } from '../services/jwtAuthServiceV8';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import {
 	assessSecurityStrength,
 	type GeneratedKeyPair,
