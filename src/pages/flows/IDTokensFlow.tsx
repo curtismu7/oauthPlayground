@@ -77,15 +77,8 @@ const DemoSection = styled.div`
   background-color: #f0f8ff;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  padding: 1.5rem;
   margin-bottom: 2rem;
-`;
-
-const _DemoControls = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1.5rem;
 `;
 
 const _DemoButton = styled.button`
@@ -352,8 +345,8 @@ const IDTokensFlow = () => {
 	);
 
 	// Track execution results for each step
-	const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
-	const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+	const [, setStepResults] = useState<Record<number, unknown>>({});
+	const [, setExecutedSteps] = useState<Set<number>>(new Set());
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
 	usePageScroll();

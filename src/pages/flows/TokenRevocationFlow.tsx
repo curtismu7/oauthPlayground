@@ -9,7 +9,6 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
-import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`
@@ -167,15 +166,6 @@ const ErrorContainer = styled.div`
   color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
-const _InfoContainer = styled.div`
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-`;
-
 const WarningContainer = styled.div`
   background: V9_COLORS.BG.WARNING;
   border: 1px solid V9_COLORS.BG.WARNING_BORDER;
@@ -300,7 +290,6 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [revocationResult, setRevocationResult] = useState<Record<string, unknown> | null>(null);
-	const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
