@@ -314,7 +314,6 @@ window.open(logoutUrl, '_blank');
 // Option 3: Using pingOneLogoutService
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 
-import { logger } from '../utils/logger';
 const result = await pingOneLogoutService.logout({
   environmentId: environmentId,
   idToken: idToken,

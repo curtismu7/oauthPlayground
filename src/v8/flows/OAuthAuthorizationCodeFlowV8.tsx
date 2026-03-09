@@ -25,7 +25,8 @@ import { TokenMonitoringService } from '@/v8u/services/tokenMonitoringService';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
 

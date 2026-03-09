@@ -6,7 +6,6 @@ import { logger } from '../../../../utils/logger';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 
-import { logger } from '../../../utils/logger';
 interface FlowErrorWrapperProps {
 	children: React.ReactNode;
 	flowName?: string;

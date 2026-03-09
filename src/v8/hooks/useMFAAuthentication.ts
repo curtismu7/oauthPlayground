@@ -16,7 +16,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface AuthenticationState {
 	isLoading: boolean;
 	showDeviceSelection: boolean;

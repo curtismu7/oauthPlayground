@@ -13,10 +13,9 @@ import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
-
-import { logger } from '../../utils/logger';
 /**
  * Get full phone number with country code (PingOne format: +1.5125201234)
  * Uses phone validation utility to handle multiple input formats

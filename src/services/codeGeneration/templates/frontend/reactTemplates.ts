@@ -490,7 +490,7 @@ export const MFAVerification: React.FC<MFAVerificationProps> = ({
 		return `// React - Device Registration
 import React, { useState } from 'react';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 /**
  * MFA Device Registration Component
  */

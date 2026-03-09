@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import RiskEvaluationService from '../services/riskEvaluationService';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 import type {
 	EducationalContent,
 	LoginContext,

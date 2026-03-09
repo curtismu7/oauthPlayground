@@ -8,7 +8,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const HELIOMART_ACCENT_START = '#F59E0B';
 
 const Card = styled.div`

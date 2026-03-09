@@ -22,10 +22,10 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
+import { logger } from '../../../utils/logger';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
 
-import { logger } from '../../utils/logger';
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
 	deviceTypeLabel: string; // "SMS", "Email", "TOTP", etc.

@@ -8,7 +8,8 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 
 // V8 Styled Components

@@ -31,11 +31,11 @@
  */
 
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import { logger } from '../../utils/logger';
 import { ConfigCheckerServiceV8 } from './configCheckerServiceV8';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 import { SpecVersionServiceV8 } from './specVersionServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[✈️ PRE-FLIGHT-VALIDATION-V8]';
 
 export interface PreFlightValidationOptions {

@@ -467,7 +467,7 @@ const OIDCExamples: React.FC = () => {
 					<CodeBlock>{`// Implementation using TokenManager
 import { TokenManager } from '@pingidentity-developers-experience/ping-oidc-client-sdk';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const tokens = await TokenManager.getTokens({
   login: 'redirect',        // Redirect to server UI
   forceRenew: false,        // Use existing tokens if available

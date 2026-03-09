@@ -17,7 +17,7 @@ import styled from 'styled-components';
 import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================

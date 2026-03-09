@@ -16,7 +16,8 @@ import type { DeviceConfigKey, DeviceFlowConfig } from '@/v8/config/deviceFlowCo
 import type { MFACredentials } from '@/v8/flows/shared/MFATypes';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔧 DEVICE-FLOW-HELPERS]';
 
 // ============================================================================

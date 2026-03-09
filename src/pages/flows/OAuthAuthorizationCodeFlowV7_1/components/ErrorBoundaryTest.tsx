@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 const TestContainer = styled.div`
   padding: ${UI_CONSTANTS.SPACING['2XL']};
   background: ${UI_CONSTANTS.LAYOUT.MAIN_CARD_BACKGROUND};
