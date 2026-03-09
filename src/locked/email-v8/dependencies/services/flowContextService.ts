@@ -75,7 +75,7 @@ export class FlowContextService {
 			// Check size limit
 			const contextString = JSON.stringify(enhancedContext);
 			if (contextString.length > FlowContextService.MAX_CONTEXT_SIZE) {
-				logger.warn('[FlowContextService] Flow context exceeds size limit');
+				logger.warn('[FlowContextService] Flow context exceeds size limit', "Logger warning");
 				return false;
 			}
 
@@ -125,7 +125,7 @@ export class FlowContextService {
 
 					// Check age
 					if (FlowContextService.isContextExpired(context)) {
-						logger.warn(`[FlowContextService] Expired context from ${key}`);
+						logger.warn(`[FlowContextService] Expired context from ${key}`, "Logger warning");
 						FlowContextService.clearFlowContext(key);
 						continue;
 					}
@@ -140,7 +140,7 @@ export class FlowContextService {
 				}
 			}
 
-			logger.info('[FlowContextService] No valid flow context found');
+			logger.info('[FlowContextService] No valid flow context found', "Logger info");
 			return null;
 		} catch (error) {
 			logger.error('[FlowContextService] Failed to get flow context:', error);
@@ -167,7 +167,7 @@ export class FlowContextService {
 				keys.forEach((key) => sessionStorage.removeItem(key));
 			}
 
-			logger.info('[FlowContextService] Cleared flow context');
+			logger.info('[FlowContextService] Cleared flow context', "Logger info");
 		} catch (error) {
 			logger.error('[FlowContextService] Failed to clear flow context:', error);
 		}

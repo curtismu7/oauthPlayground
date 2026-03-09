@@ -273,11 +273,11 @@ export class OAuthErrorCodesServiceV8 {
 		const errorInfo = OAUTH_ERROR_CODES[normalizedCode];
 
 		if (errorInfo) {
-			logger.info(`${MODULE_TAG} Found error info for code: ${normalizedCode}`);
+			logger.info(`${MODULE_TAG} Found error info for code: ${normalizedCode}`, "Logger info");
 			return errorInfo;
 		}
 
-		logger.warn(`${MODULE_TAG} Unknown error code: ${normalizedCode}`);
+		logger.warn(`${MODULE_TAG} Unknown error code: ${normalizedCode}`, "Logger warning");
 		return null;
 	}
 

@@ -351,7 +351,7 @@ const AllFlowsApiTest: React.FC = () => {
 	// Listen for worker token updates and update environment ID
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			logger.info('[AllFlowsApiTest] Worker token update triggered');
+			logger.info('[AllFlowsApiTest] Worker token update triggered', "Logger info");
 			try {
 				const stored = localStorage.getItem('unified_worker_token');
 				logger.info('[AllFlowsApiTest] Checking stored worker token:', {
@@ -379,10 +379,10 @@ const AllFlowsApiTest: React.FC = () => {
 					} else {
 						logger.info(
 							'[AllFlowsApiTest] No update needed - either no envId in token or config already has envId'
-						);
+						, "Logger info");
 					}
 				} else {
-					logger.info('[AllFlowsApiTest] No worker token found in storage');
+					logger.info('[AllFlowsApiTest] No worker token found in storage', "Logger info");
 				}
 			} catch (error) {
 				logger.info('[AllFlowsApiTest] Failed to update environment ID from worker token:', error);
@@ -565,7 +565,7 @@ const AllFlowsApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Token Exchange...');
+				logger.info('🧪 Testing Token Exchange...', "Logger info");
 
 				const codeVerifier = config.usePkce ? generateCodeVerifier() : undefined;
 
@@ -615,7 +615,7 @@ const AllFlowsApiTest: React.FC = () => {
 				});
 
 				if (response.ok) {
-					logger.info('✅ Token exchange successful');
+					logger.info('✅ Token exchange successful', "Logger info");
 				} else {
 					logger.info(
 						'ℹ️ Token exchange failed (expected for test without real auth code):',
@@ -647,7 +647,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Client Credentials Flow...');
+			logger.info('🧪 Testing Client Credentials Flow...', "Logger info");
 
 			const requestBody = {
 				grant_type: 'client_credentials',
@@ -691,7 +691,7 @@ const AllFlowsApiTest: React.FC = () => {
 			});
 
 			if (response.ok) {
-				logger.info('✅ Client credentials successful');
+				logger.info('✅ Client credentials successful', "Logger info");
 			} else {
 				logger.info('ℹ️ Client credentials failed:', responseData);
 			}
@@ -718,7 +718,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Device Code Flow...');
+			logger.info('🧪 Testing Device Code Flow...', "Logger info");
 
 			const requestBody = {
 				client_id: config.clientId,
@@ -761,7 +761,7 @@ const AllFlowsApiTest: React.FC = () => {
 			});
 
 			if (response.ok) {
-				logger.info('✅ Device code successful');
+				logger.info('✅ Device code successful', "Logger info");
 			} else {
 				logger.info('ℹ️ Device code failed:', responseData);
 			}
@@ -950,7 +950,7 @@ const AllFlowsApiTest: React.FC = () => {
 					await testMFAAuthentication();
 					break;
 				case 'implicit':
-					logger.info('ℹ️ Implicit flow requires manual redirect - URL generated above');
+					logger.info('ℹ️ Implicit flow requires manual redirect - URL generated above', "Logger info");
 					break;
 			}
 		} catch (error) {

@@ -439,7 +439,7 @@ class TokenExchangeFlowTest {
 	 * Run all tests
 	 */
 	public runAllTests(): void {
-		logger.info('');
+		logger.info('', "Logger info");
 
 		this.results = [];
 

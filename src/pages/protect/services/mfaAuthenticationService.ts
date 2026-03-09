@@ -99,7 +99,7 @@ class MFAAuthenticationService {
 
 			const devices = await response.json();
 
-			logger.info(`${MODULE_TAG} Retrieved ${devices.length} MFA devices`);
+			logger.info(`${MODULE_TAG} Retrieved ${devices.length} MFA devices`, "Logger info");
 
 			return {
 				success: true,
@@ -260,7 +260,7 @@ class MFAAuthenticationService {
 
 			const result = await response.json();
 
-			logger.info(`${MODULE_TAG} MFA authentication completed successfully`);
+			logger.info(`${MODULE_TAG} MFA authentication completed successfully`, "Logger info");
 
 			return {
 				success: true,

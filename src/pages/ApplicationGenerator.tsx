@@ -489,7 +489,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens and reset to step 1 on component mount
 	useEffect(() => {
-		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1');
+		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1', "Logger info");
 		clearAllTokens();
 		setCurrentStep(1);
 		setCreationResult(null);
@@ -535,7 +535,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens when the page loads
 	useEffect(() => {
-		logger.info('[ApplicationGenerator] Starting comprehensive token cleanup on page load...');
+		logger.info('[ApplicationGenerator] Starting comprehensive token cleanup on page load...', "Logger info");
 
 		// Force clear tokens immediately
 		const result = clearAllTokens();
@@ -543,7 +543,7 @@ const ApplicationGenerator: React.FC = () => {
 		logger.info('[ApplicationGenerator] Token clearing result:', result);
 
 		if (result.success) {
-			logger.info(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
+			logger.info(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`, "Logger info");
 			if (result.clearedCount > 0) {
 				modernMessaging.showFooterMessage({
 					type: 'status',
@@ -551,7 +551,7 @@ const ApplicationGenerator: React.FC = () => {
 					duration: 4000,
 				});
 			} else {
-				logger.info('[ApplicationGenerator] No tokens found to clear');
+				logger.info('[ApplicationGenerator] No tokens found to clear', "Logger info");
 			}
 		} else {
 			logger.error(
@@ -580,7 +580,7 @@ const ApplicationGenerator: React.FC = () => {
 			localStorage.removeItem('auth_tokens');
 			localStorage.removeItem('pingone_tokens');
 
-			logger.info('[ApplicationGenerator] Additional token cleanup completed');
+			logger.info('[ApplicationGenerator] Additional token cleanup completed', "Logger info");
 		} catch (error) {
 			logger.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
 				error,

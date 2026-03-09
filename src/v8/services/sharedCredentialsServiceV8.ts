@@ -41,20 +41,20 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		logger.info(`${MODULE_TAG} Loading shared credentials from localStorage`);
+		logger.info(`${MODULE_TAG} Loading shared credentials from localStorage`, "Logger info");
 
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				const credentials = JSON.parse(stored) as SharedCredentials;
-				logger.info(`${MODULE_TAG} Loaded shared credentials from localStorage`);
+				logger.info(`${MODULE_TAG} Loaded shared credentials from localStorage`, "Logger info");
 				return credentials;
 			}
 		} catch (error) {
 			logger.warn(`${MODULE_TAG} Failed to load from localStorage`, error);
 		}
 
-		logger.info(`${MODULE_TAG} No shared credentials found`);
+		logger.info(`${MODULE_TAG} No shared credentials found`, "Logger info");
 		return {};
 	}
 
@@ -145,7 +145,7 @@ export class SharedCredentialsServiceV8 {
 			};
 
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			logger.info(`${MODULE_TAG} Shared credentials saved to browser storage`);
+			logger.info(`${MODULE_TAG} Shared credentials saved to browser storage`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error saving shared credentials to browser`, { error });
 		}
@@ -233,10 +233,10 @@ export class SharedCredentialsServiceV8 {
 	 * Clear shared credentials from storage (localStorage)
 	 */
 	static async clearSharedCredentials(): Promise<void> {
-		logger.info(`${MODULE_TAG} Clearing shared credentials from localStorage`);
+		logger.info(`${MODULE_TAG} Clearing shared credentials from localStorage`, "Logger info");
 		try {
 			localStorage.removeItem(BROWSER_STORAGE_KEY);
-			logger.info(`${MODULE_TAG} Shared credentials cleared successfully`);
+			logger.info(`${MODULE_TAG} Shared credentials cleared successfully`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error clearing shared credentials`, { error });
 		}

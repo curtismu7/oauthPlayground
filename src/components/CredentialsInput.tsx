@@ -537,20 +537,20 @@ export const CredentialsInput = ({
 										}}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											logger.info('Environment ID onMouseDown');
+											logger.info('Environment ID onMouseDown', "Logger info");
 										}}
 										onMouseUp={(e) => {
 											e.stopPropagation();
-											logger.info('Environment ID onMouseUp');
+											logger.info('Environment ID onMouseUp', "Logger info");
 										}}
 										onFocus={(e) => {
-											logger.info('Environment ID focused');
+											logger.info('Environment ID focused', "Logger info");
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';
 										}}
 										onClick={(e) => {
-											logger.info('Environment ID clicked');
+											logger.info('Environment ID clicked', "Logger info");
 											(e.target as HTMLInputElement).focus();
 										}}
 									/>
@@ -628,21 +628,21 @@ export const CredentialsInput = ({
 										readOnly={false}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											logger.info('Client ID onMouseDown');
+											logger.info('Client ID onMouseDown', "Logger info");
 										}}
 										onMouseUp={(e) => {
 											e.stopPropagation();
-											logger.info('Client ID onMouseUp');
+											logger.info('Client ID onMouseUp', "Logger info");
 										}}
 										onFocus={(e) => {
-											logger.info('Client ID focused');
+											logger.info('Client ID focused', "Logger info");
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';
 										}}
 										onClick={(e) => {
 											e.stopPropagation();
-											logger.info('Client ID clicked');
+											logger.info('Client ID clicked', "Logger info");
 											(e.target as HTMLInputElement).focus();
 										}}
 									/>
@@ -675,7 +675,7 @@ export const CredentialsInput = ({
 											}
 											value={clientSecret}
 											onChange={(e) => {
-												logger.info('Client Secret onChange triggered');
+												logger.info('Client Secret onChange triggered', "Logger info");
 												onClientSecretChange(e.target.value);
 											}}
 											$hasError={emptyRequiredFields.has('clientSecret')}
@@ -693,21 +693,21 @@ export const CredentialsInput = ({
 											autoComplete="current-password"
 											onMouseDown={(e) => {
 												e.stopPropagation();
-												logger.info('Client Secret onMouseDown');
+												logger.info('Client Secret onMouseDown', "Logger info");
 											}}
 											onMouseUp={(e) => {
 												e.stopPropagation();
-												logger.info('Client Secret onMouseUp');
+												logger.info('Client Secret onMouseUp', "Logger info");
 											}}
 											onFocus={(e) => {
-												logger.info('Client Secret focused');
+												logger.info('Client Secret focused', "Logger info");
 												e.target.style.pointerEvents = 'auto';
 												e.target.style.userSelect = 'text';
 												e.target.style.cursor = 'text';
 											}}
 											onClick={(e) => {
 												e.stopPropagation();
-												logger.info('Client Secret clicked');
+												logger.info('Client Secret clicked', "Logger info");
 												(e.target as HTMLInputElement).focus();
 											}}
 										/>
@@ -906,15 +906,15 @@ export const CredentialsInput = ({
 										readOnly={false}
 										onMouseDown={(e) => {
 											e.stopPropagation();
-											logger.info('Scopes onMouseDown');
+											logger.info('Scopes onMouseDown', "Logger info");
 										}}
 										onClick={(e) => {
 											e.stopPropagation();
-											logger.info('Scopes clicked');
+											logger.info('Scopes clicked', "Logger info");
 											(e.target as HTMLInputElement).focus();
 										}}
 										onFocus={(e) => {
-											logger.info('Scopes focused');
+											logger.info('Scopes focused', "Logger info");
 											e.target.style.pointerEvents = 'auto';
 											e.target.style.userSelect = 'text';
 											e.target.style.cursor = 'text';

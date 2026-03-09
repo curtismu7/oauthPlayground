@@ -907,7 +907,7 @@ export function getDeviceValidationRules(
  * @returns API endpoints for the device type
  * @example
  * const endpoints = getDeviceApiEndpoints('SMS');
- * logger.info(endpoints.register); // '/api/pingone/mfa/register-device'
+ * logger.info(endpoints.register, "Logger info"); // '/api/pingone/mfa/register-device'
  */
 export function getDeviceApiEndpoints(deviceType: DeviceConfigKey) {
 	const config = getDeviceConfig(deviceType);
@@ -1009,8 +1009,8 @@ export function areRequiredFieldsValid(
  * @returns Display information (name, icon, description)
  * @example
  * const info = getDeviceDisplayInfo('SMS');
- * logger.info(info.displayName); // 'SMS OTP'
- * logger.info(info.icon); // '📱'
+ * logger.info(info.displayName, "Logger info"); // 'SMS OTP'
+ * logger.info(info.icon, "Logger info"); // '📱'
  */
 export function getDeviceDisplayInfo(deviceType: DeviceConfigKey): {
 	displayName: string;

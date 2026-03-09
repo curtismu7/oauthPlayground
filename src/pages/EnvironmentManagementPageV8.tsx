@@ -496,7 +496,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				const storedSettings = localStorage.getItem(STORAGE_KEY);
 				if (storedSettings) {
 					const backupSettings = JSON.parse(storedSettings);
-					logger.info('[ENV-MGMT] ✅ Loaded settings from localStorage');
+					logger.info('[ENV-MGMT] ✅ Loaded settings from localStorage', "Logger info");
 					setSelectedApiRegion(backupSettings.selectedApiRegion || 'na');
 					setTypeFilter(backupSettings.typeFilter || 'all');
 					setStatusFilter(backupSettings.statusFilter || 'all');
@@ -531,7 +531,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			try {
 				// Save to localStorage (fallback since unified storage is for tokens)
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-				logger.info('[ENV-MGMT] ✅ Settings saved to localStorage');
+				logger.info('[ENV-MGMT] ✅ Settings saved to localStorage', "Logger info");
 			} catch (error) {
 				logger.warn(
 					'EnvironmentManagementPageV8',
@@ -548,7 +548,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	// Test function to debug environment fetching
 	const _testEnvironmentFetch = useCallback(async () => {
-		logger.info('[TEST] Starting environment fetch test...');
+		logger.info('[TEST] Starting environment fetch test...', "Logger info");
 		try {
 			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
 			if (!token) {
@@ -565,7 +565,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, []);
 
 	const fetchEnvironments = useCallback(async () => {
-		logger.info('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...');
+		logger.info('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...', "Logger info");
 
 		try {
 			setLoading(true);
@@ -658,7 +658,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			logger.info(
 				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments'
-			);
+			, "Logger info");
 
 			const response = await EnvironmentServiceV8.getEnvironments(
 				filters,
@@ -693,7 +693,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments(envs);
 			setTotalPages(Math.ceil((response?.totalCount ?? 0) / pageSize));
 
-			logger.info('[EnvironmentManagementPageV8] ✅ Successfully loaded environments');
+			logger.info('[EnvironmentManagementPageV8] ✅ Successfully loaded environments', "Logger info");
 		} catch (err) {
 			logger.error(
 				'EnvironmentManagementPageV8',
@@ -712,7 +712,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments([]);
 			setTotalPages(1);
 		} finally {
-			logger.info('[EnvironmentManagementPageV8] 🏁 Fetch environments completed');
+			logger.info('[EnvironmentManagementPageV8] 🏁 Fetch environments completed', "Logger info");
 			setLoading(false);
 		}
 	}, [
@@ -801,7 +801,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleImportEnvironments = () => {
 		// TODO: Implement import functionality
-		logger.info('Import environments - Feature not yet implemented');
+		logger.info('Import environments - Feature not yet implemented', "Logger info");
 		setEnvError('Import functionality coming soon');
 	};
 

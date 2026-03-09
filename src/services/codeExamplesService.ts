@@ -533,7 +533,7 @@ async function startOIDCLogin() {
     const result = await pingOne.login();
     
     if (result.success) {
-      logger.info('Login successful!');
+      logger.info('Login successful!', "Logger info");
       logger.info('Access Token:', result.tokens?.accessToken);
       logger.info('ID Token:', result.tokens?.idToken);
       logger.info('User Info:', result.user);
@@ -557,7 +557,7 @@ async function startOIDCLogin() {
 async function logout() {
   try {
     await pingOne.logout();
-    logger.info('Logout successful');
+    logger.info('Logout successful', "Logger info");
   } catch (error) {
     logger.error('Logout failed:', error);
     throw error;
@@ -588,7 +588,7 @@ async function completeOIDCLogin() {
   try {
     // Check if already authenticated
     if (isAuthenticated()) {
-      logger.info('User already authenticated');
+      logger.info('User already authenticated', "Logger info");
       const user = await getCurrentUser();
       return { success: true, user };
     }
@@ -626,7 +626,7 @@ async function startAuthJourney() {
     const journey = await pingOne.startJourney();
     
     if (journey.success) {
-      logger.info('Journey started successfully');
+      logger.info('Journey started successfully', "Logger info");
       logger.info('Journey ID:', journey.journeyId);
       logger.info('Next Step:', journey.nextStep);
       
@@ -647,7 +647,7 @@ async function handleJourneyStep(stepData: any) {
     const result = await pingOne.handleJourneyStep(stepData);
     
     if (result.success) {
-      logger.info('Step completed successfully');
+      logger.info('Step completed successfully', "Logger info");
       logger.info('Next Step:', result.nextStep);
       logger.info('Tokens:', result.tokens);
       
@@ -749,7 +749,7 @@ async function startJourney(widget: any) {
     const result = await widget.startJourney();
     
     if (result.success) {
-      logger.info('Journey started successfully');
+      logger.info('Journey started successfully', "Logger info");
       logger.info('Journey ID:', result.journeyId);
       return result;
     } else {
@@ -1151,7 +1151,7 @@ async function pushAuthorizationRequest() {
     const result = await response.json();
     
     if (response.ok) {
-      logger.info('PAR successful!');
+      logger.info('PAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       logger.info('Expires in:', result.expires_in, 'seconds');
       
@@ -1264,7 +1264,7 @@ async function pushAuthorizationRequest(config: PARConfig): Promise<PARResult> {
     const result: PARResponse = await response.json();
     
     if (response.ok) {
-      logger.info('PAR successful!');
+      logger.info('PAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       logger.info('Expires in:', result.expires_in, 'seconds');
       

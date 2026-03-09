@@ -10,6 +10,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🚨 UNIFIED-ERROR-HANDLER-V8]';
 
 export interface ErrorContext {
@@ -67,7 +68,7 @@ export const unifiedErrorHandlerV8 = {
 				})
 				.catch(() => {
 					// Fallback if toast import fails
-					logger.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`);
+					logger.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`, "Logger error");
 				});
 		}
 
@@ -137,7 +138,7 @@ export const unifiedErrorHandlerV8 = {
 				});
 			})
 			.catch(() => {
-				logger.error(`${MODULE_TAG} Failed to show validation toast`);
+				logger.error(`${MODULE_TAG} Failed to show validation toast`, "Logger error");
 			});
 	},
 

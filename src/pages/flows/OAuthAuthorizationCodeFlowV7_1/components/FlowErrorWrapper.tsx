@@ -40,7 +40,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 	};
 
 	const handleRetry = () => {
-		logger.info('Flow Error Wrapper: Retrying flow...');
+		logger.info('Flow Error Wrapper: Retrying flow...', "Logger info");
 
 		// Call the provided retry handler
 		if (onRetry) {
@@ -57,7 +57,7 @@ export const FlowErrorWrapper: React.FC<FlowErrorWrapperProps> = ({
 	};
 
 	const handleReset = () => {
-		logger.info('Flow Error Wrapper: Resetting flow...');
+		logger.info('Flow Error Wrapper: Resetting flow...', "Logger info");
 
 		// Call the provided reset handler
 		if (onReset) {

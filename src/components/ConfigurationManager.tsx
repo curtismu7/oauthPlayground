@@ -392,7 +392,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			);
 
 			setHasUnsavedChanges(false);
-			logger.info('Configuration saved successfully');
+			logger.info('Configuration saved successfully', "Logger info");
 		} catch (error) {
 			logger.error(
 				'ConfigurationManager',

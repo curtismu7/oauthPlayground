@@ -2221,7 +2221,7 @@ async function sendRecoveryCode(userId) {
   }
 
   // Success - recovery code sent to user
-  logger.info('Recovery code sent successfully');
+  logger.info('Recovery code sent successfully', "Logger info");
   return { success: true };
 }
 
@@ -2260,7 +2260,7 @@ async function handlePasswordRecovery(userId, recoveryCode, newPassword) {
   try {
     // Step 1: Send recovery code (usually done when user clicks "Forgot Password")
     await sendRecoveryCode(userId);
-    logger.info('Recovery code sent to user');
+    logger.info('Recovery code sent to user', "Logger info");
     
     // Step 2: User enters recovery code and new password
     // This would typically be in a separate form/step

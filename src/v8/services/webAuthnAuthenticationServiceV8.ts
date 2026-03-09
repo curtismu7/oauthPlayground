@@ -254,7 +254,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					});
 					logger.info(
 						`${MODULE_TAG} ✅ All allowCredentials IDs validated - all are ArrayBuffer/ArrayBufferView`
-					);
+					, "Logger info");
 				}
 
 				// CRITICAL: Log right before the WebAuthn call
@@ -372,11 +372,11 @@ export class WebAuthnAuthenticationServiceV8 {
 					if (!platformAvailable) {
 						logger.warn(
 							`${MODULE_TAG} Platform authenticator requested but not available. Falling back to any authenticator.`
-						);
+						, "Logger warning");
 						// Remove platform restriction - allow any authenticator
 						delete authenticatorSelection.authenticatorAttachment;
 					} else {
-						logger.info(`${MODULE_TAG} Platform authenticator is available and will be used`);
+						logger.info(`${MODULE_TAG} Platform authenticator is available and will be used`, "Logger info");
 					}
 				} catch (error) {
 					logger.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
@@ -547,7 +547,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			try {
 				platformAvailable =
 					await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-				logger.info(`${MODULE_TAG} Platform authenticator available: ${platformAvailable}`);
+				logger.info(`${MODULE_TAG} Platform authenticator available: ${platformAvailable}`, "Logger info");
 			} catch (error) {
 				logger.warn(`${MODULE_TAG} Failed to check platform authenticator availability:`, error);
 				platformAvailable = false;
@@ -568,7 +568,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			if (preferPlatform && platformAvailable && !hasPlatformTransport) {
 				logger.info(
 					`${MODULE_TAG} Platform authenticator preferred but allowCredentials restricts to cross-platform only. Removing allowCredentials restriction to allow platform authenticator.`
-				);
+				, "Logger info");
 				// Explicitly remove allowCredentials - this allows any authenticator including platform
 				const hadAllowCredentials = !!clonedOptions.allowCredentials;
 				const allowCredentialsCount = clonedOptions.allowCredentials?.length || 0;
@@ -645,7 +645,7 @@ export class WebAuthnAuthenticationServiceV8 {
 					clonedOptions.authenticatorAttachment = 'platform';
 					logger.info(
 						`${MODULE_TAG} Platform authenticator preferred - allowCredentials includes platform transports`
-					);
+					, "Logger info");
 				}
 			}
 		} else if (preferPlatform && platformAvailable) {

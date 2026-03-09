@@ -402,12 +402,12 @@ export const createCredentialsStep = (
 										localStorage.setItem(skipKey, 'true');
 										logger.info(
 											` [CommonSteps] User chose to skip credentials step for ${flowSpecificPrefix || 'all flows'}`
-										);
+										, "Logger info");
 									} else {
 										localStorage.removeItem(skipKey);
 										logger.info(
 											` [CommonSteps] User will see credentials step for ${flowSpecificPrefix || 'all flows'}`
-										);
+										, "Logger info");
 									}
 								}}
 							/>

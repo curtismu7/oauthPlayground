@@ -306,7 +306,7 @@ export class AnalyticsManager {
 			// In a real implementation, this would send to your analytics server
 			await this.sendEvents(eventsToFlush);
 
-			logger.info(`[AnalyticsManager] Flushed ${eventsToFlush.length} events`);
+			logger.info(`[AnalyticsManager] Flushed ${eventsToFlush.length} events`, "Logger info");
 		} catch (error) {
 			logger.error('[AnalyticsManager] Failed to flush events:', error);
 			// Re-add events to queue for retry
@@ -478,7 +478,7 @@ export class AnalyticsManager {
 	// Update configuration
 	public updateConfig(newConfig: Partial<AnalyticsConfig>): void {
 		this.config = { ...this.config, ...newConfig };
-		logger.info('[AnalyticsManager] Configuration updated');
+		logger.info('[AnalyticsManager] Configuration updated', "Logger info");
 	}
 
 	// Enable/disable analytics
@@ -496,7 +496,7 @@ export class AnalyticsManager {
 		this.stopFlushTimer();
 		this.flush();
 		this.isInitialized = false;
-		logger.info('[AnalyticsManager] Analytics manager destroyed');
+		logger.info('[AnalyticsManager] Analytics manager destroyed', "Logger info");
 	}
 }
 

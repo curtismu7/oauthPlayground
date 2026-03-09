@@ -213,7 +213,7 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({
 							placeholder={`Search for ${config.content.customerTerminology ? 'customer' : 'employee'} ID...`}
 							onGetToken={() => {
 								// Could show inline error or toast for token requirement
-								logger.info('Worker token required for user search');
+								logger.info('Worker token required for user search', "Logger info");
 							}}
 						/>
 					</InputGroup>

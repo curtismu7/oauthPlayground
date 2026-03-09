@@ -219,10 +219,10 @@ const AuthzCallback: React.FC = () => {
 						currentPath.includes('oidc')
 					) {
 						isEnhancedV3 = true;
-						logger.info(' [AuthzCallback] Detected OIDC V3 flow from URL path');
+						logger.info(' [AuthzCallback] Detected OIDC V3 flow from URL path', "Logger info");
 					} else if (currentPath.includes('oauth-authorization-code-v3')) {
 						isOAuthV3 = true;
-						logger.info(' [AuthzCallback] Detected OAuth V3 flow from URL path');
+						logger.info(' [AuthzCallback] Detected OAuth V3 flow from URL path', "Logger info");
 					}
 				}
 
@@ -234,7 +234,7 @@ const AuthzCallback: React.FC = () => {
 				if (isPopup) {
 					logger.info(
 						' [AuthzCallback] Popup detected - extracting code/state and sending to parent'
-					);
+					, "Logger info");
 
 					// For popups, extract the authorization code and state directly from URL
 					// DO NOT call handleCallback as that would do token exchange in the popup
@@ -319,7 +319,7 @@ const AuthzCallback: React.FC = () => {
 					// For OAuth V3 flows, we should ONLY handle popups, not full redirects
 					// OAuth V3 full redirects should be handled by the OAuth V3 flow itself
 					if (isOAuthV3) {
-						logger.info(' [AuthzCallback] OAuth V3 flow should only use popup authorization');
+						logger.info(' [AuthzCallback] OAuth V3 flow should only use popup authorization', "Logger info");
 						setStatus('error');
 						setMessage(
 							'OAuth V3 flow detected but not in popup mode. Please use popup authorization.'
@@ -478,11 +478,11 @@ const AuthzCallback: React.FC = () => {
 								// Store the authorization code and state for V7 flow
 								// V7.2 expects 'oauth_auth_code', V7 expects 'oauth_v7_auth_code'
 								if (isV7_2) {
-									logger.info(' [AuthzCallback] Storing auth code for V7.2 flow');
+									logger.info(' [AuthzCallback] Storing auth code for V7.2 flow', "Logger info");
 									sessionStorage.setItem('oauth_auth_code', code);
 									sessionStorage.setItem('oauth_state', state);
 								} else {
-									logger.info(' [AuthzCallback] Storing auth code for V7 flow');
+									logger.info(' [AuthzCallback] Storing auth code for V7 flow', "Logger info");
 									sessionStorage.setItem('oauth_v7_auth_code', code);
 									sessionStorage.setItem('oauth_v7_state', state);
 								}
@@ -694,7 +694,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 
 								logger.info(
 									' [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page'
-								);
+								, "Logger info");
 								setStatus('success');
 								setMessage('Authorization successful! Redirecting to V3 flow...');
 

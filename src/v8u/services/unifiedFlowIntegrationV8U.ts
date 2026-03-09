@@ -233,7 +233,7 @@ export class UnifiedFlowIntegrationV8U {
 
 		// Implicit flow
 		if (flowType === 'implicit') {
-			logger.debug(`✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`);
+			logger.debug(`✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`, "Logger debug");
 			// Ensure offline_access is included if enableRefreshToken is true (though implicit flow doesn't support refresh tokens)
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
@@ -289,19 +289,19 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`);
+				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, "Logger debug");
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`, "Logger debug");
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`);
+				logger.debug(`🖥️ Added display: ${credentials.display}`, "Logger debug");
 			}
 
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
@@ -337,7 +337,7 @@ export class UnifiedFlowIntegrationV8U {
 				},
 				Date.now() - startTime
 			);
-			logger.debug(`🔗 Response mode set to: ${responseMode}`);
+			logger.debug(`🔗 Response mode set to: ${responseMode}`, "Logger debug");
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
@@ -348,8 +348,8 @@ export class UnifiedFlowIntegrationV8U {
 				authUrlPreview: authorizationUrl.substring(0, 200),
 				responseMode: responseMode,
 			});
-			logger.debug(`🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`);
-			logger.debug(`🔑 This prefixed state is now in the authorization URL`);
+			logger.debug(`🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`, "Logger debug");
+			logger.debug(`🔑 This prefixed state is now in the authorization URL`, "Logger debug");
 
 			return {
 				authorizationUrl,
@@ -429,7 +429,7 @@ export class UnifiedFlowIntegrationV8U {
 							? credentials.clientAuthMethod
 							: 'client_secret_post';
 
-					logger.debug(`🔐 Using PAR auth method: ${parAuthMethod}`);
+					logger.debug(`🔐 Using PAR auth method: ${parAuthMethod}`, "Logger debug");
 
 					// Push PAR request
 					const parResponse = await PARRARIntegrationServiceV8U.pushPARRequest(
@@ -513,7 +513,7 @@ export class UnifiedFlowIntegrationV8U {
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
 				scopesToUse = `${scopesToUse.trim()} offline_access`;
-				logger.debug(`✅ Added offline_access scope for refresh token`);
+				logger.debug(`✅ Added offline_access scope for refresh token`, "Logger debug");
 			}
 
 			const oauthCredentials: OAuthCredentials = {
@@ -574,19 +574,19 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`);
+				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, "Logger debug");
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`, "Logger debug");
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`);
+				logger.debug(`🖥️ Added display: ${credentials.display}`, "Logger debug");
 			}
 
 			// Add PKCE parameters if provided
@@ -599,12 +599,12 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeOAuth =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
 			params.set('response_mode', responseModeOAuth);
-			logger.debug(`🔗 Response mode set to: ${responseModeOAuth}`);
+			logger.debug(`🔗 Response mode set to: ${responseModeOAuth}`, "Logger debug");
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
 			// Track authorization URL generation for API documentation
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`, "Logger info");
 			logger.info(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
 				authorizationEndpoint,
 				authorizationUrl: `${authorizationUrl.substring(0, 100)}...`,
@@ -615,7 +615,7 @@ export class UnifiedFlowIntegrationV8U {
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`, "Logger info");
 
 			const apiCallId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
@@ -632,7 +632,7 @@ export class UnifiedFlowIntegrationV8U {
 				flowType: 'unified',
 			});
 
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`, "Logger info");
 
 			apiCallTrackerService.updateApiCallResponse(
 				apiCallId,
@@ -651,7 +651,7 @@ export class UnifiedFlowIntegrationV8U {
 				Date.now() - startTime
 			);
 
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`, "Logger info");
 
 			logger.debug(`✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState: prefixedStateRegular,
@@ -727,7 +727,7 @@ export class UnifiedFlowIntegrationV8U {
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
 				scopesToUse = `${scopesToUse.trim()} offline_access`;
-				logger.debug(`✅ Added offline_access scope for refresh token`);
+				logger.debug(`✅ Added offline_access scope for refresh token`, "Logger debug");
 			}
 
 			params.set('client_id', credentials.clientId);
@@ -741,7 +741,7 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeHybrid =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseModeHybrid);
-			logger.debug(`🔗 Response mode set to: ${responseModeHybrid}`);
+			logger.debug(`🔗 Response mode set to: ${responseModeHybrid}`, "Logger debug");
 
 			// Add prompt parameter if specified
 			if (credentials.prompt) {
@@ -751,19 +751,19 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`);
+				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, "Logger debug");
 			}
 
 			// Add max_age parameter if specified
 			if (credentials.maxAge !== undefined) {
 				params.set('max_age', credentials.maxAge.toString());
-				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`);
+				logger.debug(`⏱️ Added max_age: ${credentials.maxAge}s`, "Logger debug");
 			}
 
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`);
+				logger.debug(`🖥️ Added display: ${credentials.display}`, "Logger debug");
 			}
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
@@ -870,11 +870,11 @@ export class UnifiedFlowIntegrationV8U {
 	 *
 	 * @example
 	 * const deviceAuth = await UnifiedFlowIntegrationV8U.requestDeviceAuthorization(credentials);
-	 * logger.debug(`User code: ${deviceAuth.user_code}`);
-	 * logger.debug(`Visit: ${deviceAuth.verification_uri_complete}`);
+	 * logger.debug(`User code: ${deviceAuth.user_code}`, "Logger debug");
+	 * logger.debug(`Visit: ${deviceAuth.verification_uri_complete}`, "Logger debug");
 	 */
 	static async requestDeviceAuthorization(credentials: UnifiedFlowCredentials) {
-		logger.debug(`Requesting device authorization`);
+		logger.debug(`Requesting device authorization`, "Logger debug");
 
 		// Validate required credentials
 		if (!credentials.environmentId || !credentials.clientId) {
@@ -1078,7 +1078,7 @@ export class UnifiedFlowIntegrationV8U {
 					scopes: credentials.scopes,
 				});
 			} else {
-				logger.warn(`No scopes provided in credentials for client credentials flow`);
+				logger.warn(`No scopes provided in credentials for client credentials flow`, "Logger warning");
 			}
 			// Pass clientAuthMethod if available and valid (service will default to client_secret_basic if 'none' or invalid)
 			if (credentials.clientAuthMethod && credentials.clientAuthMethod !== 'none') {
@@ -1174,7 +1174,7 @@ export class UnifiedFlowIntegrationV8U {
 		code: string,
 		codeVerifier?: string
 	) {
-		logger.debug(`========== SERVICE LAYER: exchangeCodeForTokens ==========`);
+		logger.debug(`========== SERVICE LAYER: exchangeCodeForTokens ==========`, "Logger debug");
 		logger.debug(`Flow Type`, { flowType });
 		logger.debug(`Credentials received:`, {
 			environmentId: credentials.environmentId,
@@ -1193,7 +1193,7 @@ export class UnifiedFlowIntegrationV8U {
 		});
 
 		if (flowType === 'oauth-authz') {
-			logger.debug(`Processing OAuth Authorization Code flow`);
+			logger.debug(`Processing OAuth Authorization Code flow`, "Logger debug");
 
 			// Validate required fields based on PKCE usage
 			if (!credentials.environmentId || !credentials.clientId) {
@@ -1208,7 +1208,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Redirect URI is only required when PKCE is NOT enabled
 			if (!credentials.usePKCE && !credentials.redirectUri) {
-				logger.error(`❌ PKCE not enabled and redirect URI missing`);
+				logger.error(`❌ PKCE not enabled and redirect URI missing`, "Logger error");
 				throw new Error(
 					'Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.'
 				);
@@ -1216,7 +1216,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Code verifier is only required when PKCE IS enabled
 			if (credentials.usePKCE && !codeVerifier) {
-				logger.error(`❌ PKCE enabled but code verifier missing`);
+				logger.error(`❌ PKCE enabled but code verifier missing`, "Logger error");
 				throw new Error(
 					'PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.'
 				);
@@ -1235,18 +1235,18 @@ export class UnifiedFlowIntegrationV8U {
 				oauthCredentials.clientSecret = credentials.clientSecret;
 				logger.debug(`Client secret included (length: ${credentials.clientSecret.length})`);
 			} else {
-				logger.debug(`No client secret provided`);
+				logger.debug(`No client secret provided`, "Logger debug");
 			}
 
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				oauthCredentials.privateKey = credentials.privateKey;
-				logger.debug(`Private key included for private_key_jwt authentication`);
+				logger.debug(`Private key included for private_key_jwt authentication`, "Logger debug");
 			}
 
 			logger.debug(
 				`OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`
-			);
+			, "Logger debug");
 
 			logger.debug(`OAuth credentials prepared:`, {
 				environmentId: oauthCredentials.environmentId,
@@ -1261,7 +1261,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			// Track token exchange API call for unified flow visibility
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`);
+			logger.info(`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`, "Logger info");
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const tokenEndpoint = `https://auth.pingone.com/${oauthCredentials.environmentId}/as/token`;
 			const startTime = Date.now();
@@ -1286,7 +1286,7 @@ export class UnifiedFlowIntegrationV8U {
 				step: 'unified-token-exchange',
 			});
 
-			logger.debug(`🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);
+			logger.debug(`🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`, "Logger debug");
 			logger.debug(`Parameters:`, {
 				hasCredentials: !!oauthCredentials,
 				codeLength: code.length,
@@ -1373,7 +1373,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				hybridCredentials.privateKey = credentials.privateKey;
-				logger.debug(`Private key included for hybrid flow private_key_jwt authentication`);
+				logger.debug(`Private key included for hybrid flow private_key_jwt authentication`, "Logger debug");
 			}
 
 			// Track hybrid token exchange API call for unified flow visibility

@@ -18,7 +18,7 @@
  * @example
  * // Check if any device is using unified flow
  * const status = getUnifiedFlowStatus();
- * logger.info(status); // { SMS: '10%', EMAIL: 'disabled', ... }
+ * logger.info(status, "Logger info"); // { SMS: '10%', EMAIL: 'disabled', ... }
  */
 
 import type { DeviceType } from '@/v8/flows/shared/MFATypes';
@@ -57,12 +57,12 @@ export function enableUnifiedFlowForDevice(
 ): void {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`, "Logger error");
 		return;
 	}
 
 	MFAFeatureFlagsV8.setFlag(flag, true, rolloutPercentage);
-	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ${deviceType} at ${rolloutPercentage}%`);
+	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ${deviceType} at ${rolloutPercentage}%`, "Logger info");
 }
 
 /**
@@ -76,7 +76,7 @@ export function enableUnifiedFlowForDevice(
 export function disableUnifiedFlowForDevice(deviceType: DeviceType | string): void {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`, "Logger error");
 		return;
 	}
 
@@ -97,7 +97,7 @@ export function enableUnifiedFlowForAll(rolloutPercentage: RolloutPercentage = 1
 	for (const device of deviceTypes) {
 		enableUnifiedFlowForDevice(device, rolloutPercentage);
 	}
-	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ALL devices at ${rolloutPercentage}%`);
+	logger.info(`[MFA-FLAGS] ✅ Enabled unified flow for ALL devices at ${rolloutPercentage}%`, "Logger info");
 }
 
 /**
@@ -156,7 +156,7 @@ export function getUnifiedFlowStatus(): Record<string, string> {
 export function isUnifiedFlowEnabled(deviceType: DeviceType | string): boolean {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`, "Logger error");
 		return false;
 	}
 
@@ -180,7 +180,7 @@ export function getDeviceStatus(deviceType: DeviceType | string): {
 } | null {
 	const flag = DEVICE_TO_FLAG[deviceType.toUpperCase()];
 	if (!flag) {
-		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`);
+		logger.error(`[MFA-FLAGS] Unknown device type: ${deviceType}`, "Logger error");
 		return null;
 	}
 
@@ -202,9 +202,9 @@ export function getDeviceStatus(deviceType: DeviceType | string): {
  * // Outputs formatted table to console
  */
 export function printUnifiedFlowStatus(): void {
-	logger.info('\n📊 MFA Unified Flow Status\n');
-	logger.info('Device Type | Status    | Applies To');
-	logger.info('------------|-----------|------------');
+	logger.info('\n📊 MFA Unified Flow Status\n', "Logger info");
+	logger.info('Device Type | Status    | Applies To', "Logger info");
+	logger.info('------------|-----------|------------', "Logger info");
 
 	const deviceTypes = ['SMS', 'EMAIL', 'MOBILE', 'WHATSAPP', 'TOTP', 'FIDO2'];
 	deviceTypes.forEach((device) => {
@@ -215,7 +215,7 @@ export function printUnifiedFlowStatus(): void {
 		}
 	});
 
-	logger.info('\n💡 Commands:');
+	logger.info('\n💡 Commands:', "Logger info");
 	logger.info('  window.mfaHelpers.enable("SMS", 10)   - Enable SMS at 10%');
 	logger.info('  window.mfaHelpers.disable("SMS")      - Disable SMS (rollback)');
 	logger.info('  window.mfaHelpers.enableAll(50)       - Enable all at 50%');

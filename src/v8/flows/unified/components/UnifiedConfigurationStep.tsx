@@ -142,7 +142,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		if (username.trim()) {
 			try {
 				localStorage.setItem('mfa_unified_username', username.trim());
-				logger.info(`${MODULE_TAG} Saved username to localStorage`);
+				logger.info(`${MODULE_TAG} Saved username to localStorage`, "Logger info");
 			} catch {
 				// Ignore localStorage errors
 			}
@@ -169,7 +169,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 */
 	useEffect(() => {
 		if (registrationFlowType === 'user' && flowType !== 'user') {
-			logger.info(`${MODULE_TAG} User registration flow - switching to user flow type`);
+			logger.info(`${MODULE_TAG} User registration flow - switching to user flow type`, "Logger info");
 			setFlowType('user');
 		}
 	}, [registrationFlowType, flowType]);
@@ -192,7 +192,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			username.trim() &&
 			!hasAutoAdvanced.current
 		) {
-			logger.info(`${MODULE_TAG} Auto-advancing after OAuth login`);
+			logger.info(`${MODULE_TAG} Auto-advancing after OAuth login`, "Logger info");
 			hasAutoAdvanced.current = true;
 
 			// Update credentials with final values
@@ -271,7 +271,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	 * Handle continue button click
 	 */
 	const handleContinue = useCallback(() => {
-		logger.info(`${MODULE_TAG} Continuing to device selection`);
+		logger.info(`${MODULE_TAG} Continuing to device selection`, "Logger info");
 
 		// Validate configuration
 		if (!validateConfiguration()) {

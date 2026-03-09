@@ -345,7 +345,7 @@ const Login = () => {
 	// Load existing credentials using V8 SharedCredentialsService
 	useEffect(() => {
 		const loadExistingCredentials = async () => {
-			logger.info(' [Login] Loading credentials using V8 SharedCredentialsService...');
+			logger.info(' [Login] Loading credentials using V8 SharedCredentialsService...', "Logger info");
 
 			try {
 				// Load from V8 shared credentials service (dual storage: browser first, then disk)
@@ -357,7 +357,7 @@ const Login = () => {
 				const finalEnvId = sharedCreds.environmentId || envId || '';
 
 				if (sharedCreds.clientId && finalEnvId) {
-					logger.info(' [Login] Using V8 SharedCredentialsService credentials');
+					logger.info(' [Login] Using V8 SharedCredentialsService credentials', "Logger info");
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: finalEnvId,
@@ -404,7 +404,7 @@ const Login = () => {
 				);
 			}
 
-			logger.info(' [Login] No existing credentials found in V8 storage');
+			logger.info(' [Login] No existing credentials found in V8 storage', "Logger info");
 			setHasExistingCredentials(false);
 		};
 
@@ -466,7 +466,7 @@ const Login = () => {
 					parsedCredentials.clientSecret ===
 					'0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
 				) {
-					logger.info(' [Login] Clearing problematic hardcoded client secret');
+					logger.info(' [Login] Clearing problematic hardcoded client secret', "Logger info");
 					parsedCredentials.clientSecret = '';
 					// Update localStorage with cleared secret
 					localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
@@ -488,7 +488,7 @@ const Login = () => {
 				);
 			}
 		} else {
-			logger.info(' [Login] No saved credentials found in localStorage or credential manager');
+			logger.info(' [Login] No saved credentials found in localStorage or credential manager', "Logger info");
 		}
 	}, [credentials.clientId]);
 
@@ -524,7 +524,7 @@ const Login = () => {
 	};
 
 	const handleCredentialSave = async () => {
-		logger.info(' [Login] Saving credentials using V8 SharedCredentialsService...');
+		logger.info(' [Login] Saving credentials using V8 SharedCredentialsService...', "Logger info");
 		setSaveStatus(null);
 		setIsSavingCredentials(true);
 
@@ -546,7 +546,7 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService');
+			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService', "Logger info");
 
 			setSaveStatus({
 				type: 'success',
@@ -580,7 +580,7 @@ const Login = () => {
 	};
 
 	const handleLogin = async () => {
-		logger.info(' [Login] Starting login process...');
+		logger.info(' [Login] Starting login process...', "Logger info");
 		setError('');
 		setIsLoading(true);
 
@@ -611,9 +611,9 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			logger.info(' [Login] Credentials saved to V8 storage before login');
+			logger.info(' [Login] Credentials saved to V8 storage before login', "Logger info");
 
-			logger.info(' [Login] Calling login function with dashboard callback type...');
+			logger.info(' [Login] Calling login function with dashboard callback type...', "Logger info");
 
 			// Redirect to PingOne for authentication
 			const result = await login('/', 'dashboard');

@@ -275,7 +275,7 @@ formData.append('claims', '${formData.claims}');
 formData.append('ui_locales', '${formData.uiLocales}');
 
 logger.info('UserInfo POST URL:', userInfoUrl);
-logger.info('Form data prepared for POST request');`,
+logger.info('Form data prepared for POST request', "Logger info");`,
 			execute: async () => {
 				logger.info('UserInfoPostFlow', 'Preparing UserInfo POST request');
 			},

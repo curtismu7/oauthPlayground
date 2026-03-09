@@ -819,7 +819,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for worker token updates
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			logger.debug(`🔑 Worker token updated event received!`);
+			logger.debug(`🔑 Worker token updated event received!`, "Logger debug");
 			logger.debug(`🔑 Current credentials:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
@@ -829,21 +829,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
-				logger.debug(`🔑 Clearing app config to trigger re-fetch`);
+				logger.debug(`🔑 Clearing app config to trigger re-fetch`, "Logger debug");
 				setAppConfig(null); // Clear current config to trigger re-fetch
 			} else {
-				logger.debug(`⚠️ Cannot refresh app config - missing credentials`);
+				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, "Logger debug");
 			}
 		};
 
-		logger.debug(`🔑 Setting up worker token event listener`);
+		logger.debug(`🔑 Setting up worker token event listener`, "Logger debug");
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 
 		// Test if event listener is working
-		logger.debug(`🔑 Worker token listener setup complete`);
+		logger.debug(`🔑 Worker token listener setup complete`, "Logger debug");
 
 		return () => {
-			logger.debug(`🔑 Cleaning up worker token event listener`);
+			logger.debug(`🔑 Cleaning up worker token event listener`, "Logger debug");
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		};
 	}, [credentials.environmentId, credentials.clientId]);
@@ -2329,7 +2329,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											logger.debug(`Auto-enabled PKCE for ${appType} application type`);
+											logger.debug(`Auto-enabled PKCE for ${appType} application type`, "Logger debug");
 										}
 									} else {
 										logger.debug(`Suggested flow not available for spec`, {

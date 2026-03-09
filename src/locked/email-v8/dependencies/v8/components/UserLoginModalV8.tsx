@@ -239,7 +239,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
-				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, "Logger warning");
 				toastV8.error('Security validation failed. Please try again.');
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -307,7 +307,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							if (workerToken) {
 								logger.info(
 									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
-								);
+								, "Logger info");
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
@@ -378,7 +378,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						tokenType: 'user', // Mark as user token type
 					};
 					CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`, "Logger info");
 
 					// Store session info for success page
 					const newSessionInfo: SessionInfo = {
@@ -524,7 +524,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (!storedState) return;
 
 				if (storedState && state && storedState !== state) {
-					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, "Logger warning");
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -558,7 +558,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								if (workerToken) {
 									logger.info(
 										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
-									);
+									, "Logger info");
 									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 										credentials.environmentId,
 										credentials.clientId,
@@ -625,7 +625,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							tokenType: 'user', // Mark as user token type
 						};
 						CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-						logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+						logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`, "Logger info");
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
@@ -662,7 +662,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Get worker token
 					const workerToken = await workerTokenServiceV8.getToken();
 					if (!workerToken) {
-						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`, "Logger warning");
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -1225,7 +1225,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 															if (workerToken) {
 																logger.info(
 																	`${MODULE_TAG} Fetching application secret from PingOne API...`
-																);
+																, "Logger info");
 																const fetchedApp =
 																	await AppDiscoveryServiceV8.fetchApplicationWithSecret(
 																		environmentId.trim(),

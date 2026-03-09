@@ -138,7 +138,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 
 	async function handleExchangeToken() {
 		if (!code) {
-			alert('No authorization code available');
+			console.warn("Alert: No authorization code available");
 			return;
 		}
 		const res = tokenExchangeAuthorizationCode({
@@ -165,7 +165,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 
 	function handleUserInfo() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
@@ -174,7 +174,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 
 	function handleIntrospect() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = introspectToken(accessToken);

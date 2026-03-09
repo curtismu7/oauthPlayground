@@ -334,7 +334,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				}
 			} else {
 				// No policies found - this is not an error, just empty result
-				logger.info(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
+				logger.info(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`, "Logger info");
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';

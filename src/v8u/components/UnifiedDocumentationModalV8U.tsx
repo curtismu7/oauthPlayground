@@ -237,7 +237,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 		if (selectedUseCases.size === 0) {
 			// biome-ignore lint/suspicious/noAlert: user-facing validation alert for download flow
 			// eslint-disable-next-line no-alert
-			alert('Please select at least one use case to download.');
+			console.warn("Alert: Please select at least one use case to download.");
 			return;
 		}
 
@@ -253,7 +253,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 			logger.error('Failed to download documentation:', error);
 			// biome-ignore lint/suspicious/noAlert: user-facing error alert for download failure
 			// eslint-disable-next-line no-alert
-			alert('Failed to download documentation. Please try again.');
+			console.warn("Alert: Failed to download documentation. Please try again.");
 		}
 	};
 

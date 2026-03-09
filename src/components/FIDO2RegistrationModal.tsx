@@ -95,7 +95,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 			const result = await FIDO2Service.registerCredential(config);
 
 			if (result.success && result.credentialId) {
-				logger.info('✅ [FIDO2 Registration] Credential registered successfully');
+				logger.info('✅ [FIDO2 Registration] Credential registered successfully', "Logger info");
 				modernMessaging.showFooterMessage({
 					type: 'status',
 					message: 'Passkey registered successfully!',

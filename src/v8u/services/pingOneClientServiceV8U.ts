@@ -196,7 +196,7 @@ export async function updatePingOneClient(
 
 		// In real implementation, this would call PingOne API
 		// For now, we simulate success
-		logger.info(`${MODULE_TAG} PingOne client updated successfully`);
+		logger.info(`${MODULE_TAG} PingOne client updated successfully`, "Logger info");
 
 		return { success: true };
 	} catch (error) {
@@ -230,7 +230,7 @@ export async function updateApplicationConfig(
 
 		// In real implementation, this would update app configuration
 		// For now, we simulate success
-		logger.info(`${MODULE_TAG} Application configuration updated successfully`);
+		logger.info(`${MODULE_TAG} Application configuration updated successfully`, "Logger info");
 
 		return { success: true };
 	} catch (error) {

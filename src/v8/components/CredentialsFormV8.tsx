@@ -375,11 +375,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							{/* Application Type */}
 							<div className="form-group">
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-									<label
-										style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
-									>
-										Application Type
-									</label>
+									<div
+									style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
+								>
+									Application Type
+								</div>
 									<TooltipV8
 										title={TooltipContentServiceV8.APPLICATION_TYPE.title}
 										content={TooltipContentServiceV8.APPLICATION_TYPE.content}
@@ -409,10 +409,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 							{/* Environment ID */}
 							<div className="form-group">
-								<label>
+								<label htmlFor="environment-id-input">
 									Environment ID <span className="required">*</span>
 								</label>
 								<input
+									id="environment-id-input"
 									type="text"
 									placeholder="12345678-1234-1234-1234-123456789012"
 									value={credentials.environmentId}
@@ -424,10 +425,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 							{/* Client ID */}
 							<div className="form-group">
-								<label>
+								<label htmlFor="client-id-input">
 									Client ID <span className="required">*</span>
 								</label>
 								<input
+									id="client-id-input"
 									type="text"
 									placeholder="abc123def456..."
 									value={credentials.clientId}
@@ -441,7 +443,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							{flowOptions.requiresClientSecret ||
 							(!flowOptions.requiresClientSecret && config.includeClientSecret) ? (
 								<div className="form-group">
-									<label>
+									<label htmlFor="client-secret-input">
 										Client Secret
 										{flowOptions.requiresClientSecret ? (
 											<span className="required">*</span>
@@ -450,6 +452,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 										)}
 									</label>
 									<input
+										id="client-secret-input"
 										type="password"
 										placeholder="••••••••••••••••"
 										value={credentials.clientSecret || ''}
@@ -470,9 +473,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 						<div className="section-content">
 							{/* Spec Version Radio Buttons */}
 							<div className="form-group" style={{ marginBottom: '16px' }}>
-								<label style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+								<div style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
 									Specification Version
-								</label>
+								</div>
 								<div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
 									{UnifiedFlowOptionsServiceV8.getAllSpecVersionsWithLabels().map((spec) => (
 										<label
@@ -514,10 +517,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 							{/* Flow Type Dropdown */}
 							<div className="form-group">
-								<label style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+								<label htmlFor="flow-type-select" style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
 									Flow Type
 								</label>
 								<select
+									id="flow-type-select"
 									value={effectiveFlowType}
 									onChange={(e) => setSelectedFlowType(e.target.value as FlowType)}
 									style={{
@@ -577,9 +581,10 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 						</div>
 						<div className="section-content">
 							<div className="form-group">
-								<label>Issuer URL or Environment ID</label>
+								<label htmlFor="discovery-input">Issuer URL or Environment ID</label>
 								<div style={{ display: 'flex', gap: '8px' }}>
 									<input
+										id="discovery-input"
 										type="text"
 										placeholder="https://auth.example.com or environment-id"
 										value={discoveryInput}
@@ -798,10 +803,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 					{/* Advanced Configuration Section */}
 					<div className="form-section" data-section="advanced">
-						<div
+						<button
 							className="section-header"
 							onClick={() => setShowAdvancedSection(!showAdvancedSection)}
 							style={{ cursor: 'pointer' }}
+							type="button"
 						>
 							<div
 								style={{
@@ -822,7 +828,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 									›
 								</span>
 							</div>
-						</div>
+						</button>
 						{showAdvancedSection && (
 							<div className="section-content">
 								<div
@@ -890,8 +896,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* Response Type - Only show if flow supports it */}
 								{flowOptions.responseTypes.length > 0 && (
 									<div className="form-group">
-										<label>Response Type</label>
+										<label htmlFor="response-type-select">Response Type</label>
 										<select
+											id="response-type-select"
 											value={credentials.responseType || flowOptions.defaultResponseType}
 											onChange={(e) => handleChange('responseType', e.target.value)}
 											aria-label="Response Type"
@@ -909,8 +916,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* Token Endpoint Authentication Method - Smart filtering */}
 								{showClientAuthMethod && (
 									<div className="form-group">
-										<label>Token Endpoint Authentication Method</label>
+										<label htmlFor="auth-method-select">Token Endpoint Authentication Method</label>
 										<select
+											id="auth-method-select"
 											value={credentials.clientAuthMethod || flowOptions.defaultAuthMethod}
 											onChange={(e) => handleChange('clientAuthMethod', e.target.value)}
 											aria-label="Token Endpoint Authentication Method"

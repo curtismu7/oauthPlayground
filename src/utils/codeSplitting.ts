@@ -23,11 +23,11 @@ export interface LazyLoadingManager {
 // Simple stub implementation
 class StubMetrics implements LazyLoadingMetrics {
 	recordLoadTime(flowType: string, loadTime: number): void {
-		logger.debug(`Load time recorded for ${flowType}: ${loadTime}ms`);
+		logger.debug(`Load time recorded for ${flowType}: ${loadTime}ms`, "Logger debug");
 	}
 
 	recordError(flowType: string): void {
-		logger.error(`Error recorded for ${flowType}`);
+		logger.error(`Error recorded for ${flowType}`, "Logger error");
 	}
 
 	getAverageLoadTime(): number {
@@ -45,7 +45,7 @@ class StubMetrics implements LazyLoadingMetrics {
 
 class StubManager implements LazyLoadingManager {
 	async loadOAuthFlow(flowType: string): Promise<React.ComponentType<unknown>> {
-		logger.debug(`Loading OAuth flow: ${flowType}`);
+		logger.debug(`Loading OAuth flow: ${flowType}`, "Logger debug");
 		// Return a simple stub component
 		return () => null;
 	}

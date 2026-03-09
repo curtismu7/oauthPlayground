@@ -30,7 +30,7 @@ export const ConfirmationModalV8: React.FC = () => {
 	const [resolver, setResolver] = useState<((value: boolean) => void) | null>(null);
 
 	const handleConfirm = useCallback(() => {
-		logger.info(`${MODULE_TAG} User confirmed`);
+		logger.info(`${MODULE_TAG} User confirmed`, "Logger info");
 		if (resolver) {
 			resolver(true);
 		}
@@ -40,7 +40,7 @@ export const ConfirmationModalV8: React.FC = () => {
 	}, [resolver]);
 
 	const handleCancel = useCallback(() => {
-		logger.info(`${MODULE_TAG} User cancelled`);
+		logger.info(`${MODULE_TAG} User cancelled`, "Logger info");
 		if (resolver) {
 			resolver(false);
 		}

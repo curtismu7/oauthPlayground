@@ -677,7 +677,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 			const subscriptionsList = responseData._embedded?.subscriptions || [];
 			setSubscriptions(subscriptionsList);
-			logger.info(`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`);
+			logger.info(`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`, "Logger info");
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: `Loaded ${subscriptionsList.length} webhook subscriptions`,
@@ -740,7 +740,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			);
 
 			setWebhooks(transformedEvents);
-			logger.info(`[Webhook Viewer] Loaded ${transformedEvents.length} webhook events`);
+			logger.info(`[Webhook Viewer] Loaded ${transformedEvents.length} webhook events`, "Logger info");
 		} catch (error) {
 			// Only log error, don't show toast for 404s (endpoint might not be available)
 			if (error instanceof Error && error.message.includes('404')) {

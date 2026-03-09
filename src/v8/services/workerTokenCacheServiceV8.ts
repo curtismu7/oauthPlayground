@@ -61,7 +61,7 @@ export class WorkerTokenCacheServiceV8 {
 		clientId: string,
 		scopes: string[]
 	): Promise<void> {
-		logger.info(`${MODULE_TAG} Caching worker token for validation`);
+		logger.info(`${MODULE_TAG} Caching worker token for validation`, "Logger info");
 
 		const cachedToken: CachedWorkerToken = {
 			token,
@@ -75,7 +75,7 @@ export class WorkerTokenCacheServiceV8 {
 
 		try {
 			await this.saveCachedToken(cachedToken);
-			logger.info(`${MODULE_TAG} ✅ Worker token cached successfully`);
+			logger.info(`${MODULE_TAG} ✅ Worker token cached successfully`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} ❌ Failed to cache worker token:`, error);
 		}
@@ -89,12 +89,12 @@ export class WorkerTokenCacheServiceV8 {
 		environmentId?: string,
 		clientId?: string
 	): Promise<CacheValidationResult> {
-		logger.info(`${MODULE_TAG} Getting worker token for validation`);
+		logger.info(`${MODULE_TAG} Getting worker token for validation`, "Logger info");
 
 		// Try to get current token first
 		const currentToken = await unifiedWorkerTokenService.getToken();
 		if (currentToken) {
-			logger.info(`${MODULE_TAG} ✅ Using current worker token`);
+			logger.info(`${MODULE_TAG} ✅ Using current worker token`, "Logger info");
 			return {
 				isValid: true,
 				token: currentToken,
@@ -106,7 +106,7 @@ export class WorkerTokenCacheServiceV8 {
 		// Try to get cached token
 		const cachedToken = await this.getCachedToken(environmentId, clientId);
 		if (cachedToken) {
-			logger.info(`${MODULE_TAG} ✅ Using cached worker token`);
+			logger.info(`${MODULE_TAG} ✅ Using cached worker token`, "Logger info");
 			return {
 				isValid: true,
 				token: cachedToken.token,
@@ -115,7 +115,7 @@ export class WorkerTokenCacheServiceV8 {
 			};
 		}
 
-		logger.info(`${MODULE_TAG} ❌ No worker token available for validation`);
+		logger.info(`${MODULE_TAG} ❌ No worker token available for validation`, "Logger info");
 		return {
 			isValid: false,
 			token: null,
@@ -132,13 +132,13 @@ export class WorkerTokenCacheServiceV8 {
 		clientId: string,
 		scopes: string[]
 	): Promise<void> {
-		logger.info(`${MODULE_TAG} Updating cache after token generation`);
+		logger.info(`${MODULE_TAG} Updating cache after token generation`, "Logger info");
 
 		const token = await unifiedWorkerTokenService.getToken();
 		if (token) {
 			await this.cacheWorkerToken(token, environmentId, clientId, scopes);
 		} else {
-			logger.warn(`${MODULE_TAG} ⚠️ No token available to cache after generation`);
+			logger.warn(`${MODULE_TAG} ⚠️ No token available to cache after generation`, "Logger warning");
 		}
 	}
 
@@ -146,11 +146,11 @@ export class WorkerTokenCacheServiceV8 {
 	 * Clear the cached token
 	 */
 	async clearCache(): Promise<void> {
-		logger.info(`${MODULE_TAG} Clearing worker token cache`);
+		logger.info(`${MODULE_TAG} Clearing worker token cache`, "Logger info");
 
 		try {
 			await this.saveCachedToken(null);
-			logger.info(`${MODULE_TAG} ✅ Cache cleared`);
+			logger.info(`${MODULE_TAG} ✅ Cache cleared`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} ❌ Failed to clear cache:`, error);
 		}
@@ -192,12 +192,12 @@ export class WorkerTokenCacheServiceV8 {
 	 * Clean up expired cache entries
 	 */
 	async cleanupExpiredCache(): Promise<void> {
-		logger.info(`${MODULE_TAG} Cleaning up expired cache entries`);
+		logger.info(`${MODULE_TAG} Cleaning up expired cache entries`, "Logger info");
 
 		const cachedToken = await this.getCachedToken();
 		if (cachedToken && Date.now() > cachedToken.expiresAt) {
 			await this.clearCache();
-			logger.info(`${MODULE_TAG} ✅ Expired cache entry removed`);
+			logger.info(`${MODULE_TAG} ✅ Expired cache entry removed`, "Logger info");
 		}
 	}
 

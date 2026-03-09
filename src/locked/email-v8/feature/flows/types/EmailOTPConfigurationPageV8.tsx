@@ -163,7 +163,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			if (code && state) {
 				// Validate state only if both storedState and state from URL exist
 				if (storedState && state && storedState !== state) {
-					logger.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`, "Logger warning");
 					toastV8.error('Security validation failed. Please try again.');
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
@@ -290,7 +290,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
@@ -313,7 +313,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
 			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('user');
 			// Reset flag after state update
@@ -324,7 +324,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
 				`[📧 EMAIL-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('admin');
 			// Reset flag after state update

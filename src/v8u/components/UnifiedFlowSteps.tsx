@@ -926,7 +926,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Helper function to handle token success - skip modal and proceed to next step
 	const showTokenSuccessModal = useCallback(
 		(tokens: TokenResponse) => {
-			logger.info('✅ Tokens received - proceeding to next step');
+			logger.info('✅ Tokens received - proceeding to next step', "Logger info");
 
 			// Filter tokens based on spec version
 			const filteredTokens = filterTokensBySpec(tokens);
@@ -1328,7 +1328,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 			});
 
-			logger.info(`${MODULE_TAG} Cleared tokens and flow state due to flow type change`);
+			logger.info(`${MODULE_TAG} Cleared tokens and flow state due to flow type change`, "Logger info");
 
 			// Update the ref to track the current flow type
 			prevFlowTypeRef.current = flowType;
@@ -1411,11 +1411,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Mark step as complete if no errors
 			if (errors.length === 0 && !completedSteps.includes(0)) {
-				logger.info(`${MODULE_TAG} Step 0 validation passed - marking as complete`);
+				logger.info(`${MODULE_TAG} Step 0 validation passed - marking as complete`, "Logger info");
 				setCompletedSteps((prev) => [...prev, 0]);
 			} else if (errors.length > 0 && completedSteps.includes(0)) {
 				// Remove from completed steps if errors appear
-				logger.info(`${MODULE_TAG} Step 0 validation failed - removing from completed steps`);
+				logger.info(`${MODULE_TAG} Step 0 validation failed - removing from completed steps`, "Logger info");
 				setCompletedSteps((prev) => prev.filter((step) => step !== 0));
 			}
 		}
@@ -1490,7 +1490,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Users should manually generate PKCE codes in Step 1 - this is an educational tool
 
 			// CRITICAL DEBUG: Log what we're checking
-			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG ==========`);
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG ==========`, "Logger info");
 			logger.info(`${MODULE_TAG} Current Step:`, currentStep);
 			logger.info(`${MODULE_TAG} Flow Type:`, flowType);
 			logger.info(`${MODULE_TAG} Credentials at validation time:`, {
@@ -1573,10 +1573,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setValidationErrorsState(errors);
 			} else {
 				// Clear errors if all required fields are present
-				logger.info(`${MODULE_TAG} ✅ All validation checks passed`);
+				logger.info(`${MODULE_TAG} ✅ All validation checks passed`, "Logger info");
 				setValidationErrorsState([]);
 			}
-			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG END ==========`);
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE VALIDATION DEBUG END ==========`, "Logger info");
 		}
 	}, [
 		currentStep,
@@ -1644,7 +1644,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (currentStep === tokenStep && !completedSteps.includes(currentStep)) {
 				logger.info(
 					`${MODULE_TAG} On tokens step with tokens available - marking step ${currentStep} as complete`
-				);
+				, "Logger info");
 				nav.markStepComplete();
 				// Clear validation errors when tokens are successfully displayed
 				setValidationErrors([]);
@@ -1686,7 +1686,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						featureCount: 1, // Token feature
 						lastApiCall: Date.now(),
 					});
-					logger.info(`${MODULE_TAG} Enhanced state management updated with new tokens`);
+					logger.info(`${MODULE_TAG} Enhanced state management updated with new tokens`, "Logger info");
 				} catch {
 					logger.warn('UnifiedFlowSteps', `Failed to update enhanced state management`);
 				}
@@ -1907,7 +1907,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				logger.info(`${MODULE_TAG} Checking URL params`, { hasCode: !!code, hasState: !!state });
 
 				if (code) {
-					logger.info(`${MODULE_TAG} Found authorization code in URL params`);
+					logger.info(`${MODULE_TAG} Found authorization code in URL params`, "Logger info");
 					callbackUrl = window.location.href;
 					detectedCode = code;
 					detectedState = state;
@@ -2012,7 +2012,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								extractedAt: Date.now(),
 							})
 						);
-						logger.info(`${MODULE_TAG} Hybrid flow: Tokens saved to sessionStorage`);
+						logger.info(`${MODULE_TAG} Hybrid flow: Tokens saved to sessionStorage`, "Logger info");
 					} catch (err) {
 						logger.error(
 							'UnifiedFlowSteps',
@@ -2179,7 +2179,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.removeItem('v8u_callback_data');
 					}
 
-					logger.info(`${MODULE_TAG} Authorization code extracted - showing success modal`);
+					logger.info(`${MODULE_TAG} Authorization code extracted - showing success modal`, "Logger info");
 				} catch (err) {
 					logger.error('UnifiedFlowSteps', `Failed to auto-parse callback URL`, undefined, err);
 					// If auto-parsing fails, just set the URL so user can manually parse
@@ -2196,14 +2196,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 				}
 			} else if (!detectedCode && !hasFragment) {
-				logger.info(`${MODULE_TAG} No callback data found - user will need to paste URL manually`);
+				logger.info(`${MODULE_TAG} No callback data found - user will need to paste URL manually`, "Logger info");
 			}
 		}
 	}, [currentStep, flowType, flowState.authorizationCode, flowState.tokens, flowState.state, nav]);
 
 	// Step 2: Parse Fragment handler (moved to top level to fix React hooks error)
 	const handleParseFragment = useCallback(async () => {
-		logger.info(`${MODULE_TAG} Parsing callback fragment`);
+		logger.info(`${MODULE_TAG} Parsing callback fragment`, "Logger info");
 		setIsLoading(true);
 		setError(null);
 
@@ -2390,7 +2390,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		) {
 			logger.info(
 				`${MODULE_TAG} Step 2 mounted for implicit/hybrid flow - checking for fragment in URL`
-			);
+			, "Logger info");
 
 			// CRITICAL: Load callback data from sessionStorage to restore state
 			// This is set by CallbackHandlerV8U when redirecting from the callback URL
@@ -3613,7 +3613,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		const handlePKCEGenerate = async () => {
 			setIsGeneratingPKCE(true);
-			logger.info(`${MODULE_TAG} PKCE codes generated`);
+			logger.info(`${MODULE_TAG} PKCE codes generated`, "Logger info");
 			// PKCE codes are already updated via handlePKCEChange, which uses bulletproof storage
 			// No need for additional save here - the service handles all 4 storage locations
 			if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
@@ -4052,7 +4052,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setError(null);
 
 			try {
-				logger.info(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
+				logger.info(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`, "Logger info");
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
 				// In development: Vite proxy routes /api/* to https://localhost:3002
@@ -4120,7 +4120,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const tokenData = responseData as Record<string, unknown>;
-				logger.info(`${MODULE_TAG} 🔌 Token exchange successful`);
+				logger.info(`${MODULE_TAG} 🔌 Token exchange successful`, "Logger info");
 
 				// Store tokens in flow state (conditionally include optional properties)
 				const updatedState: FlowState = {
@@ -4279,7 +4279,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const updatedSessionId = credentialsData._sessionId as string | undefined;
 				if (updatedSessionId) {
 					sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, updatedSessionId);
-					logger.info(`${MODULE_TAG} 🔌 Updated sessionId from credentials response`);
+					logger.info(`${MODULE_TAG} 🔌 Updated sessionId from credentials response`, "Logger info");
 				}
 
 				const status = String(credentialsData.status || '').toUpperCase();
@@ -4287,7 +4287,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Handle MUST_CHANGE_PASSWORD status
 				if (status === 'MUST_CHANGE_PASSWORD') {
-					logger.info(`${MODULE_TAG} 🔌 Password change required detected`);
+					logger.info(`${MODULE_TAG} 🔌 Password change required detected`, "Logger info");
 
 					// Extract userId from response if available, otherwise we'll need to look it up
 					const credentialsDataTyped = credentialsData as {
@@ -4411,7 +4411,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					if (accessToken) {
 						// Tokens received directly - store them and navigate to tokens step
-						logger.info(`${MODULE_TAG} 🔌 Tokens received directly from COMPLETED flow`);
+						logger.info(`${MODULE_TAG} 🔌 Tokens received directly from COMPLETED flow`, "Logger info");
 						const updatedState: FlowState = {
 							...flowState,
 							tokens: {
@@ -4448,7 +4448,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						navigateToStep(tokensStepIndex);
 					} else if (authCode) {
 						// Authorization code received - proceed to token exchange
-						logger.info(`${MODULE_TAG} 🔌 Authorization code received from COMPLETED flow`);
+						logger.info(`${MODULE_TAG} 🔌 Authorization code received from COMPLETED flow`, "Logger info");
 						const codeVerifier = sessionStorage.getItem(`${flowKey}-redirectless-codeVerifier`);
 						if (codeVerifier) {
 							await handleRedirectlessTokenExchange(authCode, codeVerifier);
@@ -4483,7 +4483,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						if (resumeUrl) {
 							logger.info(
 								`${MODULE_TAG} 🔌 COMPLETED status but resumeUrl present - attempting resume`
-							);
+							, "Logger info");
 							sessionStorage.setItem(`${flowKey}-redirectless-resumeUrl`, resumeUrl);
 							await handleResumeRedirectlessFlow(flowId, stateValue, resumeUrl);
 						} else {
@@ -4745,7 +4745,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (parRequestUri) {
 				backendRequestBody.requestUri = parRequestUri;
 				backendRequestBody.state = pendingPingOneRequest.body.state as string;
-				logger.info(`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`);
+				logger.info(`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`, "Logger info");
 			} else {
 				// Regular flow - send all parameters
 				backendRequestBody.redirectUri = credentials.redirectUri;
@@ -4864,7 +4864,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 			if (sessionId) {
 				sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, sessionId);
-				logger.info(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`);
+				logger.info(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`, "Logger info");
 			}
 
 			// Store flow state first
@@ -4879,7 +4879,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS') {
 				// Show login modal - user needs to enter credentials
-				logger.info(`${MODULE_TAG} 🔌 Credentials required - showing login modal`);
+				logger.info(`${MODULE_TAG} 🔌 Credentials required - showing login modal`, "Logger info");
 				logger.info(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
 
 				// Set modal state - ensure it's visible
@@ -4896,7 +4896,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setTimeout(() => {
 					logger.info(
 						`${MODULE_TAG} 🔌 Modal visibility check after timeout - showRedirectlessModal should be true`
-					);
+					, "Logger info");
 				}, 100);
 
 				return;
@@ -5510,7 +5510,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 				} else {
 					// No errors and no warnings - validation passed completely
-					logger.info(`${MODULE_TAG} Pre-flight validation passed with no errors or warnings`);
+					logger.info(`${MODULE_TAG} Pre-flight validation passed with no errors or warnings`, "Logger info");
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: '✅ Pre-flight validation passed!',
@@ -7250,13 +7250,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									type="button"
 									className="btn btn-next"
 									onClick={() => {
-										logger.info(`${MODULE_TAG} Opening authorization URL for authentication`);
+										logger.info(`${MODULE_TAG} Opening authorization URL for authentication`, "Logger info");
 										const urlToOpen = flowState.authorizationUrl || '';
 										if (urlToOpen) {
 											window.open(urlToOpen, '_blank', 'noopener,noreferrer');
 											// Mark step complete after opening PingOne
 											if (!completedSteps.includes(currentStep)) {
-												logger.info(`${MODULE_TAG} User opened PingOne - marking step complete`);
+												logger.info(`${MODULE_TAG} User opened PingOne - marking step complete`, "Logger info");
 												nav.markStepComplete();
 												modernMessaging.showFooterMessage({
 													type: 'info',
@@ -8960,7 +8960,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 		sessionStorage.setItem('v8u_device_auth_last_request', now.toString());
 
-		logger.info(`${MODULE_TAG} Requesting device authorization`);
+		logger.info(`${MODULE_TAG} Requesting device authorization`, "Logger info");
 		// CRITICAL: Stop any running polling before requesting new device code
 		// This ensures old polling loops don't continue with stale device codes
 		pollingAbortRef.current = true;
@@ -9396,7 +9396,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		) {
 			logger.info(
 				`${MODULE_TAG} Auto-starting polling on step ${currentStep} - will trigger via ref`
-			);
+			, "Logger info");
 			autoPollTriggeredRef.current = true;
 			autoPollInitiatedRef.current = false; // Reset initiation flag
 			// The actual polling will be triggered in a useEffect below when handlePollForTokens is defined
@@ -9487,7 +9487,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		) {
 			logger.info(
 				`${MODULE_TAG} Auto-starting polling on step ${currentStep} - calling handlePollForTokens now`
-			);
+			, "Logger info");
 			autoPollInitiatedRef.current = true; // Mark as initiated to prevent multiple calls
 			// Use setTimeout to avoid calling during render, and store it for cleanup
 			autoPollTimeoutRef.current = setTimeout(() => {
@@ -9530,7 +9530,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Step 2: Poll for Tokens (device code flow)
 	const renderStep2Poll = () => {
 		const handleStopPolling = () => {
-			logger.info(`${MODULE_TAG} User requested to stop polling`);
+			logger.info(`${MODULE_TAG} User requested to stop polling`, "Logger info");
 			pollingAbortRef.current = true;
 			isPollingExecutingRef.current = false;
 
@@ -9567,7 +9567,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
-				logger.info(`${MODULE_TAG} Polling aborted - not starting new polling`);
+				logger.info(`${MODULE_TAG} Polling aborted - not starting new polling`, "Logger info");
 
 				return;
 			}
@@ -9624,7 +9624,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Mark as executing immediately to prevent race conditions
 			isPollingExecutingRef.current = true;
 
-			logger.info(`${MODULE_TAG} Starting polling for tokens`);
+			logger.info(`${MODULE_TAG} Starting polling for tokens`, "Logger info");
 			setIsLoading(true);
 			setError(null);
 			autoPollTriggeredRef.current = true;
@@ -9652,7 +9652,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const performPoll = async (): Promise<TokenResponse | null> => {
 				// CRITICAL: Check abort flag FIRST - if polling was stopped, exit immediately
 				if (pollingAbortRef.current) {
-					logger.info(`${MODULE_TAG} Polling aborted at start of performPoll`);
+					logger.info(`${MODULE_TAG} Polling aborted at start of performPoll`, "Logger info");
 					return null;
 				}
 
@@ -9665,7 +9665,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// CRITICAL: Check abort flag again after reading device code
 					if (pollingAbortRef.current) {
-						logger.info(`${MODULE_TAG} Polling aborted after reading device code`);
+						logger.info(`${MODULE_TAG} Polling aborted after reading device code`, "Logger info");
 						return null;
 					}
 
@@ -9814,7 +9814,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								`Failed to parse token response: ${parseError instanceof Error ? parseError.message : String(parseError)}`
 							);
 						}
-						logger.info(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
+						logger.info(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`, "Logger info");
 
 						return tokens;
 					}
@@ -9934,7 +9934,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				for (let attempt = 0; attempt < maxAttempts; attempt++) {
 					// Check if polling was stopped (before each operation)
 					if (pollingAbortRef.current) {
-						logger.info(`${MODULE_TAG} Polling stopped by user`);
+						logger.info(`${MODULE_TAG} Polling stopped by user`, "Logger info");
 						setIsLoading(false);
 						setLoadingMessage('');
 						isPollingExecutingRef.current = false; // Reset execution flag
@@ -9947,7 +9947,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return;
 					}
 
-					logger.info(`${MODULE_TAG} 🔄 Polling attempt ${attempt + 1}/${maxAttempts}`);
+					logger.info(`${MODULE_TAG} 🔄 Polling attempt ${attempt + 1}/${maxAttempts}`, "Logger info");
 					logger.info(
 						`${MODULE_TAG} [DEBUG] Device code being used:`,
 						`${deviceCodeRef.current?.substring(0, 8)}...`
@@ -9961,7 +9961,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Check again after async operation
 					if (pollingAbortRef.current) {
-						logger.info(`${MODULE_TAG} Polling stopped after poll attempt`);
+						logger.info(`${MODULE_TAG} Polling stopped after poll attempt`, "Logger info");
 						setIsLoading(false);
 						isPollingExecutingRef.current = false;
 						setFlowState((prev) => ({
@@ -10073,7 +10073,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (attempt < maxAttempts - 1) {
 						// Check abort before waiting
 						if (pollingAbortRef.current) {
-							logger.info(`${MODULE_TAG} Polling stopped before wait`);
+							logger.info(`${MODULE_TAG} Polling stopped before wait`, "Logger info");
 							setIsLoading(false);
 							isPollingExecutingRef.current = false;
 							setFlowState((prev) => ({
@@ -10085,7 +10085,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							return;
 						}
 
-						logger.info(`${MODULE_TAG} Waiting ${currentInterval}s before next poll...`);
+						logger.info(`${MODULE_TAG} Waiting ${currentInterval}s before next poll...`, "Logger info");
 						// Use a cancellable timeout
 						await new Promise<void>((resolve) => {
 							pollingTimeoutRef.current = setTimeout(() => {
@@ -10096,7 +10096,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// Check abort after wait
 						if (pollingAbortRef.current) {
-							logger.info(`${MODULE_TAG} Polling stopped after wait`);
+							logger.info(`${MODULE_TAG} Polling stopped after wait`, "Logger info");
 							setIsLoading(false);
 							isPollingExecutingRef.current = false;
 							setFlowState((prev) => ({
@@ -11590,7 +11590,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Step 3: Exchange Code for Tokens (authorization code, hybrid)
 	const renderStep3ExchangeTokens = () => {
 		const handleExchangeTokens = async () => {
-			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE DEBUG START ==========`);
+			logger.info(`${MODULE_TAG} ========== TOKEN EXCHANGE DEBUG START ==========`, "Logger info");
 
 			// CRITICAL: ALWAYS use sessionStorage as source of truth for PKCE codes
 			// flowState can get lost during navigation, but sessionStorage persists
@@ -11634,7 +11634,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					flowState.codeVerifier !== effectiveCodeVerifier ||
 					flowState.codeChallenge !== effectiveCodeChallenge
 				) {
-					logger.info(`${MODULE_TAG} 🔄 Syncing flowState with storage`);
+					logger.info(`${MODULE_TAG} 🔄 Syncing flowState with storage`, "Logger info");
 					setFlowState((prev) => ({
 						...prev,
 						...(effectiveCodeVerifier ? { codeVerifier: effectiveCodeVerifier } : {}),
@@ -11716,7 +11716,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (isPKCERequired && effectiveCodeVerifier) {
 				logger.info(
 					`${MODULE_TAG} ✅ PKCE required and code verifier present - will use PKCE flow`
-				);
+				, "Logger info");
 			}
 
 			// Validate credentials are present
@@ -11766,7 +11766,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				return;
 			}
 
-			logger.info(`${MODULE_TAG} ✅ All validations passed`);
+			logger.info(`${MODULE_TAG} ✅ All validations passed`, "Logger info");
 			logger.info(`${MODULE_TAG} Preparing token exchange request with:`, {
 				flowType,
 				environmentId: credentials.environmentId,
@@ -11797,7 +11797,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (workerToken) {
 						logger.info(
 							`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`
-						);
+						, "Logger info");
 						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 							credentials.environmentId,
 							credentials.clientId,
@@ -11842,7 +11842,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setValidationErrors([]);
 
 			try {
-				logger.info(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`);
+				logger.info(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`, "Logger info");
 				logger.info(`${MODULE_TAG} 🔑 Using code verifier:`, {
 					hasCodeVerifier: !!effectiveCodeVerifier,
 					codeVerifierLength: effectiveCodeVerifier?.length,
@@ -11991,7 +11991,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					try {
 						const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 						if (storedPKCE?.codeChallengeMethod === 'plain') {
-							logger.info(`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`);
+							logger.info(`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`, "Logger info");
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
 							// Also clear from flowState by creating new state without PKCE properties
 							setFlowState((prev) => {
@@ -12002,7 +12002,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								} = prev;
 								return rest;
 							});
-							logger.info(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
+							logger.info(`${MODULE_TAG} ✅ Old PKCE codes cleared`, "Logger info");
 						}
 					} catch (clearError) {
 						logger.error('UnifiedFlowSteps', `Failed to clear old PKCE codes:`, undefined, clearError);
@@ -12195,8 +12195,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Introspect token (access, refresh, or ID token)
 	const handleIntrospectToken = useCallback(
 		async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
-			logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
-			logger.info(`${MODULE_TAG} Introspecting ${tokenType} token`);
+			logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`, "Logger info");
+			logger.info(`${MODULE_TAG} Introspecting ${tokenType} token`, "Logger info");
 			logger.info(`${MODULE_TAG} Credentials check:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
@@ -12451,7 +12451,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					message: `${tokenName} introspected successfully!`,
 					duration: 3000,
 				});
-				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
+				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`, "Logger info");
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to introspect token';
 				logger.error('UnifiedFlowSteps', `Introspection error:`, undefined, err);
@@ -12462,7 +12462,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					message: message,
 					dismissible: true,
 				});
-				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
+				logger.info(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`, "Logger info");
 			} finally {
 				setIntrospectionLoading(false);
 			}
@@ -14615,7 +14615,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					return renderStep1PKCE();
 				}
 				// For implicit flow, show Authorization URL step
-				logger.info(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
+				logger.info(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`, "Logger info");
 				return renderStep1AuthUrl();
 
 			case 2:

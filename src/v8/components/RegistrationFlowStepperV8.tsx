@@ -213,7 +213,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-			logger.info(`${MODULE_TAG} 🎯 Stored flow context for registration`);
+			logger.info(`${MODULE_TAG} 🎯 Stored flow context for registration`, "Logger info");
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
@@ -396,7 +396,7 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 						if (
 							validateStep0(credsToValidate, WorkerTokenStatusServiceV8.getCachedTokenStatus(), nav)
 						) {
-							logger.info(`${MODULE_TAG} Step 0 validation passed`);
+							logger.info(`${MODULE_TAG} Step 0 validation passed`, "Logger info");
 						}
 					}
 				}}

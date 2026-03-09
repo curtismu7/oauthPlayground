@@ -39,13 +39,13 @@ export class MFAEducationServiceV8 {
 	 *
 	 * @example
 	 * const content = MFAEducationServiceV8.getContent('factor.sms');
-	 * logger.info(content.title); // "SMS Authentication"
+	 * logger.info(content.title, "Logger info"); // "SMS Authentication"
 	 */
 	static getContent(key: string): MFAEducationContent {
 		const content = MFAEducationServiceV8.educationContent[key];
 
 		if (!content) {
-			logger.warn(`${MODULE_TAG} No education content found for key: ${key}`);
+			logger.warn(`${MODULE_TAG} No education content found for key: ${key}`, "Logger warning");
 			return {
 				title: 'Information',
 				description: 'No additional information available.',

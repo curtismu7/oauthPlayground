@@ -420,7 +420,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		autoSaveTimeoutRef.current = setTimeout(() => {
 			// This would be called with actual credentials data
 			// Implementation depends on how credentials are managed in the consuming component
-			logger.info(`${MODULE_TAG} Auto-save triggered`);
+			logger.info(`${MODULE_TAG} Auto-save triggered`, "Logger info");
 		}, autoSaveDelay);
 	}, [autoSave, autoSaveDelay]);
 
@@ -479,7 +479,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		setLastSaveTime(null);
 		setSaveError(null);
 
-		logger.info(`${MODULE_TAG} Session reset`);
+		logger.info(`${MODULE_TAG} Session reset`, "Logger info");
 	}, []);
 
 	// Auto-save trigger when fields are modified

@@ -490,7 +490,7 @@ export class MfaAuthenticationServiceV8 {
 			} else {
 				// No-username variant: Initialize device authentication without username/userId
 				// This requires a special request body structure
-				logger.info(`${MODULE_TAG} Using no-username variant for device authentication`);
+				logger.info(`${MODULE_TAG} Using no-username variant for device authentication`, "Logger info");
 				userId = ''; // Will be omitted from request body
 			}
 
@@ -1177,7 +1177,7 @@ export class MfaAuthenticationServiceV8 {
 			if (!autoRenewalEnabled) {
 				logger.info(
 					`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`
-				);
+				, "Logger info");
 				if (!workerToken || isExpired) {
 					throw new Error('Worker token not found or expired. Please generate a new worker token.');
 				}
@@ -1253,7 +1253,7 @@ export class MfaAuthenticationServiceV8 {
 						flowType: 'mfa',
 					});
 
-					logger.info(`${MODULE_TAG} Renewing worker token...`);
+					logger.info(`${MODULE_TAG} Renewing worker token...`, "Logger info");
 					let response: Response;
 					try {
 						response = await fetch(proxyEndpoint, {
@@ -1316,7 +1316,7 @@ export class MfaAuthenticationServiceV8 {
 						: undefined;
 
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
-					logger.info(`${MODULE_TAG} Worker token renewed successfully`);
+					logger.info(`${MODULE_TAG} Worker token renewed successfully`, "Logger info");
 
 					// Dispatch event for status update
 					window.dispatchEvent(new Event('workerTokenUpdated'));
@@ -1370,7 +1370,7 @@ export class MfaAuthenticationServiceV8 {
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
-					logger.info(`${MODULE_TAG} Using no-username variant for device authentication`);
+					logger.info(`${MODULE_TAG} Using no-username variant for device authentication`, "Logger info");
 					_userId = ''; // Will be omitted from request body
 				}
 

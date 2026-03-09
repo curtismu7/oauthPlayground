@@ -19,11 +19,11 @@ import {
  * Test JWT key generation functionality
  */
 export const testJWTGeneration = async () => {
-	logger.info('🧪 Testing JWT Generation...');
+	logger.info('🧪 Testing JWT Generation...', "Logger info");
 
 	try {
 		// Test 1: Client Secret Generation
-		logger.info('\n1. Testing Client Secret Generation...');
+		logger.info('\n1. Testing Client Secret Generation...', "Logger info");
 		const clientSecret = generateClientSecret(32, 'hex');
 		logger.info('✅ Client Secret Generated:', `${clientSecret.secret.substring(0, 16)}...`);
 		logger.info('   Entropy:', clientSecret.entropy, 'bits');
@@ -37,7 +37,7 @@ export const testJWTGeneration = async () => {
 		}
 
 		// Test 2: Random String Generation
-		logger.info('\n2. Testing Random String Generation...');
+		logger.info('\n2. Testing Random String Generation...', "Logger info");
 		const randomString = generateRandomString(16, 'alphanumeric');
 		logger.info('✅ Random String:', randomString);
 
@@ -45,7 +45,7 @@ export const testJWTGeneration = async () => {
 		logger.info('✅ Hex String:', `${hexString.substring(0, 16)}...`);
 
 		// Test 3: Key ID Generation
-		logger.info('\n3. Testing Key ID Generation...');
+		logger.info('\n3. Testing Key ID Generation...', "Logger info");
 		const keyId1 = generateKeyId();
 		const keyId2 = generateKeyId();
 		logger.info('✅ Key ID 1:', keyId1);
@@ -53,11 +53,11 @@ export const testJWTGeneration = async () => {
 		logger.info('   Unique:', keyId1 !== keyId2);
 
 		// Test 4: RSA Key Pair Generation (if supported)
-		logger.info('\n4. Testing RSA Key Pair Generation...');
+		logger.info('\n4. Testing RSA Key Pair Generation...', "Logger info");
 		if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
 			try {
 				const keyPair = await generateRSAKeyPair(2048);
-				logger.info('✅ RSA Key Pair Generated');
+				logger.info('✅ RSA Key Pair Generated', "Logger info");
 				logger.info('   Key ID:', keyPair.keyId);
 				logger.info('   Algorithm:', keyPair.algorithm);
 				logger.info('   Private Key Length:', keyPair.privateKey.length, 'characters');
@@ -72,11 +72,11 @@ export const testJWTGeneration = async () => {
 				logger.info('⚠️ RSA Key Generation Failed (might be environment issue):', error);
 			}
 		} else {
-			logger.info('⚠️ Web Crypto API not available in this environment');
+			logger.info('⚠️ Web Crypto API not available in this environment', "Logger info");
 		}
 
 		// Test 5: Formatted Secret Generation
-		logger.info('\n5. Testing Formatted Secret Generation...');
+		logger.info('\n5. Testing Formatted Secret Generation...', "Logger info");
 		const formattedSecret = generateRandomString(
 			24,
 			'custom',
@@ -84,7 +84,7 @@ export const testJWTGeneration = async () => {
 		);
 		logger.info('✅ Formatted Secret:', formattedSecret);
 
-		logger.info('\n🎉 All JWT Generation Tests Completed!');
+		logger.info('\n🎉 All JWT Generation Tests Completed!', "Logger info");
 		return true;
 	} catch (error) {
 		logger.error('❌ JWT Generation Test Failed:', error);

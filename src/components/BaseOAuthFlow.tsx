@@ -183,11 +183,11 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
 }) => {
 	const { user, isAuthenticated } = useAuth();
 	useEffect(() => {
-		logger.info(`[${flowType}] Flow component mounted`);
+		logger.info(`[${flowType}] Flow component mounted`, "Logger info");
 
 		// Log flow access
 		if (isAuthenticated && user) {
-			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
+			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`, "Logger info");
 		}
 	}, [flowType, isAuthenticated, user]);
 

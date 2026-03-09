@@ -771,7 +771,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
 			// User Flow selected - ensure User Token is used
-			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
+			logger.info(`${MODULE_TAG} User Flow selected - ensuring User Token is used`, "Logger info");
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -786,7 +786,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
 				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
@@ -818,21 +818,21 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// User Flow must use User Token, so we should switch to Admin Flow
 			logger.info(
 				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
-			);
+			, "Logger info");
 			setRegistrationFlowType('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
 			logger.info(
 				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
-			);
+			, "Logger info");
 			setRegistrationFlowType('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
 				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('admin');
 			// Reset flag after state update
@@ -1157,7 +1157,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									},
 									userEnteredDeviceName
 								);
-								logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+								logger.info(`${MODULE_TAG} ✅ Device nickname updated successfully`, "Logger info");
 							} catch (nicknameError) {
 								logger.warn(
 									`${MODULE_TAG} ⚠️ Failed to update device nickname (non-fatal):`,
@@ -1217,7 +1217,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						// No need to manually call sendOTP - PingOne handles it automatically
 						logger.info(
 							`${MODULE_TAG} Device registered with ACTIVATION_REQUIRED status - PingOne will automatically send OTP`
-						);
+						, "Logger info");
 
 						// Ensure device status is explicitly set to ACTIVATION_REQUIRED in mfaState before navigation
 						setMfaState((prev) => ({
@@ -1237,7 +1237,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						) {
 							const cleanUrl = window.location.pathname;
 							window.history.replaceState({}, document.title, cleanUrl);
-							logger.info(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+							logger.info(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`, "Logger info");
 						}
 
 						// Navigate immediately to avoid any delay - same pattern as SMS flow

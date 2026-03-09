@@ -161,7 +161,7 @@ export class MFAConfigurationServiceV8 {
 	static saveConfiguration(config: MFAConfiguration): void {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-			logger.info(`${MODULE_TAG} Configuration saved to localStorage`);
+			logger.info(`${MODULE_TAG} Configuration saved to localStorage`, "Logger info");
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(
@@ -181,7 +181,7 @@ export class MFAConfigurationServiceV8 {
 	static resetToDefaults(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			logger.info(`${MODULE_TAG} Configuration reset to defaults`);
+			logger.info(`${MODULE_TAG} Configuration reset to defaults`, "Logger info");
 
 			// Dispatch custom event with default config
 			window.dispatchEvent(
@@ -213,7 +213,7 @@ export class MFAConfigurationServiceV8 {
 
 			// Validate that it's a valid configuration object
 			if (typeof parsed !== 'object' || parsed === null) {
-				logger.error(`${MODULE_TAG} Invalid configuration format: not an object`);
+				logger.error(`${MODULE_TAG} Invalid configuration format: not an object`, "Logger error");
 				return false;
 			}
 
@@ -235,7 +235,7 @@ export class MFAConfigurationServiceV8 {
 			}
 
 			MFAConfigurationServiceV8.saveConfiguration(config);
-			logger.info(`${MODULE_TAG} Configuration imported successfully`);
+			logger.info(`${MODULE_TAG} Configuration imported successfully`, "Logger info");
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to import configuration:`, error);

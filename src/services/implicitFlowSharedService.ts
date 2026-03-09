@@ -82,7 +82,7 @@ export class SessionStorageManager {
 		Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
-		logger.info('[SessionStorageManager] All implicit flow flags cleared');
+		logger.info('[SessionStorageManager] All implicit flow flags cleared', "Logger info");
 	}
 
 	/**
@@ -973,7 +973,7 @@ export class ImplicitFlowResponseTypeEnforcer {
 		if (credentials.responseType !== expectedType) {
 			logger.info(
 				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
-			);
+			, "Logger info");
 			setCredentials({
 				...credentials,
 				responseType: expectedType,

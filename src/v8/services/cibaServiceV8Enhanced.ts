@@ -123,14 +123,14 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaDiscoveryMetadata>
 	 */
 	async getDiscoveryMetadata(environmentId: string): Promise<CibaDiscoveryMetadata> {
-		logger.info(`${MODULE_TAG} Fetching CIBA discovery metadata for environment: ${environmentId}`);
+		logger.info(`${MODULE_TAG} Fetching CIBA discovery metadata for environment: ${environmentId}`, "Logger info");
 
 		try {
 			// Construct the full PingOne OIDC discovery URL
 			const region = 'com'; // Default to North America, can be made configurable
 			const discoveryUrl = `https://auth.pingone.${region}/${environmentId}/as/.well-known/openid-configuration`;
 
-			logger.info(`${MODULE_TAG} Discovery URL: ${discoveryUrl}`);
+			logger.info(`${MODULE_TAG} Discovery URL: ${discoveryUrl}`, "Logger info");
 
 			const response = await fetch(discoveryUrl, {
 				method: 'GET',
@@ -250,7 +250,7 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaAuthRequest> - Authentication request details
 	 */
 	async initiateAuthentication(credentials: CibaCredentials): Promise<CibaAuthRequest> {
-		logger.info(`${MODULE_TAG} Initiating OpenID Connect CIBA authentication request`);
+		logger.info(`${MODULE_TAG} Initiating OpenID Connect CIBA authentication request`, "Logger info");
 
 		// Validate credentials first
 		const validation = this.validateCredentials(credentials);
@@ -399,7 +399,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Authorization pending - user hasn't approved yet
 				if (errorCode === 'authorization_pending') {
-					logger.info(`${MODULE_TAG} Authorization pending - continue polling`);
+					logger.info(`${MODULE_TAG} Authorization pending - continue polling`, "Logger info");
 					return {
 						status: 'pending',
 						interval: data.interval || 5,
@@ -408,7 +408,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Slow down - polling too frequently
 				if (errorCode === 'slow_down') {
-					logger.info(`${MODULE_TAG} Slow down - increase polling interval`);
+					logger.info(`${MODULE_TAG} Slow down - increase polling interval`, "Logger info");
 					return {
 						status: 'pending',
 						error: 'slow_down',
@@ -419,7 +419,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Request expired
 				if (errorCode === 'expired_token') {
-					logger.info(`${MODULE_TAG} Request expired`);
+					logger.info(`${MODULE_TAG} Request expired`, "Logger info");
 					return {
 						status: 'expired',
 						error: 'expired_token',
@@ -429,7 +429,7 @@ export const CibaServiceV8Enhanced = {
 
 				// Access denied by user
 				if (errorCode === 'access_denied') {
-					logger.info(`${MODULE_TAG} Access denied by user`);
+					logger.info(`${MODULE_TAG} Access denied by user`, "Logger info");
 					return {
 						status: 'denied',
 						error: 'access_denied',
@@ -448,7 +448,7 @@ export const CibaServiceV8Enhanced = {
 			}
 
 			// Success - tokens issued
-			logger.info(`${MODULE_TAG} CIBA tokens received successfully`);
+			logger.info(`${MODULE_TAG} CIBA tokens received successfully`, "Logger info");
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'CIBA authentication completed successfully',

@@ -98,7 +98,7 @@ class BackendConnectivityServiceV8 {
 		this.state.modalShown = false;
 
 		if (wasDisconnected) {
-			logger.info(`${MODULE_TAG} Backend connection restored`);
+			logger.info(`${MODULE_TAG} Backend connection restored`, "Logger info");
 			this.notifyListeners(true);
 		}
 	}

@@ -226,10 +226,10 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			try {
 				const token = await workerTokenServiceV8.getToken();
 				if (token) {
-					logger.info('[Config URI Checker] ✅ Worker token valid from global service');
+					logger.info('[Config URI Checker] ✅ Worker token valid from global service', "Logger info");
 					setRetrievedWorkerToken(token);
 				} else {
-					logger.info('[Config URI Checker] ⚠️ No worker token found in global service');
+					logger.info('[Config URI Checker] ⚠️ No worker token found in global service', "Logger info");
 					setRetrievedWorkerToken('');
 				}
 			} catch (error) {

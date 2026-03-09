@@ -75,7 +75,7 @@ import { logger } from '../../../../utils/logger';
 				const result = await response.json();
 				
 				if (result.success) {
-					logger.info(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`);
+					logger.info(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`, "Logger info");
 					return { success: true };
 				} else {
 					throw new Error(result.error || 'Backend save failed');

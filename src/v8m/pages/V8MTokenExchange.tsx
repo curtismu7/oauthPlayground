@@ -1529,7 +1529,7 @@ ${
 // This is the actual implementation running at https://localhost:3001/api/token-exchange
 
 app.post('/api/token-exchange', async (req, res) => {
-  logger.info('🚀 [Server] Token exchange request received');
+  logger.info('🚀 [Server] Token exchange request received', "Logger info");
   
   try {
     const {
@@ -1632,7 +1632,7 @@ app.post('/api/token-exchange', async (req, res) => {
       environment_id: environmentId
     };
 
-    logger.info('✅ [Server] Token exchange successful');
+    logger.info('✅ [Server] Token exchange successful', "Logger info");
     res.json(enrichedResponse);
 
   } catch (error) {

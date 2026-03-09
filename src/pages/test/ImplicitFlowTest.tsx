@@ -284,7 +284,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Implicit Flow URL Generation...');
+			logger.info('🧪 Testing Implicit Flow URL Generation...', "Logger info");
 
 			// Generate state and nonce if not provided
 			const state = config.state || generateState();
@@ -340,7 +340,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Fragment Parsing...');
+			logger.info('🧪 Testing Fragment Parsing...', "Logger info");
 
 			if (!testFragment.trim()) {
 				throw new Error('No fragment provided to parse');
@@ -423,7 +423,7 @@ const ImplicitFlowTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Token Validation...');
+			logger.info('🧪 Testing Token Validation...', "Logger info");
 
 			if (!parsedTokens) {
 				throw new Error('No tokens to validate - parse a fragment first');

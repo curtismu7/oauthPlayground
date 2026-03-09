@@ -133,7 +133,7 @@ export const addTokenToHistory = (
 export const clearTokenHistory = (): boolean => {
 	try {
 		localStorage.removeItem(HISTORY_STORAGE_KEY);
-		logger.info(' [TokenHistory] Cleared all token history');
+		logger.info(' [TokenHistory] Cleared all token history', "Logger info");
 		return true;
 	} catch (error) {
 		logger.error('TokenHistory', 'Error clearing token history:', undefined, error as Error);

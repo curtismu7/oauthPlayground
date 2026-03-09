@@ -198,7 +198,7 @@ const TokenStatusPageV8U: React.FC = () => {
 			});
 
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			logger.info('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal');
+			logger.info('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal', "Logger info");
 
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
@@ -208,7 +208,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				false
 			);
 
-			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
+			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully', "Logger info");
 		} catch (error) {
 			logger.error('TokenStatusPageV8U', ' Detailed error:', {
 				error,

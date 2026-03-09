@@ -100,7 +100,7 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.listen(3000, () => {
-  logger.info('Server running on http://localhost:3000');
+  logger.info('Server running on http://localhost:3000', "Logger info");
 });`;
 	}
 
@@ -142,7 +142,7 @@ async function getWorkerToken() {
     }
 
     const data = await response.json();
-    logger.info('Worker token obtained');
+    logger.info('Worker token obtained', "Logger info");
     logger.info('Expires in:', data.expires_in, 'seconds');
     
     return data.access_token;
@@ -238,7 +238,7 @@ async function sendMfaChallenge(accessToken, deviceId) {
     }
 
     const data = await response.json();
-    logger.info('MFA challenge sent successfully');
+    logger.info('MFA challenge sent successfully', "Logger info");
     logger.info('Challenge ID:', data.id);
     
     return {
@@ -348,7 +348,7 @@ async function registerDevice(accessToken, type, details) {
     }
 
     const device = await response.json();
-    logger.info(\`\${type} device registered successfully\`);
+    logger.info(\`\${type} device registered successfully\`, "Logger info");
     
     const result = {
       id: device.id,

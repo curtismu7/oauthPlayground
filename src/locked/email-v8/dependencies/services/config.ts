@@ -57,14 +57,14 @@ const parseEnv = (): EnvConfig => {
 		return envSchema.parse(envVars);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			logger.error(' Invalid environment variables:');
+			logger.error(' Invalid environment variables:', "Logger error");
 			error.issues.forEach((issue) => {
 				logger.error(`  - ${issue.path.join('.')}: ${issue.message}`);
 			});
 		} else if (error instanceof Error) {
 			logger.error(' Failed to parse environment variables:', error.message);
 		} else {
-			logger.error(' Failed to parse environment variables: Unknown error');
+			logger.error(' Failed to parse environment variables: Unknown error', "Logger error");
 		}
 		throw new Error('Invalid environment variables');
 	}

@@ -68,7 +68,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 
 	function handleUserInfo() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
@@ -77,7 +77,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 
 	function handleIntrospect() {
 		if (!accessToken) {
-			alert('No access token available');
+			console.warn("Alert: No access token available");
 			return;
 		}
 		const res = introspectToken(accessToken);

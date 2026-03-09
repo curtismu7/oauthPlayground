@@ -272,7 +272,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						hypothesisId: 'F',
 					});
 					// #endregion
-					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
+					logger.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`, "Logger warning");
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -365,7 +365,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials - mark OAuth as completed (we don't need to store the token itself)
-					logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`);
+					logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`, "Logger info");
 					setCredentials((prev) => {
 						const updated = {
 							...prev,
@@ -482,7 +482,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
@@ -505,7 +505,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('user');
 			// Reset flag after state update
@@ -516,7 +516,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
 				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
-			);
+			, "Logger info");
 			isSyncingRef.current = true;
 			setRegistrationFlowType('admin');
 			// Reset flag after state update

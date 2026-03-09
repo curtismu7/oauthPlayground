@@ -33,11 +33,11 @@ export class AuthzSessionStorageManager {
 		if (variant === 'oauth') {
 			sessionStorage.removeItem('oidc-authz-v5-flow-active');
 			sessionStorage.setItem('oauth-authz-v5-flow-active', 'true');
-			logger.info('[SessionStorageManager] OAuth Authorization Code V5 flow marked as active');
+			logger.info('[SessionStorageManager] OAuth Authorization Code V5 flow marked as active', "Logger info");
 		} else {
 			sessionStorage.removeItem('oauth-authz-v5-flow-active');
 			sessionStorage.setItem('oidc-authz-v5-flow-active', 'true');
-			logger.info('[SessionStorageManager] OIDC Authorization Code V5 flow marked as active');
+			logger.info('[SessionStorageManager] OIDC Authorization Code V5 flow marked as active', "Logger info");
 		}
 	}
 
@@ -47,7 +47,7 @@ export class AuthzSessionStorageManager {
 	static clearAllFlowFlags(): void {
 		sessionStorage.removeItem('oauth-authz-v5-flow-active');
 		sessionStorage.removeItem('oidc-authz-v5-flow-active');
-		logger.info('[SessionStorageManager] All authorization code flow flags cleared');
+		logger.info('[SessionStorageManager] All authorization code flow flags cleared', "Logger info");
 	}
 
 	/**
@@ -1237,7 +1237,7 @@ export class AuthzFlowResponseTypeEnforcer {
 		if (credentials.responseType !== expectedType) {
 			logger.info(
 				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
-			);
+			, "Logger info");
 			setCredentials({
 				...credentials,
 				responseType: expectedType,
