@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import {
 	exportWorkerTokenCredentials,

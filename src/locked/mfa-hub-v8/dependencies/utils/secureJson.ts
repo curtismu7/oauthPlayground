@@ -1,5 +1,5 @@
 // src/utils/secureJson.ts - Secure JSON parsing utilities
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 
 /**
  * Safely parse JSON with validation and XSS protection

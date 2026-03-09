@@ -21,7 +21,7 @@
  * });
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
@@ -1846,26 +1846,6 @@ export class MfaAuthenticationServiceV8 {
 				);
 			}
 
-			// #region agent log
-				method: 'POST',
-				headers: 'Content-Type': 'application/json' ,
-				body: JSON.stringify(
-					location: 'mfaAuthenticationServiceV8.ts:1724',
-					message: 'Assertion body structure check',
-					data: 
-						assertionType: typeof assertionBody.assertion,
-						isString: typeof assertionBody.assertion === 'string',
-						isObject: typeof assertionBody.assertion === 'object',
-						hasId: !!assertionBody.assertion?.id,
-						hasRawId: !!assertionBody.assertion?.rawId,
-						hasResponse: !!assertionBody.assertion?.response,,
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'A',),
-			}
-		).catch(() => )
-		// #endregion
 
 		// Build request body for backend proxy
 		// The backend will transform this into the PingOne API format
@@ -1902,33 +1882,6 @@ export class MfaAuthenticationServiceV8 {
 		// Note: The Content-Type header indicates this is an assertion check, not the URL path
 		const _actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
 
-		// #region agent log
-		method: 'POST', headers;
-		: 'Content-Type': 'application/json' ,
-				body: JSON.stringify(
-					location: 'mfaAuthenticationServiceV8.ts:1774',
-					message: 'Request body before stringify',
-					data: 
-						requestBodyType: typeof backendRequestBody,
-						assertionType: typeof backendRequestBody.assertion,
-						isAssertionString: typeof backendRequestBody.assertion === 'string',
-						isAssertionObject:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null,
-						assertionKeys:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null
-								? Object.keys(backendRequestBody.assertion)
-								: [],,
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'B',),
-	}
-	).catch(() => {
-}
-)
-// #endregion
 
 // Build the request body that will be sent to PingOne (via backend proxy)
 // This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
@@ -1966,37 +1919,6 @@ const callId = apiCallTrackerService.trackApiCall({
 	flowType: 'mfa',
 });
 
-// #region agent log
-const stringifiedBody = JSON.stringify(backendRequestBody);
-method: 'POST', headers;
-:
-{
-	('Content-Type');
-	: 'application/json'
-}
-,
-				body: JSON.stringify(
-{
-	location: 'mfaAuthenticationServiceV8.ts:1802', message;
-	: 'Request body after stringify',
-					data: 
-						stringifiedLength: stringifiedBody.length,
-						stringifiedPreview: stringifiedBody.substring(0, 200),
-						hasAssertionString: stringifiedBody.includes('"assertion"'),
-						assertionIsStringified:
-							stringifiedBody.includes('"assertion":"') ||
-							stringifiedBody.includes('"assertion": "'),,
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'C',
-}
-),
-			}).catch(() =>
-{
-}
-)
-// #endregion
 
 const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
 	method: 'POST',

@@ -1,7 +1,7 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
 import styled from 'styled-components';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { copyToClipboard } from '../../utils/clipboard';

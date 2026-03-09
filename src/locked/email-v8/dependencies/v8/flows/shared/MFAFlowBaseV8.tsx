@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { logger } from '../../../../../utils/logger';
+import { logger } from '../../../../../../utils/logger';
 import { MFADeviceLimitModalV8 } from '../../components/MFADeviceLimitModalV8.tsx';
 import { MFANavigationV8 } from '../../components/MFANavigationV8.tsx';
 import { MFASettingsModalV8 } from '../../components/MFASettingsModalV8.tsx';
@@ -427,37 +427,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
 		const isOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return') === 'true';
 
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'MFAFlowBaseV8.tsx:319',
-			message: 'Checking for OAuth callback code in MFAFlowBaseV8',
-			data: {
-				hasCode: !!code,
-				hasUserLoginState: !!hasUserLoginState,
-				isOAuthCallbackReturn,
-				showUserLoginModal,
-				windowLocationSearch: window.location.search,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run3',
-			hypothesisId: 'F',
-		});
-		// #endregion
 
 		// If we have a code and user login state, this is a callback from user login
 		if (code && hasUserLoginState && !showUserLoginModal) {
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'MFAFlowBaseV8.tsx:324',
-				message: 'Opening UserLoginModal to process callback code',
-				data: { hasCode: !!code, hasUserLoginState: !!hasUserLoginState, showUserLoginModal },
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			});
-			// #endregion
 
 			logger.info(
 				`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`
@@ -1035,17 +1007,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					isOpen={showUserLoginModal}
 					onClose={() => setShowUserLoginModal(false)}
 					onTokenReceived={(token) => {
-						// #region agent log
-						sendAnalyticsLog({
-							location: 'MFAFlowBaseV8.tsx:718',
-							message: 'onTokenReceived callback invoked',
-							data: { hasToken: !!token, tokenLength: token?.length },
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						});
-						// #endregion
 
 						logger.info(`${MODULE_TAG} Token received, updating credentials`, {
 							tokenLength: token.length,
@@ -1064,21 +1025,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						setCredentials((prev) => {
 							const updated = { ...prev, userToken: token, tokenType: 'user' as const };
 
-							// #region agent log
-							sendAnalyticsLog({
-								location: 'MFAFlowBaseV8.tsx:730',
-								message: 'Credentials updated with user token',
-								data: {
-									hasUserToken: !!updated.userToken,
-									tokenType: updated.tokenType,
-									userTokenLength: updated.userToken?.length,
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'run3',
-								hypothesisId: 'F',
-							});
-							// #endregion
 
 							logger.info(`${MODULE_TAG} Updated credentials`, {
 								hasUserToken: !!updated.userToken,

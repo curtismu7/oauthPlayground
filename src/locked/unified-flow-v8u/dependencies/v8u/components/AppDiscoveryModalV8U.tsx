@@ -7,7 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8.tsx';
 import {
 	AppDiscoveryServiceV8,

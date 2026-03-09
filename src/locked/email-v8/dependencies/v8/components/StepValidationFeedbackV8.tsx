@@ -21,7 +21,7 @@
  */
 
 import React, { useId, useState } from 'react';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { StepValidationFeedbackProps } from '../types/stepNavigation.ts';
 
 const MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
