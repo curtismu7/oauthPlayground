@@ -34,6 +34,34 @@ An interactive web application for learning, testing, and mastering OAuth 2.0 an
 - **Enterprise-Grade**: Production-ready code with comprehensive error handling
 - **Security Enhanced**: Improved audit logging and security service implementation
 
+## 🏗️ Architecture
+
+### Version-Based Flow Structure
+
+The application uses a distributed, version-based architecture for OAuth flows:
+
+#### V9 Flows (Latest) - `src/pages/flows/v9/`
+- **17 OAuth flow implementations** with latest features
+- **Production-ready** with comprehensive error handling
+- **Modern patterns** with React hooks and TypeScript
+
+#### V8 Flows (Legacy) - `src/v8/flows/`
+- **Backward compatibility** for existing V8 users
+- **Maintenance mode** - no new features
+- **Migration support** for V8 → V9 transition
+
+#### V8 Migration - `src/v8m/pages/`
+- **Migration helpers** for V8 → V9 transition
+- **Transitional support** during upgrade process
+
+� **See:** [Flows Structure Guide](./FLOWS_STRUCTURE_GUIDE.md) for detailed navigation and development guidelines.
+
+### Service Architecture
+
+- **V9 Services** - `src/services/v9/` (latest implementations)
+- **Core Services** - `src/services/` (shared across versions)
+- **V8 Services** - `src/v8/services/` (legacy support)
+
 ---
 
 ## 🚀 Quick Start
