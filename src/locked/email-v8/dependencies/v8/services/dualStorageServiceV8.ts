@@ -46,7 +46,7 @@ export class DualStorageServiceV8 {
 		// Save to browser storage first (fastest, always available)
 		try {
 			localStorage.setItem(options.browserStorageKey, JSON.stringify(data));
-			logger.info(`${MODULE_TAG} Saved to browser storage: ${options.browserStorageKey}`);
+			logger.info(`${MODULE_TAG} Saved to browser storage: ${options.browserStorageKey}`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to save to browser storage`, { error });
 			// Continue to disk storage even if browser storage fails
@@ -62,7 +62,7 @@ export class DualStorageServiceV8 {
 			if (diskResult.success) {
 				logger.info(
 					`${MODULE_TAG} Saved to disk storage: ${options.directory}/${options.filename}`
-				);
+				, "Logger info");
 			} else {
 				logger.warn(
 					`${MODULE_TAG} Failed to save to disk storage (non-critical):`,
@@ -93,7 +93,7 @@ export class DualStorageServiceV8 {
 			const browserData = localStorage.getItem(options.browserStorageKey);
 			if (browserData) {
 				const parsed = JSON.parse(browserData) as T;
-				logger.info(`${MODULE_TAG} Loaded from browser storage: ${options.browserStorageKey}`);
+				logger.info(`${MODULE_TAG} Loaded from browser storage: ${options.browserStorageKey}`, "Logger info");
 				return { success: true, data: parsed, source: 'browser' };
 			}
 		} catch (error) {
@@ -113,14 +113,14 @@ export class DualStorageServiceV8 {
 					localStorage.setItem(options.browserStorageKey, JSON.stringify(diskResult.data));
 					logger.info(
 						`${MODULE_TAG} Restored from disk to browser storage: ${options.browserStorageKey}`
-					);
+					, "Logger info");
 				} catch (error) {
 					logger.warn(`${MODULE_TAG} Failed to restore to browser storage (non-critical):`, error);
 				}
 
 				logger.info(
 					`${MODULE_TAG} Loaded from disk storage: ${options.directory}/${options.filename}`
-				);
+				, "Logger info");
 				return { success: true, data: diskResult.data, source: 'disk' };
 			}
 		} catch (error) {
@@ -148,7 +148,7 @@ export class DualStorageServiceV8 {
 		// Delete from browser storage
 		try {
 			localStorage.removeItem(options.browserStorageKey);
-			logger.info(`${MODULE_TAG} Deleted from browser storage: ${options.browserStorageKey}`);
+			logger.info(`${MODULE_TAG} Deleted from browser storage: ${options.browserStorageKey}`, "Logger info");
 		} catch (error) {
 			logger.warn(`${MODULE_TAG} Failed to delete from browser storage:`, error);
 		}
@@ -161,7 +161,7 @@ export class DualStorageServiceV8 {
 			});
 			logger.info(
 				`${MODULE_TAG} Deleted from disk storage: ${options.directory}/${options.filename}`
-			);
+			, "Logger info");
 		} catch (error) {
 			logger.warn(`${MODULE_TAG} Failed to delete from disk storage:`, error);
 		}

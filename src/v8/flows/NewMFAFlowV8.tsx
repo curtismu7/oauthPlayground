@@ -45,7 +45,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 						// TODO: Implement device registration logic
 					}}
 					onCancel={() => {
-						logger.info(`${MODULE_TAG} Device registration cancelled`);
+						logger.info(`${MODULE_TAG} Device registration cancelled`, "Logger info");
 					}}
 					tokenStatus={props.tokenStatus}
 					username={props.credentials.username}

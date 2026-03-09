@@ -401,7 +401,7 @@ const JWKSTroubleshooting: React.FC = () => {
 			setRunningCommands((prev) => new Set(prev).add(url));
 
 			try {
-				logger.info(`[JWKS Troubleshooting] Making request to: ${url}`);
+				logger.info(`[JWKS Troubleshooting] Making request to: ${url}`, "Logger info");
 
 				const response = await fetch(url, {
 					method: 'GET',

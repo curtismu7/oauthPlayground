@@ -628,7 +628,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 		// Trigger discovery if we have a valid environment ID, regardless of existing discovery result
 		if (autoDiscover && environmentId && environmentId.length > 10) {
-			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
+			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...', "Logger info");
 			const timeoutId = setTimeout(() => {
 				logger.info(
 					'[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover'

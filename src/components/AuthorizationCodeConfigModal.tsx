@@ -132,7 +132,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 		if (isOpen) {
 			logger.info(
 				`[AuthorizationCodeConfigModal] 🔄 Modal opened - loading saved credentials for flowType: ${flowType}`
-			);
+			, "Logger info");
 
 			// Load from flow-specific storage (Authorization Code credentials only)
 			// Storage key: pingone_flow_data:{flowType} (e.g., pingone_flow_data:kroger-grocery-store-mfa)
@@ -164,7 +164,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			} else {
 				logger.info(
 					`[AuthorizationCodeConfigModal] ⚠️ No saved credentials or initialCredentials for ${flowType}`
-				);
+				, "Logger info");
 			}
 		}
 	}, [isOpen, flowType, initialCredentials]);

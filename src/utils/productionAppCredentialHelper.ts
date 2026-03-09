@@ -160,7 +160,7 @@ export async function saveProductionAppCredentials(
 				CredentialsServiceV8.saveCredentials(config.flowKey, credentials);
 		}
 
-		logger.info(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
+		logger.info(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`, "Logger info");
 	} catch (error) {
 		logger.warn(
 			'ProductionAppCredentialHelper',
@@ -423,7 +423,7 @@ export async function importProductionAppCredentials(
 
 		logger.info(
 			`[ProductionAppCredentialHelper] Successfully imported credentials for ${config.appName}`
-		);
+		, "Logger info");
 	} catch (error) {
 		logger.error(
 			'ProductionAppCredentialHelper',

@@ -15,7 +15,7 @@ export const validateServiceAPI = (): {
 	issues: string[];
 	summary: string;
 } => {
-	logger.info('🔍 [API VALIDATION] Validating ComprehensiveFlowDataService API Interface');
+	logger.info('🔍 [API VALIDATION] Validating ComprehensiveFlowDataService API Interface', "Logger info");
 
 	const issues: string[] = [];
 
@@ -126,7 +126,7 @@ ${issues.map((issue) => `  - ${issue}`).join('\n')}
 ${success ? '🚀 READY FOR PRODUCTION USE' : '⚠️ NEEDS FIXES BEFORE PRODUCTION'}
 	`.trim();
 
-	logger.info(summary);
+	logger.info(summary, "Logger info");
 
 	return {
 		success,

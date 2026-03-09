@@ -35,7 +35,7 @@ class EnvironmentIdPersistenceService {
 	 */
 	saveEnvironmentId(environmentId: string, source: 'manual' | 'oidc_discovery' = 'manual'): void {
 		if (!environmentId || !environmentId.trim()) {
-			logger.warn('[EnvironmentIdPersistence] Cannot save empty environment ID');
+			logger.warn('[EnvironmentIdPersistence] Cannot save empty environment ID', "Logger warning");
 			return;
 		}
 
@@ -70,7 +70,7 @@ class EnvironmentIdPersistenceService {
 				const config: EnvironmentIdConfig = JSON.parse(stored);
 				logger.info(
 					`🔧 [EnvironmentIdPersistence] Loaded Environment ID from localStorage: ${config.environmentId}`
-				);
+				, "Logger info");
 				return config.environmentId;
 			}
 		} catch (error) {
@@ -80,13 +80,13 @@ class EnvironmentIdPersistenceService {
 		// Fallback to environment variable (Vite/import.meta.env)
 		const envId = this.getEnvVar(this.ENV_VAR_NAME);
 		if (envId) {
-			logger.info(`🔧 [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`);
+			logger.info(`🔧 [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`, "Logger info");
 			// Save to localStorage for consistency
 			this.saveEnvironmentId(envId, 'env_file');
 			return envId;
 		}
 
-		logger.info('[EnvironmentIdPersistence] No Environment ID found');
+		logger.info('[EnvironmentIdPersistence] No Environment ID found', "Logger info");
 		return null;
 	}
 
@@ -131,7 +131,7 @@ After updating .env:
 2. The Environment ID will be automatically loaded on next startup
     `;
 
-		logger.info(instructions);
+		logger.info(instructions, "Logger info");
 
 		// Show a toast notification if available
 		if (typeof window !== 'undefined' && (window as any).v4ToastManager) {
@@ -145,11 +145,11 @@ After updating .env:
 	 * Generate .env content for the current Environment ID
 	 */
 	generateEnvContent(): string {
-		logger.info('[EnvironmentIdPersistenceService] Generating .env content');
+		logger.info('[EnvironmentIdPersistenceService] Generating .env content', "Logger info");
 		const currentId = this.loadEnvironmentId();
 		logger.info('[EnvironmentIdPersistenceService] Current Environment ID:', currentId);
 		if (!currentId) {
-			logger.info('[EnvironmentIdPersistenceService] No Environment ID found');
+			logger.info('[EnvironmentIdPersistenceService] No Environment ID found', "Logger info");
 			return '# No Environment ID found\n';
 		}
 
@@ -165,7 +165,7 @@ REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 	 * Generate .env content with newline (for appending to existing .env)
 	 */
 	generateEnvContentWithNewline(): string {
-		logger.info('[EnvironmentIdPersistenceService] Generating .env content with newline');
+		logger.info('[EnvironmentIdPersistenceService] Generating .env content with newline', "Logger info");
 		const content = this.generateEnvContent();
 		logger.info('[EnvironmentIdPersistenceService] Generated .env content with newline:', content);
 		return `${content}\n`;
@@ -177,7 +177,7 @@ REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 	clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
-			logger.info('[EnvironmentIdPersistence] Cleared Environment ID from localStorage');
+			logger.info('[EnvironmentIdPersistence] Cleared Environment ID from localStorage', "Logger info");
 		} catch (error) {
 			logger.error('[EnvironmentIdPersistence] Failed to clear:', error);
 		}

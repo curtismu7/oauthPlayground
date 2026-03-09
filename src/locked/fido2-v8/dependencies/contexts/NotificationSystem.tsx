@@ -426,7 +426,7 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 
 const warnMissingProvider = () => {
 	if (!globalBridge && typeof console !== 'undefined') {
-		logger.warn('[Notification] NotificationProvider is not mounted. Notification skipped.');
+		logger.warn('[Notification] NotificationProvider is not mounted. Notification skipped.', "Logger warning");
 	}
 };
 

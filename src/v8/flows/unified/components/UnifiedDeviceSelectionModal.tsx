@@ -314,7 +314,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										<button
 											type="button"
 											onClick={() => {
-												logger.info('[DEVICE-SELECTION] User chose SMS registration');
+												logger.info('[DEVICE-SELECTION] User chose SMS registration', "Logger info");
 												onRegisterDevice();
 												onClose();
 											}}
@@ -357,7 +357,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										<button
 											type="button"
 											onClick={() => {
-												logger.info('[DEVICE-SELECTION] User chose Email registration');
+												logger.info('[DEVICE-SELECTION] User chose Email registration', "Logger info");
 												onRegisterDevice();
 												onClose();
 											}}

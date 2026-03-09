@@ -113,7 +113,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 			try {
 				if (!storedState || !storedCodeVerifier || !storedCredentials) {
-					logger.error('[🔐 TOTP-CONFIG-V8] Missing OAuth callback data');
+					logger.error('[🔐 TOTP-CONFIG-V8] Missing OAuth callback data', "Logger error");
 					navigate('/v8/unified-mfa');
 					return;
 				}
@@ -163,7 +163,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				sessionStorage.removeItem('user_login_redirect_uri_v8');
 				window.history.replaceState({}, document.title, window.location.pathname);
 
-				logger.info(`[🔐 TOTP-CONFIG-V8] ✅ OAuth token exchange successful`);
+				logger.info(`[🔐 TOTP-CONFIG-V8] ✅ OAuth token exchange successful`, "Logger info");
 				setCredentials((prev) => ({
 					...prev,
 					userToken: 'oauth_completed',

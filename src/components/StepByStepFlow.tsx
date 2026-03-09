@@ -476,7 +476,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 						<FlowButton
 							$variant="secondary"
 							onClick={() => {
-								logger.info(' [StepByStepFlow] Next Step button clicked');
+								logger.info(' [StepByStepFlow] Next Step button clicked', "Logger info");
 								goToNextStep();
 							}}
 							disabled={currentStep >= steps.length - 1}

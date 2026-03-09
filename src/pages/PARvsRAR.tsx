@@ -464,7 +464,7 @@ async function pushAuthorizationRequest(config) {
     const result = await response.json();
     
     if (response.ok) {
-      logger.info('PAR successful!');
+      logger.info('PAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       logger.info('Expires in:', result.expires_in, 'seconds');
       
@@ -545,7 +545,7 @@ async function pushAuthorizationRequest(config) {
     const result = await response.json();
     
     if (response.ok) {
-      logger.info('PAR successful!');
+      logger.info('PAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       logger.info('Expires in:', result.expires_in, 'seconds');
       
@@ -1200,7 +1200,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
     const result = await response.json();
     
     if (response.ok) {
-      logger.info('PAR + RAR successful!');
+      logger.info('PAR + RAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       
       // Generate clean authorization URL
@@ -1296,7 +1296,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
     const result = await response.json();
     
     if (response.ok) {
-      logger.info('PAR + RAR successful!');
+      logger.info('PAR + RAR successful!', "Logger info");
       logger.info('Request URI:', result.request_uri);
       
       // Generate clean authorization URL

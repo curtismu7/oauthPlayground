@@ -40,15 +40,15 @@ export const TEST_CREDENTIALS = {
  * @returns Test credentials object
  */
 export function getTestCredentials() {
-	logger.info(`${MODULE_TAG} Loading test credentials`);
+	logger.info(`${MODULE_TAG} Loading test credentials`, "Logger info");
 
 	if (!TEST_CREDENTIALS.environmentId) {
-		logger.error(`${MODULE_TAG} Environment ID not configured`);
+		logger.error(`${MODULE_TAG} Environment ID not configured`, "Logger error");
 		throw new Error('Environment ID not configured');
 	}
 
 	if (!TEST_CREDENTIALS.workerToken) {
-		logger.error(`${MODULE_TAG} Worker token not configured`);
+		logger.error(`${MODULE_TAG} Worker token not configured`, "Logger error");
 		throw new Error('Worker token not configured');
 	}
 
@@ -69,11 +69,11 @@ export function isOAuthConfigured(): boolean {
  * @returns OAuth credentials object
  */
 export function getOAuthCredentials() {
-	logger.info(`${MODULE_TAG} Loading OAuth credentials`);
+	logger.info(`${MODULE_TAG} Loading OAuth credentials`, "Logger info");
 
 	if (!isOAuthConfigured()) {
-		logger.warn(`${MODULE_TAG} OAuth credentials not fully configured`);
-		logger.warn(`${MODULE_TAG} Please set clientId and clientSecret in testCredentials.ts`);
+		logger.warn(`${MODULE_TAG} OAuth credentials not fully configured`, "Logger warning");
+		logger.warn(`${MODULE_TAG} Please set clientId and clientSecret in testCredentials.ts`, "Logger warning");
 	}
 
 	return TEST_CREDENTIALS.oauthCredentials;
@@ -110,27 +110,27 @@ export function validateTestCredentials(): { valid: boolean; errors: string[] } 
  * Log test credentials status
  */
 export function logCredentialsStatus() {
-	logger.info(`${MODULE_TAG} === Test Credentials Status ===`);
+	logger.info(`${MODULE_TAG} === Test Credentials Status ===`, "Logger info");
 	logger.info(
 		`${MODULE_TAG} Environment ID: ${TEST_CREDENTIALS.environmentId ? '✅ Configured' : '❌ Missing'}`
-	);
+	, "Logger info");
 	logger.info(
 		`${MODULE_TAG} Worker Token: ${TEST_CREDENTIALS.workerToken ? '✅ Configured' : '❌ Missing'}`
-	);
+	, "Logger info");
 	logger.info(
 		`${MODULE_TAG} OAuth Client ID: ${TEST_CREDENTIALS.oauthCredentials.clientId ? '✅ Configured' : '⚠️ Not configured'}`
-	);
+	, "Logger info");
 	logger.info(
 		`${MODULE_TAG} OAuth Client Secret: ${TEST_CREDENTIALS.oauthCredentials.clientSecret ? '✅ Configured' : '⚠️ Not configured'}`
-	);
-	logger.info(`${MODULE_TAG} Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.redirectUri}`);
+	, "Logger info");
+	logger.info(`${MODULE_TAG} Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.redirectUri}`, "Logger info");
 	logger.info(
 		`${MODULE_TAG} Implicit Redirect URI: ${TEST_CREDENTIALS.oauthCredentials.implicitRedirectUri}`
-	);
+	, "Logger info");
 
 	const validation = validateTestCredentials();
 	if (validation.valid) {
-		logger.info(`${MODULE_TAG} ✅ All required credentials configured`);
+		logger.info(`${MODULE_TAG} ✅ All required credentials configured`, "Logger info");
 	} else {
 		logger.warn(`${MODULE_TAG} ⚠️ Missing credentials:`, validation.errors);
 	}

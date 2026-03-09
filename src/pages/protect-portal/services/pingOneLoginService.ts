@@ -333,7 +333,7 @@ export class PingOneLoginService {
 		}>
 	> {
 		try {
-			logger.info(`${MODULE_TAG} Exchanging authorization code for tokens`);
+			logger.info(`${MODULE_TAG} Exchanging authorization code for tokens`, "Logger info");
 
 			const requestBody = {
 				environment_id: environmentId,

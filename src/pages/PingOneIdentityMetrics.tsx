@@ -338,7 +338,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 					environmentId = globalEnvId;
 					logger.info(
 						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall'
-					);
+					, "Logger info");
 				}
 			}
 		} catch (error) {
@@ -436,7 +436,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 					environmentId = globalEnvId;
 					logger.info(
 						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch'
-					);
+					, "Logger info");
 				}
 			}
 		} catch (error) {

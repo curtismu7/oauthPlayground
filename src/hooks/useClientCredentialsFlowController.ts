@@ -457,7 +457,7 @@ export const useClientCredentialsFlowController = (
 						);
 						logger.info(
 							'[ClientCredsController] Migrated legacy admin scopes to CLAIMICFACILITY scope for client credentials'
-						);
+						, "Logger info");
 					}
 
 					setHasCredentialsSaved(true);

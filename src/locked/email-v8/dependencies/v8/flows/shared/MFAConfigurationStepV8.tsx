@@ -136,7 +136,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			if (workerCreds?.environmentId) {
 				logger.info(
 					`[⚙️ MFA-CONFIG-STEP-V8] Auto-populating environment ID from worker token: ${workerCreds.environmentId}`
-				);
+				, "Logger info");
 				setCredentials((prev) => ({
 					...prev,
 					environmentId: workerCreds.environmentId,
@@ -321,7 +321,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				if (userLoginCreds.userToken && userLoginCreds.tokenType === 'user') {
 					logger.info(
 						`[⚙️ MFA-CONFIG-STEP-V8] Syncing user token from user-login-v8 when User Flow selected`
-					);
+					, "Logger info");
 					setCredentials((prev) => ({
 						...prev,
 						tokenType: 'user' as const,
@@ -448,7 +448,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// Handle both cases: token added or token removed
 		if (credentials.userToken !== userToken) {
 			if (credentials.userToken) {
-				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] ✅ Syncing token from credentials to local state`);
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] ✅ Syncing token from credentials to local state`, "Logger info");
 				setUserToken(credentials.userToken);
 				const status = validateUserToken(credentials.userToken);
 				setUserTokenStatus(status);
@@ -478,7 +478,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 							// If after delay still no token in credentials but we have one locally, restore it
 							logger.info(
 								`[⚙️ MFA-CONFIG-STEP-V8] 🔄 Restoring userToken to credentials after delay`
-							);
+							, "Logger info");
 							setCredentials((prev) => ({
 								...prev,
 								userToken: userToken,
@@ -490,7 +490,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				}
 
 				// Token was cleared
-				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] User token cleared`);
+				logger.info(`[⚙️ MFA-CONFIG-STEP-V8] User token cleared`, "Logger info");
 				setUserToken('');
 				setUserTokenStatus('invalid');
 			}
@@ -505,7 +505,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		) {
 			// No token in credentials but we have one in auth context - validate it
 			const authToken = authContext.tokens.access_token;
-			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Validating user token from auth context`);
+			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Validating user token from auth context`, "Logger info");
 			const status = validateUserToken(authToken);
 			setUserTokenStatus(status);
 			setUserToken(authToken);

@@ -272,7 +272,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 		if (!allCredentials.environmentId && !allCredentials.clientId) {
 			allCredentials = authzCredentials;
 		} else {
-			logger.info(' [NewAuthContext] Using config credentials');
+			logger.info(' [NewAuthContext] Using config credentials', "Logger info");
 		}
 		logger.info(' [NewAuthContext] Final credential manager result:', allCredentials);
 
@@ -625,7 +625,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					return { success: false, error: errorMessage };
 				}
 
-				logger.info(' [NewAuthContext] Configuration validated');
+				logger.info(' [NewAuthContext] Configuration validated', "Logger info");
 
 				// Generate state and nonce for security
 				const state = Math.random().toString(36).substring(2, 15);
@@ -874,7 +874,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			// Clear flow context using FlowContextService
 			try {
 				FlowContextUtils.emergencyCleanup();
-				logger.info(' [NewAuthContext] Flow context cleaned up during logout');
+				logger.info(' [NewAuthContext] Flow context cleaned up during logout', "Logger info");
 			} catch (flowCleanupError) {
 				logger.warn(
 					' [NewAuthContext] Failed to cleanup flow context during logout:',
@@ -944,7 +944,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							// For V6/V7 flows, skip state validation and redirect immediately
 							logger.info(
 								' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page'
-							);
+							, "Logger info");
 
 							// Store auth code and state for the flow page
 							// Use flow-specific key (oauth_auth_code or oidc_auth_code)
@@ -952,7 +952,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								const isOIDCFlow = parsed?.flow?.includes('oidc');
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
-								logger.info(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
+								logger.info(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`, "Logger info");
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -1092,7 +1092,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							redirectUri = parsedContext.redirectUri;
 							logger.info(' [NewAuthContext] Using redirect URI from flow context:', redirectUri);
 						} else {
-							logger.info(' [NewAuthContext] No redirectUri in flow context');
+							logger.info(' [NewAuthContext] No redirectUri in flow context', "Logger info");
 						}
 					} catch (error) {
 						logger.warn('Failed to parse flow context for redirect URI:', error);
@@ -1100,10 +1100,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				} else {
 					logger.info(
 						' [NewAuthContext] NO FLOW CONTEXT FOUND - This means V3 redirect will go to dashboard!'
-					);
+					, "Logger info");
 					logger.info(
 						' [NewAuthContext] This is the bug - V3 should have set flowContext in sessionStorage'
-					);
+					, "Logger info");
 				}
 
 				// Fallback to determining by callback URL if no flow context
@@ -1133,7 +1133,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					const value = sessionStorage.getItem(key);
 					if (value?.trim()) {
 						codeVerifier = value.trim();
-						logger.info(` [NewAuthContext] Found code_verifier in sessionStorage key: ${key}`);
+						logger.info(` [NewAuthContext] Found code_verifier in sessionStorage key: ${key}`, "Logger info");
 						break;
 					}
 				}
@@ -1148,7 +1148,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						sessionStorage.setItem('code_verifier', codeVerifier);
 						logger.info(
 							' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage'
-						);
+						, "Logger info");
 					} catch (error) {
 						logger.error(' [NewAuthContext] Failed to generate fallback code_verifier:', error);
 					}
@@ -1280,10 +1280,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// If this callback belongs to Enhanced Authorization Code Flow V2 or V3,
 				// do NOT auto-exchange here. Defer token exchange to the flow page to avoid double-use of the code.
-				logger.info(' [NewAuthContext] FULL REDIRECT CALLBACK DEBUG - START');
+				logger.info(' [NewAuthContext] FULL REDIRECT CALLBACK DEBUG - START', "Logger info");
 				logger.info(
 					' [NewAuthContext] Checking for Enhanced flow context to defer token exchange...'
-				);
+				, "Logger info");
 				logger.info(' [NewAuthContext] Current URL:', url);
 				logger.info(
 					' [NewAuthContext] URL contains authz-callback:',
@@ -1295,7 +1295,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						Object.keys(sessionStorage).map((key) => [key, sessionStorage.getItem(key)])
 					)
 				);
-				logger.info(' [NewAuthContext] Looking specifically for flowContext key...');
+				logger.info(' [NewAuthContext] Looking specifically for flowContext key...', "Logger info");
 
 				try {
 					const flowContextRaw = sessionStorage.getItem('flowContext');
@@ -1351,7 +1351,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								sessionStorage.setItem(authCodeKey, code);
 								logger.info(
 									`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`
-								);
+								, "Logger info");
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -1454,7 +1454,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						sessionStorage.setItem(`${activeOAuthFlow}-authCode`, code);
 						logger.info(
 							`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`
-						);
+						, "Logger info");
 					}
 					if (state) {
 						sessionStorage.setItem('oauth_state', state);
@@ -1486,9 +1486,9 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				}
 
 				// Exchange code for tokens - This should NOT happen for Enhanced V3 or V6 flows
-				logger.info(' [NewAuthContext] CRITICAL: About to do immediate token exchange!');
+				logger.info(' [NewAuthContext] CRITICAL: About to do immediate token exchange!', "Logger info");
 				logger.info(' [NewAuthContext] If this is V3 or V6, the flow context detection FAILED!');
-				logger.info(' [NewAuthContext] Flow context should have deferred this to flow page!');
+				logger.info(' [NewAuthContext] Flow context should have deferred this to flow page!', "Logger info");
 
 				const requestBody = {
 					grant_type: 'authorization_code',
@@ -1527,12 +1527,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// Additional validation for required fields
 				if (!requestBody.redirect_uri || requestBody.redirect_uri.trim() === '') {
-					logger.error(' [NewAuthContext] Missing redirect_uri in token exchange request');
+					logger.error(' [NewAuthContext] Missing redirect_uri in token exchange request', "Logger error");
 					throw new Error('Missing redirect URI. Please configure your OAuth settings.');
 				}
 
 				if (!requestBody.environment_id || requestBody.environment_id.trim() === '') {
-					logger.error(' [NewAuthContext] Missing environment_id in token exchange request');
+					logger.error(' [NewAuthContext] Missing environment_id in token exchange request', "Logger error");
 					throw new Error('Missing environment ID. Please configure your PingOne environment.');
 				}
 
@@ -1540,13 +1540,13 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				if (requestBody.code_verifier && requestBody.code_verifier.trim() === '') {
 					logger.warn(
 						' [NewAuthContext] Empty code_verifier provided - this may cause PKCE mismatch'
-					);
+					, "Logger warning");
 				}
 
 				// Use backend proxy to avoid CORS issues
 				const backendUrl = getBackendUrl();
 
-				logger.info(' [NewAuthContext] Making token exchange request to backend');
+				logger.info(' [NewAuthContext] Making token exchange request to backend', "Logger info");
 				logger.info(' [NewAuthContext] Request details:', {
 					url: `${backendUrl}/api/token-exchange`,
 					method: 'POST',
@@ -1643,7 +1643,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				oauthStorage.setTokens(tokens);
 
-				logger.info(' [NewAuthContext] Tokens stored successfully');
+				logger.info(' [NewAuthContext] Tokens stored successfully', "Logger info");
 
 				// Get user info if available
 				let userInfo: UserInfo | null = null;
@@ -1699,7 +1699,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// Enhanced redirect handling using FlowContextService
 				try {
-					logger.info(' [NewAuthContext] Using enhanced FlowContextService for redirect handling');
+					logger.info(' [NewAuthContext] Using enhanced FlowContextService for redirect handling', "Logger info");
 
 					// Prepare callback data for FlowContextService
 					const callbackData = {
@@ -1738,14 +1738,14 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						try {
 							// SECURITY: Validate JSON input before parsing to prevent XSS
 							if (typeof flowContext !== 'string' || flowContext.length > 10000) {
-								logger.warn(' [Security] Invalid flow context format or size');
+								logger.warn(' [Security] Invalid flow context format or size', "Logger warning");
 								redirectUrl = '/dashboard';
 							} else if (
 								flowContext.includes('<script') ||
 								flowContext.includes('javascript:') ||
 								flowContext.includes('data:')
 							) {
-								logger.warn(' [Security] Blocked potentially dangerous flow context content');
+								logger.warn(' [Security] Blocked potentially dangerous flow context content', "Logger warning");
 								redirectUrl = '/dashboard';
 							} else {
 								const parsedContext = safeJsonParse(flowContext);
@@ -1848,12 +1848,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			);
 
 			if (success) {
-				logger.info(' [NewAuthContext] V7 credentials saved successfully');
+				logger.info(' [NewAuthContext] V7 credentials saved successfully', "Logger info");
 				// Reload configuration to pick up the new credentials
 				const newConfig = await loadConfiguration();
 				setState((prev) => ({ ...prev, config: newConfig }));
 			} else {
-				logger.error(' [NewAuthContext] Failed to save V7 credentials');
+				logger.error(' [NewAuthContext] Failed to save V7 credentials', "Logger error");
 			}
 
 			return success;
@@ -2077,7 +2077,7 @@ export const useAuth = (): AuthContextType => {
 			updateTokens: () => {},
 			dismissError: () => {
 				// Clear the error by reloading the page to reset context
-				logger.info(' [useAuth] Dismissing error by reloading page');
+				logger.info(' [useAuth] Dismissing error by reloading page', "Logger info");
 				window.location.reload();
 			},
 		};

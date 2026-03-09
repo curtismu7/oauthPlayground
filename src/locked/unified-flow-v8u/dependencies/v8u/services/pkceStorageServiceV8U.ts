@@ -48,7 +48,7 @@ export class PKCEStorageServiceV8U {
 			};
 
 			request.onsuccess = () => {
-				logger.info(`${MODULE_TAG} IndexedDB opened successfully`);
+				logger.info(`${MODULE_TAG} IndexedDB opened successfully`, "Logger info");
 				resolve(request.result);
 			};
 
@@ -56,7 +56,7 @@ export class PKCEStorageServiceV8U {
 				const db = (event.target as IDBOpenDBRequest).result;
 				if (!db.objectStoreNames.contains(PKCEStorageServiceV8U.STORE_NAME)) {
 					db.createObjectStore(PKCEStorageServiceV8U.STORE_NAME, { keyPath: 'flowKey' });
-					logger.info(`${MODULE_TAG} IndexedDB object store created`);
+					logger.info(`${MODULE_TAG} IndexedDB object store created`, "Logger info");
 				}
 			};
 		});

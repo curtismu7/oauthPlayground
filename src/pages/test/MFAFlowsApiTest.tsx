@@ -290,7 +290,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Registration...');
+			logger.info('🧪 Testing OTP Registration...', "Logger info");
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP registration test');
@@ -357,7 +357,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Verification...');
+			logger.info('🧪 Testing OTP Verification...', "Logger info");
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP verification test');
@@ -422,7 +422,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Registration...');
+			logger.info('🧪 Testing TOTP Registration...', "Logger info");
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP registration test');
@@ -487,7 +487,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Verification...');
+			logger.info('🧪 Testing TOTP Verification...', "Logger info");
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP verification test');
@@ -552,7 +552,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing FIDO2 Registration...');
+			logger.info('🧪 Testing FIDO2 Registration...', "Logger info");
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for FIDO2 registration test');
@@ -694,7 +694,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting MFA Flow Tests...');
+			logger.info('🚀 Starting MFA Flow Tests...', "Logger info");
 
 			// Test 1: OTP Registration
 			await testOTPRegistration();
@@ -711,7 +711,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			// Test 5: FIDO2 Registration
 			await testFIDO2Registration();
 
-			logger.info('✅ MFA Flow tests completed!');
+			logger.info('✅ MFA Flow tests completed!', "Logger info");
 		} catch (error) {
 			logger.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
 		} finally {
@@ -731,12 +731,12 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting Admin Authentication Tests...');
+			logger.info('🚀 Starting Admin Authentication Tests...', "Logger info");
 
 			// Test 1: Admin Authentication - Activation Required
 			await testAdminAuthActivationRequired();
 
-			logger.info('✅ Admin Authentication tests completed!');
+			logger.info('✅ Admin Authentication tests completed!', "Logger info");
 		} catch (error) {
 			logger.error(
 				'MFAFlowsApiTest',

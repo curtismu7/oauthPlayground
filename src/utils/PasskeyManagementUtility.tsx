@@ -160,7 +160,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 				// Don't throw - this is best effort, deletion from server is what matters
 			}
 		} else {
-			logger.info('ℹ️ WebAuthn Signal API not supported in this browser');
+			logger.info('ℹ️ WebAuthn Signal API not supported in this browser', "Logger info");
 		}
 	};
 

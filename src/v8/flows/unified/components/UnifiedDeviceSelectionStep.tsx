@@ -222,7 +222,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	 * Handle "Register New Device" button click
 	 */
 	const handleRegisterNewDevice = useCallback(() => {
-		logger.info(`${MODULE_TAG} User wants to register a new device`);
+		logger.info(`${MODULE_TAG} User wants to register a new device`, "Logger info");
 
 		// Clear any previously selected device
 		setSelectedDeviceId(null);
