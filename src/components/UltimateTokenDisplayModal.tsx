@@ -1,7 +1,6 @@
 // src/components/UltimateTokenDisplayModal.tsx
 // Modal wrapper for Ultimate Token Display with VSCode-style syntax highlighting
 
-import { FiAlertCircle, FiCheck, FiCode, FiCopy, FiKey, FiShield, FiZap } from '@icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

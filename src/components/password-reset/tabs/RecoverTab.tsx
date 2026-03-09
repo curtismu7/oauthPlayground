@@ -1,7 +1,6 @@
 // src/components/password-reset/tabs/RecoverTab.tsx
 // Recover Password Tab Component
 
-import { FiAlertCircle, FiBook, FiCheckCircle, FiExternalLink, FiMail } from '@icons';
 import React from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {

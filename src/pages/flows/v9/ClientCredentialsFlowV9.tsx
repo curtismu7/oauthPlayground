@@ -1,10 +1,7 @@
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-
 // src/pages/flows/ClientCredentialsFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
 
-import { FiCode } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -614,7 +611,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 							aria-expanded={!collapsedSections.tokenRequest}
 						>
 							<CollapsibleTitle>
-								<span>[FiCode]</span>Token Request
+								<i className="bi bi-code-slash" />Token Request
 							</CollapsibleTitle>
 							<span>🔽</span>
 						</CollapsibleHeaderButton>

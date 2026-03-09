@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 // src/pages/flows/SAMLBearerAssertionFlowV9.tsx
 // OAuth 2.0 SAML Bearer Assertion Flow (RFC 7522) - V9
 
@@ -10,7 +9,6 @@ import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
-import { logger } from '../../../services/loggingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';

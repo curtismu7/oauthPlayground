@@ -1490,7 +1490,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					// Re-check worker token when modal closes
 					checkWorkerToken();
 				}}
-				onTokenGenerated={(token) => {
+				onTokenGenerated={(_token) => {
 					// Re-check worker token immediately after generation
 					checkWorkerToken();
 					setShowWorkerTokenModal(false);

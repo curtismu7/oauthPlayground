@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const pulse = keyframes`
   0% { opacity: 1; }

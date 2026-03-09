@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Performance metrics interface
 interface PerformanceMetrics {

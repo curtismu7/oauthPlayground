@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/OAuth2CompliantAuthorizationCodeFlow.tsx
 /**
  * RFC 6749 Compliant OAuth 2.0 Authorization Code Flow
@@ -779,7 +778,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 														}}
 													>
 														<Button onClick={() => setShowTokens(!showTokens)}>
-															{showTokens ? <span>[FiEyeOff]</span> : <span>[FiEye]</span>}
+															{showTokens ? <i className="bi bi-eye-slash" /> : <i className="bi bi-eye" />}
 															{showTokens ? 'Hide' : 'Show'} Tokens
 														</Button>
 													</div>

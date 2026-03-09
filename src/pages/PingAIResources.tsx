@@ -1,7 +1,6 @@
 // src/pages/PingAIResources.tsx
 // Ping Identity AI Resources - Comprehensive collection of AI-related documentation and resources
 
-import { FiCpu } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -124,7 +123,7 @@ const PingAIResources: React.FC = () => {
 
 				<Header>
 					<h1>
-						<span>[FiCpu]</span>Ping Identity AI Resources
+						<i className="bi bi-cpu" />Ping Identity AI Resources
 					</h1>
 					<p>
 						Comprehensive collection of Ping Identity's AI-related documentation, guides, and
@@ -135,7 +134,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Agent Types & Architecture"
 					subtitle="Understanding different types of AI agents and their identity requirements"
-					icon={<span>[FiCpu]</span>}
+					icon={<i className="bi bi-cpu" />}
 					theme="purple"
 					defaultCollapsed={false}
 				>
@@ -147,7 +146,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiDatabase]</span>
+									<i className="bi bi-database" />
 								</div>
 								<h3>
 									Types of Agents
@@ -202,7 +201,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCode]</span>
+									<i className="bi bi-code-slash" />
 								</div>
 								<h3>
 									Identity for AI Developer Guide
@@ -223,7 +222,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCpu]</span>
+									<i className="bi bi-cpu" />
 								</div>
 								<h3>
 									Ping on AI Group (Atlassian Wiki)
@@ -244,7 +243,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCpu]</span>
+									<i className="bi bi-cpu" />
 								</div>
 								<h3>
 									AI Identity Architecture Diagram
@@ -265,7 +264,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCpu]</span>
+									<i className="bi bi-cpu" />
 								</div>
 								<h3>
 									AI Identity Flow Diagram
@@ -385,7 +384,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCode]</span>
+									<i className="bi bi-code-slash" />
 								</div>
 								<h3>
 									PingOne API Documentation
@@ -407,7 +406,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiCode]</span>
+									<i className="bi bi-code-slash" />
 								</div>
 								<h3>
 									PingOne SDKs
@@ -513,7 +512,7 @@ const PingAIResources: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>[FiHelpCircle]</span>
+									<i className="bi bi-question-circle" />
 								</div>
 								<h3>
 									Ping Identity Support
@@ -532,7 +531,7 @@ const PingAIResources: React.FC = () => {
 				</CollapsibleHeader>
 
 				<InfoBox $variant="info" style={{ marginTop: '2rem' }}>
-					<span>[FiCpu]</span>
+					<i className="bi bi-cpu" />
 					<div>
 						<strong>Getting Started:</strong> Begin with the "Types of Agents" document to
 						understand different AI agent architectures. Then explore the PingOne AI-powered

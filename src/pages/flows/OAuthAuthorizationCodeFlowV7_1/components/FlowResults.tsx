@@ -3,7 +3,6 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../../../../utils/logger';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
 

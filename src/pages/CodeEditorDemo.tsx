@@ -1,7 +1,7 @@
 import React from 'react';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
-const log = createModuleLogger('pages/CodeEditorDemo.tsx');
+const _log = createModuleLogger('pages/CodeEditorDemo.tsx');
 
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';

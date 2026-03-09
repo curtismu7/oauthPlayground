@@ -9,7 +9,6 @@
  * endpoints to avoid CORS issues when calling PingOne APIs from localhost.
  */
 
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { logger } from '../../../utils/logger';
 import type { PortalError, ServiceResponse, UserContext } from '../types/protectPortal.types';
 

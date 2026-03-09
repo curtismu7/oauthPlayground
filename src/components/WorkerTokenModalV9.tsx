@@ -13,17 +13,6 @@
  * - Comprehensive worker token management
  */
 
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {

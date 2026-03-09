@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import InteractiveTutorial from '../components/InteractiveTutorial';
 import OAuthUtilities from '../components/OAuthUtilities';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
