@@ -5,7 +5,6 @@ import {
 	getCallbackDescription,
 	getCallbackUrlForFlow,
 } from '../utils/callbackUrls';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 const CallbackUrlContainer = styled.div`
   background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 50%, V9_COLORS.BG.GRAY_LIGHT 100%);

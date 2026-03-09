@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 export interface StepNavigationButtonsProps {
 	currentStep: number;

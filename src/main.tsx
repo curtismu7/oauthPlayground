@@ -1,3 +1,4 @@
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/vendor/end-user-nano.css';
 import './styles/icons.css';
 import './styles/nano-overrides.css';

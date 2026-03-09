@@ -271,6 +271,7 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 
 	return (
 		<ModalOverlay
+			aria-hidden="true"
 			role="presentation"
 			onClick={isLoading ? undefined : onClose}
 			onKeyDown={handleKeyDown}

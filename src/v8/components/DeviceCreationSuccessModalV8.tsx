@@ -280,14 +280,32 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 	};
 
 	return (
-		<ModalOverlay>
-			<ModalContent>
+		<ModalOverlay
+			aria-hidden="true"
+			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
+		>
+			<ModalContent
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="device-success-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
+			>
 				<ModalHeader>
-					<ModalTitle>
+					<ModalTitle id="device-success-title">
 						<span>✅</span>
 						Device Created Successfully
 					</ModalTitle>
-					<CloseButton onClick={onClose}>
+					<CloseButton type="button" onClick={onClose}>
 						<span>❌</span>
 					</CloseButton>
 				</ModalHeader>
@@ -387,7 +405,7 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 						</NextStepsList>
 					</NextSteps>
 
-					<ActionButton onClick={onClose}>
+					<ActionButton type="button" onClick={onClose}>
 						{deviceInfo.deviceStatus === 'ACTIVE' ? 'Continue' : 'Proceed to Activation'}
 					</ActionButton>
 				</ModalBody>

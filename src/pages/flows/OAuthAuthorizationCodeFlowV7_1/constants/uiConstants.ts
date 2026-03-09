@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/constants/uiConstants.ts
 // V7.1 UI Constants - Extracted from styled components and UI logic
 

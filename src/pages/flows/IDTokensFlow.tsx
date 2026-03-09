@@ -9,7 +9,6 @@ import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 

@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { DraggableModal } from './DraggableModal';
 

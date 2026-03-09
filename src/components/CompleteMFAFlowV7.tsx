@@ -66,7 +66,6 @@ import {
 	type WorkerTokenCredentials,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import credentialManager from '../utils/credentialManager';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
 
