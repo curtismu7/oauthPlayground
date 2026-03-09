@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -1108,19 +1108,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Get API documentation URL for the current flow type
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
-		// #region agent log
-		method: 'POST', headers;
-		: 'Content-Type': 'application/json' ,
-			body: JSON.stringify(
-				location: 'UnifiedOAuthFlowV8U.tsx:1103',
-				message: 'Generating PingOne API documentation URL',
-				data: flowType: flow, baseUrl ,
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				hypothesisId: 'A',),
-	};
-	).catch(() => )
-	// #endregion
 
 	let url: string;
 	switch (flow) {
@@ -1143,22 +1130,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			url = baseUrl;
 	}
 
-	// #region agent log
-	method: 'POST', headers;
-	: 'Content-Type': 'application/json' ,
-			body: JSON.stringify(
-				location: 'UnifiedOAuthFlowV8U.tsx:1125',
-				message: 'Generated PingOne API documentation URL',
-				data: flowType: flow, url, hasAnchor: url.includes('#') ,
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				hypothesisId: 'A',),
-};
-).catch(() =>
-{
-}
-)
-// #endregion
 
 return url;
 }
@@ -1411,29 +1382,6 @@ return (
 					{/* OAuth/OIDC Specification Links */}
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
-						// #region agent log (silently fail - analytics server not available)
-						// Suppress all errors to prevent console spam
-						try {
-								method: 'POST',
-								headers: 'Content-Type': 'application/json' ,
-								body: JSON.stringify(
-									location: 'UnifiedOAuthFlowV8U.tsx:1369',
-									message: 'Generating specification URLs',
-									data: 
-										specVersion,
-										flowType: effectiveFlowType,
-										primaryUrl: specUrls.primary,
-										primaryLabel: specUrls.primaryLabel,
-										allSpecsCount: specUrls.allSpecs.length,
-										allSpecs: specUrls.allSpecs.map((s) => (label: s.label, url: s.url, isPrimary: s.isPrimary )),,
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									hypothesisId: 'B',),
-							}).catch(() => );
-						} catch {
-							// Silently ignore - analytics server not available
-						}
-						// #endregion
 						return (
 							<div
 								style={{

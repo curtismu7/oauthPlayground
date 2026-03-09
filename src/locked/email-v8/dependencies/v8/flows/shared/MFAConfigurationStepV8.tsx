@@ -13,7 +13,7 @@ import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { logger } from '../../../../../utils/logger';
+import { logger } from '../../../../../../utils/logger';
 import { MFAInfoButtonV8 } from '../../components/MFAInfoButtonV8.tsx';
 import { WorkerTokenGaugeV8 } from '../../components/WorkerTokenGaugeV8.tsx';
 import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';

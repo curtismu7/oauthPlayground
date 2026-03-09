@@ -1,7 +1,7 @@
 // src/services/flowRedirectUriService.ts
 // Service for managing flow-specific redirect URIs using centralized mapping
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import {
 	type FlowRedirectUriConfig,
 	flowRequiresRedirectUri,

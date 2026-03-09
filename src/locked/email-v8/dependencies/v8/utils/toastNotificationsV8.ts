@@ -24,7 +24,7 @@
  * toastV8.info('Authorization URL copied to clipboard');
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages.ts';
 /**
  * V8 Toast Notification Service

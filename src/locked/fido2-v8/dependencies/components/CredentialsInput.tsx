@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { callbackUriService } from '../services/callbackUriService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';

@@ -13,7 +13,7 @@
  * - Error tracking
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 

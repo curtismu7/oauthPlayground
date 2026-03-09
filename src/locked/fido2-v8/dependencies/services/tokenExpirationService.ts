@@ -1,7 +1,7 @@
 // src/services/tokenExpirationService.ts
 // Unified service for checking worker token expiration and showing appropriate messages
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 export interface TokenExpirationInfo {
 	token: string | null;

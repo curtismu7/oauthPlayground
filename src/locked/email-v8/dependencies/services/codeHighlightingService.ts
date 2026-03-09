@@ -2,7 +2,7 @@
 // Centralized service for VS Code-style code and JSON syntax highlighting
 
 import Prism from 'prismjs';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';

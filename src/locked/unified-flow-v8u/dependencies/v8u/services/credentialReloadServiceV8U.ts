@@ -9,7 +9,7 @@
  * credentials during flow resets.
  */
 
-import { logger } from '../../../../utils/logger';
+import { logger } from '../../../../../utils/logger';
 import { CredentialsServiceV8 } from '../../v8/services/credentialsServiceV8.ts';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8.ts';
 import { SharedCredentialsServiceV8 } from '../../v8/services/sharedCredentialsServiceV8.ts';

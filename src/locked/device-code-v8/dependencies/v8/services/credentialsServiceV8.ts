@@ -661,7 +661,7 @@ export class CredentialsServiceV8 {
 			return parsed;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error importing credentials`, { error });
-			import { logger } from '../../../../utils/logger';
+			import { logger } from '../../../../../utils/logger';
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
