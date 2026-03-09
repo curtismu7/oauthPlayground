@@ -286,7 +286,7 @@ export class RedirectlessServiceV8 {
 
 		const pendingRaw = sessionStorage.getItem(`${config.flowKey}_redirectless_pending`);
 		if (!pendingRaw) {
-			logger.warn(`${MODULE_TAG} No pending resume data found`);
+			logger.warn(`${MODULE_TAG} No pending resume data found`, "Logger warning");
 			return null;
 		}
 
@@ -307,7 +307,7 @@ export class RedirectlessServiceV8 {
 		}
 
 		if (!resumeData.sessionId) {
-			logger.error(`${MODULE_TAG} Missing sessionId before resume`);
+			logger.error(`${MODULE_TAG} Missing sessionId before resume`, "Logger error");
 			throw new Error('PingOne session context is missing. Please restart the flow.');
 		}
 

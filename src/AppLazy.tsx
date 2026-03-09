@@ -148,7 +148,7 @@ const AppRoutes = () => {
 					import('./pages/Dashboard'),
 					import('./pages/FlowsLazy'),
 				]);
-				logger.info('[AppLazy] Preloaded common components');
+				logger.info('[AppLazy] Preloaded common components', "Logger info");
 			} catch (error) {
 				logger.warn('[AppLazy] Failed to preload some components:', error);
 			}
@@ -189,7 +189,7 @@ const AppRoutes = () => {
 	// Check for existing PingOne configuration on app load
 	useEffect(() => {
 		const checkConfiguration = () => {
-			logger.info('[AppLazy] Checking for existing configuration...');
+			logger.info('[AppLazy] Checking for existing configuration...', "Logger info");
 			try {
 				const savedConfig = localStorage.getItem('pingone_config');
 				const savedCreds = localStorage.getItem('login_credentials');

@@ -64,7 +64,7 @@ let migrationCompleted = false;
 const ensureMigration = async (): Promise<void> => {
 	if (!migrationCompleted) {
 		if (StorageServiceV8Migration.needsMigration()) {
-			logger.info(`${MODULE_TAG} Starting automatic migration...`);
+			logger.info(`${MODULE_TAG} Starting automatic migration...`, "Logger info");
 			const result = await StorageServiceV8Migration.migrateAll();
 			logger.info(`${MODULE_TAG} Migration completed`, result);
 		}
@@ -165,7 +165,7 @@ export class StorageServiceV8 {
 		try {
 			await ensureMigration();
 			await unifiedTokenStorage.clearAllV8();
-			logger.info(`${MODULE_TAG} All V8 data cleared`);
+			logger.info(`${MODULE_TAG} All V8 data cleared`, "Logger info");
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to clear all data`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -241,7 +241,7 @@ export class StorageServiceV8 {
 	 * @returns Total size of V8 storage in bytes
 	 * @example
 	 * const size = StorageServiceV8.getSize();
-	 * logger.info(`Storage size: ${size} bytes`);
+	 * logger.info(`Storage size: ${size} bytes`, "Logger info");
 	 */
 	static async getSize(): Promise<number> {
 		try {

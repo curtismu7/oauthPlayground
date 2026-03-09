@@ -164,7 +164,7 @@ export class FlowAnalyzer {
 		const flowData = flowAnalysisData[flowType as keyof typeof flowAnalysisData];
 
 		if (!flowData) {
-			logger.error(`Unknown flow type: ${flowType}`);
+			logger.error(`Unknown flow type: ${flowType}`, "Logger error");
 			throw new Error(`Unknown flow type: ${flowType}`);
 		}
 

@@ -849,7 +849,7 @@ export class SecurityAnalyticsManager {
 	// Update monitoring configuration
 	public updateConfig(newConfig: Partial<SecurityAnalyticsManager['monitoringConfig']>): void {
 		this.monitoringConfig = { ...this.monitoringConfig, ...newConfig };
-		logger.info('[SecurityAnalyticsManager] Configuration updated');
+		logger.info('[SecurityAnalyticsManager] Configuration updated', "Logger info");
 	}
 
 	// Enable/disable monitoring
@@ -861,7 +861,7 @@ export class SecurityAnalyticsManager {
 	// Destroy manager
 	public destroy(): void {
 		this.isMonitoring = false;
-		logger.info('[SecurityAnalyticsManager] Security analytics manager destroyed');
+		logger.info('[SecurityAnalyticsManager] Security analytics manager destroyed', "Logger info");
 	}
 }
 

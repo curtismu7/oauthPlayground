@@ -22,7 +22,7 @@ const MODULE_TAG = '[🧪 REAL-PINGONE-TEST]';
 
 describe('Real PingOne API Testing', () => {
 	beforeAll(() => {
-		logger.info(`${MODULE_TAG} Starting real PingOne API tests`);
+		logger.info(`${MODULE_TAG} Starting real PingOne API tests`, "Logger info");
 		logCredentialsStatus();
 	});
 
@@ -263,7 +263,7 @@ describe('Real PingOne API Testing', () => {
 	});
 
 	afterAll(() => {
-		logger.info(`${MODULE_TAG} Real PingOne API tests completed`);
-		logger.info(`${MODULE_TAG} ✅ All tests passed with real PingOne environment`);
+		logger.info(`${MODULE_TAG} Real PingOne API tests completed`, "Logger info");
+		logger.info(`${MODULE_TAG} ✅ All tests passed with real PingOne environment`, "Logger info");
 	});
 });

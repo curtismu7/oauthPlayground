@@ -295,7 +295,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 					'oauth-authorization-code-v7-1-app-config',
 					JSON.stringify(appConfig)
 				);
-				logger.info('✅ Configuration saved successfully');
+				logger.info('✅ Configuration saved successfully', "Logger info");
 			} catch (error) {
 				logger.error('❌ Failed to save configuration:', error);
 			}

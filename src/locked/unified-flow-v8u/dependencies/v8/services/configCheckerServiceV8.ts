@@ -234,7 +234,7 @@ export class ConfigCheckerServiceV8 {
 		},
 		pingOneConfig: PingOneApplication
 	): ConfigComparison {
-		logger.info(`${MODULE_TAG} Comparing configurations`);
+		logger.info(`${MODULE_TAG} Comparing configurations`, "Logger info");
 
 		const comparison: ConfigComparison = {
 			clientId: { match: userConfig.clientId === pingOneConfig.id },
@@ -405,7 +405,7 @@ export class ConfigCheckerServiceV8 {
 			});
 		}
 
-		logger.info(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`);
+		logger.info(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`, "Logger info");
 
 		return suggestions;
 	}

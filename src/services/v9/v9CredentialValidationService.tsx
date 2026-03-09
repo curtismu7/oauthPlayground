@@ -65,7 +65,7 @@ export interface V9FlowCredentialConfig {
  * ```typescript
  * // Access configuration for a specific flow
  * const config = V9_FLOW_CONFIGS['oidc-hybrid-v9'];
- * logger.info(config.requiredFields); // ['environmentId', 'clientId', 'redirectUri']
+ * logger.info(config.requiredFields, "Logger info"); // ['environmentId', 'clientId', 'redirectUri']
  * ```
  */
 export const V9_FLOW_CONFIGS: Record<string, V9FlowCredentialConfig> = {

@@ -101,7 +101,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 
 			logger.info(
 				`${MODULE_TAG} Loaded ${loadedPolicies.length} policies for environment ${envId}`
-			);
+			, "Logger info");
 
 			return loadedPolicies;
 		} catch (err) {
@@ -143,7 +143,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 
 	// Select policy
 	const selectPolicy = useCallback((policyId: string) => {
-		logger.info(`${MODULE_TAG} Policy selected: ${policyId}`);
+		logger.info(`${MODULE_TAG} Policy selected: ${policyId}`, "Logger info");
 		setInternalSelectedPolicyId(policyId);
 	}, []);
 

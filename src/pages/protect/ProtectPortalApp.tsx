@@ -356,7 +356,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 
 	const handleLoginStart = useCallback(() => {
-		logger.info('[🚀 PROTECT-PORTAL] Starting login flow');
+		logger.info('[🚀 PROTECT-PORTAL] Starting login flow', "Logger info");
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'custom-login',
@@ -438,7 +438,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleRetry = useCallback(() => {
-		logger.info('[🚀 PROTECT-PORTAL] Retrying from error state');
+		logger.info('[🚀 PROTECT-PORTAL] Retrying from error state', "Logger info");
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'portal-home',
@@ -448,7 +448,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleReset = useCallback(() => {
-		logger.info('[🚀 PROTECT-PORTAL] Resetting to initial state');
+		logger.info('[🚀 PROTECT-PORTAL] Resetting to initial state', "Logger info");
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: initialStep,

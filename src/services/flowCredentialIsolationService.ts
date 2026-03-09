@@ -55,9 +55,9 @@ class FlowCredentialIsolationService {
 	): boolean {
 		try {
 			console.group(`🔒 [CREDENTIAL ISOLATION] Saving credentials for flow: ${flowKey}`);
-			logger.info(`📋 Flow Key: ${flowKey}`);
+			logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
 			logger.info(`📋 Credentials:`, credentials);
-			logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
+			logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, "Logger info");
 
 			// Save to flow-specific storage (ALWAYS)
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
@@ -69,13 +69,13 @@ class FlowCredentialIsolationService {
 			};
 
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
-			logger.info(`✅ Saved to flow-specific storage: ${flowStorageKey}`);
+			logger.info(`✅ Saved to flow-specific storage: ${flowStorageKey}`, "Logger info");
 
 			// Optionally save to shared storage (OPT-IN ONLY)
 			if (options.useSharedFallback) {
 				logger.info(`📋 Saving to shared storage (opt-in)`);
 				localStorage.setItem(this.SHARED_STORAGE_KEY, JSON.stringify(credentials));
-				logger.info(`✅ Saved to shared storage: ${this.SHARED_STORAGE_KEY}`);
+				logger.info(`✅ Saved to shared storage: ${this.SHARED_STORAGE_KEY}`, "Logger info");
 			} else {
 				logger.info(`🔒 NOT saving to shared storage (isolation mode)`);
 			}
@@ -129,7 +129,7 @@ class FlowCredentialIsolationService {
 					credentials = { ...defaultCredentials, ...parsed.credentials };
 					credentialSource = 'flow-specific';
 					hasFlowSpecificCredentials = true;
-					logger.info(`✅ Using flow-specific credentials from: ${flowStorageKey}`);
+					logger.info(`✅ Using flow-specific credentials from: ${flowStorageKey}`, "Logger info");
 				}
 			} catch (error) {
 				logger.error(
@@ -185,7 +185,7 @@ class FlowCredentialIsolationService {
 		try {
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
 			localStorage.removeItem(flowStorageKey);
-			logger.info(`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`);
+			logger.info(`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`, "Logger info");
 			return true;
 		} catch (error) {
 			logger.error(
@@ -209,7 +209,7 @@ class FlowCredentialIsolationService {
 
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 			if (!sharedData) {
-				logger.info(`📋 No shared credentials to migrate`);
+				logger.info(`📋 No shared credentials to migrate`, "Logger info");
 				console.groupEnd();
 				return false;
 			}
@@ -242,7 +242,7 @@ class FlowCredentialIsolationService {
 			};
 
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
-			logger.info(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`);
+			logger.info(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`, "Logger info");
 			console.groupEnd();
 
 			return true;
@@ -292,7 +292,7 @@ class FlowCredentialIsolationService {
 				flowsUsingSharedFallback,
 			});
 		} else {
-			logger.info(`✅ All flows are properly isolated!`);
+			logger.info(`✅ All flows are properly isolated!`, "Logger info");
 		}
 
 		console.groupEnd();
@@ -314,9 +314,9 @@ class FlowCredentialIsolationService {
 		const flowKeys = this.getAllFlowStorageKeys();
 		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
-			logger.info(`🗑️ Cleared: ${key}`);
+			logger.info(`🗑️ Cleared: ${key}`, "Logger info");
 		});
-		logger.info(`✅ Cleared ${flowKeys.length} flow-specific credential stores`);
+		logger.info(`✅ Cleared ${flowKeys.length} flow-specific credential stores`, "Logger info");
 	}
 }
 

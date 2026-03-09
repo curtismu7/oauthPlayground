@@ -121,7 +121,7 @@ const Callback = () => {
 			setHasProcessed(true);
 
 			try {
-				logger.info(' [Callback] Starting OAuth callback processing...');
+				logger.info(' [Callback] Starting OAuth callback processing...', "Logger info");
 				logger.info(' [Callback] Current URL:', window.location.href);
 				logger.info(' [Callback] Location details:', {
 					href: window.location.href,
@@ -190,7 +190,7 @@ const Callback = () => {
 
 					// If this is a popup, send error to parent and close
 					if (window.opener && !window.opener.closed) {
-						logger.info(' [Callback] Sending error message to parent window');
+						logger.info(' [Callback] Sending error message to parent window', "Logger info");
 						window.opener.postMessage(
 							{
 								type: 'oauth-callback',
@@ -239,7 +239,7 @@ const Callback = () => {
 
 				// Check if this is a popup window and send message to parent
 				if (window.opener && !window.opener.closed) {
-					logger.info(' [Callback] Sending message to parent window');
+					logger.info(' [Callback] Sending message to parent window', "Logger info");
 					window.opener.postMessage(
 						{
 							type: 'oauth-callback',
@@ -275,7 +275,7 @@ const Callback = () => {
 				}
 
 				// If we reach here, authentication was successful
-				logger.info(' [Callback] Authentication successful');
+				logger.info(' [Callback] Authentication successful', "Logger info");
 				setStatus('success');
 
 				// Get the redirect URL from the callback result

@@ -126,7 +126,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			logger.info(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			logger.info(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`, "Logger info");
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -319,7 +319,7 @@ export class HybridFlowIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code?: string; access_token?: string; id_token?: string; state: string } {
-		logger.info(`${MODULE_TAG} Parsing callback fragment for hybrid flow`);
+		logger.info(`${MODULE_TAG} Parsing callback fragment for hybrid flow`, "Logger info");
 
 		try {
 			const url = new URL(callbackUrl);
@@ -430,7 +430,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Handle client authentication based on method
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
-			logger.info(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
+			logger.info(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`, "Logger info");
 
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 				// JWT assertion authentication
@@ -488,7 +488,7 @@ export class HybridFlowIntegrationServiceV8 {
 							// client_secret_basic - backend will reconstruct Authorization header from client_secret in body
 							logger.info(
 								`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`
-							);
+							, "Logger info");
 						}
 					} else {
 						throw new Error(`Client secret is required for ${authMethod} authentication`);
@@ -623,7 +623,7 @@ export class HybridFlowIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`);
+		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
 
 		try {
 			const parts = token.split('.');
@@ -636,7 +636,7 @@ export class HybridFlowIntegrationServiceV8 {
 			const payload = JSON.parse(HybridFlowIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`);
+			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
 
 			return { header, payload, signature };
 		} catch (error) {
@@ -680,14 +680,14 @@ export class HybridFlowIntegrationServiceV8 {
 			const payload = decoded.payload as { nonce?: string };
 
 			if (!payload.nonce) {
-				logger.warn(`${MODULE_TAG} No nonce in ID token`);
+				logger.warn(`${MODULE_TAG} No nonce in ID token`, "Logger warning");
 				return false;
 			}
 
 			const nonceMatches = payload.nonce === expectedNonce;
 
 			if (!nonceMatches) {
-				logger.error(`${MODULE_TAG} Nonce mismatch`);
+				logger.error(`${MODULE_TAG} Nonce mismatch`, "Logger error");
 			}
 
 			return nonceMatches;

@@ -346,7 +346,7 @@ const IDTokensFlow = () => {
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }
 			);
-			logger.info(`IDTokensFlow: Selected app: ${app.name}`);
+			logger.info(`IDTokensFlow: Selected app: ${app.name}`, "Logger info");
 		},
 		[config?.environmentId]
 	);
@@ -401,7 +401,7 @@ const IDTokensFlow = () => {
 					}
 				}
 
-				logger.info(' [IDTokensFlow] No ID token found in storage');
+				logger.info(' [IDTokensFlow] No ID token found in storage', "Logger info");
 			} catch {
 				// Silently ignore storage read errors
 			}
@@ -604,7 +604,7 @@ if (!isValid) {
   throw new Error('ID token validation failed');
 }
 
-logger.info('ID token is valid!');`,
+logger.info('ID token is valid!', "Logger info");`,
 		},
 	];
 

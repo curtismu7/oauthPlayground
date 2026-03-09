@@ -213,7 +213,7 @@ const MFARedirectUriDebugger = {
 
 		if (fallback) {
 			logger.info('⚠️ Fallback URI Used:', fallback);
-			logger.info('❌ Reason: No mapping found for flow type');
+			logger.info('❌ Reason: No mapping found for flow type', "Logger info");
 		}
 
 		// Check if URI is HTTPS
@@ -222,7 +222,7 @@ const MFARedirectUriDebugger = {
 			logger.info('🔒 HTTPS Protocol:', isHttps ? '✅ Yes' : '❌ No');
 
 			if (!isHttps) {
-				logger.warn('⚠️ SECURITY WARNING: Redirect URI is not using HTTPS!');
+				logger.warn('⚠️ SECURITY WARNING: Redirect URI is not using HTTPS!', "Logger warning");
 			}
 		}
 
@@ -252,7 +252,7 @@ const MFARedirectUriDebugger = {
 		logger.info('🔄 Flow Type:', flowType);
 		logger.info('📤 Old URI:', oldUri || 'None');
 		logger.info('📥 New URI:', newUri);
-		logger.info(`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`);
+		logger.info(`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`, "Logger info");
 		console.groupEnd();
 	},
 
@@ -283,12 +283,12 @@ const MFARedirectUriDebugger = {
 		logger.info('🔗 URI:', uri);
 
 		if (issues.length > 0) {
-			logger.warn('⚠️ Issues Found:');
+			logger.warn('⚠️ Issues Found:', "Logger warning");
 			issues.forEach((issue) => {
 				logger.warn('  -', issue);
 			});
 		} else {
-			logger.info('✅ URI validation passed');
+			logger.info('✅ URI validation passed', "Logger info");
 		}
 
 		console.groupEnd();
@@ -348,7 +348,7 @@ export const MFARedirectUriServiceV8 = {
 				config as unknown as Record<string, unknown>
 			);
 
-			logger.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
+			logger.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`, "Logger error");
 			return fallbackUri;
 		}
 
@@ -366,7 +366,7 @@ export const MFARedirectUriServiceV8 = {
 			PersistentLogger.logValidation(flowType, redirectUri, issues);
 		}
 
-		logger.info(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`);
+		logger.info(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`, "Logger info");
 		return redirectUri;
 	},
 

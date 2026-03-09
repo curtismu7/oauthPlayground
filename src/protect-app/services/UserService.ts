@@ -247,7 +247,7 @@ class UserService {
 	 * Get user by ID
 	 */
 	async getUserById(id: string): Promise<User | null> {
-		logger.info(`${MODULE_TAG} Getting user by ID: ${id}`);
+		logger.info(`${MODULE_TAG} Getting user by ID: ${id}`, "Logger info");
 		try {
 			const user = this.users.find((u) => u.id === id);
 			return user || null;
@@ -326,7 +326,7 @@ class UserService {
 	 * Delete user
 	 */
 	async deleteUser(id: string): Promise<void> {
-		logger.info(`${MODULE_TAG} Deleting user: ${id}`);
+		logger.info(`${MODULE_TAG} Deleting user: ${id}`, "Logger info");
 
 		try {
 			const userIndex = this.users.findIndex((u) => u.id === id);
@@ -345,7 +345,7 @@ class UserService {
 	 * Get all available roles
 	 */
 	async getRoles(): Promise<UserRole[]> {
-		logger.info(`${MODULE_TAG} Getting all roles`);
+		logger.info(`${MODULE_TAG} Getting all roles`, "Logger info");
 		try {
 			return [...this.roles];
 		} catch (error) {
@@ -358,7 +358,7 @@ class UserService {
 	 * Get all available statuses
 	 */
 	async getStatuses(): Promise<UserStatus[]> {
-		logger.info(`${MODULE_TAG} Getting all statuses`);
+		logger.info(`${MODULE_TAG} Getting all statuses`, "Logger info");
 		try {
 			return [...this.statuses];
 		} catch (error) {

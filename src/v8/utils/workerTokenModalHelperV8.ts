@@ -77,7 +77,7 @@ async function attemptSilentTokenRetrieval(
 		}
 
 		if (!silentApiRetrieval) {
-			logger.info(`${MODULE_TAG} Silent retrieval disabled`);
+			logger.info(`${MODULE_TAG} Silent retrieval disabled`, "Logger info");
 			return false;
 		}
 
@@ -96,7 +96,7 @@ async function attemptSilentTokenRetrieval(
 		});
 
 		if (result.success) {
-			logger.info(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
+			logger.info(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`, "Logger info");
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Worker token automatically retrieved!',
@@ -328,7 +328,7 @@ export async function handleShowWorkerTokenModal(
 		if (!credentialsCheck) {
 			// ALWAYS show modal when credentials are missing, even in silent mode
 			// User needs to configure credentials to continue
-			logger.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`);
+			logger.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`, "Logger warning");
 			setShowModal(true);
 			return;
 		}
