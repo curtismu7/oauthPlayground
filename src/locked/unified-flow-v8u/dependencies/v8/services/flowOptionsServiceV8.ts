@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../../../../utils/logger';
  * @file flowOptionsServiceV8.ts
  * @module v8/services
  * @description Flow-aware options service - determines which OAuth/OIDC options are valid for each flow
@@ -17,6 +16,7 @@ import { logger } from '../../../../../utils/logger';
  * // Returns: { responseTypes: [...], authMethods: [...], ... }
  */
 
+import { logger } from '../../../../../utils/logger';
 const MODULE_TAG = '[⚙️ FLOW-OPTIONS-V8]';
 
 export type ResponseType =

@@ -1,5 +1,4 @@
 /**
-import { logger } from '../utils/logger';
  * @file loggingService.ts
  * @module services
  * @description Centralized logging service with file output capability
@@ -10,6 +9,7 @@ import { logger } from '../utils/logger';
  * Supports in-memory storage and file export
  */
 
+import { logger } from '../utils/logger';
 export enum LogLevel {
 	ERROR = 0,
 	WARN = 1,

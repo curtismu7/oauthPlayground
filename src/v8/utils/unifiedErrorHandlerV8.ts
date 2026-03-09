@@ -1,5 +1,4 @@
 /**
-import { logger } from '../../utils/logger';
  * @file unifiedErrorHandlerV8.ts
  * @module v8/utils
  * @description Standardized error handling for Unified MFA flows
@@ -10,6 +9,7 @@ import { logger } from '../../utils/logger';
  * to ensure proper user experience and debugging capabilities.
  */
 
+import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🚨 UNIFIED-ERROR-HANDLER-V8]';
 
 export interface ErrorContext {
@@ -57,7 +57,7 @@ export const unifiedErrorHandlerV8 = {
 		if (showToast) {
 			// Import toast dynamically to avoid circular dependencies
 			import('@/v8/utils/toastNotificationsV8')
-				.then(({ toastV8 }) => {
+				.then(({ toastV8: _toastV8 }) => {
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -128,7 +128,7 @@ export const unifiedErrorHandlerV8 = {
 
 		// Show validation feedback
 		import('@/v8/utils/toastNotificationsV8')
-			.then(({ toastV8 }) => {
+			.then(({ toastV8: _toastV8 }) => {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
