@@ -11,10 +11,10 @@ import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
-import { logger } from '../../utils/logger';
 const MODULE_TAG = '[🔑 FIDO2-CONTROLLER]';
 
 /**

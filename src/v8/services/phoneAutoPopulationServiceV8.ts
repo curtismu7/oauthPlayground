@@ -5,9 +5,9 @@
  * @version 8.0.0
  */
 
+import { logger } from '../../utils/logger';
 import { MFAServiceV8, type UserLookupResult } from './mfaServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[📞 PHONE-AUTO-POPULATION-V8]';
 
 /**

@@ -10,7 +10,8 @@ import type { WorkerTokenStatus } from '@/types/credentials';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 interface GlobalMFAState {
 	environmentId: string | null;
 	workerTokenStatus: WorkerTokenStatus | null;

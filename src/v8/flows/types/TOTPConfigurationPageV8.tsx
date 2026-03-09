@@ -24,9 +24,9 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
+import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-import { logger } from '../../utils/logger';
 const _MODULE_TAG = '[🔐 TOTP-CONFIG-V8]';
 
 export const TOTPConfigurationPageV8: React.FC = () => {

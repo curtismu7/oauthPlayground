@@ -50,7 +50,7 @@ import {
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { trackedFetch } from '../../utils/trackedFetch';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Type for PingOne user objects
 interface PingOneUserName {
 	given?: string;

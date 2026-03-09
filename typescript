@@ -3836,4 +3836,1231 @@ export function getNextPollingInterval(error: DeviceTokenError, currentInterval:
 253: "\t\t\tpriority: 'low',"
 254: '\t\t});'
 [1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3 && npm run build 2>&1 | tai [Kll -5[?1l>[?2004l
-]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3 && npm run build 2]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3 && npm run build 2>&1 | tail -5;]633;C
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3 && npm run build 2]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3 && npm run build 2>&1 | tail -5;]633;C✖ 843 problems (0 errors, 843 warnings)
+  0 errors and 50 warnings potentially fixable with the `--fix` option.
+
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "^src|error:|Error:" | head -20[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E "^src|error:|Error:" | head -20]1;npm]633;E; npm run build 2>&1 | grep -E "^src|error:|Error:" | head -20;]633;CAdditionally, handling the error in the 'buildEnd' hook caused the following error:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m)[00m ]633;B[K  npm run build 2>&1 | grep -E "Plugin|Could not|Cannot|failed|FAIL|error TS" | head -20[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -20]1;npm]633;E; npm run build 2>&1 | grep -E "Plugin|Could not|Cannot|failed|FAIL|error TS" | head -20;]633;C✗ Build failed in 1.18s
+  Could not resolve "../utils/logger" from "src/components/callbacks/WorkerTokenCallback.tsx"
+  Could not resolve "../utils/logger" from "src/components/callbacks/WorkerTokenCallback.tsx"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m)[00m ]633;B[K[?1h=[?2004h  find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger*" | head -5 && grep - [Knn "logger\|import" /Users/cmuir/P1Import-apps/oauth-playground/src/components/callbacks/WorkerTokenCallback.tsx | head -10[?1l>[?2004l
+]2;find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger*" | head -]1;find]633;E; find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger*" | head -5 && grep -n "logger\\|import" /Users/cmuir/P1Import-apps/oauth-playground/src/components/callbacks/WorkerTokenCallback.tsx | head -10;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/locked/mfa-hub-v8/dependencies/utils/logger.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/fido2-v8/dependencies/utils/logger.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/device-code-v8/dependencies/utils/logger.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/unified-flow-v8u/dependencies/utils/logger.ts
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/email-v8/dependencies/utils/logger.ts
+1:import { FiLoader } from '@icons';
+2:import React, { useEffect, useState } from 'react';
+3:import { useLocation, useNavigate } from 'react-router-dom';
+4:import styled from 'styled-components';
+5:import { useAuth } from '../../contexts/NewAuthContext';
+6:import { getValidatedCurrentUrl } from '../../utils/urlValidation';
+8:import { logger } from '../utils/logger';
+97:				logger.info('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
+104:					logger.success('WorkerTokenCallback', 'Worker token flow successful', {
+116:					logger.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m)[00m ]633;B[K[?1h=[?2004h[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;E;;]633;C]633;D]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  ls /Users/cmuir/P1Import-apps/oauth-playground/src/utils/logger* 2>/dev/null && ls /Us [Keers/cmuir/P1Import-apps/oauth-playground/src/components/utils/ 2>/dev/null[?1l>[?2004l
+]2;ls -G /Users/cmuir/P1Import-apps/oauth-playground/src/utils/logger* 2>  && ls]1;ls]633;E; ls /Users/cmuir/P1Import-apps/oauth-playground/src/utils/logger* 2>/dev/null && ls /Users/cmuir/P1Import-apps/oauth-playground/src/components/utils/ 2>/dev/null;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/utils/logger.ts
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;1]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger.ts" -not -path "*/l [Koocked/*" -not -path "*/lockdown/*" 2>/dev/null[?1l>[?2004l
+]2;find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger.ts" -not  ]1;find]633;E; find /Users/cmuir/P1Import-apps/oauth-playground/src -name "logger.ts" -not -path "*/locked/*" -not -path "*/lockdown/*" 2>/dev/null;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/utils/logger.ts
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  git -C /Users/cmuir/P1Import-apps/oauth-playground show HEAD:src/components/callbacks/ [KWWorkerTokenCallback.tsx | head -10 2>/dev/null || git -C /Users/cmuir/P1Import-apps/oauth-playground log --oneline --follow -- src/components/callbacks/Worker [KTTokenCallback.tsx | head -5[?1l>[?2004l
+]2;git -C /Users/cmuir/P1Import-apps/oauth-playground show  | head -10 2>  || gi]1;git]633;E; git -C /Users/cmuir/P1Import-apps/oauth-playground show HEAD:src/components/callbacks/WorkerTokenCallback.tsx | head -10 2>/dev/null || git -C /Users/cmuir/P1Import-apps/oauth-playground log --oneline --follow -- src/components/callbacks/WorkerTokenCallback.tsx | head -5;]633;Cimport { FiLoader } from '@icons';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { getValidatedCurrentUrl } from '../../utils/urlValidation';
+
+import { logger } from '../utils/logger';
+const CallbackContainer = styled.div`
+  display: flex;
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "WorkerTokenCallback" /Users/cmuir/P1Import-apps/oauth-playground/src --inclu [Kdde="*.tsx" --include="*.ts" | grep -v "WorkerTokenCallback.tsx"[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "WorkerTokenCallback" /Users/cmuir/P1Import-apps/oauth-playground/src --include="*.tsx" --include="*.ts" | grep -v "WorkerTokenCallback.tsx";]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/App.tsx:117:import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
+/Users/cmuir/P1Import-apps/oauth-playground/src/App.tsx:626:								<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/mfa-hub-v8/dependencies/utils/urlValidation.ts:6: * @param context - Context for logging (e.g., 'AuthzCallback', 'WorkerTokenCallback')
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/fido2-v8/dependencies/utils/urlValidation.ts:6: * @param context - Context for logging (e.g., 'AuthzCallback', 'WorkerTokenCallback')
+/Users/cmuir/P1Import-apps/oauth-playground/src/locked/email-v8/dependencies/utils/urlValidation.ts:6: * @param context - Context for logging (e.g., 'AuthzCallback', 'WorkerTokenCallback')
+/Users/cmuir/P1Import-apps/oauth-playground/src/utils/urlValidation.ts:6: * @param context - Context for logging (e.g., 'AuthzCallback', 'WorkerTokenCallback')
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -A5 "alias" /Users/cmuir/P1Import-apps/oauth-playground/vite.config.ts | head -20 [K[K[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -A5 "alias" /Users/cmuir/P1Import-apps/oauth-playground/vite.config.ts | head -20;]633;C			alias: {
+				'@': path.resolve(__dirname, './src'),
+				'@/v8': path.resolve(__dirname, './src/v8'),
+				'@/v8/components': path.resolve(__dirname, './src/v8/components'),
+				'@/v8/services': path.resolve(__dirname, './src/v8/services'),
+				'@/v8/hooks': path.resolve(__dirname, './src/v8/hooks'),
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  rm -rf /Users/cmuir/P1Import-apps/oauth-playground/node_modules/.vite && cd /Users/cmu [Kiir/P1Import-apps/oauth-playground && npm run build 2>&1 | grep -E "✓ built|✗ Build|Could not|error" | head -10[?1l>[?2004l
+]2;rm -rf /Users/cmuir/P1Import-apps/oauth-playground/node_modules/.vite && cd  ]1;rm]633;E; rm -rf /Users/cmuir/P1Import-apps/oauth-playground/node_modules/.vite && cd /Users/cmuir/P1Import-apps/oauth-playground && npm run build 2>&1 | grep -E "✓ built|✗ Build|Could not|error" | head -10;]633;C✗ Build failed in 1.42s
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/components/callbacks/DashboardCallback.tsx: There was an error during the build:
+  Could not resolve "../utils/logger" from "src/components/callbacks/DashboardCallback.tsx"
+Additionally, handling the error in the 'buildEnd' hook caused the following error:
+  Could not resolve "../utils/logger" from "src/components/callbacks/DashboardCallback.tsx"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -i '' "s|from '../utils/logger'|from '../../utils/logger'|g" src/components/callba [Kccks/DeviceCodeStatus.tsx src/components/callbacks/AuthzCallback.tsx src/components/callbacks/ImplicitCallback.tsx src/components/callbacks/HybridCallback.tsx  [Kssrc/components/callbacks/DashboardCallback.tsx src/components/callbacks/WorkerTokenCallback.tsx && grep -n "utils/logger" src/components/callbacks/*.tsx[?1l>[?2004l
+]2;sed -i '' "s|from '../utils/logger'|from '../../utils/logger'|g"       && gre]1;sed]633;E; sed -i '' "s|from '../utils/logger'|from '../../utils/logger'|g" src/components/callbacks/DeviceCodeStatus.tsx src/components/callbacks/AuthzCallback.tsx src/components/callbacks/ImplicitCallback.tsx src/components/callbacks/HybridCallback.tsx src/components/callbacks/DashboardCallback.tsx src/components/callbacks/WorkerTokenCallback.tsx && grep -n "utils/logger" src/components/callbacks/*.tsx;]633;Csrc/components/callbacks/AuthzCallback.tsx:9:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+src/components/callbacks/DashboardCallback.tsx:8:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+src/components/callbacks/DeviceCodeStatus.tsx:5:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+src/components/callbacks/HybridCallback.tsx:8:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+src/components/callbacks/ImplicitCallback.tsx:7:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+src/components/callbacks/WorkerTokenCallback.tsx:8:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -5[?1l>[?2004l
+]2;npm run build 2>&1 | tail -5]1;npm]633;E; npm run build 2>&1 | tail -5;]633;C    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Could not|Cannot find|error TS|✓ built|✗ Build|error dur [Kiing" | head -15[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -15]1;npm]633;E; npm run build 2>&1 | grep -E "Could not|Cannot find|error TS|✓ built|✗ Build|error during" | head -15;]633;C✗ Build failed in 1.53s
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/flows/TokenIntrospectionFlow.tsx: There was an error during the build:
+  Could not resolve "../utils/logger" from "src/pages/flows/TokenIntrospectionFlow.tsx"
+  Could not resolve "../utils/logger" from "src/pages/flows/TokenIntrospectionFlow.tsx"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "n [Koode_modules"[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "node_modules";]633;Csrc/v8/contexts/MFACredentialContext.tsx:29:import { logger } from '../utils/logger';
+src/v8/contexts/GlobalMFAContext.tsx:13:import { logger } from '../utils/logger';
+src/v8/contexts/FlowStateContext.tsx:10:import { logger } from '../utils/logger';
+src/v8/config/testCredentials.ts:2:import { logger } from '../utils/logger';
+src/v8/config/deviceFlowConfigs.ts:24:import { logger } from '../utils/logger';
+src/v8/utils/mfaNextStepNormalizer.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/mfaFlowCleanupV8.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/oauthStateUtilsV8.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/authHeaderUtilsV8.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/fileUploadMonitor.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/toastNotificationsV8.ts:29:import { logger } from '../utils/logger';
+src/v8/utils/workerTokenModalHelperV8.ts:20:import { logger } from '../utils/logger';
+src/v8/utils/mfaRedirectUriMigrationV8.ts:11:import { logger } from '../utils/logger';
+src/v8/utils/workerTokenModalHelperV8_SIMPLE.ts:6:import { logger } from '../utils/logger';
+src/v8/utils/mfaFeatureFlagHelpers.ts:28:import { logger } from '../utils/logger';
+src/v8/utils/unifiedErrorHandlerV8.ts:2:import { logger } from '../utils/logger';
+src/v8/utils/errorHandlingUtilsV8.ts:2:import { logger } from '../utils/logger';
+src/v8/components/StepNavigationV8.tsx:26:import { logger } from '../utils/logger';
+src/v8/components/TokenEndpointAuthModal.tsx:12:import { logger } from '../utils/logger';
+src/v8/components/MFAInfoButtonV8.tsx:19:import { logger } from '../utils/logger';
+src/v8/components/EnhancedCredentialsFormV8.tsx:23:import { logger } from '../utils/logger';
+src/v8/components/MFADeviceRegistrationV8.tsx:17:import { logger } from '../utils/logger';
+src/v8/components/WorkerTokenSectionV8.tsx:20:import { logger } from '../utils/logger';
+src/v8/components/MFASettingsModalV8.tsx:7:import { logger } from '../utils/logger';
+src/v8/components/MFADeviceSelectorV8.tsx:11:import { logger } from '../utils/logger';
+src/v8/components/WorkerTokenStatusDisplayV8.tsx:48:import { logger } from '../utils/logger';
+src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx:25:import { logger } from '../utils/logger';
+src/v8/components/EmailInputV8.tsx:22:import { logger } from '../utils/logger';
+src/v8/components/LoginHintInputV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/StepActionButtonsV8.tsx:29:import { logger } from '../utils/logger';
+src/v8/components/ResponseTypeDropdownV8.tsx:20:import { logger } from '../utils/logger';
+src/v8/components/DeviceLimitErrorModalV8.tsx:12:import { logger } from '../utils/logger';
+src/v8/components/DisplayModeDropdownV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/PKCEInputV8.tsx:19:import { logger } from '../utils/logger';
+src/v8/components/MFAErrorBoundary.tsx:11:import { logger } from '../utils/logger';
+src/v8/components/TokenExchangeAdminToggleV8.tsx:11:import { logger } from '../utils/logger';
+src/v8/components/StepProgressBarV8.tsx:25:import { logger } from '../utils/logger';
+src/v8/components/MFADeviceManagerV8.tsx:28:import { logger } from '../utils/logger';
+src/v8/components/UserAuthenticationSuccessPageV8.tsx:16:import { logger } from '../utils/logger';
+src/v8/components/UserLoginSectionV8.tsx:17:import { logger } from '../utils/logger';
+src/v8/components/CreatePolicyModalV8.tsx:11:import { logger } from '../utils/logger';
+src/v8/components/UserLoginModalV8.tsx:36:import { logger } from '../utils/logger';
+src/v8/components/CredentialsFormV8.tsx:46:import { logger } from '../utils/logger';
+src/v8/components/MFADocumentationModalV8.tsx:15:import { logger } from '../utils/logger';
+src/v8/components/PKCEEnforcementDropdownV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/SuperSimpleApiDisplayV8.tsx:23:import { logger } from '../utils/logger';
+src/v8/components/ScopesInputV8.tsx:19:import { logger } from '../utils/logger';
+src/v8/components/IssuerURLInputV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/PromptModalV8.tsx:21:import { logger } from '../utils/logger';
+src/v8/components/UserMFACallbackDebugPage.tsx:12:import { logger } from '../utils/logger';
+src/v8/components/RefreshTokenTypeDropdownV8.tsx:24:import { logger } from '../utils/logger';
+src/v8/components/CountryCodePickerV8.tsx:17:import { logger } from '../utils/logger';
+src/v8/components/ResponseModeDropdownV8.tsx:21:import { logger } from '../utils/logger';
+src/v8/components/AppPickerV8.tsx:14:import { logger } from '../utils/logger';
+src/v8/components/FIDODeviceExistsModalV8.tsx:14:import { logger } from '../utils/logger';
+src/v8/components/ClientTypeRadioV8.tsx:17:import { logger } from '../utils/logger';
+src/v8/components/SuperSimpleApiDisplayV8-old.tsx:23:import { logger } from '../utils/logger';
+src/v8/components/ScopeFixModalV8.tsx:15:import { logger } from '../utils/logger';
+src/v8/components/ConfirmationModalV8.tsx:23:import { logger } from '../utils/logger';
+src/v8/components/BackendDownModalV8.tsx:11:import { logger } from '../utils/logger';
+src/v8/components/MaxAgeInputV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/SimplePingOneApiDisplayV8.tsx:20:import { logger } from '../utils/logger';
+src/v8/components/SearchableDropdownV8.tsx:21:import { logger } from '../utils/logger';
+src/v8/components/RegistrationFlowStepperV8.tsx:39:import { logger } from '../utils/logger';
+src/v8/components/MFADocumentationPageV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/components/StepValidationFeedbackV8.tsx:26:import { logger } from '../utils/logger';
+src/v8/hooks/useCibaFlowV8Enhanced.ts:33:import { logger } from '../utils/logger';
+src/v8/hooks/useStepNavigationV8.ts:30:import { logger } from '../utils/logger';
+src/v8/hooks/useEnhancedCredentialsTracking.ts:21:import { logger } from '../utils/logger';
+src/v8/hooks/usePingOneAppConfig.ts:11:import { logger } from '../utils/logger';
+src/v8/hooks/useHybridFlowV8.ts:33:import { logger } from '../utils/logger';
+src/v8/hooks/useSilentApiConfigV8.ts:23:import { logger } from '../utils/logger';
+src/v8/hooks/useMFADevices.ts:20:import { logger } from '../utils/logger';
+src/v8/hooks/useUserSearch.ts:16:import { logger } from '../utils/logger';
+src/v8/hooks/useWorkerToken.ts:21:import { logger } from '../utils/logger';
+src/v8/hooks/useCibaFlowV8.ts:31:import { logger } from '../utils/logger';
+src/v8/hooks/useSQLiteStats.ts:17:import { logger } from '../utils/logger';
+src/v8/hooks/useActionButton.ts:11:import { logger } from '../utils/logger';
+src/v8/hooks/useMFAPolicies.ts:20:import { logger } from '../utils/logger';
+src/v8/hooks/useMFAAuthentication.ts:19:import { logger } from '../utils/logger';
+src/v8/pages/DebugLogViewerPopoutV8.tsx:13:import { logger } from '../utils/logger';
+src/v8/pages/DebugLogViewerV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/pages/DeviceAuthenticationDetailsV8.tsx:17:import { logger } from '../utils/logger';
+src/v8/pages/MFAFeatureFlagsAdminV8.tsx:16:import { logger } from '../utils/logger';
+src/v8/pages/DeleteAllDevicesUtilityV8.tsx:41:import { logger } from '../utils/logger';
+src/v8/pages/UnifiedCredentialsMockupV8.tsx:30:import { logger } from '../utils/logger';
+src/v8/pages/MFADeviceCreateDemoV8.tsx:19:import { logger } from '../utils/logger';
+src/v8/pages/EnvironmentManagementPageV8.tsx:14:import { logger } from '../utils/logger';
+src/v8/flows/PingOneProtectFlowV8.tsx:33:import { logger } from '../utils/logger';
+src/v8/flows/OIDCHybridFlowV8.tsx:28:import { logger } from '../utils/logger';
+src/v8/flows/MFAAuthenticationMainPageV8.tsx:69:import { logger } from '../utils/logger';
+src/v8/flows/MFAReportingFlowV8.tsx:41:import { logger } from '../utils/logger';
+src/v8/flows/MFAConfigurationPageV8.tsx:30:import { logger } from '../utils/logger';
+src/v8/flows/CompleteMFAFlowV8.tsx:32:import { logger } from '../utils/logger';
+src/v8/flows/ResourcesAPIFlowV8.tsx:15:import { logger } from '../utils/logger';
+src/v8/flows/MFADeviceManagementFlowV8.tsx:35:import { logger } from '../utils/logger';
+src/v8/flows/CIBAFlowV8.tsx:29:import { logger } from '../utils/logger';
+src/v8/flows/MFAFlowV8.tsx:49:import { logger } from '../utils/logger';
+src/v8/flows/EmailMFASignOnFlowV8.tsx:31:import { logger } from '../utils/logger';
+src/v8/flows/MFADeviceOrderingFlowV8.tsx:21:import { logger } from '../utils/logger';
+src/v8/flows/NewMFAFlowV8.tsx:13:import { logger } from '../utils/logger';
+src/v8/flows/TokenExchangeFlowV8.tsx:18:import { logger } from '../utils/logger';
+src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx:28:import { logger } from '../utils/logger';
+src/v8/services/mfaAuthenticationServiceV8.ts:26:import { logger } from '../utils/logger';
+src/v8/services/environmentServiceV8Simple.ts:6:import { logger } from '../utils/logger';
+src/v8/services/environmentIdServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/jwksCacheServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/passkeyServiceV8.ts:24:import { logger } from '../utils/logger';
+src/v8/services/cibaServiceV8Enhanced.ts:30:import { logger } from '../utils/logger';
+src/v8/services/apiDisplayServiceV8.ts:15:import { logger } from '../utils/logger';
+src/v8/services/flowOptionsServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/oidcDiscoveryServiceV8.ts:192:					import { logger } from '../utils/logger';
+src/v8/services/dualStorageServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/flowResetServiceV8.ts:22:import { logger } from '../utils/logger';
+src/v8/services/sqliteStatsServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/pingOneAuthenticationServiceV8.ts:15:import { logger } from '../utils/logger';
+src/v8/services/sharedCredentialsServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/specVersionServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/tokenDisplayServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/clientCredentialsIntegrationServiceV8.ts:18:import { logger } from '../utils/logger';
+src/v8/services/preFlightValidationServiceV8.ts:34:import { logger } from '../utils/logger';
+src/v8/services/unifiedMFAResumeStepResolverV8.ts:22:import { logger } from '../utils/logger';
+src/v8/services/userServiceV8.ts:9:import { logger } from '../utils/logger';
+src/v8/services/discoveryCacheServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/tokenExchangeConfigServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/deviceCreateDemoServiceV8.ts:10:import { logger } from '../utils/logger';
+src/v8/services/tokenEndpointAuthMethodServiceV8.ts:20:import { logger } from '../utils/logger';
+src/v8/services/deviceCodeIntegrationServiceV8.ts:21:import { logger } from '../utils/logger';
+src/v8/services/validationServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/ropcIntegrationServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/protectServiceV8.ts:15:import { logger } from '../utils/logger';
+src/v8/services/workerTokenServiceV8.ts:18:import { logger } from '../utils/logger';
+src/v8/services/comprehensiveTokenUIService.ts:9:import { logger } from '../utils/logger';
+src/v8/services/enhancedCredentialsServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/credentialsServiceV8.ts:40:import { logger } from '../utils/logger';
+src/v8/services/globalWorkerTokenService.ts:8:import { logger } from '../utils/logger';
+src/v8/services/specUrlServiceV8.ts:12:import { logger } from '../utils/logger';
+src/v8/services/cibaServiceV8.ts:23:import { logger } from '../utils/logger';
+src/v8/services/hybridFlowIntegrationServiceV8.ts:22:import { logger } from '../utils/logger';
+src/v8/services/tokenOperationsServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/unifiedMFASuccessPageServiceV8.tsx:32:import { logger } from '../utils/logger';
+src/v8/services/uiNotificationServiceV8.ts:27:import { logger } from '../utils/logger';
+src/v8/services/environmentServiceV8.ts:8:import { logger } from '../utils/logger';
+src/v8/services/mfaReportingServiceV8.ts:19:import { logger } from '../utils/logger';
+src/v8/services/oauthErrorCodesServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/redirectlessServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/oauthIntegrationServiceV8.ts:21:import { logger } from '../utils/logger';
+src/v8/services/implicitFlowIntegrationServiceV8.ts:114:				import { logger } from '../utils/logger';
+src/v8/services/responseTypeServiceV8.ts:19:import { logger } from '../utils/logger';
+src/v8/services/mfaFeatureFlagsV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/redirectUriServiceV8.ts:13:import { logger } from '../utils/logger';
+src/v8/services/mfaServiceV8_Legacy.ts:36:import { logger } from '../utils/logger';
+src/v8/services/storageServiceV8.ts:32:import { logger } from '../utils/logger';
+src/v8/services/emailMfaSignOnFlowServiceV8.ts:11:import { logger } from '../utils/logger';
+src/v8/services/workerTokenConfigServiceV8.ts:12:import { logger } from '../utils/logger';
+src/v8/services/mfaConfigurationServiceV8.ts:255:			import { logger } from '../utils/logger';
+src/v8/services/webAuthnAuthenticationServiceV8.ts:13:import { logger } from '../utils/logger';
+src/v8/services/mfaTokenManagerV8.ts:31:import { logger } from '../utils/logger';
+src/v8/services/mfaServiceV8.ts:36:import { logger } from '../utils/logger';
+src/v8/services/redirectURIRoutingServiceV8.ts:10:import { logger } from '../utils/logger';
+src/v8/services/backendConnectivityServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/idTokenValidationServiceV8.ts:15:import { logger } from '../utils/logger';
+src/v8/services/phoneAutoPopulationServiceV8.ts:8:import { logger } from '../utils/logger';
+src/v8/services/errorHandlerV8.ts:28:import { logger } from '../utils/logger';
+src/v8/services/fido2SessionCookieServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/workerTokenStatusServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/tokenExchangeServiceV8.ts:12:import { logger } from '../utils/logger';
+src/v8/services/mfaEducationServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/jarRequestObjectServiceV8.ts:303:			import { logger } from '../utils/logger';
+src/v8/services/unifiedFlowOptionsServiceV8.ts:19:import { logger } from '../utils/logger';
+src/v8/services/globalEnvironmentService.ts:10:import { logger } from '../utils/logger';
+src/v8/services/workerTokenCacheServiceV8.ts:14:import { logger } from '../utils/logger';
+src/v8/services/workerTokenUIServiceV8.tsx:25:import { logger } from '../utils/logger';
+src/v8/services/mfaCredentialManagerV8.ts:29:import { logger } from '../utils/logger';
+src/v8/services/appDiscoveryServiceV8.ts:74:import { logger } from '../utils/logger';
+src/v8/services/mfaRedirectUriServiceV8.ts:2:import { logger } from '../utils/logger';
+src/v8/services/configCheckerServiceV8.ts:139:			import { logger } from '../utils/logger';
+src/contexts/UISettingsContext.tsx:9:import { logger } from '../utils/logger';
+src/contexts/NewAuthContext.tsx:11:import { logger } from '../utils/logger';
+src/contexts/NotificationSystem.tsx:14:import { logger } from '../utils/logger';
+src/locked/mfa-hub-v8/dependencies/services/pingoneConfigService.ts:2:import { logger } from '../utils/logger';
+src/locked/fido2-v8/dependencies/contexts/NewAuthContext.tsx:11:import { logger } from '../utils/logger';
+src/locked/fido2-v8/dependencies/services/pingOneAppCreationService.ts:4:import { logger } from '../utils/logger';
+src/locked/fido2-v8/dependencies/services/pingoneConfigService.ts:2:import { logger } from '../utils/logger';
+src/locked/device-code-v8/feature/services/deviceFlowService.ts:2:import { logger } from '../utils/logger';
+src/locked/unified-flow-v8u/dependencies/services/deviceFlowService.ts:2:import { logger } from '../utils/logger';
+src/locked/email-v8/dependencies/services/pingOneAppCreationService.ts:4:import { logger } from '../utils/logger';
+src/locked/email-v8/dependencies/services/pingoneConfigService.ts:2:import { logger } from '../utils/logger';
+src/v8m/pages/V8MTokenExchange.tsx:1752:import { logger } from '../utils/logger';
+src/config/protect-portal/riskPolicies.config.ts:15:import { logger } from '../utils/logger';
+src/tests/unifiedStorageService.test.ts:6:import { logger } from '../utils/logger';
+src/tests/v7ServicesTestSuite.ts:13:import { logger } from '../utils/logger';
+src/utils/redirectUriHelpers.ts:2:import { logger } from '../utils/logger';
+src/utils/safeguardIntegration.ts:9:import { logger } from '../utils/logger';
+src/utils/oauth.ts:5:import { logger } from '../utils/logger';
+src/utils/validateServiceAPI.ts:12:import { logger } from '../utils/logger';
+src/utils/comprehensiveFlowDataServiceTest.ts:20:import { logger } from '../utils/logger';
+src/utils/PasskeyManagementUtility.tsx:12:import { logger } from '../utils/logger';
+src/utils/testAppGeneratorTokenDisplay.ts:6:import { logger } from '../utils/logger';
+src/utils/testConfigChecker.ts:6:import { logger } from '../utils/logger';
+src/utils/errorRecovery.ts:3:import { logger } from '../utils/logger';
+src/utils/performance.ts:5:import { logger } from '../utils/logger';
+src/utils/preCommitSafeguards.ts:6:import { logger } from '../utils/logger';
+src/utils/clipboard.ts:3:import { logger } from '../utils/logger';
+src/utils/fieldEditingDiagnostic.ts:2:import { logger } from '../utils/logger';
+src/utils/backendHealthCheck.ts:3:import { logger } from '../utils/logger';
+src/utils/tokenSourceTracker.ts:2:import { logger } from '../utils/logger';
+src/utils/analytics.ts:3:import { logger } from '../utils/logger';
+src/utils/flowTestSuite.ts:7:import { logger } from '../utils/logger';
+src/utils/testJWTGeneration.ts:2:import { logger } from '../utils/logger';
+src/utils/flowNavigation.ts:2:import { logger } from '../utils/logger';
+src/utils/advancedOIDC.ts:6:import { logger } from '../utils/logger';
+src/utils/testExportImport.ts:7:import { logger } from '../utils/logger';
+src/utils/keyGeneration.ts:16:import { logger } from '../utils/logger';
+src/utils/errorMonitoring.ts:2:import { logger } from '../utils/logger';
+src/utils/idTokenValidation.ts:2:import { logger } from '../utils/logger';
+src/utils/persistentCredentials.ts:4:import { logger } from '../utils/logger';
+src/utils/clientLogger.ts:2:import { logger } from '../utils/logger';
+src/utils/securityAudit.ts:6:import { logger } from '../utils/logger';
+src/utils/tokenDebug.ts:4:import { logger } from '../utils/logger';
+src/utils/productionAppCredentialHelper.ts:15:import { logger } from '../utils/logger';
+src/utils/tokenHistory.ts:2:import { logger } from '../utils/logger';
+src/utils/implicitFlowSecurity.ts:6:import { logger } from '../utils/logger';
+src/utils/secureLogging.ts:2:import { logger } from '../utils/logger';
+src/utils/logger.ts:2:import { logger } from '../utils/logger';
+src/utils/runServiceTests.ts:11:import { logger } from '../utils/logger';
+src/utils/enhancedDebug.ts:2:import { logger } from '../utils/logger';
+src/utils/credentialDebugger.ts:2:import { logger } from '../utils/logger';
+src/utils/credentialLoaderV2.ts:8:import { logger } from '../utils/logger';
+src/utils/uiSettings.ts:10:import { logger } from '../utils/logger';
+src/utils/fixEnvironmentId.ts:3:import { logger } from '../utils/logger';
+src/utils/consoleMigrationHelper.ts:11:import { logger } from '../utils/logger';
+src/utils/productionAppCredentialHelperV2.ts:15:import { logger } from '../utils/logger';
+src/utils/apiClient.ts:6:import { logger } from '../utils/logger';
+src/utils/workerToken.ts:5:import { logger } from '../utils/logger';
+src/utils/sessionStorageHelpers.ts:2:import { logger } from '../utils/logger';
+src/utils/testPresets.ts:6:import { logger } from '../utils/logger';
+src/utils/presetMigration.ts:8:import { logger } from '../utils/logger';
+src/utils/flowStepSystem.ts:6:import { logger } from '../utils/logger';
+src/utils/regressionSafeguards.ts:6:import { logger } from '../utils/logger';
+src/utils/testImplicitConfigChecker.ts:2:import { logger } from '../utils/logger';
+src/utils/runSafeguards.ts:9:import { logger } from '../utils/logger';
+src/utils/comprehensiveServiceValidation.ts:12:import { logger } from '../utils/logger';
+src/utils/credentialManager.ts:7:import { logger } from '../utils/logger';
+src/utils/flowRedirectUriMapping.test.ts:2:import { logger } from '../utils/logger';
+src/utils/tokenCleaner.ts:2:import { logger } from '../utils/logger';
+src/utils/flowCredentialLoader.ts:6:import { logger } from '../utils/logger';
+src/protect-app/ProtectPortalApp.tsx:3:import { logger } from '../utils/logger';
+src/protect-app/components/ProtectPortalConfigModal.tsx:17:import { logger } from '../utils/logger';
+src/protect-app/components/UserSearchDropdown.tsx:20:import { logger } from '../utils/logger';
+src/protect-app/pages/UserManagementPage.tsx:23:import { logger } from '../utils/logger';
+src/protect-app/services/ApiDisplayService.ts:2:import { logger } from '../utils/logger';
+src/protect-app/services/UserService.ts:3:import { logger } from '../utils/logger';
+src/components/AudienceParameterInput.tsx:7:import { logger } from '../utils/logger';
+src/components/token/TokenResponseBoxes.tsx:4:import { logger } from '../utils/logger';
+src/components/PingOneAppConfig.tsx:10:import { logger } from '../utils/logger';
+src/components/SmartVehicleDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/WorkerTokenModal.tsx:34:import { logger } from '../utils/logger';
+src/components/FIDO2RegistrationModal.tsx:8:import { logger } from '../utils/logger';
+src/components/DPoPConfiguration.tsx:13:import { logger } from '../utils/logger';
+src/components/FlowComparisonTool.tsx:19:import { logger } from '../utils/logger';
+src/components/AmazonEchoShowDeviceFlow.tsx:8:import { logger } from '../utils/logger';
+src/components/RedirectUriEducationalModal.tsx:7:import { logger } from '../utils/logger';
+src/components/GamingConsoleDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/PingOneApplicationPicker.tsx:6:import { logger } from '../utils/logger';
+src/components/OAuthFlowErrorBoundary.tsx:4:import { logger } from '../utils/logger';
+src/components/WorkerTokenRequestModal.tsx:12:import { logger } from '../utils/logger';
+src/components/PingOneConfigSection.tsx:6:import { logger } from '../utils/logger';
+src/components/AuthorizationUrlExplainer.tsx:6:import { logger } from '../utils/logger';
+src/components/CredentialsServicesMock.tsx:6:import { logger } from '../utils/logger';
+src/components/EnvironmentIdInput.tsx:7:import { logger } from '../utils/logger';
+src/components/OAuthDetective.tsx:12:import { logger } from '../utils/logger';
+src/components/CodeExamplesDisplay.tsx:5:import { logger } from '../utils/logger';
+src/components/CodeExamplesInline.tsx:14:import { logger } from '../utils/logger';
+src/components/OIDCDiscoveryInput.tsx:15:import { logger } from '../utils/logger';
+src/components/SecurityThreatTheater.tsx:816:import { logger } from '../utils/logger';
+src/components/newFeaturesDemo.tsx:54:import { logger } from '../utils/logger';
+src/components/SmartTVDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/SmartSpeakerDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/AuthorizationRequestModal.tsx:3:import { logger } from '../utils/logger';
+src/components/FitnessTrackerDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/EnhancedApiCallDisplay.tsx:9:import { logger } from '../utils/logger';
+src/components/AuthErrorBoundary.tsx:3:import { logger } from '../utils/logger';
+src/components/AuthorizationCodeConfigModal.tsx:18:import { logger } from '../utils/logger';
+src/components/DiscoveryPanel.tsx:11:import { logger } from '../utils/logger';
+src/components/WorkerTokenCredentialsInput.tsx:9:import { logger } from '../utils/logger';
+src/components/AirportKioskDeviceFlow.tsx:15:import { logger } from '../utils/logger';
+src/components/DeviceFlowDisplay.tsx:6:import { logger } from '../utils/logger';
+src/components/WorkerTokenDetectedBanner.tsx:9:import { logger } from '../utils/logger';
+src/components/StepNavigationButtons.tsx:6:import { logger } from '../utils/logger';
+src/components/RealWorldScenarioBuilder.tsx:1296:import { logger } from '../utils/logger';
+src/components/LogoutUriInfoPanel.tsx:7:import { logger } from '../utils/logger';
+src/components/ConfigCheckerButtons.tsx:13:import { logger } from '../utils/logger';
+src/components/SonyGameControllerDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/FloatingStepperExample.tsx:10:import { logger } from '../utils/logger';
+src/components/CredentialSetupModal.tsx:14:import { logger } from '../utils/logger';
+src/components/PARInputInterface.tsx:6:import { logger } from '../utils/logger';
+src/components/SecurityAnalyticsDashboard.tsx:8:import { logger } from '../utils/logger';
+src/components/DefaultRedirectUriModal.tsx:5:import { logger } from '../utils/logger';
+src/components/POSTerminalDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/AIAgentDeviceFlow.tsx:15:import { logger } from '../utils/logger';
+src/components/SquarePOSDeviceFlow.tsx:12:import { logger } from '../utils/logger';
+src/components/FlowComparisonTools.tsx:5:import { logger } from '../utils/logger';
+src/components/TokenDisplay.tsx:6:import { logger } from '../utils/logger';
+src/components/WorkerTokenStatusLabel.tsx:7:import { logger } from '../utils/logger';
+src/components/FlowCredentials.tsx:5:import { logger } from '../utils/logger';
+src/components/StepByStepFlow.tsx:4:import { logger } from '../utils/logger';
+src/components/FloatingLogViewer.tsx:13:import { logger } from '../utils/logger';
+src/components/LiveRFCExplorer.tsx:513:import { logger } from '../utils/logger';
+src/components/SecurityFeaturesDemo.tsx:17:import { logger } from '../utils/logger';
+src/components/CachingDashboard.tsx:5:import { logger } from '../utils/logger';
+src/components/RARExampleSelector.tsx:8:import { logger } from '../utils/logger';
+src/components/education/MasterEducationSection.tsx:14:import { logger } from '../utils/logger';
+src/components/BaseOAuthFlow.tsx:10:import { logger } from '../utils/logger';
+src/components/EnhancedFlowInfoCard.tsx:8:import { logger } from '../utils/logger';
+src/components/AuthorizationCodeModal.tsx:5:import { logger } from '../utils/logger';
+src/components/BoseSmartSpeakerDeviceFlow.tsx:15:import { logger } from '../utils/logger';
+src/components/CallbackUrlDisplay.tsx:3:import { logger } from '../utils/logger';
+src/components/LogoutCallback.tsx:9:import { logger } from '../utils/logger';
+src/components/ConfigurationSummaryCard.tsx:8:import { logger } from '../utils/logger';
+src/components/mfa/MFADeviceManager.tsx:11:import { logger } from '../utils/logger';
+src/components/TokenDisplayV8.tsx:4:import { logger } from '../utils/logger';
+src/components/ExportImportPanel.tsx:15:import { logger } from '../utils/logger';
+src/components/CodeExamplesDemo.tsx:10:import { logger } from '../utils/logger';
+src/components/ConfigurationStatus.tsx:9:import { logger } from '../utils/logger';
+src/components/FlowConfiguration.tsx:10:import { logger } from '../utils/logger';
+src/components/MfaFlowCodeGenerator.tsx:7:import { logger } from '../utils/logger';
+src/components/ParameterImpactVisualizer.tsx:560:import { logger } from '../utils/logger';
+src/components/TeslaCarDisplayDeviceFlow.tsx:8:import { logger } from '../utils/logger';
+src/components/WorkerTokenModalV9.tsx:29:import { logger } from '../utils/logger';
+src/components/EnhancedStepFlow.tsx:7:import { logger } from '../utils/logger';
+src/components/IndustrialIoTControllerDeviceFlow.tsx:10:import { logger } from '../utils/logger';
+src/components/password-reset/PasswordSetValueTab.tsx:11:import { logger } from '../utils/logger';
+src/components/steps/CommonSteps.tsx:11:import { logger } from '../utils/logger';
+src/components/DragDropSidebar.tsx:25:import { logger } from '../utils/logger';
+src/components/CredentialsImportExport.tsx:10:import { logger } from '../utils/logger';
+src/components/JWTConfigV8.tsx:9:import { logger } from '../utils/logger';
+src/components/MobilePhoneDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/KrogerLoginPopup.tsx:4:import { logger } from '../utils/logger';
+src/components/JWKSViewer.tsx:5:import { logger } from '../utils/logger';
+src/components/StandardizedCredentialExportImport.tsx:13:import { logger } from '../utils/logger';
+src/components/MFAUserSettingsGatherer.tsx:11:import { logger } from '../utils/logger';
+src/components/VSCodeCodeDisplay.tsx:6:import { logger } from '../utils/logger';
+src/components/ServerHealthCheck.tsx:4:import { logger } from '../utils/logger';
+src/components/CompleteMFAFlowV7.tsx:72:import { logger } from '../utils/logger';
+src/components/GasPumpDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/device/DeviceVerification.tsx:7:import { logger } from '../utils/logger';
+src/components/device/DevicePolling.tsx:10:import { logger } from '../utils/logger';
+src/components/maintenance/MaintenanceDashboard.tsx:6:import { logger } from '../utils/logger';
+src/components/TOTPQRCodeModal.tsx:9:import { logger } from '../utils/logger';
+src/components/PerformanceMonitor.tsx:5:import { logger } from '../utils/logger';
+src/components/JWTAuthConfig.tsx:5:import { logger } from '../utils/logger';
+src/components/RingDoorbellDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/SmartPrinterDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/ConfigurationManager.tsx:7:import { logger } from '../utils/logger';
+src/components/DebugCredentials.tsx:5:import { logger } from '../utils/logger';
+src/components/InteractiveCodeEditor.tsx:7:import { logger } from '../utils/logger';
+src/components/AnalyticsDashboard.tsx:8:import { logger } from '../utils/logger';
+src/components/JsonEditor.tsx:4:import { logger } from '../utils/logger';
+src/components/CredentialStatusPanel.tsx:13:import { logger } from '../utils/logger';
+src/components/UnifiedCredentialManagerV9.tsx:21:import { logger } from '../utils/logger';
+src/components/worker/WorkerTokenDisplay.tsx:7:import { logger } from '../utils/logger';
+src/components/worker/WorkerCredentials.tsx:9:import { logger } from '../utils/logger';
+src/components/PingOneApplicationConfig.tsx:9:import { logger } from '../utils/logger';
+src/components/PARConfigurationExample.tsx:9:import { logger } from '../utils/logger';
+src/components/SAMLAssertionDisplay.tsx:5:import { logger } from '../utils/logger';
+src/components/RedirectlessLoginModal.tsx:6:import { logger } from '../utils/logger';
+src/components/EnvironmentIdPersistenceStatus.tsx:7:import { logger } from '../utils/logger';
+src/components/CompactAppPickerV9.tsx:23:import { logger } from '../utils/logger';
+src/components/AppleTVDeviceFlow.tsx:8:import { logger } from '../utils/logger';
+src/components/CredentialsInput.tsx:13:import { logger } from '../utils/logger';
+src/components/UnifiedAuthorizationCodeFlowV7.tsx:8:import { logger } from '../utils/logger';
+src/components/UISettingsModal.tsx:5:import { logger } from '../utils/logger';
+src/components/VizioTVDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/TokenIntrospect.tsx:10:import { logger } from '../utils/logger';
+src/components/MCPServerDeviceFlow.tsx:11:import { logger } from '../utils/logger';
+src/components/OAuthUtilities.tsx:6:import { logger } from '../utils/logger';
+src/components/CredentialBackupManager.tsx:11:import { logger } from '../utils/logger';
+src/components/response-modes/ResponseModeSelector.tsx:8:import { logger } from '../utils/logger';
+src/components/PingOneErrorDisplay.tsx:5:import { logger } from '../utils/logger';
+src/components/LoginSuccessModal.tsx:6:import { logger } from '../utils/logger';
+src/components/DragDropSidebar.V2.tsx:29:import { logger } from '../utils/logger';
+src/components/PresetSelector.tsx:13:import { logger } from '../utils/logger';
+src/components/ConfigurationURIChecker.tsx:13:import { logger } from '../utils/logger';
+src/components/RouteRestorer.tsx:8:import { logger } from '../utils/logger';
+src/components/ErrorBoundary.tsx:10:import { logger } from '../utils/logger';
+src/components/ServerStatusModal.tsx:5:import { logger } from '../utils/logger';
+src/components/SidebarMenuPing.tsx:14:import { logger } from '../utils/logger';
+src/components/LogoutUriReference.tsx:7:import { logger } from '../utils/logger';
+src/components/EnhancedStepFlowV2.tsx:5:import { logger } from '../utils/logger';
+src/components/CentralizedSuccessMessage.tsx:6:import { logger } from '../utils/logger';
+src/sdk/p1mfa/P1MFASDK.ts:25:import { logger } from '../utils/logger';
+src/hooks/useOIDCCompliantAuthorizationCodeFlow.ts:20:import { logger } from '../utils/logger';
+src/hooks/useCibaFlow.ts:5:import { logger } from '../utils/logger';
+src/hooks/useLazyLoading.ts:3:import { logger } from '../utils/logger';
+src/hooks/useResourceOwnerPasswordFlowController.ts:5:import { logger } from '../utils/logger';
+src/hooks/usePersistedDiscovery.ts:16:import { logger } from '../utils/logger';
+src/hooks/useFlowAnalysis.ts:3:import { logger } from '../utils/logger';
+src/hooks/useOAuthFlow.ts:6:import { logger } from '../utils/logger';
+src/hooks/useTokenRevocationFlowController.ts:5:import { logger } from '../utils/logger';
+src/hooks/useOTPDeliveryTracking.ts:10:import { logger } from '../utils/logger';
+src/hooks/useDeviceAuthorizationFlow.ts:7:import { logger } from '../utils/logger';
+src/hooks/useClientCredentialsFlowController.ts:9:import { logger } from '../utils/logger';
+src/hooks/useUserInfoFlowController.ts:5:import { logger } from '../utils/logger';
+src/hooks/useResourceOwnerPasswordFlowV7.ts:8:import { logger } from '../utils/logger';
+src/hooks/useAsyncEffect.ts:17:import { logger } from '../utils/logger';
+src/hooks/useOAuth2CompliantImplicitFlow.ts:25:import { logger } from '../utils/logger';
+src/hooks/useTokenRefresh.ts:11:import { logger } from '../utils/logger';
+src/hooks/useCredentialGuard.tsx:5:import { logger } from '../utils/logger';
+src/hooks/useDavinciBranding.ts:2:import { logger } from '../utils/logger';
+src/hooks/useUserBehaviorTracking.ts:2:import { logger } from '../utils/logger';
+src/hooks/useAuthorizationCodeFlowController.ts:48:import { logger } from '../utils/logger';
+src/hooks/useRedirectUriEducation.ts:6:import { logger } from '../utils/logger';
+src/hooks/useWorkerTokenFlowController.ts:13:import { logger } from '../utils/logger';
+src/hooks/useHybridFlow.ts:4:import { logger } from '../utils/logger';
+src/hooks/useAuthorizationCodeFlowV7Controller.ts:45:import { logger } from '../utils/logger';
+src/hooks/useCredentialSync.ts:7:import { logger } from '../utils/logger';
+src/hooks/useAuthActions.ts:15:import { logger } from '../utils/logger';
+src/hooks/useSamlSpFlowController.ts:8:import { logger } from '../utils/logger';
+src/hooks/useHybridFlowController.ts:33:import { logger } from '../utils/logger';
+src/hooks/useScrollToTop.ts:4:import { logger } from '../utils/logger';
+src/hooks/useCredentialBackup.ts:7:import { logger } from '../utils/logger';
+src/hooks/useTOTPActivation.ts:12:import { logger } from '../utils/logger';
+src/hooks/useSecurityAnalytics.ts:2:import { logger } from '../utils/logger';
+src/hooks/useAccessibility.ts:10:import { logger } from '../utils/logger';
+src/hooks/useClientCredentialsFlow.ts:5:import { logger } from '../utils/logger';
+src/hooks/useTokenIntrospectionFlowController.ts:5:import { logger } from '../utils/logger';
+src/hooks/useErrorDiagnosis.ts:14:import { logger } from '../utils/logger';
+src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts:7:import { logger } from '../utils/logger';
+src/hooks/useCibaFlowV7.ts:6:import { logger } from '../utils/logger';
+src/hooks/useGlobalWorkerToken.ts:7:import { logger } from '../utils/logger';
+src/hooks/useAnalytics.ts:21:import { logger } from '../utils/logger';
+src/hooks/useTokenAnalysis.ts:2:import { logger } from '../utils/logger';
+src/hooks/useOAuth2CompliantAuthorizationCodeFlow.ts:28:import { logger } from '../utils/logger';
+src/hooks/useJWTBearerFlowController.ts:7:import { logger } from '../utils/logger';
+src/hooks/useServiceWorker.ts:2:import { logger } from '../utils/logger';
+src/hooks/useImplicitFlowController.ts:16:import { logger } from '../utils/logger';
+src/examples/OAuthFlowWithRedirectStateManager.tsx:10:import { logger } from '../utils/logger';
+src/examples/V7ServicesIntegrationExample.tsx:19:import { logger } from '../utils/logger';
+src/v8u/tests/tokenExchangeFlowTest.ts:2:import { logger } from '../utils/logger';
+src/v8u/tests/tokenExchangeIntegrationTest.ts:2:import { logger } from '../utils/logger';
+src/v8u/components/AdvancedOAuthFeatures.tsx:8:import { logger } from '../utils/logger';
+src/v8u/components/CompactAppPickerV8U.tsx:17:import { logger } from '../utils/logger';
+src/v8u/components/CallbackHandlerV8U.tsx:25:import { logger } from '../utils/logger';
+src/v8u/components/UnifiedDocumentationModalV8U.tsx:15:import { logger } from '../utils/logger';
+src/v8u/components/UnifiedFlowSteps.tsx:63:import { logger } from '../utils/logger';
+src/v8u/components/IDTokenValidationModalV8U.tsx:18:import { logger } from '../utils/logger';
+src/v8u/components/CredentialsFormV8U.tsx:78:import { logger } from '../utils/logger';
+src/v8u/components/AppDiscoveryModalV8U.tsx:19:import { logger } from '../utils/logger';
+src/v8u/components/UserInfoSuccessModalV8U.tsx:12:import { logger } from '../utils/logger';
+src/v8u/components/SpecVersionSelector.tsx:15:import { logger } from '../utils/logger';
+src/v8u/pages/SecurityDashboardPage.tsx:7:import { logger } from '../utils/logger';
+src/v8u/pages/EnhancedStateManagementPage.tsx:7:import { logger } from '../utils/logger';
+src/v8u/pages/UserManagementPage.tsx:14:import { logger } from '../utils/logger';
+src/v8u/pages/TokenMonitoringPage.tsx:8:import { logger } from '../utils/logger';
+src/v8u/pages/TokenStatusPageV8U.tsx:34:import { logger } from '../utils/logger';
+src/v8u/flows/SpiffeSpireFlowV8U.tsx:24:import { logger } from '../utils/logger';
+src/v8u/flows/UnifiedOAuthFlowV8U.tsx:64:import { logger } from '../utils/logger';
+src/v8u/services/flowSettingsServiceV8U.ts:33:import { logger } from '../utils/logger';
+src/v8u/services/credentialReloadServiceV8U.ts:26:import { logger } from '../utils/logger';
+src/v8u/services/unifiedFlowIntegrationV8U.ts:41:import { logger } from '../utils/logger';
+src/v8u/services/pingOneClientServiceV8U.ts:3:import { logger } from '../utils/logger';
+src/v8u/services/pkceStorageServiceV8U.ts:19:import { logger } from '../utils/logger';
+src/v8u/services/returnTargetServiceV8U.ts:3:import { logger } from '../utils/logger';
+src/v8u/services/deviceAuthorizationSecurityService.ts:3:import { logger } from '../utils/logger';
+src/pages/OIDCSessionManagement.tsx:10:import { logger } from '../utils/logger';
+src/pages/PerformanceDashboard.tsx:6:import { logger } from '../utils/logger';
+src/pages/sdk-examples/OIDCExamples.tsx:470:import { logger } from '../utils/logger';
+src/pages/sdk-examples/SDKExamplesHome.tsx:17:import { logger } from '../utils/logger';
+src/pages/v9/PostmanCollectionGeneratorV9.tsx:19:import { logger } from '../utils/logger';
+src/pages/ApiStatusPage.tsx:10:import { logger } from '../utils/logger';
+src/pages/AdvancedConfiguration.tsx:12:import { logger } from '../utils/logger';
+src/pages/OrganizationLicensing.tsx:28:import { logger } from '../utils/logger';
+src/pages/PostmanCollectionGenerator.tsx:31:import { logger } from '../utils/logger';
+src/pages/Login.tsx:42:import { logger } from '../utils/logger';
+src/pages/test/ImplicitFlowTest.tsx:10:import { logger } from '../utils/logger';
+src/pages/test/PARTest.tsx:11:import { logger } from '../utils/logger';
+src/pages/test/MFAFlowsApiTest.tsx:11:import { logger } from '../utils/logger';
+src/pages/test/MFADeviceOrderTest.tsx:4:import { logger } from '../utils/logger';
+src/pages/test/AllFlowsApiTest.tsx:16:import { logger } from '../utils/logger';
+src/pages/test/PingOneApiTest.tsx:13:import { logger } from '../utils/logger';
+src/pages/Dashboard.tsx:30:import { logger } from '../utils/logger';
+src/pages/WorkerTokenTester.tsx:12:import { logger } from '../utils/logger';
+src/pages/PingOneAuthenticationCallback.tsx:5:import { logger } from '../utils/logger';
+src/pages/ClientGenerator.tsx:47:import { logger } from '../utils/logger';
+src/pages/security/HelioMartPasswordReset.tsx:53:import { logger } from '../utils/logger';
+src/pages/TestAuthzCodePKCE.tsx:9:import { logger } from '../utils/logger';
+src/pages/protect/ProtectPortalApp.tsx:32:import { logger } from '../utils/logger';
+src/pages/PasskeyManager.tsx:16:import { logger } from '../utils/logger';
+src/pages/FlowsLazy.tsx:6:import { logger } from '../utils/logger';
+src/pages/Configuration.tsx:27:import { logger } from '../utils/logger';
+src/pages/PingOneUserProfile.tsx:146:import { logger } from '../utils/logger';
+src/pages/PARvsRAR.tsx:11:import { logger } from '../utils/logger';
+src/pages/OAuthFlows.tsx:8:import { logger } from '../utils/logger';
+src/pages/PingOneWebhookViewer.tsx:19:import { logger } from '../utils/logger';
+src/pages/PingOneSessionsAPI.tsx:13:import { logger } from '../utils/logger';
+src/pages/AuthorizationCallback.tsx:7:import { logger } from '../utils/logger';
+src/pages/ApplicationGenerator.tsx:30:import { logger } from '../utils/logger';
+src/pages/EnhancedTutorials.tsx:7:import { logger } from '../utils/logger';
+src/pages/ServiceTestRunner.tsx:12:import { logger } from '../utils/logger';
+src/pages/CredentialManagement.tsx:12:import { logger } from '../utils/logger';
+src/pages/protect-portal/ProtectPortalApp.tsx:31:import { logger } from '../utils/logger';
+src/pages/CodeEditorDemo.tsx:9:import { logger } from '../utils/logger';
+src/pages/PingOneAuthenticationResult.tsx:11:import { logger } from '../utils/logger';
+src/pages/CIBAvsDeviceAuthz.tsx:13:import { logger } from '../utils/logger';
+src/pages/EnvironmentIdInputDemo.tsx:8:import { logger } from '../utils/logger';
+src/pages/HybridCallback.tsx:10:import { logger } from '../utils/logger';
+src/pages/DpopAuthorizationCodeFlowV8.tsx:22:import { logger } from '../utils/logger';
+src/pages/CompactAppPickerDemo.tsx:12:import { logger } from '../utils/logger';
+src/pages/AutoDiscover.tsx:9:import { logger } from '../utils/logger';
+src/pages/PingOneIdentityMetrics.tsx:12:import { logger } from '../utils/logger';
+src/pages/EnvironmentManagementPageV8.tsx:10:import { logger } from '../utils/logger';
+src/pages/Callback.tsx:6:import { logger } from '../utils/logger';
+src/pages/TokenInspector.tsx:27:import { logger } from '../utils/logger';
+src/pages/flows/TokenIntrospectionFlow.tsx:16:import { logger } from '../utils/logger';
+src/pages/flows/PARFlow.tsx:15:import { logger } from '../utils/logger';
+src/pages/flows/MFAFlow.tsx:13:import { logger } from '../utils/logger';
+src/pages/flows/IDTokensFlow.tsx:15:import { logger } from '../utils/logger';
+src/pages/flows/CIBAFlowV9.tsx:47:import { logger } from '../utils/logger';
+src/pages/flows/RedirectlessFlowV9_Real.tsx:39:import { logger } from '../utils/logger';
+src/pages/flows/UserInfoPostFlow.tsx:9:import { logger } from '../utils/logger';
+src/pages/flows/TokenRevocationFlow.tsx:15:import { logger } from '../utils/logger';
+src/pages/flows/PingOneLogoutFlow.tsx:317:import { logger } from '../utils/logger';
+src/pages/flows/UserInfoFlow.tsx:20:import { logger } from '../utils/logger';
+src/pages/PingOneAuditActivities.tsx:14:import { logger } from '../utils/logger';
+src/pages/JWKSTroubleshooting.tsx:9:import { logger } from '../utils/logger';
+src/services/advancedSecuritySettingsService.ts:4:import { logger } from '../utils/logger';
+src/services/errorHandlingService.ts:5:import { logger } from '../utils/logger';
+src/services/flowHeaderService.tsx:7:import { logger } from '../utils/logger';
+src/services/sharedService.ts:18:import { logger } from '../utils/logger';
+src/services/loggingService.ts:2:import { logger } from '../utils/logger';
+src/services/clientCredentialsSharedService.ts:11:import { logger } from '../utils/logger';
+src/services/serviceDiscoveryService.ts:2:import { logger } from '../utils/logger';
+src/services/v9/v9CredentialValidationService.tsx:42:import { logger } from '../utils/logger';
+src/services/v9/postmanCollectionGeneratorV9.ts:21:import { logger } from '../utils/logger';
+src/services/pkceStorageServiceV8UMigration.ts:4:import { logger } from '../utils/logger';
+src/services/pingOneAppCreationService.ts:4:import { logger } from '../utils/logger';
+src/services/pingOneMfaService.ts:4:import { logger } from '../utils/logger';
+src/services/comprehensiveDiscoveryService.ts:20:import { logger } from '../utils/logger';
+src/services/tokenManagementService.ts:2:import { logger } from '../utils/logger';
+src/services/configComparisonService.ts:5:import { logger } from '../utils/logger';
+src/services/educationalContentService.tsx:3:import { logger } from '../utils/logger';
+src/services/v7CredentialValidationService.tsx:39:import { logger } from '../utils/logger';
+src/services/flowRedirectUriService.ts:9:import { logger } from '../utils/logger';
+src/services/enhancedConfigurationService.ts:5:import { logger } from '../utils/logger';
+src/services/authConfigurationService.ts:5:import { logger } from '../utils/logger';
+src/services/flowErrorService.tsx:6:import { logger } from '../utils/logger';
+src/services/oidcDiscoveryService.ts:3:import { logger } from '../utils/logger';
+src/services/rarService.ts:5:import { logger } from '../utils/logger';
+src/services/FlowInfoService.ts:4:import { logger } from '../utils/logger';
+src/services/routePersistenceService.ts:6:import { logger } from '../utils/logger';
+src/services/pkceGenerationService.tsx:6:import { logger } from '../utils/logger';
+src/services/comprehensiveFlowDataService.ts:17:import { logger } from '../utils/logger';
+src/services/authorizationUrlValidationService.ts:4:import { logger } from '../utils/logger';
+src/services/passwordResetService.ts:4:import { logger } from '../utils/logger';
+src/services/samlAssertionService.tsx:5:import { logger } from '../utils/logger';
+src/services/pingoneConfigService.ts:2:import { logger } from '../utils/logger';
+src/services/otpDeliveryTrackingService.ts:4:import { logger } from '../utils/logger';
+src/services/codeGeneration/codeGenerationService.ts:19:import { logger } from '../utils/logger';
+src/services/callbackUriService.ts:9:import { logger } from '../utils/logger';
+src/services/tokenRefreshService.ts:2:import { logger } from '../utils/logger';
+src/services/discoveryPersistenceService.ts:18:import { logger } from '../utils/logger';
+src/services/flowUIComponentsService.tsx:6:import { logger } from '../utils/logger';
+src/services/standardizedCredentialExportService.ts:4:import { logger } from '../utils/logger';
+src/services/credentialSyncService.ts:5:import { logger } from '../utils/logger';
+src/services/parConfigurationService.tsx:9:import { logger } from '../utils/logger';
+src/services/oidcIdTokenService.tsx:8:import { logger } from '../utils/logger';
+src/services/implicitFlowSharedService.ts:14:import { logger } from '../utils/logger';
+src/services/discoveryService.ts:1:import { logger } from '../utils/logger';
+src/services/codeExamplesService.ts:1213:import { logger } from '../utils/logger';
+src/services/flowContextUtils.ts:4:import { logger } from '../utils/logger';
+src/services/jwtAuthService.ts:1:import { logger } from '../utils/logger';
+src/services/pingOneUserProfileService.ts:4:import { logger } from '../utils/logger';
+src/services/credentialsImportExportService.ts:10:import { logger } from '../utils/logger';
+src/services/accessibilityService.ts:4:import { logger } from '../utils/logger';
+src/services/flowCredentialService.ts:9:import { logger } from '../utils/logger';
+src/services/authTokenService.ts:3:import { logger } from '../utils/logger';
+src/services/environmentServiceV8.ts:4:import { logger } from '../utils/logger';
+src/services/environmentIdPersistenceService.ts:5:import { logger } from '../utils/logger';
+src/services/organizationLicensingService.ts:4:import { logger } from '../utils/logger';
+src/services/jwtAuthServiceV8.ts:6:import { logger } from '../utils/logger';
+src/services/tokenExpirationService.ts:5:import { logger } from '../utils/logger';
+src/services/__tests__/passwordResetService.integration.test.ts:5:import { logger } from '../utils/logger';
+src/services/comprehensiveCredentialsService.tsx:46:import { logger } from '../utils/logger';
+src/services/dpopService.ts:12:import { logger } from '../utils/logger';
+src/services/unifiedWorkerTokenService.ts:22:import { logger } from '../utils/logger';
+src/services/copyButtonService.tsx:6:import { logger } from '../utils/logger';
+src/services/interactiveFlowDiagramService.tsx:9:import { logger } from '../utils/logger';
+src/services/hybridFlowSharedService.ts:11:import { logger } from '../utils/logger';
+src/services/flowStorageService.ts:19:import { logger } from '../utils/logger';
+src/services/credentialsServiceV8Migration.ts:4:import { logger } from '../utils/logger';
+src/services/pingOneJWTService.ts:14:import { logger } from '../utils/logger';
+src/services/environmentService.ts:13:import { logger } from '../utils/logger';
+src/services/deviceFlowService.ts:2:import { logger } from '../utils/logger';
+src/services/redirectlessAuthService.ts:6:import { logger } from '../utils/logger';
+src/services/credentialStorageManager.ts:6:import { logger } from '../utils/logger';
+src/services/flowCredentialIsolationService.ts:17:import { logger } from '../utils/logger';
+src/services/workerTokenManager.ts:9:import { logger } from '../utils/logger';
+src/services/unifiedTokenStorageService.ts:15:import { logger } from '../utils/logger';
+src/services/storageServiceV8Migration.ts:4:import { logger } from '../utils/logger';
+src/services/uiSettingsService.tsx:5:import { logger } from '../utils/logger';
+src/services/config.ts:2:import { logger } from '../utils/logger';
+src/services/pingoneSamlService.ts:2:import { logger } from '../utils/logger';
+src/services/authorizationCodeSharedService.ts:19:import { logger } from '../utils/logger';
+src/services/postmanCollectionGeneratorV8.ts:14:import { logger } from '../utils/logger';
+src/services/offlineAccessService.tsx:6:import { logger } from '../utils/logger';
+src/services/redirectStateManager.ts:4:import { logger } from '../utils/logger';
+src/services/pkceService.tsx:30:import { logger } from '../utils/logger';
+src/services/pingOneLogoutService.ts:4:import { logger } from '../utils/logger';
+src/services/codeHighlightingService.ts:5:import { logger } from '../utils/logger';
+src/services/totpActivationService.ts:4:import { logger } from '../utils/logger';
+src/services/bulletproofDiscoveryService.ts:15:import { logger } from '../utils/logger';
+src/services/workerTokenDiscoveryService.ts:6:import { logger } from '../utils/logger';
+src/services/authenticationModalService.tsx:10:import { logger } from '../utils/logger';
+src/services/exportImportService.ts:4:import { logger } from '../utils/logger';
+src/services/CommonSpinnerService.ts:9:import { logger } from '../utils/logger';
+src/services/parService.ts:4:import { logger } from '../utils/logger';
+src/services/redirectUriService.ts:4:import { logger } from '../utils/logger';
+src/services/credentialBackupService.ts:5:import { logger } from '../utils/logger';
+src/services/workerTokenRepository.ts:10:import { logger } from '../utils/logger';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  find src -name "logger.ts" -not -path "*/node_modules/*" && echo "---" && ls src/v8/ut [Kiils/ | grep -i logger[?1l>[?2004l
+]2;find src -name "logger.ts" -not -path "*/node_modules/*" && echo "---" && ls ]1;find]633;E; find src -name "logger.ts" -not -path "*/node_modules/*" && echo "---" && ls src/v8/utils/ | grep -i logger;]633;Csrc/locked/mfa-hub-v8/dependencies/utils/logger.ts
+src/locked/fido2-v8/dependencies/utils/logger.ts
+src/locked/device-code-v8/dependencies/utils/logger.ts
+src/locked/unified-flow-v8u/dependencies/utils/logger.ts
+src/locked/email-v8/dependencies/utils/logger.ts
+src/utils/logger.ts
+---
+analytics[01;31m[KLogger[m[KV8.ts
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "n [Koode_modules" | wc -l[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "node_modules" | wc -l;]633;C     620
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "n [Koode_modules" | awk -F: '{print $1}' | awk -F/ '{print NF}' | sort | uniq -c[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "from '../utils/logger'" src/ --include="*.ts" --include="*.tsx" | grep -v "node_modules" | awk -F: '{print $1}' | awk -F/ '{print NF}' | sort | uniq -c;]633;C 364 3
+ 248 4
+   8 6
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  cd /Users/cmuir/P1Import-apps/oauth-playground && python3 - <<'EOF'[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hiimport os, re[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hssrc_root = "src"[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hbbad_pattern = "from '../utils/logger'"[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hffor dirpath, _, filenames in os.walk(src_root):[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h     for fname in filenames:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         if not (fname.endswith('.ts') or fname.endswith('.tsx')):[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h             continue[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         fpath = os.path.join(dirpath, fname)[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         # Count depth from src/[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         parts = fpath.split('/')[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         depth = len(parts) - 2  # subtract 'src' and filename[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         [?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         if depth <= 1:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h             continue  # '../utils/logger' is correct for depth 1[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         [?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         with open(fpath, 'r') as f:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h             content = f.read()[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         [?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         if bad_pattern not in content:[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h             continue[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         [?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         # Compute correct relative path[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         # From src/a/b/.../file.ts, go up 'depth' levels to reach src/, then down to utils/logger[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         dots = '../' * depth[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         correct = f"from '{dots}utils/logger'"[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         new_content = content.replace(bad_pattern, correct)[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         [?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h         with oimport os, re[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004h[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hssrc_root = "src"[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hbbad_pattern = "from '../utils/logget([?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hssrc_root = th}bad_pattern = "):[?1l>[?2004l
+[0m[27m[24m[J]633;Fcmdand heredoc> ]633;G[K[?1h=[?2004hffor dirpath, _, filenames in os.walkint    for fname [?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;E;;]633;C]633;D]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;31m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 scripts/fix_logger_imports.py[?1l>[?2004l
+]2;python3 scripts/fix_logger_imports.py]1;python3]633;E; python3 scripts/fix_logger_imports.py;]633;CFixed src/v8/contexts/MFACredentialContext.tsx (depth=2)
+Fixed src/v8/contexts/GlobalMFAContext.tsx (depth=2)
+Fixed src/v8/contexts/FlowStateContext.tsx (depth=2)
+Fixed src/v8/config/testCredentials.ts (depth=2)
+Fixed src/v8/config/deviceFlowConfigs.ts (depth=2)
+Fixed src/v8/utils/mfaNextStepNormalizer.ts (depth=2)
+Fixed src/v8/utils/mfaFlowCleanupV8.ts (depth=2)
+Fixed src/v8/utils/oauthStateUtilsV8.ts (depth=2)
+Fixed src/v8/utils/authHeaderUtilsV8.ts (depth=2)
+Fixed src/v8/utils/fileUploadMonitor.ts (depth=2)
+Fixed src/v8/utils/toastNotificationsV8.ts (depth=2)
+Fixed src/v8/utils/workerTokenModalHelperV8.ts (depth=2)
+Fixed src/v8/utils/mfaRedirectUriMigrationV8.ts (depth=2)
+Fixed src/v8/utils/workerTokenModalHelperV8_SIMPLE.ts (depth=2)
+Fixed src/v8/utils/mfaFeatureFlagHelpers.ts (depth=2)
+Fixed src/v8/utils/unifiedErrorHandlerV8.ts (depth=2)
+Fixed src/v8/utils/errorHandlingUtilsV8.ts (depth=2)
+Fixed src/v8/components/StepNavigationV8.tsx (depth=2)
+Fixed src/v8/components/TokenEndpointAuthModal.tsx (depth=2)
+Fixed src/v8/components/MFAInfoButtonV8.tsx (depth=2)
+Fixed src/v8/components/EnhancedCredentialsFormV8.tsx (depth=2)
+Fixed src/v8/components/MFADeviceRegistrationV8.tsx (depth=2)
+Fixed src/v8/components/WorkerTokenSectionV8.tsx (depth=2)
+Fixed src/v8/components/MFASettingsModalV8.tsx (depth=2)
+Fixed src/v8/components/MFADeviceSelectorV8.tsx (depth=2)
+Fixed src/v8/components/WorkerTokenStatusDisplayV8.tsx (depth=2)
+Fixed src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx (depth=2)
+Fixed src/v8/components/EmailInputV8.tsx (depth=2)
+Fixed src/v8/components/LoginHintInputV8.tsx (depth=2)
+Fixed src/v8/components/StepActionButtonsV8.tsx (depth=2)
+Fixed src/v8/components/ResponseTypeDropdownV8.tsx (depth=2)
+Fixed src/v8/components/DeviceLimitErrorModalV8.tsx (depth=2)
+Fixed src/v8/components/DisplayModeDropdownV8.tsx (depth=2)
+Fixed src/v8/components/PKCEInputV8.tsx (depth=2)
+Fixed src/v8/components/MFAErrorBoundary.tsx (depth=2)
+Fixed src/v8/components/TokenExchangeAdminToggleV8.tsx (depth=2)
+Fixed src/v8/components/StepProgressBarV8.tsx (depth=2)
+Fixed src/v8/components/MFADeviceManagerV8.tsx (depth=2)
+Fixed src/v8/components/UserAuthenticationSuccessPageV8.tsx (depth=2)
+Fixed src/v8/components/UserLoginSectionV8.tsx (depth=2)
+Fixed src/v8/components/CreatePolicyModalV8.tsx (depth=2)
+Fixed src/v8/components/UserLoginModalV8.tsx (depth=2)
+Fixed src/v8/components/CredentialsFormV8.tsx (depth=2)
+Fixed src/v8/components/MFADocumentationModalV8.tsx (depth=2)
+Fixed src/v8/components/PKCEEnforcementDropdownV8.tsx (depth=2)
+Fixed src/v8/components/SuperSimpleApiDisplayV8.tsx (depth=2)
+Fixed src/v8/components/ScopesInputV8.tsx (depth=2)
+Fixed src/v8/components/IssuerURLInputV8.tsx (depth=2)
+Fixed src/v8/components/PromptModalV8.tsx (depth=2)
+Fixed src/v8/components/UserMFACallbackDebugPage.tsx (depth=2)
+Fixed src/v8/components/RefreshTokenTypeDropdownV8.tsx (depth=2)
+Fixed src/v8/components/CountryCodePickerV8.tsx (depth=2)
+Fixed src/v8/components/ResponseModeDropdownV8.tsx (depth=2)
+Fixed src/v8/components/AppPickerV8.tsx (depth=2)
+Fixed src/v8/components/FIDODeviceExistsModalV8.tsx (depth=2)
+Fixed src/v8/components/ClientTypeRadioV8.tsx (depth=2)
+Fixed src/v8/components/SuperSimpleApiDisplayV8-old.tsx (depth=2)
+Fixed src/v8/components/ScopeFixModalV8.tsx (depth=2)
+Fixed src/v8/components/ConfirmationModalV8.tsx (depth=2)
+Fixed src/v8/components/BackendDownModalV8.tsx (depth=2)
+Fixed src/v8/components/MaxAgeInputV8.tsx (depth=2)
+Fixed src/v8/components/SimplePingOneApiDisplayV8.tsx (depth=2)
+Fixed src/v8/components/SearchableDropdownV8.tsx (depth=2)
+Fixed src/v8/components/RegistrationFlowStepperV8.tsx (depth=2)
+Fixed src/v8/components/MFADocumentationPageV8.tsx (depth=2)
+Fixed src/v8/components/StepValidationFeedbackV8.tsx (depth=2)
+Fixed src/v8/hooks/useCibaFlowV8Enhanced.ts (depth=2)
+Fixed src/v8/hooks/useStepNavigationV8.ts (depth=2)
+Fixed src/v8/hooks/useEnhancedCredentialsTracking.ts (depth=2)
+Fixed src/v8/hooks/usePingOneAppConfig.ts (depth=2)
+Fixed src/v8/hooks/useHybridFlowV8.ts (depth=2)
+Fixed src/v8/hooks/useSilentApiConfigV8.ts (depth=2)
+Fixed src/v8/hooks/useMFADevices.ts (depth=2)
+Fixed src/v8/hooks/useUserSearch.ts (depth=2)
+Fixed src/v8/hooks/useWorkerToken.ts (depth=2)
+Fixed src/v8/hooks/useCibaFlowV8.ts (depth=2)
+Fixed src/v8/hooks/useSQLiteStats.ts (depth=2)
+Fixed src/v8/hooks/useActionButton.ts (depth=2)
+Fixed src/v8/hooks/useMFAPolicies.ts (depth=2)
+Fixed src/v8/hooks/useMFAAuthentication.ts (depth=2)
+Fixed src/v8/pages/DebugLogViewerPopoutV8.tsx (depth=2)
+Fixed src/v8/pages/DebugLogViewerV8.tsx (depth=2)
+Fixed src/v8/pages/DeviceAuthenticationDetailsV8.tsx (depth=2)
+Fixed src/v8/pages/MFAFeatureFlagsAdminV8.tsx (depth=2)
+Fixed src/v8/pages/DeleteAllDevicesUtilityV8.tsx (depth=2)
+Fixed src/v8/pages/UnifiedCredentialsMockupV8.tsx (depth=2)
+Fixed src/v8/pages/MFADeviceCreateDemoV8.tsx (depth=2)
+Fixed src/v8/pages/EnvironmentManagementPageV8.tsx (depth=2)
+Fixed src/v8/flows/PingOneProtectFlowV8.tsx (depth=2)
+Fixed src/v8/flows/OIDCHybridFlowV8.tsx (depth=2)
+Fixed src/v8/flows/MFAAuthenticationMainPageV8.tsx (depth=2)
+Fixed src/v8/flows/MFAReportingFlowV8.tsx (depth=2)
+Fixed src/v8/flows/MFAConfigurationPageV8.tsx (depth=2)
+Fixed src/v8/flows/CompleteMFAFlowV8.tsx (depth=2)
+Fixed src/v8/flows/ResourcesAPIFlowV8.tsx (depth=2)
+Fixed src/v8/flows/MFADeviceManagementFlowV8.tsx (depth=2)
+Fixed src/v8/flows/CIBAFlowV8.tsx (depth=2)
+Fixed src/v8/flows/MFAFlowV8.tsx (depth=2)
+Fixed src/v8/flows/EmailMFASignOnFlowV8.tsx (depth=2)
+Fixed src/v8/flows/MFADeviceOrderingFlowV8.tsx (depth=2)
+Fixed src/v8/flows/NewMFAFlowV8.tsx (depth=2)
+Fixed src/v8/flows/TokenExchangeFlowV8.tsx (depth=2)
+Fixed src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx (depth=2)
+Fixed src/v8/services/mfaAuthenticationServiceV8.ts (depth=2)
+Fixed src/v8/services/environmentServiceV8Simple.ts (depth=2)
+Fixed src/v8/services/environmentIdServiceV8.ts (depth=2)
+Fixed src/v8/services/jwksCacheServiceV8.ts (depth=2)
+Fixed src/v8/services/passkeyServiceV8.ts (depth=2)
+Fixed src/v8/services/cibaServiceV8Enhanced.ts (depth=2)
+Fixed src/v8/services/apiDisplayServiceV8.ts (depth=2)
+Fixed src/v8/services/flowOptionsServiceV8.ts (depth=2)
+Fixed src/v8/services/oidcDiscoveryServiceV8.ts (depth=2)
+Fixed src/v8/services/dualStorageServiceV8.ts (depth=2)
+Fixed src/v8/services/flowResetServiceV8.ts (depth=2)
+Fixed src/v8/services/sqliteStatsServiceV8.ts (depth=2)
+Fixed src/v8/services/pingOneAuthenticationServiceV8.ts (depth=2)
+Fixed src/v8/services/sharedCredentialsServiceV8.ts (depth=2)
+Fixed src/v8/services/specVersionServiceV8.ts (depth=2)
+Fixed src/v8/services/tokenDisplayServiceV8.ts (depth=2)
+Fixed src/v8/services/clientCredentialsIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/preFlightValidationServiceV8.ts (depth=2)
+Fixed src/v8/services/unifiedMFAResumeStepResolverV8.ts (depth=2)
+Fixed src/v8/services/userServiceV8.ts (depth=2)
+Fixed src/v8/services/discoveryCacheServiceV8.ts (depth=2)
+Fixed src/v8/services/tokenExchangeConfigServiceV8.ts (depth=2)
+Fixed src/v8/services/deviceCreateDemoServiceV8.ts (depth=2)
+Fixed src/v8/services/tokenEndpointAuthMethodServiceV8.ts (depth=2)
+Fixed src/v8/services/deviceCodeIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/validationServiceV8.ts (depth=2)
+Fixed src/v8/services/ropcIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/protectServiceV8.ts (depth=2)
+Fixed src/v8/services/workerTokenServiceV8.ts (depth=2)
+Fixed src/v8/services/comprehensiveTokenUIService.ts (depth=2)
+Fixed src/v8/services/enhancedCredentialsServiceV8.ts (depth=2)
+Fixed src/v8/services/credentialsServiceV8.ts (depth=2)
+Fixed src/v8/services/globalWorkerTokenService.ts (depth=2)
+Fixed src/v8/services/specUrlServiceV8.ts (depth=2)
+Fixed src/v8/services/cibaServiceV8.ts (depth=2)
+Fixed src/v8/services/hybridFlowIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/tokenOperationsServiceV8.ts (depth=2)
+Fixed src/v8/services/unifiedMFASuccessPageServiceV8.tsx (depth=2)
+Fixed src/v8/services/uiNotificationServiceV8.ts (depth=2)
+Fixed src/v8/services/environmentServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaReportingServiceV8.ts (depth=2)
+Fixed src/v8/services/oauthErrorCodesServiceV8.ts (depth=2)
+Fixed src/v8/services/redirectlessServiceV8.ts (depth=2)
+Fixed src/v8/services/oauthIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/implicitFlowIntegrationServiceV8.ts (depth=2)
+Fixed src/v8/services/responseTypeServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaFeatureFlagsV8.ts (depth=2)
+Fixed src/v8/services/redirectUriServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaServiceV8_Legacy.ts (depth=2)
+Fixed src/v8/services/storageServiceV8.ts (depth=2)
+Fixed src/v8/services/emailMfaSignOnFlowServiceV8.ts (depth=2)
+Fixed src/v8/services/workerTokenConfigServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaConfigurationServiceV8.ts (depth=2)
+Fixed src/v8/services/webAuthnAuthenticationServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaTokenManagerV8.ts (depth=2)
+Fixed src/v8/services/mfaServiceV8.ts (depth=2)
+Fixed src/v8/services/redirectURIRoutingServiceV8.ts (depth=2)
+Fixed src/v8/services/backendConnectivityServiceV8.ts (depth=2)
+Fixed src/v8/services/idTokenValidationServiceV8.ts (depth=2)
+Fixed src/v8/services/phoneAutoPopulationServiceV8.ts (depth=2)
+Fixed src/v8/services/errorHandlerV8.ts (depth=2)
+Fixed src/v8/services/fido2SessionCookieServiceV8.ts (depth=2)
+Fixed src/v8/services/workerTokenStatusServiceV8.ts (depth=2)
+Fixed src/v8/services/tokenExchangeServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaEducationServiceV8.ts (depth=2)
+Fixed src/v8/services/jarRequestObjectServiceV8.ts (depth=2)
+Fixed src/v8/services/unifiedFlowOptionsServiceV8.ts (depth=2)
+Fixed src/v8/services/globalEnvironmentService.ts (depth=2)
+Fixed src/v8/services/workerTokenCacheServiceV8.ts (depth=2)
+Fixed src/v8/services/workerTokenUIServiceV8.tsx (depth=2)
+Fixed src/v8/services/mfaCredentialManagerV8.ts (depth=2)
+Fixed src/v8/services/appDiscoveryServiceV8.ts (depth=2)
+Fixed src/v8/services/mfaRedirectUriServiceV8.ts (depth=2)
+Fixed src/v8/services/configCheckerServiceV8.ts (depth=2)
+Fixed src/locked/mfa-hub-v8/dependencies/services/pingoneConfigService.ts (depth=4)
+Fixed src/locked/fido2-v8/dependencies/contexts/NewAuthContext.tsx (depth=4)
+Fixed src/locked/fido2-v8/dependencies/services/pingOneAppCreationService.ts (depth=4)
+Fixed src/locked/fido2-v8/dependencies/services/pingoneConfigService.ts (depth=4)
+Fixed src/locked/device-code-v8/feature/services/deviceFlowService.ts (depth=4)
+Fixed src/locked/unified-flow-v8u/dependencies/services/deviceFlowService.ts (depth=4)
+Fixed src/locked/email-v8/dependencies/services/pingOneAppCreationService.ts (depth=4)
+Fixed src/locked/email-v8/dependencies/services/pingoneConfigService.ts (depth=4)
+Fixed src/v8m/pages/V8MTokenExchange.tsx (depth=2)
+Fixed src/config/protect-portal/riskPolicies.config.ts (depth=2)
+Fixed src/protect-app/components/ProtectPortalConfigModal.tsx (depth=2)
+Fixed src/protect-app/components/UserSearchDropdown.tsx (depth=2)
+Fixed src/protect-app/pages/UserManagementPage.tsx (depth=2)
+Fixed src/protect-app/services/ApiDisplayService.ts (depth=2)
+Fixed src/protect-app/services/UserService.ts (depth=2)
+Fixed src/components/token/TokenResponseBoxes.tsx (depth=2)
+Fixed src/components/education/MasterEducationSection.tsx (depth=2)
+Fixed src/components/mfa/MFADeviceManager.tsx (depth=2)
+Fixed src/components/password-reset/PasswordSetValueTab.tsx (depth=2)
+Fixed src/components/steps/CommonSteps.tsx (depth=2)
+Fixed src/components/device/DeviceVerification.tsx (depth=2)
+Fixed src/components/device/DevicePolling.tsx (depth=2)
+Fixed src/components/maintenance/MaintenanceDashboard.tsx (depth=2)
+Fixed src/components/worker/WorkerTokenDisplay.tsx (depth=2)
+Fixed src/components/worker/WorkerCredentials.tsx (depth=2)
+Fixed src/components/response-modes/ResponseModeSelector.tsx (depth=2)
+Fixed src/sdk/p1mfa/P1MFASDK.ts (depth=2)
+Fixed src/v8u/tests/tokenExchangeFlowTest.ts (depth=2)
+Fixed src/v8u/tests/tokenExchangeIntegrationTest.ts (depth=2)
+Fixed src/v8u/components/AdvancedOAuthFeatures.tsx (depth=2)
+Fixed src/v8u/components/CompactAppPickerV8U.tsx (depth=2)
+Fixed src/v8u/components/CallbackHandlerV8U.tsx (depth=2)
+Fixed src/v8u/components/UnifiedDocumentationModalV8U.tsx (depth=2)
+Fixed src/v8u/components/UnifiedFlowSteps.tsx (depth=2)
+Fixed src/v8u/components/IDTokenValidationModalV8U.tsx (depth=2)
+Fixed src/v8u/components/CredentialsFormV8U.tsx (depth=2)
+Fixed src/v8u/components/AppDiscoveryModalV8U.tsx (depth=2)
+Fixed src/v8u/components/UserInfoSuccessModalV8U.tsx (depth=2)
+Fixed src/v8u/components/SpecVersionSelector.tsx (depth=2)
+Fixed src/v8u/pages/SecurityDashboardPage.tsx (depth=2)
+Fixed src/v8u/pages/EnhancedStateManagementPage.tsx (depth=2)
+Fixed src/v8u/pages/UserManagementPage.tsx (depth=2)
+Fixed src/v8u/pages/TokenMonitoringPage.tsx (depth=2)
+Fixed src/v8u/pages/TokenStatusPageV8U.tsx (depth=2)
+Fixed src/v8u/flows/SpiffeSpireFlowV8U.tsx (depth=2)
+Fixed src/v8u/flows/UnifiedOAuthFlowV8U.tsx (depth=2)
+Fixed src/v8u/services/flowSettingsServiceV8U.ts (depth=2)
+Fixed src/v8u/services/credentialReloadServiceV8U.ts (depth=2)
+Fixed src/v8u/services/unifiedFlowIntegrationV8U.ts (depth=2)
+Fixed src/v8u/services/pingOneClientServiceV8U.ts (depth=2)
+Fixed src/v8u/services/pkceStorageServiceV8U.ts (depth=2)
+Fixed src/v8u/services/returnTargetServiceV8U.ts (depth=2)
+Fixed src/v8u/services/deviceAuthorizationSecurityService.ts (depth=2)
+Fixed src/pages/sdk-examples/OIDCExamples.tsx (depth=2)
+Fixed src/pages/sdk-examples/SDKExamplesHome.tsx (depth=2)
+Fixed src/pages/v9/PostmanCollectionGeneratorV9.tsx (depth=2)
+Fixed src/pages/test/ImplicitFlowTest.tsx (depth=2)
+Fixed src/pages/test/PARTest.tsx (depth=2)
+Fixed src/pages/test/MFAFlowsApiTest.tsx (depth=2)
+Fixed src/pages/test/MFADeviceOrderTest.tsx (depth=2)
+Fixed src/pages/test/AllFlowsApiTest.tsx (depth=2)
+Fixed src/pages/test/PingOneApiTest.tsx (depth=2)
+Fixed src/pages/security/HelioMartPasswordReset.tsx (depth=2)
+Fixed src/pages/protect/ProtectPortalApp.tsx (depth=2)
+Fixed src/pages/protect-portal/ProtectPortalApp.tsx (depth=2)
+Fixed src/pages/flows/TokenIntrospectionFlow.tsx (depth=2)
+Fixed src/pages/flows/PARFlow.tsx (depth=2)
+Fixed src/pages/flows/MFAFlow.tsx (depth=2)
+Fixed src/pages/flows/IDTokensFlow.tsx (depth=2)
+Fixed src/pages/flows/CIBAFlowV9.tsx (depth=2)
+Fixed src/pages/flows/RedirectlessFlowV9_Real.tsx (depth=2)
+Fixed src/pages/flows/UserInfoPostFlow.tsx (depth=2)
+Fixed src/pages/flows/TokenRevocationFlow.tsx (depth=2)
+Fixed src/pages/flows/PingOneLogoutFlow.tsx (depth=2)
+Fixed src/pages/flows/UserInfoFlow.tsx (depth=2)
+Fixed src/services/v9/v9CredentialValidationService.tsx (depth=2)
+Fixed src/services/v9/postmanCollectionGeneratorV9.ts (depth=2)
+Fixed src/services/codeGeneration/codeGenerationService.ts (depth=2)
+Fixed src/services/__tests__/passwordResetService.integration.test.ts (depth=2)
+
+Total fixed: 256
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 /Users/cmuir/P1Import-apps/oauth-playground/scripts/fix_logger_imports.py 2>&1 [K  | tail -20[?1l>[?2004l
+]2;python3  2>&1 | tail -20]1;python3]633;E; python3 /Users/cmuir/P1Import-apps/oauth-playground/scripts/fix_logger_imports.py 2>&1 | tail -20;]633;C
+Total fixed: 0
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "from '../utils/logger'" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/c [Koomponents/ --include="*.tsx" | head -3 && grep -rn "from '../../utils/logger'" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/ --include="*.tsx [K"" | head -3[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "from '../utils/logger'" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/ --include="*.tsx" | head -3 && grep -rn "from '../../utils/logger'" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/ --include="*.tsx" | head -3;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/StepNavigationV8.tsx:26:import { logger } from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/AuthenticationFlowStepperV8.tsx:40:import { logger } from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/components/sections/WorkerTokenSectionV8.tsx:20:import { logger } from '../../utils/logger';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during" | head -10;]633;C✗ Build failed in 1.46s
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/pages/flows/v9/ImplicitFlowV9.tsx: There was an error during the build:
+  Could not resolve "../../utils/logger" from "src/pages/flows/v9/ImplicitFlowV9.tsx"
+  Could not resolve "../../utils/logger" from "src/pages/flows/v9/ImplicitFlowV9.tsx"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "utils/logger" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/flows/v9/ [KIImplicitFlowV9.tsx[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "utils/logger" /Users/cmuir/P1Import-apps/oauth-playground/src/pages/flows/v9/ImplicitFlowV9.tsx;]633;C29:import { logger } from '../../[01;31m[Kutils/logger[m[K';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  git diff HEAD -- src/pages/flows/v9/ImplicitFlowV9.tsx | head -15[?1l>[?2004l
+]2;git diff HEAD -- src/pages/flows/v9/ImplicitFlowV9.tsx | head -15]1;git]633;E; git diff HEAD -- src/pages/flows/v9/ImplicitFlowV9.tsx | head -15;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 /Users/cmuir/P1Import-apps/oauth-playground/scripts/fix_logger_imports.py 2>&1 [K  | tail -30[?1l>[?2004l
+]2;python3  2>&1 | tail -30]1;python3]633;E; python3 /Users/cmuir/P1Import-apps/oauth-playground/scripts/fix_logger_imports.py 2>&1 | tail -30;]633;C  pages/protect-portal/services/riskEvaluationService.ts: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/OIDCHybridFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/DeviceAuthorizationFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/ImplicitFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/SAMLBearerAssertionFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/ResourcesAPIFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/PingOnePARFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/ClientCredentialsFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/WorkerTokenFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/useAuthorizationCodeFlowController.ts: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/authorizationCodeSharedService.ts: '../../utils/logger' -> '../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowErrorBoundary.tsx: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowResults.tsx: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowConfiguration.tsx: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowErrorWrapper.tsx: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/components/ErrorBoundaryTest.tsx: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/hooks/usePerformanceMonitoring.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/hooks/useAuthCodeManagement.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  pages/flows/OAuthAuthorizationCodeFlowV7_1/hooks/useFlowVariantSwitching.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/reactTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/pingSDKTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/angularTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/restApiTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/nextjsTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/frontend/vueTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/backend/nodeTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+  services/codeGeneration/templates/mobile/mobileTemplates.ts: '../../../utils/logger' -> '../../../../utils/logger'
+
+Total files fixed: 125
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during" | head -10;]633;C✗ Build failed in 2.50s
+error during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/v8/services/implicitFlowIntegrationServiceV8.ts (114:11): There was an error during the build:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Could not|error TS|Unexpected token|SyntaxError" | head  [K--10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "Could not|error TS|Unexpected token|SyntaxError" | head -10;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -A3 "error during build:" | head -20[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -A3 "error during build:" | head -20]1;npm]633;E; npm run build 2>&1 | grep -A3 "error during build:" | head -20;]633;Cerror during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/v8/services/implicitFlowIntegrationServiceV8.ts (114:11): There was an error during the build:
+  Transform failed with 1 error:
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/implicitFlowIntegrationServiceV8.ts:114:11: ERROR: Unexpected "{"
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during|esbuild" | head - [K110[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -10]1;npm]633;E; npm run build 2>&1 | grep -E "Could not|✓ built|✗ Build|error during|esbuild" | head -10;]633;C[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v8/pages/UnifiedCredentialsMockupV8.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MClientCredentialsV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9.tsx: Duplicate "type" attribute in JSX element
+[plugin vite:esbuild] src/v7/pages/V7MDeviceAuthorizationV9.tsx: Duplicate "type" attribute in JSX element
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | tail -8[?1l>[?2004l
+]2;npm run build 2>&1 | tail -8]1;npm]633;E; npm run build 2>&1 | tail -8;]633;C    at getRollupError (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23444:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async catchUnfinishedHookActions (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:22902:16)
+    at async rollupInternal (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/rollup/dist/es/shared/node-entry.js:23427:5)
+    at async buildEnvironment (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46235:14)
+    at async Object.defaultBuildApp [as buildApp] (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:46713:5)
+    at async CAC.<anonymous> (file:///Users/cmuir/P1Import-apps/oauth-playground/node_modules/vite/dist/node/cli.js:863:7)
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "error during build|✗ Build" | head -5[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E "error during build|✗ Build" |]1;npm]633;E; npm run build 2>&1 | grep -E "error during build|✗ Build" | head -5;]633;C✗ Build failed in 2.90s
+error during build:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -A2 "error during build:" | head -10[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -A2 "error during build:" | head -10]1;npm]633;E; npm run build 2>&1 | grep -A2 "error during build:" | head -10;]633;Cerror during build:
+[vite-plugin-pwa:build] [plugin vite-plugin-pwa:build] src/v8/services/mfaConfigurationServiceV8.ts (255:10): There was an error during the build:
+  Transform failed with 1 error:
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -rn "^\t\+import { logger }" /Users/cmuir/P1Import-apps/oauth-playground/src/ --i [Knnclude="*.ts" --include="*.tsx" | grep -v node_modules | grep -v locked[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -rn "^\\t\\+import { logger }" /Users/cmuir/P1Import-apps/oauth-playground/src/ --include="*.ts" --include="*.tsx" | grep -v node_modules | grep -v locked;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/v8/lockdown/fido2/snapshot/mfaConfigurationServiceV8.ts:242:			import { logger } from '../../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts:192:					import { logger } from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts:255:			import { logger } from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts:303:			import { logger } from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts:139:			import { logger } from '../../utils/logger';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  for f in /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationS [KeerviceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/ [KjjarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts; do echo "=== $f ==="; grep -n "import.*log [Kgger" "$f"; done[?1l>[?2004l
+]2;for f in    ; do; echo "=== $f ==="; grep --color=auto  -n "import.*logger" ; ]1;for]633;E; for f in /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts\x3b do echo "=== $f ==="\x3b grep -n "import.*logger" "$f"\x3b done;]633;C=== /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts ===
+255:			[01;31m[Kimport { logger } from '../../utils/logger[m[K';
+=== /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts ===
+192:					[01;31m[Kimport { logger } from '../../utils/logger[m[K';
+=== /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts ===
+303:			[01;31m[Kimport { logger } from '../../utils/logger[m[K';
+=== /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts ===
+139:			[01;31m[Kimport { logger } from '../../utils/logger[m[K';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  for f in src/v8/services/mfaConfigurationServiceV8.ts src/v8/services/oidcDiscoverySer [KvviceV8.ts src/v8/services/jarRequestObjectServiceV8.ts src/v8/services/configCheckerServiceV8.ts; do echo "=== $f ==="; head -5 /Users/cmuir/P1Import-apps/oau [Ktth-playground/"$f"; done[?1l>[?2004l
+]2;for f in src/v8/services/mfaConfigurationServiceV8.ts   ; do; echo ; head -5 ]1;for]633;E; for f in src/v8/services/mfaConfigurationServiceV8.ts src/v8/services/oidcDiscoveryServiceV8.ts src/v8/services/jarRequestObjectServiceV8.ts src/v8/services/configCheckerServiceV8.ts\x3b do echo "=== $f ==="\x3b head -5 /Users/cmuir/P1Import-apps/oauth-playground/"$f"\x3b done;]633;C=== src/v8/services/mfaConfigurationServiceV8.ts ===
+/**
+ * @file mfaConfigurationServiceV8.ts
+ * @module v8/services
+ * @description MFA Configuration Service - manages MFA-specific settings in localStorage
+ * @version 8.0.0
+=== src/v8/services/oidcDiscoveryServiceV8.ts ===
+/**
+ * @file oidcDiscoveryServiceV8.ts
+ * @module v8/services
+ * @description OIDC Discovery service for V8 flows
+ * @version 8.0.0
+=== src/v8/services/jarRequestObjectServiceV8.ts ===
+// src/v8/services/jarRequestObjectServiceV8.ts
+/**
+ * JAR (JWT-secured Authorization Request) Service V8
+ *
+ * Implements RFC 9101 - JWT-secured Authorization Request (JAR)
+=== src/v8/services/configCheckerServiceV8.ts ===
+/**
+ * @file configCheckerServiceV8.ts
+ * @module v8/services
+ * @description Configuration checker service for V8 flows
+ * @version 8.0.0
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  for f in src/v8/services/mfaConfigurationServiceV8.ts src/v8/services/oidcDiscoverySer [KvviceV8.ts src/v8/services/jarRequestObjectServiceV8.ts src/v8/services/configCheckerServiceV8.ts; do echo "=== $f ==="; grep -n "^import\|^const MODULE_TAG\|^ [Keexport\|^class" /Users/cmuir/P1Import-apps/oauth-playground/"$f" | head -5; done[?1l>[?2004l
+]2;for f in src/v8/services/mfaConfigurationServiceV8.ts   ; do; echo ; grep   -]1;for]633;E; for f in src/v8/services/mfaConfigurationServiceV8.ts src/v8/services/oidcDiscoveryServiceV8.ts src/v8/services/jarRequestObjectServiceV8.ts src/v8/services/configCheckerServiceV8.ts\x3b do echo "=== $f ==="\x3b grep -n "^import\\|^const MODULE_TAG\\|^export\\|^class" /Users/cmuir/P1Import-apps/oauth-playground/"$f" | head -5\x3b done;]633;C=== src/v8/services/mfaConfigurationServiceV8.ts ===
+10:const MODULE_TAG = '[⚙️ MFA-CONFIG-SERVICE-V8]';
+12:export interface MFAConfiguration {
+134:export class MFAConfigurationServiceV8 {
+=== src/v8/services/oidcDiscoveryServiceV8.ts ===
+20:const MODULE_TAG = '[📡 OIDC-DISCOVERY-V8]';
+22:export interface DiscoveryResult {
+38:export class OidcDiscoveryServiceV8 {
+289:export default OidcDiscoveryServiceV8;
+=== src/v8/services/jarRequestObjectServiceV8.ts ===
+13:const MODULE_TAG = '[🔐 JAR-REQUEST-OBJECT-V8]';
+18:export interface OAuthAuthorizationParams {
+61:export interface JARSigningConfig {
+83:export interface RequestObjectPayload {
+134:export interface RequestObjectResult {
+=== src/v8/services/configCheckerServiceV8.ts ===
+23:const MODULE_TAG = '[🔍 CONFIG-CHECKER-V8]';
+29:export interface PingOneApplication {
+74:export interface ConfigComparison {
+89:export interface FixSuggestion {
+102:export class ConfigCheckerServiceV8 {
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -n "^const MODULE_TAG\|^\t\+import { logger }" /Users/cmuir/P1Import-apps/oauth-p [Kllayground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Im [Kpport-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -n "^const MODULE_TAG\\|^\\t\\+import { logger }" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts;]633;C/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts:10:[01;31m[Kconst MODULE_TAG[m[K = '[⚙️ MFA-CONFIG-SERVICE-V8]';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts:255:[01;31m[K			import { logger }[m[K from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts:20:[01;31m[Kconst MODULE_TAG[m[K = '[📡 OIDC-DISCOVERY-V8]';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts:192:[01;31m[K					import { logger }[m[K from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts:13:[01;31m[Kconst MODULE_TAG[m[K = '[🔐 JAR-REQUEST-OBJECT-V8]';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts:303:[01;31m[K			import { logger }[m[K from '../../utils/logger';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts:23:[01;31m[Kconst MODULE_TAG[m[K = '[🔍 CONFIG-CHECKER-V8]';
+/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts:139:[01;31m[K			import { logger }[m[K from '../../utils/logger';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -n '253,258p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfi [KggurationServiceV8.ts && echo "---" && sed -n '189,195p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts && echo "---" && [K  sed -n '301,306p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts && echo "---" && sed -n '137,142p' /Users/cmuir/P1 [KIImport-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts[?1l>[?2004l
+]2;sed -n '253,258p'  && echo "---" && sed -n '189,195p'  && echo "---" && sed -]1;sed]633;E; sed -n '253,258p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts && echo "---" && sed -n '189,195p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts && echo "---" && sed -n '301,306p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts && echo "---" && sed -n '137,142p' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts;]633;C		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to import configuration:`, error);
+			import { logger } from '../../utils/logger';
+			return false;
+		}
+	}
+---
+			if (typeof window !== 'undefined') {
+				try {
+					const { cacheDiscoveryDocument } = await import('./discoveryCacheServiceV8');
+					import { logger } from '../../utils/logger';
+					await cacheDiscoveryDocument(normalized, discoveryData, environmentId);
+				} catch (error) {
+					logger.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document (non-critical)`, {
+---
+			const key = await importPKCS8(privateKey, 'RS256');
+
+			import { logger } from '../../utils/logger';
+			// Convert payload to plain object (remove type assertion to avoid issues)
+			const payloadObj: Record<string, unknown> = { ...payload };
+
+---
+			// Track API call for documentation
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			import { logger } from '../../utils/logger';
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  python3 - <<'PYEOF' > /tmp/fix_misplaced.py[?1l>[?2004l
+[0m[27m[24m[J]633;Fheredoc> ]633;G[K[?1h=[?2004h## No-op to test heredoc[?1l>[?2004l
+[0m[27m[24m[J]633;Fheredoc> ]633;G[K[?1h=[?2004hpprint("ok")[?1l>[?2004l
+[0m[27m[24m[J]633;Fheredoc> ]633;G[K[?1h=[?2004hPPYEOF[?1l>[?2004l
+]2;python3 - <<<'# No-op to test heredoc print("ok")' > /tmp/fix_misplaced.py]1;python3]633;E; python3 - <<'PYEOF' > /tmp/fix_misplaced.py\x0a# No-op to test heredoc\x0aprint("ok")\x0aPYEOF;]633;C[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004hccat /tmp/fix_misplaced.py[?1l>[?2004l
+]2;cat /tmp/fix_misplaced.py]1;cat]633;E;cat /tmp/fix_misplaced.py;]633;Cok
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -Pn "^\s+import \{ logger \}" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/ [Ksservices/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-p [Kllayground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts | cat -A | head - [K110[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -Pn "^\\s+import \\{ logger \\}" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts | cat -A | head -10;]633;Cgrep: invalid option -- P
+usage: grep [-abcdDEFGHhIiJLlMmnOopqRSsUVvwXxZz] [-A num] [-B num] [-C[num]]
+	[-e pattern] [-f file] [--binary-files=value] [--color=when]
+	[--context[=num]] [--directories=action] [--label] [--line-buffered]
+	[--null] [pattern] [file ...]
+cat: illegal option -- A
+usage: cat [-belnstuv] [file ...]
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  grep -En "^[[:space:]]+import \{ logger \}" /Users/cmuir/P1Import-apps/oauth-playgroun [Kdd/src/v8/services/mfaConfigurationServiceV8.ts | head -3 | od -c | head -5[?1l>[?2004l
+]2;grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv]1;grep]633;E; grep -En "^[[:space:]]+import \\{ logger \\}" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts | head -3 | od -c | head -5;]633;C0000000    2   5   7   :  \t  \t  \t   i   m   p   o   r   t       {    
+0000020    l   o   g   g   e   r       }       f   r   o   m       '   .
+0000040    .   /   .   .   /   u   t   i   l   s   /   l   o   g   g   e
+0000060    r   '   ;  \n                                                
+0000064
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  sed -i '' '/^[[:space:]]\{1,\}import { logger } from/d' /Users/cmuir/P1Import-apps/oau [Ktth-playground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/ [KPP1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8 [K..ts && echo "Done" && grep -n "import { logger }" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts[?1l>[?2004l
+]2;sed -i '' '/^[[:space:]]\{1,\}import { logger } from/d'     && echo "Done" &&]1;sed]633;E; sed -i '' '/^[[:space:]]\\{1,\\}import { logger } from/d' /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oidcDiscoveryServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/jarRequestObjectServiceV8.ts /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/configCheckerServiceV8.ts && echo "Done" && grep -n "import { logger }" /Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaConfigurationServiceV8.ts;]633;CDone
+10:[01;31m[Kimport { logger }[m[K from '../../utils/logger';
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  npm run build 2>&1 | grep -E "✓ built|✗ Build|error during build:" | head -5[?1l>[?2004l
+]2;npm run build 2>&1 | grep --color=auto  -E  | head -5]1;npm]633;E; npm run build 2>&1 | grep -E "✓ built|✗ Build|error during build:" | head -5;]633;C✓ built in 18.52s
+[1m[7m%[27m[1m[0m                                                                                                                                                              ]2;cmuir@mac-D6D76X06:~/P1Import-apps/oauth-playground]1;..th-playground]7;file://mac-D6D76X06/Users/cmuir/P1Import-apps/oauth-playground\]633;D;0]633;P;Cwd=/Users/cmuir/P1Import-apps/oauth-playground]633;EnvSingleStart;0;;]633;EnvSingleEnd;;[0m[27m[24m[J]633;A[01;32m➜  [36moauth-playground[00m [01;34mgit:([31mcleanup/linter-elimination-20260308-193757[34m) [33m✗[00m ]633;B[K[?1h=[?2004h  node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3[?1l>[?2004l
+]2;node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3]1;node_modules/.bin/eslint]633;E; node_modules/.bin/eslint src --ext .ts,.tsx 2>&1 | tail -3;]633;C

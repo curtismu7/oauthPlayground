@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file unifiedErrorHandlerV8.ts
  * @module v8/utils
  * @description Standardized error handling for Unified MFA flows

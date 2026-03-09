@@ -1,6 +1,10 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { jwtVerify } from 'jose';
+import { jwtVerify } from 'jose';
+import { jwtVerify } from 'jose';
+import { jwtVerify } from 'jose';
 vi.mock('jose');
 
 import type { JWKS, JWKSConfig, TokenValidationOptions } from '../jwks';
@@ -239,7 +243,6 @@ describe('JWKS Utilities', () => {
 		};
 
 		it('should validate JWT successfully', async () => {
-			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -261,7 +264,6 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should fail validation with nonce mismatch', async () => {
-			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -286,7 +288,6 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should fail validation with expired auth_time', async () => {
-			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -308,7 +309,6 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should handle JWT verification errors', async () => {
-			import { jwtVerify } from 'jose';
 			jwtVerify.mockRejectedValue(new Error('Invalid signature'));
 
 			const result = await validateJWT(mockJWT, mockConfig, mockOptions);

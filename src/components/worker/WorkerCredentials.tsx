@@ -6,7 +6,7 @@ import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/worke
 import { validateCredentialFormat } from '../../utils/clientCredentials';
 import { validateEnvironmentId } from '../../utils/workerToken';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 const Container = styled.div`
   background: white;
   border-radius: 12px;

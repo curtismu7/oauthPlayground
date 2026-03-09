@@ -30,7 +30,7 @@ import type {
 } from '@/v8/services/hybridFlowIntegrationServiceV8';
 import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 export interface HybridFlowState {
 	// Flow configuration
 	variant: 'code id_token' | 'code token' | 'code token id_token';

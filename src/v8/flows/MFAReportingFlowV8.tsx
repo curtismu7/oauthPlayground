@@ -38,7 +38,8 @@ import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
 

@@ -9,9 +9,9 @@
  * Provides canonical URLs to official OAuth and OIDC specifications
  */
 
+import { logger } from '../../utils/logger';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 
-import { logger } from '../utils/logger';
 const MODULE_TAG = '[📚 SPEC-URL-V8]';
 
 /**

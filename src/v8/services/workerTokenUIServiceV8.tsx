@@ -22,10 +22,9 @@ import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U'
 import type { DiscoveredApp } from '../components/AppPickerV8';
 import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
+import { logger } from '../../utils/logger';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
-
-import { logger } from '../utils/logger';
 export interface WorkerTokenUIServiceV8Props {
 	/** Display mode for the status display */
 	mode?: 'compact' | 'detailed' | 'minimal' | 'wide';

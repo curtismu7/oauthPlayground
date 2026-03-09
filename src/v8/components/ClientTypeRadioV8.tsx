@@ -14,7 +14,8 @@
 
 import React, { useState } from 'react';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
 
 export type ClientType = 'public' | 'confidential';

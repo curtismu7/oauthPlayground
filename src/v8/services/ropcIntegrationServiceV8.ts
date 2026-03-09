@@ -1,5 +1,5 @@
 /**
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
  * @file ropcIntegrationServiceV8.ts
  * @module v8/services
  * @description Real OAuth Resource Owner Password Credentials Flow integration with PingOne APIs

@@ -8,7 +8,8 @@
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔄 MFA-REDIRECT-URI-MIGRATION-V8]';
 
 /**

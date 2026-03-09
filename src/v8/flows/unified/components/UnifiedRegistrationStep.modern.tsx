@@ -22,10 +22,10 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { logger } from '../../../../utils/logger';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
-import { logger } from '../../../utils/logger';
 export { computeDeviceStatus } from './UnifiedRegistrationStep';
 
 const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-MODERN]';

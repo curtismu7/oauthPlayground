@@ -1,6 +1,5 @@
 import { logger } from '../../utils/logger';
 
-import { logger } from '../utils/logger';
 /**
  * @file deviceAuthorizationSecurityService.ts
  * @module v8u/services

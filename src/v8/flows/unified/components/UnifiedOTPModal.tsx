@@ -31,7 +31,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔢 UNIFIED-OTP-MODAL]';
 
 // ============================================================================

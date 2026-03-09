@@ -13,11 +13,11 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
 import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { logger } from '../utils/logger';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
 

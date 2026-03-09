@@ -17,7 +17,7 @@ import { credentialManager } from '../../../utils/credentialManager';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();

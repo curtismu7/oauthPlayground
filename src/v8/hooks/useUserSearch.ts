@@ -13,7 +13,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { SQLiteStatsServiceV8 } from '@/v8/services/sqliteStatsServiceV8';
 import type { User } from '@/v8/services/userServiceV8';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔍 USE-USER-SEARCH]';
 
 export interface UseUserSearchOptions {

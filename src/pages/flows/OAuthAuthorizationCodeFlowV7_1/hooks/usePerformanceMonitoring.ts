@@ -4,7 +4,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '../../../../utils/logger';
 
-import { logger } from '../../../utils/logger';
 interface PerformanceMetrics {
 	componentName: string;
 	mountTime: number;

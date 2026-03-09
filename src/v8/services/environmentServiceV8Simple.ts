@@ -3,7 +3,7 @@
 
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 // Environment Types
 export type EnvironmentType = 'PRODUCTION' | 'SANDBOX' | 'DEVELOPMENT';
 export type EnvironmentStatus = 'ACTIVE' | 'INACTIVE' | 'DELETE_PENDING';

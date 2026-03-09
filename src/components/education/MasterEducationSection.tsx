@@ -11,7 +11,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { logger } from '../utils/logger';
+import { logger } from '../../utils/logger';
 import {
 	type EducationMode,
 	EducationPreferenceService,
