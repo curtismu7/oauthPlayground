@@ -9,7 +9,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;

@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const DashboardContainer = styled.div`

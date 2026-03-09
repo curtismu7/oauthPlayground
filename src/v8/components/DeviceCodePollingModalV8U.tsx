@@ -141,16 +141,34 @@ export const DeviceCodePollingModalV8U: React.FC<DeviceCodePollingModalProps> = 
 	if (!show) return null;
 
 	return (
-		<Modal>
-			<ModalContent>
-				<Title>📱 Device Code Polling</Title>
+		<Modal
+			aria-hidden="true"
+			onClick={onCancel}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onCancel();
+				}
+			}}
+		>
+			<ModalContent
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="device-code-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onCancel();
+					}
+				}}
+			>
+				<Title id="device-code-title">📱 Device Code Polling</Title>
 				<StatusText>Waiting for device authorization...</StatusText>
 				<StatusText>Status: {status}</StatusText>
 				<ProgressBar $progress={(attempts / maxAttempts) * 100} />
 				<StatusText>
 					Attempt {attempts} of {maxAttempts}
 				</StatusText>
-				<CancelButton onClick={onCancel}>Cancel Polling</CancelButton>
+				<CancelButton type="button" onClick={onCancel}>Cancel Polling</CancelButton>
 			</ModalContent>
 		</Modal>
 	);

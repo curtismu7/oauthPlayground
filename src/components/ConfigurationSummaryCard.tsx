@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled Components
 const Card = styled.div`

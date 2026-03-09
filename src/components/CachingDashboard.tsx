@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const DashboardContainer = styled.div`

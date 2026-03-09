@@ -8,7 +8,6 @@ import {
 	triggerFileImport,
 } from '../services/credentialExportImportService';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
 

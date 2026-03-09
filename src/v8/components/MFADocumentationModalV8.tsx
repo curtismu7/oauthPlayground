@@ -185,9 +185,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	return (
 		<div
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="mfa-doc-modal-title"
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -208,6 +206,15 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 			}}
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="mfa-doc-modal-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -218,7 +225,6 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 					boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
 					width: '90%',
 				}}
-				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
 				<div

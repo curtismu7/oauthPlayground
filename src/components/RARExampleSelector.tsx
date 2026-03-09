@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface RARExampleSelectorProps {
 	onSelectExample: (details: AuthorizationDetail[]) => void;

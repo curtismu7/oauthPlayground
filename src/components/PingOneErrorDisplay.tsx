@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
 const ErrorContainer = styled.div<{ $severity: string }>`

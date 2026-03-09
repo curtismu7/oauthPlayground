@@ -10,7 +10,6 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
 const TeslaDisplayContainer = styled.div`

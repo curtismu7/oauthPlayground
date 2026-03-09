@@ -76,6 +76,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				aria-hidden="true"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -96,6 +97,15 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 			>
 				{/* Modal */}
 				<div
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="policy-modal-title"
+					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape' && !isSaving) {
+							onClose();
+						}
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '12px',
@@ -106,7 +116,6 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 						flexDirection: 'column',
 						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 					}}
-					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header */}
 					<div
@@ -121,6 +130,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 						}}
 					>
 						<h2
+							id="policy-modal-title"
 							style={{
 								margin: 0,
 								fontSize: '20px',

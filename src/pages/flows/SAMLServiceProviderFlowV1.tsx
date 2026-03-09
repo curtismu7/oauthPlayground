@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/SAMLServiceProviderFlowV1.tsx
 // SAML 2.0 Service Provider Flow with Dynamic ACS URL Support
 // Demonstrates PingOne's new "Always accept ACS URL in signed SAML 2.0 AuthnRequest" feature
@@ -808,7 +807,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					}}
 				>
 					<Button onClick={handleSaveConfiguration} $variant="primary" disabled={isSaving}>
-						{isSaving ? <span>🔄</span> : <span>[FiSave]</span>}
+						{isSaving ? <span>🔄</span> : <i className="bi bi-floppy" />}
 						{isSaving ? 'Saving...' : 'Save Configuration'}
 					</Button>
 					{hasSavedConfig && lastSavedAt && (
@@ -901,7 +900,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					</>
 				) : (
 					<>
-						<span>[FiSave]</span>Save Admin Credentials
+						<i className="bi bi-floppy" />Save Admin Credentials
 					</>
 				)}
 			</Button>

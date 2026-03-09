@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { LogEntry, LogLevel, logger } from '@/services/loggingService';
+import { LogEntry, LogLevel } from '@/services/loggingService';
 
 const Container = styled.div`
 	background: #1a1a1a;

@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/KrogerGroceryStoreMFA.tsx
 // Kroger Grocery Store Mockup - Real-world MFA authentication experience
 // This page demonstrates PingOne MFA in a realistic grocery store website context

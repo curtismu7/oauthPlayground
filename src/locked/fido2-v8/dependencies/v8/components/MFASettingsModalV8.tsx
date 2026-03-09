@@ -192,7 +192,12 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 					<button type="button" onClick={onClose} className="btn btn-secondary" disabled={isSaving}>
 						Close
 					</button>
-					<button type="button" onClick={handleSave} className="btn btn-primary" disabled={isSaving || isLoading}>
+					<button
+						type="button"
+						onClick={handleSave}
+						className="btn btn-primary"
+						disabled={isSaving || isLoading}
+					>
 						{isSaving ? 'Saving...' : 'Save Changes'}
 					</button>
 				</div>

@@ -103,6 +103,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 
 	return (
 		<div
+			aria-hidden="true"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -118,6 +119,15 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 			onClick={onClose}
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="device-failure-title"
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				style={{
 					background: 'white',
 					borderRadius: '16px',
@@ -128,7 +138,6 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 					overflow: 'auto',
 					boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 				}}
-				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Header */}
 				<div
@@ -144,6 +153,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 						<span style={{ fontSize: 24, color: 'white' }}>⚠️</span>
 						<h3
+							id="device-failure-title"
 							style={{
 								margin: 0,
 								fontSize: '20px',

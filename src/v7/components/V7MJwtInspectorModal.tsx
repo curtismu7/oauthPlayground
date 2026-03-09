@@ -22,10 +22,20 @@ export const V7MJwtInspectorModal: React.FC<Props> = ({ open, token, onClose }) 
 			themeColor="#0ea5e9"
 		>
 			<div style={{ marginBottom: 12 }}>
-				<button type="button" type="button" style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
+				<button
+					type="button"
+					type="button"
+					style={tabBtn(tab === 'header')}
+					onClick={() => setTab('header')}
+				>
 					Header
 				</button>
-				<button type="button" type="button" style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
+				<button
+					type="button"
+					type="button"
+					style={tabBtn(tab === 'payload')}
+					onClick={() => setTab('payload')}
+				>
 					Payload
 				</button>
 				<button

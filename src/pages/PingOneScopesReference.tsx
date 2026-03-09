@@ -1,10 +1,8 @@
 // src/pages/PingOneScopesReference.tsx
 // Educational reference page for PingOne OAuth 2.0 and OIDC scopes
 
-import { FiCheck, FiDatabase, FiMail, FiPhone } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -256,7 +254,7 @@ const PingOneScopesReference: React.FC = () => {
 					<ScopeList>
 						<ScopeItem color="#6366f1">
 							<ScopeIcon color="#6366f1">
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>openid</ScopeName>
@@ -300,7 +298,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#ec4899">
 							<ScopeIcon color="#ec4899">
-								<span>[FiMail]</span>
+								<i className="bi bi-envelope" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>email</ScopeName>
@@ -317,7 +315,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
 							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<span>[FiMapPin]</span>
+								<i className="bi bi-geo-alt" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>address</ScopeName>
@@ -338,7 +336,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
 							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
-								<span>[FiPhone]</span>
+								<i className="bi bi-telephone" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>phone</ScopeName>
@@ -373,7 +371,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<span>[FiDatabase]</span>Common PingOne Management API Scopes
+							<i className="bi bi-database" />Common PingOne Management API Scopes
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -422,7 +420,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.GREEN">
 							<ScopeIcon color="V9_COLORS.PRIMARY.GREEN">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:environments</ScopeName>
@@ -434,7 +432,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#8b5cf6">
 							<ScopeIcon color="#8b5cf6">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:applications</ScopeName>
@@ -446,7 +444,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.YELLOW">
 							<ScopeIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:populations</ScopeName>
@@ -458,7 +456,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#14b8a6">
 							<ScopeIcon color="#14b8a6">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:groups</ScopeName>
@@ -478,7 +476,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#f43f5e">
 							<ScopeIcon color="#f43f5e">
-								<span>[FiDatabase]</span>
+								<i className="bi bi-database" />
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:audit</ScopeName>
@@ -516,7 +514,7 @@ const PingOneScopesReference: React.FC = () => {
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
-										<span>[FiDatabase]</span>
+										<i className="bi bi-database" />
 									</InfoIcon>
 									<InfoText>
 										<strong>Important:</strong> Worker apps access PingOne Management APIs using{' '}
@@ -621,7 +619,7 @@ const PingOneScopesReference: React.FC = () => {
 
 								<InfoBox style={{ margin: 0 }}>
 									<InfoIcon>
-										<span>[FiCheck]</span>
+										<i className="bi bi-check-circle" />
 									</InfoIcon>
 									<InfoText>
 										<strong>Verification:</strong> After generating a token, decode it at{' '}
@@ -706,7 +704,7 @@ const PingOneScopesReference: React.FC = () => {
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
-										<span>[FiDatabase]</span>
+										<i className="bi bi-database" />
 									</InfoIcon>
 									<InfoText>
 										<strong>What are Resources?</strong> Resources represent APIs or services that
@@ -853,7 +851,7 @@ const PingOneScopesReference: React.FC = () => {
 					<ScopeList>
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</InfoIcon>
 							<InfoText>
 								<strong>1. Principle of Least Privilege:</strong> Only request scopes that your
@@ -864,7 +862,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</InfoIcon>
 							<InfoText>
 								<strong>2. Always Include openid:</strong> For SSO/authentication flows, always
@@ -875,7 +873,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</InfoIcon>
 							<InfoText>
 								<strong>3. Worker Apps vs User Apps:</strong> Management API scopes (
@@ -886,7 +884,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</InfoIcon>
 							<InfoText>
 								<strong>4. Scope ≠ Permission:</strong> Just because an app <em>requests</em> a
@@ -897,7 +895,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<InfoBox style={{ margin: 0 }}>
 							<InfoIcon>
-								<span>[FiCheck]</span>
+								<i className="bi bi-check-circle" />
 							</InfoIcon>
 							<InfoText>
 								<strong>5. Dynamic Consent:</strong> Users should be shown what scopes are being

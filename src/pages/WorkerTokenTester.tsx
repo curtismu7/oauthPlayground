@@ -295,11 +295,11 @@ const _WorkerTokenTester: React.FC = () => {
 	const [token, setToken] = useState('');
 	const [payload, setPayload] = useState<TokenPayload | null>(null);
 	const [isExpired, setIsExpired] = useState(false);
-	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-	const [isTesting, setIsTesting] = useState(false);
-	const [testResults, setTestResults] = useState<TestResult[]>([]);
+	const [_timeRemaining, setTimeRemaining] = useState<number | null>(null);
+	const [_isTesting, setIsTesting] = useState(false);
+	const [_testResults, setTestResults] = useState<TestResult[]>([]);
 	const [error, setError] = useState<string | null>(null);
-	const [environmentData, setEnvironmentData] = useState<EnvironmentData | null>(null);
+	const [_environmentData, setEnvironmentData] = useState<EnvironmentData | null>(null);
 
 	const decodeToken = (tokenString: string): TokenPayload | null => {
 		try {
@@ -380,7 +380,7 @@ const _WorkerTokenTester: React.FC = () => {
 		}
 	};
 
-	const testToken = async () => {
+	const _testToken = async () => {
 		if (!payload?.env) {
 			setError('Token must contain an environment ID (env claim)');
 			modernMessaging.showBanner({
@@ -635,11 +635,11 @@ const _WorkerTokenTester: React.FC = () => {
 		setIsTesting(false);
 	};
 
-	const formatDate = (timestamp: number) => {
+	const _formatDate = (timestamp: number) => {
 		return new Date(timestamp * 1000).toLocaleString();
 	};
 
-	const formatTimeRemaining = (seconds: number) => {
+	const _formatTimeRemaining = (seconds: number) => {
 		if (seconds < 0) {
 			const absSeconds = Math.abs(seconds);
 			if (absSeconds < 60) return `${absSeconds}s ago`;

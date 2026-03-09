@@ -397,7 +397,12 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 							<pre style={preJson}>{JSON.stringify(tokenResponse, null, 2)}</pre>
 							<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 								{idToken && (
-									<button type="button" type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={() => setShowIdModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect ID Token
 									</button>
 								)}
@@ -416,7 +421,12 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 									</button>
 								)}
 								{accessToken && (
-									<button type="button" type="button" onClick={handleIntrospect} style={secondaryBtn}>
+									<button
+										type="button"
+										type="button"
+										onClick={handleIntrospect}
+										style={secondaryBtn}
+									>
 										Introspect Token
 									</button>
 								)}

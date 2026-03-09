@@ -1,5 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-
 const OIDCOverviewSimple = () => {
 	return (
 		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>

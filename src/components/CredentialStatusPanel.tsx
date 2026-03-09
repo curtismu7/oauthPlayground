@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import ServerStatusModal from './ServerStatusModal';
 

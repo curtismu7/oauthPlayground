@@ -276,7 +276,20 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<div 
+				className="collapsible-header" 
+				onClick={() => setIsExpanded(!isExpanded)}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						setIsExpanded(!isExpanded);
+					}
+				}}
+				role="button"
+				tabIndex={0}
+				aria-expanded={isExpanded}
+				aria-controls="form-sections"
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
@@ -285,7 +298,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 			</div>
 
 			{isExpanded && (
-				<div className="form-sections">
+				<div id="form-sections" className="form-sections">
 					{/* APP PICKER SECTION - FIRST! */}
 					<div className="form-section" data-section="app-picker">
 						<div className="section-header">

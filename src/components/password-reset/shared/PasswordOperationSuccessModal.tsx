@@ -1,7 +1,6 @@
 // src/components/password-reset/shared/PasswordOperationSuccessModal.tsx
 // Generic success modal for password operations
 
-import { FiCheckCircle, FiInfo, FiKey, FiMail, FiUnlock, FiUser } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
 import {

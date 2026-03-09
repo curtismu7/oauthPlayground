@@ -9,7 +9,6 @@ import {
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Styled components
 const ButtonContainer = styled.div`

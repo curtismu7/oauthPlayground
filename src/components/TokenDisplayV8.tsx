@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TokenDisplayV8Props {
 	idToken?: string;

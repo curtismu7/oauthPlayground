@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
 import { validateCredentialFormat } from '../../utils/clientCredentials';
-import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 import { validateEnvironmentId } from '../../utils/workerToken';
 
 const Container = styled.div`

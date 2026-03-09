@@ -5,7 +5,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 interface TOTPQRCodeModalProps {
 	isOpen: boolean;

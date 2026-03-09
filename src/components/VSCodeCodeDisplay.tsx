@@ -15,7 +15,6 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // VS Code-inspired color scheme
 const vscodeColors = {

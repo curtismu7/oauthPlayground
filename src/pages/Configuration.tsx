@@ -248,6 +248,79 @@ const _getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProp
 	color: variant === 'override' ? '#ffffff' : '#1f2937',
 });
 
+const Card: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+	<div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '2rem', border: '1px solid #e5e7eb', ...style }}>{children}</div>
+);
+
+const StepCard: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+	<div style={{ background: '#f8fafc', border: '2px solid #e5e7eb', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '1.5rem', ...style }}>{children}</div>
+);
+
+const StepHeader: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+	<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', ...style }}>{children}</div>
+);
+
+const FeatureGrid: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>{children}</div>
+);
+
+const FeatureItem: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>{children}</div>
+);
+
+const InfoBox: React.FC<{ children?: React.ReactNode; $type?: 'info' | 'warning' | 'success' | 'error'; style?: React.CSSProperties }> = ({ children, $type, style }) => {
+	const s = _getInfoBoxStyle($type);
+	return <div style={{ ...s, ...style }}>{children}</div>;
+};
+
+const UriTable: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1.5rem' }}>{children}</table>
+);
+
+const UriHeaderCell: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+	<th style={{ textAlign: 'left', padding: '0.75rem 1rem', background: '#f1f5f9', color: '#1f2937', fontSize: '0.9rem', borderBottom: '2px solid #e5e7eb', ...style }}>{children}</th>
+);
+
+const UriRow: React.FC<{ children?: React.ReactNode; id?: string; style?: React.CSSProperties }> = ({ children, id, style }) => (
+	<tr id={id} style={style}>{children}</tr>
+);
+
+const UriCell: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+	<td style={{ padding: '0.85rem 1rem', verticalAlign: 'top', borderBottom: '1px solid #e5e7eb', ...style }}>{children}</td>
+);
+
+const UriValue: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>{children}</div>
+);
+
+const UriCode: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<code style={{ fontFamily: '"Fira Code", monospace', background: '#f8fafc', padding: '0.35rem 0.5rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', color: '#1f2937', wordBreak: 'break-all' }}>{children}</code>
+);
+
+const UriDescription: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: '#6b7280' }}>{children}</p>
+);
+
+const UriActionRow: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>{children}</div>
+);
+
+const UriActionButton: React.FC<{ children?: React.ReactNode; $variant?: 'primary' | 'secondary'; onClick?: () => void; disabled?: boolean; style?: React.CSSProperties }> = ({ children, $variant, onClick, disabled, style }) => (
+	<button type="button" onClick={onClick} disabled={disabled} style={{ ..._getUriActionButtonStyle($variant), ...style }}>{children}</button>
+);
+
+const UriInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
+	<input {...props} style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.6rem', border: '1px solid #e5e7eb', background: '#ffffff', color: '#1f2937', fontSize: '0.9rem', ...props.style }} />
+);
+
+const UriHelper: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+	<p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: '#6b7280' }}>{children}</p>
+);
+
+const UriStatusBadge: React.FC<{ children?: React.ReactNode; $variant?: 'default' | 'override' }> = ({ children, $variant = 'default' }) => (
+	<span style={{ ..._getUriStatusBadgeStyle($variant) }}>{children}</span>
+);
+
 const Configuration: React.FC = () => {
 	usePageScroll({ pageName: 'Configuration & Setup', force: true });
 	const [copiedText, setCopiedText] = useState<string>('');

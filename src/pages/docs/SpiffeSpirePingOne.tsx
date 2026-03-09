@@ -1,5 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
-
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 

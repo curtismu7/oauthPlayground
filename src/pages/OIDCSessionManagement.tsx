@@ -1,4 +1,4 @@
-import { FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
+import { FiArrowRight, FiCheck, FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -6,7 +6,6 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import { BootstrapIcon } from '../components/v9/BootstrapIcon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`

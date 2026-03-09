@@ -332,14 +332,10 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 					}}
 				>
 					{apps.map((app) => (
-						<div
+						<button
 							key={app.id}
-							role="button"
-							tabIndex={0}
+							type="button"
 							onClick={() => handleSelectApp(app)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ') handleSelectApp(app);
-							}}
 							style={{
 								padding: '12px 16px',
 								borderBottom: '1px solid #e5e7eb',
@@ -379,7 +375,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 									Redirect URIs: {app.redirectUris.length}
 								</div>
 							)}
-						</div>
+						</button>
 					))}
 				</div>
 			)}

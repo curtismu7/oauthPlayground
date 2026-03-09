@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // lint-file-disable: token-value-in-jsx
 
 import React, { useState } from 'react';

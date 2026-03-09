@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 // src/pages/flows/DPoPFlow.tsx
 // DPoP (Demonstration of Proof-of-Possession) Flow - Educational/Mock Implementation
 // RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)

@@ -7,7 +7,6 @@ import {
 	fetchApplications as fetchPingOneApplications,
 	type PingOneApplication,
 } from '../services/pingOneApplicationService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 export interface PingOneApplicationPickerProps {
 	environmentId: string;

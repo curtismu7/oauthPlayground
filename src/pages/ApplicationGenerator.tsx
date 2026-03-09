@@ -1,4 +1,3 @@
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
@@ -32,7 +31,6 @@ import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
 import '../utils/testConfigChecker';
-import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Auto-run config checker tests in development
 
 const Container = styled.div`
   max-width: 1200px;
@@ -898,7 +896,7 @@ const ApplicationGenerator: React.FC = () => {
 	};
 
 	// Form validation with field highlighting
-	const validateForm = () => {
+	const _validateForm = () => {
 		const errors: string[] = [];
 		const fieldErrors = new Set<string>();
 

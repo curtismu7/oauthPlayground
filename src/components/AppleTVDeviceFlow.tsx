@@ -10,7 +10,6 @@ import {
 	DeviceTokenResponse,
 	deviceFlowService,
 } from '../services/deviceFlowService';
-import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 // Apple TV Main Container - Realistic Physical Device
 const AppleTVContainer = styled.div`

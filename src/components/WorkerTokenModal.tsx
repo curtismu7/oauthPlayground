@@ -26,16 +26,6 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
-import {
-	FiAlertTriangle,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';

@@ -1,4 +1,3 @@
-import { FiCheck, FiCopy, FiExternalLink } from '@icons';
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
