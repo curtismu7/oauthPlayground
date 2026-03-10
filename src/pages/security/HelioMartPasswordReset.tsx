@@ -531,6 +531,8 @@ const HelioMartPasswordReset: React.FC = () => {
 	// autoFetch: false — do not silently call the token API on load.
 	// The user must click "Get Worker Token" to fetch a new token.
 	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: false });
+	const workerRegion =
+		unifiedWorkerTokenService.getTokenDataSync()?.credentials?.region ?? undefined;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
@@ -1086,9 +1088,10 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			// Send recovery code to the user
 			const sendResult = await sendRecoveryCode({
-				environmentId,
+				environmentId: effectiveEnvironmentId,
 				userId: userId as string,
-				globalTokenStatus,
+				workerToken: effectiveWorkerToken,
+				region: workerRegion,
 			});
 
 			if (sendResult.success) {
@@ -1116,7 +1119,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverEmail, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [recoverEmail, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Recover password
 	const handleRecoverPassword = useCallback(async () => {
@@ -1141,9 +1144,10 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await recoverPassword(
 				environmentId,
 				recoverUserId,
-				globalTokenStatus,
+				globalTokenStatus.token || '',
 				recoveryCode,
-				newPassword
+				newPassword,
+				workerRegion
 			);
 
 			if (result.success) {
@@ -1177,7 +1181,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverUserId, recoveryCode, newPassword, globalTokenStatus, environmentId]);
+	}, [recoverUserId, recoveryCode, newPassword, globalTokenStatus, environmentId, workerRegion]);
 
 	// Lookup user for force reset
 	const handleForceResetLookup = useCallback(async () => {
@@ -1278,7 +1282,8 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await forcePasswordChange(
 				environmentId,
 				forceResetUser.id,
-				globalTokenStatus.token || ''
+				globalTokenStatus.token || '',
+				workerRegion
 			);
 
 			if (result.success) {
@@ -1306,7 +1311,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setForceResetLoading(false);
 		}
-	}, [forceResetUser, globalTokenStatus, environmentId]);
+	}, [forceResetUser, globalTokenStatus, environmentId, workerRegion]);
 
 	// Change password (using authenticated user)
 	const handleChangePassword = useCallback(async () => {
@@ -1344,7 +1349,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				userId,
 				userAccessToken,
 				oldPassword,
-				changeNewPassword
+				changeNewPassword,
+				workerRegion
 			);
 
 			if (result.success) {
@@ -1376,7 +1382,15 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setChangePasswordLoading(false);
 		}
-	}, [userId, oldPassword, changeNewPassword, confirmPassword, userAccessToken, environmentId]);
+	}, [
+		userId,
+		oldPassword,
+		changeNewPassword,
+		confirmPassword,
+		userAccessToken,
+		environmentId,
+		workerRegion,
+	]);
 
 	// Lookup user for check password
 	const handleCheckPasswordLookup = useCallback(async () => {
@@ -1485,8 +1499,9 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await checkPassword(
 				environmentId,
 				checkPasswordUser.id,
-				globalTokenStatus,
-				checkPasswordValue
+				globalTokenStatus.token || '',
+				checkPasswordValue,
+				workerRegion
 			);
 			if (result.success) {
 				setCheckPasswordResult({ valid: true, message: result.message || 'Password is valid' });
@@ -1517,7 +1532,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setCheckPasswordLoading(false);
 		}
-	}, [checkPasswordUser, checkPasswordValue, globalTokenStatus, environmentId]);
+	}, [checkPasswordUser, checkPasswordValue, globalTokenStatus, environmentId, workerRegion]);
 
 	// Lookup user for unlock
 	const handleUnlockLookup = useCallback(async () => {
@@ -1616,7 +1631,8 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await unlockPassword(
 				environmentId,
 				unlockUser.id,
-				globalTokenStatus.token || ''
+				globalTokenStatus.token || '',
+				workerRegion
 			);
 			if (result.success) {
 				setUnlockSuccess(true);
@@ -1643,7 +1659,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setUnlockLoading(false);
 		}
-	}, [unlockUser, globalTokenStatus, environmentId]);
+	}, [unlockUser, globalTokenStatus, environmentId, workerRegion]);
 
 	// Lookup user for read state
 	const handleStateLookup = useCallback(async () => {
@@ -1742,7 +1758,8 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await readPasswordState(
 				environmentId,
 				stateUser.id,
-				globalTokenStatus.token || ''
+				globalTokenStatus.token || '',
+				workerRegion
 			);
 			if (result.success && result.passwordState) {
 				setPasswordState(result.passwordState as PasswordState);
@@ -1874,9 +1891,13 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPasswordAdmin(
 				environmentId,
 				adminSetUser.id,
-				globalTokenStatus,
+				globalTokenStatus.token || '',
 				adminSetPassword,
-				{ forceChange: adminSetForceChange, bypassPasswordPolicy: adminSetBypassPolicy }
+				{
+					forceChange: adminSetForceChange,
+					bypassPasswordPolicy: adminSetBypassPolicy,
+					region: workerRegion,
+				}
 			);
 			if (result.success) {
 				setAdminSetSuccess(true);
@@ -2015,9 +2036,13 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPassword(
 				environmentId,
 				setPasswordUser.id,
-				globalTokenStatus,
+				globalTokenStatus.token || '',
 				setPasswordValue,
-				{ forceChange: setPasswordForceChange, bypassPasswordPolicy: setPasswordBypassPolicy }
+				{
+					forceChange: setPasswordForceChange,
+					bypassPasswordPolicy: setPasswordBypassPolicy,
+					region: workerRegion,
+				}
 			);
 			if (result.success) {
 				setSetPasswordSuccess(true);
@@ -2150,10 +2175,14 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPasswordLdapGateway(
 				environmentId,
 				ldapUser.id,
-				globalTokenStatus,
+				globalTokenStatus.token || '',
 				ldapPassword,
 				ldapGatewayId || undefined,
-				{ forceChange: ldapForceChange, bypassPasswordPolicy: ldapBypassPolicy }
+				{
+					forceChange: ldapForceChange,
+					bypassPasswordPolicy: ldapBypassPolicy,
+					region: workerRegion,
+				}
 			);
 			if (result.success) {
 				setLdapSuccess(true);
