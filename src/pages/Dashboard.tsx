@@ -775,11 +775,11 @@ const Dashboard = () => {
 								<h3>PingOne Flows</h3>
 								<p>PingOne-specific authentication and authorization flows.</p>
 								<div className="flow-buttons">
-									<a href="/flows/worker-token-v7" className={flowLinkClass('primary', 'pingone')}>
-										Worker Token (V7)
+									<a href="/flows/worker-token-v9" className={flowLinkClass('primary', 'pingone')}>
+										Worker Token (V9)
 									</a>
-									<a href="/flows/pingone-par-v7" className={flowLinkClass('secondary', 'pingone')}>
-										PAR (V7)
+									<a href="/flows/pingone-par-v9" className={flowLinkClass('secondary', 'pingone')}>
+										PAR (V9)
 									</a>
 									<a
 										href="/flows/redirectless-v7-real"
