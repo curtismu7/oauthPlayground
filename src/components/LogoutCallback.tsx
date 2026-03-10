@@ -168,7 +168,7 @@ const LogoutCallback: React.FC = () => {
 					terminated and all tokens have been cleared.
 				</SuccessMessage>
 				<LoginButton onClick={handleReturnToLogin}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Return to Login
 				</LoginButton>
 			</SuccessCard>

@@ -224,7 +224,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Self-Describing Clients via Metadata Documents"
 						subtitle="Using a client_id URL to bootstrap trust without pre-registration"
-						icon={<span>❓</span>}
+						icon={<i className="bi bi-question-circle"></i>}
 						defaultCollapsed={false}
 					>
 						<SectionText>

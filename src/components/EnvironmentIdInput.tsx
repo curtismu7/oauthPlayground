@@ -2,6 +2,8 @@ import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { PINGONE_AUTH_REGION_MAP, type PingOneRegion } from '../services/regionService';
+import { RegionSelect } from './RegionSelect';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 import { logger } from '../utils/logger';
@@ -14,7 +16,7 @@ interface EnvironmentIdInputProps {
 	className?: string;
 	disabled?: boolean;
 	autoDiscover?: boolean;
-	region?: 'us' | 'eu' | 'ap' | 'ca';
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'au' | 'sg';
 }
 
 const Container = styled.div`
@@ -420,7 +422,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	region = 'us',
 }) => {
 	const [environmentId, setEnvironmentId] = useState(initialEnvironmentId);
-	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(region);
+	const [selectedRegion, setSelectedRegion] = useState<PingOneRegion>(region as PingOneRegion);
 	const [isDiscovering, setIsDiscovering] = useState(false);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -429,24 +431,19 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	const [isApplying, setIsApplying] = useState(false);
 	const [isDiscoveryResultsCollapsed, setIsDiscoveryResultsCollapsed] = useState(false);
 
-	const regionUrls = useMemo(
-		() => ({
-			us: 'https://auth.pingone.com',
-			eu: 'https://auth.pingone.eu',
-			ap: 'https://auth.pingone.asia',
-			ca: 'https://auth.pingone.ca',
-		}),
-		[]
-	);
-
+	const regionUrls = PINGONE_AUTH_REGION_MAP;
 	const regionLabels = {
 		us: 'US (North America)',
 		eu: 'EU (Europe)',
 		ap: 'AP (Asia Pacific)',
 		ca: 'CA (Canada)',
+		au: 'AU (Australia)',
+		sg: 'SG (Singapore)',
 	};
 
-	const issuerUrl = environmentId ? `${regionUrls[selectedRegion]}/${environmentId}` : '';
+	const issuerUrl = environmentId
+		? `${regionUrls[selectedRegion] ?? regionUrls.us}/${environmentId}`
+		: '';
 
 	// Load saved settings on mount
 	useEffect(() => {
@@ -488,11 +485,10 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	);
 
 	const handleRegionChange = useCallback(
-		(e: React.ChangeEvent<HTMLSelectElement>) => {
-			const newRegion = e.target.value as 'us' | 'eu' | 'ap' | 'ca';
+		(newRegion: PingOneRegion) => {
 			setSelectedRegion(newRegion);
 			if (environmentId) {
-				const newIssuerUrl = `${regionUrls[newRegion]}/${environmentId}`;
+				const newIssuerUrl = `${regionUrls[newRegion] ?? regionUrls.us}/${environmentId}`;
 				onIssuerUrlChange?.(newIssuerUrl);
 			}
 			// Clear previous discovery results when region changes
@@ -712,12 +708,13 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			<InputContainer>
 				<Label htmlFor="environment-id">Environment ID</Label>
 				<InputGroup>
-					<RegionSelector value={selectedRegion} onChange={handleRegionChange} disabled={disabled}>
-						<option value="us">US - North America</option>
-						<option value="eu">EU - Europe</option>
-						<option value="ap">AP - Asia Pacific</option>
-						<option value="ca">CA - Canada</option>
-					</RegionSelector>
+					<RegionSelect
+						as={RegionSelector}
+						value={selectedRegion}
+						onChange={handleRegionChange}
+						disabled={disabled}
+						variant="compact"
+					/>
 
 					<Input
 						id="environment-id"
@@ -845,8 +842,8 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			<RegionInfo>
 				<span style={{ fontSize: '14px' }}>ℹ️</span>
 				<span>
-					Selected region: <strong>{regionLabels[selectedRegion]}</strong> -{' '}
-					{regionUrls[selectedRegion]}
+					Selected region: <strong>{regionLabels[selectedRegion] ?? selectedRegion}</strong> -{' '}
+					{regionUrls[selectedRegion] ?? regionUrls.us}
 				</span>
 			</RegionInfo>
 

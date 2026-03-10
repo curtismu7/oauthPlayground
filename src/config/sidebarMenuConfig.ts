@@ -124,7 +124,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/credential-management', 'Credential Management', true],
 			['/advanced-configuration', 'Advanced Configuration', true],
 			['/advanced-security-settings', 'Advanced Security Settings', true],
-			['/advanced-security-settings-comparison', 'Security Settings Comparison', true],
 			['/auto-discover', 'OIDC Discovery', true],
 		]),
 	},

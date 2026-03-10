@@ -6,27 +6,27 @@ import styled from 'styled-components';
 
 // Styled components
 const ModalBackdrop = styled.div<{ $hidden?: boolean }>`
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: ${({ $hidden }) => ($hidden ? 'none' : 'flex')};
-  align-items: center;
-  justify-content: center;
-  z-index: 999998;
-  padding: 2rem;
-  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
-  
-  @media (max-width: 1024px) {
-    padding: 1.5rem;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.5rem;
-  }
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.45);
+	display: ${({ $hidden }) => ($hidden ? 'none' : 'flex')};
+	align-items: center;
+	justify-content: center;
+	z-index: 999998;
+	padding: 2rem;
+	pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
+
+	@media (max-width: 1024px) {
+		padding: 1.5rem;
+	}
+
+	@media (max-width: 768px) {
+		padding: 1rem;
+	}
+
+	@media (max-width: 480px) {
+		padding: 0.5rem;
+	}
 `;
 
 const ModalContent = styled.div<{
@@ -36,117 +36,119 @@ const ModalContent = styled.div<{
 	$width?: string;
 	$maxHeight?: string;
 }>`
-  width: ${(props) => (props.$isMinimized ? '300px' : props.$width || 'min(800px, calc(100vw - 4rem))')};
-  max-height: ${(props) => (props.$isMinimized ? 'auto' : props.$maxHeight || 'calc(100vh - 4rem)')};
-  height: ${(props) => (props.$isMinimized ? 'auto' : 'auto')};
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
-  padding: ${(props) => (props.$isMinimized ? '0.75rem' : '0')};
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow: hidden;
-  
-  @media (max-width: 1024px) {
-    width: min(700px, calc(100vw - 3rem));
-    max-height: calc(100vh - 3rem);
-  }
-  
-  @media (max-width: 768px) {
-    width: calc(100vw - 2rem);
-    max-height: calc(100vh - 2rem);
-  }
-  
-  @media (max-width: 480px) {
-    width: calc(100vw - 1rem);
-    max-height: calc(100vh - 1rem);
-  }
-  position: fixed;
-  top: ${(props) => props.$position.y}px;
-  left: ${(props) => props.$position.x}px;
-  cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'default')};
-  transition: ${(props) => (props.$isDragging ? 'none' : 'all 0.2s ease')};
-  z-index: 999999;
-  
-  /* Ensure modal stays within viewport */
-  max-width: calc(100vw - 2rem);
+	width: ${(props) =>
+		props.$isMinimized ? '300px' : props.$width || 'min(800px, calc(100vw - 4rem))'};
+	max-height: ${(props) =>
+		props.$isMinimized ? 'auto' : props.$maxHeight || 'calc(100vh - 4rem)'};
+	height: ${(props) => (props.$isMinimized ? 'auto' : 'auto')};
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 0.75rem;
+	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+	padding: ${(props) => (props.$isMinimized ? '0.75rem' : '0')};
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	overflow: hidden;
+
+	@media (max-width: 1024px) {
+		width: min(700px, calc(100vw - 3rem));
+		max-height: calc(100vh - 3rem);
+	}
+
+	@media (max-width: 768px) {
+		width: calc(100vw - 2rem);
+		max-height: calc(100vh - 2rem);
+	}
+
+	@media (max-width: 480px) {
+		width: calc(100vw - 1rem);
+		max-height: calc(100vh - 1rem);
+	}
+	position: fixed;
+	top: ${(props) => props.$position.y}px;
+	left: ${(props) => props.$position.x}px;
+	cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'default')};
+	transition: ${(props) => (props.$isDragging ? 'none' : 'all 0.2s ease')};
+	z-index: 999999;
+
+	/* Ensure modal stays within viewport */
+	max-width: calc(100vw - 2rem);
 `;
 
 const ModalHeader = styled.div<{ $isMinimized: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border-bottom: 1px solid #cbd5e1;
-  margin: 0;
-  padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1.5rem')};
-  border-radius: ${(props) => (props.$isMinimized ? '0.75rem' : '0.75rem 0.75rem 0 0')};
-  cursor: grab;
-  user-select: none;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 10;
-  
-  &:active {
-    cursor: grabbing;
-  }
-  
-  @media (max-width: 768px) {
-    padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1rem')};
-  }
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border-bottom: 1px solid #cbd5e1;
+	margin: 0;
+	padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1.5rem')};
+	border-radius: ${(props) => (props.$isMinimized ? '0.75rem' : '0.75rem 0.75rem 0 0')};
+	cursor: grab;
+	user-select: none;
+	flex-shrink: 0;
+	position: relative;
+	z-index: 10;
+
+	&:active {
+		cursor: grabbing;
+	}
+
+	@media (max-width: 768px) {
+		padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1rem')};
+	}
 `;
 
 const DragHandle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  padding: 0.25rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: V9_COLORS.BG.GRAY_MEDIUM;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1;
+	padding: 0.25rem;
+	border-radius: 0.375rem;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background-color: V9_COLORS.BG.GRAY_MEDIUM;
+	}
 `;
 
 const HeaderControls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ControlButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: transparent;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  
-  &:hover {
-    background-color: V9_COLORS.BG.GRAY_MEDIUM;
-    color: #334155;
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border: none;
+	background: transparent;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+
+	&:hover {
+		background-color: V9_COLORS.BG.GRAY_MEDIUM;
+		color: #334155;
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
 `;
 
 const ModalTitle = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
-  line-height: 1.2;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
+	line-height: 1.2;
 `;
 
 interface DraggableModalProps {
@@ -326,7 +328,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 			>
 				<ModalHeader $isMinimized={isMinimized} onMouseDown={handleMouseDown}>
 					<DragHandle>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						<div>
 							<ModalTitle id="modal-title">{title}</ModalTitle>
 							{headerContent && !isMinimized && headerContent}
@@ -336,9 +338,9 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 						{showMinimize && (
 							<ControlButton onClick={toggleMinimize} title={isMinimized ? 'Maximize' : 'Minimize'}>
 								{isMinimized ? (
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								) : (
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								)}
 							</ControlButton>
 						)}

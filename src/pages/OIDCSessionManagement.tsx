@@ -857,7 +857,7 @@ const OIDCSessionManagement = () => {
 												setActiveDemo(activeDemo === 'session-creation' ? null : 'session-creation')
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'session-creation' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1055,7 +1055,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 												)
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'session-notification' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1161,7 +1161,7 @@ window.addEventListener('message', function(event) {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 										</FlowIcon>
 										<FlowTitle>RP-Initiated Logout</FlowTitle>
 										<FlowDescription>
@@ -1197,7 +1197,7 @@ window.addEventListener('message', function(event) {
 										<DemoButton
 											onClick={() => setActiveDemo(activeDemo === 'rp-logout' ? null : 'rp-logout')}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'rp-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1347,7 +1347,7 @@ GET /endsession?
 												)
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'front-channel-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1517,7 +1517,7 @@ GET /logout?
 												)
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'back-channel-logout' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 
@@ -1691,7 +1691,7 @@ Content-Type: application/json
 												)
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{activeDemo === 'session-validation' ? 'Hide' : 'Show'} Implementation
 										</DemoButton>
 

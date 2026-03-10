@@ -18,20 +18,20 @@ import BrandDropdownSelector from '../BrandDropdownSelector';
 // ============================================================================
 
 const Navigation = styled.nav<{ $brandColor: string; $style: string }>`
-  background: ${({ $brandColor }) => $brandColor};
-  padding: 0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  
-  ${({ $style }) =>
+	background: ${({ $brandColor }) => $brandColor};
+	padding: 0;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+	${({ $style }) =>
 		$style === 'modern' &&
 		`
     background: linear-gradient(135deg, ${({ $brandColor }) => $brandColor} 0%, ${({ $brandColor }) => $brandColor}dd 100%);
   `}
-  
-  ${({ $style }) =>
+
+	${({ $style }) =>
 		$style === 'friendly' &&
 		`
     border-bottom: 2px solid ${({ $brandColor }) => $brandColor};
@@ -39,42 +39,42 @@ const Navigation = styled.nav<{ $brandColor: string; $style: string }>`
 `;
 
 const NavContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 60px;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 2rem;
+	height: 60px;
 `;
 
 const Logo = styled.div<{ $logoColors: Record<string, string> }>`
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  
-  .logo-text {
-    color: white;
-    text-decoration: none;
-  }
-  
-  .logo-accent {
-    color: ${({ $logoColors }) => $logoColors.accent || 'white'};
-  }
+	display: flex;
+	align-items: center;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: white;
+
+	.logo-text {
+		color: white;
+		text-decoration: none;
+	}
+
+	.logo-accent {
+		color: ${({ $logoColors }) => $logoColors.accent || 'white'};
+	}
 `;
 
 const NavLinks = styled.div<{ $style: string }>`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-  
-  ${({ $style }) =>
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
+
+	${({ $style }) =>
 		$style === 'friendly' &&
 		`
     gap: 1.5rem;
@@ -82,154 +82,154 @@ const NavLinks = styled.div<{ $style: string }>`
 `;
 
 const NavLink = styled.a<{ $brandColor: string; $style: string }>`
-  color: white;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.5rem 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-bottom-color: white;
-  }
+	color: white;
+	text-decoration: none;
+	font-size: 0.9rem;
+	font-weight: 500;
+	padding: 0.5rem 0;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-bottom-color: white;
+	}
 `;
 
 const DropdownContainer = styled.div`
-  position: relative;
-  display: inline-block;
+	position: relative;
+	display: inline-block;
 `;
 
 const DropdownTrigger = styled.button<{ $brandColor: string }>`
-  background: none;
-  border: none;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.5rem 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-bottom-color: white;
-  }
+	background: none;
+	border: none;
+	color: white;
+	font-size: 0.9rem;
+	font-weight: 500;
+	padding: 0.5rem 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-bottom-color: white;
+	}
 `;
 
 const DropdownMenu = styled.div<{ $isOpen: boolean }>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  min-width: 200px;
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
-  transition: all 0.2s ease;
-  z-index: 1000;
-  margin-top: 0.5rem;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+	min-width: 200px;
+	opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+	visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
+	transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
+	transition: all 0.2s ease;
+	z-index: 1000;
+	margin-top: 0.5rem;
 `;
 
 const DropdownItem = styled.a`
-  display: block;
-  padding: 0.75rem 1rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:hover {
-    background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
-  
-  &:first-child {
-    border-radius: 8px 8px 0 0;
-  }
-  
-  &:last-child {
-    border-radius: 0 0 8px 8px;
-  }
+	display: block;
+	padding: 0.75rem 1rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	text-decoration: none;
+	font-size: 0.875rem;
+	transition: background-color 0.2s ease;
+	border-bottom: 1px solid #f3f4f6;
+
+	&:last-child {
+		border-bottom: none;
+	}
+
+	&:hover {
+		background-color: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
+
+	&:first-child {
+		border-radius: 8px 8px 0 0;
+	}
+
+	&:last-child {
+		border-radius: 0 0 8px 8px;
+	}
 `;
 
 const RightNav = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const SearchButton = styled.button`
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-1px);
-  }
+	background: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: white;
+	padding: 0.5rem;
+	cursor: pointer;
+	border-radius: 6px;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(10px);
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.25);
+		border-color: rgba(255, 255, 255, 0.5);
+		transform: translateY(-1px);
+	}
 `;
 
 const MobileMenuButton = styled.button`
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: none;
-  backdrop-filter: blur(10px);
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.5);
-  }
-  
-  @media (max-width: 768px) {
-    display: block;
-  }
+	background: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: white;
+	padding: 0.5rem;
+	cursor: pointer;
+	border-radius: 6px;
+	transition: all 0.2s ease;
+	display: none;
+	backdrop-filter: blur(10px);
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.25);
+		border-color: rgba(255, 255, 255, 0.5);
+	}
+
+	@media (max-width: 768px) {
+		display: block;
+	}
 `;
 
 const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $style: string }>`
-  background: ${({ $accentColor }) => $accentColor};
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: ${({ $style }) => ($style === 'friendly' ? '20px' : '6px')};
-  padding: ${({ $style }) => ($style === 'friendly' ? '0.6rem 1.2rem' : '0.6rem 1rem')};
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  
-  &:hover {
-    background: ${({ $brandColor }) => $brandColor};
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: ${({ $style }) => ($style === 'friendly' ? 'translateY(-2px)' : 'translateY(-1px)')};
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+	background: ${({ $accentColor }) => $accentColor};
+	color: white;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: ${({ $style }) => ($style === 'friendly' ? '20px' : '6px')};
+	padding: ${({ $style }) => ($style === 'friendly' ? '0.6rem 1.2rem' : '0.6rem 1rem')};
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+
+	&:hover {
+		background: ${({ $brandColor }) => $brandColor};
+		border-color: rgba(255, 255, 255, 0.4);
+		transform: ${({ $style }) => ($style === 'friendly' ? 'translateY(-2px)' : 'translateY(-1px)')};
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 // ============================================================================
@@ -433,7 +433,7 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLog
 					</LoginButton>
 
 					<MobileMenuButton>
-						<span style={{ fontSize: '20px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '20px' }}></i>
 					</MobileMenuButton>
 				</RightNav>
 			</NavContainer>

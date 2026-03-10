@@ -342,7 +342,7 @@ const MFA_POLICY_OPTIONS: MFAPolicyOption[] = [
 		id: 'mfa-sms-email',
 		name: 'SMS & Email MFA',
 		description: 'Send verification codes via SMS and email for flexible authentication',
-		icon: <span>❓</span>,
+		icon: <i className="bi bi-question-circle"></i>,
 		devices: ['SMS', 'EMAIL'],
 		requiresWorkerToken: true,
 	},

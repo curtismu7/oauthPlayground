@@ -931,7 +931,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							Code Examples
 						</h5>
 						<ActionButton $variant="success" onClick={handleViewCodeExamples}>
-							<span style={{ fontSize: '14px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 							View Code Examples
 						</ActionButton>
 					</div>
