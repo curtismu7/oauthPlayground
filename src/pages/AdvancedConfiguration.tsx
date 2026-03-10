@@ -1,4 +1,4 @@
-import { FiEdit } from '@icons';
+import { FiEdit } from '../icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,255 +12,257 @@ import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 
 const _Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 
-  h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+	h1 {
+		font-size: 3rem;
+		font-weight: 700;
+		color: ${({ theme }) => theme.colors.primary};
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
 
-  p {
-    font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		font-size: 1.25rem;
+		color: ${({ theme }) => theme.colors.gray600};
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 const ConfigGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 2rem;
+	margin-bottom: 3rem;
 `;
 
 const Card = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	border: 1px solid #e5e7eb;
+	margin-bottom: 2rem;
 `;
 
 const CardHeader = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+	h2 {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #1f2937;
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
 
-  p {
-    color: #6b7280;
-    line-height: 1.6;
-  }
+	p {
+		color: #6b7280;
+		line-height: 1.6;
+	}
 `;
 
 const CardBody = styled.div`
-  /* Additional styles if needed */
+	/* Additional styles if needed */
 `;
 
 const ConfigSection = styled(Card)`
-  height: fit-content;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	height: fit-content;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const ScopeItem = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'active',
 })<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem;
-  background-color: ${({ active }) => (active ? '#dbeafe' : '#f9fafb')};
-  border: 1px solid ${({ active }) => (active ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem;
+	background-color: ${({ active }) => (active ? '#dbeafe' : '#f9fafb')};
+	border: 1px solid ${({ active }) => (active ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	margin-bottom: 0.5rem;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background-color: ${({ active }) => (active ? '#e5e7eb' : '#f3f4f6')};
-  }
+	&:hover {
+		background-color: ${({ active }) => (active ? '#e5e7eb' : '#f3f4f6')};
+	}
 `;
 
 const ClaimItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	background-color: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const ClaimInput = styled.input`
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  font-family: monospace;
-  font-size: 0.875rem;
+	flex: 1;
+	padding: 0.5rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.25rem;
+	font-family: monospace;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const AddButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	background-color: #3b82f6;
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #2563eb;
-  }
+	&:hover {
+		background-color: #2563eb;
+	}
 `;
 
 const RemoveButton = styled.button`
-  padding: 0.25rem;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
+	padding: 0.25rem;
+	background-color: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #dc2626;
-  }
+	&:hover {
+		background-color: #dc2626;
+	}
 `;
 
 const SaveButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #059669;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background-color: #059669;
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-size: 1rem;
+	font-weight: 500;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #047857;
-  }
+	&:hover {
+		background-color: #047857;
+	}
 `;
 
 const PreviewSection = styled(Card)`
-  margin-top: 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+	margin-top: 2rem;
+	background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
 `;
 
 const CodeBlock = styled.pre`
-  background-color: #1f2937;
-  color: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  margin: 1rem 0;
-  border: 1px solid #1f2937;
-  position: relative;
+	background-color: #1f2937;
+	color: #f9fafb;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	overflow-x: auto;
+	margin: 1rem 0;
+	border: 1px solid #1f2937;
+	position: relative;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white;
+	border-radius: 0.375rem;
+	padding: 0.5rem;
+	cursor: pointer;
+	font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: all 0.2s;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.3);
+	}
 `;
 
 const BackButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background-color: #6b7280;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.25rem;
+	background-color: #6b7280;
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	font-size: 0.95rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	margin-bottom: 1.5rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    background-color: #4b5563;
-    transform: translateX(-2px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
+	&:hover {
+		background-color: #4b5563;
+		transform: translateX(-2px);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
 
-  &:active {
-    transform: translateX(0);
-  }
+	&:active {
+		transform: translateX(0);
+	}
 `;
 
 const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border-left: 4px solid;
-  
-  ${({ $type }) => {
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	border-left: 4px solid;
+
+	${({ $type }) => {
 		switch ($type) {
 			case 'warning':
 				return `
@@ -285,12 +287,12 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
 `;
 
 const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missing' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border-left: 4px solid;
-  
-  ${({ $status }) => {
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	border-left: 4px solid;
+
+	${({ $status }) => {
 		switch ($status) {
 			case 'complete':
 				return `
@@ -348,10 +350,7 @@ const pageConfig = {
 	flowId: 'pingone-defaults',
 };
 
-const {
-	PageContainer,
-	ContentWrapper,
-} = PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const AdvancedConfiguration = () => {
 	const navigate = useNavigate();

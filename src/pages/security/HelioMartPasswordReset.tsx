@@ -33,7 +33,7 @@ const _helioMartLayout = PageLayoutService.createPageLayout({
 	responsive: true,
 });
 
-import { FiAlertCircle, FiCheckCircle, FiLock } from '@icons';
+import { FiAlertCircle, FiCheckCircle, FiLock } from '../../icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	changePassword,
@@ -81,13 +81,13 @@ const HELIOMART_ACCENT_END = '#F97316'; // Orange
 const LoginTitle = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
-	color: #1F2937;
+	color: #1f2937;
 	margin-bottom: 0.5rem;
 	text-align: center;
 `;
 
 const LoginSubtitle = styled.p`
-	color: #6B7280;
+	color: #6b7280;
 	text-align: center;
 	margin-bottom: 2rem;
 	font-size: 0.875rem;
@@ -117,7 +117,7 @@ const SuccessText = styled.p`
 
 const Card = styled.div`
 	background: #ffffff;
-	border: 1px solid #E5E7EB;
+	border: 1px solid #e5e7eb;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -128,7 +128,7 @@ const TabContainer = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 2rem;
-	border-bottom: 2px solid #E5E7EB;
+	border-bottom: 2px solid #e5e7eb;
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
@@ -164,9 +164,9 @@ const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
 	background: #ffffff;
-	border: 1px solid #D1D5DB;
+	border: 1px solid #d1d5db;
 	border-radius: 0.5rem;
-	color: #1F2937;
+	color: #1f2937;
 	font-size: 1rem;
 	transition: border-color 0.2s;
 
@@ -177,7 +177,7 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: #9CA3AF;
+		color: #9ca3af;
 	}
 `;
 
@@ -252,11 +252,12 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		if (props.$type === 'error') return 'rgba(220, 38, 38, 0.1)';
 		return 'rgba(59, 130, 246, 0.1)';
 	}};
-	border: 1px solid ${(props) => {
-		if (props.$type === 'success') return '#22C55E';
-		if (props.$type === 'error') return '#DC2626';
-		return '#3B82F6';
-	}};
+	border: 1px solid
+		${(props) => {
+			if (props.$type === 'success') return '#22C55E';
+			if (props.$type === 'error') return '#DC2626';
+			return '#3B82F6';
+		}};
 	color: ${(props) => {
 		if (props.$type === 'success') return '#15803D';
 		if (props.$type === 'error') return '#991B1B';
@@ -269,8 +270,8 @@ const StatusBar = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem;
-	background: #F9FAFB;
-	border: 1px solid #E5E7EB;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 	margin-bottom: 2rem;
 	font-size: 0.875rem;
@@ -284,8 +285,8 @@ const StatusItem = styled.div`
 `;
 
 const UserCard = styled.div`
-	background: #F9FAFB;
-	border: 1px solid #E5E7EB;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -328,7 +329,7 @@ const SpinningIcon = styled.span`
 			transform: rotate(360deg);
 		}
 	}
-	
+
 	animation: spin 1s linear infinite;
 `;
 
@@ -341,47 +342,49 @@ const DocumentationLink = styled.a`
 	font-size: 0.875rem;
 	margin-top: 1rem;
 	padding: 0.5rem 1rem;
-	border: 1px solid #D1D5DB;
+	border: 1px solid #d1d5db;
 	border-radius: 0.5rem;
-	background: #F9FAFB;
+	background: #f9fafb;
 	transition: all 0.2s;
 
 	&:hover {
 		color: ${HELIOMART_ACCENT_END};
 		border-color: ${HELIOMART_ACCENT_START};
-		background: #F3F4F6;
+		background: #f3f4f6;
 	}
 `;
 
 const DocumentationSection = styled.div`
 	margin-top: 1.5rem;
 	padding-top: 1.5rem;
-	border-top: 1px solid #E5E7EB;
+	border-top: 1px solid #e5e7eb;
 `;
 
 const CodeGeneratorSection = styled.div`
 	margin-top: 2rem;
 	padding: 1.5rem;
-	background: #F9FAFB;
-	border: 1px solid #E5E7EB;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 `;
 
 const CodeContainer = styled.div<{ $isExpanded: boolean }>`
 	background: #ffffff;
-	border: 1px solid #E5E7EB;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 	overflow: ${(props) => (props.$isExpanded ? 'visible' : 'hidden')};
 	max-height: ${(props) => (props.$isExpanded ? '10000px' : '200px')};
-	transition: max-height 0.3s ease, overflow 0.3s ease;
+	transition:
+		max-height 0.3s ease,
+		overflow 0.3s ease;
 	position: relative;
 `;
 
 const CodeBlock = styled.pre`
 	background: #ffffff;
 	padding: 1rem;
-	color: #1F2937;
+	color: #1f2937;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.6;
@@ -389,7 +392,7 @@ const CodeBlock = styled.pre`
 	margin: 0;
 	white-space: pre;
 	word-wrap: normal;
-	
+
 	code {
 		font-family: inherit;
 	}
@@ -400,8 +403,8 @@ const CodeCollapseButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	background: #F3F4F6;
-	border: 1px solid #D1D5DB;
+	background: #f3f4f6;
+	border: 1px solid #d1d5db;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
 	color: #1f2937;
@@ -412,7 +415,7 @@ const CodeCollapseButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #E5E7EB;
+		background: #e5e7eb;
 	}
 `;
 
@@ -468,8 +471,8 @@ const CodeButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	background: #F3F4F6;
-	border: 1px solid #D1D5DB;
+	background: #f3f4f6;
+	border: 1px solid #d1d5db;
 	border-radius: 0.5rem;
 	color: #1f2937;
 	cursor: pointer;
@@ -986,11 +989,15 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		// Log for debugging if environment ID is missing
 		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
-			logger.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
-				sharedEnvId: sharedEnv?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvId || '(empty)',
-			});
+			logger.warn(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ⚠️ No environment ID found:',
+				{
+					sharedEnvId: sharedEnv?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvId || '(empty)',
+				}
+			);
 		}
 
 		return effectiveEnvId;
@@ -3217,9 +3224,9 @@ export { changePassword, handleChangePassword };`;
 										application/vnd.pingidentity.password.forceChange+json
 									</code>
 									<br />
-									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will force
-									the user to change their password on their next sign-on. If you just want to set a
-									password without forcing a change, use{' '}
+									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will
+									force the user to change their password on their next sign-on. If you just want to
+									set a password without forcing a change, use{' '}
 									<strong>"Update Password (Set Value)"</strong> instead.
 								</p>
 							</div>

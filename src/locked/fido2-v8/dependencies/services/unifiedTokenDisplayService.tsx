@@ -1,6 +1,6 @@
 // src/services/unifiedTokenDisplayService.tsx
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../../../../icons';
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';

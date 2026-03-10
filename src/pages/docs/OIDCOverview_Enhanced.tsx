@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '@icons';
+import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '../../icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
@@ -23,154 +23,168 @@ interface OIDCFlow {
 
 // Enhanced styled components
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 1rem;
-  margin: 0 -2rem 3rem -2rem;
-  padding: 3rem 2rem;
+	text-align: center;
+	margin-bottom: 3rem;
+	padding: 2rem 0;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 1rem;
+	margin: 0 -2rem 3rem -2rem;
+	padding: 3rem 2rem;
 
-  h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	h1 {
+		font-size: 3rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 
-  p {
-    font-size: 1.25rem;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-    opacity: 0.9;
-  }
+	p {
+		font-size: 1.25rem;
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+		opacity: 0.9;
+	}
 
-  @media (max-width: 768px) {
-    margin: 0 -1rem 2rem -1rem;
-    padding: 2rem 1rem;
-    
-    h1 {
-      font-size: 2rem;
-    }
-    
-    p {
-      font-size: 1rem;
-    }
-  }
+	@media (max-width: 768px) {
+		margin: 0 -1rem 2rem -1rem;
+		padding: 2rem 1rem;
+
+		h1 {
+			font-size: 2rem;
+		}
+
+		p {
+			font-size: 1rem;
+		}
+	}
 `;
 
 const SearchContainer = styled.div`
-  margin-bottom: 2rem;
-  position: relative;
+	margin-bottom: 2rem;
+	position: relative;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background: white;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  &::placeholder {
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	width: 100%;
+	padding: 1rem 1rem 1rem 3rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	font-size: 1rem;
+	transition: all 0.2s ease;
+	background: white;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	&::placeholder {
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const SearchIcon = styled.span`
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.25rem;
+	position: absolute;
+	left: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.25rem;
 `;
 
 const FilterContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	flex-wrap: wrap;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+	}
 `;
 
 const FilterButton = styled.button<{ $active?: boolean }>`
-  padding: 0.5rem 1rem;
-  border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
-  }
+	padding: 0.5rem 1rem;
+	border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#1f2937')};
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
+	}
 `;
 
 const OverviewGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-  
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.25rem;
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.75rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 3rem;
+
+	@media (max-width: 1024px) {
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 1.25rem;
+	}
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	@media (max-width: 480px) {
+		gap: 0.75rem;
+	}
 `;
 
 const FlowCard = styled(Card)`
-  height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	height: 100%;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const FlowIcon = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1rem;
+	font-size: 1.5rem;
 
-  &.auth-code { background-color: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK; }
-  &.implicit { background-color: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK; }
-  &.hybrid { background-color: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN_DARK; }
-  &.pkce { background-color: #f0fdf4; color: V9_COLORS.PRIMARY.GREEN_DARK; }
+	&.auth-code {
+		background-color: #dbeafe;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
+	&.implicit {
+		background-color: V9_COLORS.BG.WARNING;
+		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	}
+	&.hybrid {
+		background-color: V9_COLORS.BG.SUCCESS;
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
+	&.pkce {
+		background-color: #f0fdf4;
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
 `;
 
 const OIDCOverviewEnhanced = () => {

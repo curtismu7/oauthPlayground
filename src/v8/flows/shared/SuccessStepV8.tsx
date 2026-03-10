@@ -5,7 +5,7 @@
  * @version 8.1.0
  */
 
-import { FiCpu, FiShield } from '@icons';
+import { FiCpu, FiShield } from '../../../icons';
 import React from 'react';
 import { logger } from '../../../utils/logger';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';

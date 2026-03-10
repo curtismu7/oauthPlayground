@@ -12,7 +12,7 @@
  * />
  */
 
-import { FiUser } from '@icons';
+import { FiUser } from '../../../../../icons';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { logger } from '../../../../../utils/logger';

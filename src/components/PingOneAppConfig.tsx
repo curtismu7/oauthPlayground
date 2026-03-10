@@ -2,7 +2,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -10,144 +10,144 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 const CollapsibleSection = styled.div`
-  margin: 1.5rem 0;
+	margin: 1.5rem 0;
 `;
 
 const SectionToggle = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 1rem;
-  background: ${V9_COLORS.BG.GRAY_MEDIUM};
-  border-radius: 8px;
-  border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE};
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	padding: 1rem;
+	background: ${V9_COLORS.BG.GRAY_MEDIUM};
+	border-radius: 8px;
+	border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE};
+	margin-bottom: 0.5rem;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  }
+	&:hover {
+		background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	}
 `;
 
 const SectionContent = styled.div<{ $collapsed?: boolean }>`
-  max-height: ${(props) => (props.$collapsed ? '0' : '2000px')};
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  padding: ${(props) => (props.$collapsed ? '0 1rem' : '1rem')};
-  background: ${V9_COLORS.BG.GRAY_LIGHT};
-  border-radius: 0 0 8px 8px;
+	max-height: ${(props) => (props.$collapsed ? '0' : '2000px')};
+	overflow: hidden;
+	transition: max-height 0.3s ease;
+	padding: ${(props) => (props.$collapsed ? '0 1rem' : '1rem')};
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border-radius: 0 0 8px 8px;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 `;
 
 const ConfigGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const ConfigField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const ConfigLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  margin-bottom: 0.5rem;
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  
-  &:focus {
-    outline: none;
-    border-color: ${V9_COLORS.PRIMARY.BLUE};
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
+	border-radius: 6px;
+	font-size: 0.875rem;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+
+	&:focus {
+		outline: none;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Select = styled.select`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  background: ${V9_COLORS.BG.WHITE};
-  
-  &:focus {
-    outline: none;
-    border-color: ${V9_COLORS.PRIMARY.BLUE};
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
+	border-radius: 6px;
+	font-size: 0.875rem;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	background: ${V9_COLORS.BG.WHITE};
+
+	&:focus {
+		outline: none;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const CheckboxGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin: 1rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 1rem 0;
 `;
 
 const CheckboxItem = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	cursor: pointer;
 `;
 
 const Checkbox = styled.input`
-  width: 1rem;
-  height: 1rem;
-  accent-color: ${V9_COLORS.PRIMARY.BLUE};
+	width: 1rem;
+	height: 1rem;
+	accent-color: ${V9_COLORS.PRIMARY.BLUE};
 `;
 
 const SubSection = styled.div`
-  margin: 1rem 0;
-  padding: 1rem;
-  background: ${V9_COLORS.BG.WHITE};
-  border-radius: 8px;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	margin: 1rem 0;
+	padding: 1rem;
+	background: ${V9_COLORS.BG.WHITE};
+	border-radius: 8px;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const SubSectionTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  margin-bottom: 1rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	margin-bottom: 1rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	border-radius: 6px;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  ${(props) =>
+	${(props) =>
 		props.variant === 'primary'
 			? `
     background: ${V9_COLORS.PRIMARY.BLUE};

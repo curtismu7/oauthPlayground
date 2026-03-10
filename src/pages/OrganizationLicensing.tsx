@@ -2,7 +2,7 @@
 // Organization Licensing: Get Worker Token & License Information
 // lint-file-disable: token-value-in-jsx
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';

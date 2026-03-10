@@ -1,65 +1,65 @@
-import { FiActivity, FiClock } from '@icons';
+import { FiActivity, FiClock } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
 
 const DashboardContainer = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border: 1px solid #cbd5e1;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const DashboardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+		gap: 1rem;
+		align-items: flex-start;
+	}
 `;
 
 const DashboardTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const DashboardHeading = styled.h3`
-  color: #1e293b;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
+	color: #1e293b;
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const DashboardActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  
-  @media (max-width: 768px) {
-    width: 100%;
-    justify-content: stretch;
-  }
+	display: flex;
+	gap: 0.5rem;
+
+	@media (max-width: 768px) {
+		width: 100%;
+		justify-content: stretch;
+	}
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${(props) => {
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -97,68 +97,69 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
         `;
 		}
 	}}
-  
-  @media (max-width: 768px) {
-    flex: 1;
-    justify-content: center;
-  }
+
+	@media (max-width: 768px) {
+		flex: 1;
+		justify-content: center;
+	}
 `;
 
 const TokenGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
 `;
 
 const TokenCard = styled.div<{ $status: 'active' | 'expiring' | 'expired' | 'error' }>`
-  background: white;
-  border: 2px solid ${(props) => {
-		switch (props.$status) {
-			case 'active':
-				return '#10b981';
-			case 'expiring':
-				return '#f59e0b';
-			case 'expired':
-				return '#ef4444';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#e2e8f0';
-		}
-	}};
-  border-radius: 8px;
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
+	background: white;
+	border: 2px solid
+		${(props) => {
+			switch (props.$status) {
+				case 'active':
+					return '#10b981';
+				case 'expiring':
+					return '#f59e0b';
+				case 'expired':
+					return '#ef4444';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#e2e8f0';
+			}
+		}};
+	border-radius: 8px;
+	padding: 1rem;
+	position: relative;
+	overflow: hidden;
 `;
 
 const TokenHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
 `;
 
 const TokenType = styled.h4`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin: 0;
 `;
 
 const TokenStatus = styled.div<{ $status: 'active' | 'expiring' | 'expired' | 'error' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'active':
 				return '#059669';
@@ -175,9 +176,9 @@ const TokenStatus = styled.div<{ $status: 'active' | 'expiring' | 'expired' | 'e
 `;
 
 const CountdownTimer = styled.div<{ $status: 'active' | 'expiring' | 'expired' | 'error' }>`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${(props) => {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'active':
 				return '#059669';
@@ -191,37 +192,37 @@ const CountdownTimer = styled.div<{ $status: 'active' | 'expiring' | 'expired' |
 				return '#64748b';
 		}
 	}};
-  margin: 0.5rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	margin: 0.5rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const TokenDetails = styled.div`
-  font-size: 0.75rem;
-  color: #64748b;
-  line-height: 1.4;
+	font-size: 0.75rem;
+	color: #64748b;
+	line-height: 1.4;
 `;
 
 const TokenActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e2e8f0;
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid #e2e8f0;
 `;
 
 const TokenActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  
-  ${(props) => {
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -262,73 +263,73 @@ const TokenActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | '
 `;
 
 const IntrospectionModal = styled.div<{ $isOpen: boolean }>`
-  display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
 `;
 
 const ModalContent = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  max-width: 600px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
+	background: white;
+	border-radius: 12px;
+	padding: 1.5rem;
+	max-width: 600px;
+	width: 100%;
+	max-height: 80vh;
+	overflow-y: auto;
 `;
 
 const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const ModalTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin: 0;
 `;
 
 const ModalClose = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #64748b;
-  padding: 0.25rem;
-  
-  &:hover {
-    color: #1e293b;
-  }
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #64748b;
+	padding: 0.25rem;
+
+	&:hover {
+		color: #1e293b;
+	}
 `;
 
 const IntrospectionContent = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-all;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	word-break: break-all;
 `;
 
 const StatusIndicator = styled.div<{ $status: 'active' | 'expiring' | 'expired' | 'error' }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${(props) => {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'active':
 				return '#10b981';
@@ -342,13 +343,19 @@ const StatusIndicator = styled.div<{ $status: 'active' | 'expiring' | 'expired' 
 				return '#6b7280';
 		}
 	}};
-  animation: ${(props) => (props.$status === 'active' ? 'pulse 2s infinite' : 'none')};
-  
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
+	animation: ${(props) => (props.$status === 'active' ? 'pulse 2s infinite' : 'none')};
+
+	@keyframes pulse {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
 `;
 
 interface TokenMonitoringDashboardProps {

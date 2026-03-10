@@ -1,14 +1,14 @@
-import { FiInfo, FiShield } from '@icons';
+import { FiInfo, FiShield } from '../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const ScorecardContainer = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  margin: 1rem 0;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border: 1px solid #cbd5e1;
+	border-radius: 12px;
+	margin: 1rem 0;
 `;
 
 const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
@@ -66,7 +66,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 		border-color: #2563eb;
 		color: #2563eb;
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
 		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 	}
 
@@ -94,42 +95,42 @@ const CollapsibleContent = styled.div`
 `;
 
 const ScorecardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
 `;
 
 const ScorecardTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const ScorecardHeading = styled.h3`
-  color: #1e293b;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
+	color: #1e293b;
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const ScoreOverview = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const ScoreCircle = styled.div<{ $score: number; $grade: 'A' | 'B' | 'C' | 'D' | 'F' }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: white;
-  background: ${(props) => {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 1.25rem;
+	color: white;
+	background: ${(props) => {
 		switch (props.$grade) {
 			case 'A':
 				return '#10b981';
@@ -148,14 +149,14 @@ const ScoreCircle = styled.div<{ $score: number; $grade: 'A' | 'B' | 'C' | 'D' |
 `;
 
 const ScoreText = styled.div`
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 `;
 
 const ScoreValue = styled.div<{ $grade: 'A' | 'B' | 'C' | 'D' | 'F' }>`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${(props) => {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${(props) => {
 		switch (props.$grade) {
 			case 'A':
 				return '#059669';
@@ -174,57 +175,58 @@ const ScoreValue = styled.div<{ $grade: 'A' | 'B' | 'C' | 'D' | 'F' }>`
 `;
 
 const ScoreLabel = styled.div`
-  font-size: 0.875rem;
-  color: #64748b;
-  font-weight: 500;
+	font-size: 0.875rem;
+	color: #64748b;
+	font-weight: 500;
 `;
 
 const SecurityCategories = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.5rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+
+	@media (max-width: 480px) {
+		gap: 0.5rem;
+	}
 `;
 
 const SecurityCategory = styled.div<{ $status: 'pass' | 'warning' | 'fail' }>`
-  background: white;
-  border: 2px solid ${(props) => {
-		switch (props.$status) {
-			case 'pass':
-				return '#10b981';
-			case 'warning':
-				return '#f59e0b';
-			case 'fail':
-				return '#ef4444';
-			default:
-				return '#e2e8f0';
-		}
-	}};
-  border-radius: 8px;
-  padding: 1rem;
+	background: white;
+	border: 2px solid
+		${(props) => {
+			switch (props.$status) {
+				case 'pass':
+					return '#10b981';
+				case 'warning':
+					return '#f59e0b';
+				case 'fail':
+					return '#ef4444';
+				default:
+					return '#e2e8f0';
+			}
+		}};
+	border-radius: 8px;
+	padding: 1rem;
 `;
 
 const CategoryHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
 `;
 
 const CategoryTitle = styled.h4<{ $status: 'pass' | 'warning' | 'fail' }>`
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
-  color: ${(props) => {
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0;
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'pass':
 				return '#059669';
@@ -239,18 +241,18 @@ const CategoryTitle = styled.h4<{ $status: 'pass' | 'warning' | 'fail' }>`
 `;
 
 const CategoryItems = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const SecurityItem = styled.div<{ $status: 'pass' | 'warning' | 'fail' }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: ${(props) => {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'pass':
 				return '#059669';
@@ -265,76 +267,76 @@ const SecurityItem = styled.div<{ $status: 'pass' | 'warning' | 'fail' }>`
 `;
 
 const Recommendations = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  padding: 1rem;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 8px;
+	padding: 1rem;
 `;
 
 const RecommendationsHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
 `;
 
 const RecommendationsTitle = styled.h4`
-  color: #166534;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
+	color: #166534;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const RecommendationList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 `;
 
 const _RecommendationItem = styled.li`
-  padding: 0.5rem 0;
-  color: #374151;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  border-bottom: 1px solid #e5e7eb;
-  
-  &:last-child {
-    border-bottom: none;
-  }
+	padding: 0.5rem 0;
+	color: #374151;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	border-bottom: 1px solid #e5e7eb;
+
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const ActionButton = styled.button<{ $enabled?: boolean }>`
-  padding: 0.25rem 0.75rem;
-  border: 1px solid ${(props) => (props.$enabled === true ? '#10b981' : '#6b7280')};
-  border-radius: 0.375rem;
-  background: ${(props) => (props.$enabled === true ? '#10b981' : '#f3f4f6')};
-  color: ${(props) => (props.$enabled === true ? 'white' : '#374151')};
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-left: 0.5rem;
+	padding: 0.25rem 0.75rem;
+	border: 1px solid ${(props) => (props.$enabled === true ? '#10b981' : '#6b7280')};
+	border-radius: 0.375rem;
+	background: ${(props) => (props.$enabled === true ? '#10b981' : '#f3f4f6')};
+	color: ${(props) => (props.$enabled === true ? 'white' : '#374151')};
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-left: 0.5rem;
 
-  &:hover {
-    background: ${(props) => (props.$enabled === true ? '#059669' : '#e5e7eb')};
-    border-color: ${(props) => (props.$enabled === true ? '#059669' : '#9ca3af')};
-  }
+	&:hover {
+		background: ${(props) => (props.$enabled === true ? '#059669' : '#e5e7eb')};
+		border-color: ${(props) => (props.$enabled === true ? '#059669' : '#9ca3af')};
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const SecurityItemWithAction = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  
-  > span {
-    flex: 1;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem 0;
+
+	> span {
+		flex: 1;
+	}
 `;
 
 interface SecurityScorecardProps {

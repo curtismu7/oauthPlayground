@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -8,17 +8,17 @@ import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 2rem;
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	padding: 2rem;
+	text-align: center;
 `;
 
 const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  background: ${({ $status }) => {
+	background: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
 				return '#f0fdf4';
@@ -28,25 +28,26 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 				return '#f8fafc';
 		}
 	}};
-  border: 1px solid ${({ $status }) => {
-		switch ($status) {
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 2rem;
-  max-width: 500px;
-  width: 100%;
+	border: 1px solid
+		${({ $status }) => {
+			switch ($status) {
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 2rem;
+	max-width: 500px;
+	width: 100%;
 `;
 
 const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  font-size: 3rem;
-  color: ${({ $status }) => {
+	font-size: 3rem;
+	color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
 				return '#059669';
@@ -56,19 +57,19 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 				return '#6b7280';
 		}
 	}};
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const StatusTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 1rem;
 `;
 
 const AuthzCallback: React.FC = () => {
@@ -219,10 +220,10 @@ const AuthzCallback: React.FC = () => {
 						currentPath.includes('oidc')
 					) {
 						isEnhancedV3 = true;
-						logger.info(' [AuthzCallback] Detected OIDC V3 flow from URL path', "Logger info");
+						logger.info(' [AuthzCallback] Detected OIDC V3 flow from URL path', 'Logger info');
 					} else if (currentPath.includes('oauth-authorization-code-v3')) {
 						isOAuthV3 = true;
-						logger.info(' [AuthzCallback] Detected OAuth V3 flow from URL path', "Logger info");
+						logger.info(' [AuthzCallback] Detected OAuth V3 flow from URL path', 'Logger info');
 					}
 				}
 
@@ -233,8 +234,9 @@ const AuthzCallback: React.FC = () => {
 
 				if (isPopup) {
 					logger.info(
-						' [AuthzCallback] Popup detected - extracting code/state and sending to parent'
-					, "Logger info");
+						' [AuthzCallback] Popup detected - extracting code/state and sending to parent',
+						'Logger info'
+					);
 
 					// For popups, extract the authorization code and state directly from URL
 					// DO NOT call handleCallback as that would do token exchange in the popup
@@ -319,7 +321,10 @@ const AuthzCallback: React.FC = () => {
 					// For OAuth V3 flows, we should ONLY handle popups, not full redirects
 					// OAuth V3 full redirects should be handled by the OAuth V3 flow itself
 					if (isOAuthV3) {
-						logger.info(' [AuthzCallback] OAuth V3 flow should only use popup authorization', "Logger info");
+						logger.info(
+							' [AuthzCallback] OAuth V3 flow should only use popup authorization',
+							'Logger info'
+						);
 						setStatus('error');
 						setMessage(
 							'OAuth V3 flow detected but not in popup mode. Please use popup authorization.'
@@ -478,11 +483,11 @@ const AuthzCallback: React.FC = () => {
 								// Store the authorization code and state for V7 flow
 								// V7.2 expects 'oauth_auth_code', V7 expects 'oauth_v7_auth_code'
 								if (isV7_2) {
-									logger.info(' [AuthzCallback] Storing auth code for V7.2 flow', "Logger info");
+									logger.info(' [AuthzCallback] Storing auth code for V7.2 flow', 'Logger info');
 									sessionStorage.setItem('oauth_auth_code', code);
 									sessionStorage.setItem('oauth_state', state);
 								} else {
-									logger.info(' [AuthzCallback] Storing auth code for V7 flow', "Logger info");
+									logger.info(' [AuthzCallback] Storing auth code for V7 flow', 'Logger info');
 									sessionStorage.setItem('oauth_v7_auth_code', code);
 									sessionStorage.setItem('oauth_v7_state', state);
 								}
@@ -693,8 +698,9 @@ Check your PingOne application configuration and ensure all parameters match exa
 								);
 
 								logger.info(
-									' [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page'
-								, "Logger info");
+									' [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page',
+									'Logger info'
+								);
 								setStatus('success');
 								setMessage('Authorization successful! Redirecting to V3 flow...');
 

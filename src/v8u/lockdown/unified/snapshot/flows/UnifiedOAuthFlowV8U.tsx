@@ -11,7 +11,7 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -819,7 +819,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for worker token updates
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			logger.debug(`🔑 Worker token updated event received!`, "Logger debug");
+			logger.debug(`🔑 Worker token updated event received!`, 'Logger debug');
 			logger.debug(`🔑 Current credentials:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
@@ -829,21 +829,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
-				logger.debug(`🔑 Clearing app config to trigger re-fetch`, "Logger debug");
+				logger.debug(`🔑 Clearing app config to trigger re-fetch`, 'Logger debug');
 				setAppConfig(null); // Clear current config to trigger re-fetch
 			} else {
-				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, "Logger debug");
+				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, 'Logger debug');
 			}
 		};
 
-		logger.debug(`🔑 Setting up worker token event listener`, "Logger debug");
+		logger.debug(`🔑 Setting up worker token event listener`, 'Logger debug');
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 
 		// Test if event listener is working
-		logger.debug(`🔑 Worker token listener setup complete`, "Logger debug");
+		logger.debug(`🔑 Worker token listener setup complete`, 'Logger debug');
 
 		return () => {
-			logger.debug(`🔑 Cleaning up worker token event listener`, "Logger debug");
+			logger.debug(`🔑 Cleaning up worker token event listener`, 'Logger debug');
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		};
 	}, [credentials.environmentId, credentials.clientId]);
@@ -1707,7 +1707,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				url = baseUrl;
 		}
 
-
 		return url;
 	};
 
@@ -2329,7 +2328,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											logger.debug(`Auto-enabled PKCE for ${appType} application type`, "Logger debug");
+											logger.debug(
+												`Auto-enabled PKCE for ${appType} application type`,
+												'Logger debug'
+											);
 										}
 									} else {
 										logger.debug(`Suggested flow not available for spec`, {
@@ -2425,9 +2427,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
-									);
+									const { handleShowWorkerTokenModal } =
+										await import('@/v8/utils/workerTokenModalHelperV8');
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2489,9 +2490,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.silentApiRetrieval}
 										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } = await import(
-												'@/v8/services/workerTokenConfigServiceV8'
-											);
+											const { WorkerTokenConfigServiceV8 } =
+												await import('@/v8/services/workerTokenConfigServiceV8');
 											WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
 										}}
 										style={{
@@ -2520,9 +2520,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.showTokenAtEnd}
 										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } = await import(
-												'@/v8/services/workerTokenConfigServiceV8'
-											);
+											const { WorkerTokenConfigServiceV8 } =
+												await import('@/v8/services/workerTokenConfigServiceV8');
 											WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
 										}}
 										style={{

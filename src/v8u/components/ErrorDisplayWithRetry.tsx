@@ -12,7 +12,7 @@
  * - Suggested fixes from OAuth error codes service
  */
 
-import { FiAlertCircle } from '@icons';
+import { FiAlertCircle } from '../../icons';
 import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '@/v8/services/oauthErrorCodesServiceV8';
 

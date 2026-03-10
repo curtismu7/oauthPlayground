@@ -1,4 +1,4 @@
-import { FiClock, FiRefreshCw } from '@icons';
+import { FiClock, FiRefreshCw } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
@@ -42,25 +42,26 @@ const SecurityGrid = styled.div`
 
 const SecurityCard = styled.div<{ $variant?: 'primary' | 'success' | 'warning' | 'danger' }>`
 	background: white;
-	border: 1px solid ${(props) => {
-		switch (props.$variant) {
-			case 'success':
-				return '#10b981';
-			case 'warning':
-				return '#f59e0b';
-			case 'danger':
-				return '#ef4444';
-			case 'primary':
-				return '#3b82f6';
-			default:
-				return '#e2e8f0';
-		}
-	}};
+	border: 1px solid
+		${(props) => {
+			switch (props.$variant) {
+				case 'success':
+					return '#10b981';
+				case 'warning':
+					return '#f59e0b';
+				case 'danger':
+					return '#ef4444';
+				case 'primary':
+					return '#3b82f6';
+				default:
+					return '#e2e8f0';
+			}
+		}};
 	border-radius: 12px;
 	padding: 1.5rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	transition: all 0.3s ease;
-	
+
 	&:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
@@ -120,7 +121,7 @@ const SecurityScore = styled.div<{ $score: number }>`
 		return 'linear-gradient(135deg, #ef4444, #dc2626)';
 	}};
 	position: relative;
-	
+
 	&::before {
 		content: '';
 		position: absolute;
@@ -144,18 +145,19 @@ const ThreatItem = styled.div<{ $severity: 'low' | 'medium' | 'high' | 'critical
 	padding: 0.75rem;
 	margin-bottom: 0.5rem;
 	border-radius: 6px;
-	border-left: 4px solid ${(props) => {
-		switch (props.$severity) {
-			case 'critical':
-				return '#dc2626';
-			case 'high':
-				return '#ef4444';
-			case 'medium':
-				return '#f59e0b';
-			case 'low':
-				return '#3b82f6';
-		}
-	}};
+	border-left: 4px solid
+		${(props) => {
+			switch (props.$severity) {
+				case 'critical':
+					return '#dc2626';
+				case 'high':
+					return '#ef4444';
+				case 'medium':
+					return '#f59e0b';
+				case 'low':
+					return '#3b82f6';
+			}
+		}};
 	background: ${(props) => {
 		switch (props.$severity) {
 			case 'critical':
@@ -202,11 +204,11 @@ const ActionButton = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	
+
 	&:hover {
 		transform: translateY(-1px);
 	}
-	
+
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
@@ -217,7 +219,7 @@ const ActionButton = styled.button`
 const ScanButton = styled(ActionButton)`
 	background: #3b82f6;
 	color: white;
-	
+
 	&:hover:not(:disabled) {
 		background: #2563eb;
 	}
@@ -253,7 +255,7 @@ const SettingToggle = styled.button<{ $enabled: boolean }>`
 	position: relative;
 	cursor: pointer;
 	transition: background 0.2s ease;
-	
+
 	&::after {
 		content: '';
 		position: absolute;
@@ -278,7 +280,7 @@ const AuditLogItem = styled.div`
 	padding: 0.75rem;
 	border-bottom: 1px solid #f3f4f6;
 	font-size: 0.875rem;
-	
+
 	&:last-child {
 		border-bottom: none;
 	}
