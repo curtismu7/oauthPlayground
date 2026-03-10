@@ -1672,23 +1672,26 @@ app.get('/api/environments', async (req, res) => {
       pageSize,
     });
 
-    // Get authentication from query or headers
-    const { accessToken, environmentId, region = 'na' } = req.query;
+    // Get authentication from query or headers (normalize in case of array from duplicate params)
+    const raw = req.query;
+    const accessToken = Array.isArray(raw.accessToken) ? raw.accessToken[0] : raw.accessToken;
+    const region = Array.isArray(raw.region) ? raw.region[0] : (raw.region ?? 'na');
 
-    if (!accessToken) {
+    if (!accessToken || typeof accessToken !== 'string') {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Access token is required to fetch PingOne environments',
       });
     }
 
-    // Log the API call
+    // Log the API call (safe substring)
+    const tokenPreview = accessToken.length > 20 ? `${accessToken.substring(0, 20)}...` : '***';
     logPingOneApiCall(
       'Get Environments',
       `${req.protocol}://${req.get('host')}${req.originalUrl}`,
       'GET',
       {
-        Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+        Authorization: `Bearer ${tokenPreview}`,
         'Content-Type': 'application/json',
       },
       { typeFilters, statusFilters, regionFilters, search, page, pageSize }
@@ -1724,15 +1727,24 @@ app.get('/api/environments', async (req, res) => {
     // First, try to get organization info to fetch environments
     let environments = [];
 
+    const FETCH_TIMEOUT_MS = 25000; // Avoid hanging so proxy doesn't socket hang up
+    const abortFetch = (url) => {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), FETCH_TIMEOUT_MS);
+      return { signal: c.signal, clear: () => clearTimeout(t) };
+    };
+
     try {
       // Get organization info
+      const orgReq = abortFetch(`${baseUrl}/v1/organizations`);
       const orgResponse = await fetch(`${baseUrl}/v1/organizations`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-      });
+        signal: orgReq.signal,
+      }).finally(() => orgReq.clear());
 
       if (!orgResponse.ok) {
         throw new Error(`Failed to fetch organizations: ${orgResponse.status}`);
@@ -1752,6 +1764,9 @@ app.get('/api/environments', async (req, res) => {
       );
 
       // Fetch environments for this organization
+      const envReq = abortFetch(
+        `${baseUrl}/v1/organizations/${organization.id}/environments?limit=100`
+      );
       const envResponse = await fetch(
         `${baseUrl}/v1/organizations/${organization.id}/environments?limit=100`,
         {
@@ -1760,8 +1775,9 @@ app.get('/api/environments', async (req, res) => {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
+          signal: envReq.signal,
         }
-      );
+      ).finally(() => envReq.clear());
 
       if (!envResponse.ok) {
         throw new Error(`Failed to fetch environments: ${envResponse.status}`);
@@ -1781,13 +1797,15 @@ app.get('/api/environments', async (req, res) => {
 
       // Fallback: try direct environments endpoint
       try {
+        const directReq = abortFetch(`${baseUrl}/v1/environments?limit=100`);
         const directEnvResponse = await fetch(`${baseUrl}/v1/environments?limit=100`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
-        });
+          signal: directReq.signal,
+        }).finally(() => directReq.clear());
 
         if (!directEnvResponse.ok) {
           throw new Error(`Failed to fetch environments directly: ${directEnvResponse.status}`);
@@ -1947,14 +1965,20 @@ app.get('/api/environments', async (req, res) => {
     res.end(JSON.stringify(response));
   } catch (error) {
     console.error('[PingOne Environments API] ❌ Error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        error: 'Gateway Timeout',
+        message: 'PingOne API did not respond in time',
+        source: 'PingOne Platform API Proxy',
+      });
+    }
+    if (!res.headersSent) {
+      res.status(500).json({
         error: 'Internal server error',
         message: error.message,
         source: 'PingOne Platform API Proxy',
-      })
-    );
+      });
+    }
   }
 });
 
@@ -20336,6 +20360,26 @@ app.use((req, res, next) => {
 // SERVER STARTUP
 // ============================================================================
 
+// Initialize databases before starting server
+async function initializeDatabases() {
+  try {
+    console.log('🔧 Initializing databases...');
+    
+    // Initialize settings database
+    await settingsDB.init();
+    console.log('✅ Settings database initialized');
+    
+    // Initialize user database
+    await userDatabaseService.init();
+    console.log('✅ User database initialized');
+    
+    console.log('🎉 All databases initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize databases:', error);
+    process.exit(1);
+  }
+}
+
 // Load or generate self-signed certificates for HTTPS (env SSL_CERT_PATH/SSL_KEY_PATH take precedence)
 const certs = getCertPaths();
 
@@ -20359,15 +20403,20 @@ function getServerConsoleUrl() {
   return `${protocol}://${host}:${PORT}`;
 }
 
-// Start HTTPS server on PORT if certificates are available
-if (certs) {
-  try {
-    const options = {
-      key: fs.readFileSync(certs.keyPath),
-      cert: fs.readFileSync(certs.certPath),
-    };
+// Start servers
+async function startServers() {
+  // Start HTTPS server on PORT if certificates are available
+  if (certs) {
+    try {
+      const options = {
+        key: fs.readFileSync(certs.keyPath),
+        cert: fs.readFileSync(certs.certPath),
+      };
 
-    httpsServer = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+      // Initialize databases first
+      await initializeDatabases();
+      
+      httpsServer = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
       console.log(`🔐 OAuth Playground Backend Server running on port ${PORT} (HTTPS)`);
       console.log(`📡 Health check: https://localhost:${PORT}/api/health`);
       console.log(`🔐 Token exchange: https://localhost:${PORT}/api/token-exchange`);
@@ -20379,6 +20428,7 @@ if (certs) {
     console.error('❌ Failed to start HTTPS server:', error.message);
     console.log('🔄 Starting HTTP server instead...');
     // Start HTTP server as fallback
+    await initializeDatabases();
     httpServer = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
       console.log(
@@ -20394,6 +20444,7 @@ if (certs) {
   }
 } else {
   // No certificates available, start HTTP server
+  await initializeDatabases();
   httpServer = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
     console.log(
@@ -20406,6 +20457,7 @@ if (certs) {
     console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
     console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
   });
+}
 }
 
 // Add error handling for both servers
@@ -20430,3 +20482,9 @@ if (httpsServer) {
     console.log(`🌐 HTTPS Server listening on:`, addr);
   });
 }
+
+// Start the servers
+startServers().catch(error => {
+  console.error('❌ Failed to start servers:', error);
+  process.exit(1);
+});
