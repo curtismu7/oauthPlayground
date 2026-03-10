@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getComponentTracker, initializeMockData } from '../utils/componentTracker';
+import {
+	getComponentTracker,
+	initializeMockData,
+	useComponentTracker,
+} from '../utils/componentTracker';
 
 interface ComponentMetrics {
 	name: string;
@@ -208,6 +212,30 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		detail: 'Including TokenRevocationFlow, SAMLServiceProviderFlowV1. V7M mock flows N/A.',
 	},
 	{
+		id: 'v9-runtime-api-region',
+		description: 'GET /api/settings/region — 500 on DB error',
+		status: 'fixed',
+		countLabel: '1 endpoint',
+		detail:
+			'On settingsDB.get() failure, return 200 with { value: null } so UI does not treat as backend down.',
+	},
+	{
+		id: 'v9-runtime-api-environments',
+		description: 'GET /api/environments — 401/403/504 mapping, timeouts',
+		status: 'fixed',
+		countLabel: 'server.js + vite proxy',
+		detail:
+			'Normalize accessToken/region query params; 25s fetch timeouts; map PingOne 401→401, 403→403, AbortError→504; pingOneFetch only records failure for 5xx so "Backend down" does not show for expired token.',
+	},
+	{
+		id: 'v9-runtime-hmr-websocket',
+		description: 'WebSocket HMR on custom domain (api.pingdemo.com)',
+		status: 'fixed',
+		countLabel: 'vite.config.ts',
+		detail:
+			'hmr: false when VITE_HMR_HOST or httpsOptions set to avoid "wss://api.pingdemo.com:3000 failed" console error.',
+	},
+	{
 		id: 'v9-ts-debt',
 		description: 'TypeScript technical debt (flows)',
 		status: 'pending',
@@ -234,7 +262,7 @@ const STATUS_CONFIG: Record<
 };
 
 export const CleanlinessDashboardWorking: React.FC = () => {
-	console.log('CleanlinessDashboardWorking component loading...');
+	useComponentTracker('CleanlinessDashboardWorking', 0);
 
 	const [metrics, setMetrics] = useState<Metrics>({
 		totalComponents: 0,
@@ -248,28 +276,36 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 
 	const updateMetrics = useCallback(() => {
 		try {
-			// Initialize tracker if not available
 			let tracker = (window as any).componentTracker;
 			if (!tracker) {
 				tracker = getComponentTracker();
-				initializeMockData(); // Initialize with mock data for demonstration
+				// Only seed mock data in demo mode (?demo=1 or __CLEANLINESS_DEMO__) so real sessions show actual tracked components
+				const isDemo =
+					typeof window !== 'undefined' &&
+					((window as any).__CLEANLINESS_DEMO__ === true ||
+						(typeof window.location !== 'undefined' &&
+							new URLSearchParams(window.location.search).get('demo') === '1'));
+				if (isDemo) {
+					initializeMockData();
+				}
 			}
 
 			if (tracker) {
 				const report = tracker.generateReport();
 				const componentMetrics = tracker.getMetrics();
+				const memoryMB = report.memoryUsage ? report.memoryUsage / (1024 * 1024) : 0;
+				const avgRenders = report.averageRendersPerComponent || 0;
+				// Calibrated score: render penalty cap 50, memory penalty cap 50 (e.g. 50 MB = 50 points), 0–100
+				const renderPenalty = Math.min(50, avgRenders * 5);
+				const memoryPenalty = Math.min(50, (memoryMB / 50) * 50);
+				const cleanlinessScore = Math.max(0, Math.round(100 - renderPenalty - memoryPenalty));
 
 				setMetrics({
 					totalComponents: report.totalComponents || 0,
 					totalRenders: report.totalRenders || 0,
-					averageRenders: report.averageRendersPerComponent || 0,
-					memoryUsage: report.memoryUsage ? Math.round(report.memoryUsage / 1024 / 1024) : 0,
-					cleanlinessScore: Math.max(
-						0,
-						100 -
-							(report.averageRendersPerComponent || 0) * 2 -
-							(report.memoryUsage ? report.memoryUsage / 10 : 0)
-					),
+					averageRenders: avgRenders,
+					memoryUsage: Math.round(memoryMB * 10) / 10,
+					cleanlinessScore,
 				});
 
 				if (componentMetrics && Array.isArray(componentMetrics)) {
@@ -358,11 +394,39 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 					color: '#6C757D',
 					fontSize: '1rem',
 					textAlign: 'center',
-					marginBottom: '2rem',
+					marginBottom: '0.5rem',
 				}}
 			>
 				Monitor your application's performance and component health in real-time
 			</p>
+			<div
+				style={{
+					maxWidth: '720px',
+					margin: '0 auto 1.5rem',
+					padding: '0.75rem 1rem',
+					background: '#F8F9FA',
+					borderRadius: '0.5rem',
+					fontSize: '0.8125rem',
+					color: '#495057',
+					lineHeight: 1.5,
+				}}
+			>
+				<strong>What the numbers mean:</strong> Components, renders, and memory are from the runtime
+				tracker (components that call{' '}
+				<code style={{ background: '#E9ECEF', padding: '0.1rem 0.25rem', borderRadius: '0.25rem' }}>
+					useComponentTracker
+				</code>
+				). Memory uses{' '}
+				<code style={{ background: '#E9ECEF', padding: '0.1rem 0.25rem', borderRadius: '0.25rem' }}>
+					performance.memory
+				</code>{' '}
+				when available (Chrome). Cleanliness score is 100 minus penalties for high average renders
+				and high JS heap usage. Add{' '}
+				<code style={{ background: '#E9ECEF', padding: '0.1rem 0.25rem', borderRadius: '0.25rem' }}>
+					?demo=1
+				</code>{' '}
+				to seed sample data.
+			</div>
 
 			<div
 				style={{

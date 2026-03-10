@@ -8,6 +8,7 @@ import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import { useComponentTracker } from './hooks/useComponentTracker';
+import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
@@ -42,10 +43,7 @@ const DPoPFlow = lazy(() => import('./pages/flows/DPoPFlow'));
 const IDTokensFlow = lazy(() => import('./pages/flows/IDTokensFlow'));
 const JWTBearerFlow = lazy(() => import('./pages/flows/JWTBearerFlow'));
 const KrogerGroceryStoreMFA = lazy(() => import('./pages/flows/KrogerGroceryStoreMFA'));
-const OIDCCompliantAuthorizationCodeFlow = lazy(
-	() => import('./pages/flows/OIDCCompliantAuthorizationCodeFlow')
-);
-const PARFlow = lazy(() => import('./pages/flows/PARFlow'));
+// PARFlow removed — route redirects to /flows/pingone-par-v9
 const PingOneLogoutFlow = lazy(() => import('./pages/flows/PingOneLogoutFlow'));
 
 // Lazy load heavy tool pages
@@ -150,7 +148,6 @@ import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 // ClientCredentialsFlowV7 archived — route redirects to v9
 // DeviceAuthorizationFlowV7 archived — route redirects to v9
-import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 // OAuthAuthorizationCodeFlowV7 archived — route redirects to v9
 // OAuthAuthorizationCodeFlowV7_2 archived — route redirects to v9
@@ -164,7 +161,7 @@ import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
-import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwnerPasswordFlow';
+// V7RMOIDCResourceOwnerPasswordFlow removed — route redirects to /flows/oauth-ropc-v9
 import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
 import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
 import DPoPAuthorizationCodeFlowV9 from './pages/flows/v9/DPoPAuthorizationCodeFlowV9';
@@ -809,7 +806,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/mock-oidc-ropc"
-									element={<V7RMOIDCResourceOwnerPasswordFlow />}
+									element={<Navigate to="/flows/oauth-ropc-v9" replace />}
 								/>
 								<Route
 									path="/v7/oauth/authorization-code"
@@ -886,15 +883,14 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
 								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
 								<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
-								{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
+								{/* Deprecated flows — redirect to V9 */}
 								<Route
 									path="/flows/oauth2-compliant-authorization-code"
-									element={<OAuth2CompliantAuthorizationCodeFlow />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
-								{/* OIDC Core 1.0 Compliant Authorization Code Flow */}
 								<Route
 									path="/flows/oidc-compliant-authorization-code"
-									element={<OIDCCompliantAuthorizationCodeFlow />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								{/* Legacy V6 routes - redirect to V9 equivalents directly */}
 								<Route
@@ -1265,7 +1261,10 @@ const AppRoutes: React.FC = () => {
 									path="/flows/redirectless-v7-real"
 									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
-								<Route path="/flows/par" element={<PARFlow />} />
+								<Route
+									path="/flows/par"
+									element={<Navigate to="/flows/pingone-par-v9" replace />}
+								/>
 								<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 								{/* Unsupported by PingOne flows */}
 								<Route
@@ -1664,6 +1663,7 @@ const buildTheme = (settings: UISettings): DefaultTheme => {
 
 function App() {
 	useComponentTracker('App');
+	useCleanlinessTracker('App', 0); // Feeds /cleanliness-dashboard runtime metrics
 	return (
 		<UISettingsProvider>
 			<AppContent />

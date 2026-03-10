@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useComponentTracker } from '../utils/componentTracker';
 import {
 	SIDEBAR_PING_MAX_WIDTH,
 	SIDEBAR_PING_MIN_WIDTH,
@@ -60,16 +61,16 @@ const ResizeHandle = styled.div`
 
 	&:hover {
 		background: rgba(59, 130, 246, 0.1);
-		
+
 		&::after {
 			background: V9_COLORS.PRIMARY.BLUE;
 			width: 3px;
 		}
 	}
-	
+
 	&:active {
 		background: rgba(59, 130, 246, 0.2);
-		
+
 		&::after {
 			background: V9_COLORS.PRIMARY.BLUE_DARK;
 			width: 4px;
@@ -151,6 +152,7 @@ export interface SidebarProps {
 
 // Main Sidebar component
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+	useComponentTracker('Sidebar', 2);
 	// Sidebar width state (resizable for both; Ping uses its own min/max)
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		const saved = localStorage.getItem('sidebar.width');

@@ -117,7 +117,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								setKrpCompliance(krpComplianceData);
 							} catch (error) {
 								const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-								logger.warn(`${MODULE_TAG} Failed to fetch KRP status:`, errorMessage, 'KRP status fetch failed');
+								logger.warn(
+									`${MODULE_TAG} Failed to fetch KRP status:`,
+									errorMessage,
+									'KRP status fetch failed'
+								);
 							}
 						}
 					}
@@ -158,10 +162,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		return () => window.removeEventListener('keydown', handleEscape);
 	}, [isOpen, onClose]);
 
-	// Load saved credentials on mount
+	// Load saved credentials on mount — clear cache so we always read from IndexedDB/SQLite
 	React.useEffect(() => {
 		if (isOpen) {
-			// Load from unifiedWorkerTokenService (IndexedDB + SQLite backup)
+			unifiedWorkerTokenService.clearCredentialsCache();
 			unifiedWorkerTokenService
 				.loadCredentials()
 				.then((result) => {
@@ -245,9 +249,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				await unifiedWorkerTokenService.saveCredentials(credentials);
 
 				// Run preflight validation
-				const { PreFlightValidationServiceV8 } = await import(
-					'@/v8/services/preFlightValidationServiceV8'
-				);
+				const { PreFlightValidationServiceV8 } =
+					await import('@/v8/services/preFlightValidationServiceV8');
 
 				// Try to get worker token from current or cached source
 				const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
@@ -257,9 +260,17 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				// If we have a valid token, use it for validation
 				if (tokenValidation?.isValid) {
-					logger.debug(`${MODULE_TAG} 🔑 Using existing token for validation`, 'Using existing token', { tokenValidation });
+					logger.debug(
+						`${MODULE_TAG} 🔑 Using existing token for validation`,
+						'Using existing token',
+						{ tokenValidation }
+					);
 				} else {
-					logger.debug(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`, 'No valid token found', {});
+					logger.debug(
+						`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`,
+						'No valid token found',
+						{}
+					);
 				}
 
 				// Validate OAuth configuration — race against a 12 s timeout so a
@@ -356,7 +367,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					'Content-Type': 'application/x-www-form-urlencoded',
 				};
 
-				logger.debug(`${MODULE_TAG} 🔍 Debug - Auth method:`, JSON.stringify(authMethod), 'Auth method debug');
+				logger.debug(
+					`${MODULE_TAG} 🔍 Debug - Auth method:`,
+					JSON.stringify(authMethod),
+					'Auth method debug'
+				);
 				logger.debug(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
 
 				if (authMethod === 'client_secret_post') {
@@ -625,7 +640,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				});
 			} catch (credError) {
 				const errorMessage = credError instanceof Error ? credError.message : String(credError);
-				logger.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow', errorMessage, { credError });
+				logger.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow', errorMessage, {
+					credError,
+				});
 			}
 
 			// Cache the token for future preflight validation
@@ -905,8 +922,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 															duration: 3000,
 														});
 													} catch (error) {
-														const errorMessage = error instanceof Error ? error.message : String(error);
-														logger.error(`${MODULE_TAG} Failed to save token`, errorMessage, { error });
+														const errorMessage =
+															error instanceof Error ? error.message : String(error);
+														logger.error(`${MODULE_TAG} Failed to save token`, errorMessage, {
+															error,
+														});
 														modernMessaging.showBanner({
 															type: 'error',
 															title: 'Error',
@@ -1630,7 +1650,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 															duration: 3000,
 														});
 													} catch (error) {
-														const errorMessage = error instanceof Error ? error.message : String(error);
+														const errorMessage =
+															error instanceof Error ? error.message : String(error);
 														logger.error(`${MODULE_TAG} Export error`, errorMessage, { error });
 														modernMessaging.showBanner({
 															type: 'error',
@@ -1722,7 +1743,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																});
 															}
 														} catch (error) {
-															logger.error(`${MODULE_TAG} Import error:`, error instanceof Error ? error.message : String(error));
+															logger.error(
+																`${MODULE_TAG} Import error:`,
+																error instanceof Error ? error.message : String(error)
+															);
 															modernMessaging.showBanner({
 																type: 'error',
 																title: 'Error',
