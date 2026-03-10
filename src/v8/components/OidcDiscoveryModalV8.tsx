@@ -426,17 +426,21 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 						onClick={onClose}
 						style={{
 							padding: '8px 16px',
-							background: '#e5e7eb',
-							color: '#1f2937',
-							border: 'none',
+							background: 'white',
+							color: '#3b82f6',
+							border: '1px solid #3b82f6',
 							borderRadius: '4px',
 							fontSize: '13px',
 							fontWeight: '600',
 							cursor: 'pointer',
 							transition: 'background 0.2s ease',
 						}}
-						onMouseEnter={(e) => (e.currentTarget.style.background = '#d1d5db')}
-						onMouseLeave={(e) => (e.currentTarget.style.background = '#e5e7eb')}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#eff6ff';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'white';
+						}}
 					>
 						Close
 					</button>

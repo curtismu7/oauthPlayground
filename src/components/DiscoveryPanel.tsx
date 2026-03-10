@@ -3,6 +3,7 @@ import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { RegionSelect } from './RegionSelect';
 import { loadEnvironmentId } from '../services/environmentIdService';
@@ -43,7 +44,7 @@ const Panel = styled.div`
 
 const Header = styled.div`
 	padding: 1.5rem 1.5rem 1rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -53,7 +54,7 @@ const Title = styled.h2`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+	color: var(--color-text-primary, ${V9_COLORS.TEXT.GRAY_DARK});
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -65,12 +66,12 @@ const CloseButton = styled.button`
 	cursor: pointer;
 	padding: 0.5rem;
 	border-radius: 0.375rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	transition: all 0.2s;
 
 	&:hover {
 		background: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 	}
 `;
 
@@ -87,33 +88,33 @@ const Label = styled.label`
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	&:disabled {
 		background: #f9fafb;
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	}
 `;
 
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
@@ -121,7 +122,7 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -152,21 +153,21 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
     ${
 			variant === 'primary'
 				? `
-      background: V9_COLORS.PRIMARY.BLUE;
+      background: ${V9_COLORS.PRIMARY.BLUE};
       color: white;
 
       &:hover:not(:disabled) {
-        background: V9_COLORS.PRIMARY.BLUE_DARK;
+        background: ${V9_COLORS.PRIMARY.BLUE_DARK};
         transform: translateY(-1px);
       }
     `
 				: `
-      background: #f3f4f6;
-      color: V9_COLORS.TEXT.GRAY_DARK;
-      border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+      background: white;
+      color: ${V9_COLORS.PRIMARY.BLUE};
+      border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
 
       &:hover:not(:disabled) {
-        background: V9_COLORS.TEXT.GRAY_LIGHTER;
+        background: #eff6ff;
       }
     `
 		}
@@ -177,8 +178,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
 	}
 
 	&:disabled {
-		opacity: 0.5;
+		opacity: 0.6;
 		cursor: not-allowed;
+		background: #9ca3af !important;
+		color: white !important;
+		border-color: #9ca3af !important;
 	}
 `;
 
@@ -196,20 +200,20 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
 			case 'success':
 				return `
           background: #f0fdf4;
-          border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-          color: V9_COLORS.PRIMARY.GREEN;
+          border: 1px solid ${V9_COLORS.BG.SUCCESS_BORDER};
+          color: ${V9_COLORS.PRIMARY.GREEN};
         `;
 			case 'error':
 				return `
-          background: V9_COLORS.BG.ERROR;
-          border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background: ${V9_COLORS.BG.ERROR};
+          border: 1px solid ${V9_COLORS.BG.ERROR_BORDER};
+          color: ${V9_COLORS.PRIMARY.RED_DARK};
         `;
 			case 'info':
 				return `
-          background: V9_COLORS.BG.GRAY_LIGHT;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-          color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background: ${V9_COLORS.BG.GRAY_LIGHT};
+          border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+          color: ${V9_COLORS.PRIMARY.BLUE_DARK};
         `;
 		}
 	}}
@@ -217,7 +221,7 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
 
 const ConfigurationDisplay = styled.div`
 	background: #f3f4f6;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -228,7 +232,7 @@ const ConfigItem = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	padding: 0.5rem 0;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 
 	&:last-child {
 		border-bottom: none;
@@ -237,7 +241,7 @@ const ConfigItem = styled.div`
 
 const ConfigLabel = styled.span`
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	font-size: 0.875rem;
 `;
 
@@ -247,7 +251,7 @@ const ConfigValue = styled.div`
 	gap: 0.5rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	max-width: 60%;
 	word-break: break-all;
 `;
@@ -258,18 +262,18 @@ const CopyButton = styled.button`
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 0.25rem;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	transition: all 0.2s;
 
 	&:hover {
 		background: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 	}
 `;
 
 const JsonDisplay = styled.pre`
 	background: #1e293b;
-	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	padding: 1rem;
 	border-radius: 0.5rem;
 	overflow-x: auto;
@@ -298,7 +302,7 @@ const JsonDisplay = styled.pre`
 	}
 
 	.hljs-key {
-		color: V9_COLORS.PRIMARY.BLUE_LIGHT;
+		color: #93c5fd;
 	}
 `;
 
@@ -496,7 +500,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message: 'saveConfigurationSuccess',
 					duration: 4000,
 				});
-				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
+				// Use logger.info so discovery UI never throws "logger.success is not a function"
+				logger.info('DiscoveryPanel', 'Configuration discovered successfully', {
 					environmentId,
 					issuer: result.configuration.issuer,
 				});

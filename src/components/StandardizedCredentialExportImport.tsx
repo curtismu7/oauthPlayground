@@ -10,21 +10,28 @@ import {
 } from '@/services/standardizedCredentialExportService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { logger } from '../utils/logger';
 
-// Styled components
+// Styled components — buttons must never be grey when enabled (only when disabled). Use V9 colors with interpolation.
 const ButtonContainer = styled.div`
 	display: flex;
 	gap: 10px;
 	margin-top: 15px;
 `;
 
+// Explicit hex fallbacks so buttons are never grey when enabled (V9_COLORS may be undefined in some bundles)
+const EXPORT_GREEN = V9_COLORS?.PRIMARY?.GREEN ?? '#10b981';
+const EXPORT_GREEN_DARK = V9_COLORS?.PRIMARY?.GREEN_DARK ?? '#059669';
+const IMPORT_BLUE = V9_COLORS?.PRIMARY?.BLUE ?? '#3b82f6';
+const IMPORT_BLUE_DARK = V9_COLORS?.PRIMARY?.BLUE_DARK ?? '#2563eb';
+
 const ExportButton = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 8px 16px;
-	background: V9_COLORS.PRIMARY.GREEN;
+	background: ${EXPORT_GREEN};
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -32,14 +39,15 @@ const ExportButton = styled.button`
 	font-size: 14px;
 	transition: all 0.2s;
 
-	&:hover {
-		background: V9_COLORS.PRIMARY.GREEN_DARK;
+	&:hover:not(:disabled) {
+		background: ${EXPORT_GREEN_DARK};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 	}
 
 	&:disabled {
-		opacity: 0.5;
+		background: #9ca3af;
+		opacity: 0.8;
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: none;
@@ -51,7 +59,7 @@ const ImportButton = styled.button`
 	align-items: center;
 	gap: 8px;
 	padding: 8px 16px;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: ${IMPORT_BLUE};
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -59,14 +67,15 @@ const ImportButton = styled.button`
 	font-size: 14px;
 	transition: all 0.2s;
 
-	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	&:hover:not(:disabled) {
+		background: ${IMPORT_BLUE_DARK};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 	}
 
 	&:disabled {
-		opacity: 0.5;
+		background: #9ca3af;
+		opacity: 0.8;
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: none;

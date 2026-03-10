@@ -103,17 +103,19 @@ const CopyButton = styled.button<{
   background-color: ${({ $copied, $variant }) => {
 		if ($copied) return '#10b981';
 		if ($variant === 'primary') return '#3b82f6';
-		if ($variant === 'secondary') return '#6b7280';
+		if ($variant === 'secondary') return '#ffffff';
 		return 'transparent';
 	}};
   color: ${({ $copied, $variant }) => {
 		if ($copied) return 'white';
 		if ($variant === 'outline') return '#374151';
+		if ($variant === 'secondary') return '#2563eb';
 		return 'white';
 	}};
   border: ${({ $variant, $copied }) => {
 		if ($copied) return '1px solid #10b981';
 		if ($variant === 'outline') return '1px solid #d1d5db';
+		if ($variant === 'secondary') return '1px solid #2563eb';
 		return 'none';
 	}};
 
@@ -141,7 +143,7 @@ const CopyButton = styled.button<{
     background-color: ${({ $copied, $variant }) => {
 			if ($copied) return '#059669';
 			if ($variant === 'primary') return '#2563eb';
-			if ($variant === 'secondary') return '#4b5563';
+			if ($variant === 'secondary') return '#eff6ff';
 			return '#f9fafb';
 		}};
     transform: ${({ $copied }) => ($copied ? 'none' : 'translateY(-1px)')};

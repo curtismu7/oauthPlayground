@@ -17,7 +17,17 @@ export function getAnyWorkerToken(): string | null {
 		return null;
 	}
 
-	// Check common keys first
+	// Check unified_worker_token first (JSON: { token, credentials, expiresAt })
+	try {
+		const unified = localStorage.getItem('unified_worker_token');
+		if (unified) {
+			const data = JSON.parse(unified);
+			const token = data?.token || data?.data?.token;
+			if (token?.trim()) return token.trim();
+		}
+	} catch {}
+
+	// Check common keys
 	const commonKeys = [
 		'worker_token',
 		'pingone_worker_token',

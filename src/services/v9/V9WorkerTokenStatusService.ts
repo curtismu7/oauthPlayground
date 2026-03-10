@@ -226,7 +226,7 @@ export const V9getStatusIcon = (status: V9TokenStatus): string => {
 		case 'missing':
 			return '✗';
 		default:
-			return '❓';
+			return '?';
 	}
 };
 

@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { AuditActivityCharts } from '../components/pingone/AuditActivityCharts';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
@@ -429,7 +430,11 @@ interface AuditResponse {
 	[key: string]: unknown;
 }
 
-const PingOneAuditActivities: React.FC = () => {
+interface PingOneAuditActivitiesProps {
+	embedded?: boolean;
+}
+
+const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedded = false }) => {
 	const [loading, setLoading] = useState(false);
 	const [activities, setActivities] = useState<AuditActivity[]>([]);
 	const [totalCount, setTotalCount] = useState(0);
@@ -493,11 +498,20 @@ const PingOneAuditActivities: React.FC = () => {
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
-		// Load region from worker_credentials
-		const workerCredsStr = localStorage.getItem('worker_credentials');
-		// educational-ok: localStorage data is our own stored JSON
-		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const region = (workerCreds?.region as string) || 'us';
+		// Load region from unified storage (IndexedDB/SQLite) first, then localStorage
+		const credResult = await unifiedWorkerTokenService.loadCredentials();
+		const workerCreds = credResult.success ? credResult.data : null;
+		const region =
+			(workerCreds?.region as string) ||
+			(() => {
+				try {
+					const s = localStorage.getItem('worker_credentials');
+					return s ? (JSON.parse(s) as { region?: string })?.region : null;
+				} catch {
+					return null;
+				}
+			})() ||
+			'us';
 		const effectiveWorkerToken = workerToken || '';
 
 		setLoading(true);
@@ -698,11 +712,20 @@ const PingOneAuditActivities: React.FC = () => {
 
 	// Show educational modal before making the API call
 	const handleFetch = useCallback(async () => {
-		// Load region from worker_credentials
-		const workerCredsStr = localStorage.getItem('worker_credentials');
-		// educational-ok: localStorage data is our own stored JSON
-		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const region = (workerCreds?.region as string) || 'us';
+		// Load region from unified storage (IndexedDB/SQLite) first, then localStorage
+		const credResult = await unifiedWorkerTokenService.loadCredentials();
+		const workerCreds = credResult.success ? credResult.data : null;
+		const region =
+			(workerCreds?.region as string) ||
+			(() => {
+				try {
+					const s = localStorage.getItem('worker_credentials');
+					return s ? (JSON.parse(s) as { region?: string })?.region : null;
+				} catch {
+					return null;
+				}
+			})() ||
+			'us';
 
 		if (!environmentId.trim()) {
 			setError(
@@ -922,8 +945,9 @@ const PingOneAuditActivities: React.FC = () => {
 
 	return (
 		<>
-			<FlowHeader flowId="pingone-audit-activities" />
-			<div style={styles.pageContainer}>
+			{!embedded && <FlowHeader flowId="pingone-audit-activities" />}
+			<div style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}>
+				{!embedded && (
 				<div style={styles.headerCard}>
 					<div style={styles.titleRow}>
 						<i className="bi bi-activity" />
@@ -949,6 +973,7 @@ const PingOneAuditActivities: React.FC = () => {
 						</div>
 					)}
 				</div>
+				)}
 
 				<div style={styles.layoutGrid}>
 					<div style={styles.card}>
@@ -1300,6 +1325,7 @@ const PingOneAuditActivities: React.FC = () => {
 						<div style={styles.resultContainer}>
 							{auditResponse ? (
 								<>
+									<AuditActivityCharts activities={activities} />
 									{summary && (
 										<div
 											style={{

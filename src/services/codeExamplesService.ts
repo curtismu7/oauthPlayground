@@ -1,5 +1,6 @@
 // src/services/codeExamplesService.ts
 // lint-file-disable: token-value-in-jsx
+import { logger } from '../utils/logger';
 
 export type SupportedLanguage = 'javascript' | 'typescript' | 'go' | 'ruby' | 'python' | 'ping-sdk';
 

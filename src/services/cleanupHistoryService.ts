@@ -107,62 +107,60 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-10T11:44:08.329Z
+// Last updated: 2026-03-10T23:21:13.697Z
 // Source: git log (2 days → 2 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-	{
-		id: 'git-2026-03-10-bug-fixes',
-		date: '2026-03-10',
-		duration: 12,
-		category: {
-			id: 'bug-fixes',
-			name: 'Bug Fixes',
-			color: '#DC3545',
-			icon: '🐛',
-			description: 'Bug Fixes',
-		},
-		description:
-			'6 commits: replace question mark emoji placeholders with Bootstrap Icons; replace ❓ emoji placeholders with real Feather icons …',
-		filesModified: 552,
-		linesOfCode: 73080,
-		issuesResolved: 914,
-		documentation: [],
-		achievements: [
-			'replace question mark emoji placeholders with Bootstrap Icons',
-			'replace ❓ emoji placeholders with real Feather icons',
-			'update dashboard and sidebar nav to point to V9 flows',
-			'reduce OAuth/OIDC duplication - fix nav, delete dead flows/services',
-			'archive dead flows, redirect V8 OAuth routes to V9',
-		],
-		version: '9.14.0',
-	},
-	{
-		id: 'git-2026-03-09-code-cleanup',
-		date: '2026-03-09',
-		duration: 12,
-		category: {
-			id: 'code-cleanup',
-			name: 'Code Cleanup',
-			color: '#FFC107',
-			icon: '🧹',
-			description: 'Code Cleanup',
-		},
-		description:
-			'41 commits: migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source; replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports …',
-		filesModified: 6608,
-		linesOfCode: 107467,
-		issuesResolved: 1343,
-		documentation: [],
-		achievements: [
-			'migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source',
-			'replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports',
-			'migrate console.warn Alert calls to showGlobalError/Success/Warning in v7 pages, fix console.error in v8 stepper, logger in webhookViewerPopoutHelper, clean up UnifiedDocumentationModal',
-			'remove console.group/groupEnd from credential services, fix V9_COLORS interpolation, drop unused _log in DeviceAuthFlowV9',
-			'session cleanup — env ID read-only display, remove floating stepper, logger.success→info, linter warnings (0/0), duplicate import, v8 quote normalization, misc service fixes',
-		],
-		version: '9.14.0',
-	},
+  {
+    "id": "git-2026-03-10-code-cleanup",
+    "date": "2026-03-10",
+    "duration": 12,
+    "category": {
+      "id": "code-cleanup",
+      "name": "Code Cleanup",
+      "color": "#FFC107",
+      "icon": "🧹",
+      "description": "Code Cleanup"
+    },
+    "description": "15 commits: no grey buttons, DPoP route/UI, PAR/RAR stepper, V9 logging, docs; Refactor SidebarMenuPing and enhance flow configurations …",
+    "filesModified": 742,
+    "linesOfCode": 102034,
+    "issuesResolved": 1275,
+    "documentation": [],
+    "achievements": [
+      "no grey buttons, DPoP route/UI, PAR/RAR stepper, V9 logging, docs",
+      "Refactor SidebarMenuPing and enhance flow configurations",
+      "Update Sidebar z-index comment for clarity; archive CIBAFlowV9 and related flows, redirecting to unified endpoint; add new AI course resource to PingAIResources; modify server response for non-existent files to avoid 404 noise.",
+      "Token Exchange: real PingOne API + token-from-storage; Protect Portal fixes; dropdown fix",
+      "add PingOne Platform Dashboard configuration"
+    ],
+    "version": "9.14.0"
+  },
+  {
+    "id": "git-2026-03-09-code-cleanup",
+    "date": "2026-03-09",
+    "duration": 12,
+    "category": {
+      "id": "code-cleanup",
+      "name": "Code Cleanup",
+      "color": "#FFC107",
+      "icon": "🧹",
+      "description": "Code Cleanup"
+    },
+    "description": "41 commits: migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source; replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports …",
+    "filesModified": 3329,
+    "linesOfCode": 58889,
+    "issuesResolved": 736,
+    "documentation": [],
+    "achievements": [
+      "migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source",
+      "replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports",
+      "migrate console.warn Alert calls to showGlobalError/Success/Warning in v7 pages, fix console.error in v8 stepper, logger in webhookViewerPopoutHelper, clean up UnifiedDocumentationModal",
+      "remove console.group/groupEnd from credential services, fix V9_COLORS interpolation, drop unused _log in DeviceAuthFlowV9",
+      "session cleanup — env ID read-only display, remove floating stepper, logger.success→info, linter warnings (0/0), duplicate import, v8 quote normalization, misc service fixes"
+    ],
+    "version": "9.14.0"
+  }
 ];
 
 // ─── END AUTO-GENERATED sessions ───

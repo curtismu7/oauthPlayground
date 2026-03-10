@@ -364,18 +364,19 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 				return;
 			}
 
-			// No valid token - check if we have credentials to generate one
-			const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-			if (
-				!savedCreds ||
-				!savedCreds.environmentId ||
-				!savedCreds.clientId ||
-				!savedCreds.clientSecret
-			) {
-				// No credentials found - show modal to request them
-				logger.info('KrogerGroceryStoreMFA', 'No worker token credentials found, showing modal...');
-				setShowWorkerTokenModal(true);
-			}
+			// No valid token - check if we have credentials to generate one (unified storage first)
+			workerTokenCredentialsService.loadCredentials(FLOW_TYPE).then((savedCreds) => {
+				if (
+					!savedCreds ||
+					!savedCreds.environmentId ||
+					!savedCreds.clientId ||
+					!savedCreds.clientSecret
+				) {
+					// No credentials found - show modal to request them
+					logger.info('KrogerGroceryStoreMFA', 'No worker token credentials found, showing modal...');
+					setShowWorkerTokenModal(true);
+				}
+			});
 		};
 
 		checkWorkerToken();

@@ -6,6 +6,8 @@
  * This ensures we know which flow to return to when errors occur.
  */
 
+import { logger } from '../utils/logger';
+
 export interface FlowContext {
 	flowKey: string;
 	flowName: string;

@@ -494,6 +494,11 @@ export const CallbackHandlerV8U: React.FC = () => {
 			const storedState = sessionStorage.getItem('oauth_state');
 			const storedStateTimestamp = sessionStorage.getItem('oauth_state_timestamp');
 
+			// Detect flow type and step from state for proper redirect
+			const flowType = detectFlowTypeFromState(state);
+			const detectedStep = detectStepFromState(state);
+			const redirectPath = `/v8u/unified/${flowType}/${detectedStep}`;
+
 			// Validate state exists and matches
 			if (!storedState) {
 				logger.error('CallbackHandlerV8U', `No stored state found - possible CSRF attack`);
@@ -501,9 +506,12 @@ export const CallbackHandlerV8U: React.FC = () => {
 					hasCode: !!code,
 					hasState: !!state,
 					receivedState: state,
+					flowType,
+					detectedStep,
+					redirectPath,
 				});
-				// Redirect to error page instead of proceeding
-				window.location.replace('/dashboard?error=csrf_risk');
+				// Redirect back to the flow with error instead of dashboard
+				window.location.replace(`${redirectPath}?error=csrf_risk&reason=no_stored_state`);
 				return;
 			}
 
@@ -514,9 +522,12 @@ export const CallbackHandlerV8U: React.FC = () => {
 					hasState: !!state,
 					receivedState: state,
 					storedState,
+					flowType,
+					detectedStep,
+					redirectPath,
 				});
-				// Redirect to error page instead of proceeding
-				window.location.replace('/dashboard?error=csrf_risk');
+				// Redirect back to the flow with error instead of dashboard
+				window.location.replace(`${redirectPath}?error=csrf_risk&reason=state_mismatch`);
 				return;
 			}
 
@@ -531,11 +542,14 @@ export const CallbackHandlerV8U: React.FC = () => {
 						hasCode: !!code,
 						hasState: !!state,
 						stateAgeMs: stateAge,
+						flowType,
+						detectedStep,
+						redirectPath,
 					});
-					// Clear expired state and redirect to error
+					// Clear expired state and redirect back to the flow with error
 					sessionStorage.removeItem('oauth_state');
 					sessionStorage.removeItem('oauth_state_timestamp');
-					window.location.replace('/dashboard?error=state_expired');
+					window.location.replace(`${redirectPath}?error=state_expired&reason=state_too_old`);
 					return;
 				}
 			}

@@ -45,6 +45,7 @@ import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
 import { callbackUriService } from './callbackUriService';
+import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,
 // } from '../components/PingOneApplicationConfig';
@@ -402,10 +403,14 @@ export interface ComprehensiveCredentialsProps {
 	showAdvancedConfig?: boolean;
 	defaultCollapsed?: boolean;
 
-	// Config Checker props
+	// Config Checker props (App lookup – discover apps from PingOne and apply credentials)
 	showConfigChecker?: boolean;
 	workerToken?: string;
 	region?: string;
+	/** Optional section title for App lookup (e.g. "App lookup – Worker Token") so user knows which flow this applies to. */
+	appLookupSectionTitle?: string;
+	/** Optional section subtitle for App lookup. */
+	appLookupSectionSubtitle?: string;
 
 	// Field visibility controls
 	showRedirectUri?: boolean;
@@ -508,6 +513,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	showConfigChecker = false,
 	workerToken = '',
 	region = 'NA',
+	appLookupSectionTitle,
+	appLookupSectionSubtitle,
 }) => {
 	// const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -568,7 +575,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			setRetrievedWorkerToken('');
 		}
 
-		// Load worker credentials
+		// Load worker credentials from localStorage (sync fallback; primary load is from IndexedDB in useEffect below)
 		const workerCreds = localStorage.getItem('worker_credentials');
 		if (workerCreds) {
 			try {
@@ -591,6 +598,23 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				);
 			}
 		}
+	}, []);
+
+	// Load worker credentials from IndexedDB/SQLite first (unified storage) so credentials saved in Worker Token modal appear
+	useEffect(() => {
+		unifiedWorkerTokenService.loadCredentials().then((result) => {
+			if (result.success && result.data && (result.data.environmentId || result.data.clientId)) {
+				setRetrievedWorkerCredentials({
+					environmentId: result.data.environmentId || '',
+					clientId: result.data.clientId || '',
+					clientSecret: result.data.clientSecret ?? '',
+				});
+				logger.debug(
+					'ComprehensiveCredentialsService',
+					'[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from IndexedDB/SQLite (unified storage)'
+				);
+			}
+		});
 	}, []);
 
 	// Check worker token on mount and when component becomes visible
@@ -1498,11 +1522,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			/>
 
 			<ServiceContainer>
-				{/* PingOne Application Picker - Top of service */}
+				{/* App lookup – discover apps from PingOne and apply credentials */}
 				{showConfigChecker && (
 					<CollapsibleHeader
-						title="PingOne Application Picker"
-						subtitle="Auto-fill configuration from your PingOne environment"
+						title={appLookupSectionTitle ?? 'App lookup'}
+						subtitle={appLookupSectionSubtitle ?? 'Discover apps from PingOne and apply credentials to this section'}
 						defaultCollapsed={true}
 						icon={<MDIIcon icon="FiSettings" />}
 						theme="orange"
@@ -2221,29 +2245,22 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									!normalizedFlowTypeForRedirects.includes('saml-bearer') &&
 									!normalizedFlowTypeForRedirects.includes('saml_bearer');
 
-								// Load worker credentials for Config Checker (needed for PingOne Management API)
-								let workerCredentials = null;
-								try {
-									const saved = localStorage.getItem('worker_credentials');
-									if (saved) {
-										workerCredentials = JSON.parse(saved);
-										logger.debug(
-											'ComprehensiveCredentialsService',
-											'[CONFIG-CHECKER] Loaded worker credentials:',
-											{
-												clientId: workerCredentials.clientId,
-												clientSecret: workerCredentials.clientSecret
-													? `${workerCredentials.clientSecret.substring(0, 10)}...`
-													: 'undefined',
-												environmentId: workerCredentials.environmentId,
-											}
-										);
-									}
-								} catch (error) {
-									logger.warn(
+								// Use worker credentials from state (already loaded from IndexedDB/SQLite or localStorage)
+								const workerCredentials =
+									retrievedWorkerCredentials.environmentId || retrievedWorkerCredentials.clientId
+										? retrievedWorkerCredentials
+										: null;
+								if (workerCredentials) {
+									logger.debug(
 										'ComprehensiveCredentialsService',
-										'[CONFIG-CHECKER] Failed to load worker credentials:',
-										error
+										'[CONFIG-CHECKER] Using worker credentials (from unified storage or localStorage):',
+										{
+											clientId: workerCredentials.clientId,
+											clientSecret: workerCredentials.clientSecret
+												? `${workerCredentials.clientSecret.substring(0, 10)}...`
+												: 'undefined',
+											environmentId: workerCredentials.environmentId,
+										}
 									);
 								}
 
